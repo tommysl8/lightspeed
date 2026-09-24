@@ -4,6 +4,7 @@
 uniform float uBeta;
 uniform float uGamma;
 uniform vec3 uVelDir;
+uniform float uExposure; // relativistic auto-exposure (1 in the classical view)
 
 // Rest-frame viewing direction (unit vector toward the source) -> ship-frame direction.
 // Also returns the Doppler factor D = gamma (1 + beta cos(theta_rest)).

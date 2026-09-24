@@ -4,7 +4,10 @@
  */
 import { PerspectiveCamera, Quaternion, Vector3, Vector4 } from 'three';
 import { AU_KM, BODIES, C_KM_S, SUN_VMAG_AT_1AU, type BodyId } from '../physics/constants';
-import { sim } from './sim';
+import { aberrateToShip, dopplerFromRestAngle } from '../physics/relativity';
+import { dot } from '../physics/vec';
+import { relView } from '../render/relativisticView';
+import { sim, type ScreenPoint } from './sim';
 
 /** Minimum on-screen radius (CSS px) of bodies in "visible" mode. */
 export const VISIBLE_MIN_RADIUS_PX = 4;
@@ -12,12 +15,27 @@ export const VISIBLE_MIN_RADIUS_PX = 4;
 const rel = new Vector3();
 const view = new Vector3();
 const clip = new Vector4();
-const invQ = new Quaternion();
 
 /** Pixels per radian at the centre of the screen (vertical FOV based). */
 export function pixelsPerRadian(): number {
   const fov = (sim.camera.fovDeg * Math.PI) / 180;
   return sim.viewport.height / 2 / Math.tan(fov / 2);
+}
+
+const ab = new Vector3();
+const inv = new Quaternion();
+
+/** Project a camera-relative world vector to CSS-pixel screen coordinates. */
+function project(v: Vector3, camera: PerspectiveCamera, out: ScreenPoint): void {
+  const { width, height } = sim.viewport;
+  inv.copy(sim.camera.quat).invert();
+  view.copy(v).applyQuaternion(inv);
+  out.inFront = view.z < 0;
+  clip.set(view.x, view.y, view.z, 1).applyMatrix4(camera.projectionMatrix);
+  const w = clip.w !== 0 ? clip.w : 1e-9;
+  out.x = ((clip.x / w + 1) / 2) * width;
+  out.y = ((1 - clip.y / w) / 2) * height;
+  out.onScreen = out.inFront && out.x > -80 && out.x < width + 80 && out.y > -80 && out.y < height + 80;
 }
 
 /** Lambert-sphere phase function Φ(α), normalised to 1 at full phase. */
@@ -29,8 +47,7 @@ export function updateDerived(camera: PerspectiveCamera): void {
   const pxPerRad = pixelsPerRadian();
   const minK = VISIBLE_MIN_RADIUS_PX / pxPerRad;
   const visible = sim.sizeMode === 'visible';
-  const { width, height } = sim.viewport;
-  invQ.copy(sim.camera.quat).invert();
+  const { width } = sim.viewport;
 
   for (const b of Object.values(sim.bodies)) {
     const data = BODIES[b.id];
@@ -42,15 +59,22 @@ export function updateDerived(camera: PerspectiveCamera): void {
     const rTrue = data.equatorialRadiusKm ?? data.radiusKm;
     b.displayRadius = visible ? Math.max(rTrue, minK * d) : rTrue;
 
-    // Screen position
-    view.copy(rel).applyQuaternion(invQ);
-    b.screen.inFront = view.z < 0;
-    clip.set(view.x, view.y, view.z, 1).applyMatrix4(camera.projectionMatrix);
-    const w = clip.w !== 0 ? clip.w : 1e-9;
-    b.screen.x = ((clip.x / w + 1) / 2) * width;
-    b.screen.y = ((1 - clip.y / w) / 2) * height;
-    b.screen.onScreen =
-      b.screen.inFront && b.screen.x > -80 && b.screen.x < width + 80 && b.screen.y > -80 && b.screen.y < height + 80;
+    // Screen position: where the body appears. In the relativistic view that is its aberrated
+    // direction (and in split view, whichever half it lands in).
+    project(rel, camera, b.screen);
+    b.dopplerFactor = 1;
+    if (relView.active) {
+      const splitPx = relView.split ? relView.splitX * width : -Infinity;
+      const naiveX = b.screen.x;
+      if (!(relView.split && naiveX < splitPx)) {
+        const dRest = { x: rel.x / d, y: rel.y / d, z: rel.z / d };
+        const dShip = aberrateToShip(dRest, relView.velDir, relView.beta);
+        ab.set(dShip.x * d, dShip.y * d, dShip.z * d);
+        project(ab, camera, b.screen);
+        b.dopplerFactor = dopplerFromRestAngle(dot(dRest, relView.velDir), relView.beta);
+        if (relView.split && b.screen.x < splitPx) b.screen.onScreen = false;
+      }
+    }
 
     b.magnitude = apparentMagnitude(b.id, d);
   }
@@ -67,6 +91,8 @@ export function updateDerived(camera: PerspectiveCamera): void {
 
   for (const b of Object.values(sim.bodies)) {
     b.radiusPx = b.distCamera > b.displayRadius ? Math.asin(b.displayRadius / b.distCamera) * pxPerRad : 1e4;
+    // Aberration shrinks apparent sizes ahead (and enlarges them behind) by 1/D.
+    if (b.dopplerFactor !== 1) b.radiusPx /= b.dopplerFactor;
   }
 
   sim.ship.beta = Math.min(sim.ship.vel.length() / C_KM_S, 0.999_999_999);

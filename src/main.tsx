@@ -10,12 +10,18 @@ if (import.meta.env.DEV) {
     import('./controls/cameraController'),
     import('./state/ui'),
     import('@react-three/fiber'),
-  ]).then(([s, c, u, fiber]) =>
+    import('./ui/tripActions'),
+    import('./render/relativisticView'),
+    import('./sim/travel'),
+  ]).then(([s, c, u, fiber, trip, rel, travel]) =>
     Object.assign(window, {
       __ls: {
         sim: s.sim,
         controller: c.controller,
         ui: u.useUI,
+        trip,
+        travel: travel.travel,
+        relView: rel.relView,
         /** Render n frames with a fixed timestep (works while the tab is hidden). */
         step(n = 60, dt = 1 / 60) {
           s.sim.debugDt = dt;

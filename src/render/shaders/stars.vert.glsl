@@ -19,7 +19,7 @@ void main() {
   float D;
   vec3 dShip = relAberrate(dir, D);
   vec3 color;
-  float mag = aMag + dopplerMagnitudeShift(aTemp, D, color);
+  float mag = aMag + dopplerMagnitudeShift(aTemp, D, color) - 2.5 * log2(uExposure) * 0.30103;
   float sigma, peak, size;
   psfFromMagnitude(mag, sigma, peak, size);
   vColor = color;

@@ -7,13 +7,13 @@ uniform vec3 uSunColor;   // 5772 K blackbody colour (luminance 1)
 uniform float uIntensity;
 
 varying vec2 vUv;
-varying vec3 vNormalV;
-varying vec3 vPosV;
+varying vec3 vNormalW;
+varying vec3 vPosW;
 
 void main() {
   #include <logdepthbuf_fragment>
-  vec3 N = normalize(vNormalV);
-  vec3 V = normalize(-vPosV);
+  vec3 N = normalize(vNormalW);
+  vec3 V = normalize(-vPosW);
   float mu = clamp(dot(N, V), 0.0, 1.0);
   // Limb darkening, I(mu)/I(1) = 1 - u (1 - mu), with u depending on wavelength: about 0.8 in
   // blue down to 0.5 in red (approximating Neckel & Labs 1994). That is also why the limb looks

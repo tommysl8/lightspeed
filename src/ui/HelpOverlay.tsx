@@ -33,6 +33,8 @@ const GROUPS: { title: string; keys: [string, string][] }[] = [
       ['[  ]', 'Slower / faster time warp'],
       ['N', 'Back to now, real time'],
       ['G', 'Plan a trip'],
+      ['Z', 'Relativistic ↔ classical view'],
+      ['X', 'Split-screen comparison'],
     ],
   },
   {

@@ -17,6 +17,7 @@ import { WarpBadge } from './ui/TimeControls';
 import { LightDelayPanel } from './ui/LightDelayPanel';
 import { TravelPlanner } from './ui/TravelPlanner';
 import { TripHud } from './ui/TripHud';
+import { RelativityOverlay } from './ui/RelativityControls';
 
 export default function App() {
   useShortcuts();
@@ -25,7 +26,13 @@ export default function App() {
       <Canvas
         flat
         dpr={[1, 2]}
-        gl={{ logarithmicDepthBuffer: true, antialias: false, powerPreference: 'high-performance', stencil: false }}
+        gl={{
+          logarithmicDepthBuffer: true,
+          antialias: false,
+          alpha: false,
+          powerPreference: 'high-performance',
+          stencil: false,
+        }}
         camera={{ fov: 50, near: 0.001, far: 1e13, position: [0, 0, 0] }}
         className="!absolute inset-0"
       >
@@ -39,6 +46,7 @@ export default function App() {
         <RenderPipeline />
       </Canvas>
       <LabelsLayer />
+      <RelativityOverlay />
       <WarpBadge />
       <TopBar />
       <LightDelayPanel />

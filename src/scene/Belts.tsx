@@ -6,6 +6,7 @@ import { createBeltMaterial } from '../render/materials';
 import { assetUrl } from '../render/textures';
 import { sim } from '../sim/sim';
 import { useUI } from '../state/ui';
+import { POINTS_LAYER } from '../render/LightspeedScenePass';
 
 /**
  * Real minor bodies from JPL's Small-Body Database: ~20,000 main-belt asteroids (H < 14),
@@ -66,5 +67,14 @@ export function Belts() {
   });
 
   if (!data) return null;
-  return <points geometry={data.geometry} material={material} frustumCulled={false} visible={show} renderOrder={2} />;
+  return (
+    <points
+      geometry={data.geometry}
+      material={material}
+      frustumCulled={false}
+      visible={show}
+      renderOrder={2}
+      ref={(o) => o?.layers.set(POINTS_LAYER)}
+    />
+  );
 }

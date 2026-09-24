@@ -9,7 +9,7 @@ uniform sampler2D uClouds;
 uniform float uHasClouds;
 uniform vec3 uBaseColor;
 uniform float uBanded;       // procedural fallback: gas-giant bands
-uniform vec3 uSunView;       // Sun position in view space, km
+uniform vec3 uSunRel;        // Sun position relative to the camera (world axes), km
 uniform float uSunIntensity;
 uniform vec3 uSunColor;
 uniform vec3 uAtmoColor;
@@ -22,14 +22,14 @@ uniform float uFlat;         // plain colour, no procedural noise (spacecraft pa
 // Saturn's rings casting a shadow on the planet
 uniform float uRingShadow;
 uniform sampler2D uRingMap;
-uniform vec3 uRingNormalV;   // ring-plane normal in view space
-uniform vec3 uCenterV;       // planet centre in view space
+uniform vec3 uRingNormalW;   // ring-plane normal (world axes)
+uniform vec3 uCenterW;       // planet centre relative to the camera
 uniform float uRingInner;    // km (displayed scale)
 uniform float uRingOuter;
 
 varying vec2 vUv;
-varying vec3 vNormalV;
-varying vec3 vPosV;
+varying vec3 vNormalW;
+varying vec3 vPosW;
 
 float hash(vec2 p) {
   return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
@@ -52,9 +52,9 @@ vec3 proceduralSurface(vec2 uv) {
 
 void main() {
   #include <logdepthbuf_fragment>
-  vec3 N = normalize(vNormalV);
-  vec3 V = normalize(-vPosV);
-  vec3 L = normalize(uSunView - vPosV);
+  vec3 N = normalize(vNormalW);
+  vec3 V = normalize(-vPosW);
+  vec3 L = normalize(uSunRel - vPosW);
   float NdL = dot(N, L);
 
   vec2 uv = vec2(fract(vUv.x + uLonOffset), vUv.y);
@@ -75,12 +75,12 @@ void main() {
   // Ring shadow: does the ray toward the Sun cross the ring plane within the rings?
   float shadow = 1.0;
   if (uRingShadow > 0.5) {
-    float denom = dot(L, uRingNormalV);
+    float denom = dot(L, uRingNormalW);
     if (abs(denom) > 1e-4) {
-      float t = dot(uCenterV - vPosV, uRingNormalV) / denom;
+      float t = dot(uCenterW - vPosW, uRingNormalW) / denom;
       if (t > 0.0) {
-        vec3 hit = vPosV + L * t;
-        float r = length(hit - uCenterV);
+        vec3 hit = vPosW + L * t;
+        float r = length(hit - uCenterW);
         float u = (r - uRingInner) / (uRingOuter - uRingInner);
         if (u > 0.0 && u < 1.0) shadow = 1.0 - 0.92 * texture2D(uRingMap, vec2(u, 0.5)).a;
       }

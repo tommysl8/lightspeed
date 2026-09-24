@@ -37,6 +37,14 @@ export function useShortcuts() {
       if (k === '[' || k === ',') return stepWarp(-1);
       if (k === ']' || k === '.') return stepWarp(1);
       if (k === 'n') return resetToNow();
+      if (k === 'z') {
+        useUI.setState({ relMode: ui.relMode === 'off' ? 'on' : 'off' });
+        return;
+      }
+      if (k === 'x') {
+        useUI.setState({ relMode: ui.relMode === 'split' ? 'on' : 'split' });
+        return;
+      }
 
       if (k === 'f') {
         if (flying) controller.exitFreeFlight();

@@ -45,6 +45,8 @@ export interface BodyState {
   displayRadius: number;
   /** Displayed radius on screen, CSS px. */
   radiusPx: number;
+  /** Doppler factor of its light in the relativistic view (1 otherwise). */
+  dopplerFactor: number;
   /** Apparent visual magnitude from the camera (for the point-sprite glint). */
   magnitude: number;
   screen: ScreenPoint;
@@ -66,6 +68,7 @@ function makeBody(id: BodyId): BodyState {
     distSun: 0,
     displayRadius: 0,
     radiusPx: 0,
+    dopplerFactor: 1,
     magnitude: 99,
     screen: { x: 0, y: 0, onScreen: false, inFront: false },
   };

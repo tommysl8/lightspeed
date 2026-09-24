@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { BufferAttribute, BufferGeometry } from 'three';
 import { createStarMaterial } from '../render/materials';
 import { loadStarCatalog } from './starCatalog';
+import { POINTS_LAYER } from '../render/LightspeedScenePass';
 
 /**
  * ~8,900 naked-eye stars from the HYG catalogue, one draw call. Directions only: across the
@@ -39,5 +40,13 @@ export function Starfield() {
   }, []);
 
   if (!geometry) return null;
-  return <points geometry={geometry} material={material} frustumCulled={false} renderOrder={-100} />;
+  return (
+    <points
+      geometry={geometry}
+      material={material}
+      frustumCulled={false}
+      renderOrder={-100}
+      ref={(o) => o?.layers.set(POINTS_LAYER)}
+    />
+  );
 }

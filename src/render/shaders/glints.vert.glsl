@@ -21,7 +21,7 @@ void main() {
   float D;
   vec3 dShip = relAberrate(position / dist, D);
   vec3 shifted;
-  float mag = aMag + dopplerMagnitudeShift(aTemp, D, shifted);
+  float mag = aMag + dopplerMagnitudeShift(aTemp, D, shifted) - 2.5 * log2(uExposure) * 0.30103;
   vec4 rest = blackbodyLookup(aTemp);
   float sigma, peak, size;
   psfFromMagnitude(mag, sigma, peak, size);

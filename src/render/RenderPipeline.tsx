@@ -1,26 +1,20 @@
 import { useEffect, useMemo } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
-import { HalfFloatType } from 'three';
-import {
-  BloomEffect,
-  EffectComposer,
-  EffectPass,
-  RenderPass,
-  ToneMappingEffect,
-  ToneMappingMode,
-} from 'postprocessing';
+import { HalfFloatType, type PerspectiveCamera } from 'three';
+import { BloomEffect, EffectComposer, EffectPass, ToneMappingEffect, ToneMappingMode } from 'postprocessing';
+import { LightspeedScenePass } from './LightspeedScenePass';
 
 /**
- * HDR render pipeline: scene → bloom → AgX tone mapping. It uses the `postprocessing` library
- * directly (what @react-three/postprocessing wraps), because the relativistic stage has to
- * replace the scene render ahead of bloom.
+ * HDR render pipeline: scene (classical or relativistic) → bloom → AgX tone mapping. It uses
+ * the `postprocessing` library directly (what @react-three/postprocessing wraps), because the
+ * relativistic stage replaces the scene render and has to run before bloom.
  */
 export function RenderPipeline() {
   const { gl, scene, camera, size } = useThree();
 
-  const { composer } = useMemo(() => {
+  const composer = useMemo(() => {
     const composer = new EffectComposer(gl, { frameBufferType: HalfFloatType, multisampling: 4 });
-    composer.addPass(new RenderPass(scene, camera));
+    composer.addPass(new LightspeedScenePass(scene, camera as PerspectiveCamera, 1024));
     const bloom = new BloomEffect({
       mipmapBlur: true,
       levels: 6,
@@ -31,7 +25,7 @@ export function RenderPipeline() {
     });
     const tone = new ToneMappingEffect({ mode: ToneMappingMode.AGX });
     composer.addPass(new EffectPass(camera, bloom, tone));
-    return { composer };
+    return composer;
   }, [gl, scene, camera]);
 
   useEffect(() => {

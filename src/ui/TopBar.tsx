@@ -3,6 +3,7 @@ import { useUI } from '../state/ui';
 import { useTicker } from './useTicker';
 import { formatUtc } from '../lib/format';
 import { TimeControls } from './TimeControls';
+import { RelativityToggle } from './RelativityControls';
 
 function Toggle({ on, onClick, children, title }: { on: boolean; onClick: () => void; children: React.ReactNode; title: string }) {
   return (
@@ -39,6 +40,8 @@ export function TopBar() {
       </div>
 
       <div className="glass pointer-events-auto flex items-center gap-1.5 p-1.5">
+        <RelativityToggle />
+        <div className="mx-1 h-5 w-px bg-white/10" />
         <div className="flex rounded-full bg-white/[0.04] p-0.5" role="radiogroup" aria-label="Size mode">
           {(['true', 'visible'] as const).map((m) => (
             <button

@@ -96,6 +96,17 @@ describe('aberration', () => {
     }
   });
 
+  it('matches the half-angle form used by the GPU remap: tan(θ/2) = k·tan(θ′/2), k = √((1+β)/(1−β))', () => {
+    for (const b of [...BETAS, 0.99999]) {
+      const k = Math.sqrt((1 + b) / (1 - b));
+      for (let deg = 1; deg < 180; deg += 7) {
+        const thShip = (deg * Math.PI) / 180;
+        const thRest = 2 * Math.atan(k * Math.tan(thShip / 2));
+        expect(Math.cos(thRest)).toBeCloseTo(cosRestFromShip(Math.cos(thShip), b), 9);
+      }
+    }
+  });
+
   it('vector form keeps the azimuth and matches the scalar formula', () => {
     const v = normalize({ x: 1, y: 2, z: -0.5 });
     const d = normalize({ x: -0.2, y: 0.4, z: 0.9 });

@@ -2,7 +2,6 @@ import { useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import {
   BufferGeometry,
-  type Camera,
   Color,
   CylinderGeometry,
   DoubleSide,
@@ -26,9 +25,12 @@ const SPHERE = new SphereGeometry(1, 128, 64);
 const tmp = new Vector3();
 const tmp2 = new Vector3();
 
-/** Sun position relative to the camera, rotated into view space. */
-function sunInView(camera: Camera, out: Vector3): Vector3 {
-  return out.copy(sim.bodies.sun.pos).sub(sim.camera.pos).applyMatrix4(camera.matrixWorldInverse);
+/**
+ * Sun position relative to the camera, in world axes. Lighting uses camera-relative world space,
+ * so it is the same for the main camera and for the relativistic cube-map faces.
+ */
+function sunRelative(out: Vector3): Vector3 {
+  return out.copy(sim.bodies.sun.apparentPos).sub(sim.camera.pos);
 }
 
 /** Should this body's textures load yet? (Lazy: only once it is more than a few pixels wide.) */
@@ -57,7 +59,7 @@ export function Planet({ id }: { id: BodyId }) {
   );
   const requested = useRef(false);
 
-  useFrame(({ camera }) => {
+  useFrame(() => {
     const b = sim.bodies[id];
     // Floating origin: float64 world position minus float64 camera position.
     group.current.position.copy(b.apparentPos).sub(sim.camera.pos);
@@ -67,7 +69,7 @@ export function Planet({ id }: { id: BodyId }) {
     const k = b.displayRadius / eq;
     mesh.current.scale.set(eq * k, po * k, eq * k);
     mesh.current.visible = b.radiusPx > 0.35;
-    sunInView(camera, material.uniforms.uSunView.value);
+    sunRelative(material.uniforms.uSunRel.value);
 
     if (!requested.current && wantsTextures(id)) {
       requested.current = true;
@@ -120,7 +122,7 @@ function SaturnRings({ planetMaterial }: { planetMaterial: ShaderMaterial }) {
   const geometry = useMemo(() => ringGeometry(SATURN_RING_INNER_KM, SATURN_RING_OUTER_KM, 256), []);
   const requested = useRef(false);
 
-  useFrame(({ camera }) => {
+  useFrame(() => {
     const b = sim.bodies.saturn;
     const eq = BODIES.saturn.equatorialRadiusKm!;
     const k = b.displayRadius / eq;
@@ -128,19 +130,19 @@ function SaturnRings({ planetMaterial }: { planetMaterial: ShaderMaterial }) {
     mesh.current.visible = b.radiusPx > 0.3;
 
     const u = material.uniforms;
-    sunInView(camera, u.uSunView.value);
-    const center = tmp.copy(b.apparentPos).sub(sim.camera.pos).applyMatrix4(camera.matrixWorldInverse);
-    const normal = tmp2.set(0, 1, 0).applyQuaternion(b.apparentQuat).transformDirection(camera.matrixWorldInverse);
-    u.uCenterV.value.copy(center);
-    u.uNormalV.value.copy(normal);
+    sunRelative(u.uSunRel.value);
+    const center = tmp.copy(b.apparentPos).sub(sim.camera.pos);
+    const normal = tmp2.set(0, 1, 0).applyQuaternion(b.apparentQuat);
+    u.uCenterW.value.copy(center);
+    u.uNormalW.value.copy(normal);
     u.uPlanetRadius.value = b.displayRadius;
     u.uInner.value = SATURN_RING_INNER_KM;
     u.uOuter.value = SATURN_RING_OUTER_KM;
 
     // Ring shadow on the planet (radii in displayed units).
     const p = planetMaterial.uniforms;
-    p.uCenterV.value.copy(center);
-    p.uRingNormalV.value.copy(normal);
+    p.uCenterW.value.copy(center);
+    p.uRingNormalW.value.copy(normal);
     p.uRingInner.value = SATURN_RING_INNER_KM * k;
     p.uRingOuter.value = SATURN_RING_OUTER_KM * k;
 
@@ -216,7 +218,7 @@ export function Voyager() {
     };
   }, []);
 
-  useFrame(({ camera }) => {
+  useFrame(() => {
     const b = sim.bodies.voyager1;
     const g = group.current;
     g.position.copy(b.apparentPos).sub(sim.camera.pos);
@@ -226,7 +228,7 @@ export function Voyager() {
     const k = b.displayRadius / BODIES.voyager1.radiusKm;
     g.scale.setScalar(k);
     g.visible = b.radiusPx > 0.3;
-    for (const mat of [parts.dishMat, parts.busMat, parts.boomMat, parts.rtgMat]) sunInView(camera, mat.uniforms.uSunView.value);
+    for (const mat of [parts.dishMat, parts.busMat, parts.boomMat, parts.rtgMat]) sunRelative(mat.uniforms.uSunRel.value);
   });
 
   return (

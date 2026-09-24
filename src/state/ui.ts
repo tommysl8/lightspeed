@@ -25,6 +25,13 @@ export interface UIState {
   /** Draw bodies where they were when the light now reaching you left them. */
   retarded: boolean;
 
+  /** Relativistic optics: off, on (default), or split screen naive vs. relativistic. */
+  relMode: 'off' | 'on' | 'split';
+  /** Split-screen divider position (fraction of width). */
+  splitX: number;
+  /** Include Doppler shift and beaming (off: aberration only). */
+  relDoppler: boolean;
+
   /** Trip planner. */
   plannerOpen: boolean;
   plannerDest: BodyId;
@@ -49,6 +56,9 @@ export const useUI = create<UIState>()((set) => ({
   warp: 1,
   paused: false,
   retarded: false,
+  relMode: 'on',
+  splitX: 0.5,
+  relDoppler: true,
   plannerOpen: false,
   plannerDest: 'mars',
   plannerBeta: 0.5,

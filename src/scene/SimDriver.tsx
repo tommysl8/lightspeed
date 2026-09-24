@@ -10,6 +10,7 @@ import { sim } from '../sim/sim';
 import { travel, updateTrip } from '../sim/travel';
 import { useUI } from '../state/ui';
 import { psfUniforms } from '../render/materials';
+import { updateRelativisticView } from '../render/relativisticView';
 import { onArrival } from '../ui/tripActions';
 import { pickBody } from './picking';
 
@@ -66,6 +67,7 @@ export function SimDriver() {
 
     // What the camera sees
     updateApparentPositions(ui.retarded);
+    updateRelativisticView(ui.relMode, ui.splitX, ui.relDoppler, false);
     updateDerived(cam);
     if (sim.frame - earthLight.frame >= 12) updateEarthLight();
     psfUniforms.uPixelRatio.value = gl.getPixelRatio();

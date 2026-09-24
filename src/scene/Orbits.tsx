@@ -7,6 +7,8 @@ import {
   Float32BufferAttribute,
   type PerspectiveCamera,
   type ShaderMaterial,
+  WebGLCubeRenderTarget,
+  type WebGLRenderer,
 } from 'three';
 import {
   BODIES,
@@ -17,6 +19,7 @@ import {
 } from '../physics/constants';
 import { solveKepler, solveKeplerHyperbolic, stateToOrbit, type Orbit } from '../physics/kepler';
 import { createOrbitMaterial } from '../render/materials';
+import { GUIDES_LAYER } from '../render/LightspeedScenePass';
 import { pixelsPerRadian } from '../sim/derived';
 import { sim } from '../sim/sim';
 import { useUI } from '../state/ui';
@@ -118,7 +121,30 @@ function OrbitLine({ id }: { id: BodyId }) {
     u.uOpacity.value = smoothstep(4, 40, sizePx) * selected * (1 - 0.85 * closeUp);
   });
 
-  return <mesh geometry={geometry} material={material} frustumCulled={false} renderOrder={10} />;
+  // Line width is in pixels of whatever is being rendered: the screen, or a relativistic
+  // cube-map face.
+  const onBeforeRender = useMemo(
+    () => (renderer: WebGLRenderer) => {
+      const rt = renderer.getRenderTarget();
+      const u = material.uniforms;
+      if (rt) {
+        u.uResolution.value.set(rt.width, rt.height);
+        u.uPixelRatio.value = rt instanceof WebGLCubeRenderTarget ? 1.1 : renderer.getPixelRatio();
+      }
+    },
+    [material],
+  );
+
+  return (
+    <mesh
+      geometry={geometry}
+      material={material}
+      frustumCulled={false}
+      renderOrder={10}
+      onBeforeRender={onBeforeRender}
+      ref={(o) => o?.layers.set(GUIDES_LAYER)}
+    />
+  );
 }
 
 export function Orbits() {

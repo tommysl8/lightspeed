@@ -5,6 +5,7 @@ import { blackbodyRgb } from '../physics/blackbody';
 import { BODIES, BODY_ORDER, SUN_TEFF_K } from '../physics/constants';
 import { createGlintMaterial } from '../render/materials';
 import { sim } from '../sim/sim';
+import { POINTS_LAYER } from '../render/LightspeedScenePass';
 
 /**
  * Every body is also drawn as a point source with its real apparent magnitude. At true scale
@@ -54,5 +55,13 @@ export function Glints() {
     material.uniforms.uPixelRatio.value = gl.getPixelRatio();
   });
 
-  return <points geometry={geometry} material={material} frustumCulled={false} renderOrder={20} />;
+  return (
+    <points
+      geometry={geometry}
+      material={material}
+      frustumCulled={false}
+      renderOrder={20}
+      ref={(o) => o?.layers.set(POINTS_LAYER)}
+    />
+  );
 }

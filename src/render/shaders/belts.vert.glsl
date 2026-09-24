@@ -83,7 +83,7 @@ void main() {
   float distAU = dist / AU_KM;
   float falloff = min(uNearCap, 0.5 * (uRefDistAU * uRefDistAU) / (distAU * distAU));
   vColor = base * shifted / max(rest.rgb, vec3(1e-3));
-  vAlpha = uOpacity * falloff * sizeWeight * show * clamp(exp2(-1.3287712 * dm), 0.0, 8.0);
+  vAlpha = uOpacity * falloff * sizeWeight * show * clamp(exp2(-1.3287712 * dm), 0.0, 8.0) * uExposure;
 
   vec4 mv = viewMatrix * vec4(dShip * dist, 1.0);
   gl_Position = projectionMatrix * mv;
