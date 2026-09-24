@@ -39,4 +39,5 @@ export const VISUALS: Record<BodyId, BodyVisual> = {
   neptune: { map: '2k_neptune.jpg', banded: true, atmo: '#8fa8ff', atmoStrength: 0.3 },
   pluto: { map: 'pluto_nh_color.jpg', lonOffset: 0.5, fillBlack: true },
   voyager1: {},
+  proxima: {},
 };

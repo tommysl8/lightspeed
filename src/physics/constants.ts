@@ -57,6 +57,12 @@ export const PROXIMA_DISTANCE_KM = PARSEC_KM / (PROXIMA_PARALLAX_MAS / 1000);
 /** Proxima Centauri equatorial J2000 position, degrees. [HYG v4.4: RA 14.495985 h, Dec −62.679485°] */
 export const PROXIMA_RA_DEG = 14.495_985 * 15;
 export const PROXIMA_DEC_DEG = -62.679_485;
+/** Proxima Centauri radius: 0.1542 R☉. [Boyajian et al. 2012, ApJ 757, 112] */
+export const PROXIMA_RADIUS_KM = 0.1542 * 695_700;
+/** Proxima Centauri effective temperature, K. [Ségransan et al. 2003, A&A 397, L5: 3042 ± 117 K] */
+export const PROXIMA_TEFF_K = 3042;
+/** Proxima Centauri apparent V magnitude from the Solar System. [HYG v4.4] */
+export const PROXIMA_VMAG = 11.01;
 
 // ─── Spacecraft reference speeds ─────────────────────────────────────────────────────────
 
@@ -116,7 +122,8 @@ export type BodyId =
   | 'uranus'
   | 'neptune'
   | 'pluto'
-  | 'voyager1';
+  | 'voyager1'
+  | 'proxima';
 
 export type BodyKind = 'star' | 'planet' | 'dwarf-planet' | 'moon' | 'spacecraft';
 
@@ -407,6 +414,21 @@ export const BODIES: Record<BodyId, BodyData> = {
       'Around 18 November 2026 it reaches one light-day from Earth. A command then takes a full day to arrive, and the reply another day to come back. (JPL Horizons)',
     ],
   },
+  // Nearest star. Distance [Gaia DR3], radius [Boyajian et al. 2012], temperature [Ségransan et al. 2003],
+  // rotation ~83 d [Benedict et al. 1998].
+  proxima: {
+    id: 'proxima',
+    name: 'Proxima Centauri',
+    kind: 'star',
+    radiusKm: PROXIMA_RADIUS_KM,
+    siderealRotationH: 83 * 24,
+    color: '#ff9a6a',
+    facts: [
+      'The nearest star to the Sun, about 4.25 light-years away. Its light left it more than four years ago.',
+      'A red dwarf about 1.5 times Jupiter’s radius, with about 12% of the Sun’s mass. It is too faint to see without a telescope.',
+      'At a constant 1 g, flipping halfway to slow down, the trip takes about 3.5 years aboard and 5.9 years on Earth.',
+    ],
+  },
 };
 
 /**
@@ -429,6 +451,7 @@ export const BODY_ORDER: BodyId[] = [
   'neptune',
   'pluto',
   'voyager1',
+  'proxima',
 ];
 
 // ─── Saturn's rings ──────────────────────────────────────────────────────────────────────

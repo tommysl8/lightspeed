@@ -73,6 +73,11 @@ body {
     color: #fff;
   }
 
+  .seg-fiction {
+    background: rgba(232, 121, 249, 0.22);
+    color: #f5d0fe;
+  }
+
   .seg-warp {
     background: rgba(251, 191, 36, 0.22);
     color: #fde68a;
@@ -184,6 +189,9 @@ body {
     border-radius: 9999px;
     background: #fff;
     box-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
+  }
+  input[type='range'].slider-warp::-webkit-slider-runnable-track {
+    background: linear-gradient(90deg, rgba(232, 121, 249, 0.8) var(--fill, 50%), rgba(255, 255, 255, 0.12) var(--fill, 50%));
   }
   input[type='range'].slider::-moz-range-track {
     height: 4px;
@@ -314,6 +322,13 @@ body {
 
   .fade-in {
     animation: fade-in 0.22s ease-out;
+  }
+
+  .tex-block .katex-display {
+    margin: 0.55em 0;
+  }
+  .tex-block .katex {
+    font-size: 1.12em;
   }
 }
 

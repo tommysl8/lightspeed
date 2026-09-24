@@ -14,7 +14,8 @@ import {
   Vector2,
   Vector3,
 } from 'three';
-import { BODIES, SATURN_RING_INNER_KM, SATURN_RING_OUTER_KM, type BodyId } from '../physics/constants';
+import { BODIES, PROXIMA_TEFF_K, SATURN_RING_INNER_KM, SATURN_RING_OUTER_KM, type BodyId } from '../physics/constants';
+import { blackbodyRgb } from '../physics/blackbody';
 import { sim } from '../sim/sim';
 import { useUI } from '../state/ui';
 import { createPlanetMaterial, createRingMaterial, createSunMaterial } from '../render/materials';
@@ -249,10 +250,29 @@ export function Voyager() {
   );
 }
 
+/**
+ * Proxima Centauri, a red dwarf drawn as a limb-darkened blackbody disc at 3042 K. The Sun's
+ * granulation map is reused only as fine texture.
+ */
+export function Proxima() {
+  const mesh = useRef<Mesh>(null!);
+  const material = useMemo(() => createSunMaterial(new Color(...blackbodyRgb(PROXIMA_TEFF_K))), []);
+  useFrame(() => {
+    const b = sim.bodies.proxima;
+    mesh.current.position.copy(b.apparentPos).sub(sim.camera.pos);
+    mesh.current.scale.setScalar(b.displayRadius);
+    mesh.current.visible = b.radiusPx > 0.35;
+    const t = Math.min(1, Math.max(0, (b.radiusPx - 30) / 170));
+    material.uniforms.uIntensity.value = 6 - 3.6 * t * t * (3 - 2 * t);
+  });
+  return <mesh ref={mesh} geometry={SPHERE} material={material} />;
+}
+
 export function Bodies() {
   return (
     <>
       <Sun />
+      <Proxima />
       {(['mercury', 'venus', 'earth', 'moon', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune', 'pluto'] as BodyId[]).map((id) => (
         <Planet key={id} id={id} />
       ))}

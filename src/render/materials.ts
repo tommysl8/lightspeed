@@ -206,12 +206,12 @@ export function createPlanetMaterial(o: PlanetMaterialOptions): ShaderMaterial {
   });
 }
 
-export function createSunMaterial(): ShaderMaterial {
+export function createSunMaterial(color: Color = SUN_COLOR): ShaderMaterial {
   return new ShaderMaterial({
     uniforms: {
       uMap: { value: null },
       uHasMap: { value: 0 },
-      uSunColor: { value: SUN_COLOR },
+      uSunColor: { value: color },
       uIntensity: { value: 8 },
     },
     vertexShader: planetVert,

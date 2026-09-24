@@ -16,11 +16,14 @@ import { useShortcuts } from './ui/useShortcuts';
 import { WarpBadge } from './ui/TimeControls';
 import { LightDelayPanel } from './ui/LightDelayPanel';
 import { TravelPlanner } from './ui/TravelPlanner';
-import { TripHud } from './ui/TripHud';
+import { TripHud, WarpDriveBanner } from './ui/TripHud';
+import { ExplainerPanel } from './ui/ExplainerPanel';
+import { useExplainerTriggers } from './ui/useExplainerTriggers';
 import { RelativityOverlay } from './ui/RelativityControls';
 
 export default function App() {
   useShortcuts();
+  useExplainerTriggers();
   return (
     <div className="fixed inset-0 select-none overflow-hidden bg-black text-white">
       <Canvas
@@ -33,7 +36,7 @@ export default function App() {
           powerPreference: 'high-performance',
           stencil: false,
         }}
-        camera={{ fov: 50, near: 0.001, far: 1e13, position: [0, 0, 0] }}
+        camera={{ fov: 50, near: 0.001, far: 1e15, position: [0, 0, 0] }}
         className="!absolute inset-0"
       >
         <SimDriver />
@@ -55,6 +58,8 @@ export default function App() {
       <BodyBar />
       <TravelPlanner />
       <TripHud />
+      <WarpDriveBanner />
+      <ExplainerPanel />
       <HelpOverlay />
     </div>
   );

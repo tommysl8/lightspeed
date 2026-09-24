@@ -63,7 +63,7 @@ function makeBody(id: BodyId): BodyState {
     apparentPos: new Vector3(),
     apparentQuat: new Quaternion(),
     lightDelay: 0,
-    distTrue: Infinity,
+    distTrue: 0,
     distCamera: Infinity,
     distSun: 0,
     displayRadius: 0,

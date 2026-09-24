@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { BufferAttribute, BufferGeometry, Color, DynamicDrawUsage } from 'three';
 import { blackbodyRgb } from '../physics/blackbody';
-import { BODIES, BODY_ORDER, SUN_TEFF_K } from '../physics/constants';
+import { BODIES, BODY_ORDER, PROXIMA_TEFF_K, SUN_TEFF_K } from '../physics/constants';
 import { createGlintMaterial } from '../render/materials';
 import { sim } from '../sim/sim';
 import { POINTS_LAYER } from '../render/LightspeedScenePass';
@@ -26,6 +26,12 @@ export function Glints() {
     const temp = new Float32Array(n).fill(SUN_TEFF_K); // reflected sunlight has the Sun's spectrum
     const sun = blackbodyRgb(SUN_TEFF_K);
     BODY_ORDER.forEach((id, i) => {
+      if (id === 'proxima') {
+        // A star: its own blackbody spectrum.
+        temp[i] = PROXIMA_TEFF_K;
+        color.set(blackbodyRgb(PROXIMA_TEFF_K), i * 3);
+        return;
+      }
       const c = new Color(BODIES[id].color);
       const lum = 0.2126 * c.r + 0.7152 * c.g + 0.0722 * c.b || 1;
       const tint = id === 'sun' ? [1, 1, 1] : [c.r / lum, c.g / lum, c.b / lum];

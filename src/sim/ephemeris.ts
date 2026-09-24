@@ -12,8 +12,8 @@ import {
   type AstroTime,
 } from 'astronomy-engine';
 import { Matrix4, Quaternion, Vector3 } from 'three';
-import { AU_KM, DAY_S, type BodyId } from '../physics/constants';
-import { eqjToWorld } from './frames';
+import { AU_KM, DAY_S, PROXIMA_DEC_DEG, PROXIMA_DISTANCE_KM, PROXIMA_RA_DEG, type BodyId } from '../physics/constants';
+import { eqjToWorld, raDecToWorld } from './frames';
 import { sim } from './sim';
 import { voyagerHelioState } from './voyager';
 
@@ -44,9 +44,13 @@ const zb = new Vector3();
 const q = new Vector3();
 const basis = new Matrix4();
 
+/** Proxima Centauri: fixed at its catalogue position (its 3.9″/yr proper motion is negligible here). */
+const PROXIMA_POS = raDecToWorld(PROXIMA_RA_DEG, PROXIMA_DEC_DEG).multiplyScalar(PROXIMA_DISTANCE_KM);
+
 /** Heliocentric world position of a body (km). Voyager and the Sun are handled too. */
 export function bodyPositionAt(id: BodyId, time: AstroTime, out = new Vector3()): Vector3 {
   if (id === 'sun') return out.set(0, 0, 0);
+  if (id === 'proxima') return out.copy(PROXIMA_POS);
   if (id === 'voyager1') return out.copy(voyagerHelioState(time).pos);
   if (id === 'moon') {
     const e = HelioVector(Body.Earth, time);
@@ -117,6 +121,9 @@ export function updateEphemeris(): void {
   const v = voyagerHelioState(time);
   B.voyager1.pos.copy(v.pos);
   B.voyager1.vel.copy(v.vel);
+
+  B.proxima.pos.copy(PROXIMA_POS);
+  B.proxima.vel.set(0, 0, 0);
 
   for (const id of Object.keys(AXIS_BODY) as BodyId[]) bodyOrientation(id, time, B[id].quat);
 }

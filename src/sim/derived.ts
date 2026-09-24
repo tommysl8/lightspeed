@@ -3,7 +3,15 @@
  * magnitudes. Runs after the ephemeris and the camera update, and before rendering.
  */
 import { PerspectiveCamera, Quaternion, Vector3, Vector4 } from 'three';
-import { AU_KM, BODIES, C_KM_S, SUN_VMAG_AT_1AU, type BodyId } from '../physics/constants';
+import {
+  AU_KM,
+  BODIES,
+  C_KM_S,
+  PROXIMA_DISTANCE_KM,
+  PROXIMA_VMAG,
+  SUN_VMAG_AT_1AU,
+  type BodyId,
+} from '../physics/constants';
 import { aberrateToShip, dopplerFromRestAngle } from '../physics/relativity';
 import { dot } from '../physics/vec';
 import { relView } from '../render/relativisticView';
@@ -106,6 +114,7 @@ export function updateDerived(camera: PerspectiveCamera): void {
 export function apparentMagnitude(id: BodyId, distCameraKm: number): number {
   const b = sim.bodies[id];
   if (id === 'sun') return SUN_VMAG_AT_1AU + 5 * Math.log10(Math.max(distCameraKm, 1) / AU_KM);
+  if (id === 'proxima') return PROXIMA_VMAG + 5 * Math.log10(Math.max(distCameraKm, 1) / PROXIMA_DISTANCE_KM);
   const data = BODIES[id];
   const p = data.geometricAlbedo ?? 0.3;
   const R = data.radiusKm;

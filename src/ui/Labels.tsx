@@ -21,6 +21,7 @@ const PRIORITY: Record<BodyId, number> = {
   pluto: 9,
   moon: 10,
   voyager1: 11,
+  proxima: 12,
 };
 const ORDER = [...BODY_ORDER].sort((a, b) => PRIORITY[a] - PRIORITY[b]);
 

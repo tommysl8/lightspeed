@@ -44,6 +44,7 @@ const GROUPS: { title: string; keys: [string, string][] }[] = [
       ['O', 'Orbits'],
       ['L', 'Labels'],
       ['B', 'Belts'],
+      ['E', 'Physics explainers'],
       ['Esc', 'Close panels / exit flight'],
       ['?', 'This sheet'],
     ],

@@ -67,7 +67,7 @@ export function SimDriver() {
 
     // What the camera sees
     updateApparentPositions(ui.retarded);
-    updateRelativisticView(ui.relMode, ui.splitX, ui.relDoppler, false);
+    updateRelativisticView(ui.relMode, ui.splitX, ui.relDoppler, !!travel.trip?.warp);
     updateDerived(cam);
     if (sim.frame - earthLight.frame >= 12) updateEarthLight();
     psfUniforms.uPixelRatio.value = gl.getPixelRatio();

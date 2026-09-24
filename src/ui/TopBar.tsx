@@ -1,34 +1,82 @@
+import { useEffect, useRef, useState } from 'react';
+import { useShallow } from 'zustand/react/shallow';
 import { sim } from '../sim/sim';
-import { useUI } from '../state/ui';
+import { useUI, type UIState } from '../state/ui';
 import { useTicker } from './useTicker';
 import { formatUtc } from '../lib/format';
 import { TimeControls } from './TimeControls';
 import { RelativityToggle } from './RelativityControls';
 
-function Toggle({ on, onClick, children, title }: { on: boolean; onClick: () => void; children: React.ReactNode; title: string }) {
+type LayerKey = 'showOrbits' | 'showLabels' | 'showBelts' | 'retarded';
+
+const LAYERS: { key: LayerKey; label: string; hint: string; kbd?: string }[] = [
+  { key: 'showOrbits', label: 'Orbits', hint: 'Orbit lines and trails', kbd: 'O' },
+  { key: 'showLabels', label: 'Labels', hint: 'Names and markers', kbd: 'L' },
+  { key: 'showBelts', label: 'Belts', hint: 'Real asteroids, Trojans and Kuiper-belt objects', kbd: 'B' },
+  { key: 'retarded', label: 'Light delay', hint: 'Draw each body where its light left it' },
+];
+
+/** Compact popover for the layer toggles. */
+function LayersMenu() {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const state = useUI(
+    useShallow((s) => ({ showOrbits: s.showOrbits, showLabels: s.showLabels, showBelts: s.showBelts, retarded: s.retarded })),
+  );
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e: PointerEvent) => {
+      if (!ref.current?.contains(e.target as Node)) setOpen(false);
+    };
+    window.addEventListener('pointerdown', onDown);
+    return () => window.removeEventListener('pointerdown', onDown);
+  }, [open]);
   return (
-    <button className={`chip ${on ? 'chip-on' : ''}`} onClick={onClick} title={title} aria-pressed={on}>
-      {children}
-    </button>
+    <div ref={ref} className="relative">
+      <button className={`chip ${open ? 'chip-on' : ''}`} onClick={() => setOpen(!open)} aria-expanded={open} aria-haspopup="menu">
+        Layers
+        <svg className="ml-1" width="9" height="9" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5">
+          <path d="M2 3.5l3 3 3-3" />
+        </svg>
+      </button>
+      {open && (
+        <div className="glass fade-in absolute right-0 top-10 z-40 w-[250px] p-2" role="menu">
+          {LAYERS.map((l) => (
+            <button
+              key={l.key}
+              role="menuitemcheckbox"
+              aria-checked={state[l.key]}
+              className="flex w-full items-center justify-between gap-3 rounded-lg px-2.5 py-2 text-left hover:bg-white/[0.06]"
+              onClick={() => useUI.getState().toggle(l.key as Parameters<UIState['toggle']>[0])}
+            >
+              <span>
+                <span className="block text-[12.5px] text-white/90">
+                  {l.label} {l.kbd && <kbd className="kbd ml-1">{l.kbd}</kbd>}
+                </span>
+                <span className="block text-[11px] text-white/45">{l.hint}</span>
+              </span>
+              <span className="switch pointer-events-none" aria-checked={state[l.key]} />
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
 export function TopBar() {
   useTicker(8);
   const sizeMode = useUI((s) => s.sizeMode);
-  const showOrbits = useUI((s) => s.showOrbits);
-  const showLabels = useUI((s) => s.showLabels);
-  const showBelts = useUI((s) => s.showBelts);
-  const retarded = useUI((s) => s.retarded);
+  const explainerOpen = useUI((s) => s.explainerOpen);
   const { toggle, setSizeMode } = useUI.getState();
   const { date, time } = formatUtc(sim.timeMs);
 
   return (
-    <div className="pointer-events-none absolute inset-x-0 top-0 z-10 flex items-start justify-between gap-4 p-4">
-      <div className="glass pointer-events-auto flex items-center gap-4 px-4 py-2.5">
-        <div className="flex items-center gap-2">
+    <div className="pointer-events-none absolute inset-x-0 top-0 z-10 flex flex-wrap items-start justify-between gap-3 p-4">
+      <div className="glass pointer-events-auto flex items-center gap-3 px-4 py-2.5">
+        <div className="flex items-center gap-2" title="Lightspeed">
           <span className="relative inline-block h-2.5 w-2.5 rounded-full bg-amber-200 shadow-[0_0_12px_rgba(253,230,138,0.9)]" />
-          <span className="text-[13px] font-semibold tracking-[0.2em] text-white/90">LIGHTSPEED</span>
+          <span className="hidden text-[13px] font-semibold tracking-[0.18em] text-white/90 min-[1400px]:inline">LIGHTSPEED</span>
         </div>
         <div className="h-5 w-px bg-white/10" />
         <div className="w-[92px] leading-tight">
@@ -48,7 +96,7 @@ export function TopBar() {
               key={m}
               role="radio"
               aria-checked={sizeMode === m}
-              className={`seg ${sizeMode === m ? 'seg-on' : ''}`}
+              className={`seg whitespace-nowrap ${sizeMode === m ? 'seg-on' : ''}`}
               onClick={() => setSizeMode(m)}
               title={m === 'true' ? 'True scale: every body at its real size (T)' : 'Visible: bodies enlarged to stay visible; distances stay true (T)'}
             >
@@ -57,23 +105,14 @@ export function TopBar() {
           ))}
         </div>
         <div className="mx-1 h-5 w-px bg-white/10" />
-        <Toggle on={showOrbits} onClick={() => toggle('showOrbits')} title="Orbits (O)">
-          Orbits
-        </Toggle>
-        <Toggle on={showLabels} onClick={() => toggle('showLabels')} title="Labels (L)">
-          Labels
-        </Toggle>
-        <Toggle on={showBelts} onClick={() => toggle('showBelts')} title="Asteroid & Kuiper belts (B)">
-          Belts
-        </Toggle>
-        <Toggle
-          on={retarded}
-          onClick={() => toggle('retarded')}
-          title="Light-delayed positions: draw every body where it was when the light now reaching you left it"
+        <LayersMenu />
+        <button
+          className={`chip ${explainerOpen ? 'chip-on' : ''}`}
+          onClick={() => useUI.setState({ explainerOpen: !explainerOpen })}
+          title="Physics explainers (E)"
         >
-          Light delay
-        </Toggle>
-        <div className="mx-1 h-5 w-px bg-white/10" />
+          Learn
+        </button>
         <button className="chip w-8 justify-center" onClick={() => toggle('helpOpen')} title="Keyboard shortcuts (?)" aria-label="Keyboard shortcuts">
           ?
         </button>

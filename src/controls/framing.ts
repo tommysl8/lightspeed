@@ -6,7 +6,7 @@ export function framingDistance(id: BodyId): number {
   const r = b.equatorialRadiusKm ?? b.radiusKm;
   if (id === 'voyager1') return 0.03;
   if (id === 'saturn') return r * 9;
-  if (id === 'sun') return r * 5;
+  if (id === 'sun' || id === 'proxima') return r * 5;
   return r * 4;
 }
 

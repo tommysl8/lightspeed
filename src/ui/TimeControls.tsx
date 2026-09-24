@@ -33,7 +33,7 @@ export function TimeControls() {
             key={w}
             role="radio"
             aria-checked={warp === w}
-            className={`seg !px-2 tabular-nums ${warp === w ? (w === 1 ? 'seg-on' : 'seg-warp') : ''}`}
+            className={`seg !px-1.5 tabular-nums ${warp === w ? (w === 1 ? 'seg-on' : 'seg-warp') : ''}`}
             onClick={() => setWarp(w)}
             title={w === 1 ? 'Real time' : `Time warp: 1 real second = ${formatDuration(w)} of simulated time`}
           >

@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { BodyId } from '../physics/constants';
 import type { SizeMode } from '../sim/sim';
+import type { ExplainerId } from '../content/explainers';
 
 export type ControlMode = 'orbit' | 'free' | 'transition' | 'travel';
 
@@ -32,8 +33,16 @@ export interface UIState {
   /** Include Doppler shift and beaming (off: aberration only). */
   relDoppler: boolean;
 
+  /** Explainer panel. */
+  explainerOpen: boolean;
+  explainerTopic: ExplainerId;
+
   /** Trip planner. */
   plannerOpen: boolean;
+  /** Drive: constant cruise speed, realistic 1 g rocket, or fictional warp beyond c. */
+  plannerDrive: 'cruise' | 'rocket' | 'warp';
+  /** Warp speed as a multiple of c (fictional). */
+  plannerWarpFactor: number;
   plannerDest: BodyId;
   plannerBeta: number;
   tripActive: boolean;
@@ -59,7 +68,11 @@ export const useUI = create<UIState>()((set) => ({
   relMode: 'on',
   splitX: 0.5,
   relDoppler: true,
+  explainerOpen: false,
+  explainerTopic: 'light-time',
   plannerOpen: false,
+  plannerDrive: 'cruise',
+  plannerWarpFactor: 10,
   plannerDest: 'mars',
   plannerBeta: 0.5,
   tripActive: false,

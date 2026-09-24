@@ -2,7 +2,7 @@
 import type { BodyId } from '../physics/constants';
 import { controller } from '../controls/cameraController';
 import { sim } from '../sim/sim';
-import { abortTrip, launch, planTrip, travel } from '../sim/travel';
+import { abortTrip, launch, planTrip, travel, type Drive } from '../sim/travel';
 import { useUI } from '../state/ui';
 
 export function openPlanner(dest?: BodyId): void {
@@ -11,8 +11,8 @@ export function openPlanner(dest?: BodyId): void {
 }
 
 /** Plan and launch a trip from the current camera position. Returns false if unreachable. */
-export function startTrip(dest: BodyId, beta: number): boolean {
-  const plan = planTrip(dest, beta, sim.camera.pos.clone());
+export function startTrip(dest: BodyId, beta: number, drive?: Drive): boolean {
+  const plan = planTrip(dest, beta, sim.camera.pos.clone(), sim.astroTime, drive);
   if (!plan || plan.distance <= 0) return false;
   launch(plan);
   controller.startTravel(travel.trip!.dir);

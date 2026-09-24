@@ -25,12 +25,27 @@ export function solveIntercept(
   speed: number,
   standoff: number,
 ): Intercept | null {
-  const f = (T: number) => distance(targetAt(T), from) - standoff - speed * T;
+  return solveInterceptReach(targetAt, from, (T) => speed * T, standoff, (d) => d / speed);
+}
+
+/**
+ * General form: `reach(T)` is how far the ship can get in time T (increasing), and
+ * `guess(d)` a rough time to cover distance d (used to start the bracket). The 1 g rocket
+ * uses this with its flip-and-burn reach.
+ */
+export function solveInterceptReach(
+  targetAt: (dtSeconds: number) => Vec3,
+  from: Vec3,
+  reach: (T: number) => number,
+  standoff: number,
+  guess: (d: number) => number,
+): Intercept | null {
+  const f = (T: number) => distance(targetAt(T), from) - standoff - reach(T);
   const f0 = f(0);
   if (f0 <= 0) return { time: 0, targetAtArrival: targetAt(0) };
 
   let lo = 0;
-  let hi = Math.max(f0 / speed, 1e-3);
+  let hi = Math.max(guess(f0), 1e-3);
   let fhi = f(hi);
   while (fhi > 0) {
     lo = hi;
