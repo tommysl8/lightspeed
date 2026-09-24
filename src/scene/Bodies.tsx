@@ -60,8 +60,8 @@ export function Planet({ id }: { id: BodyId }) {
   useFrame(({ camera }) => {
     const b = sim.bodies[id];
     // Floating origin: float64 world position minus float64 camera position.
-    group.current.position.copy(b.pos).sub(sim.camera.pos);
-    group.current.quaternion.copy(b.quat);
+    group.current.position.copy(b.apparentPos).sub(sim.camera.pos);
+    group.current.quaternion.copy(b.apparentQuat);
     const eq = data.equatorialRadiusKm ?? data.radiusKm;
     const po = data.polarRadiusKm ?? eq;
     const k = b.displayRadius / eq;
@@ -129,8 +129,8 @@ function SaturnRings({ planetMaterial }: { planetMaterial: ShaderMaterial }) {
 
     const u = material.uniforms;
     sunInView(camera, u.uSunView.value);
-    const center = tmp.copy(b.pos).sub(sim.camera.pos).applyMatrix4(camera.matrixWorldInverse);
-    const normal = tmp2.set(0, 1, 0).applyQuaternion(b.quat).transformDirection(camera.matrixWorldInverse);
+    const center = tmp.copy(b.apparentPos).sub(sim.camera.pos).applyMatrix4(camera.matrixWorldInverse);
+    const normal = tmp2.set(0, 1, 0).applyQuaternion(b.apparentQuat).transformDirection(camera.matrixWorldInverse);
     u.uCenterV.value.copy(center);
     u.uNormalV.value.copy(normal);
     u.uPlanetRadius.value = b.displayRadius;
@@ -165,8 +165,8 @@ export function Sun() {
   const requested = useRef(false);
   useFrame(() => {
     const b = sim.bodies.sun;
-    mesh.current.position.copy(b.pos).sub(sim.camera.pos);
-    mesh.current.quaternion.copy(b.quat);
+    mesh.current.position.copy(b.apparentPos).sub(sim.camera.pos);
+    mesh.current.quaternion.copy(b.apparentQuat);
     mesh.current.scale.setScalar(b.displayRadius);
     mesh.current.visible = b.radiusPx > 0.35;
     // Simple auto-exposure: glaring when small, and dimmer up close so limb darkening and
@@ -219,9 +219,9 @@ export function Voyager() {
   useFrame(({ camera }) => {
     const b = sim.bodies.voyager1;
     const g = group.current;
-    g.position.copy(b.pos).sub(sim.camera.pos);
+    g.position.copy(b.apparentPos).sub(sim.camera.pos);
     // Point the antenna (+Y) at Earth.
-    tmp.copy(sim.bodies.earth.pos).sub(b.pos).normalize();
+    tmp.copy(sim.bodies.earth.pos).sub(b.apparentPos).normalize();
     g.quaternion.setFromUnitVectors(tmp2.set(0, 1, 0), tmp);
     const k = b.displayRadius / BODIES.voyager1.radiusKm;
     g.scale.setScalar(k);

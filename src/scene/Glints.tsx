@@ -43,7 +43,8 @@ export function Glints() {
     BODY_ORDER.forEach((id, i) => {
       const b = sim.bodies[id];
       // Floating origin: camera-relative position computed in float64.
-      pos.setXYZ(i, b.pos.x - sim.camera.pos.x, b.pos.y - sim.camera.pos.y, b.pos.z - sim.camera.pos.z);
+      const p = b.apparentPos;
+      pos.setXYZ(i, p.x - sim.camera.pos.x, p.y - sim.camera.pos.y, p.z - sim.camera.pos.z);
       mag.setX(i, b.magnitude);
       const f = 1 - Math.min(1, Math.max(0, (b.radiusPx - 1.2) / 2.5));
       fade.setX(i, f);

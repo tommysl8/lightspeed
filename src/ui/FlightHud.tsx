@@ -50,9 +50,18 @@ export function FlightHud() {
     );
   }
 
+  if (mode === 'travel') {
+    return (
+      <div className="pointer-events-none absolute bottom-[248px] left-4 z-10 hidden text-[12px] text-white/45 md:block">
+        Drag or use the arrow keys to look around
+      </div>
+    );
+  }
+
   return (
     <div className="pointer-events-none absolute bottom-20 left-4 z-10 hidden text-[12px] text-white/45 md:block">
-      Drag to orbit · Scroll to zoom · Double-click a body to fly there · <Kbd>F</Kbd> free flight · <Kbd>?</Kbd> shortcuts
+      Drag to orbit · Scroll to zoom · Double-click a body to fly there · <Kbd>G</Kbd> plan a trip · <Kbd>F</Kbd> free
+      flight · <Kbd>?</Kbd> shortcuts
     </div>
   );
 }

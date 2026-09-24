@@ -111,6 +111,7 @@ export function createBeltMaterial(): ShaderMaterial {
       uPointSize: { value: 1.5 },
       uOpacity: { value: 1 },
       uRefDistAU: { value: 16 },
+      uRetarded: { value: 0 },
       uNearCap: { value: 0.3 },
       uColorMain: { value: new Color('#c9b8a3') },
       uColorTrojan: { value: new Color('#b7a98f') },

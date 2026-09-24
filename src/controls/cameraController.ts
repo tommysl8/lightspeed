@@ -17,6 +17,9 @@ import { logitToBeta } from '../physics/speedScale';
 import { sim } from '../sim/sim';
 import { useUI, type ControlMode } from '../state/ui';
 import { easeInOut, zoomPanPath, type ZoomPanPath } from './zoomPan';
+import { framingDistance, minDistance } from './framing';
+
+export { framingDistance };
 
 const UP = new Vector3(0, 1, 0);
 const ZERO = new Vector3();
@@ -44,23 +47,6 @@ const v2 = new Vector3();
 const qa = new Quaternion();
 const qb = new Quaternion();
 
-/** Distance at which a body is nicely framed. */
-export function framingDistance(id: BodyId): number {
-  const b = BODIES[id];
-  const r = b.equatorialRadiusKm ?? b.radiusKm;
-  if (id === 'voyager1') return 0.03;
-  if (id === 'saturn') return r * 9;
-  if (id === 'sun') return r * 5;
-  return r * 4;
-}
-
-/** Closest the orbit camera may get to a body's centre. */
-function minDistance(id: BodyId): number {
-  if (id === 'voyager1') return 0.004;
-  const b = BODIES[id];
-  return (b.equatorialRadiusKm ?? b.radiusKm) * 1.015;
-}
-
 export class CameraController {
   mode: ControlMode = 'orbit';
   target: BodyId = 'earth';
@@ -80,6 +66,11 @@ export class CameraController {
   private look = { x: 0, y: 0 };
   private frameBody: BodyId = 'earth';
   private thrustVel = new Vector3();
+
+  // Travel: free look relative to the direction of motion.
+  private lookYaw = 0;
+  private lookPitch = 0;
+  private travelDir = new Vector3(0, 0, -1);
 
   private tr: Transition | null = null;
   private dom: HTMLElement | null = null;
@@ -142,6 +133,7 @@ export class CameraController {
 
   /** Fly smoothly to a body and orbit it. */
   goTo(id: BodyId, opts: { keepDistance?: boolean; keepDirection?: boolean } = {}): void {
+    if (this.mode === 'travel') return;
     const eye = sim.camera.pos;
     const B = sim.bodies[id].pos;
     let fromBody: BodyId | null = null;
@@ -177,6 +169,7 @@ export class CameraController {
   }
 
   enterFreeFlight(): void {
+    if (this.mode === 'travel') return;
     if (this.mode === 'transition') this.finishTransition();
     this.frameBody = this.target;
     this.setMode('free');
@@ -191,16 +184,74 @@ export class CameraController {
     this.goTo(id, { keepDistance: true, keepDirection: true });
   }
 
+  /** Ride along with a trip: the camera sits on the ship, looking along the course. */
+  startTravel(dir: Vector3): void {
+    if (document.pointerLockElement) document.exitPointerLock();
+    this.tr = null;
+    this.travelDir.copy(dir).normalize();
+    this.lookYaw = 0;
+    this.lookPitch = 0;
+    this.setMode('travel');
+  }
+
+  /** After arriving (or stopping), orbit a body from where the ship is. */
+  finishTravel(id: BodyId): void {
+    const B = sim.bodies[id].pos;
+    const dir = v1.copy(sim.camera.pos).sub(B);
+    const dist = Math.max(minDistance(id), dir.length());
+    dir.normalize();
+    this.target = id;
+    this.frameBody = id;
+    this.az = this.goalAz = Math.atan2(dir.x, dir.z);
+    this.el = this.goalEl = Math.asin(Math.max(-1, Math.min(1, dir.y)));
+    this.logDist = this.goalLogDist = Math.log(dist);
+    this.setMode('orbit');
+    this.clampGoals();
+    useUI.setState({ focus: id });
+  }
+
+  /** Leave travel mode mid-course: orbit the nearest body from where the ship stopped. */
+  exitTravelToNearest(): void {
+    this.setMode('free');
+    const id = this.nearestBody();
+    this.goTo(id, { keepDistance: true, keepDirection: true });
+  }
+
+  /** Point the travel view: 0 = straight ahead, π = straight back. */
+  setTravelLook(yaw: number, pitch = 0): void {
+    this.lookYaw = yaw;
+    this.lookPitch = pitch;
+  }
+
   get throttleBeta(): number {
     return logitToBeta(FREE_LOGIT_MIN + this.throttle * (FREE_LOGIT_MAX - FREE_LOGIT_MIN));
   }
 
   // ── Per-frame update ──────────────────────────────────────────────────────────────────
 
-  update(dtReal: number, dtSim: number): void {
+  update(dtReal: number, dtSim: number, shipPos?: Vector3): void {
     if (this.mode === 'transition') this.updateTransition(dtReal);
     else if (this.mode === 'orbit') this.updateOrbit(dtReal);
+    else if (this.mode === 'travel') this.updateTravel(dtReal, shipPos);
     else this.updateFree(dtReal, dtSim);
+  }
+
+  private updateTravel(dt: number, shipPos?: Vector3): void {
+    const k = this.keys;
+    const rot = 1.4 * dt;
+    if (k.has('ArrowLeft')) this.lookYaw += rot;
+    if (k.has('ArrowRight')) this.lookYaw -= rot;
+    if (k.has('ArrowUp')) this.lookPitch += rot;
+    if (k.has('ArrowDown')) this.lookPitch -= rot;
+    this.lookPitch = Math.max(-1.55, Math.min(1.55, this.lookPitch));
+    if (shipPos) sim.camera.pos.copy(shipPos);
+    // Base orientation looks along the course (world-up where possible), then free look.
+    const fwd = this.travelDir;
+    m4.lookAt(ZERO, fwd, Math.abs(fwd.y) > 0.9995 ? v2.set(0, 0, 1) : UP);
+    sim.camera.quat.setFromRotationMatrix(m4);
+    qa.setFromAxisAngle(v1.set(0, 1, 0), this.lookYaw);
+    qb.setFromAxisAngle(v2.set(1, 0, 0), this.lookPitch);
+    sim.camera.quat.multiply(qa).multiply(qb);
   }
 
   private updateOrbit(dt: number): void {
@@ -362,6 +413,9 @@ export class CameraController {
       this.goalAz -= dx * 0.005;
       this.goalEl += dy * 0.005;
       this.clampGoals();
+    } else if (this.mode === 'travel') {
+      this.lookYaw += dx * 0.004;
+      this.lookPitch = Math.max(-1.55, Math.min(1.55, this.lookPitch + dy * 0.004));
     }
   };
 

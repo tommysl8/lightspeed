@@ -15,7 +15,7 @@ import {
   VOYAGER1_SATURN_FLYBY_UTC,
   type BodyId,
 } from '../physics/constants';
-import { solveKeplerHyperbolic, stateToOrbit } from '../physics/kepler';
+import { solveKepler, solveKeplerHyperbolic, stateToOrbit, type Orbit } from '../physics/kepler';
 import { createOrbitMaterial } from '../render/materials';
 import { pixelsPerRadian } from '../sim/derived';
 import { sim } from '../sim/sim';
@@ -52,6 +52,15 @@ function segmentGeometry(): InstancedBufferGeometry {
 
 const FLYBY_MS = Date.parse(VOYAGER1_SATURN_FLYBY_UTC);
 
+function anomalyAt(o: Orbit, M: number): number {
+  if (!o.hyperbolic) {
+    // Keep E continuous with the current anomaly (solveKepler wraps to [0, 2π)).
+    const E = solveKepler(M, o.e);
+    return E + Math.round((o.anomaly - E) / (2 * Math.PI)) * 2 * Math.PI;
+  }
+  return solveKeplerHyperbolic(M, o.e);
+}
+
 function smoothstep(a: number, b: number, x: number) {
   const t = Math.min(1, Math.max(0, (x - a) / (b - a)));
   return t * t * (3 - 2 * t);
@@ -78,12 +87,13 @@ function OrbitLine({ id }: { id: BodyId }) {
     const o = stateToOrbit(r, v, mu);
 
     const u = material.uniforms;
-    u.uBodyPos.value.copy(b.pos).sub(sim.camera.pos);
+    u.uBodyPos.value.copy(b.apparentPos).sub(sim.camera.pos);
     u.uP.value.set(o.P.x, o.P.y, o.P.z);
     u.uQ.value.set(o.Q.x, o.Q.y, o.Q.z);
     u.uA.value = Math.abs(o.a);
     u.uB.value = o.b;
-    u.uAnomaly.value = o.anomaly;
+    // Draw through where the body appears: step the anomaly back by the light delay.
+    u.uAnomaly.value = b.lightDelay > 0 ? anomalyAt(o, o.meanAnomaly - o.meanMotion * b.lightDelay) : o.anomaly;
     u.uHyperbolic.value = o.hyperbolic ? 1 : 0;
     u.uClosed.value = o.hyperbolic ? 0 : 1;
     if (o.hyperbolic) {

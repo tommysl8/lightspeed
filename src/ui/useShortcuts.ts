@@ -1,8 +1,10 @@
 import { useEffect } from 'react';
 import { BODY_ORDER, type BodyId } from '../physics/constants';
 import { controller, isTyping } from '../controls/cameraController';
+import { resetToNow, stepWarp, togglePause } from '../sim/clock';
 import { useUI } from '../state/ui';
 import { BODY_KEYS, goToBody } from './navigation';
+import { openPlanner } from './tripActions';
 
 const KEY_TO_BODY = new Map<string, BodyId>(
   BODY_ORDER.filter((id) => BODY_KEYS[id]).map((id) => [BODY_KEYS[id]!.toLowerCase(), id]),
@@ -22,9 +24,20 @@ export function useShortcuts() {
       }
       if (e.key === 'Escape') {
         if (ui.helpOpen) useUI.setState({ helpOpen: false });
+        else if (ui.plannerOpen) useUI.setState({ plannerOpen: false });
         else if (ui.selected) ui.select(null);
         return;
       }
+      // Time
+      if (k === 'p' || (e.code === 'Space' && !flying)) {
+        e.preventDefault();
+        togglePause();
+        return;
+      }
+      if (k === '[' || k === ',') return stepWarp(-1);
+      if (k === ']' || k === '.') return stepWarp(1);
+      if (k === 'n') return resetToNow();
+
       if (k === 'f') {
         if (flying) controller.exitFreeFlight();
         else controller.enterFreeFlight();
@@ -32,15 +45,20 @@ export function useShortcuts() {
       }
       // Letters used for flying are not shortcuts while in flight.
       if (flying && 'wasdqerc'.includes(k)) return;
+      if (k === 'g' && !ui.tripActive) {
+        openPlanner();
+        return;
+      }
 
       const body = KEY_TO_BODY.get(k);
       if (body) {
-        goToBody(body);
+        if (ui.tripActive) ui.select(body);
+        else goToBody(body);
         return;
       }
       switch (k) {
         case 'h':
-          goToBody('earth');
+          if (!ui.tripActive) goToBody('earth');
           break;
         case 't':
           ui.setSizeMode(ui.sizeMode === 'true' ? 'visible' : 'true');

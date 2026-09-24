@@ -13,6 +13,7 @@ import { sim } from '../sim/sim';
 import { useUI } from '../state/ui';
 import { controller } from '../controls/cameraController';
 import { useTicker } from './useTicker';
+import { openPlanner } from './tripActions';
 
 const KIND_LABEL: Record<BodyData['kind'], string> = {
   star: 'Star',
@@ -37,6 +38,8 @@ export function InfoCard() {
   const selected = useUI((s) => s.selected);
   const focus = useUI((s) => s.focus);
   const mode = useUI((s) => s.controlMode);
+  const retarded = useUI((s) => s.retarded);
+  const tripActive = useUI((s) => s.tripActive);
   useTicker(4);
   if (!selected) return null;
   const id: BodyId = selected;
@@ -87,10 +90,15 @@ export function InfoCard() {
             </>
           )}
           {id === 'moon' && <Row label="Distance from Earth">{formatDistanceLong(b.pos.distanceTo(sim.bodies.earth.pos))}</Row>}
-          <Row label="Distance from you">{formatDistanceLong(b.distCamera)}</Row>
+          <Row label="Distance from you">{formatDistanceLong(b.distTrue)}</Row>
           <Row label="Light from here takes" hint="Light-travel time between this body and your current position">
-            {formatDuration(lightTime(b.distCamera))}
+            {formatDuration(lightTime(b.distTrue))}
           </Row>
+          {retarded && b.lightDelay > 0 && (
+            <Row label="You see it as it was" hint="Light-delayed position: where its light left it">
+              {formatDuration(b.lightDelay)} ago
+            </Row>
+          )}
           {data.siderealRotationH !== undefined && (
             <Row label="Rotation (sidereal)">{formatHours(data.siderealRotationH)}</Row>
           )}
@@ -122,10 +130,19 @@ export function InfoCard() {
         <div className="mt-5 flex gap-2">
           <button
             className="btn-primary flex-1"
-            disabled={isOrbiting}
+            disabled={isOrbiting || tripActive}
             onClick={() => controller.goTo(id)}
+            title="Jump the camera there (not a physical trip)"
           >
             {isOrbiting ? 'You are here' : `Go to ${data.name}`}
+          </button>
+          <button
+            className="btn-ghost h-9 flex-1"
+            disabled={isOrbiting || tripActive}
+            onClick={() => openPlanner(id)}
+            title="Fly there at a chosen fraction of the speed of light (G)"
+          >
+            Travel here…
           </button>
         </div>
       </div>

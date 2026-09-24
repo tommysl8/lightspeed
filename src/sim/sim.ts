@@ -27,7 +27,17 @@ export interface BodyState {
   vel: Vector3;
   /** Orientation: body-fixed frame (x = prime meridian, y = north pole) → world. */
   quat: Quaternion;
-  /** Distance to the camera, km. */
+  /**
+   * Where the body is drawn: its true position, or (with light-delayed rendering on) where it
+   * was when the light now reaching the camera left it.
+   */
+  apparentPos: Vector3;
+  apparentQuat: Quaternion;
+  /** Light-travel time from the body to the camera, s (0 when not computed). */
+  lightDelay: number;
+  /** True (instantaneous) distance to the camera, km. */
+  distTrue: number;
+  /** Distance from the camera to where the body is drawn, km. */
   distCamera: number;
   /** Distance to the Sun, km. */
   distSun: number;
@@ -48,6 +58,10 @@ function makeBody(id: BodyId): BodyState {
     pos: new Vector3(),
     vel: new Vector3(),
     quat: new Quaternion(),
+    apparentPos: new Vector3(),
+    apparentQuat: new Quaternion(),
+    lightDelay: 0,
+    distTrue: Infinity,
     distCamera: Infinity,
     distSun: 0,
     displayRadius: 0,

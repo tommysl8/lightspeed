@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import type { BodyId } from '../physics/constants';
 import type { SizeMode } from '../sim/sim';
 
-export type ControlMode = 'orbit' | 'free' | 'transition';
+export type ControlMode = 'orbit' | 'free' | 'transition' | 'travel';
 
 export interface UIState {
   /** Body whose info card is open. */
@@ -17,8 +17,22 @@ export interface UIState {
   helpOpen: boolean;
   /** Free-flight throttle as a fraction of c (mirrors the controller). */
   throttleBeta: number;
+
+  /** Mirrors of the simulation clock, for rendering controls. */
+  warp: number;
+  paused: boolean;
+
+  /** Draw bodies where they were when the light now reaching you left them. */
+  retarded: boolean;
+
+  /** Trip planner. */
+  plannerOpen: boolean;
+  plannerDest: BodyId;
+  plannerBeta: number;
+  tripActive: boolean;
+
   select: (id: BodyId | null) => void;
-  toggle: (key: 'showOrbits' | 'showLabels' | 'showBelts' | 'helpOpen') => void;
+  toggle: (key: 'showOrbits' | 'showLabels' | 'showBelts' | 'helpOpen' | 'retarded') => void;
   setSizeMode: (m: SizeMode) => void;
 }
 
@@ -32,6 +46,13 @@ export const useUI = create<UIState>()((set) => ({
   showBelts: true,
   helpOpen: false,
   throttleBeta: 0,
+  warp: 1,
+  paused: false,
+  retarded: false,
+  plannerOpen: false,
+  plannerDest: 'mars',
+  plannerBeta: 0.5,
+  tripActive: false,
   select: (id) => set({ selected: id }),
   toggle: (key) => set((s) => ({ [key]: !s[key] }) as Partial<UIState>),
   setSizeMode: (m) => set({ sizeMode: m }),

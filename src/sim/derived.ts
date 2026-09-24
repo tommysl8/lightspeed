@@ -34,7 +34,8 @@ export function updateDerived(camera: PerspectiveCamera): void {
 
   for (const b of Object.values(sim.bodies)) {
     const data = BODIES[b.id];
-    rel.copy(b.pos).sub(sim.camera.pos); // float64 subtraction: the floating origin
+    b.distTrue = b.pos.distanceTo(sim.camera.pos);
+    rel.copy(b.apparentPos).sub(sim.camera.pos); // float64 subtraction: the floating origin
     const d = rel.length();
     b.distCamera = d;
     b.distSun = b.pos.length();
@@ -82,10 +83,10 @@ export function apparentMagnitude(id: BodyId, distCameraKm: number): number {
   const data = BODIES[id];
   const p = data.geometricAlbedo ?? 0.3;
   const R = data.radiusKm;
-  const r = b.pos.length();
+  const r = b.apparentPos.length();
   if (r === 0 || distCameraKm <= R) return -30;
-  const toSun = rel.copy(b.pos).negate();
-  const toCam = view.copy(sim.camera.pos).sub(b.pos);
+  const toSun = rel.copy(b.apparentPos).negate();
+  const toCam = view.copy(sim.camera.pos).sub(b.apparentPos);
   const cosA = toSun.dot(toCam) / (toSun.length() * toCam.length());
   const alpha = Math.acos(Math.max(-1, Math.min(1, cosA)));
   const flux = p * (R / distCameraKm) ** 2 * Math.max(lambertPhase(alpha), 1e-6) * (AU_KM / r) ** 2;

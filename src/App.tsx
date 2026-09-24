@@ -13,6 +13,10 @@ import { InfoCard } from './ui/InfoCard';
 import { FlightHud } from './ui/FlightHud';
 import { HelpOverlay } from './ui/HelpOverlay';
 import { useShortcuts } from './ui/useShortcuts';
+import { WarpBadge } from './ui/TimeControls';
+import { LightDelayPanel } from './ui/LightDelayPanel';
+import { TravelPlanner } from './ui/TravelPlanner';
+import { TripHud } from './ui/TripHud';
 
 export default function App() {
   useShortcuts();
@@ -35,10 +39,14 @@ export default function App() {
         <RenderPipeline />
       </Canvas>
       <LabelsLayer />
+      <WarpBadge />
       <TopBar />
+      <LightDelayPanel />
       <InfoCard />
       <FlightHud />
       <BodyBar />
+      <TravelPlanner />
+      <TripHud />
       <HelpOverlay />
     </div>
   );

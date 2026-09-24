@@ -27,6 +27,15 @@ const GROUPS: { title: string; keys: [string, string][] }[] = [
     ],
   },
   {
+    title: 'Time & travel',
+    keys: [
+      ['Space / P', 'Pause / resume'],
+      ['[  ]', 'Slower / faster time warp'],
+      ['N', 'Back to now, real time'],
+      ['G', 'Plan a trip'],
+    ],
+  },
+  {
     title: 'View',
     keys: [
       ['T', 'True scale ↔ Visible'],
@@ -47,14 +56,14 @@ export function HelpOverlay() {
       className="fade-in absolute inset-0 z-40 flex items-center justify-center bg-black/40 p-4"
       onClick={() => useUI.setState({ helpOpen: false })}
     >
-      <div className="glass w-[680px] max-w-full p-6" onClick={(e) => e.stopPropagation()} role="dialog" aria-label="Keyboard shortcuts">
+      <div className="glass w-[900px] max-w-full p-6" onClick={(e) => e.stopPropagation()} role="dialog" aria-label="Keyboard shortcuts">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-[17px] font-semibold text-white">Keyboard shortcuts</h2>
           <button className="chip" onClick={() => useUI.setState({ helpOpen: false })}>
             Close
           </button>
         </div>
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {GROUPS.map((g) => (
             <section key={g.title}>
               <h3 className="mb-2 text-[11px] font-medium uppercase tracking-[0.14em] text-white/45">{g.title}</h3>

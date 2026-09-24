@@ -32,14 +32,19 @@ varying float vAlpha;
 const float K_GAUSS = 0.01720209895; // rad/day at 1 au
 const float AU_KM = 149597870.7;
 
-void main() {
+uniform float uRetarded; // 1: draw where each object was when its light left it
+
+const float LIGHT_DAYS_PER_AU = 499.004784 / 86400.0;
+
+// Heliocentric world-axes position (au) at `days` after the reference epoch.
+vec3 keplerPosition(float days) {
   float a = aA;
   float e = aE;
   float inc = aI * PI;
   float node = aNode * PI2;
   float peri = aPeri * PI2;
   float n = K_GAUSS / (a * sqrt(a));
-  float M = mod(aM * PI2 + n * uDays, PI2);
+  float M = mod(aM * PI2 + n * days, PI2);
   float E = e < 0.8 ? M : PI;
   for (int k = 0; k < 10; k++) {
     E -= (E - e * sin(E) - M) / (1.0 - e * cos(E));
@@ -52,7 +57,13 @@ void main() {
     x * (cw * sn + sw * cn * ci) + y * (cw * cn * ci - sw * sn),
     x * (sw * si) + y * (cw * si)
   );
-  vec3 relAU = vec3(ecl.x, ecl.z, -ecl.y) - uCamAU;
+  return vec3(ecl.x, ecl.z, -ecl.y);
+}
+
+void main() {
+  vec3 w = keplerPosition(uDays);
+  if (uRetarded > 0.5) w = keplerPosition(uDays - length(w - uCamAU) * LIGHT_DAYS_PER_AU);
+  vec3 relAU = w - uCamAU;
   vec3 rel = relAU * AU_KM;
   float dist = max(length(rel), 1e-6);
 

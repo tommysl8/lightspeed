@@ -2,6 +2,7 @@ import { sim } from '../sim/sim';
 import { useUI } from '../state/ui';
 import { useTicker } from './useTicker';
 import { formatUtc } from '../lib/format';
+import { TimeControls } from './TimeControls';
 
 function Toggle({ on, onClick, children, title }: { on: boolean; onClick: () => void; children: React.ReactNode; title: string }) {
   return (
@@ -17,6 +18,7 @@ export function TopBar() {
   const showOrbits = useUI((s) => s.showOrbits);
   const showLabels = useUI((s) => s.showLabels);
   const showBelts = useUI((s) => s.showBelts);
+  const retarded = useUI((s) => s.retarded);
   const { toggle, setSizeMode } = useUI.getState();
   const { date, time } = formatUtc(sim.timeMs);
 
@@ -28,10 +30,12 @@ export function TopBar() {
           <span className="text-[13px] font-semibold tracking-[0.2em] text-white/90">LIGHTSPEED</span>
         </div>
         <div className="h-5 w-px bg-white/10" />
-        <div className="leading-tight">
+        <div className="w-[92px] leading-tight">
           <div className="text-[13px] tabular-nums text-white/90">{date}</div>
           <div className="text-[11px] tabular-nums text-white/50">{time}</div>
         </div>
+        <div className="h-5 w-px bg-white/10" />
+        <TimeControls />
       </div>
 
       <div className="glass pointer-events-auto flex items-center gap-1.5 p-1.5">
@@ -58,6 +62,13 @@ export function TopBar() {
         </Toggle>
         <Toggle on={showBelts} onClick={() => toggle('showBelts')} title="Asteroid & Kuiper belts (B)">
           Belts
+        </Toggle>
+        <Toggle
+          on={retarded}
+          onClick={() => toggle('retarded')}
+          title="Light-delayed positions: draw every body where it was when the light now reaching you left it"
+        >
+          Light delay
         </Toggle>
         <div className="mx-1 h-5 w-px bg-white/10" />
         <button className="chip w-8 justify-center" onClick={() => toggle('helpOpen')} title="Keyboard shortcuts (?)" aria-label="Keyboard shortcuts">

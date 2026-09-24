@@ -62,6 +62,7 @@ export function Belts() {
     u.uDays.value = sim.astroTime.tt + J2000_JD - data.refEpochJd;
     u.uCamAU.value.copy(sim.camera.pos).divideScalar(AU_KM);
     u.uPointSize.value = 1.6 * gl.getPixelRatio();
+    u.uRetarded.value = useUI.getState().retarded ? 1 : 0;
   });
 
   if (!data) return null;
