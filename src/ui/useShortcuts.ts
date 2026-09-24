@@ -24,6 +24,7 @@ export function useShortcuts() {
       }
       if (e.key === 'Escape') {
         if (ui.helpOpen) useUI.setState({ helpOpen: false });
+        else if (ui.aboutOpen) useUI.setState({ aboutOpen: false });
         else if (ui.explainerOpen) useUI.setState({ explainerOpen: false });
         else if (ui.plannerOpen) useUI.setState({ plannerOpen: false });
         else if (ui.selected) ui.select(null);

@@ -16,6 +16,9 @@ export interface UIState {
   showLabels: boolean;
   showBelts: boolean;
   helpOpen: boolean;
+  aboutOpen: boolean;
+  /** Small frames-per-second readout. */
+  showFps: boolean;
   /** Free-flight throttle as a fraction of c (mirrors the controller). */
   throttleBeta: number;
 
@@ -48,7 +51,7 @@ export interface UIState {
   tripActive: boolean;
 
   select: (id: BodyId | null) => void;
-  toggle: (key: 'showOrbits' | 'showLabels' | 'showBelts' | 'helpOpen' | 'retarded') => void;
+  toggle: (key: 'showOrbits' | 'showLabels' | 'showBelts' | 'helpOpen' | 'retarded' | 'aboutOpen' | 'showFps') => void;
   setSizeMode: (m: SizeMode) => void;
 }
 
@@ -61,6 +64,8 @@ export const useUI = create<UIState>()((set) => ({
   showLabels: true,
   showBelts: true,
   helpOpen: false,
+  aboutOpen: false,
+  showFps: false,
   throttleBeta: 0,
   warp: 1,
   paused: false,

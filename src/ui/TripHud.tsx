@@ -36,7 +36,7 @@ function InFlight({ t }: { t: Trip }) {
         explainerOpen ? 'left-[432px] min-[1650px]:left-1/2 min-[1650px]:-translate-x-1/2' : 'left-1/2 -translate-x-1/2'
       } ${t.warp ? '!border-fuchsia-300/30' : ''}`}
     >
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div className={`text-[11px] font-medium uppercase tracking-[0.16em] ${t.warp ? 'text-fuchsia-200' : rocket ? 'text-amber-200/90' : 'text-sky-300/85'}`}>
           {t.warp ? 'Fictional warp to' : rocket ? '1 g rocket to' : 'En route to'} {BODIES[t.dest].name}
           {rocket && <span className="ml-2 normal-case tracking-normal text-white/50">· {phase}</span>}
@@ -62,7 +62,7 @@ function InFlight({ t }: { t: Trip }) {
           style={{ width: `${(progress * 100).toFixed(2)}%` }}
         />
       </div>
-      <div className="mt-4 grid grid-cols-4 gap-x-4 gap-y-3">
+      <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 sm:grid-cols-4">
         <Stat
           label="Speed"
           value={t.warp ? speedLabel(t) : formatBeta(s.beta)}

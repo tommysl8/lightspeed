@@ -7,13 +7,14 @@ import { formatUtc } from '../lib/format';
 import { TimeControls } from './TimeControls';
 import { RelativityToggle } from './RelativityControls';
 
-type LayerKey = 'showOrbits' | 'showLabels' | 'showBelts' | 'retarded';
+type LayerKey = 'showOrbits' | 'showLabels' | 'showBelts' | 'retarded' | 'showFps';
 
 const LAYERS: { key: LayerKey; label: string; hint: string; kbd?: string }[] = [
   { key: 'showOrbits', label: 'Orbits', hint: 'Orbit lines and trails', kbd: 'O' },
   { key: 'showLabels', label: 'Labels', hint: 'Names and markers', kbd: 'L' },
   { key: 'showBelts', label: 'Belts', hint: 'Real asteroids, Trojans and Kuiper-belt objects', kbd: 'B' },
   { key: 'retarded', label: 'Light delay', hint: 'Draw each body where its light left it' },
+  { key: 'showFps', label: 'Frame rate', hint: 'Show fps and render quality' },
 ];
 
 /** Compact popover for the layer toggles. */
@@ -21,7 +22,13 @@ function LayersMenu() {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const state = useUI(
-    useShallow((s) => ({ showOrbits: s.showOrbits, showLabels: s.showLabels, showBelts: s.showBelts, retarded: s.retarded })),
+    useShallow((s) => ({
+      showOrbits: s.showOrbits,
+      showLabels: s.showLabels,
+      showBelts: s.showBelts,
+      retarded: s.retarded,
+      showFps: s.showFps,
+    })),
   );
   useEffect(() => {
     if (!open) return;
@@ -40,7 +47,7 @@ function LayersMenu() {
         </svg>
       </button>
       {open && (
-        <div className="glass fade-in absolute right-0 top-10 z-40 w-[250px] p-2" role="menu">
+        <div className="glass fade-in absolute right-0 top-10 z-40 w-[250px] p-2 max-sm:fixed max-sm:right-4 max-sm:top-[128px]" role="menu">
           {LAYERS.map((l) => (
             <button
               key={l.key}
@@ -73,13 +80,13 @@ export function TopBar() {
 
   return (
     <div className="pointer-events-none absolute inset-x-0 top-0 z-10 flex flex-wrap items-start justify-between gap-3 p-4">
-      <div className="glass pointer-events-auto flex items-center gap-3 px-4 py-2.5">
+      <div className="glass no-scrollbar pointer-events-auto flex max-w-full items-center gap-3 overflow-x-auto px-4 py-2.5">
         <div className="flex items-center gap-2" title="Lightspeed">
           <span className="relative inline-block h-2.5 w-2.5 rounded-full bg-amber-200 shadow-[0_0_12px_rgba(253,230,138,0.9)]" />
           <span className="hidden text-[13px] font-semibold tracking-[0.18em] text-white/90 min-[1400px]:inline">LIGHTSPEED</span>
         </div>
         <div className="h-5 w-px bg-white/10" />
-        <div className="w-[92px] leading-tight">
+        <div className="w-[92px] shrink-0 whitespace-nowrap leading-tight">
           <div className="text-[13px] tabular-nums text-white/90">{date}</div>
           <div className="text-[11px] tabular-nums text-white/50">{time}</div>
         </div>
@@ -87,7 +94,7 @@ export function TopBar() {
         <TimeControls />
       </div>
 
-      <div className="glass pointer-events-auto flex items-center gap-1.5 p-1.5">
+      <div className="glass no-scrollbar pointer-events-auto flex max-w-full items-center gap-1.5 overflow-x-auto p-1.5 sm:overflow-visible">
         <RelativityToggle />
         <div className="mx-1 h-5 w-px bg-white/10" />
         <div className="flex rounded-full bg-white/[0.04] p-0.5" role="radiogroup" aria-label="Size mode">
@@ -115,6 +122,12 @@ export function TopBar() {
         </button>
         <button className="chip w-8 justify-center" onClick={() => toggle('helpOpen')} title="Keyboard shortcuts (?)" aria-label="Keyboard shortcuts">
           ?
+        </button>
+        <button className="chip w-8 justify-center" onClick={() => toggle('aboutOpen')} title="About, credits and licences" aria-label="About">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4">
+            <circle cx="8" cy="8" r="6.3" />
+            <path d="M8 7.2v4.2M8 4.8v.2" strokeLinecap="round" />
+          </svg>
         </button>
       </div>
     </div>

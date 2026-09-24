@@ -39,6 +39,7 @@ import {
 import { Pass } from 'postprocessing';
 import { buildDopplerLut, DOPPLER_LUT_LN_MAX, DOPPLER_LUT_LN_MIN } from '../physics/dopplerColor';
 import { relView, setPointUniforms } from './relativisticView';
+import { quality } from './quality';
 import remapVert from './shaders/remap.vert.glsl?raw';
 import remapFrag from './shaders/remap.frag.glsl?raw';
 
@@ -70,13 +71,7 @@ export class LightspeedScenePass extends Pass {
     this.needsSwap = false;
     this.faceSize = faceSize;
 
-    this.cubeRT = new WebGLCubeRenderTarget(faceSize, {
-      type: HalfFloatType,
-      generateMipmaps: true,
-      minFilter: LinearMipmapLinearFilter,
-      magFilter: LinearFilter,
-      depthBuffer: true,
-    });
+    this.cubeRT = LightspeedScenePass.makeCubeTarget(faceSize);
     this.cubeCam = new CubeCamera(camera.near, camera.far, this.cubeRT);
     for (const c of this.cubeCam.children) c.layers.set(0);
 
@@ -119,8 +114,31 @@ export class LightspeedScenePass extends Pass {
     this.quadScene.add(quad);
   }
 
+  private static makeCubeTarget(size: number): WebGLCubeRenderTarget {
+    return new WebGLCubeRenderTarget(size, {
+      type: HalfFloatType,
+      generateMipmaps: true,
+      minFilter: LinearMipmapLinearFilter,
+      magFilter: LinearFilter,
+      depthBuffer: true,
+    });
+  }
+
+  /** Change the cube-map resolution (adaptive quality). */
+  private resizeCube(size: number): void {
+    this.cubeRT.dispose();
+    this.cubeRT = LightspeedScenePass.makeCubeTarget(size);
+    this.cubeCam.renderTarget = this.cubeRT;
+    this.faceSize = size;
+    const u = this.remap.uniforms;
+    u.uCube.value = this.cubeRT.texture;
+    u.uTexelAngle.value = Math.PI / 2 / size;
+    u.uMaxLod.value = Math.log2(size);
+  }
+
   render(renderer: WebGLRenderer, inputBuffer: WebGLRenderTarget | null): void {
     const target = this.renderToScreen ? null : inputBuffer;
+    if (quality.cubeFace !== this.faceSize) this.resizeCube(quality.cubeFace);
     const scene = this.world;
     const camera = this.viewCam;
     const autoClear = renderer.autoClear;

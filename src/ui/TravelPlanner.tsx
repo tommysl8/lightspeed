@@ -189,7 +189,9 @@ export function TravelPlanner() {
         </>
       )}
 
-      <div className={`mt-4 grid gap-3 border-t border-white/[0.07] pt-4 ${drive === 'rocket' ? 'grid-cols-4' : 'grid-cols-3'}`}>
+      <div
+        className={`mt-4 grid grid-cols-2 gap-3 border-t border-white/[0.07] pt-4 ${drive === 'rocket' ? 'sm:grid-cols-4' : 'sm:grid-cols-3'}`}
+      >
         <Readout label="Distance" value={plan ? formatDistance(plan.distance) : '—'} sub="Sun's frame" />
         <Readout label="Earth time" value={plan ? formatDuration(plan.earthTime) : '—'} sub="Sun's rest frame" />
         <Readout
