@@ -1,0 +1,23 @@
+# dependencies & build output
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+.vite/
+
+# raw downloads used by scripts/ (regenerable; not redistributed)
+data-raw/
+
+# logs & env
+*.log
+npm-debug.log*
+.env
+.env.*
+
+# editor / OS / local tooling
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.claude/

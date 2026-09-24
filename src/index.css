@@ -1,0 +1,205 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/inter';
+
+@theme {
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  background: #000;
+  overflow: hidden;
+}
+
+body {
+  font-family: var(--font-sans);
+  color: #e8ecf4;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'cv11', 'ss01';
+}
+
+@layer components {
+  .glass {
+    background: rgba(13, 16, 23, 0.56);
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    border: 1px solid rgba(255, 255, 255, 0.075);
+    border-radius: 16px;
+    box-shadow:
+      0 10px 40px rgba(0, 0, 0, 0.35),
+      inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    height: 28px;
+    padding: 0 10px;
+    border-radius: 9999px;
+    font-size: 12px;
+    color: rgba(232, 236, 244, 0.6);
+    transition:
+      background-color 0.15s,
+      color 0.15s;
+  }
+  .chip:hover {
+    background: rgba(255, 255, 255, 0.07);
+    color: #fff;
+  }
+  .chip-on {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .seg {
+    height: 26px;
+    padding: 0 12px;
+    border-radius: 9999px;
+    font-size: 12px;
+    color: rgba(232, 236, 244, 0.55);
+    transition:
+      background-color 0.2s,
+      color 0.2s;
+  }
+  .seg:hover {
+    color: #fff;
+  }
+  .seg-on {
+    background: rgba(255, 255, 255, 0.14);
+    color: #fff;
+  }
+
+  .btn-primary {
+    height: 36px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #0b0f17;
+    background: #e9eef8;
+    transition:
+      background-color 0.15s,
+      opacity 0.15s;
+  }
+  .btn-primary:hover {
+    background: #fff;
+  }
+  .btn-primary:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+
+  .body-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    height: 30px;
+    padding: 0 11px;
+    border-radius: 10px;
+    font-size: 12px;
+    white-space: nowrap;
+    color: rgba(232, 236, 244, 0.62);
+    transition:
+      background-color 0.15s,
+      color 0.15s;
+  }
+  .body-btn:hover {
+    background: rgba(255, 255, 255, 0.07);
+    color: #fff;
+  }
+  .body-btn-focus {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+  }
+  .body-btn-selected {
+    box-shadow: inset 0 0 0 1px rgba(125, 211, 252, 0.45);
+  }
+  .body-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 9999px;
+    opacity: 0.9;
+  }
+
+  .kbd {
+    display: inline-block;
+    min-width: 1.6em;
+    padding: 1px 5px;
+    margin: 0 1px;
+    border-radius: 5px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: rgba(255, 255, 255, 0.06);
+    font-family: var(--font-sans);
+    font-size: 11px;
+    line-height: 1.5;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  /* Body labels: an anchor at the body's screen position, with a ring marker and a name. */
+  .body-label {
+    position: absolute;
+    width: 0;
+    height: 0;
+    cursor: pointer;
+    transition: opacity 0.2s linear;
+  }
+  .body-marker {
+    position: absolute;
+    left: -6px;
+    top: -6px;
+    width: 12px;
+    height: 12px;
+    border-radius: 9999px;
+    border: 1.25px solid rgba(235, 240, 250, 0.7);
+    opacity: var(--marker, 1);
+  }
+  .body-name {
+    position: absolute;
+    left: var(--offset, 11px);
+    top: 0;
+    transform: translateY(-50%);
+    font-size: 12px;
+    font-weight: 450;
+    letter-spacing: 0.01em;
+    color: rgba(235, 240, 250, 0.82);
+    text-shadow:
+      0 0 3px rgba(0, 0, 0, 0.9),
+      0 1px 2px rgba(0, 0, 0, 0.9);
+    white-space: nowrap;
+  }
+  .body-label:hover .body-name {
+    color: #fff;
+  }
+  .body-label[data-selected='true'] .body-name {
+    color: #fff;
+    font-weight: 600;
+  }
+  .body-label[data-selected='true'] .body-marker {
+    border-color: rgba(125, 211, 252, 0.95);
+  }
+
+  .fade-in {
+    animation: fade-in 0.22s ease-out;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fade-in {
+    animation: none;
+  }
+}
