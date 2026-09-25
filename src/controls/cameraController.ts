@@ -458,7 +458,7 @@ export class CameraController {
   private onContextMenu = (e: Event): void => e.preventDefault();
 
   private onKeyDown = (e: KeyboardEvent): void => {
-    if (isTyping(e)) return;
+    if (isTyping(e) || useUI.getState().reportFor) return;
     this.keys.add(e.code);
     if (this.mode === 'free' && (e.code === 'Space' || e.code.startsWith('Arrow'))) e.preventDefault();
   };

@@ -72,7 +72,7 @@ function InFlight({ t }: { t: Trip }) {
   return (
     <div className={`panel-float appear absolute inset-x-3 bottom-3 z-20 ${t.warp ? '!border-hazard/50' : ''}`}>
       <div className={`titlebar ${t.warp ? 'hatch' : ''}`}>
-        <span className={`cap ${t.warp ? '!text-hazard' : '!text-data'}`}>In transit</span>
+        <span className={`cap ${t.warp ? '!text-hazard' : '!text-data'}`}>Flight recorder · in transit</span>
         <span className="text-[12px] text-fg">
           → {BODIES[t.dest].name}
           <span className="text-fg-3">

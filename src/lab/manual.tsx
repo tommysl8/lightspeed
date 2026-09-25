@@ -53,7 +53,7 @@ function openPlanner(dest: BodyId, drive: 'cruise' | 'rocket', beta?: number) {
 function frameInnerSystem() {
   if (useUI.getState().tripActive) return;
   useUI.getState().select('sun');
-  controller.goTo('sun', { distance: 4.2 * AU_KM, direction: new Vector3(0.25, 1, 0.45) });
+  controller.goTo('sun', { distance: 13 * AU_KM, direction: new Vector3(0.2, 1, 0.35) });
 }
 
 // ─── Experiment 1 ────────────────────────────────────────────────────────────────────────
@@ -115,7 +115,7 @@ const E1: ManualEntry = {
   procedure: [
     {
       text: 'Frame the inner Solar System from above the ecliptic, so that the orbits of Mars and Jupiter are in view.',
-      done: () => sim.bodies.sun.distCamera > 2.5 * AU_KM,
+      done: ({ ui }) => ui.focus === 'sun' && sim.bodies.sun.distCamera > 6 * AU_KM && sim.bodies.sun.distCamera < 60 * AU_KM,
       action: { label: 'Frame view', run: frameInnerSystem },
     },
     {
@@ -135,7 +135,7 @@ const E1: ManualEntry = {
       },
     },
     {
-      text: 'Emit a pulse from Earth. The cyan circle is the front’s cross-section in the ecliptic plane; the faint circle is its outline on the sky.',
+      text: 'Emit a pulse from Earth with the emitter under Observations (or Instruments › Target › Emit pulse). The cyan circle is the front’s cross-section in the ecliptic plane; the faint circle is its outline on the sky.',
       done: ({ rows }) => labFlags.pulsesEmitted > 0 || rows.length > 0,
       action: { label: 'Emit from Earth', run: () => emitLightPulse('earth') },
     },
@@ -210,7 +210,8 @@ const E2: ManualEntry = {
       Ship chronometer (proper time <M t="\tau" />) and the coordinate clocks of S (<M t="\Delta t" />).
     </>,
     <>
-      Flight recorder: logs <M t="\Delta t" /> and <M t="\Delta\tau" /> on every arrival.
+      Flight recorder (in transit) and trial report: <M t="\Delta t" /> and <M t="\Delta\tau" /> are logged on every
+      arrival.
     </>,
     <>
       Simulated uncertainty (optional): <M t="\sigma = 0.1\,\%" /> on each clock reading.
@@ -378,8 +379,9 @@ const E4: ManualEntry = {
       <Eq n="4.2" tex="\cos\theta' - \cos\theta = \beta\,\bigl(1 - \cos\theta\cos\theta'\bigr)," />
       <p>which is a line through the origin with slope <M t="\beta" />.</p>
       <p>
-        The catalogue angle <M t="\theta" /> comes from the ephemeris: the target’s light-time-corrected position in S. The
-        observed angle <M t="\theta'" /> is where the target appears in the ship’s view.
+        The catalogue angle <M t="\theta" /> comes from the ephemeris: the target’s position in S, corrected for light-time
+        when <i>Light-time correction</i> is on. The observed angle <M t="\theta'" /> is where the target appears in the ship’s
+        view.
       </p>
     </>
   ),
@@ -437,9 +439,10 @@ const E4: ManualEntry = {
     {
       text: (
         <>
-          Optional, Bradley’s experiment: stop the trip, orbit Earth (<kbd className="kbd">H</kbd>) and record five bodies. The
-          observer now moves with Earth at about 30 km/s. The shift <M t="	heta - 	heta'" /> is at most about 20″, and the fit
-          gives Earth’s orbital speed.
+          Optional, Bradley’s experiment: Abort the trip, orbit Earth (<kbd className="kbd">H</kbd>) and switch simulated
+          uncertainty off. Select five bodies by clicking their labels (the number keys would fly you to them and change your
+          velocity) and record each. The observer now moves with Earth at about 30 km/s, the shift <M t="\theta - \theta'" /> is at
+          most about 20″, and the fit gives Earth’s orbital speed.
         </>
       ),
       done: ({ rows }) => rows.filter((r) => num(r, 'beta') < 1e-3).length >= 5,
@@ -518,14 +521,14 @@ const E5: ManualEntry = {
     },
     {
       text: 'Skip to arrival (the samples are computed exactly along the trajectory), or raise the rate to 10⁶ and watch the flight.',
-      done: ({ rows }) => rows.some((r) => r.v.phase === 'decel') && !travel.trip,
+      done: ({ rows }) => rows.some((r) => num(r, 'T') > 0 && num(r, 'tau') >= num(r, 'T') * (1 - 1e-9)),
     },
     {
       text: 'Fit the accelerating phase in Fig. 5.2 and compute a = c dφ/dτ. Compare with g₀.',
       done: ({ rows }) => rows.length >= 10,
     },
     {
-      text: 'Optional: fly a second flight to a nearer target (Mars, or Pluto) and compare the peak speeds.',
+      text: 'Optional: return to Earth (H), fly a second flight to a nearer target (Mars, or Pluto) and compare the peak speeds.',
       done: ({ rows }) => new Set(rows.map((r) => r.v.flight)).size >= 2,
     },
   ],

@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { SimDriver } from './scene/SimDriver';
 import { Starfield } from './scene/Starfield';
@@ -29,9 +29,29 @@ import { useUI } from './state/ui';
 // The lab report (with KaTeX) loads on first use.
 const LabReport = lazy(() => import('./ui/manual/LabReport'));
 
+/**
+ * Below 900 px the docks overlay the viewport. Show one at a time, and clear them away when the
+ * planner opens or a trip starts, so neither hides under a dock.
+ */
+function useNarrowDocks() {
+  useEffect(
+    () =>
+      useUI.subscribe((s, prev) => {
+        if (window.innerWidth >= 900) return;
+        if ((s.plannerOpen && !prev.plannerOpen) || (s.tripActive && !prev.tripActive)) {
+          if (s.leftOpen || s.rightOpen) useUI.setState({ leftOpen: false, rightOpen: false });
+        } else if (s.leftOpen && s.rightOpen) {
+          useUI.setState(prev.leftOpen ? { leftOpen: false } : { rightOpen: false });
+        }
+      }),
+    [],
+  );
+}
+
 export default function App() {
   useShortcuts();
   useExplainerTriggers();
+  useNarrowDocks();
   const leftOpen = useUI((s) => s.leftOpen);
   const rightOpen = useUI((s) => s.rightOpen);
   const reportFor = useUI((s) => s.reportFor);

@@ -15,14 +15,15 @@ const GROUPS: { title: string; keys: [ReactNode, string][] }[] = [
       [<>Wheel · <Kbd>+</Kbd> <Kbd>−</Kbd></>, 'Range (logarithmic)'],
       [<Kbd key="f">F</Kbd>, 'Free flight on / off'],
       [<><Kbd>W</Kbd><Kbd>A</Kbd><Kbd>S</Kbd><Kbd>D</Kbd></>, 'Translate (free flight); wheel sets the throttle'],
-      [<><Kbd>Space</Kbd> <Kbd>C</Kbd> · <Kbd>Q</Kbd> <Kbd>E</Kbd></>, 'Up, down · roll (free flight)'],
+      [<><Kbd>Space</Kbd>/<Kbd>R</Kbd> · <Kbd>C</Kbd>/<Kbd>Ctrl</Kbd></>, 'Up · down (free flight)'],
+      [<><Kbd>Q</Kbd> <Kbd>E</Kbd></>, 'Roll (free flight)'],
     ],
   },
   {
     title: 'Time and trips',
     keys: [
       [<><Kbd>Space</Kbd> <Kbd>P</Kbd></>, 'Pause / resume'],
-      [<><Kbd>[</Kbd> <Kbd>]</Kbd></>, 'Simulation rate down / up (10⁰ … 10⁶)'],
+      [<><Kbd>[</Kbd> <Kbd>]</Kbd> or <Kbd>,</Kbd> <Kbd>.</Kbd></>, 'Simulation rate down / up (10⁰ … 10⁶)'],
       [<Kbd key="n">N</Kbd>, 'Return to the present at real time; zeroes the chronometers'],
       [<Kbd key="g">G</Kbd>, 'Trajectory planner'],
       [<Kbd key="z">Z</Kbd>, 'Optics: classical ↔ relativistic'],
@@ -32,7 +33,7 @@ const GROUPS: { title: string; keys: [ReactNode, string][] }[] = [
   {
     title: 'Laboratory',
     keys: [
-      [<Kbd key="r">R</Kbd>, 'Record a reading (Experiments 3 and 4)'],
+      [<Kbd key="r">R</Kbd>, 'Record a reading (Experiments 3 and 4; not in free flight)'],
       [<Kbd key="k">K</Kbd>, 'Lab manual'],
       [<Kbd key="i">I</Kbd>, 'Instrument panel'],
       [<Kbd key="e">E</Kbd>, 'Reference sections'],

@@ -174,7 +174,7 @@ function Target() {
       <Ro l="Angular diameter" v={ang.v} u={ang.u} />
       {b.magnitude < 40 && <Ro l="Apparent magnitude V" v={fixed(b.magnitude, 1)} title="Reflected sunlight (Lambert sphere with the body's geometric albedo)" />}
       {id !== 'sun' && <Ro l={<>Heliocentric <Sym>r</Sym></>} v={<Q x={b.distSun} dim="length" d={6} />} />}
-      {geo && geo.beta >= 1e-3 && (
+      {geo && geo.beta >= 1e-6 && (
         <>
           <Ro l={<>Angle from apex <Sym>θ</Sym> (S)</>} v={fixed(geo.thetaDeg, 3)} u="°" />
           <Ro l={<>Observed angle <Sym>θ′</Sym> (S′)</>} v={fixed(geo.thetaShipDeg, 3)} u="°" tone="data" />
@@ -448,9 +448,9 @@ export function InstrumentsDock(): ReactNode {
         <Observer />
         <Clocks />
         <Target />
-        <Spacetime />
         <Optics />
         <LightTime />
+        <Spacetime />
         <Ephemeris />
         <Scope />
       </div>

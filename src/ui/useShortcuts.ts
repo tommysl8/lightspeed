@@ -22,11 +22,11 @@ export function useShortcuts() {
       const flying = ui.controlMode === 'free';
       const k = e.key.toLowerCase();
 
+      if (ui.reportFor) return; // the report handles its own keys
       if (e.key === '?') {
         ui.toggle('helpOpen');
         return;
       }
-      if (ui.reportFor) return; // the report handles its own keys
       if (e.key === 'Escape') {
         if (ui.helpOpen) useUI.setState({ helpOpen: false });
         else if (ui.aboutOpen) useUI.setState({ aboutOpen: false });

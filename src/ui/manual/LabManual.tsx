@@ -6,12 +6,12 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import { EXPLAINERS, explainerById, type ExplainerId } from '../../content/explainers';
 import { REFERENCE } from '../../content/reference';
-import { BODIES } from '../../physics/constants';
+import { BODIES, BODY_ORDER, type BodyId } from '../../physics/constants';
 import { fixed, fmtBeta, sig } from '../../lib/sci';
 import { MANUAL, type StepCtx } from '../../lab/manual';
 import { PROTOCOLS, PROTOCOL_LIST, cellText, columnUnits, sigmaText, toCsv, type Protocol, type ResultLine } from '../../lab/protocols';
 import { EXPERIMENT_IDS, rowsFor, useNotebook, type DataRow, type ExperimentId } from '../../lab/notebook';
-import { recordManual } from '../../lab/logger';
+import { emitLightPulse, recordManual } from '../../lab/logger';
 import { useLabEvents } from '../../lab/events';
 import { reticleReading, targetReading } from '../../lab/measure';
 import { useUI } from '../../state/ui';
@@ -227,13 +227,39 @@ function LiveReading({ exp }: { exp: ExperimentId }) {
       <span className="text-fg-3">Goniometer{sel ? ` (${BODIES[sel].name})` : ''}: </span>
       {!sel ? (
         <span className="text-fg-3">select a target</span>
-      ) : r && r.beta >= 1e-3 ? (
+      ) : r && r.beta >= 1e-6 ? (
         <>
-          θ = {fixed(r.thetaDeg, 3)}° · θ′ = <span className="text-data">{fixed(r.thetaShipDeg, 3)}°</span>
+          θ = {fixed(r.thetaDeg, 4)}° · θ′ = <span className="text-data">{fixed(r.thetaShipDeg, 4)}°</span>
         </>
       ) : (
         <span className="text-fg-3">no apex (observer at rest)</span>
       )}
+    </div>
+  );
+}
+
+/** Pulse emitter (Experiment 1): fire from a body's current position or from the observer. */
+function Emitter() {
+  const [source, setSource] = useState<BodyId | 'observer'>('earth');
+  return (
+    <div className="mb-2 flex items-center gap-2 border border-line-2 bg-well px-2.5 py-1.5">
+      <span className="cap">Emitter</span>
+      <select
+        className="fld min-w-0 flex-1"
+        value={source}
+        onChange={(e) => setSource(e.target.value as BodyId | 'observer')}
+        aria-label="Emit from"
+      >
+        {BODY_ORDER.filter((id) => id !== 'proxima').map((id) => (
+          <option key={id} value={id}>
+            {BODIES[id].name}
+          </option>
+        ))}
+        <option value="observer">Observer (current position)</option>
+      </select>
+      <button className="btn btn-pri btn-sm shrink-0" onClick={() => emitLightPulse(source === 'observer' ? null : source)}>
+        Emit pulse
+      </button>
     </div>
   );
 }
@@ -454,6 +480,7 @@ function ExperimentPage({ exp }: { exp: ExperimentId }) {
       <H n={5} right={`${rows.length} reading${rows.length === 1 ? '' : 's'}`}>
         Observations
       </H>
+      {exp === 'E1' && <Emitter />}
       {p.manual && (
         <div className="mb-2 border border-line-2 bg-well px-2.5 py-1.5">
           <div className="flex items-center justify-between gap-2">

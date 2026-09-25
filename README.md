@@ -12,7 +12,7 @@ instruments, and a least-squares analysis:
 | 1 | Time of flight of a light pulse | Detector times across the Solar System; *c* from a straight-line fit |
 | 2 | Time dilation on inertial trips | Ship and Earth clocks on arrival; the exponent p in Δτ = Δt (1 − β²)^p |
 | 3 | The relativistic Doppler factor | D against angle from the apex; β from the linearised fit |
-| 4 | Aberration of light | Observed against catalogue angles; β from cos θ′ − cos θ = β(1 − cos θ cos θ′) |
+| 4 | Aberration of light | Observed against catalogue angles; β from cos θ′ − cos θ = β(1 − cos θ cos θ′), down to Bradley's 20″ from Earth's own motion |
 | 5 | Constant proper acceleration | A logged 1 g flight; the proper acceleration from the rapidity, a = c dφ/dτ |
 
 Built with Vite, React, TypeScript and three.js (React Three Fiber). It is a static site with no backend.
@@ -30,8 +30,14 @@ Built with Vite, React, TypeScript and three.js (React Three Fiber). It is a sta
   ecliptic J2000 axis triad, annunciator lamps (pause, rate, optics, light-time correction, pulses in flight) and
   an event log.
 - **Data.** Readings persist in the browser and export as CSV (base units, with 1σ columns). Optional simulated
-  instrument uncertainty lets you practise error analysis. Fits are weighted least squares with standard errors
-  and χ²/ν.
+  instrument uncertainty lets you practise error analysis. Fits are weighted least squares (effective variance
+  where both axes carry error) with standard errors and χ²/ν.
+- **Lab reports.** Each question has an answer box, and each experiment a conclusion. "Prepare lab report"
+  lays out aim, theory, method, data table, both figures, fitted results and answers on a printable A4 page
+  (print or save as PDF).
+- **Epoch.** Click the epoch to set any UTC instant from 1981 to 2199, with presets for the next oppositions of
+  Mars, Jupiter and Saturn (computed with Astronomy Engine). An optional ecliptic coordinate grid (`J`) marks
+  longitude on the sky.
 
 ## Simulation
 
@@ -83,15 +89,16 @@ No configuration is needed.
 
 | Key | Action |
 | --- | --- |
-| Drag / scroll | Orbit / range (log scale); look around in transit |
-| Double-click, `0`–`9`, `M`, `V` | Select and slew to a body (Sun, planets, Pluto, Moon, Voyager 1) |
+| Drag / scroll, arrow keys, `+` `−` | Orbit / range (log scale); look around in transit |
+| Double-click, `0`–`9`, `M`, `V` | Select and slew to a body (Sun, planets, Pluto, Moon, Voyager 1); in transit, select only |
+| `H` | Return to Earth |
 | `G` | Trajectory planner |
-| `F` | Free flight (WASD, Space/C up/down, Q/E roll, scroll = throttle, Esc to exit) |
-| `Space` / `P`, `[` `]`, `N` | Pause, simulation rate down/up, back to now (zeroes the chronometers) |
+| `F` | Free flight (WASD, Space/R up, C/Ctrl down, Q/E roll, scroll = throttle, Esc to exit) |
+| `Space` / `P`, `[` `]` (or `,` `.`), `N` | Pause, simulation rate down/up, back to now (zeroes the chronometers) |
 | `Z`, `X` | Relativistic ↔ classical optics, split screen |
-| `R` | Record a reading (Experiments 3 and 4) |
+| `R` | Record a reading (Experiments 3 and 4; not in free flight) |
 | `K`, `I`, `E` | Lab manual, instrument panel, reference sections |
-| `T`, `O`, `L`, `B`, `U` | True scale ↔ enlarged, orbits, labels, small bodies, viewport overlays |
+| `T`, `O`, `L`, `B`, `U`, `J` | True scale ↔ enlarged, orbits, labels, small bodies, viewport overlays, ecliptic grid |
 | `?` | Operating reference |
 
 ## How it works

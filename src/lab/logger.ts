@@ -20,6 +20,7 @@ import { sim } from '../sim/sim';
 import { emitPulse, onDetection, pulses } from '../sim/pulses';
 import { shipStateAt, travel, tripElapsed, type Trip } from '../sim/travel';
 import { useUI } from '../state/ui';
+import { relView } from '../render/relativisticView';
 import { logEvent } from './events';
 import { reticleReading, targetReading } from './measure';
 import { useNotebook, type ExperimentId, type Value } from './notebook';
@@ -135,7 +136,7 @@ function rocketSamples(t: Trip, upToTau: number): void {
 export function labFrame(): void {
   const t = travel.trip;
   if (t?.drive === 'rocket') rocketSamples(t, shipStateAt(t, tripElapsed(t)).tau);
-  if (useUI.getState().relMode === 'split') labFlags.splitUsed = true;
+  if (relView.split) labFlags.splitUsed = true;
 }
 
 /** Called on the frame a trip arrives. */
