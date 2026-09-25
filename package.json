@@ -6,6 +6,7 @@
   "description": "Explore the real Solar System close to the speed of light: a true-scale 3D Solar System with exact relativistic optics, in the browser.",
   "license": "MIT",
   "author": "Tommy Liu (https://github.com/tommysl8)",
+  "homepage": "https://lightspeed-explorer.vercel.app",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/tommysl8/lightspeed.git"

@@ -4,6 +4,8 @@
 
 **Explore the real Solar System close to the speed of light.**
 
+**Try it in your browser: [lightspeed-explorer.vercel.app](https://lightspeed-explorer.vercel.app)**
+
 Every planet sits where it really is today, every distance is to scale, and light takes real time to cross
 them: 8 minutes 19 seconds from the Sun to Earth, 5.5 hours to Pluto, almost a full day to Voyager 1. Fly between
 the planets at nearly the speed of light and the sky crowds ahead of you, colours shift, and your clock falls
@@ -90,7 +92,7 @@ procedure that ticks itself off, a data table filled by the instruments, and a l
 
 ## Run it
 
-Requires Node 22.12+ (or 24+). Vercel's default Node version works.
+Requires Node 22.12+ or 24.
 
 ```bash
 npm install
@@ -219,13 +221,15 @@ experiments are welcome, by email or as an [issue](https://github.com/tommysl8/l
 If you use Lightspeed in teaching or written work:
 
 > Liu, T. (2026). *Lightspeed: A relativistic Solar System explorer* (Version 0.2.0) [Computer software].
+> https://lightspeed-explorer.vercel.app
 
 ```bibtex
 @software{liu_lightspeed_2026,
   author  = {Liu, Tommy},
   title   = {Lightspeed: A Relativistic Solar System Explorer},
   year    = {2026},
-  version = {0.2.0}
+  version = {0.2.0},
+  url     = {https://lightspeed-explorer.vercel.app}
 }
 ```
 
