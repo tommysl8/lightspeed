@@ -28,6 +28,8 @@ export interface Step {
   text: ReactNode;
   done: (c: StepCtx) => boolean;
   action?: { label: string; run: () => void };
+  /** Not needed to finish the experiment (the "next step" guide passes over it). */
+  optional?: boolean;
 }
 
 export interface ManualEntry {
@@ -146,6 +148,7 @@ const E1: ManualEntry = {
     },
     {
       text: 'Optional: switch on simulated uncertainty (Observations) and repeat with a second pulse. Compare χ²/ν and the error on the slope.',
+      optional: true,
       done: ({ rows }) => rows.some((r) => !!r.s),
     },
     {
@@ -332,6 +335,7 @@ const E3: ManualEntry = {
     },
     {
       text: 'Optional: repeat at a second speed (β = 0.95) and compare the curves.',
+      optional: true,
       done: ({ rows }) => distinct(rows, 'beta', 3) >= 2,
     },
     {
@@ -445,6 +449,7 @@ const E4: ManualEntry = {
           most about 20″, and the fit gives Earth’s orbital speed.
         </>
       ),
+      optional: true,
       done: ({ rows }) => rows.filter((r) => num(r, 'beta') < 1e-3).length >= 5,
     },
   ],
@@ -529,6 +534,7 @@ const E5: ManualEntry = {
     },
     {
       text: 'Optional: return to Earth (H), fly a second flight to a nearer target (Mars, or Pluto) and compare the peak speeds.',
+      optional: true,
       done: ({ rows }) => new Set(rows.map((r) => r.v.flight)).size >= 2,
     },
   ],

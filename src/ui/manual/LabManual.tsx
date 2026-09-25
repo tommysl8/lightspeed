@@ -49,9 +49,9 @@ function exportCsv(p: Protocol, rows: DataRow[]) {
   );
 }
 
-function H({ n, children, right }: { n?: string | number; children: ReactNode; right?: ReactNode }) {
+function H({ n, children, right, id }: { n?: string | number; children: ReactNode; right?: ReactNode; id?: string }) {
   return (
-    <h3 className="man-h">
+    <h3 className="man-h scroll-mt-2" id={id}>
       {n !== undefined && <span className="n">{n}</span>}
       <span>{children}</span>
       {right && <span className="ml-auto font-sans text-[11px] font-normal normal-case tracking-normal text-fg-3">{right}</span>}
@@ -192,6 +192,73 @@ function ProgressBoxes({ done }: { done: boolean[] }) {
 
 // ─── Experiment page ─────────────────────────────────────────────────────────────────────
 
+const jumpTo = (id: string) =>
+  document.getElementById(id)?.scrollIntoView({
+    block: 'start',
+    behavior: window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+  });
+
+/**
+ * Where to start without reading the whole page: the first procedure step not yet done,
+ * with its set-up button. Optional steps are passed over until the rest are done.
+ */
+function NextStep({ exp, rows }: { exp: ExperimentId; rows: DataRow[] }) {
+  useTicker(2);
+  const tripActive = useUI((s) => s.tripActive);
+  const steps = MANUAL[exp].procedure;
+  const done = stepStatus(exp, { rows, ui: useUI.getState() });
+  let k = done.findIndex((d, i) => !d && !steps[i].optional);
+  if (k < 0) k = done.findIndex((d) => !d);
+  if (k < 0) {
+    return (
+      <div className="mt-3 border border-ok/40 bg-ok/[0.05] px-3 py-2.5">
+        <div className="flex items-center gap-2">
+          <span className="cap !text-ok">All steps complete</span>
+          <ProgressBoxes done={done} />
+        </div>
+        <p className="mt-1 text-[12.5px] leading-snug text-fg-2">
+          Read the fitted results under Analysis, answer the questions, then prepare the lab report.
+        </p>
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          <button className="btn btn-sm" onClick={() => jumpTo(`analysis-${exp}`)}>
+            Go to Analysis
+          </button>
+          <button className="btn btn-pri btn-sm" onClick={() => useUI.setState({ reportFor: exp })}>
+            Prepare lab report
+          </button>
+        </div>
+      </div>
+    );
+  }
+  const s = steps[k];
+  return (
+    <div className="mt-3 border border-accent/40 bg-accent/[0.05] px-3 py-2.5">
+      <div className="flex items-center gap-2">
+        <span className="cap !text-accent">{s.optional ? 'Optional step' : 'Next step'}</span>
+        <span className="mono text-[10px] text-fg-3">
+          {k + 1} of {steps.length}
+        </span>
+        <ProgressBoxes done={done} />
+        <button className="btn btn-q btn-sm -mr-1.5 ml-auto" onClick={() => jumpTo(`proc-${exp}`)}>
+          Full procedure
+        </button>
+      </div>
+      <div className="prose-lab mt-1 !text-[13px]" aria-live="polite">
+        {rich(s.text)}
+      </div>
+      {s.action && (
+        <button
+          className="btn btn-pri btn-sm mt-1.5"
+          onClick={s.action.run}
+          disabled={tripActive && /Planner|Frame/.test(s.action.label)}
+        >
+          {s.action.label}
+        </button>
+      )}
+    </div>
+  );
+}
+
 function Procedure({ exp, rows }: { exp: ExperimentId; rows: DataRow[] }) {
   useTicker(2);
   const tripActive = useUI((s) => s.tripActive);
@@ -201,7 +268,7 @@ function Procedure({ exp, rows }: { exp: ExperimentId; rows: DataRow[] }) {
   const count = done.filter(Boolean).length;
   return (
     <>
-      <H n={4} right={`${count}/${steps.length} complete`}>
+      <H n={4} right={`${count}/${steps.length} complete`} id={`proc-${exp}`}>
         Procedure
       </H>
       <ol className="m-0 list-none space-y-2 p-0">
@@ -487,6 +554,7 @@ function ExperimentPage({ exp }: { exp: ExperimentId }) {
       <div className="mono mt-1.5 text-[10.5px] text-fg-3">
         ~{m.duration} · {p.manual ? 'manual readings (R)' : 'automatic logging'} · {rows.length} reading{rows.length === 1 ? '' : 's'}
       </div>
+      <NextStep exp={exp} rows={rows} />
 
       <H n={1}>Aim</H>
       <div className="prose-lab">{m.aim}</div>
@@ -541,7 +609,9 @@ function ExperimentPage({ exp }: { exp: ExperimentId }) {
         </button>
       </div>
 
-      <H n={6}>Analysis</H>
+      <H n={6} id={`analysis-${exp}`}>
+        Analysis
+      </H>
       <Analysis p={p} rows={rows} />
 
       <H n={7}>Questions</H>

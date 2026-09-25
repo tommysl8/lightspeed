@@ -3,7 +3,7 @@
  * event console, the split-view divider, reference margin notes and the warning band shown
  * while the fictional warp is engaged.
  */
-import { useCallback, useRef, type ReactNode } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { BODIES } from '../../physics/constants';
 import { explainerById, EXPLAINERS } from '../../content/explainers';
 import { qty } from '../../lib/sci';
@@ -14,7 +14,7 @@ import { travel } from '../../sim/travel';
 import { useUI } from '../../state/ui';
 import { useLabEvents, type EventKind } from '../../lab/events';
 import { openExplainer } from '../explainerActions';
-import { CloseIcon } from '../kit';
+import { CloseIcon, Kbd } from '../kit';
 import { useTicker } from '../useTicker';
 import { rich } from '../rich';
 
@@ -241,6 +241,67 @@ function NoteToast() {
   );
 }
 
+const HINT_KEY = 'lightspeed.hinted';
+
+/**
+ * First visit only: how to move around, until the visitor first drags or scrolls in the view
+ * (or after half a minute).
+ */
+function FirstHint() {
+  const blocked = useUI((s) => s.welcomeOpen || s.tourStep !== null || s.tripActive || s.plannerOpen);
+  const [show, setShow] = useState(() => {
+    try {
+      return localStorage.getItem(HINT_KEY) !== '1';
+    } catch {
+      return false;
+    }
+  });
+  useEffect(() => {
+    if (!show || blocked) return;
+    const view = document.querySelector('.app-view');
+    const done = () => {
+      setShow(false);
+      try {
+        localStorage.setItem(HINT_KEY, '1');
+      } catch {
+        /* storage unavailable */
+      }
+    };
+    // Let the first gesture finish before the hint goes.
+    const soon = () => window.setTimeout(done, 1200);
+    const timer = window.setTimeout(done, 30_000);
+    view?.addEventListener('pointerdown', soon, { once: true });
+    view?.addEventListener('wheel', soon, { once: true, passive: true });
+    return () => {
+      window.clearTimeout(timer);
+      view?.removeEventListener('pointerdown', soon);
+      view?.removeEventListener('wheel', soon);
+    };
+  }, [show, blocked]);
+  if (!show || blocked) return null;
+  return (
+    <div className="pointer-events-none absolute inset-x-0 bottom-10 z-10 flex justify-center px-4">
+      <div className="panel-float appear flex flex-wrap items-center justify-center gap-x-4 gap-y-1 px-3.5 py-2 text-[12px] text-fg-2">
+        <span>
+          <b className="font-medium text-fg">Drag</b> to look around
+        </span>
+        <span className="text-line-3" aria-hidden>
+          ·
+        </span>
+        <span>
+          <b className="font-medium text-fg">Scroll</b> to zoom
+        </span>
+        <span className="text-line-3" aria-hidden>
+          ·
+        </span>
+        <span>
+          Click a name below, or <Kbd>0</Kbd>–<Kbd>9</Kbd>, to visit a planet
+        </span>
+      </div>
+    </div>
+  );
+}
+
 function WarpBand() {
   const active = useUI((s) => s.tripActive);
   useTicker(4, active);
@@ -272,6 +333,7 @@ export function ViewportChrome() {
       <EventConsole />
       <EventAnnouncer />
       <NoteToast />
+      <FirstHint />
     </>
   );
 }
