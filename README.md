@@ -174,8 +174,8 @@ tone mapping:
 | Physical data | [NASA Planetary Fact Sheets](https://nssdc.gsfc.nasa.gov/planetary/factsheet/) | US Government work |
 | Voyager 1 state vectors | [JPL Horizons](https://ssd.jpl.nasa.gov/horizons/) | NASA/JPL-Caltech |
 | Asteroids, Trojans, TNOs (`public/data/belts.bin`) | [JPL Small-Body Database](https://ssd-api.jpl.nasa.gov/doc/sbdb_query.html) | NASA/JPL-Caltech |
-| Stars (`public/data/stars.bin`, `star-names.json`) | [HYG Database v4.4](https://codeberg.org/astronexus/hyg) (David Nash) | **CC BY-SA 4.0**; these derived files are CC BY-SA 4.0 too |
-| Planet, Sun and ring textures | [Solar System Scope](https://www.solarsystemscope.com/textures/) (INOVE) | CC BY 4.0 |
+| Stars (`public/data/stars.bin`, `star-names.json`) | [HYG Database v4.4](https://codeberg.org/astronexus/hyg) (David Nash) | **[CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)**; these derived files are CC BY-SA 4.0 too |
+| Planet, Sun and ring textures | [Solar System Scope](https://www.solarsystemscope.com/textures/) (INOVE) | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
 | Pluto map | [NASA/JHUAPL/SwRI](https://www.nasa.gov/image-article/pluto-global-color-map/) (New Horizons) | NASA media, public domain |
 | Proxima Centauri | Gaia DR3 (distance), Boyajian et al. 2012 (radius), Ségransan et al. 2003 (temperature) | — |
 | Colour science | CIE 1931 fit by Wyman, Sloan & Shirley (2013); B−V→T by Ballesteros (2012) | — |
@@ -212,7 +212,7 @@ scripts/       data builders
 
 **Tommy Liu** ([@tommysl8](https://github.com/tommysl8), tommysliu8@gmail.com) is studying Electrical and Computer
 Engineering at the University of Illinois Urbana-Champaign. Corrections, bug reports and ideas for new journeys or
-experiments are welcome.
+experiments are welcome, by email or as an [issue](https://github.com/tommysl8/lightspeed/issues).
 
 ## Citing
 
@@ -233,5 +233,5 @@ The About page in the app gives the same citation with the address of the site i
 
 ## License
 
-Code: [MIT](LICENSE), © 2026 Tommy Liu. The star data files are CC BY-SA 4.0 and the textures are CC BY 4.0, as
-listed above.
+Code: [MIT](LICENSE), © 2026 Tommy Liu. The star data files are CC BY-SA 4.0, the Solar System Scope textures are
+CC BY 4.0 and the Pluto map is NASA public domain, as listed above and in [CREDITS.md](CREDITS.md).

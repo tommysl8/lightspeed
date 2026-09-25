@@ -146,7 +146,7 @@ function Author() {
       ))}
       <p>
         Lightspeed was designed and built by {AUTHOR.name}. Corrections, bug reports and ideas for new journeys or experiments are
-        welcome by email or on GitHub.
+        welcome by email, or as an issue on the project’s <Ext href={`${AUTHOR.repo}/issues`}>GitHub page</Ext>.
       </p>
     </Chapter>
   );
@@ -289,6 +289,9 @@ function Software() {
       <p>
         The code is released under the MIT Licence, © {APP.year} {AUTHOR.name}. The star catalogue and textures keep their own
         licences, listed under <Ref page="about" to="sources">Sources and methods</Ref>.
+      </p>
+      <p>
+        The source code is on GitHub at <Ext href={AUTHOR.repo}>{AUTHOR.repo.replace('https://', '')}</Ext>.
       </p>
       <p className="mono text-[12px] text-fg-3">
         Version {APP.version} · build {APP.build}

@@ -19,15 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
----
-
-Third-party data and assets in this repository keep their own licences:
-
-- public/data/stars.bin and public/data/star-names.json are derived from the HYG
-  Database (David Nash, astronexus) and are licensed CC BY-SA 4.0.
-- public/textures/2k_*.{jpg,png}: Solar System Scope, CC BY 4.0.
-- public/textures/pluto_nh_color.jpg: NASA/JHUAPL/SwRI (New Horizons), public domain.
-- public/data/belts.bin: orbital elements from the JPL Small-Body Database.
-
-See README.md for full credits.

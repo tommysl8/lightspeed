@@ -6,6 +6,8 @@ export const AUTHOR = {
   citeShort: 'Liu, T.',
   handle: 'tommysl8',
   github: 'https://github.com/tommysl8',
+  /** The project's source code and issue tracker. */
+  repo: 'https://github.com/tommysl8/lightspeed',
   email: 'tommysliu8@gmail.com',
   affiliation: 'Electrical and Computer Engineering, University of Illinois Urbana-Champaign',
   bio: [

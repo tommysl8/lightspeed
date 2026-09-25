@@ -3,11 +3,18 @@
   "private": true,
   "version": "0.2.0",
   "type": "module",
-  "description": "A true-scale 3D solar system you can fly through at (and past) the speed of light.",
+  "description": "Explore the real Solar System close to the speed of light: a true-scale 3D Solar System with exact relativistic optics, in the browser.",
   "license": "MIT",
   "author": "Tommy Liu (https://github.com/tommysl8)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tommysl8/lightspeed.git"
+  },
+  "bugs": {
+    "url": "https://github.com/tommysl8/lightspeed/issues"
+  },
   "engines": {
-    "node": ">=22.12.0"
+    "node": "^22.12.0 || ^24.0.0"
   },
   "scripts": {
     "dev": "vite",
