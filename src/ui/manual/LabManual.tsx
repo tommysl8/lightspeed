@@ -71,7 +71,9 @@ const CONVENTIONS: [ReactNode, ReactNode][] = [
 ];
 
 function Handbook() {
+  useTicker(2);
   const rows = useNotebook((s) => s.rows);
+  const ui = useUI();
   return (
     <div className="px-4 pb-6 pt-3">
       <div className="cap">Laboratory handbook</div>
@@ -92,7 +94,9 @@ function Handbook() {
       <H>Experiments</H>
       <ol className="m-0 list-none p-0">
         {PROTOCOL_LIST.map((p) => {
-          const n = rowsFor(rows, p.id).length;
+          const rs = rowsFor(rows, p.id);
+          const n = rs.length;
+          const done = stepStatus(p.id, { rows: rs, ui });
           return (
             <li key={p.id} className="border-b border-line">
               <button
@@ -106,8 +110,9 @@ function Handbook() {
                   <span className="block font-serif text-[14.5px] leading-snug text-fg group-hover:text-white">{p.title}</span>
                   <span className="mt-0.5 block text-[11.5px] leading-snug text-fg-3">{p.short}</span>
                 </span>
-                <span className="mono mt-0.5 shrink-0 text-[10px] text-fg-3">
-                  {n > 0 ? `${n} rdg` : MANUAL[p.id].duration}
+                <span className="mono mt-0.5 flex shrink-0 flex-col items-end gap-1 text-[10px] text-fg-3">
+                  <span>{n > 0 ? `${n} reading${n === 1 ? '' : 's'}` : `~${MANUAL[p.id].duration}`}</span>
+                  <ProgressBoxes done={done} />
                 </span>
               </button>
             </li>
@@ -130,6 +135,28 @@ function Handbook() {
   );
 }
 
+/** Which procedure steps are complete (checks never throw into the UI). */
+function stepStatus(exp: ExperimentId, ctx: StepCtx): boolean[] {
+  return MANUAL[exp].procedure.map((s) => {
+    try {
+      return s.done(ctx);
+    } catch {
+      return false;
+    }
+  });
+}
+
+/** A row of small boxes, one per procedure step. */
+function ProgressBoxes({ done }: { done: boolean[] }) {
+  return (
+    <span className="inline-flex gap-[2px]" aria-label={`${done.filter(Boolean).length} of ${done.length} steps complete`}>
+      {done.map((d, i) => (
+        <span key={i} className={`h-[6px] w-[6px] border ${d ? 'border-ok bg-ok' : 'border-line-3'}`} />
+      ))}
+    </span>
+  );
+}
+
 // ─── Experiment page ─────────────────────────────────────────────────────────────────────
 
 function Procedure({ exp, rows }: { exp: ExperimentId; rows: DataRow[] }) {
@@ -137,13 +164,7 @@ function Procedure({ exp, rows }: { exp: ExperimentId; rows: DataRow[] }) {
   const ui = useUI();
   const ctx: StepCtx = { rows, ui };
   const steps = MANUAL[exp].procedure;
-  const done = steps.map((s) => {
-    try {
-      return s.done(ctx);
-    } catch {
-      return false;
-    }
-  });
+  const done = stepStatus(exp, ctx);
   const count = done.filter(Boolean).length;
   return (
     <>
@@ -322,6 +343,23 @@ function Analysis({ p, rows }: { p: Protocol; rows: DataRow[] }) {
   );
 }
 
+/** A written answer, saved in the notebook as you type. */
+function Answer({ k, placeholder, rows = 3 }: { k: string; placeholder: string; rows?: number }) {
+  const value = useNotebook((s) => s.answers[k] ?? '');
+  const setAnswer = useNotebook((s) => s.setAnswer);
+  return (
+    <textarea
+      className="answer"
+      rows={rows}
+      value={value}
+      placeholder={placeholder}
+      spellCheck
+      onChange={(e) => setAnswer(k, e.target.value)}
+      aria-label={placeholder}
+    />
+  );
+}
+
 function ExperimentPage({ exp }: { exp: ExperimentId }) {
   const p = PROTOCOLS[exp];
   const m = MANUAL[exp];
@@ -341,6 +379,9 @@ function ExperimentPage({ exp }: { exp: ExperimentId }) {
           ← Handbook
         </button>
         <span className="ml-auto" />
+        <button className="btn btn-q btn-sm" onClick={() => useUI.setState({ reportFor: exp })} title="Printable lab report">
+          Report
+        </button>
         <button className="btn btn-q btn-sm" onClick={() => go(-1)} aria-label="Previous experiment">
           ‹
         </button>
@@ -410,9 +451,24 @@ function ExperimentPage({ exp }: { exp: ExperimentId }) {
       <div className="prose-lab !text-[13px]">
         <ol>
           {m.questions.map((q, k) => (
-            <li key={k}>{q}</li>
+            <li key={k}>
+              {q}
+              <Answer k={`${exp}.q${k + 1}`} placeholder="Your answer" />
+            </li>
           ))}
         </ol>
+      </div>
+
+      <H n={8}>Conclusion</H>
+      <Answer k={`${exp}.conclusion`} placeholder="State what you measured, with its uncertainty, and whether it agrees with theory." rows={4} />
+
+      <div className="mt-4 flex items-center gap-2 border-t border-line pt-3">
+        <span className="flex-1 text-[11.5px] leading-snug text-fg-3">
+          The report collects the aim, theory, method, data, figures, fitted results and your answers on one printable page.
+        </span>
+        <button className="btn btn-pri shrink-0" onClick={() => useUI.setState({ reportFor: exp })}>
+          Prepare lab report
+        </button>
       </div>
     </div>
   );

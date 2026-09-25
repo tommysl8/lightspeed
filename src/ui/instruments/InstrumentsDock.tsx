@@ -18,7 +18,7 @@ import { angularDiameterDeg, eclipticLonLat, observerBeta, rangeRate, reticleRea
 import { emitLightPulse } from '../../lab/logger';
 import { goToBody } from '../navigation';
 import { openPlanner } from '../tripActions';
-import { Check, CloseIcon, Ro, Sec, Seg, Sym } from '../kit';
+import { Check, CloseIcon, DockResizer, Ro, Sec, Seg, Sym } from '../kit';
 import { Plot } from '../plot/Plot';
 import { useTicker } from '../useTicker';
 import { SpacetimeDiagram } from './SpacetimeDiagram';
@@ -434,8 +434,10 @@ function Scope() {
 
 export function InstrumentsDock(): ReactNode {
   useTicker(8);
+  const width = useUI((s) => s.rightWidth);
   return (
-    <aside className="dock dock-r" aria-label="Instruments">
+    <aside className="dock dock-r relative" aria-label="Instruments" style={{ width }}>
+      <DockResizer side="right" width={width} initial={312} min={260} max={520} onChange={(w) => useUI.setState({ rightWidth: w })} />
       <div className="titlebar !h-[30px]">
         <span className="cap !text-fg-2">Instruments</span>
         <button className="btn btn-q btn-sq ml-auto !h-5 !w-5" onClick={() => useUI.setState({ rightOpen: false })} aria-label="Close instruments">

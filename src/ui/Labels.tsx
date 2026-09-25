@@ -5,11 +5,17 @@ import { qty } from '../lib/sci';
 import { sim } from '../sim/sim';
 import { useUI } from '../state/ui';
 import { controller } from '../controls/cameraController';
+import { onDetection } from '../sim/pulses';
 
 /** DOM label elements, registered by <LabelsLayer/> and positioned by <LabelSync/> each frame. */
 const labelEls = new Map<BodyId, HTMLDivElement>();
 const subEls = new Map<BodyId, HTMLSpanElement>();
 let subFrame = 0;
+
+/** Wall-clock time of each body's latest detector hit, so its marker can flash. */
+const hits = new Map<BodyId, number>();
+onDetection((_, d) => hits.set(d.body, performance.now()));
+const FLASH_MS = 1600;
 
 const PRIORITY: Record<BodyId, number> = {
   sun: 0,
@@ -41,6 +47,7 @@ function smoothstep(a: number, b: number, x: number) {
 export function LabelSync() {
   useFrame(() => {
     const { showLabels, selected } = useUI.getState();
+    const now = performance.now();
     // Range and light-time under the selected body's name, a few times a second.
     if (selected && ++subFrame % 8 === 0) {
       const sub = subEls.get(selected);
@@ -74,6 +81,11 @@ export function LabelSync() {
       el.style.setProperty('--offset', `${offset.toFixed(1)}px`);
       el.style.pointerEvents = opacity > 0.3 ? 'auto' : 'none';
       el.dataset.selected = id === selected ? 'true' : 'false';
+      const hit = hits.get(id);
+      const flashing = hit !== undefined && now - hit < FLASH_MS;
+      el.dataset.flash = flashing ? 'true' : 'false';
+      // A detector hit shows even when the label itself is hidden.
+      if (flashing && b.screen.onScreen) el.style.opacity = '1';
     }
   });
   return null;

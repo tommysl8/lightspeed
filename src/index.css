@@ -876,6 +876,15 @@ button {
   .body-label[data-selected='true'] .body-name {
     left: max(var(--offset, 10px), 14px);
   }
+  /* Detector hit (Experiment 1): the marker lights up in the data colour. */
+  .body-label[data-flash='true'] .body-marker {
+    opacity: 1;
+    border-color: var(--color-data);
+    animation: det-flash 1.6s ease-out;
+  }
+  .body-label[data-flash='true'] .body-name {
+    color: var(--color-data);
+  }
 
   .appear {
     animation: appear 0.14s ease-out;
@@ -921,12 +930,127 @@ button {
     opacity: 1;
   }
 }
+@keyframes det-flash {
+  from {
+    box-shadow: 0 0 0 0 rgba(86, 194, 238, 0.8);
+  }
+  to {
+    box-shadow: 0 0 0 14px rgba(86, 194, 238, 0);
+  }
+}
 @keyframes row-flash {
   from {
     background: rgba(86, 194, 238, 0.16);
   }
   to {
     background: transparent;
+  }
+}
+
+/* ── Lab report: the same components, re-inked for paper ─────────────────────────── */
+
+.report-paper {
+  --color-fg: #111111;
+  --color-fg-2: #2b2b2b;
+  --color-fg-3: #555555;
+  --color-fg-4: #7a7a7a;
+  --color-line: #dddddd;
+  --color-line-2: #bbbbbb;
+  --color-line-3: #999999;
+  --color-panel-2: #f2f2f2;
+  --color-well: #ffffff;
+  --color-accent: #b35c00;
+  --color-data: #0b6ea8;
+  color-scheme: light;
+}
+.report-paper .prose-lab {
+  color: #1a1a1a;
+  font-size: 14px;
+}
+.report-paper .prose-lab b,
+.report-paper .prose-lab strong {
+  color: #000;
+}
+.report-paper .note {
+  background: #f6f6f6;
+  color: #333;
+}
+.report-paper .eqn,
+.report-paper .eqn .eqn-no {
+  color: #111;
+}
+.report-paper .tbl th {
+  position: static;
+  background: #f2f2f2;
+}
+.report-paper .tbl tbody tr:hover td {
+  background: transparent;
+}
+.report-paper .kbd {
+  background: #f2f2f2;
+  color: #333;
+}
+
+.answer {
+  display: block;
+  width: 100%;
+  min-height: 58px;
+  margin-top: 6px;
+  padding: 6px 8px;
+  border: 1px solid var(--color-line-2);
+  border-radius: 2px;
+  background: var(--color-well);
+  color: var(--color-fg);
+  font-family: var(--font-serif);
+  font-size: 13px;
+  line-height: 1.45;
+  resize: vertical;
+  outline: none;
+}
+.answer:focus {
+  border-color: var(--color-accent);
+}
+.answer::placeholder {
+  color: var(--color-fg-4);
+  font-style: italic;
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 14mm;
+  }
+  html,
+  body,
+  #root {
+    height: auto !important;
+    overflow: visible !important;
+    background: #fff !important;
+  }
+  .app {
+    display: none !important;
+  }
+  .report-overlay {
+    position: static !important;
+    overflow: visible !important;
+    background: none !important;
+  }
+  .report-toolbar {
+    display: none !important;
+  }
+  .report-paper {
+    width: auto !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+  }
+  .report-section,
+  .report-paper figure {
+    break-inside: avoid;
+  }
+  .report-paper h2 {
+    break-after: avoid;
   }
 }
 

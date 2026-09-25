@@ -4,7 +4,7 @@
  * theory curves and a numbered caption.
  */
 import { useId, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { fixed, MINUS, superscript } from '../../lib/sci';
+import { fixed, MINUS, sig, superscript } from '../../lib/sci';
 import { svgRich } from '../rich';
 import { commonExponent, linearMinor, linearTicks, logDomain, logTicks, niceDomain, tickDecimals } from './ticks';
 
@@ -48,7 +48,59 @@ export interface PlotProps {
   /** Shown in the frame when there is nothing to plot. */
   empty?: string;
   legend?: boolean;
+  /** Print colours (dark on white), for lab reports. */
+  paper?: boolean;
 }
+
+/** Print-friendly equivalents of the screen colours (dark on white). */
+const PAPER_MAP: Record<string, string> = {
+  '#56c2ee': '#0b6ea8',
+  '#c3c9d1': '#2b3137',
+  '#f0a73a': '#b35c00',
+  '#ff5f57': '#c0261d',
+  '#6ccf8b': '#1d7a3a',
+  '#4c545d': '#8a929b',
+  '#38414a': '#9aa1a8',
+  '#c79bf2': '#6b3fa0',
+  '#ff806e': '#b33a2b',
+  '#e8e36b': '#857700',
+};
+
+interface Palette {
+  bg: string;
+  grid: string;
+  zero: string;
+  frame: string;
+  label: string;
+  title: string;
+  tipBg: string;
+  tipText: string;
+  tone: (c: string) => string;
+}
+
+const SCREEN: Palette = {
+  bg: '#060708',
+  grid: '#161b20',
+  zero: '#262d34',
+  frame: '#38414a',
+  label: '#8d959f',
+  title: '#b3bac3',
+  tipBg: 'rgba(6,7,8,0.94)',
+  tipText: '#d8dde3',
+  tone: (c) => c,
+};
+
+const PAPER: Palette = {
+  bg: '#ffffff',
+  grid: '#ececec',
+  zero: '#cfcfcf',
+  frame: '#444444',
+  label: '#333333',
+  title: '#111111',
+  tipBg: '#ffffff',
+  tipText: '#111111',
+  tone: (c) => PAPER_MAP[c.toLowerCase()] ?? c,
+};
 
 export const PLOT_COLORS = {
   data: '#56c2ee',
@@ -192,9 +244,12 @@ function pointPath(shape: 'circle' | 'square' | 'diamond', x: number, y: number,
   return <circle cx={x} cy={y} r={r} />;
 }
 
-export function Plot({ x, y, series, height = 200, equal = false, caption, empty, legend = true }: PlotProps) {
+export function Plot({ x, y, series, height = 200, equal = false, caption, empty, legend = true, paper = false }: PlotProps) {
+  const pal = paper ? PAPER : SCREEN;
+  const tone = pal.tone;
   const [ref, width] = useWidth();
   const clip = useId().replace(/:/g, '');
+  const [hover, setHover] = useState<{ px: number; py: number; x: number; y: number; sx?: number; sy?: number; color: string } | null>(null);
   const W = Math.max(160, width);
   const H = height;
   const x0 = M.l;
@@ -260,20 +315,49 @@ export function Plot({ x, y, series, height = 200, equal = false, caption, empty
   return (
     <figure className="m-0">
       <div ref={ref} className="w-full">
-        <svg width={W} height={H} className="block select-none" role="img" aria-label={`${y.q} versus ${x.q}`}>
+        <svg
+          width={W}
+          height={H}
+          className="block select-none"
+          role="img"
+          aria-label={`${y.q} versus ${x.q}`}
+          onMouseLeave={() => setHover(null)}
+          onMouseMove={(e) => {
+            // Nearest data point within 12 px of the pointer.
+            const r = (e.currentTarget as SVGSVGElement).getBoundingClientRect();
+            const mx = e.clientX - r.left;
+            const my = e.clientY - r.top;
+            let best: typeof hover = null;
+            let bestD = 12;
+            for (const s of series) {
+              if (s.kind !== 'points') continue;
+              for (const p of s.data) {
+                if (!Number.isFinite(p.x) || !Number.isFinite(p.y) || (sy.log && p.y <= 0) || (sx.log && p.x <= 0)) continue;
+                const px = sx.map(p.x);
+                const py = sy.map(p.y);
+                const d = Math.hypot(px - mx, py - my);
+                if (d < bestD) {
+                  bestD = d;
+                  best = { px, py, x: p.x, y: p.y, sx: p.sx, sy: p.sy, color: tone(s.color ?? PLOT_COLORS.data) };
+                }
+              }
+            }
+            setHover(best);
+          }}
+        >
           <defs>
             <clipPath id={clip}>
               <rect x={x0} y={y1} width={x1 - x0} height={y0 - y1} />
             </clipPath>
           </defs>
-          <rect x={x0} y={y1} width={x1 - x0} height={y0 - y1} fill="#060708" />
+          <rect x={x0} y={y1} width={x1 - x0} height={y0 - y1} fill={pal.bg} />
           {/* Grid */}
-          <g stroke={PLOT_COLORS.grid} strokeWidth={1}>
+          <g stroke={pal.grid} strokeWidth={1}>
             {sx.major.map((t) => inX(t) && <line key={`gx${t}`} x1={sx.map(t)} x2={sx.map(t)} y1={y1} y2={y0} />)}
             {sy.major.map((t) => inY(t) && <line key={`gy${t}`} y1={sy.map(t)} y2={sy.map(t)} x1={x0} x2={x1} />)}
           </g>
           {/* Zero lines */}
-          <g stroke="#262d34" strokeWidth={1}>
+          <g stroke={pal.zero} strokeWidth={1}>
             {!sx.log && sx.lo < 0 && sx.hi > 0 && <line x1={sx.map(0)} x2={sx.map(0)} y1={y1} y2={y0} />}
             {!sy.log && sy.lo < 0 && sy.hi > 0 && <line y1={sy.map(0)} y2={sy.map(0)} x1={x0} x2={x1} />}
           </g>
@@ -288,7 +372,7 @@ export function Plot({ x, y, series, height = 200, equal = false, caption, empty
                       key={i}
                       d={fnPath(s.f, s.domain)}
                       fill="none"
-                      stroke={s.color ?? PLOT_COLORS.theory}
+                      stroke={tone(s.color ?? PLOT_COLORS.theory)}
                       strokeWidth={s.width ?? 1.2}
                       strokeDasharray={s.dash ?? '5 3'}
                     />
@@ -302,7 +386,7 @@ export function Plot({ x, y, series, height = 200, equal = false, caption, empty
                       key={i}
                       d={d}
                       fill="none"
-                      stroke={s.color ?? PLOT_COLORS.data}
+                      stroke={tone(s.color ?? PLOT_COLORS.data)}
                       strokeWidth={s.width ?? 1.4}
                       strokeDasharray={s.dash}
                       opacity={s.opacity ?? 1}
@@ -317,7 +401,7 @@ export function Plot({ x, y, series, height = 200, equal = false, caption, empty
                       x2={x1}
                       y1={sy.map(s.value)}
                       y2={sy.map(s.value)}
-                      stroke={s.color ?? PLOT_COLORS.dim}
+                      stroke={tone(s.color ?? PLOT_COLORS.dim)}
                       strokeDasharray={s.dash ?? '2 3'}
                     />
                   ) : null;
@@ -329,12 +413,12 @@ export function Plot({ x, y, series, height = 200, equal = false, caption, empty
                       y2={y0}
                       x1={sx.map(s.value)}
                       x2={sx.map(s.value)}
-                      stroke={s.color ?? PLOT_COLORS.dim}
+                      stroke={tone(s.color ?? PLOT_COLORS.dim)}
                       strokeDasharray={s.dash ?? '2 3'}
                     />
                   ) : null;
                 case 'points': {
-                  const color = s.color ?? PLOT_COLORS.data;
+                  const color = tone(s.color ?? PLOT_COLORS.data);
                   return (
                     <g key={i} stroke={color} fill={color}>
                       {s.data.map((p, k) => {
@@ -366,7 +450,7 @@ export function Plot({ x, y, series, height = 200, equal = false, caption, empty
                   if (!inX(s.x) || !inY(s.y)) return null;
                   const px = sx.map(s.x);
                   const py = sy.map(s.y);
-                  const c = s.color ?? PLOT_COLORS.accent;
+                  const c = tone(s.color ?? PLOT_COLORS.accent);
                   return (
                     <g key={i} stroke={c} fill="none" strokeWidth={1.2}>
                       <circle cx={px} cy={py} r={4} />
@@ -383,7 +467,7 @@ export function Plot({ x, y, series, height = 200, equal = false, caption, empty
                       key={i}
                       x={sx.map(s.x)}
                       y={sy.map(s.y) + (s.dy ?? 0)}
-                      fill={s.color ?? PLOT_COLORS.label}
+                      fill={tone(s.color ?? PLOT_COLORS.label)}
                       fontSize={9.5}
                       fontFamily="var(--font-mono)"
                       textAnchor={s.anchor ?? 'start'}
@@ -396,8 +480,8 @@ export function Plot({ x, y, series, height = 200, equal = false, caption, empty
           </g>
 
           {/* Frame and inward ticks on all four sides */}
-          <rect x={x0 + 0.5} y={y1 + 0.5} width={x1 - x0 - 1} height={y0 - y1 - 1} fill="none" stroke={PLOT_COLORS.frame} />
-          <g stroke={PLOT_COLORS.frame} strokeWidth={1}>
+          <rect x={x0 + 0.5} y={y1 + 0.5} width={x1 - x0 - 1} height={y0 - y1 - 1} fill="none" stroke={pal.frame} />
+          <g stroke={pal.frame} strokeWidth={1}>
             {sx.major.map((t) => {
               if (!inX(t)) return null;
               const p = Math.round(sx.map(t)) + 0.5;
@@ -441,7 +525,7 @@ export function Plot({ x, y, series, height = 200, equal = false, caption, empty
           </g>
 
           {/* Tick labels */}
-          <g fill={PLOT_COLORS.label} fontFamily="var(--font-mono)" fontSize={9.5}>
+          <g fill={pal.label} fontFamily="var(--font-mono)" fontSize={9.5}>
             {sx.major.map(
               (t) =>
                 inX(t) && (
@@ -461,16 +545,43 @@ export function Plot({ x, y, series, height = 200, equal = false, caption, empty
           </g>
 
           {/* Axis titles */}
-          <text x={(x0 + x1) / 2} y={H - 4} textAnchor="middle" fill="#b3bac3">
+          <text x={(x0 + x1) / 2} y={H - 4} textAnchor="middle" fill={pal.title}>
             <AxisTitle axis={x} exp={sx.exp} />
           </text>
           <text
             transform={`translate(11 ${(y0 + y1) / 2}) rotate(-90)`}
             textAnchor="middle"
-            fill="#b3bac3"
+            fill={pal.title}
           >
             <AxisTitle axis={y} exp={sy.exp} />
           </text>
+
+          {hover && (
+            <g pointerEvents="none" fontFamily="var(--font-mono)" fontSize={9.5}>
+              <line x1={x0} x2={hover.px} y1={hover.py} y2={hover.py} stroke={hover.color} strokeDasharray="1 2" opacity={0.7} />
+              <line x1={hover.px} x2={hover.px} y1={y0} y2={hover.py} stroke={hover.color} strokeDasharray="1 2" opacity={0.7} />
+              <circle cx={hover.px} cy={hover.py} r={5} fill="none" stroke={hover.color} strokeWidth={1.2} />
+              {(() => {
+                const lines = [
+                  `${x.q} = ${sig(hover.x, 6)}${hover.sx ? ` ± ${sig(hover.sx, 2)}` : ''} ${x.unit ?? ''}`.trim(),
+                  `${y.q} = ${sig(hover.y, 6)}${hover.sy ? ` ± ${sig(hover.sy, 2)}` : ''} ${y.unit ?? ''}`.trim(),
+                ];
+                const w = Math.max(...lines.map((l) => l.length)) * 5.9 + 12;
+                const bx = hover.px + 10 + w > x1 ? hover.px - 10 - w : hover.px + 10;
+                const by = Math.max(y1 + 2, Math.min(y0 - 32, hover.py - 34));
+                return (
+                  <g transform={`translate(${bx} ${by})`}>
+                    <rect width={w} height={30} fill={pal.tipBg} stroke={pal.frame} />
+                    {lines.map((l, i) => (
+                      <text key={i} x={6} y={12 + i * 12} fill={pal.tipText}>
+                        {svgRich(l)}
+                      </text>
+                    ))}
+                  </g>
+                );
+              })()}
+            </g>
+          )}
 
           {!hasData && empty && (
             <text x={(x0 + x1) / 2} y={(y0 + y1) / 2} textAnchor="middle" fill={PLOT_COLORS.dim} fontSize={11} fontFamily="var(--font-mono)">
@@ -481,9 +592,9 @@ export function Plot({ x, y, series, height = 200, equal = false, caption, empty
         </svg>
       </div>
       {legendItems.length > 0 && (
-        <div className="mono mt-1 flex flex-wrap gap-x-3.5 gap-y-0.5 pl-[46px] text-[10px] leading-[14px] text-fg-2">
+        <div className={`mono mt-1 flex flex-wrap gap-x-3.5 gap-y-0.5 pl-[46px] text-[10px] leading-[14px] ${paper ? 'text-[#333]' : 'text-fg-2'}`}>
           {legendItems.map((it, k) => {
-            const c = 'color' in it && it.color ? it.color : it.kind === 'points' || it.kind === 'line' ? PLOT_COLORS.data : PLOT_COLORS.theory;
+            const c = tone('color' in it && it.color ? it.color : it.kind === 'points' || it.kind === 'line' ? PLOT_COLORS.data : PLOT_COLORS.theory);
             const dash = (('dash' in it ? it.dash : undefined) ?? (it.kind === 'fn' ? '5 3' : it.kind === 'hline' || it.kind === 'vline' ? '2 3' : undefined)) || undefined;
             return (
               <span key={k} className="inline-flex items-center gap-1.5 whitespace-nowrap">
@@ -500,7 +611,9 @@ export function Plot({ x, y, series, height = 200, equal = false, caption, empty
           })}
         </div>
       )}
-      {caption && <figcaption className="mt-1.5 font-serif text-[12px] leading-snug text-fg-3">{caption}</figcaption>}
+      {caption && (
+        <figcaption className={`mt-1.5 font-serif text-[12px] leading-snug ${paper ? 'text-[#444]' : 'text-fg-3'}`}>{caption}</figcaption>
+      )}
     </figure>
   );
 }

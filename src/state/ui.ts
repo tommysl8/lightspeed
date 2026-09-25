@@ -45,6 +45,9 @@ export interface UIState {
   /** Docked panels. */
   leftOpen: boolean;
   rightOpen: boolean;
+  /** Dock widths, CSS px (resizable). */
+  leftWidth: number;
+  rightWidth: number;
   manualTab: ManualTab;
   /** Experiment open in the lab manual (null: the list). */
   experiment: ExperimentId | null;
@@ -53,6 +56,8 @@ export interface UIState {
   /** A reference section suggested by what just happened (shown as a margin note). */
   noteTopic: ExplainerId | null;
   scopeChannel: ScopeChannel;
+  /** Experiment whose lab report is open (print preview). */
+  reportFor: ExperimentId | null;
 
   /** Trajectory planner. */
   plannerOpen: boolean;
@@ -96,11 +101,14 @@ export const useUI = create<UIState>()(
       relDoppler: true,
       leftOpen: wide(1280),
       rightOpen: wide(960),
+      leftWidth: 384,
+      rightWidth: 312,
       manualTab: 'experiments',
       experiment: null,
       refTopic: 'light-time',
       noteTopic: null,
       scopeChannel: 'beta',
+      reportFor: null,
       plannerOpen: false,
       plannerDrive: 'cruise',
       plannerWarpFactor: 10,
@@ -123,6 +131,8 @@ export const useUI = create<UIState>()(
         showFps: s.showFps,
         leftOpen: s.leftOpen,
         rightOpen: s.rightOpen,
+        leftWidth: s.leftWidth,
+        rightWidth: s.rightWidth,
         manualTab: s.manualTab,
         experiment: s.experiment,
         refTopic: s.refTopic,

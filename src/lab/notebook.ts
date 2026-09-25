@@ -28,6 +28,12 @@ interface NotebookState {
   /** Simulate realistic instrument uncertainty on new readings. */
   noise: boolean;
   counters: Record<ExperimentId, number>;
+  /** Written answers and conclusions, keyed "E2.q1", "E2.conclusion". */
+  answers: Record<string, string>;
+  /** Name(s) printed on lab reports. */
+  student: string;
+  setAnswer: (key: string, text: string) => void;
+  setStudent: (name: string) => void;
   add: (exp: ExperimentId, v: Record<string, Value>, s: Record<string, number> | undefined, src: DataRow['src'], simMs: number) => DataRow;
   remove: (id: string) => void;
   clear: (exp?: ExperimentId) => void;
@@ -42,6 +48,10 @@ export const useNotebook = create<NotebookState>()(
       rows: [],
       noise: false,
       counters: zero(),
+      answers: {},
+      student: '',
+      setAnswer: (key, text) => set((st) => ({ answers: { ...st.answers, [key]: text } })),
+      setStudent: (name) => set({ student: name }),
       add: (exp, v, s, src, simMs) => {
         const n = get().counters[exp] + 1;
         const row: DataRow = { id: `${exp}-${n}-${Date.now().toString(36)}`, exp, n, simMs, v, s, src };

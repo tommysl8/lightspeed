@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { SimDriver } from './scene/SimDriver';
 import { Starfield } from './scene/Starfield';
@@ -24,11 +25,15 @@ import { useShortcuts } from './ui/useShortcuts';
 import { useExplainerTriggers } from './ui/useExplainerTriggers';
 import { useUI } from './state/ui';
 
+// The lab report (with KaTeX) loads on first use.
+const LabReport = lazy(() => import('./ui/manual/LabReport'));
+
 export default function App() {
   useShortcuts();
   useExplainerTriggers();
   const leftOpen = useUI((s) => s.leftOpen);
   const rightOpen = useUI((s) => s.rightOpen);
+  const reportFor = useUI((s) => s.reportFor);
   return (
     <div className="app">
       <Header />
@@ -70,6 +75,11 @@ export default function App() {
       <Footer />
       <HelpOverlay />
       <AboutPanel />
+      {reportFor && (
+        <Suspense fallback={null}>
+          <LabReport exp={reportFor} />
+        </Suspense>
+      )}
     </div>
   );
 }

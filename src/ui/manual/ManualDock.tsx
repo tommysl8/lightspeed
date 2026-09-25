@@ -1,7 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { useNotebook } from '../../lab/notebook';
 import { useUI, type ManualTab } from '../../state/ui';
-import { CloseIcon } from '../kit';
+import { CloseIcon, DockResizer } from '../kit';
 
 // The manual pulls in KaTeX, so it loads on first use.
 const LabManual = lazy(() => import('./LabManual'));
@@ -15,8 +15,10 @@ const TABS: { id: ManualTab; label: string }[] = [
 export function ManualDock() {
   const tab = useUI((s) => s.manualTab);
   const count = useNotebook((s) => s.rows.length);
+  const width = useUI((s) => s.leftWidth);
   return (
-    <aside className="dock dock-l" aria-label="Lab manual">
+    <aside className="dock dock-l relative" aria-label="Lab manual" style={{ width }}>
+      <DockResizer side="left" width={width} initial={384} onChange={(w) => useUI.setState({ leftWidth: w })} />
       <div className="titlebar !h-[30px]">
         <span className="cap !text-fg-2">Lab manual</span>
         <button className="btn btn-q btn-sq ml-auto !h-5 !w-5" onClick={() => useUI.setState({ leftOpen: false })} aria-label="Close lab manual">

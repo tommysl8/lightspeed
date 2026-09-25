@@ -258,6 +258,51 @@ export function Dialog({
   );
 }
 
+/**
+ * Drag handle on a dock's inner edge. Double-click restores the default width.
+ */
+export function DockResizer({
+  side,
+  width,
+  onChange,
+  min = 280,
+  max = 640,
+  initial,
+}: {
+  side: 'left' | 'right';
+  width: number;
+  onChange: (w: number) => void;
+  min?: number;
+  max?: number;
+  initial: number;
+}) {
+  const start = useRef<{ x: number; w: number } | null>(null);
+  return (
+    <div
+      role="separator"
+      aria-orientation="vertical"
+      aria-label="Resize panel"
+      title="Drag to resize; double-click to reset"
+      className={`group absolute inset-y-0 z-40 w-[7px] cursor-col-resize max-[899px]:hidden ${side === 'left' ? '-right-[4px]' : '-left-[4px]'}`}
+      onPointerDown={(e) => {
+        start.current = { x: e.clientX, w: width };
+        (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+      }}
+      onPointerMove={(e) => {
+        const s0 = start.current;
+        if (!s0) return;
+        const dx = e.clientX - s0.x;
+        const w = s0.w + (side === 'left' ? dx : -dx);
+        onChange(Math.round(Math.min(Math.min(max, window.innerWidth * 0.45), Math.max(min, w))));
+      }}
+      onPointerUp={() => (start.current = null)}
+      onDoubleClick={() => onChange(initial)}
+    >
+      <div className="mx-auto h-full w-px bg-transparent transition-colors group-hover:bg-accent/60" />
+    </div>
+  );
+}
+
 /** Label above a control, the way instrument front panels are lettered. */
 export function Field({ label, children, className = '' }: { label: ReactNode; children: ReactNode; className?: string }) {
   return (

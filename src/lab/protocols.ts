@@ -33,6 +33,8 @@ export interface Column {
   unitGroup?: string;
   /** Always display in this unit (symbol from sci.ts), instead of choosing one from the data. */
   fixedUnit?: string;
+  /** Show magnitudes below this as 0 (deviations that are only floating-point rounding). */
+  snap?: number;
 }
 
 export interface ResultLine {
@@ -113,7 +115,7 @@ export function cellText(col: Column, r: DataRow, unit: Unit): string {
   if (!Number.isFinite(v)) return '—';
   if (col.fmt === 'beta') return fmtBeta(v);
   if (col.fmt === 'int') return String(Math.round(v));
-  const x = v / unit.factor;
+  const x = col.snap && Math.abs(v) < col.snap ? 0 : v / unit.factor;
   if (col.decimals !== undefined) return fixed(x, col.decimals);
   return sig(x, col.digits ?? 5);
 }
@@ -287,6 +289,7 @@ const E2: Protocol = {
       dim: 'none',
       unit: '%',
       digits: 2,
+      snap: 1e-9,
       derived: (r) => (ratio(r) / sqrt1mb2(num(r, 'beta')) - 1) * 100,
     },
   ],
@@ -322,7 +325,16 @@ const E2: Protocol = {
         ...chiLine(pf),
       );
     }
-    if (devs.length >= 2) results.push({ label: 'Mean δ ± s.e.', value: fmtPM(mean(devs) * 100, sem(devs) * 100 || 1e-12), unit: '%' });
+    if (devs.length >= 2) {
+      // With ideal clocks the deviations are floating-point rounding only.
+      const exact = Math.max(...devs.map(Math.abs)) < 1e-11;
+      results.push({
+        label: 'Mean δ ± s.e.',
+        value: exact ? '0 (|δ| < 10⁻⁹ %)' : fmtPM(mean(devs) * 100, sem(devs) * 100),
+        unit: exact ? '' : '%',
+        tone: exact ? 'ok' : undefined,
+      });
+    }
 
     return {
       results,
@@ -373,6 +385,7 @@ const E3: Protocol = {
       dim: 'none',
       unit: '%',
       digits: 2,
+      snap: 1e-9,
       derived: (r) => (num(r, 'D') / dopplerPred(num(r, 'beta'), num(r, 'thS')) - 1) * 100,
     },
   ],
@@ -460,6 +473,7 @@ const E4: Protocol = {
       dim: 'none',
       unit: '′',
       decimals: 2,
+      snap: 1e-9,
       derived: (r) => (num(r, 'thS') - aberrPred(num(r, 'beta'), num(r, 'th'))) * 60,
     },
   ],
