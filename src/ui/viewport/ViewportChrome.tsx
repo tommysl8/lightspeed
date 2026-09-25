@@ -37,7 +37,7 @@ function ViewInfo() {
   const show = useUI((s) => s.showOverlays);
   if (!show) return null;
   const f = sim.bodies[focus];
-  const r = qty(f.distCamera, 'length', 4);
+  const r = Number.isFinite(f.distCamera) ? qty(f.distCamera, 'length', 4) : { v: '—', u: '' };
   const label = mode === 'orbit' ? 'ORBIT' : mode === 'transition' ? 'SLEW' : mode === 'free' ? 'FREE' : 'TRANSIT';
   return (
     <div className="mono pointer-events-none absolute left-4 top-3 space-y-px text-[10px] leading-[14px] text-fg-3 [text-shadow:0_0_3px_#000]">

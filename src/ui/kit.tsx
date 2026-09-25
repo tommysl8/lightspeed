@@ -210,7 +210,7 @@ export function Menu({
       {open && (
         <div
           className={`panel-float appear absolute top-[calc(100%+4px)] z-50 py-1 ${align === 'right' ? 'right-0' : 'left-0'}`}
-          style={{ width }}
+          style={{ width: `min(${width}px, calc(100vw - 16px))` }}
           role="menu"
         >
           {children}

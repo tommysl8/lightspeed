@@ -15,7 +15,7 @@ import { setPaused, setWarp } from '../sim/clock';
 import { sim } from '../sim/sim';
 import { travel } from '../sim/travel';
 import { useUI, type UIState } from '../state/ui';
-import { TeX } from '../ui/TeX';
+import { Eq, M } from '../ui/TeX';
 import { emitLightPulse, labFlags } from './logger';
 import { num, type DataRow, type ExperimentId } from './notebook';
 
@@ -39,21 +39,6 @@ export interface ManualEntry {
   /** Typical time needed. */
   duration: string;
 }
-
-/** Numbered display equation. */
-export function Eq({ n, tex }: { n: string; tex: string }) {
-  return (
-    <div className="eqn">
-      <div className="eqn-body">
-        <TeX>{tex}</TeX>
-      </div>
-      <span className="eqn-no">({n})</span>
-    </div>
-  );
-}
-
-/** Inline math. */
-export const M = ({ t }: { t: string }) => <TeX inline>{t}</TeX>;
 
 // ─── Shared step helpers ─────────────────────────────────────────────────────────────────
 
@@ -106,7 +91,7 @@ const E1: ManualEntry = {
       </p>
       <Eq
         n="1.4"
-        tex="b = \frac{\sum w_i (x_i-\bar x)(y_i-\bar y)}{\sum w_i (x_i-\bar x)^2}, \qquad \sigma_b^2 = \frac{1}{\sum w_i (x_i-\bar x)^2}, \qquad w_i = \sigma_i^{-2}."
+        tex="\begin{aligned} b &= \frac{\sum_i w_i (x_i-\bar x)(y_i-\bar y)}{\sum_i w_i (x_i-\bar x)^2}, \\[2pt] \sigma_b^2 &= \frac{1}{\sum_i w_i (x_i-\bar x)^2}, \qquad w_i = \sigma_i^{-2}. \end{aligned}"
       />
       <div className="note">
         <span className="note-t">Note</span>
@@ -202,7 +187,7 @@ const E2: ManualEntry = {
       </p>
       <Eq n="2.1" tex="d\tau = dt\,\sqrt{1 - v^2/c^2}." />
       <p>For a trip at constant speed this integrates to</p>
-      <Eq n="2.2" tex="\Delta\tau = \Delta t\,\sqrt{1-\beta^2} = \frac{\Delta t}{\gamma}, \qquad \gamma = \frac{1}{\sqrt{1-\beta^2}}." />
+      <Eq n="2.2" tex="\Delta\tau = \Delta t\,\sqrt{1-\beta^2} = \frac{\Delta t}{\gamma}, \quad \gamma = \frac{1}{\sqrt{1-\beta^2}}" />
       <p>
         The ship clock reads less than the clocks of S on arrival. This is not symmetric between the traveller and Earth: the
         ship changes inertial frame when it departs and again when it stops, and the clocks of S do not. Taking logarithms of
@@ -290,7 +275,7 @@ const E3: ManualEntry = {
         <M t="\nu' = D\,\nu" />. For a line of sight at angle <M t="\theta'" /> from the apex (the direction of motion), measured
         in the observer’s frame S′,
       </p>
-      <Eq n="3.1" tex="D = \frac{\nu'}{\nu} = \frac{1}{\gamma\,(1-\beta\cos\theta')} = \gamma\,(1+\beta\cos\theta)." />
+      <Eq n="3.1" tex="\begin{aligned} D = \frac{\nu'}{\nu} &= \frac{1}{\gamma\,(1-\beta\cos\theta')} \\ &= \gamma\,(1+\beta\cos\theta). \end{aligned}" />
       <p>
         Dead ahead, <M t="D = \sqrt{(1+\beta)/(1-\beta)} = e^{\varphi}" />, where <M t="\varphi = \operatorname{artanh}\beta" /> is
         the rapidity. At <M t="\theta' = 90^\circ" />, <M t="D = 1/\gamma" />: light arriving at right angles is redshifted by
@@ -483,7 +468,7 @@ const E5: ManualEntry = {
       <p>From rest, therefore,</p>
       <Eq
         n="5.2"
-        tex="\beta = \tanh\frac{a\tau}{c}, \qquad t = \frac{c}{a}\sinh\frac{a\tau}{c}, \qquad x = \frac{c^2}{a}\left(\cosh\frac{a\tau}{c} - 1\right)."
+        tex="\begin{aligned} \beta &= \tanh\frac{a\tau}{c}, \qquad t = \frac{c}{a}\sinh\frac{a\tau}{c}, \\ x &= \frac{c^2}{a}\left(\cosh\frac{a\tau}{c} - 1\right). \end{aligned}"
       />
       <p>
         The speed approaches <M t="c" /> but never reaches it, however long the engine runs. A flip-and-burn flight reverses the

@@ -8,7 +8,7 @@ import { updateEphemeris } from '../sim/ephemeris';
 import { earthLight, updateApparentPositions, updateEarthLight } from '../sim/lightDelay';
 import { sim } from '../sim/sim';
 import { shipStateAt, travel, tripElapsed, updateTrip } from '../sim/travel';
-import { chronoIntegrate, chronoTrip, chronoTripEnd } from '../sim/chronometer';
+import { chronoIntegrate, chronoTrip, chronoTripEnd, lagRate } from '../sim/chronometer';
 import { updatePulses } from '../sim/pulses';
 import { labArrival, labFrame } from '../lab/logger';
 import { useUI } from '../state/ui';
@@ -62,8 +62,10 @@ export function SimDriver() {
     const trip = travel.trip;
     if (trip) {
       const arrived = updateTrip();
-      // Chronometer τ follows the trip's closed-form proper time, so skips stay exact.
-      chronoTrip(arrived ? trip.shipTime : shipStateAt(trip, tripElapsed(trip)).tau);
+      // The chronometers follow the trip's closed-form solution, so skips stay exact.
+      const elapsed = tripElapsed(trip);
+      const s = shipStateAt(trip, elapsed);
+      chronoTrip(elapsed, trip.warp ? NaN : trip.rocket ? elapsed - s.tau : elapsed * lagRate(trip.beta));
       if (arrived) {
         chronoTripEnd();
         labArrival(trip);

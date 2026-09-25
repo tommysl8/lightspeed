@@ -5,9 +5,10 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import { EXPLAINERS, explainerById, type ExplainerId } from '../../content/explainers';
+import { REFERENCE } from '../../content/reference';
 import { BODIES } from '../../physics/constants';
 import { fixed, fmtBeta, sig } from '../../lib/sci';
-import { MANUAL, Eq, type StepCtx } from '../../lab/manual';
+import { MANUAL, type StepCtx } from '../../lab/manual';
 import { PROTOCOLS, PROTOCOL_LIST, cellText, columnUnits, sigmaText, toCsv, type Protocol, type ResultLine } from '../../lab/protocols';
 import { EXPERIMENT_IDS, rowsFor, useNotebook, type DataRow, type ExperimentId } from '../../lab/notebook';
 import { recordManual } from '../../lab/logger';
@@ -16,7 +17,7 @@ import { useUI } from '../../state/ui';
 import { openExplainer } from '../explainerActions';
 import { Check, Seg, Sym } from '../kit';
 import { Plot } from '../plot/Plot';
-import { TeX } from '../TeX';
+import { Eq, TeX } from '../TeX';
 import { useTicker } from '../useTicker';
 import { rich } from '../rich';
 
@@ -491,6 +492,7 @@ function NotebookTab() {
 function ReferenceTab() {
   const topic = useUI((s) => s.refTopic);
   const e = explainerById(topic);
+  const r = REFERENCE[topic];
   const i = EXPLAINERS.findIndex((x) => x.id === topic);
   const go = (d: number) => openExplainer(EXPLAINERS[(i + d + EXPLAINERS.length) % EXPLAINERS.length].id);
   const top = useRef<HTMLDivElement>(null);
@@ -522,14 +524,26 @@ function ReferenceTab() {
       <div className="cap mt-4">Reference §{i + 1}</div>
       <h2 className="mt-1 font-serif text-[20px] font-medium leading-tight text-fg">{e.title}</h2>
       <div className="prose-lab mt-3">
-        <Eq n={`R${i + 1}`} tex={e.equation} />
-        {e.body}
+        <Eq n={`R${i + 1}`} tex={r.equation} />
+        {r.body}
       </div>
-      {e.note && (
+      {r.note && (
         <div className="note note-caution">
-          <span className="note-t">Model simplification</span>
-          {e.note}
+          <span className="note-t">In the simulator</span>
+          {r.note}
         </div>
+      )}
+      {r.reading && (
+        <>
+          <H>Further reading</H>
+          <ul className="m-0 list-none space-y-1 p-0">
+            {r.reading.map((x) => (
+              <li key={x} className="font-serif text-[12.5px] leading-snug text-fg-2">
+                {x}
+              </li>
+            ))}
+          </ul>
+        </>
       )}
     </div>
   );

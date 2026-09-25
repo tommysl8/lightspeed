@@ -9,7 +9,7 @@ import { gamma } from '../../physics/relativity';
 import { fixed, fmtBeta, fmtGamma, qty, sci, sig } from '../../lib/sci';
 import { controller } from '../../controls/cameraController';
 import { relView, REL_THRESHOLD_BETA } from '../../render/relativisticView';
-import { chrono, chronoT, zeroChrono } from '../../sim/chronometer';
+import { chrono, chronoTau, zeroChrono } from '../../sim/chronometer';
 import { earthLight } from '../../sim/lightDelay';
 import { sim } from '../../sim/sim';
 import { shipStateAt, travel, tripElapsed } from '../../sim/travel';
@@ -96,12 +96,14 @@ function Observer() {
 // ─── B · Chronometers ────────────────────────────────────────────────────────────────────
 
 function Clocks() {
-  const t = chronoT();
-  const tau = chrono.tau;
+  const t = chrono.t;
+  const tau = chronoTau();
+  const lag = chrono.lag;
   const valid = chrono.tauValid;
   const zero = () => {
     const tr = travel.trip;
-    zeroChrono(tr ? shipStateAt(tr, tripElapsed(tr)).tau : 0);
+    const el = tr ? tripElapsed(tr) : 0;
+    zeroChrono(el, tr ? shipStateAt(tr, el).tau : 0);
   };
   const since = new Date(chrono.zeroMs);
   return (
@@ -119,10 +121,10 @@ function Clocks() {
       <Ro l={<><Sym>τ</Sym>, observer proper time</>} v={valid ? <Q x={tau} dim="time" d={7} /> : 'undefined'} tone={valid ? 'data' : 'hazard'} />
       <Ro
         l={<><Sym>t</Sym> − <Sym>τ</Sym></>}
-        v={valid ? (Math.abs(t - tau) < 1e-3 ? `${sig(t - tau, 3)}` : <Q x={t - tau} dim="time" d={5} />) : '—'}
-        u={valid && Math.abs(t - tau) < 1e-3 ? 's' : undefined}
+        v={valid ? (lag < 1e-3 ? `${sig(lag, 3)}` : <Q x={lag} dim="time" d={5} />) : '—'}
+        u={valid && lag < 1e-3 ? 's' : undefined}
       />
-      <Ro l={<>Mean rate <Sym>τ</Sym>/<Sym>t</Sym></>} v={valid && t > 0 ? oneMinus(tau / t) : '—'} />
+      <Ro l={<>Mean rate <Sym>τ</Sym>/<Sym>t</Sym></>} v={valid && t > 0 ? oneMinus(1 - lag / t) : '—'} />
       <div className="mono px-2.5 pb-1 pt-0.5 text-[10px] text-fg-4">
         zeroed {Number.isNaN(since.getTime()) ? '—' : since.toISOString().replace('T', ' ').slice(0, 19)} UTC
         {!valid && <span className="text-hazard"> · τ invalid after superluminal transfer</span>}

@@ -29,6 +29,37 @@ function Epoch() {
   );
 }
 
+function OpticsSeg() {
+  const relMode = useUI((s) => s.relMode);
+  return (
+    <Seg
+      label="Optics model"
+      value={relMode}
+      onChange={(m) => useUI.setState({ relMode: m })}
+      options={[
+        { value: 'off', label: 'Classical', title: 'Classical (Galilean) optics: no aberration or Doppler shift (Z)' },
+        { value: 'on', label: 'Relativistic', title: 'Relativistic optics: aberration, Doppler shift and beaming, active above 0.01c (Z)' },
+        { value: 'split', label: 'Split', title: 'Split screen: classical left of the divider, relativistic right (X)' },
+      ]}
+    />
+  );
+}
+
+function ScaleSeg() {
+  const sizeMode = useUI((s) => s.sizeMode);
+  return (
+    <Seg
+      label="Body scale"
+      value={sizeMode}
+      onChange={(m) => useUI.getState().setSizeMode(m)}
+      options={[
+        { value: 'true', label: 'True', title: 'Every body at its true size (T)' },
+        { value: 'visible', label: 'Enlarged', title: 'Bodies drawn at least 4 px across; distances unchanged (T)' },
+      ]}
+    />
+  );
+}
+
 function DisplayMenu() {
   const s = useUI(
     useShallow((u) => ({
@@ -43,6 +74,17 @@ function DisplayMenu() {
   const t = useUI.getState().toggle;
   return (
     <Menu label="Display" title="Display layers and overlays" width={280}>
+      {/* On narrow screens the header's optics and scale controls live here. */}
+      <div className="md:hidden">
+        <MenuHeading>Optics</MenuHeading>
+        <div className="px-2.5 pb-1">
+          <OpticsSeg />
+        </div>
+        <MenuHeading>Body scale</MenuHeading>
+        <div className="px-2.5 pb-1">
+          <ScaleSeg />
+        </div>
+      </div>
       <MenuHeading>Scene</MenuHeading>
       <Check checked={s.showOrbits} onChange={() => t('showOrbits')} kbd="O" hint="Osculating orbits from each body’s state vector">
         Orbits
@@ -67,13 +109,16 @@ function DisplayMenu() {
       <Check checked={s.showFps} onChange={() => t('showFps')} hint="Frame rate, pixel ratio and cube-map size in the status bar">
         Performance readout
       </Check>
+      <div className="mt-1 border-t border-line px-2.5 pt-1.5 md:hidden">
+        <button className="btn btn-q btn-sm -ml-1.5" onClick={() => useUI.setState({ aboutOpen: true })}>
+          Sources and methods…
+        </button>
+      </div>
     </Menu>
   );
 }
 
 export function Header() {
-  const relMode = useUI((s) => s.relMode);
-  const sizeMode = useUI((s) => s.sizeMode);
   const leftOpen = useUI((s) => s.leftOpen);
   const rightOpen = useUI((s) => s.rightOpen);
   const toggle = useUI((s) => s.toggle);
@@ -104,38 +149,23 @@ export function Header() {
         <Epoch />
       </div>
 
-      <div className="ml-auto flex min-w-0 items-center gap-2 overflow-x-auto no-scrollbar">
-        <span className="cap hidden min-[1560px]:inline">Optics</span>
-        <Seg
-          label="Optics model"
-          value={relMode}
-          onChange={(m) => useUI.setState({ relMode: m })}
-          options={[
-            { value: 'off', label: 'Classical', title: 'Classical (Galilean) optics: no aberration or Doppler shift (Z)' },
-            { value: 'on', label: 'Relativistic', title: 'Relativistic optics: aberration, Doppler shift and beaming, active above 0.01c (Z)' },
-            { value: 'split', label: 'Split', title: 'Split screen: classical left of the divider, relativistic right (X)' },
-          ]}
-        />
-        <span className="cap ml-1 hidden min-[1560px]:inline">Scale</span>
-        <Seg
-          label="Body scale"
-          value={sizeMode}
-          onChange={(m) => useUI.getState().setSizeMode(m)}
-          options={[
-            { value: 'true', label: 'True', title: 'Every body at its true size (T)' },
-            { value: 'visible', label: 'Enlarged', title: 'Bodies drawn at least 4 px across; distances unchanged (T)' },
-          ]}
-        />
-        <div className="mx-0.5 h-4 w-px bg-line-2" />
+      <div className="ml-auto flex min-w-0 items-center gap-2">
+        <div className="flex items-center gap-2 max-md:hidden">
+          <span className="cap hidden min-[1560px]:inline">Optics</span>
+          <OpticsSeg />
+          <span className="cap ml-1 hidden min-[1560px]:inline">Scale</span>
+          <ScaleSeg />
+          <div className="mx-0.5 h-4 w-px bg-line-2" />
+        </div>
         <DisplayMenu />
         <button
           className="btn btn-q"
           onClick={() => useUI.setState({ helpOpen: true })}
           title="Operating reference: controls and conventions (?)"
         >
-          Controls <Kbd>?</Kbd>
+          <span className="max-md:hidden">Controls</span> <Kbd>?</Kbd>
         </button>
-        <button className="btn btn-q" onClick={() => useUI.setState({ aboutOpen: true })} title="Sources, methods and credits">
+        <button className="btn btn-q max-md:hidden" onClick={() => useUI.setState({ aboutOpen: true })} title="Sources, methods and credits">
           Sources
         </button>
       </div>
