@@ -52,7 +52,7 @@ function WelcomeCard() {
   };
   const ref = useModal<HTMLDivElement>(() => close());
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-black/50 p-4">
+    <div className="fixed inset-0 z-50 grid grid-cols-[minmax(0,1fr)] place-items-center overflow-y-auto bg-black/50 p-4">
       <div
         ref={ref}
         role="dialog"
