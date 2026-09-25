@@ -32,22 +32,23 @@ const WARP_LOG_MIN = Math.log10(1.5);
 const WARP_LOG_MAX = 5;
 const STEPS = 1000;
 
-const BETA_TICKS: { b: number; label?: string }[] = [
+/** Fader ticks; `wide` labels are dropped on narrow screens. */
+const BETA_TICKS: { b: number; label?: string; wide?: boolean }[] = [
   { b: 1e-5, label: '10⁻⁵' },
   { b: 1e-4 },
-  { b: 1e-3, label: '10⁻³' },
+  { b: 1e-3, label: '10⁻³', wide: true },
   { b: 1e-2 },
   { b: 0.1, label: '0.1' },
-  { b: 0.5, label: '0.5' },
+  { b: 0.5, label: '0.5', wide: true },
   { b: 0.9, label: '0.9' },
-  { b: 0.99, label: '0.99' },
+  { b: 0.99, label: '0.99', wide: true },
   { b: 0.999, label: '0.999' },
   { b: 0.9999 },
-  { b: 0.99999, label: '0.999 99' },
+  { b: 0.99999, label: '0.999 99', wide: true },
 ];
 const WARP_TICKS = [1.5, 10, 100, 1000, 10_000, 100_000];
 
-function Ticks({ ticks }: { ticks: { pos: number; label?: string }[] }) {
+function Ticks({ ticks }: { ticks: { pos: number; label?: string; wide?: boolean }[] }) {
   return (
     <div className="relative mx-[4px] h-5" aria-hidden>
       {ticks.map((t, i) => (
@@ -55,7 +56,7 @@ function Ticks({ ticks }: { ticks: { pos: number; label?: string }[] }) {
           <div className={`w-px bg-line-3 ${t.label ? 'h-[5px]' : 'h-[3px]'}`} />
           {t.label && (
             <div
-              className={`mono absolute left-0 top-[6px] whitespace-nowrap text-[9.5px] text-fg-3 ${
+              className={`mono absolute left-0 top-[6px] whitespace-nowrap text-[9.5px] text-fg-3 ${t.wide ? 'max-sm:hidden' : ''} ${
                 t.pos > 0.97 ? '-translate-x-full' : t.pos < 0.03 ? '' : '-translate-x-1/2'
               }`}
             >
@@ -224,7 +225,7 @@ export function TrajectoryPlanner() {
                           pos: (Math.log10(w) - WARP_LOG_MIN) / (WARP_LOG_MAX - WARP_LOG_MIN),
                           label: w >= 1000 ? `10${['³', '⁴', '⁵'][Math.round(Math.log10(w)) - 3]}c` : `${w}c`,
                         }))
-                      : BETA_TICKS.map((t) => ({ pos: betaToSlider(t.b), label: t.label }))
+                      : BETA_TICKS.map((t) => ({ pos: betaToSlider(t.b), label: t.label, wide: t.wide }))
                   }
                 />
                 <div className="mt-2 flex flex-wrap gap-1">

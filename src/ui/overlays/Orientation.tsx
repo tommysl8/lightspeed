@@ -26,7 +26,13 @@ export function Orientation() {
     }
   };
   const begin = () => {
-    useUI.setState({ leftOpen: true, manualTab: 'experiments', experiment: 'E1' });
+    // Open the manual, and the instruments too when there is room for both.
+    useUI.setState((s) => ({
+      leftOpen: true,
+      rightOpen: s.rightOpen || window.innerWidth >= 1180,
+      manualTab: 'experiments',
+      experiment: 'E1',
+    }));
     dismiss();
   };
   return (
