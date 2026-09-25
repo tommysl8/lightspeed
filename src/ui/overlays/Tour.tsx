@@ -6,7 +6,7 @@
 import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 import { useUI } from '../../state/ui';
 import { Kbd } from '../kit';
-import { startExperiment1 } from '../onboarding';
+import { openJourneys } from '../onboarding';
 import { useModal } from '../useModal';
 
 interface Step {
@@ -32,7 +32,7 @@ const STEPS: Step[] = [
     body: (
       <>
         Click a name to take the camera there, or press <Kbd>0</Kbd>–<Kbd>9</Kbd> (<Kbd>M</Kbd> is the Moon, <Kbd>V</Kbd> Voyager 1).
-        Camera moves are for looking around; they are not journeys.
+        A card tells you about the body; <b>Fly here</b> on it plans a real flight.
       </>
     ),
   },
@@ -52,8 +52,18 @@ const STEPS: Step[] = [
     body: <>The moment being simulated, in UTC. Click it to jump to any date from 1981 to 2199.</>,
   },
   {
+    anchor: 'journeys',
+    title: 'Journeys',
+    body: (
+      <>
+        Seven set pieces, one click each: race a pulse of sunlight to Earth, ride to Saturn at 0.9<i>c</i>, or push to Proxima
+        Centauri at 1 g. Each says what to look for.
+      </>
+    ),
+  },
+  {
     anchor: 'fly',
-    title: 'Travel close to the speed of light',
+    title: 'Fly anywhere, at any speed',
     body: (
       <>
         Plan a flight to any body at any speed below <i>c</i>. On the way the sky crowds ahead of you, colours shift, and your clock
@@ -62,26 +72,26 @@ const STEPS: Step[] = [
     ),
   },
   {
-    anchor: 'lab',
-    title: 'Do an experiment',
+    anchor: 'physics',
+    title: 'What you are seeing, explained',
     body: (
       <>
-        The lab holds five guided experiments. Steps tick themselves off, readings go straight into the data table, and each one
-        ends in graphs, fitted results and a printable report.
+        Ten short sections on the physics: light-travel time, the Lorentz factor, aberration, the Doppler shift and more. The same
+        panel holds a lab with five experiments, for students.
       </>
     ),
   },
   {
     anchor: 'instruments',
-    title: 'Read the instruments',
-    body: <>Live readouts of your speed, two clocks, Doppler factors and light-travel times, for when you want the numbers.</>,
+    title: 'The numbers',
+    body: <>Live readouts of your speed, two clocks, Doppler factors and light-travel times, and a data sheet for the selected body.</>,
   },
   {
-    anchor: 'manual',
+    anchor: 'guide',
     title: 'Help is always here',
     body: (
       <>
-        The manual explains every control, the physics and the experiments. Press <Kbd>?</Kbd> at any time.
+        The guide explains every control and every reading. Press <Kbd>?</Kbd> at any time for the keys.
       </>
     ),
   },
@@ -192,10 +202,10 @@ function TourStep({ i }: { i: number }) {
               data-autofocus
               onClick={() => {
                 end();
-                startExperiment1();
+                openJourneys();
               }}
             >
-              Start Experiment 1
+              Take a journey
             </button>
           ) : (
             <button className="btn btn-pri btn-sm" data-autofocus onClick={() => go(1)}>

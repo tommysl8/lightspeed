@@ -994,6 +994,44 @@ button {
   display: none;
 }
 
+/* The keyboard and mouse sheet: small tables of keys, in columns. */
+.keys-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px 28px;
+}
+@media (max-width: 680px) {
+  .keys-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 440px) {
+  .keys-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.keys-tbl {
+  width: 100%;
+  border-collapse: collapse;
+}
+.keys-tbl td {
+  padding: 3px 0;
+  border-top: 1px solid var(--color-line);
+  vertical-align: top;
+  font-size: 12px;
+  line-height: 1.35;
+  color: var(--color-fg-2);
+}
+.keys-tbl tr:first-child td {
+  border-top: 0;
+}
+.keys-tbl td:first-child {
+  width: 1%;
+  padding-right: 12px;
+  white-space: nowrap;
+  color: var(--color-fg);
+}
+
 @keyframes appear {
   from {
     opacity: 0;

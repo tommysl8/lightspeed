@@ -4,6 +4,8 @@
  * everything towards the apex by the Doppler factor √((1 + β)/(1 − β)), exactly 2 at 0.6c,
  * so the circle halves and still passes through the apex. Same geometry as public/favicon.svg.
  */
+import { APP } from '../content/author';
+
 export function LogoMark({ size = 16, className = '', title }: { size?: number; className?: string; title?: string }) {
   return (
     <svg
@@ -30,18 +32,21 @@ export function Wordmark({
   className = '',
   subtitle,
   large,
+  nameBelowSm = true,
 }: {
   size?: number;
   className?: string;
   subtitle?: boolean;
   /** The header's size: on desktop screens, a larger name beside a larger mark. */
   large?: boolean;
+  /** Show the name on phone-width screens too (the header keeps only the mark there). */
+  nameBelowSm?: boolean;
 }) {
   return (
     <span className={`inline-flex items-center gap-2 whitespace-nowrap ${large ? 'lg:gap-2.5' : ''} ${className}`}>
       <LogoMark size={size} className={`text-fg ${large ? 'lg:h-[22px] lg:w-[22px]' : ''}`} />
-      <span className={`mono font-semibold tracking-[0.2em] text-fg ${large ? 'text-[12px] lg:text-[14.5px]' : 'text-[12px]'}`}>LIGHTSPEED</span>
-      {subtitle && <span className="hidden text-[12px] text-fg-3 min-[1760px]:inline">Virtual laboratory for special relativity</span>}
+      <span className={`mono font-semibold tracking-[0.2em] text-fg ${large ? 'text-[12px] lg:text-[14.5px]' : 'text-[12px]'} ${nameBelowSm ? '' : 'max-sm:hidden'}`}>LIGHTSPEED</span>
+      {subtitle && <span className="hidden text-[12px] text-fg-3 min-[1760px]:inline">{APP.taglineShort}</span>}
     </span>
   );
 }

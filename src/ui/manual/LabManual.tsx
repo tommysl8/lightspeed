@@ -153,14 +153,14 @@ function Handbook() {
       <p className="mt-4 text-[11.5px] leading-snug text-fg-3">
         Readings stay in this browser. The{' '}
         <a
-          href="#/manual/lab"
+          href="#/guide/lab"
           className="text-fg-2 underline decoration-line-3 underline-offset-2 hover:decoration-accent"
           onClick={(e) => {
             e.preventDefault();
-            openDoc('manual', 'lab');
+            openDoc('guide', 'lab');
           }}
         >
-          manual
+          guide
         </a>{' '}
         explains the lab in full.
       </p>

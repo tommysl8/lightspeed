@@ -58,6 +58,7 @@ function Ruler({ progress, distance }: { progress: number; distance: number }) {
 }
 
 function InFlight({ t }: { t: Trip }) {
+  const note = useUI((s) => s.journeyNote);
   const elapsed = tripElapsed(t);
   const s = shipStateAt(t, elapsed);
   const remD = Math.max(0, t.distance - s.covered);
@@ -90,6 +91,12 @@ function InFlight({ t }: { t: Trip }) {
           </button>
         </span>
       </div>
+      {note && (
+        <div className="flex items-start gap-2.5 border-b border-line bg-accent/[0.04] px-3 py-1.5">
+          <span className="cap mt-[3px] shrink-0 !text-accent">Look for</span>
+          <span className="font-serif text-[12.5px] leading-snug text-fg-2">{note}</span>
+        </div>
+      )}
       <Ruler progress={Math.min(1, Math.max(0, progress))} distance={t.distance} />
       <div className="grid grid-cols-3 gap-y-1.5 px-0.5 pb-2 pt-1.5 sm:grid-cols-6">
         <Cell l={<>Elapsed <Sym>t</Sym> (S)</>} v={tq.v} u={tq.u} tone="data" />
@@ -164,6 +171,7 @@ function Report() {
               <button
                 className="btn btn-sm ml-auto"
                 onClick={() => useUI.setState({ leftOpen: true, manualTab: 'experiments', experiment: logged.exp })}
+                title="For students: the lab keeps every flight as a reading"
               >
                 Open Experiment {logged.exp.slice(1)}
               </button>

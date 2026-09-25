@@ -3,16 +3,16 @@ import { useNotebook } from '../../lab/notebook';
 import { useUI, type ManualTab } from '../../state/ui';
 import { CloseIcon, DockResizer } from '../kit';
 
-// The lab pulls in KaTeX, so it loads on first use.
+// The physics panel pulls in KaTeX, so it loads on first use.
 const LabManual = lazy(() => import('./LabManual'));
 
-const TABS: { id: ManualTab; label: string }[] = [
-  { id: 'experiments', label: 'Experiments' },
-  { id: 'notebook', label: 'Notebook' },
-  { id: 'reference', label: 'Reference' },
+const TABS: { id: ManualTab; label: string; title: string }[] = [
+  { id: 'reference', label: 'Reference', title: 'Ten short sections on the physics of what you see' },
+  { id: 'experiments', label: 'Experiments', title: 'The lab: five guided experiments for students' },
+  { id: 'notebook', label: 'Notebook', title: 'Your recorded readings' },
 ];
 
-/** The lab (left dock): experiments, the notebook and the reference. */
+/** The physics panel (left dock): the explanations, the experiments and the notebook. */
 export function ManualDock() {
   const tab = useUI((s) => s.manualTab);
   const count = useNotebook((s) => s.rows.length);
@@ -31,15 +31,15 @@ export function ManualDock() {
     refs.current[j]?.focus();
   };
   return (
-    <aside className="dock dock-l relative" aria-label="Lab" style={{ width }}>
+    <aside className="dock dock-l relative" aria-label="Physics" style={{ width }}>
       <DockResizer side="left" width={width} initial={384} onChange={(w) => useUI.setState({ leftWidth: w })} />
       <div className="titlebar !h-[30px]">
-        <span className="cap !text-fg-2">Lab</span>
-        <button className="btn btn-q btn-sq ml-auto !h-5 !w-5" onClick={() => useUI.setState({ leftOpen: false })} aria-label="Close the lab">
+        <span className="cap !text-fg-2">Physics</span>
+        <button className="btn btn-q btn-sq ml-auto !h-5 !w-5" onClick={() => useUI.setState({ leftOpen: false })} aria-label="Close the physics panel">
           <CloseIcon />
         </button>
       </div>
-      <div className="tabs" role="tablist" aria-label="Lab sections">
+      <div className="tabs" role="tablist" aria-label="Physics panel sections">
         {TABS.map((t, i) => (
           <button
             key={t.id}
@@ -52,6 +52,7 @@ export function ManualDock() {
             aria-controls="lab-panel"
             tabIndex={tab === t.id ? 0 : -1}
             className="tab"
+            title={t.title}
             onClick={() => select(t.id)}
             onKeyDown={(e) => onKey(e, i)}
           >

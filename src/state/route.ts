@@ -1,19 +1,20 @@
 /**
- * Reading pages (the manual and the About page) live in the URL hash, so they can be linked
- * to, bookmarked and closed with the browser's Back button: #/manual, #/manual/flying,
+ * Reading pages (the guide and the About page) live in the URL hash, so they can be linked
+ * to, bookmarked and closed with the browser's Back button: #/guide, #/guide/flying,
  * #/about. Everything else is ordinary application state.
  */
 import { useSyncExternalStore } from 'react';
 
-export type DocPage = 'manual' | 'about';
+export type DocPage = 'guide' | 'about';
 export interface DocRoute {
   page: DocPage;
   section?: string;
 }
 
 function parse(hash: string): DocRoute | null {
-  const m = hash.match(/^#\/(manual|about)(?:\/([\w-]+))?\/?$/);
-  return m ? { page: m[1] as DocPage, section: m[2] } : null;
+  // "manual" is the guide's old name; old links still open it.
+  const m = hash.match(/^#\/(guide|manual|about)(?:\/([\w-]+))?\/?$/);
+  return m ? { page: m[1] === 'about' ? 'about' : 'guide', section: m[2] } : null;
 }
 
 const hasWindow = typeof window !== 'undefined';
@@ -62,7 +63,7 @@ export function openDoc(page: DocPage, section?: string): void {
   emit();
 }
 
-/** Close the reading page and return to the laboratory. */
+/** Close the reading page and return to the view. */
 export function closeDoc(): void {
   if (!current) return;
   if (pushed) {

@@ -1,6 +1,6 @@
 /**
- * The reading view: the manual and the About page, full screen over the laboratory, with a
- * table of contents that follows the reading position. Loaded on first use.
+ * The reading view: the guide and the About page, full screen over the view, with a table
+ * of contents that follows the reading position. Loaded on first use.
  */
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
@@ -9,11 +9,11 @@ import { CloseIcon } from '../kit';
 import { Icon } from '../icons';
 import { LogoMark } from '../Logo';
 import { useModal } from '../useModal';
-import ManualDoc, { MANUAL_TOC } from './ManualDoc';
+import GuideDoc, { GUIDE_TOC } from './GuideDoc';
 import AboutDoc, { ABOUT_TOC } from './AboutDoc';
 
-const PAGES: Record<DocPage, { title: string; toc: typeof MANUAL_TOC; numbered: boolean }> = {
-  manual: { title: 'Manual', toc: MANUAL_TOC, numbered: true },
+const PAGES: Record<DocPage, { title: string; toc: typeof GUIDE_TOC; numbered: boolean }> = {
+  guide: { title: 'Guide', toc: GUIDE_TOC, numbered: true },
   about: { title: 'About', toc: ABOUT_TOC, numbered: false },
 };
 
@@ -66,12 +66,12 @@ export default function DocView({ route }: { route: DocRoute }) {
   };
 
   return createPortal(
-    <div ref={ref} className="doc-overlay" role="dialog" aria-modal="true" aria-label={route.page === 'manual' ? 'Manual' : 'About Lightspeed'}>
+    <div ref={ref} className="doc-overlay" role="dialog" aria-modal="true" aria-label={route.page === 'guide' ? 'Guide' : 'About Lightspeed'}>
       <header className="doc-bar">
         <LogoMark size={18} className="text-fg" />
         <span className="mono text-[12px] font-semibold tracking-[0.2em] text-fg max-sm:hidden">LIGHTSPEED</span>
         <nav className="doc-tabs" aria-label="Pages">
-          {(['manual', 'about'] as const).map((p) => (
+          {(['guide', 'about'] as const).map((p) => (
             <a
               key={p}
               href={`#/${p}`}
@@ -103,7 +103,7 @@ export default function DocView({ route }: { route: DocRoute }) {
           <Icon name="print" />
           Print
         </button>
-        <button className="btn" onClick={closeDoc} title="Back to the laboratory (Esc)" data-autofocus>
+        <button className="btn" onClick={closeDoc} title="Back to the view (Esc)" data-autofocus>
           <CloseIcon />
           <span className="max-sm:hidden">Close</span>
         </button>
@@ -129,7 +129,7 @@ export default function DocView({ route }: { route: DocRoute }) {
             ))}
           </ol>
           <div className="doc-toc-foot">
-            {route.page === 'manual' ? (
+            {route.page === 'guide' ? (
               <a
                 href="#/about"
                 onClick={(e) => {
@@ -141,19 +141,19 @@ export default function DocView({ route }: { route: DocRoute }) {
               </a>
             ) : (
               <a
-                href="#/manual"
+                href="#/guide"
                 onClick={(e) => {
                   e.preventDefault();
-                  openDoc('manual');
+                  openDoc('guide');
                 }}
               >
-                Read the manual →
+                Read the guide →
               </a>
             )}
           </div>
         </nav>
         <div ref={scroller} className="doc-scroll scroll" tabIndex={-1}>
-          <article className={`doc ${page.numbered ? 'doc-numbered' : ''}`}>{route.page === 'manual' ? <ManualDoc /> : <AboutDoc />}</article>
+          <article className={`doc ${page.numbered ? 'doc-numbered' : ''}`}>{route.page === 'guide' ? <GuideDoc /> : <AboutDoc />}</article>
         </div>
       </div>
     </div>,

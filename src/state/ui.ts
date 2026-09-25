@@ -11,7 +11,7 @@ export type ManualTab = 'experiments' | 'notebook' | 'reference';
 export type ScopeChannel = 'beta' | 'gamma' | 'range' | 'dopplerFwd' | 'dtau';
 
 export interface UIState {
-  /** Body shown on the target data sheet. */
+  /** Body shown on the body card and the instruments' target data sheet. */
   selected: BodyId | null;
   /** Body the orbit camera is centred on. */
   focus: BodyId;
@@ -28,6 +28,14 @@ export interface UIState {
   welcomeOpen: boolean;
   /** Guided tour: index of the step shown, or null. */
   tourStep: number | null;
+  /** The list of one-click journeys. */
+  journeysOpen: boolean;
+  /** The keyboard and mouse sheet. */
+  keysOpen: boolean;
+  /** What to look for on the journey under way (shown on the flight recorder). */
+  journeyNote: string | null;
+  /** Card with facts and actions for the selected body (closable; returns on the next selection). */
+  bodyCard: boolean;
   /** Single-key shortcuts (off for users of assistive technology that needs the keys). */
   shortcuts: boolean;
   /** Frame-rate and render-quality readout in the status bar. */
@@ -107,6 +115,10 @@ export const useUI = create<UIState>()(
       showGrid: false,
       welcomeOpen: !welcomed(),
       tourStep: null,
+      journeysOpen: false,
+      keysOpen: false,
+      journeyNote: null,
+      bodyCard: true,
       shortcuts: true,
       showFps: false,
       throttleBeta: 0,
@@ -121,7 +133,8 @@ export const useUI = create<UIState>()(
       rightOpen: false,
       leftWidth: 384,
       rightWidth: 312,
-      manualTab: 'experiments',
+      // The physics panel opens on the explanations; the experiments are its second tab.
+      manualTab: 'reference',
       experiment: null,
       refTopic: 'light-time',
       noteTopic: null,
@@ -133,18 +146,22 @@ export const useUI = create<UIState>()(
       plannerDest: 'mars',
       plannerBeta: 0.5,
       tripActive: false,
-      select: (id) => set({ selected: id }),
+      // Selecting a body brings its card back if it was closed.
+      select: (id) => set((s) => ({ selected: id, bodyCard: id ? true : s.bodyCard })),
       toggle: (key) => set((s) => ({ [key]: !s[key] }) as Partial<UIState>),
       setSizeMode: (m) => set({ sizeMode: m }),
     }),
     {
       name: 'lightspeed.ui',
-      version: 2,
+      version: 3,
       storage: deferredStorage,
-      // v2 introduced the welcome screen and closed panels by default.
+      // v2 introduced the welcome screen and closed panels by default; v3 opens the physics
+      // panel on its explanations rather than on the experiments.
       migrate: (old, version) => {
-        const s = (old ?? {}) as Partial<UIState>;
-        return (version < 2 ? { ...s, leftOpen: false, rightOpen: false } : s) as UIState;
+        let s = (old ?? {}) as Partial<UIState>;
+        if (version < 2) s = { ...s, leftOpen: false, rightOpen: false };
+        if (version < 3) s = { ...s, manualTab: 'reference' };
+        return s as UIState;
       },
       // Only preferences persist; the simulation always starts fresh.
       partialize: (s) => ({

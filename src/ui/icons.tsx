@@ -13,6 +13,8 @@ type Name =
   | 'tour'
   | 'flask'
   | 'orbit'
+  | 'compass'
+  | 'keyboard'
   | 'print'
   | 'arrow-right'
   | 'arrow-left'
@@ -70,6 +72,19 @@ const PATHS: Record<Name, ReactNode> = {
     <>
       <ellipse cx="6" cy="6" rx="5" ry="2.3" transform="rotate(-24 6 6)" />
       <circle cx="6" cy="6" r="1.3" fill="currentColor" stroke="none" />
+    </>
+  ),
+  // A compass rose: the needle filled at its north end
+  compass: (
+    <>
+      <circle cx="6" cy="6" r="4.8" />
+      <path d="M8.2 3.8L7 7 3.8 8.2 5 5z" fill="currentColor" stroke="none" />
+    </>
+  ),
+  keyboard: (
+    <>
+      <rect x="1" y="3" width="10" height="6.5" rx="0.6" />
+      <path d="M3 5h.1M5 5h.1M7 5h.1M9 5h.1M3.5 7.5h5" />
     </>
   ),
   print: (

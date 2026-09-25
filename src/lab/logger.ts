@@ -171,7 +171,7 @@ export function labArrival(t: Trip): void {
 export function recordManual(): boolean {
   const exp = useUI.getState().experiment;
   if (exp !== 'E3' && exp !== 'E4') {
-    logEvent('ERR', 'Readings by hand apply to Experiments 3 and 4. Open one in the lab first (K).');
+    logEvent('ERR', 'Readings by hand apply to Experiments 3 and 4. Open one under Physics › Experiments first (K).');
     return false;
   }
   if (travel.trip?.warp) {

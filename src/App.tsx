@@ -21,6 +21,8 @@ import { TrajectoryPlanner } from './ui/flight/TrajectoryPlanner';
 import { FlightStrip } from './ui/flight/FlightStrip';
 import { Welcome } from './ui/overlays/Welcome';
 import { Tour } from './ui/overlays/Tour';
+import { Journeys } from './ui/overlays/Journeys';
+import { KeysSheet } from './ui/overlays/KeysSheet';
 import { useShortcuts } from './ui/useShortcuts';
 import { useExplainerTriggers } from './ui/useExplainerTriggers';
 import { useUI } from './state/ui';
@@ -100,6 +102,8 @@ export default function App() {
       <Footer />
       <Welcome />
       <Tour />
+      <Journeys />
+      <KeysSheet />
       {reportFor && (
         <Suspense fallback={null}>
           <LabReport exp={reportFor} />

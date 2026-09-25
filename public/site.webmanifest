@@ -1,7 +1,7 @@
 {
-  "name": "Lightspeed: a virtual laboratory for special relativity",
+  "name": "Lightspeed: explore the real Solar System close to the speed of light",
   "short_name": "Lightspeed",
-  "description": "The real Solar System at true scale, a ship that flies close to the speed of light, and five guided experiments in special relativity.",
+  "description": "The real Solar System at true scale, a ship that flies close to the speed of light, the physics explained as it happens, and a lab with five experiments for students.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#050607",

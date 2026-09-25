@@ -3,12 +3,13 @@ import type { BodyId } from '../physics/constants';
 import { controller } from '../controls/cameraController';
 import { sim } from '../sim/sim';
 import { abortTrip, launch, planTrip, travel, type Drive } from '../sim/travel';
+import { setWarp } from '../sim/clock';
 import { useUI } from '../state/ui';
 import { chronoLaunch, chronoTripEnd } from '../sim/chronometer';
 
 export function openPlanner(dest?: BodyId): void {
   const ui = useUI.getState();
-  useUI.setState({ plannerOpen: true, plannerDest: dest ?? ui.selected ?? ui.plannerDest });
+  useUI.setState({ plannerOpen: true, journeysOpen: false, plannerDest: dest ?? ui.selected ?? ui.plannerDest });
 }
 
 /** Plan and launch a trip from the current camera position. Returns false if unreachable. */
@@ -18,8 +19,14 @@ export function startTrip(dest: BodyId, beta: number, drive?: Drive): boolean {
   launch(plan);
   chronoLaunch();
   controller.startTravel(travel.trip!.dir);
-  useUI.setState({ tripActive: true, plannerOpen: false, selected: null });
+  useUI.setState({ tripActive: true, plannerOpen: false, selected: null, journeyNote: null });
   return true;
+}
+
+/** A journey sped the clock up for its flight; once the flight is over, time runs normally again. */
+function endJourney(): void {
+  if (useUI.getState().journeyNote) setWarp(1);
+  useUI.setState({ journeyNote: null });
 }
 
 /** Stop mid-course: the ship halts (instantly, idealised) and the camera orbits the nearest body. */
@@ -27,6 +34,7 @@ export function stopTrip(): void {
   abortTrip();
   chronoTripEnd();
   sim.camera.pos.copy(travel.shipPos);
+  endJourney();
   useUI.setState({ tripActive: false });
   controller.exitTravelToNearest();
 }
@@ -35,5 +43,6 @@ export function stopTrip(): void {
 export function onArrival(dest: BodyId): void {
   sim.camera.pos.copy(travel.shipPos);
   controller.finishTravel(dest);
+  endJourney();
   useUI.setState({ tripActive: false, selected: dest });
 }

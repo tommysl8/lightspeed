@@ -26,11 +26,11 @@ function Epoch() {
   const time = ok ? `${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())}` : '';
   return (
     <div className="flex items-baseline gap-3 whitespace-nowrap" title="Simulation epoch (UTC) and Julian Date">
-      <span className="cap max-lg:hidden">Epoch</span>
+      <span className="cap max-xl:hidden">Epoch</span>
       <span className="mono text-[12px] text-fg lg:text-[13.5px]">
         {date} <span className="text-fg">{time}</span> <span className="text-fg-3 max-lg:hidden">UTC</span>
       </span>
-      <span className="mono hidden text-[12.5px] text-fg-2 min-[1360px]:inline">
+      <span className="mono hidden text-[12.5px] text-fg-2 min-[1460px]:inline">
         <span className="text-fg-3">JD</span> {fixed(julianDate(sim.timeMs), 5, false)}
       </span>
     </div>
@@ -212,9 +212,9 @@ function ViewMenu() {
       <Check checked={s.showGrid} onChange={() => t('showGrid')} kbd="J" hint="Ecliptic longitude and latitude every 15°, with the axis triad">
         Ecliptic grid
       </Check>
-      <MenuHeading>Instruments</MenuHeading>
+      <MenuHeading>Readouts</MenuHeading>
       <Check checked={s.showOverlays} onChange={() => t('showOverlays')} kbd="U" hint="Scale bar and camera readout; in flight also the reticle and apex markers">
-        Viewport overlays
+        Readouts over the view
       </Check>
       <Check
         checked={s.retarded}
@@ -230,8 +230,13 @@ function ViewMenu() {
       <Check checked={s.shortcuts} onChange={() => t('shortcuts')} hint="Single-key shortcuts such as Space, R and 0–9. Turn off if they clash with assistive software.">
         Keyboard shortcuts
       </Check>
-      <div className="mt-1 border-t border-line px-2.5 pt-1.5 xl:hidden">
+      <div className="mt-1 flex flex-wrap gap-x-3 border-t border-line px-2.5 pt-1.5">
+        <button className="btn btn-q btn-sm -ml-1.5" onClick={() => useUI.setState({ keysOpen: true })}>
+          <Icon name="keyboard" />
+          Keyboard and mouse…
+        </button>
         <button className="btn btn-q btn-sm -ml-1.5" onClick={() => openDoc('about')}>
+          <Icon name="info" />
           About Lightspeed…
         </button>
       </div>
@@ -249,13 +254,13 @@ export function Header() {
     <header className="app-hdr flex min-w-0 items-center gap-2 border-b border-line-2 bg-panel px-3 lg:gap-3">
       <button
         className="btn btn-q"
-        data-tour="lab"
+        data-tour="physics"
         aria-pressed={leftOpen}
         onClick={() => toggle('leftOpen')}
-        title="Lab: experiments, notebook and reference (K)"
+        title="Physics: what you are seeing, explained; and the lab with its experiments (K)"
       >
         <Icon name="dock-left" size={14} />
-        <span className="max-md:hidden">Lab</span>
+        <span className="max-xl:hidden">Physics</span>
       </button>
 
       <a
@@ -267,7 +272,7 @@ export function Header() {
           openDoc('about');
         }}
       >
-        <Wordmark size={18} large subtitle />
+        <Wordmark size={18} large subtitle nameBelowSm={false} />
       </a>
 
       <div className="mx-1 h-4 w-px bg-line-2 max-sm:hidden" />
@@ -277,23 +282,29 @@ export function Header() {
 
       <div className="ml-auto flex min-w-0 items-center gap-1.5">
         <button
+          className="btn btn-q"
+          data-tour="journeys"
+          onClick={() => useUI.setState({ journeysOpen: true })}
+          title="Journeys: seven one-click trips and scenes, each with what to look for"
+        >
+          <Icon name="compass" size={14} className="text-accent" />
+          <span className="max-md:hidden">Journeys</span>
+        </button>
+        <button
           className="btn btn-pri"
           data-tour="fly"
           disabled={tripActive}
           onClick={() => openPlanner()}
-          title={tripActive ? 'In flight: abort or finish the trip first' : 'Plan a flight at a chosen speed (G)'}
+          title={tripActive ? 'In flight: abort or finish the trip first' : 'Plan a flight to any body at a chosen speed (G)'}
         >
           <Icon name="flight" size={14} />
-          <span className="max-sm:hidden">{tripActive ? 'In flight' : 'Plan flight'}</span>
+          <span className="max-md:hidden">{tripActive ? 'In flight' : 'Plan flight'}</span>
         </button>
         <div className="mx-1 h-4 w-px bg-line-2" />
         <ViewMenu />
-        <button className="btn btn-q" data-tour="manual" onClick={() => openDoc('manual')} title="Manual: how to use Lightspeed (?)">
+        <button className="btn btn-q" data-tour="guide" onClick={() => openDoc('guide')} title="Guide: how to use Lightspeed, and what you are looking at">
           <Icon name="book" size={14} />
-          <span className="max-lg:hidden">Manual</span>
-        </button>
-        <button className="btn btn-q max-xl:hidden" onClick={() => openDoc('about')} title="About Lightspeed: author, sources and methods">
-          About
+          <span className="max-xl:hidden">Guide</span>
         </button>
       </div>
 
@@ -302,9 +313,9 @@ export function Header() {
         data-tour="instruments"
         aria-pressed={rightOpen}
         onClick={() => toggle('rightOpen')}
-        title="Instruments: live readouts (I)"
+        title="Instruments: live readouts and the data sheet of the selected body (I)"
       >
-        <span className="max-md:hidden">Instruments</span>
+        <span className="max-lg:hidden">Instruments</span>
         <Icon name="dock-right" size={14} />
       </button>
     </header>

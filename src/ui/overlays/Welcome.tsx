@@ -1,12 +1,12 @@
 /**
- * First-visit welcome: what Lightspeed is, and three ways to start. Shown once; the manual
+ * First-visit welcome: what Lightspeed is, and three ways to start. Shown once; the guide
  * can bring it back.
  */
 import type { ReactNode } from 'react';
 import { APP, AUTHOR } from '../../content/author';
 import { openDoc } from '../../state/route';
 import { useUI } from '../../state/ui';
-import { markWelcomed, startExperiment1, startTour } from '../onboarding';
+import { markWelcomed, openJourneys, startExperiment1, startTour } from '../onboarding';
 import { CloseIcon, Kbd } from '../kit';
 import { Icon } from '../icons';
 import { Wordmark } from '../Logo';
@@ -21,7 +21,7 @@ function Choice({
   primary,
 }: {
   n: string;
-  icon: 'tour' | 'flask' | 'orbit';
+  icon: 'tour' | 'compass' | 'orbit';
   title: string;
   children: ReactNode;
   onClick: () => void;
@@ -72,33 +72,36 @@ function WelcomeCard() {
         <div className="px-5 pb-5 pt-5 sm:px-7">
           <div className="cap">Welcome</div>
           <h1 id="welcome-title" className="mt-1.5 font-serif text-[27px] font-medium leading-[1.15] text-fg">
-            A virtual laboratory for special relativity
+            The real Solar System, close to the speed of light
           </h1>
-          <p id="welcome-desc" className="mt-3 max-w-[56ch] font-serif text-[15px] leading-relaxed text-fg-2">
-            This is the Solar System as it is right now, drawn at true scale, with light travelling at its real speed. Fly between the
-            planets close to the speed of light, watch the sky change around you, and measure what you see.
+          <p id="welcome-desc" className="mt-3 max-w-[58ch] font-serif text-[15px] leading-relaxed text-fg-2">
+            Every planet is where it really is at this moment, at true scale, with light travelling at its real speed. Fly between
+            the planets at nearly the speed of light, watch the sky warp around you, and see what happens to your clock.
           </p>
           <div className="mt-5 grid gap-2 sm:grid-cols-3">
             <Choice n="01" icon="tour" title="Take the tour" primary onClick={() => close(startTour)}>
-              A one-minute walk around the screen: what everything is and where to click.
+              One minute: what everything on the screen is, and where to click.
             </Choice>
-            <Choice n="02" icon="flask" title="Start Experiment 1" onClick={() => close(startExperiment1)}>
-              Measure the speed of light by timing a pulse across the Solar System. About 15 minutes.
+            <Choice n="02" icon="compass" title="Take a journey" onClick={() => close(openJourneys)}>
+              Seven one-click trips, from a pulse of sunlight to Proxima Centauri at 1 g.
             </Choice>
             <Choice n="03" icon="orbit" title="Explore freely" onClick={() => close()}>
-              Just the view. The lab and the manual are always one click away; the tour is in the manual.
+              Just the view. Drag to look around, scroll to zoom, click a planet.
             </Choice>
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 border-t border-line-2 px-5 py-2.5 text-[11.5px] text-fg-3 sm:px-7">
-          <button className="inline-flex items-center gap-1.5 text-fg-2 hover:text-fg" onClick={() => close(() => openDoc('manual'))}>
-            <Icon name="book" /> Read the manual
+          <button className="inline-flex items-center gap-1.5 text-fg-2 hover:text-fg" onClick={() => close(() => openDoc('guide'))}>
+            <Icon name="book" /> Guide
           </button>
           <button className="inline-flex items-center gap-1.5 text-fg-2 hover:text-fg" onClick={() => close(() => openDoc('about'))}>
             <Icon name="info" /> About
           </button>
+          <button className="inline-flex items-center gap-1.5 text-fg-2 hover:text-fg" onClick={() => close(startExperiment1)} title="Five guided experiments in special relativity, with a notebook and printable reports">
+            <Icon name="flask" /> For students: the lab
+          </button>
           <span className="max-sm:hidden">
-            Help at any time: <Kbd>?</Kbd>
+            Keys: <Kbd>?</Kbd>
           </span>
           <span className="ml-auto">
             by <span className="text-fg-2">{AUTHOR.name}</span>

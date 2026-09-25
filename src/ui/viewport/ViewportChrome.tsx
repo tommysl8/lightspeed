@@ -1,7 +1,7 @@
 /**
  * Static viewport furniture: viewfinder corners, view information, annunciator lamps, the
- * event console, the split-view divider, reference margin notes and the warning band shown
- * while the fictional warp is engaged.
+ * event console, the split-view divider, the body card and physics notes, journey notes,
+ * and the warning band shown while the fictional warp is engaged.
  */
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { BODIES } from '../../physics/constants';
@@ -17,6 +17,7 @@ import { openExplainer } from '../explainerActions';
 import { CloseIcon, Kbd } from '../kit';
 import { useTicker } from '../useTicker';
 import { rich } from '../rich';
+import { BodyCard } from './BodyCard';
 
 function Corners() {
   const c = 'vf-corner';
@@ -217,23 +218,55 @@ function SplitDivider() {
   );
 }
 
+/** The physics note that appears the first time something happens: one plain sentence, and a way to read more. */
 function NoteToast() {
   const topic = useUI((s) => s.noteTopic);
-  const tripActive = useUI((s) => s.tripActive);
   if (!topic) return null;
-  // Below the warning band while the fictional warp is engaged.
-  const low = tripActive && !!travel.trip?.warp;
   const e = explainerById(topic);
   const n = EXPLAINERS.findIndex((x) => x.id === topic) + 1;
   return (
-    <div className={`absolute right-4 z-20 max-w-[calc(100%-32px)] ${low ? 'top-[76px]' : 'top-[38px]'}`}>
-      <div className="panel-float appear flex items-center gap-3 py-1.5 pl-3 pr-1.5">
-        <span className="cap !text-accent">Reference §{n}</span>
-        <span className="font-serif text-[13px] text-fg">{e.title}</span>
-        <button className="btn btn-sm" onClick={() => openExplainer(topic)}>
-          Read
+    <div className="panel-float appear px-3 pb-2 pt-2">
+      <div className="flex items-center gap-2">
+        <span className="cap !text-accent">Physics §{n}</span>
+        <span className="min-w-0 truncate font-serif text-[13px] text-fg">{e.title}</span>
+        <button className="btn btn-q btn-sq ml-auto !h-5 !w-5" onClick={() => useUI.setState({ noteTopic: null })} aria-label="Dismiss">
+          <CloseIcon />
         </button>
-        <button className="btn btn-q btn-sq !h-5 !w-5" onClick={() => useUI.setState({ noteTopic: null })} aria-label="Dismiss">
+      </div>
+      <p className="mt-1 text-[12px] leading-snug text-fg-2">{e.blurb}</p>
+      <button className="btn btn-sm mt-1.5" onClick={() => openExplainer(topic)}>
+        Read more
+      </button>
+    </div>
+  );
+}
+
+/** Top-right stack: the selected body's card, then any physics note. */
+function RightStack() {
+  const tripActive = useUI((s) => s.tripActive);
+  useTicker(4, tripActive);
+  // Below the warning band while the fictional warp is engaged.
+  const low = tripActive && !!travel.trip?.warp;
+  return (
+    <div className={`absolute right-4 z-20 flex w-[300px] max-w-[calc(100%-32px)] flex-col gap-2 ${low ? 'top-[76px]' : 'top-[38px]'}`}>
+      <BodyCard />
+      <NoteToast />
+    </div>
+  );
+}
+
+/** What to look for on a journey that is a scene rather than a flight (the flight recorder shows it in flight). */
+function JourneyBanner() {
+  const note = useUI((s) => s.journeyNote);
+  const tripActive = useUI((s) => s.tripActive);
+  const plannerOpen = useUI((s) => s.plannerOpen);
+  if (!note || tripActive || plannerOpen) return null;
+  return (
+    <div className="absolute inset-x-0 bottom-10 z-10 flex justify-center px-4">
+      <div className="panel-float appear flex max-w-[640px] items-start gap-3 py-2 pl-3.5 pr-1.5">
+        <span className="cap mt-[3px] shrink-0 !text-accent">Journey</span>
+        <span className="font-serif text-[13px] leading-snug text-fg-2">{note}</span>
+        <button className="btn btn-q btn-sq -mt-0.5 shrink-0" onClick={() => useUI.setState({ journeyNote: null })} aria-label="Dismiss">
           <CloseIcon />
         </button>
       </div>
@@ -248,7 +281,7 @@ const HINT_KEY = 'lightspeed.hinted';
  * (or after half a minute).
  */
 function FirstHint() {
-  const blocked = useUI((s) => s.welcomeOpen || s.tourStep !== null || s.tripActive || s.plannerOpen);
+  const blocked = useUI((s) => s.welcomeOpen || s.tourStep !== null || s.tripActive || s.plannerOpen || s.journeysOpen || !!s.journeyNote);
   const [show, setShow] = useState(() => {
     try {
       return localStorage.getItem(HINT_KEY) !== '1';
@@ -256,9 +289,9 @@ function FirstHint() {
       return false;
     }
   });
+  const flown = useUI((s) => s.tripActive);
   useEffect(() => {
-    if (!show || blocked) return;
-    const view = document.querySelector('.app-view');
+    if (!show) return;
     const done = () => {
       setShow(false);
       try {
@@ -267,6 +300,13 @@ function FirstHint() {
         /* storage unavailable */
       }
     };
+    // Whoever has taken a flight has found their way around.
+    if (flown) {
+      done();
+      return;
+    }
+    if (blocked) return;
+    const view = document.querySelector('.app-view');
     // Let the first gesture finish before the hint goes.
     const soon = () => window.setTimeout(done, 1200);
     const timer = window.setTimeout(done, 30_000);
@@ -277,7 +317,7 @@ function FirstHint() {
       view?.removeEventListener('pointerdown', soon);
       view?.removeEventListener('wheel', soon);
     };
-  }, [show, blocked]);
+  }, [show, blocked, flown]);
   if (!show || blocked) return null;
   return (
     <div className="pointer-events-none absolute inset-x-0 bottom-10 z-10 flex justify-center px-4">
@@ -296,6 +336,12 @@ function FirstHint() {
         </span>
         <span>
           Click a name below, or <Kbd>0</Kbd>–<Kbd>9</Kbd>, to visit a planet
+        </span>
+        <span className="text-line-3 max-md:hidden" aria-hidden>
+          ·
+        </span>
+        <span className="max-md:hidden">
+          <b className="font-medium text-fg">Journeys</b> for set pieces
         </span>
       </div>
     </div>
@@ -332,7 +378,8 @@ export function ViewportChrome() {
       <SplitDivider />
       <EventConsole />
       <EventAnnouncer />
-      <NoteToast />
+      <RightStack />
+      <JourneyBanner />
       <FirstHint />
     </>
   );

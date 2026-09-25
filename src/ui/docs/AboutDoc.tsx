@@ -64,14 +64,16 @@ function Overview() {
   return (
     <Chapter id="overview" title="What it is">
       <p className="doc-lead">
-        Lightspeed is a virtual laboratory for special relativity. It uses the real Solar System, at the real date and at true
-        scale, as apparatus: you travel through it close to the speed of light, and measure what relativity does to clocks,
-        lengths and light.
+        Lightspeed is a space exploration tool with real physics. It shows the Solar System as it is right now, at true scale,
+        and lets you fly through it close to the speed of light, with the sky and the clocks doing exactly what special
+        relativity says they do.
       </p>
       <p>
-        It is written for students meeting relativity for the first time, in school or at university, for the teachers who set
-        them lab work, and for anyone who has wondered what the sky would look like from a starship. It runs in a web browser,
-        needs no installation or account, and keeps its readings on your own computer.
+        It is for anyone who has wondered what the sky would look like from a starship, and how long the trip would really
+        take. The numbers are always a click away, and the physics is explained as it happens. For students and teachers there
+        is also a lab: five guided experiments in special relativity that use the simulation as apparatus, with a notebook and
+        printable reports. It runs in a web browser, needs no installation or account, and keeps anything you record on your
+        own computer.
       </p>
       <div className="doc-principles">
         {PRINCIPLES.map(([t, d], i) => (
@@ -143,8 +145,8 @@ function Author() {
         <p key={p.slice(0, 16)}>{p}</p>
       ))}
       <p>
-        Lightspeed was designed and built by {AUTHOR.name}. Corrections, bug reports and ideas for new experiments are welcome by
-        email or on GitHub.
+        Lightspeed was designed and built by {AUTHOR.name}. Corrections, bug reports and ideas for new journeys or experiments are
+        welcome by email or on GitHub.
       </p>
     </Chapter>
   );
@@ -152,10 +154,10 @@ function Author() {
 
 function Cite() {
   const url = `${window.location.origin}/`;
-  const apa = `${AUTHOR.citeShort} (${APP.year}). Lightspeed: A virtual laboratory for special relativity (Version ${APP.version}) [Computer software]. ${url}`;
+  const apa = `${AUTHOR.citeShort} (${APP.year}). ${APP.citeTitle} (Version ${APP.version}) [Computer software]. ${url}`;
   const bib = `@software{liu_lightspeed_${APP.year},
   author  = {${AUTHOR.citeName}},
-  title   = {Lightspeed: A Virtual Laboratory for Special Relativity},
+  title   = {Lightspeed: A Relativistic Solar System Explorer},
   year    = {${APP.year}},
   version = {${APP.version}},
   url     = {${url}}
@@ -165,8 +167,7 @@ function Cite() {
       <p>If you use Lightspeed in teaching or in written work, please cite it as:</p>
       <div className="doc-cite">
         <p>
-          {AUTHOR.citeShort} ({APP.year}). <i>Lightspeed: A virtual laboratory for special relativity</i> (Version {APP.version})
-          [Computer software]. {url}
+          {AUTHOR.citeShort} ({APP.year}). <i>{APP.citeTitle}</i> (Version {APP.version}) [Computer software]. {url}
         </p>
         <CopyButton text={apa} label="Copy citation" />
       </div>
@@ -265,7 +266,7 @@ function Sources() {
 function Limitations() {
   return (
     <Chapter id="limitations" title="Model limitations">
-      <p>Lightspeed simplifies in the following ways. None of them affects the experiments as designed.</p>
+      <p>Lightspeed simplifies in the following ways. None of them affects what you see in flight, or the lab’s experiments as designed.</p>
       <ol className="doc-list-num">
         <li>Spacetime is flat: gravity bends neither trajectories nor light, and no gravitational time dilation is applied.</li>
         <li>Constant-speed trips start and stop instantaneously. The 1 g drive is the physically realisable profile.</li>
@@ -302,9 +303,10 @@ function Privacy() {
     <Chapter id="privacy" title="Privacy">
       <p>
         Lightspeed runs entirely in your browser. There are no accounts, cookies, advertising or analytics, and nothing you do is
-        sent anywhere. Your readings, written answers and preferences are kept in this browser’s local storage. The lab’s
-        Notebook tab exports them and clears the readings; clearing this site’s data in your browser removes everything. The
-        site is served as static files; the web host may keep ordinary request logs, but Lightspeed itself collects nothing.
+        sent anywhere. Your preferences, and any readings and written answers from the lab, are kept in this browser’s local
+        storage. The Notebook tab under Physics exports them and clears the readings; clearing this site’s data in your browser
+        removes everything. The site is served as static files; the web host may keep ordinary request logs, but Lightspeed
+        itself collects nothing.
       </p>
     </Chapter>
   );

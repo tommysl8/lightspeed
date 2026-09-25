@@ -6,7 +6,7 @@ import { useUI } from '../state/ui';
 import { recordManual } from '../lab/logger';
 import { BODY_KEYS, goToBody } from './navigation';
 import { openPlanner } from './tripActions';
-import { closeDoc, docRoute, openDoc } from '../state/route';
+import { closeDoc, docRoute } from '../state/route';
 
 /** Controls that Space activates, or that use the arrow keys, when focused from the keyboard. */
 const OWN_KEYS = 'button, a[href], summary, [role="radio"], [role="tab"], [role="slider"], [role="separator"], [tabindex]';
@@ -31,20 +31,21 @@ export function useShortcuts() {
         if (e.key === 'Escape') closeDoc();
         return;
       }
-      if (ui.reportFor || ui.welcomeOpen || ui.tourStep !== null) return;
+      if (ui.reportFor || ui.welcomeOpen || ui.tourStep !== null || ui.journeysOpen || ui.keysOpen) return;
       if (!ui.shortcuts && e.key !== 'Escape') return;
       // Space presses a button that was reached with Tab; it pauses only otherwise.
       const t = e.target as HTMLElement | null;
       if (e.code === 'Space' && t?.closest?.(OWN_KEYS) && t.matches(':focus-visible')) return;
 
       if (e.key === '?') {
-        openDoc('manual', 'controls');
+        useUI.setState({ keysOpen: true });
         return;
       }
       if (e.key === 'Escape') {
         if (ui.plannerOpen) useUI.setState({ plannerOpen: false });
         else if (ui.noteTopic) useUI.setState({ noteTopic: null });
         else if (ui.selected) ui.select(null);
+        else if (ui.journeyNote && !ui.tripActive) useUI.setState({ journeyNote: null });
         return;
       }
       // Time

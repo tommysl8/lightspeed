@@ -50,17 +50,18 @@ const STARS = Array.from({ length: 70 }, (_, i) => {
 });
 
 const CALLOUTS: { n: number; cx: number; cy: number; x: number; y: number }[] = [
-  { n: 1, cx: 26, cy: -24, x: 26, y: 6 },
-  { n: 2, cx: 250, cy: -24, x: 250, y: 10 },
-  { n: 3, cx: 465, cy: -24, x: 465, y: 6 },
-  { n: 4, cx: 578, cy: -24, x: 578, y: 10 },
-  { n: 5, cx: 677, cy: -24, x: 677, y: 6 },
-  { n: 6, cx: -28, cy: 220, x: 0, y: 220 },
-  { n: 7, cx: 528, cy: 64, x: 528, y: 64 },
-  { n: 8, cx: 748, cy: 220, x: 720, y: 220 },
-  { n: 9, cx: 86, cy: 448, x: 86, y: 420 },
-  { n: 10, cx: 390, cy: 448, x: 390, y: 420 },
-  { n: 11, cx: 676, cy: 448, x: 676, y: 420 },
+  { n: 1, cx: 32, cy: -24, x: 32, y: 6 },
+  { n: 2, cx: 268, cy: -24, x: 268, y: 10 },
+  { n: 3, cx: 412, cy: -24, x: 412, y: 10 },
+  { n: 4, cx: 477, cy: -24, x: 477, y: 6 },
+  { n: 5, cx: 560, cy: -24, x: 560, y: 10 },
+  { n: 6, cx: 677, cy: -24, x: 677, y: 6 },
+  { n: 7, cx: -28, cy: 220, x: 0, y: 220 },
+  { n: 8, cx: 300, cy: 96, x: 300, y: 96 },
+  { n: 9, cx: 748, cy: 220, x: 720, y: 220 },
+  { n: 10, cx: 86, cy: 448, x: 86, y: 420 },
+  { n: 11, cx: 390, cy: 448, x: 390, y: 420 },
+  { n: 12, cx: 706, cy: 448, x: 706, y: 420 },
 ];
 
 /** Fig. 3.1: the screen, with numbered parts. */
@@ -75,7 +76,7 @@ export function ScreenMap() {
   const targets = ['Sun', 'Mercury', 'Venus', 'Earth', 'Moon', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune'];
   let tx = 246;
   return (
-    <svg viewBox="-48 -44 816 510" className="block h-auto w-full" role="img" aria-label="Diagram of the Lightspeed screen with eleven numbered parts">
+    <svg viewBox="-48 -44 816 510" className="block h-auto w-full" role="img" aria-label="Diagram of the Lightspeed screen with twelve numbered parts">
       <defs>
         <clipPath id="sm-view">
           <rect x="170" y="28" width="380" height="364" />
@@ -86,90 +87,97 @@ export function ScreenMap() {
       {/* Header */}
       <rect x="0" y="0" width="720" height="28" fill={C.panel} />
       <line x1="0" y1="28" x2="720" y2="28" stroke={C.line2} />
-      <rect x="6" y="6" width="40" height="16" fill="none" stroke={C.accent} strokeOpacity="0.6" />
-      <T x={26} y={17.5} anchor="middle" size={9} fill={C.accent} mono={false}>
-        Lab
+      <rect x="6" y="6" width="52" height="16" fill="none" stroke={C.accent} strokeOpacity="0.6" />
+      <T x={32} y={17.5} anchor="middle" size={9} fill={C.accent} mono={false}>
+        Physics
       </T>
       {/* the mark, 9 units across */}
-      <g transform="translate(53.4 8.4) scale(0.16)">
+      <g transform="translate(65.4 8.4) scale(0.16)">
         <g fill="none" stroke={C.fg} strokeWidth="8">
           <circle cx="32" cy="32" r="24" />
           <circle cx="44" cy="32" r="12" />
         </g>
         <circle cx="52" cy="32" r="8" fill={C.accent} />
       </g>
-      <T x={66} y={17.5} size={9} fill={C.fg} weight={600} spacing={1.6}>
+      <T x={78} y={17.5} size={9} fill={C.fg} weight={600} spacing={1.6}>
         LIGHTSPEED
       </T>
-      <line x1="170" y1="8" x2="170" y2="20" stroke={C.line2} />
-      <T x={180} y={17.5} size={7.5} fill={C.fg3} spacing={1}>
+      <line x1="182" y1="8" x2="182" y2="20" stroke={C.line2} />
+      <T x={192} y={17.5} size={7.5} fill={C.fg3} spacing={1}>
         EPOCH
       </T>
-      <T x={212} y={17.5} size={8.5} fill={C.fg}>
+      <T x={224} y={17.5} size={8.5} fill={C.fg}>
         2026-09-24 12:00:00 UTC
       </T>
-      <rect x="430" y="6" width="70" height="16" fill={C.accent} />
-      <T x={465} y={17.5} anchor="middle" size={9} fill="#1b1204" weight={600} mono={false}>
+      {/* Journeys: a compass and its name */}
+      <circle cx="389" cy="13.8" r="3.6" fill="none" stroke={C.accent} />
+      <path d="M390.8 11.9l-.9 2.6-2.6.9.9-2.6z" fill={C.accent} />
+      <T x={397} y={17.5} size={9} fill={C.fg2} mono={false}>
+        Journeys
+      </T>
+      <rect x="442" y="6" width="70" height="16" fill={C.accent} />
+      <T x={477} y={17.5} anchor="middle" size={9} fill="#1b1204" weight={600} mono={false}>
         Plan flight
       </T>
-      <line x1="508" y1="8" x2="508" y2="20" stroke={C.line2} />
-      <T x={516} y={17.5} size={9} fill={C.fg2} mono={false}>
+      <line x1="520" y1="8" x2="520" y2="20" stroke={C.line2} />
+      <T x={528} y={17.5} size={9} fill={C.fg2} mono={false}>
         View ▾
       </T>
-      <T x={556} y={17.5} size={9} fill={C.fg2} mono={false}>
-        Manual
-      </T>
-      <T x={598} y={17.5} size={9} fill={C.fg2} mono={false}>
-        About
+      <T x={570} y={17.5} size={9} fill={C.fg2} mono={false}>
+        Guide
       </T>
       <rect x="638" y="6" width="76" height="16" fill="none" stroke={C.accent} strokeOpacity="0.6" />
       <T x={676} y={17.5} anchor="middle" size={9} fill={C.accent} mono={false}>
         Instruments
       </T>
 
-      {/* Lab panel */}
+      {/* Physics panel, on its reference tab */}
       <rect x="0" y="28" width="170" height="364" fill={C.panel} />
       <line x1="170" y1="28" x2="170" y2="392" stroke={C.line2} />
       <T x={8} y={40} size={7} fill={C.fg3} spacing={1}>
-        LAB
+        PHYSICS
       </T>
       <rect x="0" y="45" width="170" height="15" fill={C.panel2} />
-      <rect x="0" y="45" width="56" height="15" fill={C.panel} />
-      <line x1="0" y1="45.5" x2="56" y2="45.5" stroke={C.accent} strokeWidth="1.5" />
+      <rect x="0" y="45" width="50" height="15" fill={C.panel} />
+      <line x1="0" y1="45.5" x2="50" y2="45.5" stroke={C.accent} strokeWidth="1.5" />
       <T x={8} y={55.5} size={7.5} fill={C.fg} mono={false}>
-        Experiments
-      </T>
-      <T x={64} y={55.5} size={7.5} fill={C.fg3} mono={false}>
-        Notebook
-      </T>
-      <T x={112} y={55.5} size={7.5} fill={C.fg3} mono={false}>
         Reference
       </T>
-      <T x={8} y={76} size={6.5} fill={C.fg3} spacing={1}>
-        LABORATORY HANDBOOK
+      <T x={58} y={55.5} size={7.5} fill={C.fg3} mono={false}>
+        Experiments
       </T>
-      <Bar x={8} y={82} w={128} h={6} fill={C.fg} />
-      <Bar x={8} y={92} w={96} h={6} fill={C.fg} />
-      {[104, 111, 118, 125].map((y, i) => (
-        <Bar key={y} x={8} y={y} w={[152, 146, 150, 92][i]} />
+      <T x={116} y={55.5} size={7.5} fill={C.fg3} mono={false}>
+        Notebook
+      </T>
+      <rect x="8" y="68" width="130" height="11" fill="none" stroke={C.line2} />
+      <T x={13} y={76} size={6.5} fill={C.fg2} mono={false}>
+        §3 The Lorentz factor
+      </T>
+      <T x={8} y={94} size={6.5} fill={C.fg3} spacing={1}>
+        REFERENCE §3
+      </T>
+      <Bar x={8} y={100} w={104} h={7} fill={C.fg} />
+      <rect x="8" y="115" width="154" height="22" fill={C.panel2} stroke={C.line2} />
+      <T x={20} y={129} size={8} fill={C.fg} mono={false}>
+        γ = 1 / √(1 − β²)
+      </T>
+      <T x={150} y={129} size={6} fill={C.fg3} anchor="end">
+        (R3)
+      </T>
+      {[146, 153, 160, 167, 174, 181].map((y, i) => (
+        <Bar key={y} x={8} y={y} w={[154, 148, 150, 132, 152, 96][i]} />
       ))}
-      <T x={8} y={146} size={6.5} fill={C.fg3} spacing={1}>
-        EXPERIMENTS
+      <rect x="8" y="194" width="154" height="46" fill="none" stroke={C.line2} />
+      <rect x="8" y="194" width="2" height="46" fill={C.accent} />
+      <T x={16} y={204} size={5.5} fill={C.fg3} spacing={1}>
+        IN THE SIMULATOR
       </T>
-      {[0, 1, 2, 3, 4].map((i) => {
-        const y = 154 + i * 30;
-        return (
-          <g key={i}>
-            <rect x="8" y={y} width="13" height="13" fill="none" stroke={C.line3} />
-            <T x={14.5} y={y + 9.5} anchor="middle" size={7.5} fill={C.accent}>
-              {i + 1}
-            </T>
-            <Bar x={28} y={y + 1} w={[104, 96, 110, 78, 112][i]} h={4} fill={C.fg2} />
-            <Bar x={28} y={y + 9} w={[124, 118, 128, 120, 106][i]} />
-            <line x1="8" y1={y + 22} x2="162" y2={y + 22} stroke={C.line} />
-          </g>
-        );
-      })}
+      {[210, 217, 224, 231].map((y, i) => (
+        <Bar key={y} x={16} y={y} w={[138, 132, 136, 84][i]} />
+      ))}
+      {[254, 261, 268, 275, 282].map((y, i) => (
+        <Bar key={y} x={8} y={y} w={[150, 154, 144, 150, 70][i]} />
+      ))}
 
       {/* View */}
       <rect x="170" y="28" width="380" height="364" fill={C.view} />
@@ -235,6 +243,28 @@ export function ScreenMap() {
         <line x1="244" y1="377" x2="244" y2="380" stroke={C.fg2} />
         <T x={180} y={389} size={6.5} fill={C.fg2}>
           2 au at Sun
+        </T>
+        {/* The selected body's card */}
+        <rect x="438" y="34" width="106" height="70" fill="rgba(9,11,13,0.94)" stroke={C.line2} />
+        <T x={444} y={46} size={8.5} fill={C.fg} mono={false}>
+          Earth
+        </T>
+        <T x={444} y={54} size={5.5} fill={C.fg3} mono={false}>
+          Planet
+        </T>
+        <T x={444} y={63} size={5.5} fill={C.fg2}>
+          from you 13.0 au
+        </T>
+        {[69, 75, 81].map((y, i) => (
+          <Bar key={y} x={444} y={y} w={[94, 88, 60][i]} />
+        ))}
+        <rect x="444" y="89" width="36" height="9" fill="none" stroke={C.line3} />
+        <T x={462} y={95.5} size={5.5} anchor="middle" fill={C.fg2} mono={false}>
+          Go there
+        </T>
+        <rect x="484" y="89" width="36" height="9" fill="none" stroke={C.line3} />
+        <T x={502} y={95.5} size={5.5} anchor="middle" fill={C.fg2} mono={false}>
+          Fly here
         </T>
       </g>
 
@@ -308,8 +338,12 @@ export function ScreenMap() {
           </T>
         );
       })}
-      <T x={714} y={409} size={6.5} anchor="end" fill={C.fg2} spacing={0.6}>
+      <T x={688} y={409} size={6.5} anchor="end" fill={C.fg2} spacing={0.6}>
         ORBIT · SUN
+      </T>
+      <rect x="698" y="399" width="16" height="14" fill="none" stroke={C.line2} />
+      <T x={706} y={409} size={7.5} anchor="middle" fill={C.fg2}>
+        ?
       </T>
 
       {/* Callouts */}

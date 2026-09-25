@@ -1,5 +1,5 @@
-/** Actions shared by the welcome screen, the tour and the manual. */
-import { useUI, WELCOME_KEY } from '../state/ui';
+/** Actions shared by the welcome screen, the tour and the guide. */
+import { useUI, WELCOME_KEY, type ManualTab } from '../state/ui';
 import { flushStorage } from '../lib/persistStorage';
 
 /** Remember that the welcome screen has been seen. */
@@ -9,6 +9,11 @@ export function markWelcomed(): void {
   } catch {
     /* storage unavailable */
   }
+}
+
+/** Open the physics panel on a tab (the explanations by default). */
+export function openPhysics(tab: ManualTab = 'reference'): void {
+  useUI.setState({ leftOpen: true, manualTab: tab });
 }
 
 /** Open the lab on Experiment 1 (and the instruments too when there is room for both). */
@@ -21,16 +26,20 @@ export function startExperiment1(): void {
   }));
 }
 
+export function openJourneys(): void {
+  useUI.setState({ journeysOpen: true, welcomeOpen: false, tourStep: null, keysOpen: false });
+}
+
 export function startTour(): void {
-  useUI.setState({ welcomeOpen: false, tourStep: 0 });
+  useUI.setState({ welcomeOpen: false, tourStep: 0, journeysOpen: false, keysOpen: false });
 }
 export function showWelcome(): void {
-  useUI.setState({ welcomeOpen: true, tourStep: null });
+  useUI.setState({ welcomeOpen: true, tourStep: null, journeysOpen: false, keysOpen: false });
 }
 
 /**
  * Forget the layout and preferences (not the notebook): panel sizes and states, display
- * toggles, collapsed sections, reference notes already shown, and the welcome screen.
+ * toggles, collapsed sections, physics notes already shown, and the welcome screen.
  */
 export function resetPreferences(): void {
   flushStorage(); // so no pending write lands after the keys are removed

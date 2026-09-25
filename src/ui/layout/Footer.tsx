@@ -150,6 +150,14 @@ export function Footer() {
       <div className="h-4 w-px shrink-0 bg-line-2" />
       <Targets />
       <Status />
+      <button
+        className="btn btn-q btn-sq shrink-0 !font-mono max-md:hidden"
+        onClick={() => useUI.setState({ keysOpen: true })}
+        title="Keyboard and mouse (?)"
+        aria-label="Keyboard and mouse"
+      >
+        ?
+      </button>
     </footer>
   );
 }

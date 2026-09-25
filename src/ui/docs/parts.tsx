@@ -43,7 +43,7 @@ export function Try({ run, children }: { run: () => void; children: ReactNode })
 }
 
 /** Cross-reference to a chapter of a reading page. */
-export function Ref({ page = 'manual', to, children }: { page?: DocPage; to: string; children: ReactNode }) {
+export function Ref({ page = 'guide', to, children }: { page?: DocPage; to: string; children: ReactNode }) {
   return (
     <a
       href={`#/${page}/${to}`}

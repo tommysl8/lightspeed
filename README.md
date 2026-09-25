@@ -1,13 +1,42 @@
-<p align="center"><img src="public/og-image.png" alt="Lightspeed: a virtual laboratory for special relativity" width="760"></p>
+<p align="center"><img src="public/og-image.png" alt="Lightspeed: explore the real Solar System close to the speed of light" width="760"></p>
 
 # Lightspeed
 
-**A virtual laboratory for special relativity, set in a true-scale 3D Solar System.**
+**Explore the real Solar System close to the speed of light.**
 
 Every planet sits where it really is today, every distance is to scale, and light takes real time to cross
-them: 8 minutes 19 seconds from the Sun to Earth, 5.5 hours to Pluto, almost a full day to Voyager 1. The
-simulator is the apparatus for five experiments, each with a procedure, a data table filled by the
-instruments, and a least-squares analysis:
+them: 8 minutes 19 seconds from the Sun to Earth, 5.5 hours to Pluto, almost a full day to Voyager 1. Fly between
+the planets at nearly the speed of light and the sky crowds ahead of you, colours shift, and your clock falls
+behind Earth's, exactly as special relativity says. The numbers are always a click away, the physics is explained
+as it happens, and for students there is a lab with five guided experiments.
+
+Built with Vite, React, TypeScript and three.js (React Three Fiber). It is a static site with no backend.
+
+By [Tommy Liu](https://github.com/tommysl8).
+
+## First visit
+
+The screen opens on the view alone. A welcome screen offers three ways in: a one-minute **guided tour** that points
+at each part of the screen, the **journeys**, or free exploration. Everything else is one click away:
+
+- **Journeys** (header): seven set pieces, one click each. Race a pulse of sunlight to Earth, ride to Saturn at
+  0.9c, see the sky at 0.999c on a split screen, catch up with Voyager 1, push to Proxima Centauri at 1 g, watch a
+  year pass in half a minute, or a month over Earth. Flights leave from Earth, the clock is set so a trip takes
+  about half a minute, and each journey says what to look for.
+- **Body cards**: click a planet and a card says what it is, how far away it is, how old its light is, and three
+  things worth knowing, with buttons to go there or fly there.
+- **Physics** (left panel, `K`): ten short sections on what you are seeing, from light-travel time to the relativistic
+  rocket, with the equations and further reading. A note appears in the corner the first time each applies. The
+  same panel holds the lab.
+- **Instruments** (right panel, `I`): the numbers, several times a second.
+- **Guide** (header) and `?`: a twelve-chapter guide at `#/guide` (chapters can be linked, such as `#/guide/seeing`,
+  and printed), and the keyboard and mouse on one sheet.
+- **About** (`#/about`): what the project is, the author, how to cite it, and its sources, methods and limitations.
+
+## For students: the lab
+
+The Experiments tab of the physics panel turns the simulator into apparatus. Five experiments, each with a
+procedure that ticks itself off, a data table filled by the instruments, and a least-squares analysis:
 
 | # | Experiment | What you measure |
 | --- | --- | --- |
@@ -17,43 +46,12 @@ instruments, and a least-squares analysis:
 | 4 | Aberration of light | Observed against catalogue angles; β from cos θ′ − cos θ = β(1 − cos θ cos θ′), down to Bradley's 20″ from Earth's own motion |
 | 5 | Constant proper acceleration | A logged 1 g flight; the proper acceleration from the rapidity, a = c dφ/dτ |
 
-Built with Vite, React, TypeScript and three.js (React Three Fiber). It is a static site with no backend.
-
-By [Tommy Liu](https://github.com/tommysl8).
-
-## First visit
-
-The screen opens on the view alone, with both side panels closed. A welcome screen offers three ways in: a
-one-minute **guided tour** that points at each part of the screen, **Experiment 1** (the speed of light, about
-15 minutes), or free exploration. Everything else is one click away:
-
-- **Manual** (header, or `?`): a full user manual in twelve chapters, from a quick start to troubleshooting
-  and a glossary, with an annotated diagram of the screen and "Try it" buttons that set up what the text
-  describes. It lives at `#/manual`, so chapters can be linked (`#/manual/flying`) and printed.
-- **About** (`#/about`): what the project is, the author, how to cite it, and its sources, methods and
-  limitations.
-
-## The laboratory
-
-- **Lab** (left, `K`). A handbook with notation; the five experiments (aim, background with numbered
-  equations, apparatus, a procedure that ticks off as you go, observations, analysis, questions); the notebook;
-  and ten reference sections with further reading.
-- **Instrument panel** (right). Observer kinematics (v, β, γ, rapidity, dτ/dt); a pair of chronometers (coordinate
-  time t and proper time τ, with their difference kept to sub-nanosecond precision); a data sheet for the selected
-  body; relativistic-optics readouts; light-time; a live spacetime diagram of the current trip; an ephemeris
-  table; and a strip-chart recorder.
-- **Viewport instruments.** A reticle whose spectrometer reads θ′ and D, APEX and ANTAPEX markers, a scale bar, an
-  ecliptic J2000 axis triad, annunciator lamps (pause, rate, optics, light-time correction, pulses in flight) and
-  an event log.
 - **Data.** Readings persist in the browser and export as CSV (base units, with 1σ columns). Optional simulated
   instrument uncertainty lets you practise error analysis. Fits are weighted least squares (effective variance
   where both axes carry error) with standard errors and χ²/ν.
 - **Lab reports.** Each question has an answer box, and each experiment a conclusion. "Prepare lab report"
   lays out aim, theory, method, data table, both figures, fitted results and answers on a printable A4 page
   (print or save as PDF).
-- **Epoch.** Click the epoch to set any UTC instant from 1981 to 2199, with presets for the next oppositions of
-  Mars, Jupiter and Saturn (computed with Astronomy Engine). An optional ecliptic coordinate grid (`J`) marks
-  longitude on the sky.
 
 ## Simulation
 
@@ -74,7 +72,8 @@ one-minute **guided tour** that points at each part of the screen, **Experiment 
 - **1 g rocket.** A realistic flip-and-burn at constant proper acceleration. To Proxima Centauri: 3.54 years
   aboard, 5.87 years on Earth, peak 0.95c.
 - **Time.** Real time by default. The simulation rate runs from 10⁰ to 10⁶, plus pause. Above 1 an annunciator
-  lights and the viewport is framed.
+  lights and the viewport is framed. Click the epoch to set any UTC instant from 1981 to 2199, with presets for
+  the next oppositions of Mars, Jupiter and Saturn.
 - **Light pulses.** Emit a pulse from any body. Its wavefront is drawn in the ecliptic and on the sky, and every
   body's detector records the exact crossing time, solved from the ephemeris.
 - **Light delay.** The age of Earth's image and the signal time to Earth, plus an optional mode that draws every
@@ -82,9 +81,12 @@ one-minute **guided tour** that points at each part of the screen, **Experiment 
 - **Relativistic optics.** Aberration, Doppler shift and beaming, with a split screen that compares the classical
   and relativistic views.
 - **Superluminal drive (fiction).** Faster-than-light travel, marked non-physical throughout. The relativistic
-  optics are switched off, τ is flagged undefined, and a reference section explains why it would break causality.
-- **Reference notes.** The relevant reference section is suggested in the margin the first time it applies (for
-  example, the first time past 0.1c or on the first 1 g flight).
+  optics are switched off, τ is flagged undefined, and a physics section explains why it would break causality.
+- **Readouts.** Observer kinematics (v, β, γ, rapidity, dτ/dt); a pair of chronometers (coordinate time t and
+  proper time τ, with their difference kept to sub-nanosecond precision); a data sheet for the selected body;
+  relativistic-optics readouts; light-time; a live spacetime diagram of the current trip; an ephemeris table; a
+  strip-chart recorder; and in the view a reticle whose spectrometer reads θ′ and D, APEX and ANTAPEX markers, a
+  scale bar, an ecliptic axis triad, annunciator lamps and an event log.
 
 ## Run it
 
@@ -106,18 +108,18 @@ No configuration is needed.
 | Key | Action |
 | --- | --- |
 | Drag / scroll, arrow keys, `+` `−` | Orbit / range (log scale); look around in transit |
-| Double-click, `0`–`9`, `M`, `V` | Select and slew to a body (Sun, planets, Pluto, Moon, Voyager 1); in transit, select only |
+| Click a body, double-click, `0`–`9`, `M`, `V` | Select a body (its card); take the camera there (Sun, planets, Pluto, Moon, Voyager 1); in transit, select only |
 | `H` | Return to Earth |
-| `G` | Trajectory planner |
+| `G` | Flight planner |
 | `F` | Free flight (WASD, Space/R up, C down, Q/E roll, scroll = throttle, Esc to exit) |
 | `Space` / `P`, `[` `]` (or `,` `.`), `N` | Pause, simulation rate down/up, back to now (zeroes the chronometers) |
 | `Z`, `X` | Relativistic ↔ classical optics, split screen |
 | `R` | Record a reading (Experiments 3 and 4; not in free flight) |
-| `K`, `I`, `E` | Lab, instrument panel, reference sections |
-| `T`, `O`, `L`, `B`, `U`, `J` | True scale ↔ enlarged, orbits, labels, small bodies, viewport overlays, ecliptic grid |
-| `?` | Manual: keyboard and mouse |
+| `K`, `I`, `E` | Physics panel, instrument panel, physics explanations |
+| `T`, `O`, `L`, `B`, `U`, `J` | True scale ↔ enlarged, orbits, labels, small bodies, readouts over the view, ecliptic grid |
+| `?` | Keyboard and mouse on one sheet |
 
-Shortcuts can be switched off under View › Keyboard shortcuts. Panels, menus, dialogs and the manual work from
+Shortcuts can be switched off under View › Keyboard shortcuts. Panels, menus, dialogs and the guide work from
 the keyboard alone (Tab, arrow keys, Esc).
 
 ## How it works
@@ -195,33 +197,33 @@ npm run data:belts
 ```
 src/physics/   pure, unit-tested physics (constants, relativity, light time, Kepler, rocket, colour)
 src/sim/       simulation core: clock, chronometers, ephemeris, Voyager, trips, light pulses, light delay
-src/lab/       experiments: protocols and analysis, manual text, data loggers, notebook, instrument readings
+src/lab/       the lab: experiment protocols and analysis, lab text, data loggers, notebook, instrument readings
 src/lib/       number formatting (significant figures, SI grouping, units) and least-squares statistics
 src/render/    shaders, materials, the relativistic scene pass, post-processing, adaptive quality
 src/scene/     React Three Fiber scene components (bodies, stars, belts, orbits, glints)
 src/controls/  camera: orbit, free flight, smooth zoom-and-pan flights
-src/ui/        interface: docks, instruments, plots, planner, flight recorder, viewport overlays
-src/ui/docs/   the manual and About pages, and their figures
-src/content/   reference sections, author and version details
+src/ui/        interface: header and footer, body card, journeys, panels, instruments, plots, planner, recorder
+src/ui/docs/   the guide and About pages, and their figures
+src/content/   journeys, physics sections, author and version details
 scripts/       data builders
 ```
 
 ## Author
 
 **Tommy Liu** ([@tommysl8](https://github.com/tommysl8), tommysliu8@gmail.com) is studying Electrical and Computer
-Engineering at the University of Illinois Urbana-Champaign. Corrections, bug reports and ideas for new
+Engineering at the University of Illinois Urbana-Champaign. Corrections, bug reports and ideas for new journeys or
 experiments are welcome.
 
 ## Citing
 
 If you use Lightspeed in teaching or written work:
 
-> Liu, T. (2026). *Lightspeed: A virtual laboratory for special relativity* (Version 0.2.0) [Computer software].
+> Liu, T. (2026). *Lightspeed: A relativistic Solar System explorer* (Version 0.2.0) [Computer software].
 
 ```bibtex
 @software{liu_lightspeed_2026,
   author  = {Liu, Tommy},
-  title   = {Lightspeed: A Virtual Laboratory for Special Relativity},
+  title   = {Lightspeed: A Relativistic Solar System Explorer},
   year    = {2026},
   version = {0.2.0}
 }
