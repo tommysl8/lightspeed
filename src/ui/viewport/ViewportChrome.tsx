@@ -186,11 +186,14 @@ function SplitDivider() {
 
 function NoteToast() {
   const topic = useUI((s) => s.noteTopic);
+  const tripActive = useUI((s) => s.tripActive);
   if (!topic) return null;
+  // Below the warning band while the fictional warp is engaged.
+  const low = tripActive && !!travel.trip?.warp;
   const e = explainerById(topic);
   const n = EXPLAINERS.findIndex((x) => x.id === topic) + 1;
   return (
-    <div className="absolute right-4 top-[38px] z-20 max-w-[calc(100%-32px)]">
+    <div className={`absolute right-4 z-20 max-w-[calc(100%-32px)] ${low ? 'top-[76px]' : 'top-[38px]'}`}>
       <div className="panel-float appear flex items-center gap-3 py-1.5 pl-3 pr-1.5">
         <span className="cap !text-accent">Reference §{n}</span>
         <span className="font-serif text-[13px] text-fg">{e.title}</span>

@@ -1,16 +1,39 @@
 # Lightspeed
 
-**A true-scale 3D Solar System you can fly through at (and, as clearly labelled fiction, past) the speed of light.**
+**A virtual laboratory for special relativity, set in a true-scale 3D Solar System.**
 
-Every planet sits where it really is today, every distance is to scale, and light really takes time to cross
-them: 8 minutes 19 seconds from the Sun to Earth, 5.5 hours to Pluto, almost a full day to Voyager 1. Pick a
-destination and a speed. The trip then plays out in real time (or time-warped), with Earth time and ship time
-counting side by side. Push toward *c* and the sky transforms: stars crowd ahead, turn blue, and brighten; the
-view behind reddens and fades. Explainers cover the physics, with the equations, as you go.
+Every planet sits where it really is today, every distance is to scale, and light takes real time to cross
+them: 8 minutes 19 seconds from the Sun to Earth, 5.5 hours to Pluto, almost a full day to Voyager 1. The
+simulator is the apparatus for five experiments, each with a procedure, a data table filled by the
+instruments, and a least-squares analysis:
+
+| # | Experiment | What you measure |
+| --- | --- | --- |
+| 1 | Time of flight of a light pulse | Detector times across the Solar System; *c* from a straight-line fit |
+| 2 | Time dilation on inertial trips | Ship and Earth clocks on arrival; the exponent p in Δτ = Δt (1 − β²)^p |
+| 3 | The relativistic Doppler factor | D against angle from the apex; β from the linearised fit |
+| 4 | Aberration of light | Observed against catalogue angles; β from cos θ′ − cos θ = β(1 − cos θ cos θ′) |
+| 5 | Constant proper acceleration | A logged 1 g flight; the proper acceleration from the rapidity, a = c dφ/dτ |
 
 Built with Vite, React, TypeScript and three.js (React Three Fiber). It is a static site with no backend.
 
-## Features
+## The laboratory
+
+- **Lab manual** (left). A handbook with notation; the five experiments (aim, background with numbered
+  equations, apparatus, a procedure that ticks off as you go, observations, analysis, questions); the notebook;
+  and ten reference sections with further reading.
+- **Instrument panel** (right). Observer kinematics (v, β, γ, rapidity, dτ/dt); a pair of chronometers (coordinate
+  time t and proper time τ, with their difference kept to sub-nanosecond precision); a data sheet for the selected
+  body; relativistic-optics readouts; light-time; a live spacetime diagram of the current trip; an ephemeris
+  table; and a strip-chart recorder.
+- **Viewport instruments.** A reticle whose spectrometer reads θ′ and D, APEX and ANTAPEX markers, a scale bar, an
+  ecliptic J2000 axis triad, annunciator lamps (pause, rate, optics, light-time correction, pulses in flight) and
+  an event log.
+- **Data.** Readings persist in the browser and export as CSV (base units, with 1σ columns). Optional simulated
+  instrument uncertainty lets you practise error analysis. Fits are weighted least squares with standard errors
+  and χ²/ν.
+
+## Simulation
 
 - **True scale, floating origin.** Positions are float64 kilometres. The camera never leaves the origin, and orbit
   lines are computed on the GPU relative to each body, so they stay exact from 1 m to 50 AU and beyond. A
@@ -21,22 +44,25 @@ Built with Vite, React, TypeScript and three.js (React Three Fiber). It is a sta
   by temperature, ~32,000 real asteroids, Jupiter Trojans and Kuiper-belt objects from JPL, Voyager 1 (from JPL
   Horizons, dish pointed at Earth) and Proxima Centauri.
 - **Two size modes.** *True scale* shows specks, as reality does (planets still shine at their real apparent
-  magnitude). *Visible* enlarges bodies to at least a few pixels while keeping every distance true.
-- **Travel.** Pick a speed from 0.00001c to 0.99999c on a logit-scaled slider, or use a preset (Voyager 1, Parker
-  Solar Probe's record, 0.1c … 0.9999c). The course intercepts where the destination *will* be. The HUD shows
-  speed, γ, the distance left in the Sun's frame and as measured aboard (d/γ), Earth time and ship time.
+  magnitude). *Enlarged* draws bodies at least a few pixels across while keeping every distance true.
+- **Travel.** Enter β exactly, or use a logit-scaled fader (0.00001c to 0.99999c) and presets (Voyager 1, Parker
+  Solar Probe's record, 0.1c … 0.9999c). The course intercepts where the destination *will* be. The planner
+  predicts Δt, Δτ and the contracted length and previews the worldline. The flight recorder shows both clocks and
+  the distance left in both frames.
 - **1 g rocket.** A realistic flip-and-burn at constant proper acceleration. To Proxima Centauri: 3.54 years
   aboard, 5.87 years on Earth, peak 0.95c.
-- **Time.** Real time by default. Time warp runs from 10× to 1,000,000× (with an unmistakable indicator), plus
-  pause.
-- **Light delay.** "You are seeing Earth as it was X ago" and "a message would take X", plus an optional mode
-  that draws every body at its light-delayed (retarded) position.
+- **Time.** Real time by default. The simulation rate runs from 10⁰ to 10⁶, plus pause. Above 1 an annunciator
+  lights and the viewport is framed.
+- **Light pulses.** Emit a pulse from any body. Its wavefront is drawn in the ecliptic and on the sky, and every
+  body's detector records the exact crossing time, solved from the ephemeris.
+- **Light delay.** The age of Earth's image and the signal time to Earth, plus an optional mode that draws every
+  body at its light-delayed (retarded) position.
 - **Relativistic optics.** Aberration, Doppler shift and beaming, with a split screen that compares the classical
   and relativistic views.
-- **"Beyond c" warp.** Faster-than-light travel, labelled as fiction, with relativistic effects switched off and
-  an explainer on why FTL breaks causality.
-- **Explainers.** Ten short topics with KaTeX equations. Each surfaces automatically the first time it becomes
-  relevant.
+- **Superluminal drive (fiction).** Faster-than-light travel, marked non-physical throughout. The relativistic
+  optics are switched off, τ is flagged undefined, and a reference section explains why it would break causality.
+- **Reference notes.** The relevant reference section is suggested in the margin the first time it applies (for
+  example, the first time past 0.1c or on the first 1 g flight).
 
 ## Run it
 
@@ -45,7 +71,7 @@ Requires Node 22.12+ (or 24+). Vercel's default Node version works.
 ```bash
 npm install
 npm run dev        # http://localhost:5173
-npm test           # physics unit tests (vitest)
+npm test           # unit tests: physics, statistics, formatting (vitest)
 npm run build      # type-check + static build to dist/
 npm run preview    # serve the production build
 ```
@@ -57,14 +83,16 @@ No configuration is needed.
 
 | Key | Action |
 | --- | --- |
-| Drag / scroll | Orbit / zoom (log scale) |
-| Double-click, `0`–`9`, `M`, `V` | Fly to a body (Sun, planets, Pluto, Moon, Voyager 1) |
-| `G` | Plan a trip |
+| Drag / scroll | Orbit / range (log scale); look around in transit |
+| Double-click, `0`–`9`, `M`, `V` | Select and slew to a body (Sun, planets, Pluto, Moon, Voyager 1) |
+| `G` | Trajectory planner |
 | `F` | Free flight (WASD, Space/C up/down, Q/E roll, scroll = throttle, Esc to exit) |
-| `Space` / `P`, `[` `]`, `N` | Pause, time warp down/up, back to now |
-| `Z`, `X` | Relativistic ↔ classical view, split-screen comparison |
-| `T`, `O`, `L`, `B` | True scale ↔ visible, orbits, labels, belts |
-| `E`, `?` | Physics explainers, all shortcuts |
+| `Space` / `P`, `[` `]`, `N` | Pause, simulation rate down/up, back to now (zeroes the chronometers) |
+| `Z`, `X` | Relativistic ↔ classical optics, split screen |
+| `R` | Record a reading (Experiments 3 and 4) |
+| `K`, `I`, `E` | Lab manual, instrument panel, reference sections |
+| `T`, `O`, `L`, `B`, `U` | True scale ↔ enlarged, orbits, labels, small bodies, viewport overlays |
+| `?` | Operating reference |
 
 ## How it works
 
@@ -123,7 +151,7 @@ tone mapping:
 | Pluto map | [NASA/JHUAPL/SwRI](https://www.nasa.gov/image-article/pluto-global-color-map/) (New Horizons) | NASA media, public domain |
 | Proxima Centauri | Gaia DR3 (distance), Boyajian et al. 2012 (radius), Ségransan et al. 2003 (temperature) | — |
 | Colour science | CIE 1931 fit by Wyman, Sloan & Shirley (2013); B−V→T by Ballesteros (2012) | — |
-| Inter typeface | Rasmus Andersson | SIL OFL 1.1 |
+| Typefaces | IBM Plex Sans (IBM), JetBrains Mono (JetBrains), Source Serif 4 (Adobe) | SIL OFL 1.1 |
 
 Libraries: three.js, React Three Fiber and postprocessing (pmndrs), zustand, KaTeX, Tailwind CSS, Vite, Vitest.
 
@@ -140,12 +168,14 @@ npm run data:belts
 
 ```
 src/physics/   pure, unit-tested physics (constants, relativity, light time, Kepler, rocket, colour)
-src/sim/       simulation core: clock, ephemeris, Voyager, trips, light delay, per-frame derived values
+src/sim/       simulation core: clock, chronometers, ephemeris, Voyager, trips, light pulses, light delay
+src/lab/       experiments: protocols and analysis, manual text, data loggers, notebook, instrument readings
+src/lib/       number formatting (significant figures, SI grouping, units) and least-squares statistics
 src/render/    shaders, materials, the relativistic scene pass, post-processing, adaptive quality
 src/scene/     React Three Fiber scene components (bodies, stars, belts, orbits, glints)
 src/controls/  camera: orbit, free flight, smooth zoom-and-pan flights
-src/ui/        overlay: HUDs, cards, planner, explainers, labels
-src/content/   explainer text
+src/ui/        interface: docks, instruments, plots, planner, flight recorder, viewport overlays
+src/content/   reference sections
 scripts/       data builders
 ```
 
