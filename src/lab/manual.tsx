@@ -318,8 +318,9 @@ const E3: ManualEntry = {
     {
       text: (
         <>
-          Drag the view to put the reticle at different angles from the APEX marker, and press <kbd className="kbd">R</kbd> (or
-          Record) at each. Cover 0° to 180° with at least eight readings.
+          Put the reticle at different angles from the APEX marker (drag the view, or use <i>Point reticle</i> under
+          Observations) and press <kbd className="kbd">R</kbd> (or Record) at each. Cover 0° to 180° with at least eight
+          readings.
         </>
       ),
       done: ({ rows }) => {

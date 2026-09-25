@@ -16,7 +16,8 @@ import { useLabEvents } from '../../lab/events';
 import { reticleReading, targetReading } from '../../lab/measure';
 import { useUI } from '../../state/ui';
 import { openExplainer } from '../explainerActions';
-import { Check, Seg, Sym } from '../kit';
+import { Check, NumberInput, Seg, Sym } from '../kit';
+import { controller } from '../../controls/cameraController';
 import { Plot } from '../plot/Plot';
 import { Eq, TeX } from '../TeX';
 import { useTicker } from '../useTicker';
@@ -234,6 +235,40 @@ function LiveReading({ exp }: { exp: ExperimentId }) {
   );
 }
 
+/**
+ * Pointing control for the spectrometer (Experiment 3): in transit, turn the view so the
+ * reticle sits exactly θ′ from the apex (in the plane of the view's horizon).
+ */
+function Pointing() {
+  const [deg, setDeg] = useState(0);
+  const tripActive = useUI((s) => s.tripActive);
+  const point = (d: number) => {
+    setDeg(d);
+    controller.setTravelLook((d * Math.PI) / 180, 0);
+  };
+  return (
+    <div className="mt-1.5 flex flex-wrap items-center gap-1.5 border-t border-line pt-1.5">
+      <span className="cap">Point reticle</span>
+      <span className="sym text-fg-2">θ′</span>
+      <NumberInput
+        className="w-[64px]"
+        ariaLabel="Angle from apex, degrees"
+        value={deg}
+        format={(v) => String(Math.round(v * 100) / 100)}
+        validate={(v) => Number.isFinite(v) && v >= 0 && v <= 180}
+        onCommit={point}
+      />
+      <span className="mono text-[11px] text-fg-3">°</span>
+      {[0, 30, 60, 90, 120, 150, 180].map((d) => (
+        <button key={d} className="btn btn-sm !px-1.5" disabled={!tripActive} onClick={() => point(d)}>
+          {d}
+        </button>
+      ))}
+      {!tripActive && <span className="text-[11px] text-fg-4">available in transit</span>}
+    </div>
+  );
+}
+
 function DataTable({ p, rows }: { p: Protocol; rows: DataRow[] }) {
   const cols = p.columns.filter((c) => !c.hidden);
   const units = columnUnits(p.columns, rows);
@@ -417,11 +452,14 @@ function ExperimentPage({ exp }: { exp: ExperimentId }) {
         Observations
       </H>
       {p.manual && (
-        <div className="mb-2 flex items-center justify-between gap-2 border border-line-2 bg-well px-2.5 py-1.5">
-          <LiveReading exp={exp} />
-          <button className="btn btn-pri btn-sm shrink-0" onClick={recordManual} title="Record a reading (R)">
-            Record <span className="mono text-[9.5px] opacity-70">R</span>
-          </button>
+        <div className="mb-2 border border-line-2 bg-well px-2.5 py-1.5">
+          <div className="flex items-center justify-between gap-2">
+            <LiveReading exp={exp} />
+            <button className="btn btn-pri btn-sm shrink-0" onClick={recordManual} title="Record a reading (R)">
+              Record <span className="mono text-[9.5px] opacity-70">R</span>
+            </button>
+          </div>
+          {exp === 'E3' && <Pointing />}
         </div>
       )}
       <DataTable p={p} rows={rows} />
