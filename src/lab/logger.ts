@@ -192,8 +192,9 @@ export function recordManual(): boolean {
     return false;
   }
   const g = targetReading(id);
-  if (!g || g.beta < 1e-3) {
-    logEvent('ERR', 'E4 needs the observer to move (β ≥ 0.001): start a constant-speed trip first.');
+  // Down to Earth's own orbital speed (β ≈ 10⁻⁴): Bradley's stellar aberration.
+  if (!g || g.beta < 1e-6) {
+    logEvent('ERR', 'E4 needs a moving observer: start a trip, or orbit a planet (which moves with it).');
     return false;
   }
   const row = commit('E4', { target: BODIES[id].name, beta: g.beta, th: g.thetaDeg, thS: g.thetaShipDeg }, { th: 0.05, thS: 0.05 }, 'manual');

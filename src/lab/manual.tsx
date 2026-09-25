@@ -434,6 +434,16 @@ const E4: ManualEntry = {
       text: 'Fit Fig. 4.2 and compare the slope with the speedometer.',
       done: ({ rows }) => rows.length >= 6,
     },
+    {
+      text: (
+        <>
+          Optional, Bradley’s experiment: stop the trip, orbit Earth (<kbd className="kbd">H</kbd>) and record five bodies. The
+          observer now moves with Earth at about 30 km/s. The shift <M t="	heta - 	heta'" /> is at most about 20″, and the fit
+          gives Earth’s orbital speed.
+        </>
+      ),
+      done: ({ rows }) => rows.filter((r) => num(r, 'beta') < 1e-3).length >= 5,
+    },
   ],
   questions: [
     <>

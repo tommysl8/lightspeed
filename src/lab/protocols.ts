@@ -463,9 +463,18 @@ const E4: Protocol = {
   columns: [
     { key: 'target', sym: 'Target', name: 'target', dim: 'none', text: true },
     { key: 'beta', sym: 'β', name: 'speed v/c (speedometer)', dim: 'none', fmt: 'beta' },
-    { key: 'th', sym: 'θ', name: 'catalogue angle from apex (Sun frame)', dim: 'angle', unit: '°', decimals: 3 },
-    { key: 'thS', sym: 'θ′', name: 'observed angle from apex (ship frame)', dim: 'angle', unit: '°', decimals: 3 },
-    { key: 'pred', sym: 'θ′ pred.', name: 'predicted θ′, eq. (4.1)', dim: 'angle', unit: '°', decimals: 3, derived: (r) => aberrPred(num(r, 'beta'), num(r, 'th')) },
+    { key: 'th', sym: 'θ', name: 'catalogue angle from apex (Sun frame)', dim: 'angle', unit: '°', decimals: 4 },
+    { key: 'thS', sym: 'θ′', name: 'observed angle from apex (ship frame)', dim: 'angle', unit: '°', decimals: 4 },
+    {
+      key: 'shift',
+      sym: 'θ − θ′',
+      name: 'aberration shift toward the apex',
+      dim: 'none',
+      unit: '″',
+      digits: 4,
+      derived: (r) => (num(r, 'th') - num(r, 'thS')) * 3600,
+    },
+    { key: 'pred', sym: 'θ′ pred.', name: 'predicted θ′, eq. (4.1)', dim: 'angle', unit: '°', decimals: 4, derived: (r) => aberrPred(num(r, 'beta'), num(r, 'th')) },
     {
       key: 'dev',
       sym: 'θ′ − pred.',
