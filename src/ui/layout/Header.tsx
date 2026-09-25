@@ -27,10 +27,10 @@ function Epoch() {
   return (
     <div className="flex items-baseline gap-3 whitespace-nowrap" title="Simulation epoch (UTC) and Julian Date">
       <span className="cap max-lg:hidden">Epoch</span>
-      <span className="mono text-[12px] text-fg">
+      <span className="mono text-[12px] text-fg lg:text-[13.5px]">
         {date} <span className="text-fg">{time}</span> <span className="text-fg-3 max-lg:hidden">UTC</span>
       </span>
-      <span className="mono hidden text-[11.5px] text-fg-2 min-[1360px]:inline">
+      <span className="mono hidden text-[12.5px] text-fg-2 min-[1360px]:inline">
         <span className="text-fg-3">JD</span> {fixed(julianDate(sim.timeMs), 5, false)}
       </span>
     </div>
@@ -230,7 +230,7 @@ function ViewMenu() {
       <Check checked={s.shortcuts} onChange={() => t('shortcuts')} hint="Single-key shortcuts such as Space, R and 0–9. Turn off if they clash with assistive software.">
         Keyboard shortcuts
       </Check>
-      <div className="mt-1 border-t border-line px-2.5 pt-1.5 lg:hidden">
+      <div className="mt-1 border-t border-line px-2.5 pt-1.5 xl:hidden">
         <button className="btn btn-q btn-sm -ml-1.5" onClick={() => openDoc('about')}>
           About Lightspeed…
         </button>
@@ -254,20 +254,20 @@ export function Header() {
         onClick={() => toggle('leftOpen')}
         title="Lab: experiments, notebook and reference (K)"
       >
-        <Icon name="dock-left" />
+        <Icon name="dock-left" size={14} />
         <span className="max-md:hidden">Lab</span>
       </button>
 
       <a
         href="#/about"
-        className="-mx-1 flex h-[30px] items-center rounded-[2px] px-1 hover:bg-hover focus-visible:outline focus-visible:outline-1 focus-visible:outline-accent"
+        className="-mx-1 flex h-[30px] items-center lg:h-9 rounded-[2px] px-1 hover:bg-hover focus-visible:outline focus-visible:outline-1 focus-visible:outline-accent"
         title="About Lightspeed"
         onClick={(e) => {
           e.preventDefault();
           openDoc('about');
         }}
       >
-        <Wordmark size={18} subtitle />
+        <Wordmark size={18} large subtitle />
       </a>
 
       <div className="mx-1 h-4 w-px bg-line-2 max-sm:hidden" />
@@ -283,16 +283,16 @@ export function Header() {
           onClick={() => openPlanner()}
           title={tripActive ? 'In flight: abort or finish the trip first' : 'Plan a flight at a chosen speed (G)'}
         >
-          <Icon name="flight" />
+          <Icon name="flight" size={14} />
           <span className="max-sm:hidden">{tripActive ? 'In flight' : 'Plan flight'}</span>
         </button>
         <div className="mx-1 h-4 w-px bg-line-2" />
         <ViewMenu />
         <button className="btn btn-q" data-tour="manual" onClick={() => openDoc('manual')} title="Manual: how to use Lightspeed (?)">
-          <Icon name="book" />
+          <Icon name="book" size={14} />
           <span className="max-lg:hidden">Manual</span>
         </button>
-        <button className="btn btn-q max-lg:hidden" onClick={() => openDoc('about')} title="About Lightspeed: author, sources and methods">
+        <button className="btn btn-q max-xl:hidden" onClick={() => openDoc('about')} title="About Lightspeed: author, sources and methods">
           About
         </button>
       </div>
@@ -305,7 +305,7 @@ export function Header() {
         title="Instruments: live readouts (I)"
       >
         <span className="max-md:hidden">Instruments</span>
-        <Icon name="dock-right" />
+        <Icon name="dock-right" size={14} />
       </button>
     </header>
   );

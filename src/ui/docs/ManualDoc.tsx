@@ -217,7 +217,7 @@ const SCREEN_PARTS: [number, ReactNode, ReactNode][] = [
   [8, 'Instrument panel', <>Live readouts of speed, clocks, the target, optics and light-time (<Ref to="instruments">Chapter 9</Ref>).</>],
   [9, 'Time controls', 'Pause, the simulation rate, and Now.'],
   [10, 'Target bar', 'Every body in the simulation. Click one to go there.'],
-  [11, 'Status', 'What the camera is doing: orbiting, slewing, in transit or in free flight.'],
+  [11, 'Status', 'What the camera is doing: orbiting, slewing, in transit or in free flight. Shown on wide screens, and always in free flight; the view’s top-left readout says the same.'],
 ];
 
 function Screen() {
@@ -405,9 +405,9 @@ function Time() {
       <H3>Rate</H3>
       <p>
         The rate is how much simulated time passes per real second, from <P10 n={0} /> (real time) to <P10 n={6} />. Choose it
-        in the time controls, or step with <Kbd>[</Kbd> and <Kbd>]</Kbd> (or <Kbd>,</Kbd> and <Kbd>.</Kbd>). The readout beside
-        the buttons converts the rate into everyday units, and an amber border round the view reminds you that time is running
-        fast.
+        in the time controls, or step with <Kbd>[</Kbd> and <Kbd>]</Kbd> (or <Kbd>,</Kbd> and <Kbd>.</Kbd>). Point at a rate button to
+        see it in everyday units (on very wide screens a readout beside the buttons shows it too), and an amber border round
+        the view reminds you that time is running fast.
       </p>
       <table className="doc-tbl doc-tbl-narrow">
         <thead>

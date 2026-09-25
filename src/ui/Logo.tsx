@@ -25,12 +25,23 @@ export function LogoMark({ size = 16, className = '', title }: { size?: number; 
 }
 
 /** Mark and name, as set in the header and title bars. */
-export function Wordmark({ size = 16, className = '', subtitle }: { size?: number; className?: string; subtitle?: boolean }) {
+export function Wordmark({
+  size = 16,
+  className = '',
+  subtitle,
+  large,
+}: {
+  size?: number;
+  className?: string;
+  subtitle?: boolean;
+  /** The header's size: on desktop screens, a larger name beside a larger mark. */
+  large?: boolean;
+}) {
   return (
-    <span className={`inline-flex items-center gap-2 whitespace-nowrap ${className}`}>
-      <LogoMark size={size} className="text-fg" />
-      <span className="mono text-[12px] font-semibold tracking-[0.2em] text-fg">LIGHTSPEED</span>
-      {subtitle && <span className="hidden text-[11px] text-fg-3 min-[1760px]:inline">Virtual laboratory for special relativity</span>}
+    <span className={`inline-flex items-center gap-2 whitespace-nowrap ${large ? 'lg:gap-2.5' : ''} ${className}`}>
+      <LogoMark size={size} className={`text-fg ${large ? 'lg:h-[22px] lg:w-[22px]' : ''}`} />
+      <span className={`mono font-semibold tracking-[0.2em] text-fg ${large ? 'text-[12px] lg:text-[14.5px]' : 'text-[12px]'}`}>LIGHTSPEED</span>
+      {subtitle && <span className="hidden text-[12px] text-fg-3 min-[1760px]:inline">Virtual laboratory for special relativity</span>}
     </span>
   );
 }

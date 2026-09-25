@@ -91,8 +91,8 @@ button {
   grid-column: 1 / -1;
   grid-row: 3;
 }
-/* The header and footer bars carry larger controls, with room above and below them
-   (not the controls inside their pop-up menus). */
+/* The header and footer bars carry larger controls, with room above and below them (not
+   the controls inside their pop-up menus). Desktop screens get a size up again. */
 .app-hdr .btn:not(.panel-float *) {
   height: 30px;
   padding: 0 11px;
@@ -114,6 +114,45 @@ button {
 }
 .app-ftr .seg-b {
   height: 26px;
+}
+@media (max-width: 767px) {
+  .app-hdr .btn:not(.panel-float *) {
+    padding: 0 8px;
+  }
+}
+@media (min-width: 1024px) {
+  :root {
+    --hdr: 56px;
+    --ftr: 52px;
+  }
+  .app-hdr .btn:not(.panel-float *) {
+    height: 36px;
+    padding: 0 12px;
+    gap: 7px;
+    font-size: 13.5px;
+  }
+  .app-hdr .btn-sq:not(.panel-float *) {
+    width: 36px;
+  }
+  .app-hdr .cap:not(.panel-float *),
+  .app-ftr .cap {
+    font-size: 11px;
+  }
+  .app-ftr .btn {
+    height: 34px;
+    font-size: 13px;
+  }
+  .app-ftr .btn-sq {
+    width: 34px;
+  }
+  .app-ftr .btn-sm {
+    height: 32px;
+    padding: 0 7px;
+    font-size: 13px;
+  }
+  .app-ftr .seg-b {
+    height: 32px;
+  }
 }
 .app-view {
   grid-column: 2;
@@ -941,6 +980,15 @@ button {
 }
 .no-scrollbar {
   scrollbar-width: none;
+}
+/* Sideways-scrolling rows: a soft fade at an edge where more content is hidden. The covers
+   scroll with the content and hide the fades once an end is reached. */
+.scroll-fade-x {
+  background:
+    linear-gradient(90deg, var(--color-panel) 40%, rgba(10, 12, 14, 0)) 0 0 / 32px 100% no-repeat local,
+    linear-gradient(270deg, var(--color-panel) 40%, rgba(10, 12, 14, 0)) 100% 0 / 32px 100% no-repeat local,
+    linear-gradient(90deg, rgba(216, 221, 227, 0.14), rgba(216, 221, 227, 0)) 0 0 / 22px 100% no-repeat scroll,
+    linear-gradient(270deg, rgba(216, 221, 227, 0.14), rgba(216, 221, 227, 0)) 100% 0 / 22px 100% no-repeat scroll;
 }
 .no-scrollbar::-webkit-scrollbar {
   display: none;
