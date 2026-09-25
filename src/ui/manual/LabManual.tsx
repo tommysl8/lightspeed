@@ -64,7 +64,10 @@ const useRows = (exp: ExperimentId) => rowsFor(useNotebook((s) => s.rows), exp);
 const CONVENTIONS: [ReactNode, ReactNode][] = [
   [<b key="s">S</b>, 'Rest frame of the Sun (heliocentric, ecliptic J2000 axes). All trajectories are computed in S.'],
   [<b key="sp">S′</b>, 'Instantaneous rest frame of the observer: what the camera or the ship sees.'],
-  [<Sym key="t">t</Sym>, 'Coordinate time in S. Earth clocks read t to within parts in 10⁹.'],
+  [
+    <Sym key="t">t</Sym>,
+    'Coordinate time in S. Clocks moving with Earth run slow against it by 4.9 parts in 10⁹; real ones also feel the Sun’s gravity, a further 9.9 parts in 10⁹ that the model ignores.',
+  ],
   [<Sym key="tau">τ</Sym>, 'Proper time: what a clock carried by the observer reads.'],
   [<><Sym>β</Sym>, <Sym>γ</Sym>, <Sym>φ</Sym></>, 'v/c; the Lorentz factor 1/√(1 − β²); the rapidity artanh β.'],
   [<><Sym>θ</Sym>, <Sym>θ′</Sym></>, 'Angle of a line of sight from the apex (the direction of motion), measured in S and in S′.'],

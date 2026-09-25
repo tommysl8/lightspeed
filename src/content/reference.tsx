@@ -228,8 +228,8 @@ export const REFERENCE: Record<ExplainerId, ReferenceSection> = {
           within <M t="\theta' \le \arccos\beta" />: 60° at <M t="\beta = 0.5" />, 8.1° at 0.99 and 0.26° at 0.99999.
         </p>
         <p>
-          James Bradley found the effect in 1727, as annual shifts of up to 20.5″ in the positions of stars caused by Earth’s
-          orbital motion. To first order in <M t="\beta" />, <M t="\theta - \theta' \approx \beta\sin\theta" />. The relativistic
+          James Bradley found the effect in observations begun in 1725 and published it in 1729: annual shifts of up to 20.5″
+          in the positions of stars, caused by Earth’s orbital motion. To first order in <M t="\beta" />, <M t="\theta - \theta' \approx \beta\sin\theta" />. The relativistic
           formula holds at any speed. The split view compares it with the classical picture.
         </p>
       </>
@@ -330,7 +330,7 @@ export const REFERENCE: Record<ExplainerId, ReferenceSection> = {
         <p>
           The obstacle is propellant. An ideal photon rocket, with exhaust at <M t="c" />, has mass ratio{' '}
           <M t="m_i/m_f = e^{\Delta\varphi}" />. For the Proxima flight, with <M t="\Delta\varphi = 2\varphi_\text{peak} \approx 3.66" />,
-          that is about 39 kg of propellant for every kilogram delivered and brought to rest.
+          a mass ratio of about 39: some 38 kg of propellant for every kilogram delivered and brought to rest.
         </p>
       </>
     ),

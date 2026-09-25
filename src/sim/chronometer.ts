@@ -1,12 +1,13 @@
 /**
  * The laboratory's two clocks.
  *
- *  - t: coordinate time in the Sun's rest frame S since the last zero. For a clock at rest on
- *    Earth this differs from S time only by effects the app ignores (Earth's 30 km/s orbital
- *    motion: 5 parts in 10⁹; gravity: a few parts in 10⁹).
- *  - τ: proper time of the observer (the camera, or the ship during a trip).
+ *  - t: coordinate time in the Sun's rest frame S since the last zero.
+ *  - τ: proper time of the observer (the camera, or the ship during a trip). An observer
+ *    moving with Earth runs slow by the velocity term, β²/2 ≈ 4.9 × 10⁻⁹. Real Earth clocks
+ *    also sit in the Sun's potential, GM/(rc²) ≈ 9.9 × 10⁻⁹ at 1 au, which this flat-spacetime
+ *    model ignores (together ≈ 1.55 × 10⁻⁸, the IAU constant L_B).
  *
- * Near everyday speeds t − τ is a few parts in 10⁹ of t, far below the rounding of a
+ * At everyday speeds t − τ is parts in 10⁹ of t, far below the rounding of a
  * millisecond timestamp, so the clocks keep the lag L = t − τ as its own sum,
  * dL = dt (1 − 1/γ) = dt β²/(1 + √(1 − β²)), which is accurate at any size. During a trip
  * both come from the trip's closed-form solution instead, so "skip to arrival" and large

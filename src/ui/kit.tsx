@@ -335,8 +335,15 @@ export function NumberInput({
   ariaLabel: string;
 }) {
   const [text, setText] = useState<string | null>(null);
+  // Escape blurs the field too; the blur must then not commit what was typed.
+  const cancelled = useRef(false);
   const invalid = text !== null && !validate(parse(text));
   const commit = () => {
+    if (cancelled.current) {
+      cancelled.current = false;
+      setText(null);
+      return;
+    }
     if (text === null) return;
     const v = parse(text);
     if (validate(v)) onCommit(v);
@@ -358,7 +365,7 @@ export function NumberInput({
       onKeyDown={(e) => {
         if (e.key === 'Enter') (e.target as HTMLInputElement).blur();
         if (e.key === 'Escape') {
-          setText(null);
+          cancelled.current = true;
           (e.target as HTMLInputElement).blur();
         }
       }}

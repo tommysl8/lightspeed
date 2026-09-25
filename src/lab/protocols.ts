@@ -137,7 +137,8 @@ function groupByBeta(rows: DataRow[]): { beta: number; rows: DataRow[] }[] {
   for (const r of rows) {
     const b = num(r, 'beta');
     if (!Number.isFinite(b)) continue;
-    const k = b.toPrecision(4);
+    // Near c, speeds differ in (1 − β): 0.99999 and 0.999999 must not share a group.
+    const k = b < 0.5 ? `b${b.toPrecision(4)}` : `g${(1 - b).toPrecision(3)}`;
     m.set(k, [...(m.get(k) ?? []), r]);
   }
   return [...m.values()]
@@ -147,10 +148,10 @@ function groupByBeta(rows: DataRow[]): { beta: number; rows: DataRow[] }[] {
 
 const noisy = (rows: DataRow[]) => rows.some((r) => r.s && Object.keys(r.s).length > 0);
 
-function chiLine(fit: { chi2: number; ndf: number; weighted: boolean } | null): ResultLine[] {
+function chiLine(fit: { chi2: number; ndf: number; weighted: boolean } | null, prefix = ''): ResultLine[] {
   if (!fit || !fit.weighted || fit.ndf <= 0) return [];
   const red = fit.chi2 / fit.ndf;
-  return [{ label: 'χ²/ν', value: `${sig(fit.chi2, 3)} / ${fit.ndf} = ${sig(red, 3)}`, tone: red < 3 ? 'ok' : 'warn' }];
+  return [{ label: `${prefix}χ²/ν`, value: `${sig(fit.chi2, 3)} / ${fit.ndf} = ${sig(red, 3)}`, tone: red < 3 ? 'ok' : 'warn' }];
 }
 
 /** Standard score of a measurement against an accepted value. */
@@ -356,7 +357,7 @@ const E2: Protocol = {
           ...(pf ? [{ kind: 'fn' as const, f: (x: number) => pf.b * x, color: FIT, dash: '', width: 1, label: 'fit through origin' }] : []),
           { kind: 'points', data: lin.map((_, i) => ({ x: lx[i], y: ly[i], sy: lsy?.[i] })), newest: true },
         ],
-        caption: 'Fig. 2.2 — Linearised form ln(Δτ/Δt) = p ln(1 − β²) (2.4). Special relativity predicts p = ½.',
+        caption: 'Fig. 2.2 — Linearised form ln(Δτ/Δt) = p ln(1 − β²) (2.3). Special relativity predicts p = ½.',
       },
       linLabel: 'Linearised',
     };
@@ -411,7 +412,16 @@ const E3: Protocol = {
       // 1/D = γ − γβ cos θ′
       const xs = g.rows.map((r) => Math.cos((num(r, 'thS') * Math.PI) / 180));
       const ys = g.rows.map((r) => 1 / num(r, 'D'));
-      const sy = on ? g.rows.map((r) => (r.s?.D ?? 0) / num(r, 'D') ** 2) : undefined;
+      // Effective variance: the θ′ error enters through the slope, ∂(1/D)/∂θ′ = −γβ sin θ′.
+      const gg = gamma(g.beta);
+      const sy = on
+        ? g.rows.map((r) =>
+            Math.hypot(
+              (r.s?.D ?? 0) / num(r, 'D') ** 2,
+              gg * g.beta * Math.sin((num(r, 'thS') * Math.PI) / 180) * (((r.s?.thS ?? 0) * Math.PI) / 180),
+            ),
+          )
+        : undefined;
       const f = g.rows.length >= 2 ? linearFit(xs, ys, sy) : null;
       lin.push({ kind: 'points', color, data: xs.map((x, i) => ({ x, y: ys[i], sy: sy?.[i] })) });
       if (f) {
@@ -422,6 +432,7 @@ const E3: Protocol = {
           { label: `Group ${gi + 1}: β from fit, −b/a`, value: fmtPM(bFit, ratioSigma(f)) },
           { label: `Group ${gi + 1}: γ from intercept a`, value: fmtPM(f.a, f.sa) },
           zLine(bFit, ratioSigma(f), g.beta, on),
+          ...chiLine(f, `Group ${gi + 1}: `),
         );
       } else {
         results.push({ label: `Group ${gi + 1} (${label})`, value: 'needs ≥ 2 readings', tone: 'dim' });
@@ -504,8 +515,17 @@ const E4: Protocol = {
       // cos θ′ − cos θ = β (1 − cos θ cos θ′)
       const xs = g.rows.map((r) => 1 - Math.cos(num(r, 'th') * rad) * Math.cos(num(r, 'thS') * rad));
       const ys = g.rows.map((r) => Math.cos(num(r, 'thS') * rad) - Math.cos(num(r, 'th') * rad));
+      // Both angles appear in x and y. For r = cos θ′ − cos θ − β(1 − cos θ cos θ′):
+      // ∂r/∂θ′ = −sin θ′ (1 + β cos θ),  ∂r/∂θ = sin θ (1 − β cos θ′).
       const sy = on
-        ? g.rows.map((r) => Math.hypot(Math.sin(num(r, 'thS') * rad) * (r.s?.thS ?? 0) * rad, Math.sin(num(r, 'th') * rad) * (r.s?.th ?? 0) * rad))
+        ? g.rows.map((r) => {
+            const th = num(r, 'th') * rad;
+            const thS = num(r, 'thS') * rad;
+            return Math.hypot(
+              Math.sin(thS) * (1 + g.beta * Math.cos(th)) * (r.s?.thS ?? 0) * rad,
+              Math.sin(th) * (1 - g.beta * Math.cos(thS)) * (r.s?.th ?? 0) * rad,
+            );
+          })
         : undefined;
       const f = g.rows.length >= 1 ? proportionalFit(xs, ys, sy) : null;
       lin.push({ kind: 'points', color, data: xs.map((x, i) => ({ x, y: ys[i], sy: sy?.[i] })) });
@@ -515,6 +535,7 @@ const E4: Protocol = {
           { label: `Group ${gi + 1}: speedometer β`, value: fmtBeta(g.beta), tone: 'dim' },
           { label: `Group ${gi + 1}: β from fit`, value: fmtPM(f.b, f.sb) },
           zLine(f.b, f.sb, g.beta, on),
+          ...chiLine(f, `Group ${gi + 1}: `),
         );
       }
     });
@@ -556,7 +577,7 @@ const E5: Protocol = {
     { key: 'beta', sym: 'β', name: 'speed v/c', dim: 'none', fmt: 'beta' },
     { key: 'phi', sym: 'φ', name: 'rapidity artanh β', dim: 'none', digits: 5, derived: phiOf },
     { key: 'T', sym: 'T', name: 'total proper time of the flight', dim: 'time', hidden: true },
-    { key: 'a', sym: 'a', name: 'programmed proper acceleration', dim: 'none', hidden: true },
+    { key: 'a', sym: 'a', name: 'programmed proper acceleration', dim: 'none', unit: 'km/s²', hidden: true },
   ],
   analyse(rows) {
     const pts = rows.filter((r) => finite(num(r, 'tau'), num(r, 'beta')));

@@ -30,6 +30,8 @@ describe('sci formatting', () => {
     expect(sig(9.9996, 4)).toBe('10.00');
     expect(sig(0.012345, 3)).toBe('0.0123');
     expect(sig(0, 3)).toBe('0.00');
+    expect(sig(123456, 4)).toBe(`123${NB}500`);
+    expect(sig(299792.458, 3)).toBe(`300${NB}000`);
   });
 
   it('switches to scientific notation for very large and small values', () => {
@@ -79,6 +81,8 @@ describe('value ± uncertainty', () => {
     expect(fmtPM(299792.4612, 0.3517)).toBe(`299${NB}792.46 ± 0.35`);
     expect(fmtPM(0.50123, 0.0021)).toBe('0.5012 ± 0.0021');
     expect(fmtPM(9.80665, 0.0123)).toBe('9.807 ± 0.012');
+    expect(fmtPM(123456, 2345)).toBe(`123${NB}500 ± 2300`);
+    expect(fmtPM(299912, 234.6)).toBe(`299${NB}910 ± 230`);
   });
 
   it('uses a shared exponent for large or small values', () => {

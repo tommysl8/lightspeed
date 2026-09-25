@@ -15,6 +15,8 @@ export function useShortcuts() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (isTyping(e) || e.ctrlKey || e.metaKey || e.altKey) return;
+      // A held key must not repeat readings or toggles; only the rate keys step on repeat.
+      if (e.repeat && !'[],.'.includes(e.key)) return;
       if ((e.target as HTMLElement | null)?.tagName === 'SELECT') return;
       const ui = useUI.getState();
       const flying = ui.controlMode === 'free';

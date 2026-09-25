@@ -110,6 +110,9 @@ export interface SigOptions {
   group?: boolean;
 }
 
+/** x rounded to a multiple of 10^p (p ≥ 0). */
+const roundTo = (x: number, p: number): number => Math.round(x / 10 ** p) * 10 ** p;
+
 /**
  * x to `digits` significant figures, trailing zeros kept. Switches to scientific notation
  * outside [10^sciBelow, 10^sciAbove).
@@ -120,7 +123,9 @@ export function sig(x: number, digits = 4, opts: SigOptions = {}): string {
   const { sciBelow = -3, sciAbove = 6, group = true } = opts;
   let e = exponentOf(x);
   if (e < sciBelow || e >= sciAbove) return sci(x, digits);
-  let decimals = Math.max(0, digits - 1 - e);
+  // Integers with more digits than requested are rounded to the last significant place.
+  if (digits - 1 - e < 0) return groupDigits(roundTo(x, e - digits + 1).toFixed(0), group);
+  let decimals = digits - 1 - e;
   let s = x.toFixed(decimals);
   // Rounding up can add a digit (9.9996 → 10.000): drop one decimal to keep the count.
   const e2 = exponentOf(Number(s));
@@ -238,6 +243,10 @@ export function fmtPM(v: number, s: number, maxDigits = 8): string {
     const dec = Math.max(0, ev - es);
     return `(${fixed(v / k, dec)} ± ${fixed(s / k, dec)}) × 10${superscript(ev)}`;
   }
-  const dec = Math.max(0, -es);
+  if (es > 0) {
+    // σ ≥ 100: round both to σ's second significant figure (123 456 ± 2345 → 123 500 ± 2300).
+    return `${fixed(roundTo(v, es), 0)} ± ${fixed(roundTo(s, es), 0)}`;
+  }
+  const dec = -es;
   return `${fixed(v, dec)} ± ${fixed(s, dec)}`;
 }

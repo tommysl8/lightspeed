@@ -9,7 +9,7 @@
  *      even when the clock is skipped ahead, because the trajectory is known in closed form)
  *
  * With "simulated instrument uncertainty" on, each reading gets Gaussian noise of a stated σ
- * (seeded, so a reading's noise is reproducible) and the σ is stored alongside it.
+ * (independent draws from one pseudo-random stream per session) and the σ is stored alongside it.
  */
 import { BODIES, C_KM_S, type BodyId } from '../physics/constants';
 import { flipAndBurnAt } from '../physics/rocket';
@@ -33,9 +33,9 @@ export const labFlags = {
   splitUsed: false,
 };
 
-function rng(tag: string) {
-  return mulberry32(hashSeed(`${tag}:${sim.timeMs}:${performance.now()}`));
-}
+// One stream per session. Readings taken in the same frame (a skipped 1 g flight logs ~40)
+// must get independent deviates, which reseeding from the clock would not give.
+const noiseStream = mulberry32(hashSeed(`${Date.now()}:${Math.random()}`));
 
 function commit(
   exp: ExperimentId,
@@ -48,7 +48,7 @@ function commit(
 ) {
   const nb = useNotebook.getState();
   if (!nb.noise) return nb.add(exp, truth, undefined, src, simMs);
-  const rand = rng(exp);
+  const rand = noiseStream;
   const v: Record<string, Value> = { ...truth };
   for (const [k, s] of Object.entries(sigma)) {
     const x = v[k];
@@ -82,17 +82,18 @@ onDetection((p, det) => {
 // ─── E2 / E5: trips ──────────────────────────────────────────────────────────────────────
 
 let flightSeq = 0;
-let sampler: { startMs: number; flight: number; step: number; next: number } | null = null;
+let sampler: { trip: Trip; flight: number; step: number; next: number } | null = null;
 
 function rocketSamples(t: Trip, upToTau: number): void {
   if (!t.rocket) return;
-  if (!sampler || sampler.startMs !== t.startMs) {
+  // Keyed on the trip itself: an abort and relaunch in the same instant is a new flight.
+  if (!sampler || sampler.trip !== t) {
     const u = pickUnit('time', t.shipTime);
     const step = niceStep(t.shipTime / u.factor, 40) * u.factor;
     // Continue the numbering of flights already in the notebook.
     const prev = useNotebook.getState().rows.filter((r) => r.exp === 'E5').map((r) => Number(r.v.flight) || 0);
     flightSeq = Math.max(flightSeq, ...prev);
-    sampler = { startMs: t.startMs, flight: ++flightSeq, step, next: 0 };
+    sampler = { trip: t, flight: ++flightSeq, step, next: 0 };
     logEvent('SYS', `E5 logger: flight F${sampler.flight}, one sample every ${timeText(step)} of ship time`);
   }
   const nb = useNotebook.getState();
@@ -107,7 +108,7 @@ function rocketSamples(t: Trip, upToTau: number): void {
     let sBeta = 0;
     if (nb.noise) {
       const sPhi = 0.002;
-      beta = Math.tanh(Math.atanh(Math.min(beta, 1 - 1e-15)) + sPhi * gaussian(rng('E5phi')));
+      beta = Math.tanh(Math.atanh(Math.min(beta, 1 - 1e-15)) + sPhi * gaussian(noiseStream));
       sBeta = sPhi * (1 - beta * beta);
     }
     commit(

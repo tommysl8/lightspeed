@@ -126,3 +126,41 @@ describe('CSV export', () => {
     expect(data).toContain(',851.1,0.47,255000000,130000,');
   });
 });
+
+describe('uncertainty models (Monte Carlo)', () => {
+  /** Mean reduced χ² of a group's fit over many noisy data sets. */
+  function meanChi2(exp: 'E3' | 'E4', beta: number, trials: number): number {
+    const rand = mulberry32(12345);
+    let sum = 0;
+    let n = 0;
+    for (let t = 0; t < trials; t++) {
+      const rows: DataRow[] = [];
+      for (let k = 0; k < 12; k++) {
+        const deg = 5 + k * 15;
+        const c = Math.cos((deg * Math.PI) / 180);
+        if (exp === 'E3') {
+          const D = dopplerFromShipAngle(c, beta);
+          rows.push(row('E3', { beta, thS: deg + 0.2 * gaussian(rand), D: D * (1 + 0.005 * gaussian(rand)) }, { thS: 0.2, D: 0.005 * D }));
+        } else {
+          const thS = (Math.acos(cosShipFromRest(c, beta)) * 180) / Math.PI;
+          rows.push(row('E4', { target: 'x', beta, th: deg + 0.05 * gaussian(rand), thS: thS + 0.05 * gaussian(rand) }, { th: 0.05, thS: 0.05 }));
+        }
+      }
+      const chi = PROTOCOLS[exp].analyse(rows).results.find((l) => l.label.endsWith('χ²/ν'));
+      if (!chi) continue;
+      sum += Number(chi.value.split('=').at(-1)!.replace(/\s/g, ''));
+      n++;
+    }
+    return sum / n;
+  }
+
+  it('Experiment 3: χ²/ν ≈ 1 with angle and Doppler errors propagated', () => {
+    for (const b of [0.5, 0.9, 0.99]) expect(meanChi2('E3', b, 150), `β = ${b}`).toBeGreaterThan(0.85);
+    for (const b of [0.5, 0.9, 0.99]) expect(meanChi2('E3', b, 150), `β = ${b}`).toBeLessThan(1.15);
+  });
+
+  it('Experiment 4: χ²/ν ≈ 1 with both angles propagated', () => {
+    for (const b of [0.5, 0.9, 0.99]) expect(meanChi2('E4', b, 150), `β = ${b}`).toBeGreaterThan(0.85);
+    for (const b of [0.5, 0.9, 0.99]) expect(meanChi2('E4', b, 150), `β = ${b}`).toBeLessThan(1.15);
+  });
+});

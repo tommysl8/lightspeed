@@ -6,7 +6,7 @@
 import { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Quaternion, Vector3, Vector4, type PerspectiveCamera } from 'three';
-import { AU_KM, BODIES, LIGHT_YEAR_KM, type BodyId } from '../../physics/constants';
+import { AU_KM, BODIES, BODY_ORDER, LIGHT_YEAR_KM, type BodyId } from '../../physics/constants';
 import { fixed, sig } from '../../lib/sci';
 import { niceStep } from '../plot/ticks';
 import { relView } from '../../render/relativisticView';
@@ -28,6 +28,19 @@ const inv = new Quaternion();
 const v = new Vector3();
 const clip = new Vector4();
 const apex = new Vector3();
+const antapex = new Vector3();
+const TRIAD_KEYS: [Key, Key][] = [
+  ['triadX', 'triadXl'],
+  ['triadY', 'triadYl'],
+  ['triadZ', 'triadZl'],
+];
+/** Last text/width written, so the DOM is only touched when something changes. */
+const lastScale = { text: '', width: '' };
+
+function setScale(bar: HTMLElement, label: Element, width: string, text: string) {
+  if (width !== lastScale.width) bar.style.width = lastScale.width = width;
+  if (text !== lastScale.text) label.textContent = lastScale.text = text;
+}
 
 /** Project a world direction (unit vector) to viewport px; null if behind the camera. */
 function projectDir(dir: Vector3, camera: PerspectiveCamera): { x: number; y: number } | null {
@@ -63,7 +76,7 @@ function scaleBody(): BodyId {
   if (ui.controlMode === 'orbit' || ui.controlMode === 'transition') return ui.focus;
   if (ui.selected) return ui.selected;
   let best: BodyId = 'sun';
-  for (const b of Object.values(sim.bodies)) if (b.distCamera < sim.bodies[best].distCamera) best = b.id;
+  for (const id of BODY_ORDER) if (sim.bodies[id].distCamera < sim.bodies[best].distCamera) best = id;
   return best;
 }
 
@@ -86,7 +99,7 @@ export function OverlaySync() {
     // Apex / antapex
     const a = moving ? apexDirection(apex) : null;
     place(els.apex, a ? projectDir(a, cam) : null);
-    place(els.antapex, a ? projectDir(a.clone().negate(), cam) : null);
+    place(els.antapex, a ? projectDir(antapex.copy(a).negate(), cam) : null);
 
     // Reticle readout (a few times a second is plenty for text)
     if (frame % 6 === 0 && els.reticleText) {
@@ -100,12 +113,10 @@ export function OverlaySync() {
       const d = sim.bodies[id].distCamera;
       const kmPerPx = (2 * d * Math.tan((cam.fov * Math.PI) / 360)) / Math.max(1, sim.viewport.height);
       if (relView.active || !Number.isFinite(kmPerPx) || kmPerPx <= 0) {
-        (els.scaleBar as HTMLElement).style.width = '0px';
-        els.scaleText.textContent = relView.active ? 'scale undefined in aberrated view' : '';
+        setScale(els.scaleBar as HTMLElement, els.scaleText, '0px', relView.active ? 'scale undefined in aberrated view' : '');
       } else {
         const s = scaleBarLength(kmPerPx);
-        (els.scaleBar as HTMLElement).style.width = `${s.px.toFixed(1)}px`;
-        els.scaleText.textContent = `${s.label}  at ${BODIES[id].name}`;
+        setScale(els.scaleBar as HTMLElement, els.scaleText, `${s.px.toFixed(1)}px`, `${s.label}  at ${BODIES[id].name}`);
       }
     }
 
@@ -123,14 +134,9 @@ export function OverlaySync() {
     });
 
     // Axis triad (orthographic, 26 px arms)
-    const ids: [Key, Key][] = [
-      ['triadX', 'triadXl'],
-      ['triadY', 'triadYl'],
-      ['triadZ', 'triadZl'],
-    ];
     AXES.forEach((ax, i) => {
       v.copy(ax).applyQuaternion(inv);
-      const [lk, tk] = ids[i];
+      const [lk, tk] = TRIAD_KEYS[i];
       const line = els[lk] as SVGLineElement | undefined;
       const lbl = els[tk] as SVGTextElement | undefined;
       if (!line || !lbl) return;

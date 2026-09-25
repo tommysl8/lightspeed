@@ -68,6 +68,9 @@ export function SimDriver() {
       chronoTrip(elapsed, trip.warp ? NaN : trip.rocket ? elapsed - s.tau : elapsed * lagRate(trip.beta));
       if (arrived) {
         chronoTripEnd();
+        // The rest of this frame after arrival (large with time warp or a skip) is spent at
+        // rest with the destination.
+        chronoIntegrate((sim.timeMs - trip.startMs) / 1000 - trip.earthTime);
         labArrival(trip);
         onArrival(trip.dest);
       }

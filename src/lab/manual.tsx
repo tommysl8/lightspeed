@@ -193,7 +193,7 @@ const E2: ManualEntry = {
         ship changes inertial frame when it departs and again when it stops, and the clocks of S do not. Taking logarithms of
         (2.2) gives a linear relation,
       </p>
-      <Eq n="2.4" tex="\ln\frac{\Delta\tau}{\Delta t} = p\,\ln(1-\beta^2), \qquad p = \tfrac12," />
+      <Eq n="2.3" tex="\ln\frac{\Delta\tau}{\Delta t} = p\,\ln(1-\beta^2), \qquad p = \tfrac12," />
       <p>
         so a plot of <M t="\ln(\Delta\tau/\Delta t)" /> against <M t="\ln(1-\beta^2)" /> is a line through the origin with slope ½.
       </p>
@@ -366,7 +366,7 @@ const E4: ManualEntry = {
   background: (
     <>
       <p>
-        The direction from which light arrives depends on the observer’s velocity. James Bradley discovered this in 1727: stars
+        The direction from which light arrives depends on the observer’s velocity. James Bradley reported it in 1729: stars
         shift by up to 20.5″ as Earth orbits at 30 km/s. If a source lies at angle <M t="\theta" /> from the apex in S, an observer
         moving at <M t="\beta" /> sees it at <M t="\theta'" />, where
       </p>

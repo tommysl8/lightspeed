@@ -78,7 +78,15 @@ function PulseRing({ slot, outline }: { slot: number; outline: boolean }) {
     // Fade a pulse once every detector has fired.
     const fade = pulse.pending.size === 0 ? 0.35 : 1;
     if (!outline) {
-      setCircle(material, c, R, ECL_P, ECL_Q, 0.75 * fade, camera as PerspectiveCamera, pr);
+      // Cross-section with the ecliptic plane (world y = 0): centred below or above the emission
+      // point, radius √(R² − h²). None until the front reaches the plane.
+      const h = pulse.origin.y;
+      if (Math.abs(h) >= R) {
+        m.visible = false;
+        return;
+      }
+      p.set(pulse.origin.x, 0, pulse.origin.z).sub(sim.camera.pos);
+      setCircle(material, p, Math.sqrt((R - h) * (R + h)), ECL_P, ECL_Q, 0.75 * fade, camera as PerspectiveCamera, pr);
       m.visible = true;
       return;
     }

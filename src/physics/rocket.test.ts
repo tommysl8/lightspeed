@@ -69,7 +69,7 @@ describe('relativistic rocket (constant proper acceleration)', () => {
     }
   });
 
-  it('needs ~39 kg of perfect photon-rocket propellant per kg delivered to Proxima', () => {
+  it('needs a photon-rocket mass ratio of ~39 (~38 kg of propellant per kg delivered) to Proxima', () => {
     expect(photonRocketMassRatio(flipAndBurn(PROXIMA_DISTANCE_KM))).toBeCloseTo(38.6, 0);
   });
 });
