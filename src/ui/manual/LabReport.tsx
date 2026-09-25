@@ -13,6 +13,7 @@ import { useUI } from '../../state/ui';
 import { Plot } from '../plot/Plot';
 import { rich } from '../rich';
 import { useModal } from '../useModal';
+import { LogoMark } from '../Logo';
 
 function Section({ n, title, children }: { n: number; title: string; children: ReactNode }) {
   return (
@@ -70,7 +71,10 @@ export default function LabReport({ exp }: { exp: ExperimentId }) {
 
       <article className="report-paper mx-auto my-6 w-[794px] max-w-[calc(100vw-24px)] bg-white px-[64px] py-[56px] text-[#111] shadow-[0_10px_40px_rgba(0,0,0,0.6)]">
         <header className="flex items-baseline justify-between border-b-2 border-[#111] pb-2">
-          <span className="font-mono text-[11px] font-semibold tracking-[0.2em]">LIGHTSPEED VIRTUAL LABORATORY</span>
+          <span className="flex items-center gap-2 self-center font-mono text-[11px] font-semibold tracking-[0.2em]">
+            <LogoMark size={15} className="text-[#111]" />
+            LIGHTSPEED VIRTUAL LABORATORY
+          </span>
           <span className="font-sans text-[11px] uppercase tracking-[0.1em] text-[#555]">Laboratory report</span>
         </header>
         <h1 className="mb-0 mt-4 font-serif text-[26px] font-semibold leading-tight">

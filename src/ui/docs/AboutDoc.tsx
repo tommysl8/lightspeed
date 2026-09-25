@@ -5,6 +5,7 @@
 import { useState, type ReactNode } from 'react';
 import { APP, AUTHOR } from '../../content/author';
 import { Icon } from '../icons';
+import { LogoMark } from '../Logo';
 import { Chapter, Ext, Ref, type TocEntry } from './parts';
 
 export const ABOUT_TOC: TocEntry[] = [
@@ -81,7 +82,32 @@ function Overview() {
           </div>
         ))}
       </div>
+      <TheMark />
     </Chapter>
+  );
+}
+
+/** The mark, and what it depicts. */
+function TheMark() {
+  return (
+    <div className="doc-markbox">
+      <svg viewBox="4 4 56 56" width="96" height="96" aria-hidden className="shrink-0">
+        <g fill="none" stroke="var(--color-fg)" strokeWidth="8">
+          <circle cx="32" cy="32" r="24" />
+          <circle cx="44" cy="32" r="12" />
+        </g>
+        <circle cx="52" cy="32" r="8" fill="var(--color-accent)" />
+      </svg>
+      <div>
+        <h3 className="doc-h3-plain !mt-0">The mark</h3>
+        <p>
+          One circle on the sky, drawn twice: as it looks at rest, and as it looks from a ship moving at 0.6<i>c</i> towards the
+          amber point, the apex. In stereographic projection, aberration shrinks everything towards the apex by the Doppler
+          factor √((1 + <i>β</i>)/(1 − <i>β</i>)), which is exactly 2 at 0.6<i>c</i>. So the circle halves, and still passes
+          through the apex. It is the same law the program uses to draw the sky in flight.
+        </p>
+      </div>
+    </div>
   );
 }
 
@@ -289,7 +315,10 @@ export default function AboutDoc() {
     <>
       <header className="doc-mast">
         <div className="doc-mast-k">About</div>
-        <h1>Lightspeed</h1>
+        <h1 className="doc-mast-logo">
+          <LogoMark size={52} className="text-fg" />
+          Lightspeed
+        </h1>
         <p>{APP.tagline}</p>
         <div className="doc-mast-meta mono">
           <span>Version {APP.version}</span>

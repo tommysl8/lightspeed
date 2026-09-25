@@ -1,6 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="14" fill="#05070b"/>
-  <circle cx="22" cy="32" r="7" fill="#ffe6a8"/>
-  <path d="M34 32h22" stroke="#e9eef8" stroke-width="3" stroke-linecap="round"/>
-  <path d="M34 25l18-5M34 39l18 5" stroke="#e9eef8" stroke-opacity=".45" stroke-width="2.2" stroke-linecap="round"/>
+  <!-- Lightspeed. A circle on the sky, at rest and seen from a ship moving at 0.6c towards
+       the amber apex. In stereographic projection aberration shrinks everything towards the
+       apex by the Doppler factor, exactly 2 here: radius 24 becomes 12, still through the
+       apex. Coordinates sit on a 4-unit grid, so edges land on whole pixels at 16 and 32 px. -->
+  <rect width="64" height="64" rx="12" fill="#0a0c0e"/>
+  <g fill="none" stroke="#d8dde3" stroke-width="8">
+    <circle cx="32" cy="32" r="24"/>
+    <circle cx="44" cy="32" r="12"/>
+  </g>
+  <circle cx="52" cy="32" r="8" fill="#f0a73a"/>
 </svg>

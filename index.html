@@ -2,17 +2,89 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lightspeed · a virtual laboratory for special relativity</title>
     <meta
       name="description"
-      content="A true-scale 3D solar system you can fly through at (and past) the speed of light, with the physics explained along the way."
+      content="The real Solar System at true scale, a ship that flies close to the speed of light, and five guided experiments in special relativity."
     />
-    <meta name="theme-color" content="#000000" />
-    <title>Lightspeed</title>
+    <meta name="author" content="Tommy Liu" />
+    <meta name="theme-color" content="#0a0c0e" />
+
+    <!-- PNG first for browsers without SVG icons; browsers that support SVG pick the SVG. -->
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <!-- Link previews (the image URL is made absolute at build time on Vercel: vite.config.ts) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Lightspeed" />
+    <meta property="og:title" content="Lightspeed · a virtual laboratory for special relativity" />
+    <meta
+      property="og:description"
+      content="The real Solar System at true scale. Fly close to the speed of light and measure what you see."
+    />
+    <meta property="og:image" content="/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="The Lightspeed mark and title: a virtual laboratory for special relativity" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <style>
+      /* Shown until the application replaces it. Fades in only if loading takes a moment. */
+      .boot {
+        position: fixed;
+        inset: 0;
+        display: grid;
+        place-content: center;
+        justify-items: center;
+        gap: 14px;
+        background: #050607;
+        animation: boot-in 0.5s ease 0.25s both;
+      }
+      .boot-name {
+        font: 600 13px/1 ui-monospace, 'Cascadia Mono', Consolas, monospace;
+        letter-spacing: 0.24em;
+        color: #d8dde3;
+        padding-left: 0.24em;
+      }
+      .boot-note {
+        font: 11px/1 ui-monospace, 'Cascadia Mono', Consolas, monospace;
+        color: #80888f;
+      }
+      @keyframes boot-in {
+        from {
+          opacity: 0;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .boot {
+          animation: none;
+        }
+      }
+    </style>
   </head>
-  <body style="background: #000">
-    <div id="root"></div>
+  <body style="background: #050607">
+    <div id="root">
+      <div class="boot" role="status" aria-label="Loading Lightspeed">
+        <svg width="56" height="56" viewBox="4 4 56 56" aria-hidden="true">
+          <g fill="none" stroke="#d8dde3" stroke-width="8">
+            <circle cx="32" cy="32" r="24" />
+            <circle cx="44" cy="32" r="12" />
+          </g>
+          <circle cx="52" cy="32" r="8" fill="#f0a73a" />
+        </svg>
+        <div class="boot-name">LIGHTSPEED</div>
+        <div class="boot-note">Loading the Solar System…</div>
+      </div>
+    </div>
+    <noscript>
+      <p style="font: 14px system-ui, sans-serif; color: #d8dde3; text-align: center; margin-top: 40vh">
+        Lightspeed needs JavaScript and WebGL 2.
+      </p>
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

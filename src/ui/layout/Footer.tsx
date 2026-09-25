@@ -130,7 +130,7 @@ function Status() {
 
 export function Footer() {
   return (
-    <footer className="app-ftr flex min-w-0 items-center gap-3 border-t border-line-2 bg-panel px-2">
+    <footer className="app-ftr flex min-w-0 items-center gap-3 border-t border-line-2 bg-panel px-3">
       <Transport />
       <div className="h-4 w-px shrink-0 bg-line-2" />
       <Targets />

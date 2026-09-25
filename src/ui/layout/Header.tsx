@@ -11,6 +11,7 @@ import { Check, Menu, MenuHeading, Seg } from '../kit';
 import { useTicker } from '../useTicker';
 import { openPlanner } from '../tripActions';
 import { Icon } from '../icons';
+import { Wordmark } from '../Logo';
 
 function pad(n: number) {
   return String(n).padStart(2, '0');
@@ -245,7 +246,7 @@ export function Header() {
   const toggle = useUI((s) => s.toggle);
 
   return (
-    <header className="app-hdr flex min-w-0 items-center gap-2 border-b border-line-2 bg-panel px-2 lg:gap-3">
+    <header className="app-hdr flex min-w-0 items-center gap-2 border-b border-line-2 bg-panel px-3 lg:gap-3">
       <button
         className="btn btn-q"
         data-tour="lab"
@@ -257,11 +258,17 @@ export function Header() {
         <span className="max-md:hidden">Lab</span>
       </button>
 
-      <div className="flex items-center gap-2 whitespace-nowrap">
-        <span className="h-2 w-2 bg-accent" aria-hidden />
-        <span className="mono text-[12px] font-semibold tracking-[0.2em] text-fg">LIGHTSPEED</span>
-        <span className="hidden text-[11px] text-fg-3 min-[1760px]:inline">Virtual laboratory for special relativity</span>
-      </div>
+      <a
+        href="#/about"
+        className="-mx-1 flex h-[30px] items-center rounded-[2px] px-1 hover:bg-hover focus-visible:outline focus-visible:outline-1 focus-visible:outline-accent"
+        title="About Lightspeed"
+        onClick={(e) => {
+          e.preventDefault();
+          openDoc('about');
+        }}
+      >
+        <Wordmark size={18} subtitle />
+      </a>
 
       <div className="mx-1 h-4 w-px bg-line-2 max-sm:hidden" />
       <div className="max-sm:hidden" data-tour="epoch">
@@ -283,7 +290,7 @@ export function Header() {
         <ViewMenu />
         <button className="btn btn-q" data-tour="manual" onClick={() => openDoc('manual')} title="Manual: how to use Lightspeed (?)">
           <Icon name="book" />
-          <span className="max-md:hidden">Manual</span>
+          <span className="max-lg:hidden">Manual</span>
         </button>
         <button className="btn btn-q max-lg:hidden" onClick={() => openDoc('about')} title="About Lightspeed: author, sources and methods">
           About

@@ -90,7 +90,14 @@ export function ScreenMap() {
       <T x={26} y={17.5} anchor="middle" size={9} fill={C.accent} mono={false}>
         Lab
       </T>
-      <rect x="56" y="11.5" width="5" height="5" fill={C.accent} />
+      {/* the mark, 9 units across */}
+      <g transform="translate(53.4 8.4) scale(0.16)">
+        <g fill="none" stroke={C.fg} strokeWidth="8">
+          <circle cx="32" cy="32" r="24" />
+          <circle cx="44" cy="32" r="12" />
+        </g>
+        <circle cx="52" cy="32" r="8" fill={C.accent} />
+      </g>
       <T x={66} y={17.5} size={9} fill={C.fg} weight={600} spacing={1.6}>
         LIGHTSPEED
       </T>

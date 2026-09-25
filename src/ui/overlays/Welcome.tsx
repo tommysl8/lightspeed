@@ -9,6 +9,7 @@ import { useUI } from '../../state/ui';
 import { markWelcomed, startExperiment1, startTour } from '../onboarding';
 import { CloseIcon, Kbd } from '../kit';
 import { Icon } from '../icons';
+import { Wordmark } from '../Logo';
 import { useModal } from '../useModal';
 
 function Choice({
@@ -62,8 +63,7 @@ function WelcomeCard() {
         className="panel-float appear w-[680px] max-w-full"
       >
         <div className="flex items-center gap-2 border-b border-line-2 py-2.5 pl-5 pr-2.5">
-          <span className="h-2 w-2 bg-accent" aria-hidden />
-          <span className="mono text-[12px] font-semibold tracking-[0.2em] text-fg">LIGHTSPEED</span>
+          <Wordmark size={18} />
           <span className="mono ml-2 text-[10px] text-fg-3">v{APP.version}</span>
           <button className="btn btn-q btn-sq ml-auto" onClick={() => close()} aria-label="Close">
             <CloseIcon />

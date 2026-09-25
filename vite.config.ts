@@ -1,6 +1,6 @@
 import { execSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
-import { defineConfig } from 'vite';
+import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 
@@ -17,8 +17,20 @@ function buildSha(): string {
   }
 }
 
+/**
+ * Link previews need an absolute image URL. On Vercel the production host is known at build
+ * time, so the relative og:image in index.html is made absolute there.
+ */
+function absoluteOgImage(): Plugin {
+  const host = process.env.VERCEL_PROJECT_PRODUCTION_URL ?? process.env.VERCEL_URL;
+  return {
+    name: 'absolute-og-image',
+    transformIndexHtml: (html) => (host ? html.replaceAll('content="/og-image.png"', 'content="https://' + host + '/og-image.png"') : html),
+  };
+}
+
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [react(), tailwindcss(), absoluteOgImage()],
   define: {
     __APP_VERSION__: JSON.stringify(pkg.version),
     __BUILD_SHA__: JSON.stringify(buildSha()),

@@ -7,6 +7,7 @@ import { createPortal } from 'react-dom';
 import { closeDoc, openDoc, type DocPage, type DocRoute } from '../../state/route';
 import { CloseIcon } from '../kit';
 import { Icon } from '../icons';
+import { LogoMark } from '../Logo';
 import { useModal } from '../useModal';
 import ManualDoc, { MANUAL_TOC } from './ManualDoc';
 import AboutDoc, { ABOUT_TOC } from './AboutDoc';
@@ -67,7 +68,7 @@ export default function DocView({ route }: { route: DocRoute }) {
   return createPortal(
     <div ref={ref} className="doc-overlay" role="dialog" aria-modal="true" aria-label={route.page === 'manual' ? 'Manual' : 'About Lightspeed'}>
       <header className="doc-bar">
-        <span className="h-2 w-2 shrink-0 bg-accent" aria-hidden />
+        <LogoMark size={18} className="text-fg" />
         <span className="mono text-[12px] font-semibold tracking-[0.2em] text-fg max-sm:hidden">LIGHTSPEED</span>
         <nav className="doc-tabs" aria-label="Pages">
           {(['manual', 'about'] as const).map((p) => (

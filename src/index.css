@@ -44,8 +44,8 @@
   color-scheme: dark;
   --dock-l: 384px;
   --dock-r: 312px;
-  --hdr: 34px;
-  --ftr: 34px;
+  --hdr: 48px;
+  --ftr: 44px;
 }
 
 html,
@@ -90,6 +90,30 @@ button {
 .app-ftr {
   grid-column: 1 / -1;
   grid-row: 3;
+}
+/* The header and footer bars carry larger controls, with room above and below them
+   (not the controls inside their pop-up menus). */
+.app-hdr .btn:not(.panel-float *) {
+  height: 30px;
+  padding: 0 11px;
+  font-size: 12px;
+}
+.app-hdr .btn-sq:not(.panel-float *) {
+  width: 30px;
+  padding: 0;
+}
+.app-ftr .btn {
+  height: 28px;
+}
+.app-ftr .btn-sq {
+  width: 28px;
+}
+.app-ftr .btn-sm {
+  height: 26px;
+  font-size: 11.5px;
+}
+.app-ftr .seg-b {
+  height: 26px;
 }
 .app-view {
   grid-column: 2;
@@ -1096,6 +1120,30 @@ button {
     font-size: 19px;
     line-height: 1.5;
     color: var(--color-fg-2);
+  }
+  .doc-mast-logo {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+  .doc-markbox {
+    display: flex;
+    align-items: flex-start;
+    gap: 22px;
+    margin: 28px 0 4px;
+    padding: 18px 20px;
+    border: 1px solid var(--color-line-2);
+    background: var(--color-panel);
+  }
+  .doc .doc-markbox p {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  @media (max-width: 640px) {
+    .doc-markbox {
+      flex-direction: column;
+    }
   }
   .doc-mast-meta {
     display: flex;

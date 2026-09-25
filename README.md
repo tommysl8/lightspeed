@@ -1,3 +1,5 @@
+<p align="center"><img src="public/og-image.png" alt="Lightspeed: a virtual laboratory for special relativity" width="760"></p>
+
 # Lightspeed
 
 **A virtual laboratory for special relativity, set in a true-scale 3D Solar System.**
