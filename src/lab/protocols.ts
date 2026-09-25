@@ -479,7 +479,7 @@ const E4: Protocol = {
     {
       key: 'shift',
       sym: 'θ − θ′',
-      name: 'aberration shift toward the apex',
+      name: 'aberration shift towards the apex',
       dim: 'none',
       unit: '″',
       digits: 4,
@@ -545,7 +545,7 @@ const E4: Protocol = {
         x: { q: 'θ', unit: '°', domain: [0, 180], ticks: [0, 30, 60, 90, 120, 150, 180] },
         y: { q: 'θ′', unit: '°', domain: [0, 180], ticks: [0, 30, 60, 90, 120, 150, 180] },
         series: raw,
-        caption: 'Fig. 4.1 — Observed angle θ′ against catalogue angle θ, both from the apex. Curves: eq. (4.1). Everything is displaced toward the apex.',
+        caption: 'Fig. 4.1 — Observed angle θ′ against catalogue angle θ, both from the apex. Curves: eq. (4.1). Everything is displaced towards the apex.',
       },
       lin: {
         x: { q: '1 − cos θ cos θ′', zero: true },

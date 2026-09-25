@@ -1,6 +1,6 @@
 /**
  * The Lightspeed manual: how to use the program, from a first look to the experiments.
- * British spelling, SI units, symbols in italics.
+ * British spelling, SI units, symbols in italics (ital() for plain strings).
  */
 import type { ReactNode } from 'react';
 import { Vector3 } from 'three';
@@ -43,8 +43,12 @@ const docked =
     fn();
   };
 
-const planFlight = (dest: BodyId, beta: number) =>
-  docked(() => useUI.setState({ plannerOpen: true, plannerDest: dest, plannerDrive: 'cruise', plannerBeta: beta }));
+const planFlight = (dest: BodyId, beta: number, fromEarth = false) =>
+  docked(() => {
+    // Flights leave from the camera, so start from home when the text assumes it.
+    if (fromEarth) goToBody('earth');
+    useUI.setState({ plannerOpen: true, plannerDest: dest, plannerDrive: 'cruise', plannerBeta: beta });
+  });
 
 const frameSystem = docked(() => {
   useUI.getState().select('sun');
@@ -62,6 +66,11 @@ const P10 = ({ n }: { n: ReactNode }) => (
   </>
 );
 const TryRow = ({ children }: { children: ReactNode }) => <div className="doc-tryrow">{children}</div>;
+
+/** Set the symbols of a plain string (Greek letters, and v, c, t standing alone) in italics, as in print. */
+function ital(s: string): ReactNode {
+  return s.split(/([βγτφθχνσλ]′?|(?<![A-Za-z])[vct](?![A-Za-z]))/).map((part, k) => (k % 2 ? <i key={k}>{part}</i> : part));
+}
 
 // ─── Chapters ────────────────────────────────────────────────────────────────────────────
 
@@ -167,18 +176,19 @@ function QuickStart() {
           </TryRow>
         </li>
         <li>
-          <b>Fly.</b> Press <b>Plan flight</b> in the header (or <Kbd>G</Kbd>). Choose a destination and a speed, then press{' '}
-          <b>Execute</b>. The planner shows in advance how long the trip will take by the Sun’s clocks and by yours.
+          <b>Fly.</b> Flights leave from wherever the camera is, so press <Kbd>H</Kbd> to return to Earth first. Then press{' '}
+          <b>Plan flight</b> in the header (or <Kbd>G</Kbd>), choose a destination and a speed, and press <b>Execute</b>. The
+          planner shows in advance how long the trip will take by the Sun’s clocks and by yours.
           <TryRow>
-            <Try run={planFlight('saturn', 0.9)}>Plan a flight to Saturn at 0.9c</Try>
+            <Try run={planFlight('saturn', 0.9, true)}>Plan a flight from Earth to Saturn at 0.9c</Try>
           </TryRow>
         </li>
         <li>
           <b>Look at the sky.</b> In flight, drag to look around. Stars crowd towards the direction of motion, turn blue ahead
           and red behind, and brighten ahead. Press <Kbd>X</Kbd> to split the screen: the left side shows the sky without
           relativity. The flight recorder along the bottom shows two clocks: <i>t</i>, kept in the Sun’s frame, and <i>τ</i>,
-          kept on board. At a rate of <P10 n={3} /> the trip to Saturn takes a few seconds; <b>Skip to arrival</b> jumps to the
-          end, and the readings stay exact.
+          kept on board. From Earth, at a rate of <P10 n={3} />, the trip to Saturn takes a few seconds; <b>Skip to arrival</b>{' '}
+          jumps to the end, and the readings stay exact.
         </li>
         <li>
           <b>Do an experiment.</b> Open the lab (<b>Lab</b>, or <Kbd>K</Kbd>) and start Experiment 1. The procedure ticks itself
@@ -254,7 +264,13 @@ function Screen() {
             'Time runs faster than real time. The view also gets an amber border.',
           ],
           [<Lamp tone="amber">Free flight</Lamp>, <>You are flying the camera by hand (<Ref to="looking">Chapter 4</Ref>).</>],
-          [<Lamp tone="cyan">Relativistic optics</Lamp>, <>The view shows aberration and Doppler shift (<Ref to="flying">Chapter 6</Ref>).</>],
+          [
+            <Lamp tone="cyan">Relativistic optics</Lamp>,
+            <>
+              The view shows aberration and Doppler shift; in split screen the lamp reads <i>Split optics</i> (
+              <Ref to="flying">Chapter 6</Ref>).
+            </>,
+          ],
           [<Lamp tone="cyan">Light-time corr.</Lamp>, 'Bodies are drawn where they were when the light now arriving left them.'],
           [<Lamp tone="cyan">Pulse in flight</Lamp>, 'A light pulse from Experiment 1 is still spreading.'],
           [<Lamp tone="red">Non-physical state</Lamp>, 'The fictional faster-than-light drive is engaged.'],
@@ -263,8 +279,8 @@ function Screen() {
 
       <H3>Messages and notes</H3>
       <p>
-        Lab events, such as detections, readings, arrivals and errors, appear for a few seconds in the top-left corner of the
-        view; the Notebook tab can export the full list. The first time something new happens (passing 0.1<i>c</i>, say), a
+        Lab events, such as detections, readings, arrivals and errors, appear for about 14 seconds in the top-left corner of the
+        view; the Notebook tab exports the session’s log (the latest 200 events). The first time something new happens (passing 0.1<i>c</i>, say), a
         short note in the top-right corner offers the matching section of the reference. Click <b>Read</b> to open it, or × to
         dismiss it.
       </p>
@@ -304,15 +320,15 @@ function Looking() {
         <Kbd>Esc</Kbd> clears the selection.
       </p>
       <Note title="The camera is not a spaceship">
-        Camera moves ignore physics: the camera glides to its target in a second or two, whatever the distance. To travel
-        physically, with clocks that obey relativity, plan a flight (<Ref to="flying">Chapter 6</Ref>).
+        Camera moves ignore physics: the camera glides to its target in a few seconds (never more than six), whatever the
+        distance. To travel physically, with clocks that obey relativity, plan a flight (<Ref to="flying">Chapter 6</Ref>).
       </Note>
 
       <H3>True scale and enlarged</H3>
       <p>
         At true scale the Solar System is almost entirely empty. Seen from Earth, Jupiter is less than a minute of arc across,
         smaller than one pixel of your screen, while the Sun is half a degree. Labels and rings therefore mark where the bodies
-        are. <b>View › Body size › Enlarged</b> (<Kbd>T</Kbd>) draws every body at least 4 pixels across without moving it:
+        are. <b>View › Body size › Enlarged</b> (<Kbd>T</Kbd>) draws every body at least 8 pixels across without moving it:
         useful for finding planets from far away, misleading about their size.
       </p>
       <TryRow>
@@ -348,7 +364,7 @@ function Looking() {
           ],
           [
             <>
-              <Kbd>Space</Kbd> or <Kbd>R</Kbd> · <Kbd>C</Kbd> or <Kbd>Ctrl</Kbd>
+              <Kbd>Space</Kbd> or <Kbd>R</Kbd> · <Kbd>C</Kbd>
             </>,
             'Up · down',
           ],
@@ -380,9 +396,10 @@ function Time() {
       <H3>The epoch</H3>
       <p>
         The header shows the <i>epoch</i>: the instant being simulated, in UTC, followed on wide screens by the Julian Date.
-        Click it to type any instant between 1981 and 2199, or to pick the next opposition of Mars, Jupiter or Saturn, when
-        that planet stands opposite the Sun in Earth’s sky and is near its closest. Setting the epoch moves every body at once,
-        zeroes the chronometers and discards any light pulses still in flight.
+        Click it to type any instant between 1981 and 2199, or to load the date of the next opposition of Mars, Jupiter or
+        Saturn, when that planet stands opposite the Sun in Earth’s sky and is near its closest. Press <b>Set epoch</b> (or{' '}
+        <Kbd>Enter</Kbd>) to go there: every body moves at once, the chronometers are zeroed and any light pulses still in
+        flight are discarded.
       </p>
 
       <H3>Rate</H3>
@@ -404,10 +421,10 @@ function Time() {
             [
               [0, '1 s'],
               [1, '10 s'],
-              [2, '1.67 min'],
+              [2, '100 s'],
               [3, '16.7 min'],
               [4, '2.78 h'],
-              [5, '1.16 d'],
+              [5, '27.8 h'],
               [6, '11.6 d'],
             ] as const
           ).map(([n, t]) => (
@@ -423,7 +440,8 @@ function Time() {
 
       <H3>Pause and Now</H3>
       <p>
-        <Kbd>Space</Kbd> or <Kbd>P</Kbd> pauses and resumes. <b>Now</b> (<Kbd>N</Kbd>) returns to the present at real time and
+        <Kbd>Space</Kbd> or <Kbd>P</Kbd> pauses and resumes (in free flight only <Kbd>P</Kbd>, since Space is up). <b>Now</b>{' '}
+        (<Kbd>N</Kbd>) returns to the present at real time and
         zeroes the chronometers. It is unavailable during a flight: a traveller’s clock cannot be wound back.
       </p>
 
@@ -503,8 +521,8 @@ function Flying() {
       <H3>Predictions</H3>
       <p>
         Before you launch, the planner lists what the flight will involve: the path length; the time Δ<i>t</i> it takes by the
-        Sun’s clocks; the time Δ<i>τ</i> that will pass on board; their difference; the length of the path as measured on the
-        ship; and how long light would take over the same path. For 1 g flights it adds the peak speed and the mass ratio a
+        Sun’s clocks; the time Δ<i>τ</i> that will pass on board; their difference; for the constant-speed drive, the length of
+        the path as measured on the ship; and how long light would take over the same path. For 1 g flights it adds the peak speed and the mass ratio a
         perfect photon rocket would need. The worldline preview plots the trip on a spacetime diagram in which light travels at
         45°.
       </p>
@@ -523,7 +541,7 @@ function Flying() {
       <p>Above 0.01<i>c</i> the view switches to relativistic optics, which change the sky in three ways.</p>
       <ul>
         <li>
-          <b>Aberration.</b> Light from ahead arrives more head-on, so everything in front of you crowds towards the{' '}
+          <b>Aberration.</b> Your motion tilts incoming light, so every direction except dead astern shifts towards the{' '}
           <i>apex</i>, the point you are heading for. At 0.9<i>c</i> the whole forward half of the sky fits within 26° of the
           apex (Figure 6.1).
         </li>
@@ -552,16 +570,17 @@ function Flying() {
       <p>
         The View menu offers three optics models: <b>Relativistic</b>; <b>Classical</b>, which draws the sky as it is in the
         Sun’s frame, without aberration or Doppler shift; and <b>Split</b> (<Kbd>X</Kbd>), with classical on the left and
-        relativistic on the right of a divider you can drag. <Kbd>Z</Kbd> switches between classical and relativistic. To see
-        aberration on its own, turn off <i>Doppler shift and beaming</i> in Instruments › D.
+        relativistic on the right of a divider you can drag. <Kbd>Z</Kbd> switches between classical and relativistic. All
+        three look the same at rest: the difference appears in flight, above 0.01<i>c</i>. To see aberration on its own, turn
+        off <i>Doppler shift and beaming</i> in Instruments › D.
       </p>
       <TryRow>
-        <Try run={() => useUI.setState({ relMode: 'split' })}>Split the view</Try>
+        <Try run={() => useUI.setState({ relMode: 'split' })}>Split the view (for your next flight)</Try>
       </TryRow>
       <Note title="Faster than light" tone="hazard">
         Nothing with mass can reach <i>c</i>: the energy needed grows without limit as <i>β</i> approaches 1. The superluminal
         drive exists to show why. During it the Lorentz factor is imaginary, proper time has no meaning, and some observers would
-        see you arrive before you left. Reference sections 8 and 9 explain.
+        reckon that you arrived before you left. Reference sections 8 and 9 explain.
       </Note>
     </Chapter>
   );
@@ -618,23 +637,25 @@ function Lab() {
       <p>
         By default the instruments are perfect. Tick <i>Simulated instrument uncertainty</i> to add random errors of a stated,
         realistic size to new readings; the table then shows ± values. The analysis fits a straight line (or a line through the
-        origin) by weighted least squares and gives each parameter with its standard error. A reduced chi-squared, <i>χ</i>
-        <sup className="sup">2</sup>/<i>ν</i>, near 1 means the scatter of your points matches their error bars; much larger
+        origin) by least squares and gives each parameter with its standard error. With uncertainties on, the fit is weighted by
+        them and also reports the reduced chi-squared, <i>χ</i>
+        <sup className="sup">2</sup>/<i>ν</i>: near 1 means the scatter of your points matches their error bars, and much larger
         means that the model or the error bars are wrong. Point at a data point on a graph to read its values.
       </p>
 
       <H3>Writing up</H3>
       <p>
         Type your answers to the questions, and your conclusion, in the boxes; they are saved as you type. <b>Prepare lab
-        report</b> lays out the whole experiment on one A4 page: aim, theory, method, the data table, both figures, the fitted
-        results and your answers. Add your name, then print it, or choose <i>Save as PDF</i> in the print dialog.
+        report</b> lays out the whole experiment as a printable A4 document: aim, theory, method, the data table, both figures,
+        the fitted results and your answers. Add your name, then print it, or choose <i>Save as PDF</i> in the print dialog.
       </p>
 
       <H3>Your data</H3>
       <p>
         The notebook lives in this browser’s storage. It survives a reload but not clearing your browsing data, and it does not
-        follow you to another computer. The Notebook tab exports each experiment as CSV (values in SI base units, with a 1
-        <i>σ</i> column for each when uncertainty was on), everything as JSON, and the session’s event log as text.
+        follow you to another computer. The Notebook tab exports each experiment as CSV (in fixed units: s, km, km/s and
+        degrees, named in each column header, with a 1<i>σ</i> column for each when uncertainty was on), all readings with your
+        written answers as JSON, and the session’s event log as text.
       </p>
       <TryRow>
         <Try run={openLab('notebook')}>Open the notebook</Try>
@@ -720,12 +741,12 @@ function Experiments() {
       <H3>Experiment 5 · Constant proper acceleration</H3>
       <p>
         Fly a 1 g flip-and-burn to Proxima Centauri; the flight is sampled at equal steps of ship time. The rapidity{' '}
-        <i>φ</i> = artanh <i>β</i> grows in proportion to proper time while the engine burns, and the slope gives the
-        acceleration felt on board: 9.81 m/s<sup className="sup">2</sup>.
+        <i>φ</i> = artanh <i>β</i> grows in proportion to proper time while the engine pushes forward (the first half of the
+        flight), and <i>c</i> times the slope is the acceleration felt on board: 9.81 m/s<sup className="sup">2</sup>.
       </p>
       <p>
-        Experiments 1 and 2 need only the planner and the time controls. Experiments 3 and 4 use the relativistic view, and 5
-        builds on 2.
+        Experiment 1 needs only the pulse emitter and the time controls, and Experiment 2 the planner. Experiments 3 and 4 use
+        the relativistic view, and 5 builds on 2.
       </p>
       <TryRow>
         <Try run={startExperiment1}>Open Experiment 1</Try>
@@ -767,7 +788,7 @@ function Instruments() {
                 <span className="mono mr-2 text-accent">{k}</span>
                 {name}
               </td>
-              <td>{text}</td>
+              <td>{ital(text)}</td>
             </tr>
           ))}
         </tbody>
@@ -781,7 +802,7 @@ function Instruments() {
         rows={[
           ['Reticle', <>In motion, marks the centre of the view. Its spectrometer reads the angle <i>θ</i>′ from the apex and the Doppler factor <i>D</i> there.</>],
           ['APEX, ANTAPEX', 'The directions you are heading towards and away from.'],
-          ['Scale bar', 'A length at the distance of the body named beside it. Not shown in the relativistic view, whose scale varies across the sky.'],
+          ['Scale bar', 'A length at the distance of the body named beside it. In the relativistic view it reads “scale undefined”, since the scale varies across the sky.'],
           ['Axis triad', 'The ecliptic axes, X towards the March equinox and Z towards ecliptic north. Shown with the grid.'],
           ['Camera readout', 'What the camera is doing and its range to the target.'],
         ]}
@@ -812,7 +833,7 @@ const KEY_GROUPS: { title: string; rows: [ReactNode, ReactNode][] }[] = [
       [<>Arrows · <Kbd>+</Kbd> <Kbd>−</Kbd></>, 'Orbit · range'],
       [<Kbd key="f">F</Kbd>, 'Free flight on and off'],
       [<><Kbd>W</Kbd> <Kbd>A</Kbd> <Kbd>S</Kbd> <Kbd>D</Kbd></>, 'Move (free flight)'],
-      [<><Kbd>Space</Kbd>/<Kbd>R</Kbd> · <Kbd>C</Kbd>/<Kbd>Ctrl</Kbd></>, 'Up · down (free flight)'],
+      [<><Kbd>Space</Kbd>/<Kbd>R</Kbd> · <Kbd>C</Kbd></>, 'Up · down (free flight)'],
       [<><Kbd>Q</Kbd> <Kbd>E</Kbd></>, 'Roll (free flight)'],
       [<Kbd key="esc">Esc</Kbd>, 'Clear the selection; leave free flight'],
     ],
@@ -820,7 +841,7 @@ const KEY_GROUPS: { title: string; rows: [ReactNode, ReactNode][] }[] = [
   {
     title: 'Time and flight',
     rows: [
-      [<><Kbd>Space</Kbd> <Kbd>P</Kbd></>, 'Pause and resume'],
+      [<><Kbd>Space</Kbd> <Kbd>P</Kbd></>, 'Pause and resume (P in free flight)'],
       [<><Kbd>[</Kbd> <Kbd>]</Kbd> or <Kbd>,</Kbd> <Kbd>.</Kbd></>, 'Rate down, up'],
       [<Kbd key="n">N</Kbd>, 'Back to the present; zero the chronometers'],
       [<Kbd key="g">G</Kbd>, 'Plan a flight'],
@@ -888,8 +909,8 @@ function Troubleshooting() {
       'It is slow or jerky',
       <>
         The program lowers its resolution by itself to keep the frame rate up. It also helps to close other tabs, turn off
-        small bodies (<Kbd>B</Kbd>), and use classical optics in flight: the relativistic view draws the whole sky six times
-        per frame, once for each face of a cube. <b>View › Performance readout</b> shows the frame rate.
+        small bodies (<Kbd>B</Kbd>), and use classical optics in flight: the relativistic view draws the scene six times per
+        frame, once for each face of a cube. <b>View › Performance readout</b> shows the frame rate.
       </>,
     ],
     [
@@ -910,22 +931,25 @@ function Troubleshooting() {
       'A procedure step won’t tick',
       <>
         Each step waits for a particular state, so read it again. Step 2 of Experiment 1, for example, needs a rate of{' '}
-        <P10 n={2} /> or more with the clock running. Most steps have a button that does it for you.
+        <P10 n={2} /> or more with the clock running. Many steps have a button that does it for you, and the <b>Next step</b>{' '}
+        box at the top of each experiment shows the one you are on.
       </>,
     ],
     [
       'Pressing R does nothing',
       <>
         Readings by hand belong to Experiments 3 and 4, so one of them must be open in the lab. Experiment 3 needs you to be
-        moving, which means in flight; Experiment 4 needs a selected body. The message in the top-left corner of the view says
-        what is missing.
+        moving, which means in flight. Experiment 4 needs a selected body and a moving observer: a flight, or an orbit round a
+        planet, which carries you with it (not the Sun, which is at rest). In free flight <Kbd>R</Kbd> moves you up instead, and
+        it does nothing while keyboard shortcuts are off; use the <b>Record</b> button. The message in the top-left corner of the
+        view says what is missing.
       </>,
     ],
     [
       'Printing a lab report',
       <>
-        Use <b>Prepare lab report</b>, then <b>Print / Save as PDF</b>. In the print dialog choose A4 or Letter, and turn off
-        the browser’s headers and footers for a clean page.
+        Use <b>Prepare lab report</b>, then <b>Print / Save as PDF</b>. The report is laid out for A4; in the print dialog, turn
+        off the browser’s headers and footers for a clean page.
       </>,
     ],
     [
@@ -966,11 +990,11 @@ function Troubleshooting() {
 const GLOSSARY: [ReactNode, ReactNode][] = [
   ['Aberration', 'The change in the apparent direction of light caused by the observer’s motion.'],
   ['Apex, antapex', 'The points on the sky towards which, and away from which, the observer is moving.'],
-  ['Astronomical unit (au)', 'The mean distance from Earth to the Sun, 149 597 870.7 km, or about 8 minutes 19 seconds of light-time.'],
+  ['Astronomical unit (au)', 'A defined length, 149 597 870.7 km, close to the mean distance from Earth to the Sun: about 8 minutes 19 seconds of light-time.'],
   [<><i>β</i> (beta)</>, <>Speed as a fraction of the speed of light, <i>v</i>/<i>c</i>.</>],
   ['Beaming', 'The brightening of light from ahead, and dimming of light from behind, seen by a fast observer.'],
   [<>Coordinate time, <i>t</i></>, 'Time kept by clocks at rest in the Sun’s frame S.'],
-  [<>Doppler factor, <i>D</i></>, 'The ratio of observed to emitted frequency. D greater than 1 is a blueshift.'],
+  [<>Doppler factor, <i>D</i></>, <>The ratio of observed to emitted frequency. <i>D</i> greater than 1 is a blueshift.</>],
   ['Ecliptic', 'The plane of Earth’s orbit, and the circle it traces on the sky; the reference plane for the coordinates used here.'],
   ['Epoch', 'The instant being simulated.'],
   ['Frame, S and S′', 'S is the rest frame of the Sun; S′ is the frame moving with the observer.'],
@@ -979,7 +1003,7 @@ const GLOSSARY: [ReactNode, ReactNode][] = [
   ['Light-year (ly)', <>The distance light travels in a Julian year, 9.46 × 10<sup className="sup">12</sup> km.</>],
   ['Opposition', 'The time when a planet stands opposite the Sun in Earth’s sky, near its closest to Earth.'],
   [<>Proper time, <i>τ</i> (tau)</>, 'Time kept by a clock travelling with the observer.'],
-  [<>Rapidity, <i>φ</i> (phi)</>, 'artanh β: a measure of speed that adds simply for successive boosts along a line, and grows in proportion to proper time at constant acceleration.'],
+  [<>Rapidity, <i>φ</i> (phi)</>, <>artanh <i>β</i>: a measure of speed that adds simply for successive boosts along a line, and grows in proportion to proper time at constant acceleration.</>],
   [<>Reduced chi-squared, <i>χ</i><sup className="sup">2</sup>/<i>ν</i></>, 'The sum of squared residuals, each divided by its variance, over the degrees of freedom. About 1 for a good fit with honest error bars.'],
   ['Simulation rate', 'Simulated seconds per real second.'],
   ['True scale', 'Every body drawn at its real size and at its real distance.'],

@@ -106,7 +106,7 @@ function InFlight({ t }: { t: Trip }) {
           <button className="btn btn-sm" onClick={() => controller.setTravelLook(0)} title="Look along the direction of motion">
             Ahead
           </button>
-          <button className="btn btn-sm" onClick={() => controller.setTravelLook(Math.PI)} title="Look back toward the departure point">
+          <button className="btn btn-sm" onClick={() => controller.setTravelLook(Math.PI)} title="Look back towards the departure point">
             Astern
           </button>
           <span className="ml-1 text-[11px] text-fg-3 max-md:hidden">or drag the view</span>

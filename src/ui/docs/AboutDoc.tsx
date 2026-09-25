@@ -55,7 +55,7 @@ function CopyButton({ text, label }: { text: string; label: string }) {
 const PRINCIPLES: [string, string][] = [
   ['True scale', 'Distances and sizes are never compressed. Drawing bodies larger is an explicit option, and says so.'],
   ['The real sky', 'Positions from published ephemerides for any instant from 1981 to 2199, among 8 920 catalogued stars.'],
-  ['Exact relativity', 'Aberration, Doppler shift, beaming and time dilation follow from the Lorentz transformation, without approximation.'],
+  ['Exact relativity', 'Aberration, Doppler shift, beaming and time dilation follow from the Lorentz transformation, not from low-speed approximations.'],
   ['Fiction labelled', 'The one non-physical feature, faster-than-light travel, is marked in red and never enters the notebook.'],
 ];
 
@@ -256,7 +256,7 @@ function Software() {
   return (
     <Chapter id="software" title="Software and licences">
       <p>
-        Built with three.js, React Three Fiber, postprocessing, zustand, KaTeX, Tailwind CSS and Vite. The typefaces are IBM
+        Built with React, three.js, React Three Fiber, postprocessing, zustand, KaTeX, Tailwind CSS and Vite. The typefaces are IBM
         Plex Sans, JetBrains Mono and Source Serif 4, all under the SIL Open Font Licence.
       </p>
       <p>
@@ -276,9 +276,9 @@ function Privacy() {
     <Chapter id="privacy" title="Privacy">
       <p>
         Lightspeed runs entirely in your browser. There are no accounts, cookies, advertising or analytics, and nothing you do is
-        sent anywhere. Your notebook, answers and preferences are kept in this browser’s local storage and can be exported or
-        deleted from the lab’s Notebook tab. The site is served as static files; the web host may keep ordinary request logs, but
-        Lightspeed itself collects nothing.
+        sent anywhere. Your readings, written answers and preferences are kept in this browser’s local storage. The lab’s
+        Notebook tab exports them and clears the readings; clearing this site’s data in your browser removes everything. The
+        site is served as static files; the web host may keep ordinary request logs, but Lightspeed itself collects nothing.
       </p>
     </Chapter>
   );

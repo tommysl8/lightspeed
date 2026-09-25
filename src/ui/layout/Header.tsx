@@ -61,7 +61,7 @@ function ScaleSeg() {
       onChange={(m) => useUI.getState().setSizeMode(m)}
       options={[
         { value: 'true', label: 'True', title: 'Every body at its true size (T)' },
-        { value: 'visible', label: 'Enlarged', title: 'Bodies drawn at least 4 px across; distances unchanged (T)' },
+        { value: 'visible', label: 'Enlarged', title: 'Bodies drawn at least 8 px across; distances unchanged (T)' },
       ]}
     />
   );

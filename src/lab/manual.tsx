@@ -348,7 +348,7 @@ const E3: ManualEntry = {
       At what angle <M t="\theta'" /> is <M t="D = 1" /> for <M t="\beta = 0.8" />? Find it from your data and from (3.1).
     </>,
     <>
-      Why is light arriving at <M t="\theta' = 90^\circ" /> redshifted, when its source is moving neither toward nor away from
+      Why is light arriving at <M t="\theta' = 90^\circ" /> redshifted, when its source is moving neither towards nor away from
       you in your own frame?
     </>,
     <>
@@ -364,7 +364,7 @@ const E4: ManualEntry = {
   duration: '20 min',
   aim: (
     <p>
-      Measure how far the apparent positions of Solar System bodies are displaced toward the direction of motion at high speed,
+      Measure how far the apparent positions of Solar System bodies are displaced towards the direction of motion at high speed,
       and verify the relativistic aberration formula.
     </p>
   ),
@@ -377,7 +377,7 @@ const E4: ManualEntry = {
       </p>
       <Eq n="4.1" tex="\cos\theta' = \frac{\cos\theta + \beta}{1 + \beta\cos\theta}." />
       <p>
-        Everything crowds toward the apex. At <M t="\beta = 0.9" /> the whole forward hemisphere of S (<M t="\theta \le 90^\circ" />)
+        Everything crowds towards the apex. At <M t="\beta = 0.9" /> the whole forward hemisphere of S (<M t="\theta \le 90^\circ" />)
         appears within <M t="\theta' \le 25.8^\circ" />. Rearranging (4.1),
       </p>
       <Eq n="4.2" tex="\cos\theta' - \cos\theta = \beta\,\bigl(1 - \cos\theta\cos\theta'\bigr)," />

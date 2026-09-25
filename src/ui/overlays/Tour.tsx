@@ -66,8 +66,8 @@ const STEPS: Step[] = [
     title: 'Do an experiment',
     body: (
       <>
-        The lab holds five guided experiments. Steps tick themselves off, the data table fills itself, and each one ends in graphs,
-        fitted results and a printable report.
+        The lab holds five guided experiments. Steps tick themselves off, readings go straight into the data table, and each one
+        ends in graphs, fitted results and a printable report.
       </>
     ),
   },

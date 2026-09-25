@@ -86,7 +86,7 @@ function WelcomeCard() {
               Measure the speed of light by timing a pulse across the Solar System. About 15 minutes.
             </Choice>
             <Choice n="03" icon="orbit" title="Explore freely" onClick={() => close()}>
-              Just the view. The lab, the manual and the tour are always one click away.
+              Just the view. The lab and the manual are always one click away; the tour is in the manual.
             </Choice>
           </div>
         </div>

@@ -91,7 +91,7 @@ export const REFERENCE: Record<ExplainerId, ReferenceSection> = {
         </table>
         <p>
           At true scale the planets are specks: from Earth, Neptune subtends about 2.3″. <i>Enlarged</i> mode draws every body at
-          least 4 px across but leaves all distances unchanged.
+          least 8 px across but leaves all distances unchanged.
         </p>
       </>
     ),
@@ -224,7 +224,7 @@ export const REFERENCE: Record<ExplainerId, ReferenceSection> = {
       <>
         <p>
           <M t="\theta" /> is a source’s angle from the apex (the direction of motion) in S; <M t="\theta'" /> is the angle at which
-          a moving observer sees it. Directions crowd toward the apex. The half of the sky with <M t="\theta \le 90^\circ" /> appears
+          a moving observer sees it. Directions crowd towards the apex. The half of the sky with <M t="\theta \le 90^\circ" /> appears
           within <M t="\theta' \le \arccos\beta" />: 60° at <M t="\beta = 0.5" />, 8.1° at 0.99 and 0.26° at 0.99999.
         </p>
         <p>
@@ -262,7 +262,7 @@ export const REFERENCE: Record<ExplainerId, ReferenceSection> = {
       <>
         Stars are rendered exactly, as blackbodies. Planets and the solar disc use an approximation: each pixel’s colour is treated
         as sunlight reflected by a smooth reflectance, then shifted. The view applies automatic exposure, as a camera would. The
-        cosmic microwave background, which would be blueshifted toward visible light ahead of a fast enough ship, is not modelled.
+        cosmic microwave background, which would be blueshifted towards visible light ahead of a fast enough ship, is not modelled.
       </>
     ),
     reading: ['Ives, H. E. & Stilwell, G. R. (1938). J. Opt. Soc. Am. 28, 215.', 'Rybicki, G. B. & Lightman, A. P. (1979). Radiative Processes in Astrophysics, ch. 4.'],
@@ -280,7 +280,7 @@ export const REFERENCE: Record<ExplainerId, ReferenceSection> = {
         </p>
         <p>
           The 1 g rocket shows the same limit from the inside: under constant thrust the speed <M t="\beta = \tanh(a\tau/c)" />{' '}
-          creeps toward 1 without reaching it (§10).
+          creeps towards 1 without reaching it (§10).
         </p>
         <p>
           <b>Photons.</b> Massless particles always move at <M t="c" /> and have no rest frame. “No time passes for a photon”

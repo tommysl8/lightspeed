@@ -305,7 +305,7 @@ export class CameraController {
 
     const input = v1.set(
       (k.has('KeyD') ? 1 : 0) - (k.has('KeyA') ? 1 : 0),
-      (k.has('KeyR') || k.has('Space') ? 1 : 0) - (k.has('KeyC') || k.has('ControlLeft') ? 1 : 0),
+      (k.has('KeyR') || k.has('Space') ? 1 : 0) - (k.has('KeyC') ? 1 : 0),
       (k.has('KeyS') ? 1 : 0) - (k.has('KeyW') ? 1 : 0),
     );
     if (input.lengthSq() > 0) {

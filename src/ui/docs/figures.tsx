@@ -403,9 +403,9 @@ export function AberrationFigure({ beta = 0.9 }: { beta?: number }) {
 const FLOW: [string, string][] = [
   ['Procedure', 'Steps tick off by themselves as you complete them'],
   ['Observations', 'The data table fills as the instruments record'],
-  ['Analysis', 'Figures and weighted least-squares fits update live'],
+  ['Analysis', 'Figures and least-squares fits update as data arrive'],
   ['Questions', 'Answer in the boxes; your text is saved as you type'],
-  ['Report', 'One printable A4 page with everything'],
+  ['Report', 'A printable A4 document with everything'],
 ];
 
 /** Fig. 7.1: the stages of an experiment. */

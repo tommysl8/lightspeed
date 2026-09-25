@@ -636,7 +636,7 @@ function ExperimentPage({ exp }: { exp: ExperimentId }) {
 
       <div className="mt-4 flex items-center gap-2 border-t border-line pt-3">
         <span className="flex-1 text-[11.5px] leading-snug text-fg-3">
-          The report collects the aim, theory, method, data, figures, fitted results and your answers on one printable page.
+          The report collects the aim, theory, method, data, figures, fitted results and your answers in one printable document.
         </span>
         <button className="btn btn-pri shrink-0" onClick={() => useUI.setState({ reportFor: exp })}>
           Prepare lab report
@@ -706,7 +706,15 @@ function NotebookTab() {
         <button
           className="btn btn-sm"
           disabled={!rows.length}
-          onClick={() => download(`lightspeed-notebook-${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify({ rows }, null, 1), 'application/json')}
+          onClick={() => {
+            const { answers, student } = useNotebook.getState();
+            download(
+              `lightspeed-notebook-${new Date().toISOString().slice(0, 10)}.json`,
+              JSON.stringify({ student, answers, rows }, null, 1),
+              'application/json',
+            );
+          }}
+          title="Readings, written answers and your name"
         >
           Export all (JSON)
         </button>

@@ -107,7 +107,7 @@ No configuration is needed.
 | Double-click, `0`–`9`, `M`, `V` | Select and slew to a body (Sun, planets, Pluto, Moon, Voyager 1); in transit, select only |
 | `H` | Return to Earth |
 | `G` | Trajectory planner |
-| `F` | Free flight (WASD, Space/R up, C/Ctrl down, Q/E roll, scroll = throttle, Esc to exit) |
+| `F` | Free flight (WASD, Space/R up, C down, Q/E roll, scroll = throttle, Esc to exit) |
 | `Space` / `P`, `[` `]` (or `,` `.`), `N` | Pause, simulation rate down/up, back to now (zeroes the chronometers) |
 | `Z`, `X` | Relativistic ↔ classical optics, split screen |
 | `R` | Record a reading (Experiments 3 and 4; not in free flight) |
