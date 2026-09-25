@@ -42,7 +42,7 @@ function ViewInfo() {
   return (
     <div className="mono pointer-events-none absolute left-4 top-3 space-y-px text-[10px] leading-[14px] text-fg-3 [text-shadow:0_0_3px_#000]">
       <div>
-        <span className="inline-block w-9">VIEW</span>
+        <span className="inline-block w-11">VIEW</span>
         <span className="text-fg-2">
           {label}
           {mode !== 'free' && mode !== 'travel' && ` · ${BODIES[focus].name.toUpperCase()}`}
@@ -50,16 +50,12 @@ function ViewInfo() {
       </div>
       {mode !== 'travel' && (
         <div>
-          <span className="inline-block w-9">RNG</span>
+          <span className="inline-block w-11">RANGE</span>
           <span className="text-fg-2">
             {r.v} {r.u}
           </span>
         </div>
       )}
-      <div>
-        <span className="inline-block w-9">FOV</span>
-        <span className="text-fg-2">{sim.camera.fovDeg.toFixed(1)}° vert.</span>
-      </div>
     </div>
   );
 }
@@ -113,24 +109,50 @@ function fmtSimTime(ms: number) {
   return d.toISOString().slice(11, 19);
 }
 
+/**
+ * What a screen reader hears: every event except detector hits, which come in bursts and are
+ * counted instead. Errors (a reading that could not be taken) are announced at once.
+ */
+function EventAnnouncer() {
+  const events = useLabEvents();
+  const last = events.at(-1);
+  let text = '';
+  if (last?.kind === 'DET') {
+    let n = 0;
+    for (let i = events.length - 1; i >= 0 && events[i].kind === 'DET'; i--) n++;
+    text = `${n} detector reading${n === 1 ? '' : 's'} logged`;
+  } else if (last) text = last.text;
+  return (
+    <>
+      <div className="sr-only" role="log" aria-live="polite">
+        {last && last.kind !== 'ERR' ? text : ''}
+      </div>
+      <div className="sr-only" role="alert">
+        {last?.kind === 'ERR' ? last.text : ''}
+      </div>
+    </>
+  );
+}
+
 /** The last few lab events, fading out after 14 s. */
 function EventConsole() {
-  useTicker(2);
   const events = useLabEvents();
   const overlays = useUI((s) => s.showOverlays);
   const now = performance.now();
+  const live = events.length > 0 && now - events[events.length - 1].at < 14_000;
+  useTicker(2, live);
   const recent = events.filter((e) => now - e.at < 14_000).slice(-5);
   if (!recent.length) return null;
   return (
     <div
       className={`mono pointer-events-none absolute left-4 max-w-[min(620px,calc(100%-32px))] space-y-px text-[10.5px] leading-[15px] [text-shadow:0_0_3px_#000,0_0_2px_#000] ${
-        overlays ? 'top-[62px]' : 'top-4'
+        overlays ? 'top-[46px]' : 'top-4'
       }`}
-      aria-live="polite"
+      aria-hidden
     >
       {recent.map((e) => (
         <div key={e.id} className="truncate" style={{ opacity: Math.min(1, (14_000 - (now - e.at)) / 3000) }}>
-          <span className="text-fg-4">{fmtSimTime(e.simMs)} </span>
+          <span className="text-fg-3">{fmtSimTime(e.simMs)} </span>
           <span className={`${KIND_COLOR[e.kind]} inline-block w-10`}>{e.kind}</span>
           <span className="text-fg-2">{rich(e.text)}</span>
         </div>
@@ -140,9 +162,9 @@ function EventConsole() {
 }
 
 function SplitDivider() {
-  useTicker(4);
   const splitX = useUI((s) => s.splitX);
   const mode = useUI((s) => s.relMode);
+  useTicker(4, mode === 'split');
   const dragging = useRef(false);
   const onDown = useCallback((e: React.PointerEvent) => {
     dragging.current = true;
@@ -167,7 +189,18 @@ function SplitDivider() {
         onPointerUp={onUp}
         role="separator"
         aria-orientation="vertical"
-        aria-label="Drag to move the split between classical and relativistic views"
+        aria-label="Split between classical and relativistic views"
+        aria-valuenow={Math.round(splitX * 100)}
+        aria-valuemin={8}
+        aria-valuemax={92}
+        tabIndex={0}
+        onKeyDown={(e) => {
+          const d = e.key === 'ArrowLeft' ? -0.02 : e.key === 'ArrowRight' ? 0.02 : 0;
+          if (!d) return;
+          e.preventDefault();
+          e.stopPropagation();
+          useUI.setState({ splitX: Math.min(0.92, Math.max(0.08, splitX + d)) });
+        }}
       >
         <div className="mx-auto h-full w-px bg-fg/70" />
         <div className="absolute left-1/2 top-1/2 h-9 w-[7px] -translate-x-1/2 -translate-y-1/2 border border-fg/70 bg-black" />
@@ -210,7 +243,7 @@ function NoteToast() {
 
 function WarpBand() {
   const active = useUI((s) => s.tripActive);
-  useTicker(4);
+  useTicker(4, active);
   if (!active || !travel.trip?.warp) return null;
   return (
     <div className="hatch absolute inset-x-0 top-9 z-20 flex items-center justify-center gap-3 border-y border-hazard/50 bg-black/70 px-4 py-1.5">
@@ -237,6 +270,7 @@ export function ViewportChrome() {
       <WarpBand />
       <SplitDivider />
       <EventConsole />
+      <EventAnnouncer />
       <NoteToast />
     </>
   );

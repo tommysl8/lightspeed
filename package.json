@@ -1,10 +1,11 @@
 {
   "name": "lightspeed",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "description": "A true-scale 3D solar system you can fly through at (and past) the speed of light.",
   "license": "MIT",
+  "author": "Tommy Liu (https://github.com/tommysl8)",
   "engines": {
     "node": ">=22.12.0"
   },

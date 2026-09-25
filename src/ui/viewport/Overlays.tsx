@@ -101,6 +101,11 @@ export function OverlaySync() {
     place(els.apex, a ? projectDir(a, cam) : null);
     place(els.antapex, a ? projectDir(antapex.copy(a).negate(), cam) : null);
 
+    // The reticle is shown in motion only, where its spectrometer means something.
+    if (els.reticle) {
+      const o = moving ? '1' : '0';
+      if ((els.reticle as HTMLElement).style.opacity !== o) (els.reticle as HTMLElement).style.opacity = o;
+    }
     // Reticle readout (a few times a second is plenty for text)
     if (frame % 6 === 0 && els.reticleText) {
       const g = moving ? reticleReading() : null;
@@ -171,10 +176,11 @@ function Marker({ kind }: { kind: 'apex' | 'antapex' }) {
 
 export function ViewportInstruments() {
   const show = useUI((s) => s.showOverlays);
+  const grid = useUI((s) => s.showGrid);
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden" style={{ display: show ? undefined : 'none' }}>
       {/* Reticle */}
-      <div className="absolute left-1/2 top-1/2" aria-hidden>
+      <div ref={reg('reticle')} className="absolute left-1/2 top-1/2 opacity-0" aria-hidden>
         <svg className="absolute -left-[16px] -top-[16px]" width="32" height="32" viewBox="0 0 32 32" stroke="rgba(216,221,227,0.55)" strokeWidth="1">
           <path d="M16 3v8M16 21v8M3 16h8M21 16h8" />
         </svg>
@@ -205,8 +211,12 @@ export function ViewportInstruments() {
         <div ref={reg('scaleText')} className="mono mt-1 whitespace-nowrap text-[10px] text-fg-2 [text-shadow:0_0_3px_#000]" />
       </div>
 
-      {/* Ecliptic axis triad */}
-      <div className="absolute bottom-2 right-2 text-center" title="Ecliptic J2000 axes: X toward the March equinox, Z toward the ecliptic north pole">
+      {/* Ecliptic axis triad (with the coordinate grid) */}
+      <div
+        className="absolute bottom-2 right-2 text-center"
+        style={{ display: grid ? undefined : 'none' }}
+        title="Ecliptic J2000 axes: X toward the March equinox, Z toward the ecliptic north pole"
+      >
         <svg width="64" height="64" viewBox="0 0 64 64" fontFamily="var(--font-mono)" fontSize="9">
           <circle cx="32" cy="32" r="1.5" fill="#717a84" />
           <line ref={reg('triadX')} x1="32" y1="32" x2="56" y2="32" stroke="#ff806e" strokeWidth="1.2" />

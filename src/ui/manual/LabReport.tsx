@@ -3,7 +3,7 @@
  * fitted results, answers, conclusion), laid out as an A4 page. "Print / Save as PDF" uses
  * the browser's print dialog; the print stylesheet hides everything else.
  */
-import { useEffect, useMemo, type ReactNode } from 'react';
+import { useMemo, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { useShallow } from 'zustand/react/shallow';
 import { MANUAL } from '../../lab/manual';
@@ -12,6 +12,7 @@ import { rowsFor, useNotebook, type ExperimentId } from '../../lab/notebook';
 import { useUI } from '../../state/ui';
 import { Plot } from '../plot/Plot';
 import { rich } from '../rich';
+import { useModal } from '../useModal';
 
 function Section({ n, title, children }: { n: number; title: string; children: ReactNode }) {
   return (
@@ -41,26 +42,25 @@ export default function LabReport({ exp }: { exp: ExperimentId }) {
   const units = columnUnits(p.columns, rows);
   const noise = rows.some((r) => r.s);
   const close = () => useUI.setState({ reportFor: null });
-
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') close();
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, []);
+  const ref = useModal<HTMLDivElement>(close);
 
   const today = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
   const first = rows.length ? Math.min(...rows.map((r) => r.simMs)) : NaN;
   const last = rows.length ? Math.max(...rows.map((r) => r.simMs)) : NaN;
 
   return createPortal(
-    <div className="report-overlay fixed inset-0 z-[100] overflow-y-auto bg-black/80" role="dialog" aria-label={`Lab report, Experiment ${p.no}`}>
+    <div
+      ref={ref}
+      className="report-overlay fixed inset-0 z-[100] overflow-y-auto bg-black/80"
+      role="dialog"
+      aria-modal="true"
+      aria-label={`Lab report, Experiment ${p.no}`}
+    >
       <div className="report-toolbar sticky top-0 z-10 flex items-center gap-2 border-b border-line-2 bg-panel px-4 py-2">
         <span className="cap !text-fg-2">Lab report · print preview</span>
-        <span className="text-[11.5px] text-fg-3">Answers and the conclusion are written in the lab manual and saved in the notebook.</span>
+        <span className="text-[11.5px] text-fg-3 max-md:hidden">Answers and the conclusion are written on the experiment page, and saved as you type.</span>
         <span className="ml-auto" />
-        <button className="btn btn-pri" onClick={() => window.print()}>
+        <button className="btn btn-pri" onClick={() => window.print()} data-autofocus>
           Print / Save as PDF
         </button>
         <button className="btn" onClick={close}>
@@ -86,6 +86,7 @@ export default function LabReport({ exp }: { exp: ExperimentId }) {
                   className="w-full border-0 border-b border-dashed border-[#999] bg-transparent font-serif text-[14px] text-[#111] outline-none focus:border-[#b35c00] print:hidden"
                   value={student}
                   placeholder="Enter your name"
+                  aria-label="Name(s) on the report"
                   onChange={(e) => setStudent(e.target.value)}
                 />
                 <span className="hidden font-serif text-[14px] print:inline">{student || '—'}</span>

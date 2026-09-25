@@ -4,6 +4,7 @@
  */
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { deferredStorage } from '../lib/persistStorage';
 
 export type ExperimentId = 'E1' | 'E2' | 'E3' | 'E4' | 'E5';
 export const EXPERIMENT_IDS: ExperimentId[] = ['E1', 'E2', 'E3', 'E4', 'E5'];
@@ -67,7 +68,7 @@ export const useNotebook = create<NotebookState>()(
         ),
       setNoise: (on) => set({ noise: on }),
     }),
-    { name: 'lightspeed.notebook', version: 1 },
+    { name: 'lightspeed.notebook', version: 1, storage: deferredStorage },
   ),
 );
 

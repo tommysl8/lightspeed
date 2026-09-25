@@ -43,7 +43,9 @@ export function SpacetimeDiagram({
   height?: number;
   caption?: boolean;
 }) {
-  const { series, u } = useMemo(() => {
+  // The trip's worldline, cone and ticks depend only on the trip; the current event moves
+  // every tick, so it is added separately.
+  const base = useMemo(() => {
     const warp = spec.drive === 'warp';
     const T = spec.earthTime;
     const dLight = spec.distance / C_KM_S; // distance in light-seconds
@@ -105,36 +107,44 @@ export function SpacetimeDiagram({
     }
 
     s.push({ kind: 'text', x: 0, y: top, text: 'departure', dy: 10 }, { kind: 'text', x: X, y: top, text: 'destination', dy: 10, anchor: 'end' });
+    return { series: s, u, shipAt, top, T, warp };
+  }, [spec]);
 
-    if (elapsed !== null) {
-      const e = Math.min(Math.max(elapsed, 0), T);
-      const p = shipAt(e);
-      const ye = e / u.t;
-      s.push({ kind: 'marker', x: p.x, y: ye, color: PLOT_COLORS.accent });
-      if (!warp && p.beta > 1e-4) {
-        // Ship's line of simultaneity: t − tₑ = β (x − xₑ)
-        const span = top * 2;
-        s.push({
-          kind: 'line',
-          data: [
-            { x: p.x - span, y: ye - p.beta * span },
-            { x: p.x + span, y: ye + p.beta * span },
-          ],
-          color: PLOT_COLORS.accent,
-          dash: '2 3',
-          width: 1,
-          label: 'ship’s “now”',
-          noExtent: true,
-        });
-      }
+  const series = useMemo(() => {
+    if (elapsed === null) return base.series;
+    const { shipAt, top, T, warp, u } = base;
+    const s: PlotSeries[] = [...base.series];
+    const e = Math.min(Math.max(elapsed, 0), T);
+    const p = shipAt(e);
+    const ye = e / u.t;
+    s.push({ kind: 'marker', x: p.x, y: ye, color: PLOT_COLORS.accent });
+    if (!warp && p.beta > 1e-4) {
+      // Ship's line of simultaneity: t − tₑ = β (x − xₑ)
+      const span = top * 2;
+      s.push({
+        kind: 'line',
+        data: [
+          { x: p.x - span, y: ye - p.beta * span },
+          { x: p.x + span, y: ye + p.beta * span },
+        ],
+        color: PLOT_COLORS.accent,
+        dash: '2 3',
+        width: 1,
+        label: 'ship’s “now”',
+        noExtent: true,
+      });
     }
-    return { series: s, u };
-  }, [spec, elapsed]);
+    return s;
+  }, [base, elapsed]);
+
+  const u = base.u;
+  const x = useMemo(() => ({ q: 'x', unit: u.xn }), [u]);
+  const y = useMemo(() => ({ q: 't', unit: u.tn }), [u]);
 
   return (
     <Plot
-      x={{ q: 'x', unit: u.xn }}
-      y={{ q: 't', unit: u.tn }}
+      x={x}
+      y={y}
       series={series}
       height={height}
       equal

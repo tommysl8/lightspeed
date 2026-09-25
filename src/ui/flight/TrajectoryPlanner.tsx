@@ -11,6 +11,7 @@ import { startTrip } from '../tripActions';
 import { openExplainer } from '../explainerActions';
 import { Dialog, Field, NumberInput, Seg, Sym } from '../kit';
 import { SpacetimeDiagram } from '../instruments/SpacetimeDiagram';
+import { useModal } from '../useModal';
 import { rich } from '../rich';
 
 const VOYAGER_KM_S = 16.9;
@@ -86,6 +87,10 @@ const Q = (x: number, dim: 'time' | 'length', d = 5) => {
 
 export function TrajectoryPlanner() {
   const open = useUI((s) => s.plannerOpen);
+  return open ? <Planner /> : null;
+}
+
+function Planner() {
   const dest = useUI((s) => s.plannerDest);
   const beta = useUI((s) => s.plannerBeta);
   const drive = useUI((s) => s.plannerDrive);
@@ -97,25 +102,25 @@ export function TrajectoryPlanner() {
 
   // Re-plan when the inputs change, and twice a second, since everything moves.
   useEffect(() => {
-    if (!open) return;
     const compute = () => setPlan(planTrip(dest, speed, sim.camera.pos.clone(), sim.astroTime, drive));
     compute();
     const id = window.setInterval(compute, 500);
     return () => window.clearInterval(id);
-  }, [open, dest, speed, drive]);
+  }, [dest, speed, drive]);
 
   const slider = useMemo(
     () => Math.round((warp ? (Math.log10(warpFactor) - WARP_LOG_MIN) / (WARP_LOG_MAX - WARP_LOG_MIN) : betaToSlider(beta)) * STEPS),
     [beta, warp, warpFactor],
   );
-  if (!open) return null;
+  const close = () => useUI.setState({ plannerOpen: false });
+  // Not modal: the view stays live. Focus starts on the destination and returns afterwards.
+  const ref = useModal<HTMLDivElement>(close, { trap: false });
 
   const g = gamma(beta);
   const setSlider = (s: number) =>
     warp
       ? useUI.setState({ plannerWarpFactor: 10 ** (WARP_LOG_MIN + s * (WARP_LOG_MAX - WARP_LOG_MIN)) })
       : useUI.setState({ plannerBeta: sliderToBeta(s) });
-  const close = () => useUI.setState({ plannerOpen: false });
   const here = plan && plan.distance <= 0;
   const execute = () => {
     if (!startTrip(dest, speed, drive)) setError('No trajectory from the current position.');
@@ -131,12 +136,18 @@ export function TrajectoryPlanner() {
 
   return (
     <div className="absolute bottom-3 left-1/2 z-30 w-[700px] max-w-[calc(100%-24px)] -translate-x-1/2">
-      <Dialog title="Trajectory planner" onClose={close} tone={warp ? 'hazard' : undefined} className="max-h-[calc(100vh-120px)]">
+      <Dialog title="Trajectory planner" onClose={close} tone={warp ? 'hazard' : undefined} className="max-h-[calc(100vh-120px)]" innerRef={ref}>
         <div className="scroll grid grid-cols-1 gap-x-5 gap-y-3 p-3 sm:grid-cols-[1fr_250px]">
           <div className="min-w-0 space-y-3">
             <div className="flex flex-wrap items-end gap-3">
-              <Field label="Destination">
-                <select className="fld w-[180px]" value={dest} onChange={(e) => useUI.setState({ plannerDest: e.target.value as BodyId })}>
+              <Field label="Destination" htmlFor="planner-dest">
+                <select
+                  id="planner-dest"
+                  data-autofocus
+                  className="fld w-[180px]"
+                  value={dest}
+                  onChange={(e) => useUI.setState({ plannerDest: e.target.value as BodyId })}
+                >
                   {BODY_ORDER.map((id) => (
                     <option key={id} value={id}>
                       {BODIES[id].name}
@@ -216,7 +227,8 @@ export function TrajectoryPlanner() {
                   value={slider}
                   style={{ '--fill': `${(slider / STEPS) * 100}%` } as React.CSSProperties}
                   onChange={(e) => setSlider(Number(e.target.value) / STEPS)}
-                  aria-label={warp ? 'Warp speed' : 'Cruise speed (logit scale)'}
+                  aria-label={warp ? 'Speed in units of c (fiction)' : 'Cruise speed'}
+                  aria-valuetext={warp ? `${sig(warpFactor, 3)} c` : `beta ${fmtBeta(beta)}`}
                 />
                 <Ticks
                   ticks={
@@ -242,7 +254,7 @@ export function TrajectoryPlanner() {
                   ))}
                 </div>
                 {!warp && (
-                  <div className="mono mt-1.5 text-[9.5px] text-fg-4">
+                  <div className="mono mt-1.5 text-[9.5px] text-fg-3">
                     logit scale: position ∝ log<sub>10</sub>[β/(1 − β)]
                   </div>
                 )}

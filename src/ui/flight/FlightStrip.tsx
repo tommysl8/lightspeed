@@ -13,6 +13,7 @@ import { stopTrip } from '../tripActions';
 import { openExplainer } from '../explainerActions';
 import { CloseIcon, Sym } from '../kit';
 import { useTicker } from '../useTicker';
+import { OpticsSeg } from '../layout/Header';
 import { rich } from '../rich';
 import type { ReactNode } from 'react';
 
@@ -81,12 +82,6 @@ function InFlight({ t }: { t: Trip }) {
           </span>
         </span>
         <span className="ml-auto flex items-center gap-1">
-          <button className="btn btn-sm" onClick={() => controller.setTravelLook(0)} title="Look along the direction of motion (drag or arrow keys to look around)">
-            Ahead
-          </button>
-          <button className="btn btn-sm" onClick={() => controller.setTravelLook(Math.PI)} title="Look back toward the departure point">
-            Astern
-          </button>
           <button className="btn btn-sm" onClick={jumpToArrival} title="Advance the clock to arrival; readings stay exact">
             Skip to arrival
           </button>
@@ -105,6 +100,24 @@ function InFlight({ t }: { t: Trip }) {
         <Cell l="Light-time, remaining" v={ltq.v} u={ltq.u} tone="dim" />
       </div>
       {!chrono.tauValid && !t.warp && <div className="px-3 pb-1.5 text-[10.5px] text-hazard">Chronometer τ invalid since a superluminal transfer; zero it in the instrument panel.</div>}
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 border-t border-line px-3 py-1.5">
+        <span className="flex items-center gap-1">
+          <span className="cap mr-1">Look</span>
+          <button className="btn btn-sm" onClick={() => controller.setTravelLook(0)} title="Look along the direction of motion">
+            Ahead
+          </button>
+          <button className="btn btn-sm" onClick={() => controller.setTravelLook(Math.PI)} title="Look back toward the departure point">
+            Astern
+          </button>
+          <span className="ml-1 text-[11px] text-fg-3 max-md:hidden">or drag the view</span>
+        </span>
+        {!t.warp && (
+          <span className="ml-auto flex items-center gap-2">
+            <span className="cap">Optics</span>
+            <OpticsSeg />
+          </span>
+        )}
+      </div>
     </div>
   );
 }
@@ -167,7 +180,8 @@ function Report() {
 export function FlightStrip() {
   const active = useUI((s) => s.tripActive);
   const planner = useUI((s) => s.plannerOpen);
-  useTicker(10);
+  const recent = !!travel.lastArrival && performance.now() - travel.lastArrival.at < 60_000;
+  useTicker(active ? 10 : 4, active || recent);
   const t = travel.trip;
   if (active && t) return <InFlight t={t} />;
   const a = travel.lastArrival;

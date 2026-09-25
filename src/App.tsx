@@ -19,15 +19,16 @@ import { OverlaySync, ViewportInstruments } from './ui/viewport/Overlays';
 import { ViewportChrome } from './ui/viewport/ViewportChrome';
 import { TrajectoryPlanner } from './ui/flight/TrajectoryPlanner';
 import { FlightStrip } from './ui/flight/FlightStrip';
-import { HelpOverlay } from './ui/overlays/HelpOverlay';
-import { AboutPanel } from './ui/overlays/AboutPanel';
-import { Orientation } from './ui/overlays/Orientation';
+import { Welcome } from './ui/overlays/Welcome';
+import { Tour } from './ui/overlays/Tour';
 import { useShortcuts } from './ui/useShortcuts';
 import { useExplainerTriggers } from './ui/useExplainerTriggers';
 import { useUI } from './state/ui';
+import { useDocRoute } from './state/route';
 
-// The lab report (with KaTeX) loads on first use.
+// The lab report and the reading pages (with KaTeX) load on first use.
 const LabReport = lazy(() => import('./ui/manual/LabReport'));
+const DocView = lazy(() => import('./ui/docs/DocView'));
 
 /**
  * Below 900 px the docks overlay the viewport. Show one at a time, and clear them away when the
@@ -55,12 +56,15 @@ export default function App() {
   const leftOpen = useUI((s) => s.leftOpen);
   const rightOpen = useUI((s) => s.rightOpen);
   const reportFor = useUI((s) => s.reportFor);
+  const doc = useDocRoute();
   return (
     <div className="app">
       <Header />
       {leftOpen && <ManualDock />}
-      <main className="app-view select-none" aria-label="Simulation view">
+      <main className="app-view select-none" aria-label="Simulation view" data-tour="view">
         <Canvas
+          // While a reading page covers the screen the simulation pauses and nothing is drawn.
+          frameloop={doc ? 'never' : 'always'}
           flat
           dpr={[1, 2]}
           gl={{
@@ -91,15 +95,19 @@ export default function App() {
         <ViewportChrome />
         <TrajectoryPlanner />
         <FlightStrip />
-        <Orientation />
       </main>
       {rightOpen && <InstrumentsDock />}
       <Footer />
-      <HelpOverlay />
-      <AboutPanel />
+      <Welcome />
+      <Tour />
       {reportFor && (
         <Suspense fallback={null}>
           <LabReport exp={reportFor} />
+        </Suspense>
+      )}
+      {doc && (
+        <Suspense fallback={<div className="fixed inset-0 z-[60] bg-bg" />}>
+          <DocView route={doc} />
         </Suspense>
       )}
     </div>

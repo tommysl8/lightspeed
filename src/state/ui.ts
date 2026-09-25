@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { deferredStorage } from '../lib/persistStorage';
 import type { BodyId } from '../physics/constants';
 import type { SizeMode } from '../sim/sim';
 import type { ExplainerId } from '../content/explainers';
@@ -23,8 +24,12 @@ export interface UIState {
   showOverlays: boolean;
   /** Ecliptic coordinate grid on the sky. */
   showGrid: boolean;
-  helpOpen: boolean;
-  aboutOpen: boolean;
+  /** First-visit welcome screen. */
+  welcomeOpen: boolean;
+  /** Guided tour: index of the step shown, or null. */
+  tourStep: number | null;
+  /** Single-key shortcuts (off for users of assistive technology that needs the keys). */
+  shortcuts: boolean;
   /** Frame-rate and render-quality readout in the status bar. */
   showFps: boolean;
   /** Free-flight throttle as a fraction of c (mirrors the controller). */
@@ -73,12 +78,20 @@ export interface UIState {
 
   select: (id: BodyId | null) => void;
   toggle: (
-    key: 'showOrbits' | 'showLabels' | 'showBelts' | 'showOverlays' | 'showGrid' | 'helpOpen' | 'retarded' | 'aboutOpen' | 'showFps' | 'leftOpen' | 'rightOpen',
+    key: 'showOrbits' | 'showLabels' | 'showBelts' | 'showOverlays' | 'showGrid' | 'retarded' | 'showFps' | 'leftOpen' | 'rightOpen' | 'shortcuts',
   ) => void;
   setSizeMode: (m: SizeMode) => void;
 }
 
-const wide = (px: number) => typeof window === 'undefined' || window.innerWidth >= px;
+export const WELCOME_KEY = 'lightspeed.welcome';
+
+function welcomed(): boolean {
+  try {
+    return localStorage.getItem(WELCOME_KEY) === '1';
+  } catch {
+    return true;
+  }
+}
 
 export const useUI = create<UIState>()(
   persist(
@@ -92,8 +105,9 @@ export const useUI = create<UIState>()(
       showBelts: true,
       showOverlays: true,
       showGrid: false,
-      helpOpen: false,
-      aboutOpen: false,
+      welcomeOpen: !welcomed(),
+      tourStep: null,
+      shortcuts: true,
       showFps: false,
       throttleBeta: 0,
       warp: 1,
@@ -102,8 +116,9 @@ export const useUI = create<UIState>()(
       relMode: 'on',
       splitX: 0.5,
       relDoppler: true,
-      leftOpen: wide(1280),
-      rightOpen: wide(960),
+      // Both panels start closed: a first visit opens on the view alone.
+      leftOpen: false,
+      rightOpen: false,
       leftWidth: 384,
       rightWidth: 312,
       manualTab: 'experiments',
@@ -124,7 +139,13 @@ export const useUI = create<UIState>()(
     }),
     {
       name: 'lightspeed.ui',
-      version: 1,
+      version: 2,
+      storage: deferredStorage,
+      // v2 introduced the welcome screen and closed panels by default.
+      migrate: (old, version) => {
+        const s = (old ?? {}) as Partial<UIState>;
+        return (version < 2 ? { ...s, leftOpen: false, rightOpen: false } : s) as UIState;
+      },
       // Only preferences persist; the simulation always starts fresh.
       partialize: (s) => ({
         showOrbits: s.showOrbits,
@@ -142,6 +163,7 @@ export const useUI = create<UIState>()(
         refTopic: s.refTopic,
         scopeChannel: s.scopeChannel,
         relDoppler: s.relDoppler,
+        shortcuts: s.shortcuts,
       }),
     },
   ),

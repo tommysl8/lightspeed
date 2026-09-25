@@ -6,6 +6,10 @@ import { useUI } from '../state/ui';
 import { recordManual } from '../lab/logger';
 import { BODY_KEYS, goToBody } from './navigation';
 import { openPlanner } from './tripActions';
+import { closeDoc, docRoute, openDoc } from '../state/route';
+
+/** Controls that Space activates, or that use the arrow keys, when focused from the keyboard. */
+const OWN_KEYS = 'button, a[href], summary, [role="radio"], [role="tab"], [role="slider"], [role="separator"], [tabindex]';
 
 const KEY_TO_BODY = new Map<string, BodyId>(
   BODY_ORDER.filter((id) => BODY_KEYS[id]).map((id) => [BODY_KEYS[id]!.toLowerCase(), id]),
@@ -14,7 +18,7 @@ const KEY_TO_BODY = new Map<string, BodyId>(
 export function useShortcuts() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (isTyping(e) || e.ctrlKey || e.metaKey || e.altKey) return;
+      if (e.defaultPrevented || isTyping(e) || e.ctrlKey || e.metaKey || e.altKey) return;
       // A held key must not repeat readings or toggles; only the rate keys step on repeat.
       if (e.repeat && !'[],.'.includes(e.key)) return;
       if ((e.target as HTMLElement | null)?.tagName === 'SELECT') return;
@@ -22,15 +26,23 @@ export function useShortcuts() {
       const flying = ui.controlMode === 'free';
       const k = e.key.toLowerCase();
 
-      if (ui.reportFor) return; // the report handles its own keys
+      // Pages and dialogs that handle their own keys
+      if (docRoute()) {
+        if (e.key === 'Escape') closeDoc();
+        return;
+      }
+      if (ui.reportFor || ui.welcomeOpen || ui.tourStep !== null) return;
+      if (!ui.shortcuts && e.key !== 'Escape') return;
+      // Space presses a button that was reached with Tab; it pauses only otherwise.
+      const t = e.target as HTMLElement | null;
+      if (e.code === 'Space' && t?.closest?.(OWN_KEYS) && t.matches(':focus-visible')) return;
+
       if (e.key === '?') {
-        ui.toggle('helpOpen');
+        openDoc('manual', 'controls');
         return;
       }
       if (e.key === 'Escape') {
-        if (ui.helpOpen) useUI.setState({ helpOpen: false });
-        else if (ui.aboutOpen) useUI.setState({ aboutOpen: false });
-        else if (ui.plannerOpen) useUI.setState({ plannerOpen: false });
+        if (ui.plannerOpen) useUI.setState({ plannerOpen: false });
         else if (ui.noteTopic) useUI.setState({ noteTopic: null });
         else if (ui.selected) ui.select(null);
         return;

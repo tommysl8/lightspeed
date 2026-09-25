@@ -6,7 +6,7 @@ import { quality } from '../../render/quality';
 import { WARP_STEPS, resetToNow, setPaused, setWarp } from '../../sim/clock';
 import { useUI } from '../../state/ui';
 import { BODY_KEYS, goToBody } from '../navigation';
-import { Kbd } from '../kit';
+import { Kbd, Seg } from '../kit';
 import { useTicker } from '../useTicker';
 
 function Transport() {
@@ -15,7 +15,7 @@ function Transport() {
   const tripActive = useUI((s) => s.tripActive);
   const r = qty(warp, 'time', 3);
   return (
-    <div className="flex shrink-0 items-center gap-2">
+    <div className="flex shrink-0 items-center gap-2" data-tour="time">
       <button
         className="btn btn-sq"
         aria-pressed={paused}
@@ -37,23 +37,21 @@ function Transport() {
       <span className="cap max-md:hidden" title="Simulated seconds per real second">
         Rate
       </span>
-      <div className="segs" role="radiogroup" aria-label="Simulation rate">
-        {WARP_STEPS.map((w) => {
-          const e = Math.round(Math.log10(w));
-          return (
-            <button
-              key={w}
-              role="radio"
-              aria-checked={warp === w}
-              className="seg-b mono !px-1.5 !text-[11px]"
-              onClick={() => setWarp(w)}
-              title={w === 1 ? 'Real time ([ / ])' : `1 s of real time = ${qty(w, 'time', 3).v} ${qty(w, 'time', 3).u} simulated ([ / ])`}
-            >
-              10<sup className="sup">{e}</sup>
-            </button>
-          );
-        })}
-      </div>
+      <Seg
+        className="[&_.seg-b]:font-mono [&_.seg-b]:tabular-nums [&_.seg-b]:!px-1.5 [&_.seg-b]:!text-[11px]"
+        label="Simulation rate"
+        value={String(warp)}
+        onChange={(v) => setWarp(Number(v))}
+        options={WARP_STEPS.map((w) => ({
+          value: String(w),
+          label: (
+            <>
+              10<sup className="sup">{Math.round(Math.log10(w))}</sup>
+            </>
+          ),
+          title: w === 1 ? 'Real time ([ / ])' : `1 s of real time = ${qty(w, 'time', 3).v} ${qty(w, 'time', 3).u} simulated ([ / ])`,
+        }))}
+      />
       <span className="mono w-[92px] whitespace-nowrap text-[11px] text-fg-2 max-lg:hidden" title="Simulated time per real second">
         1 s ↦ {r.v} {r.u}
       </span>
@@ -74,7 +72,7 @@ function Targets() {
   const selected = useUI((s) => s.selected);
   const tripActive = useUI((s) => s.tripActive);
   return (
-    <nav className="flex min-w-0 flex-1 items-center gap-0.5 overflow-x-auto no-scrollbar" aria-label="Bodies">
+    <nav className="flex min-w-0 flex-1 items-center gap-0.5 overflow-x-auto no-scrollbar" aria-label="Bodies" data-tour="targets">
       <span className="cap mr-1 shrink-0 max-xl:hidden">Target</span>
       {BODY_ORDER.map((id) => (
         <button
@@ -85,7 +83,7 @@ function Targets() {
           onDoubleClick={() => !tripActive && controller.goTo(id)}
           title={`${tripActive ? 'Select' : 'Slew to'} ${BODIES[id].name}${BODY_KEYS[id] ? ` (${BODY_KEYS[id]})` : ''}`}
         >
-          {BODY_KEYS[id] && <span className="mono text-[9.5px] text-fg-4">{BODY_KEYS[id]}</span>}
+          {BODY_KEYS[id] && <span className="mono text-[9.5px] text-fg-3">{BODY_KEYS[id]}</span>}
           {BODIES[id].name}
         </button>
       ))}

@@ -1,8 +1,8 @@
 /**
- * The lab manual (left dock): handbook and experiments, the notebook, and the reference
+ * The lab (left dock): the handbook and experiments, the notebook, and the reference
  * sections. Loaded lazily with KaTeX.
  */
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { memo, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import { EXPLAINERS, explainerById, type ExplainerId } from '../../content/explainers';
 import { REFERENCE } from '../../content/reference';
@@ -15,11 +15,13 @@ import { emitLightPulse, recordManual } from '../../lab/logger';
 import { useLabEvents } from '../../lab/events';
 import { reticleReading, targetReading } from '../../lab/measure';
 import { useUI } from '../../state/ui';
+import { openDoc } from '../../state/route';
+import { Icon } from '../icons';
 import { openExplainer } from '../explainerActions';
-import { Check, NumberInput, Seg, Sym } from '../kit';
+import { Check, Chevron, NumberInput, Seg, Sym } from '../kit';
 import { controller } from '../../controls/cameraController';
 import { Plot } from '../plot/Plot';
-import { Eq, TeX } from '../TeX';
+import { Eq } from '../TeX';
 import { useTicker } from '../useTicker';
 import { rich } from '../rich';
 
@@ -57,7 +59,8 @@ function H({ n, children, right }: { n?: string | number; children: ReactNode; r
   );
 }
 
-const useRows = (exp: ExperimentId) => rowsFor(useNotebook((s) => s.rows), exp);
+/** One experiment's rows; the array keeps its identity while other experiments log. */
+const useRows = (exp: ExperimentId) => useNotebook(useShallow((s) => rowsFor(s.rows, exp)));
 
 // ─── Handbook (experiment list) ──────────────────────────────────────────────────────────
 
@@ -78,23 +81,29 @@ const CONVENTIONS: [ReactNode, ReactNode][] = [
 function Handbook() {
   useTicker(2);
   const rows = useNotebook((s) => s.rows);
-  const ui = useUI();
+  // Step checks read the latest state; the ticker keeps them current.
+  const ui = useUI.getState();
   return (
     <div className="px-4 pb-6 pt-3">
       <div className="cap">Laboratory handbook</div>
       <h2 className="mt-1 font-serif text-[21px] font-medium leading-tight text-fg">Special relativity in the Solar System</h2>
       <div className="prose-lab mt-3">
         <p>
-          Five experiments use the simulator as apparatus. Positions come from real ephemerides, distances are true to scale,
-          and light travels at <TeX inline>{'c'}</TeX>. Each experiment gives its aim, the background theory with numbered
-          equations, the apparatus, a procedure whose steps tick off as you complete them, a data table filled by the
-          instruments, and an analysis with least-squares fits.
-        </p>
-        <p>
-          Readings are kept in the notebook in this browser and can be exported as CSV. By default the instruments are ideal.
-          Switch on simulated uncertainty to practise error analysis.
+          Five experiments use the simulator as apparatus. Each gives you the theory, a procedure that ticks itself off as you
+          work, a data table that fills itself, and a fit of your results.
         </p>
       </div>
+      {rows.length === 0 && (
+        <div className="mt-3 border border-accent/40 bg-accent/[0.05] px-3 py-2.5">
+          <div className="cap !text-accent">Start here</div>
+          <p className="mt-1 text-[12.5px] leading-snug text-fg-2">
+            Experiment 1 measures the speed of light in about 15 minutes, using nothing but the time controls.
+          </p>
+          <button className="btn btn-pri btn-sm mt-2" onClick={() => useUI.setState({ experiment: 'E1' })}>
+            Start Experiment 1 <Icon name="arrow-right" size={11} />
+          </button>
+        </div>
+      )}
 
       <H>Experiments</H>
       <ol className="m-0 list-none p-0">
@@ -125,17 +134,36 @@ function Handbook() {
         })}
       </ol>
 
-      <H>Notation</H>
-      <table className="tbl">
-        <tbody>
-          {CONVENTIONS.map(([k, v], i) => (
-            <tr key={i}>
-              <td className="w-16 !align-top !font-serif !text-[13px]">{k}</td>
-              <td className="!whitespace-normal !text-left !font-sans !text-[11.5px] !leading-snug !text-fg-2">{rich(v)}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <details className="group mt-4 border-t border-line-2 pt-1">
+        <summary className="man-h !mt-2 cursor-default list-none !border-b-0 hover:text-fg [&::-webkit-details-marker]:hidden">
+          <span>Notation</span>
+          <Chevron className="ml-auto text-fg-3 transition-transform group-open:rotate-0 -rotate-90" />
+        </summary>
+        <table className="tbl">
+          <tbody>
+            {CONVENTIONS.map(([k, v], i) => (
+              <tr key={i}>
+                <td className="w-16 !align-top !font-serif !text-[13px]">{k}</td>
+                <td className="!whitespace-normal !text-left !font-sans !text-[11.5px] !leading-snug !text-fg-2">{rich(v)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </details>
+      <p className="mt-4 text-[11.5px] leading-snug text-fg-3">
+        Readings stay in this browser. The{' '}
+        <a
+          href="#/manual/lab"
+          className="text-fg-2 underline decoration-line-3 underline-offset-2 hover:decoration-accent"
+          onClick={(e) => {
+            e.preventDefault();
+            openDoc('manual', 'lab');
+          }}
+        >
+          manual
+        </a>{' '}
+        explains the lab in full.
+      </p>
     </div>
   );
 }
@@ -166,8 +194,8 @@ function ProgressBoxes({ done }: { done: boolean[] }) {
 
 function Procedure({ exp, rows }: { exp: ExperimentId; rows: DataRow[] }) {
   useTicker(2);
-  const ui = useUI();
-  const ctx: StepCtx = { rows, ui };
+  const tripActive = useUI((s) => s.tripActive);
+  const ctx: StepCtx = { rows, ui: useUI.getState() };
   const steps = MANUAL[exp].procedure;
   const done = stepStatus(exp, ctx);
   const count = done.filter(Boolean).length;
@@ -190,7 +218,7 @@ function Procedure({ exp, rows }: { exp: ExperimentId; rows: DataRow[] }) {
             <div className="min-w-0 flex-1">
               <div className={`prose-lab !text-[13px] ${done[i] ? '!text-fg-3' : ''}`}>{rich(s.text)}</div>
               {s.action && (
-                <button className="btn btn-sm mt-1" onClick={s.action.run} disabled={ui.tripActive && /Planner|Frame/.test(s.action.label)}>
+                <button className="btn btn-sm mt-1" onClick={s.action.run} disabled={tripActive && /Planner|Frame/.test(s.action.label)}>
                   {s.action.label}
                 </button>
               )}
@@ -293,7 +321,7 @@ function Pointing() {
           {d}
         </button>
       ))}
-      {!tripActive && <span className="text-[11px] text-fg-4">available in transit</span>}
+      {!tripActive && <span className="text-[11px] text-fg-3">available in transit</span>}
     </div>
   );
 }
@@ -319,7 +347,7 @@ function DataTable({ p, rows }: { p: Protocol; rows: DataRow[] }) {
             {cols.map((c) => (
               <th key={c.key} title={c.name} className={`${c.derived ? 'derived' : ''} ${c.text ? '!text-left' : ''}`}>
                 <span className={c.text ? '' : 'sym !text-[12.5px] text-fg-2'}>{c.sym}</span>
-                {units[c.key]?.sym && <span className="ml-1 text-fg-4">/ {units[c.key].sym}</span>}
+                {units[c.key]?.sym && <span className="ml-1 text-fg-3">/ {units[c.key].sym}</span>}
               </th>
             ))}
             <th aria-label="Delete" />
@@ -334,13 +362,13 @@ function DataTable({ p, rows }: { p: Protocol; rows: DataRow[] }) {
                 return (
                   <td key={c.key} className={`${c.derived ? 'derived' : ''} ${c.text ? '!text-left !font-sans' : ''}`}>
                     {rich(cellText(c, r, units[c.key]))}
-                    {s && <div className="text-[9.5px] leading-none text-fg-4">± {rich(s)}</div>}
+                    {s && <div className="text-[9.5px] leading-none text-fg-3">± {rich(s)}</div>}
                   </td>
                 );
               })}
               <td className="!px-1">
                 <button
-                  className="invisible px-1 text-fg-4 hover:text-hazard group-hover:visible"
+                  className="px-1 text-fg-3 opacity-0 hover:text-hazard group-hover:opacity-100 focus-visible:opacity-100"
                   onClick={() => remove(r.id)}
                   title="Delete this reading"
                   aria-label={`Delete reading ${r.n}`}
@@ -409,7 +437,7 @@ function Analysis({ p, rows }: { p: Protocol; rows: DataRow[] }) {
 }
 
 /** A written answer, saved in the notebook as you type. */
-function Answer({ k, placeholder, rows = 3 }: { k: string; placeholder: string; rows?: number }) {
+function Answer({ k, placeholder, rows = 3, label }: { k: string; placeholder: string; rows?: number; label: string }) {
   const value = useNotebook((s) => s.answers[k] ?? '');
   const setAnswer = useNotebook((s) => s.setAnswer);
   return (
@@ -420,7 +448,7 @@ function Answer({ k, placeholder, rows = 3 }: { k: string; placeholder: string; 
       placeholder={placeholder}
       spellCheck
       onChange={(e) => setAnswer(k, e.target.value)}
-      aria-label={placeholder}
+      aria-label={label}
     />
   );
 }
@@ -522,14 +550,19 @@ function ExperimentPage({ exp }: { exp: ExperimentId }) {
           {m.questions.map((q, k) => (
             <li key={k}>
               {q}
-              <Answer k={`${exp}.q${k + 1}`} placeholder="Your answer" />
+              <Answer k={`${exp}.q${k + 1}`} placeholder="Your answer" label={`Answer to question ${k + 1}`} />
             </li>
           ))}
         </ol>
       </div>
 
       <H n={8}>Conclusion</H>
-      <Answer k={`${exp}.conclusion`} placeholder="State what you measured, with its uncertainty, and whether it agrees with theory." rows={4} />
+      <Answer
+        k={`${exp}.conclusion`}
+        placeholder="State what you measured, with its uncertainty, and whether it agrees with theory."
+        rows={4}
+        label="Conclusion"
+      />
 
       <div className="mt-4 flex items-center gap-2 border-t border-line pt-3">
         <span className="flex-1 text-[11.5px] leading-snug text-fg-3">
@@ -688,8 +721,9 @@ function ReferenceTab() {
 
 // ─── Root ────────────────────────────────────────────────────────────────────────────────
 
-export default function LabManual() {
+// Memoised: resizing the dock re-renders the dock, not the page inside it.
+export default memo(function LabManual() {
   const tab = useUI((s) => s.manualTab);
   const exp = useUI((s) => s.experiment);
   return tab === 'notebook' ? <NotebookTab /> : tab === 'reference' ? <ReferenceTab /> : exp ? <ExperimentPage exp={exp} /> : <Handbook />;
-}
+});

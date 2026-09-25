@@ -6,8 +6,11 @@ import { logEvent } from '../../lab/events';
 import { useUI } from '../../state/ui';
 import { sim } from '../../sim/sim';
 import { fixed, julianDate } from '../../lib/sci';
-import { Check, Kbd, Menu, MenuHeading, Seg } from '../kit';
+import { openDoc } from '../../state/route';
+import { Check, Menu, MenuHeading, Seg } from '../kit';
 import { useTicker } from '../useTicker';
+import { openPlanner } from '../tripActions';
+import { Icon } from '../icons';
 
 function pad(n: number) {
   return String(n).padStart(2, '0');
@@ -22,9 +25,9 @@ function Epoch() {
   const time = ok ? `${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())}` : '';
   return (
     <div className="flex items-baseline gap-3 whitespace-nowrap" title="Simulation epoch (UTC) and Julian Date">
-      <span className="cap">Epoch</span>
+      <span className="cap max-lg:hidden">Epoch</span>
       <span className="mono text-[12px] text-fg">
-        {date} <span className="text-fg">{time}</span> <span className="text-fg-3">UTC</span>
+        {date} <span className="text-fg">{time}</span> <span className="text-fg-3 max-lg:hidden">UTC</span>
       </span>
       <span className="mono hidden text-[11.5px] text-fg-2 min-[1360px]:inline">
         <span className="text-fg-3">JD</span> {fixed(julianDate(sim.timeMs), 5, false)}
@@ -33,7 +36,7 @@ function Epoch() {
   );
 }
 
-function OpticsSeg() {
+export function OpticsSeg() {
   const relMode = useUI((s) => s.relMode);
   return (
     <Seg
@@ -141,7 +144,7 @@ function EpochSetter() {
             if (e.key === 'Enter' && valid && setEpoch(ms)) logEvent('SYS', `Epoch set to ${isoText(ms)} UTC; chronometers zeroed`);
           }}
         />
-        <div className="mono mt-1 text-[10px] text-fg-4">format YYYY-MM-DD hh:mm:ss, UTC</div>
+        <div className="mono mt-1 text-[10px] text-fg-3">format YYYY-MM-DD hh:mm:ss, UTC</div>
         <OppositionPresets onPick={(t) => setText(isoText(t))} />
         <p className="mt-1.5 text-[11px] leading-snug text-fg-3">
           Bodies move to their positions at this instant. The chronometers are zeroed and pulses in flight discarded. Valid 1981–2199;
@@ -170,7 +173,7 @@ function EpochSetter() {
   );
 }
 
-function DisplayMenu() {
+function ViewMenu() {
   const s = useUI(
     useShallow((u) => ({
       showOrbits: u.showOrbits,
@@ -180,21 +183,20 @@ function DisplayMenu() {
       showGrid: u.showGrid,
       retarded: u.retarded,
       showFps: u.showFps,
+      shortcuts: u.shortcuts,
     })),
   );
   const t = useUI.getState().toggle;
   return (
-    <Menu label="Display" title="Display layers and overlays" width={280}>
-      {/* On narrow screens the header's optics and scale controls live here. */}
-      <div className="md:hidden">
-        <MenuHeading>Optics</MenuHeading>
-        <div className="px-2.5 pb-1">
-          <OpticsSeg />
-        </div>
-        <MenuHeading>Body scale</MenuHeading>
-        <div className="px-2.5 pb-1">
-          <ScaleSeg />
-        </div>
+    <Menu label="View" title="Optics, scale and display layers" width={300}>
+      <MenuHeading>Optics</MenuHeading>
+      <div className="px-2.5 pb-1">
+        <OpticsSeg />
+        <p className="mt-1 text-[11px] leading-snug text-fg-3">Relativistic effects appear above 0.01c, so in flight.</p>
+      </div>
+      <MenuHeading>Body size</MenuHeading>
+      <div className="px-2.5 pb-1">
+        <ScaleSeg />
       </div>
       <MenuHeading>Scene</MenuHeading>
       <Check checked={s.showOrbits} onChange={() => t('showOrbits')} kbd="O" hint="Osculating orbits from each body’s state vector">
@@ -206,11 +208,11 @@ function DisplayMenu() {
       <Check checked={s.showBelts} onChange={() => t('showBelts')} kbd="B" hint="31 930 catalogued asteroids, Trojans and TNOs (JPL SBDB)">
         Small bodies
       </Check>
-      <Check checked={s.showGrid} onChange={() => t('showGrid')} kbd="J" hint="Ecliptic longitude and latitude every 15°; the ecliptic ticked every 10°">
+      <Check checked={s.showGrid} onChange={() => t('showGrid')} kbd="J" hint="Ecliptic longitude and latitude every 15°, with the axis triad">
         Ecliptic grid
       </Check>
       <MenuHeading>Instruments</MenuHeading>
-      <Check checked={s.showOverlays} onChange={() => t('showOverlays')} kbd="U" hint="Reticle, apex markers, scale bar, axis triad">
+      <Check checked={s.showOverlays} onChange={() => t('showOverlays')} kbd="U" hint="Scale bar and camera readout; in flight also the reticle and apex markers">
         Viewport overlays
       </Check>
       <Check
@@ -220,12 +222,16 @@ function DisplayMenu() {
       >
         Light-time correction
       </Check>
+      <MenuHeading>Options</MenuHeading>
       <Check checked={s.showFps} onChange={() => t('showFps')} hint="Frame rate, pixel ratio and cube-map size in the status bar">
         Performance readout
       </Check>
-      <div className="mt-1 border-t border-line px-2.5 pt-1.5 md:hidden">
-        <button className="btn btn-q btn-sm -ml-1.5" onClick={() => useUI.setState({ aboutOpen: true })}>
-          Sources and methods…
+      <Check checked={s.shortcuts} onChange={() => t('shortcuts')} hint="Single-key shortcuts such as Space, R and 0–9. Turn off if they clash with assistive software.">
+        Keyboard shortcuts
+      </Check>
+      <div className="mt-1 border-t border-line px-2.5 pt-1.5 lg:hidden">
+        <button className="btn btn-q btn-sm -ml-1.5" onClick={() => openDoc('about')}>
+          About Lightspeed…
         </button>
       </div>
     </Menu>
@@ -235,21 +241,20 @@ function DisplayMenu() {
 export function Header() {
   const leftOpen = useUI((s) => s.leftOpen);
   const rightOpen = useUI((s) => s.rightOpen);
+  const tripActive = useUI((s) => s.tripActive);
   const toggle = useUI((s) => s.toggle);
 
   return (
-    <header className="app-hdr flex min-w-0 items-center gap-3 border-b border-line-2 bg-panel px-2">
+    <header className="app-hdr flex min-w-0 items-center gap-2 border-b border-line-2 bg-panel px-2 lg:gap-3">
       <button
         className="btn btn-q"
+        data-tour="lab"
         aria-pressed={leftOpen}
         onClick={() => toggle('leftOpen')}
-        title="Lab manual: experiments, notebook, reference (K)"
+        title="Lab: experiments, notebook and reference (K)"
       >
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.2" aria-hidden>
-          <rect x="1.5" y="1.5" width="9" height="9" />
-          <path d="M4.5 1.5v9" />
-        </svg>
-        <span className="max-md:hidden">Manual</span>
+        <Icon name="dock-left" />
+        <span className="max-md:hidden">Lab</span>
       </button>
 
       <div className="flex items-center gap-2 whitespace-nowrap">
@@ -259,42 +264,41 @@ export function Header() {
       </div>
 
       <div className="mx-1 h-4 w-px bg-line-2 max-sm:hidden" />
-      <div className="max-sm:hidden">
+      <div className="max-sm:hidden" data-tour="epoch">
         <EpochSetter />
       </div>
 
-      <div className="ml-auto flex min-w-0 items-center gap-2">
-        <div className="flex items-center gap-2 max-md:hidden">
-          <span className="cap hidden min-[1560px]:inline">Optics</span>
-          <OpticsSeg />
-          <span className="cap ml-1 hidden min-[1560px]:inline">Scale</span>
-          <ScaleSeg />
-          <div className="mx-0.5 h-4 w-px bg-line-2" />
-        </div>
-        <DisplayMenu />
+      <div className="ml-auto flex min-w-0 items-center gap-1.5">
         <button
-          className="btn btn-q"
-          onClick={() => useUI.setState({ helpOpen: true })}
-          title="Operating reference: controls and conventions (?)"
+          className="btn btn-pri"
+          data-tour="fly"
+          disabled={tripActive}
+          onClick={() => openPlanner()}
+          title={tripActive ? 'In flight: abort or finish the trip first' : 'Plan a flight at a chosen speed (G)'}
         >
-          <span className="max-md:hidden">Controls</span> <Kbd>?</Kbd>
+          <Icon name="flight" />
+          <span className="max-sm:hidden">{tripActive ? 'In flight' : 'Plan flight'}</span>
         </button>
-        <button className="btn btn-q max-md:hidden" onClick={() => useUI.setState({ aboutOpen: true })} title="Sources, methods and credits">
-          Sources
+        <div className="mx-1 h-4 w-px bg-line-2" />
+        <ViewMenu />
+        <button className="btn btn-q" data-tour="manual" onClick={() => openDoc('manual')} title="Manual: how to use Lightspeed (?)">
+          <Icon name="book" />
+          <span className="max-md:hidden">Manual</span>
+        </button>
+        <button className="btn btn-q max-lg:hidden" onClick={() => openDoc('about')} title="About Lightspeed: author, sources and methods">
+          About
         </button>
       </div>
 
       <button
         className="btn btn-q"
+        data-tour="instruments"
         aria-pressed={rightOpen}
         onClick={() => toggle('rightOpen')}
-        title="Instrument panel (I)"
+        title="Instruments: live readouts (I)"
       >
         <span className="max-md:hidden">Instruments</span>
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.2" aria-hidden>
-          <rect x="1.5" y="1.5" width="9" height="9" />
-          <path d="M7.5 1.5v9" />
-        </svg>
+        <Icon name="dock-right" />
       </button>
     </header>
   );

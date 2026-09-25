@@ -17,9 +17,23 @@ instruments, and a least-squares analysis:
 
 Built with Vite, React, TypeScript and three.js (React Three Fiber). It is a static site with no backend.
 
+By [Tommy Liu](https://github.com/tommysl8).
+
+## First visit
+
+The screen opens on the view alone, with both side panels closed. A welcome screen offers three ways in: a
+one-minute **guided tour** that points at each part of the screen, **Experiment 1** (the speed of light, about
+15 minutes), or free exploration. Everything else is one click away:
+
+- **Manual** (header, or `?`): a full user manual in twelve chapters, from a quick start to troubleshooting
+  and a glossary, with an annotated diagram of the screen and "Try it" buttons that set up what the text
+  describes. It lives at `#/manual`, so chapters can be linked (`#/manual/flying`) and printed.
+- **About** (`#/about`): what the project is, the author, how to cite it, and its sources, methods and
+  limitations.
+
 ## The laboratory
 
-- **Lab manual** (left). A handbook with notation; the five experiments (aim, background with numbered
+- **Lab** (left, `K`). A handbook with notation; the five experiments (aim, background with numbered
   equations, apparatus, a procedure that ticks off as you go, observations, analysis, questions); the notebook;
   and ten reference sections with further reading.
 - **Instrument panel** (right). Observer kinematics (v, β, γ, rapidity, dτ/dt); a pair of chronometers (coordinate
@@ -97,9 +111,12 @@ No configuration is needed.
 | `Space` / `P`, `[` `]` (or `,` `.`), `N` | Pause, simulation rate down/up, back to now (zeroes the chronometers) |
 | `Z`, `X` | Relativistic ↔ classical optics, split screen |
 | `R` | Record a reading (Experiments 3 and 4; not in free flight) |
-| `K`, `I`, `E` | Lab manual, instrument panel, reference sections |
+| `K`, `I`, `E` | Lab, instrument panel, reference sections |
 | `T`, `O`, `L`, `B`, `U`, `J` | True scale ↔ enlarged, orbits, labels, small bodies, viewport overlays, ecliptic grid |
-| `?` | Operating reference |
+| `?` | Manual: keyboard and mouse |
+
+Shortcuts can be switched off under View › Keyboard shortcuts. Panels, menus, dialogs and the manual work from
+the keyboard alone (Tab, arrow keys, Esc).
 
 ## How it works
 
@@ -182,10 +199,35 @@ src/render/    shaders, materials, the relativistic scene pass, post-processing,
 src/scene/     React Three Fiber scene components (bodies, stars, belts, orbits, glints)
 src/controls/  camera: orbit, free flight, smooth zoom-and-pan flights
 src/ui/        interface: docks, instruments, plots, planner, flight recorder, viewport overlays
-src/content/   reference sections
+src/ui/docs/   the manual and About pages, and their figures
+src/content/   reference sections, author and version details
 scripts/       data builders
 ```
 
+## Author
+
+**Tommy Liu** ([@tommysl8](https://github.com/tommysl8), tommysliu8@gmail.com) is studying Electrical and Computer
+Engineering at the University of Illinois Urbana-Champaign. Corrections, bug reports and ideas for new
+experiments are welcome.
+
+## Citing
+
+If you use Lightspeed in teaching or written work:
+
+> Liu, T. (2026). *Lightspeed: A virtual laboratory for special relativity* (Version 0.2.0) [Computer software].
+
+```bibtex
+@software{liu_lightspeed_2026,
+  author  = {Liu, Tommy},
+  title   = {Lightspeed: A Virtual Laboratory for Special Relativity},
+  year    = {2026},
+  version = {0.2.0}
+}
+```
+
+The About page in the app gives the same citation with the address of the site it is served from.
+
 ## License
 
-Code: [MIT](LICENSE). The star data files are CC BY-SA 4.0 and the textures are CC BY 4.0, as listed above.
+Code: [MIT](LICENSE), © 2026 Tommy Liu. The star data files are CC BY-SA 4.0 and the textures are CC BY 4.0, as
+listed above.

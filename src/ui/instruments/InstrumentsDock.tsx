@@ -125,7 +125,7 @@ function Clocks() {
         u={valid && lag < 1e-3 ? 's' : undefined}
       />
       <Ro l={<>Mean rate <Sym>τ</Sym>/<Sym>t</Sym></>} v={valid && t > 0 ? oneMinus(1 - lag / t) : '—'} />
-      <div className="mono px-2.5 pb-1 pt-0.5 text-[10px] text-fg-4">
+      <div className="mono px-2.5 pb-1 pt-0.5 text-[10px] text-fg-3">
         zeroed {Number.isNaN(since.getTime()) ? '—' : since.toISOString().replace('T', ' ').slice(0, 19)} UTC
         {!valid && <span className="text-hazard"> · τ invalid after superluminal transfer</span>}
       </div>
@@ -205,7 +205,7 @@ function Target() {
             {f}
           </p>
         ))}
-        <p className="mono mt-2 text-[9.5px] text-fg-4">
+        <p className="mono mt-2 text-[9.5px] text-fg-3">
           {id === 'voyager1' ? 'Trajectory: JPL Horizons' : id === 'proxima' ? 'Gaia DR3; Boyajian et al. 2012' : 'NASA Planetary Fact Sheets (NSSDCA)'}
         </p>
       </div>
@@ -327,10 +327,17 @@ function Spacetime() {
 // ─── G · Ephemeris ───────────────────────────────────────────────────────────────────────
 
 function Ephemeris() {
+  return (
+    <Sec id="eph" idx="G" title="Ephemeris" defaultOpen={false}>
+      <EphemerisTable />
+    </Sec>
+  );
+}
+
+function EphemerisTable() {
   const selected = useUI((s) => s.selected);
   const tripActive = useUI((s) => s.tripActive);
   return (
-    <Sec id="eph" idx="G" title="Ephemeris" defaultOpen={false}>
       <table className="tbl">
         <thead>
           <tr>
@@ -367,7 +374,6 @@ function Ephemeris() {
           })}
         </tbody>
       </table>
-    </Sec>
   );
 }
 
@@ -389,6 +395,14 @@ const CHANNELS: Record<ScopeChannel, { label: string; q: string; unit?: string; 
 const SPAN_S = 30;
 
 function Scope() {
+  return (
+    <Sec id="scope" idx="H" title="Strip-chart recorder" defaultOpen={false}>
+      <ScopeBody />
+    </Sec>
+  );
+}
+
+function ScopeBody() {
   const ch = useUI((s) => s.scopeChannel);
   const [data, setData] = useState<{ x: number; y: number }[]>([]);
   const buf = useRef<{ t: number; y: number }[]>([]);
@@ -405,7 +419,7 @@ function Scope() {
   const c = CHANNELS[ch];
   const last = data.at(-1)?.y;
   return (
-    <Sec id="scope" idx="H" title="Strip-chart recorder" defaultOpen={false}>
+    <>
       <div className="flex items-center justify-between gap-2 px-2.5 pb-1 pt-0.5">
         <Seg
           label="Channel"
@@ -426,7 +440,7 @@ function Scope() {
           now: {rich(last === undefined ? '—' : ch === 'beta' ? fmtBeta(last) : sig(last, 5))} {c.unit}
         </div>
       </div>
-    </Sec>
+    </>
   );
 }
 
@@ -445,6 +459,9 @@ export function InstrumentsDock(): ReactNode {
         </button>
       </div>
       <div className="scroll min-h-0 flex-1">
+        <p className="border-b border-line-2 px-2.5 py-1.5 text-[11px] leading-snug text-fg-3">
+          Live readouts, in the Sun’s frame S unless marked S′. Click a heading to fold its section.
+        </p>
         <Observer />
         <Clocks />
         <Target />

@@ -2,7 +2,7 @@
  * UI primitives for the instrument-panel look: collapsible sections, readout rows, segmented
  * controls, checkboxes, menus and floating dialogs. Styling lives in index.css.
  */
-import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useId, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type ReactNode, type Ref } from 'react';
 import { rich } from './rich';
 
 // ─── Persistence ─────────────────────────────────────────────────────────────────────────
@@ -121,17 +121,36 @@ export function Seg<T extends string>({
   label: string;
   className?: string;
 }) {
+  const refs = useRef<(HTMLButtonElement | null)[]>([]);
+  const cur = Math.max(0, options.findIndex((o) => o.value === value));
+  // Radio-group keys: one tab stop, arrows move the selection.
+  const onKey = (e: ReactKeyboardEvent, i: number) => {
+    const n = options.length;
+    const k = e.key;
+    const j =
+      k === 'ArrowRight' || k === 'ArrowDown' ? (i + 1) % n : k === 'ArrowLeft' || k === 'ArrowUp' ? (i - 1 + n) % n : k === 'Home' ? 0 : k === 'End' ? n - 1 : -1;
+    if (j < 0) return;
+    e.preventDefault();
+    e.stopPropagation(); // not the camera's arrow keys
+    onChange(options[j].value);
+    refs.current[j]?.focus();
+  };
   return (
     <div className={`segs ${className}`} role="radiogroup" aria-label={label}>
-      {options.map((o) => (
+      {options.map((o, i) => (
         <button
           key={o.value}
+          ref={(el) => {
+            refs.current[i] = el;
+          }}
           role="radio"
           aria-checked={value === o.value}
+          tabIndex={i === cur ? 0 : -1}
           data-hazard={o.hazard ? 'true' : undefined}
           className="seg-b"
           title={o.title}
           onClick={() => onChange(o.value)}
+          onKeyDown={(e) => onKey(e, i)}
         >
           {o.label}
         </button>
@@ -186,32 +205,55 @@ export function Menu({
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const btn = useRef<HTMLButtonElement>(null);
+  const pop = useRef<HTMLDivElement>(null);
+  const byKeyboard = useRef(false);
+  const id = useId();
   useEffect(() => {
     if (!open) return;
     const onDown = (e: PointerEvent) => {
       if (!ref.current?.contains(e.target as Node)) setOpen(false);
     };
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setOpen(false);
+      if (e.key !== 'Escape') return;
+      e.preventDefault(); // handled: the global shortcuts ignore it
+      setOpen(false);
+      if (ref.current?.contains(document.activeElement)) btn.current?.focus();
     };
     window.addEventListener('pointerdown', onDown);
-    window.addEventListener('keydown', onKey);
+    window.addEventListener('keydown', onKey, true);
+    // Opened from the keyboard: move focus to the first control inside.
+    if (byKeyboard.current) pop.current?.querySelector<HTMLElement>('input, button, select')?.focus();
     return () => {
       window.removeEventListener('pointerdown', onDown);
-      window.removeEventListener('keydown', onKey);
+      window.removeEventListener('keydown', onKey, true);
     };
   }, [open]);
   return (
     <div ref={ref} className="relative">
-      <button className="btn btn-q" aria-expanded={open} aria-haspopup="menu" onClick={() => setOpen(!open)} title={title}>
+      <button
+        ref={btn}
+        className="btn btn-q"
+        aria-expanded={open}
+        aria-haspopup="dialog"
+        aria-controls={open ? id : undefined}
+        onClick={(e) => {
+          byKeyboard.current = e.detail === 0;
+          setOpen(!open);
+        }}
+        title={title}
+      >
         {label}
         <Chevron />
       </button>
       {open && (
         <div
+          ref={pop}
+          id={id}
           className={`panel-float appear absolute top-[calc(100%+4px)] z-50 py-1 ${align === 'right' ? 'right-0' : 'left-0'}`}
           style={{ width: `min(${width}px, calc(100vw - 16px))` }}
-          role="menu"
+          role="dialog"
+          aria-label={title ?? (typeof label === 'string' ? label : undefined)}
         >
           {children}
         </div>
@@ -232,6 +274,8 @@ export function Dialog({
   className = '',
   right,
   tone,
+  innerRef,
+  modal,
 }: {
   title: ReactNode;
   onClose?: () => void;
@@ -239,11 +283,22 @@ export function Dialog({
   className?: string;
   right?: ReactNode;
   tone?: 'hazard';
+  innerRef?: Ref<HTMLDivElement>;
+  modal?: boolean;
 }) {
+  const titleId = useId();
   return (
-    <div className={`panel-float appear flex flex-col ${tone === 'hazard' ? '!border-hazard/50' : ''} ${className}`} role="dialog" aria-label={typeof title === 'string' ? title : undefined}>
+    <div
+      ref={innerRef}
+      className={`panel-float appear flex flex-col ${tone === 'hazard' ? '!border-hazard/50' : ''} ${className}`}
+      role="dialog"
+      aria-modal={modal || undefined}
+      aria-labelledby={titleId}
+    >
       <div className={`titlebar ${tone === 'hazard' ? 'hatch' : ''}`}>
-        <span className="cap !text-fg-2">{title}</span>
+        <span id={titleId} className="cap !text-fg-2">
+          {title}
+        </span>
         <span className="ml-auto flex items-center gap-1">
           {right}
           {onClose && (
@@ -277,13 +332,27 @@ export function DockResizer({
   initial: number;
 }) {
   const start = useRef<{ x: number; w: number } | null>(null);
+  const clamp = (w: number) => Math.round(Math.min(Math.min(max, window.innerWidth * 0.45), Math.max(min, w)));
   return (
     <div
       role="separator"
       aria-orientation="vertical"
       aria-label="Resize panel"
-      title="Drag to resize; double-click to reset"
-      className={`group absolute inset-y-0 z-40 w-[7px] cursor-col-resize max-[899px]:hidden ${side === 'left' ? '-right-[4px]' : '-left-[4px]'}`}
+      aria-valuenow={width}
+      aria-valuemin={min}
+      aria-valuemax={max}
+      tabIndex={0}
+      title="Drag to resize; double-click to reset. With the keyboard: arrow keys, Home to reset."
+      className={`group absolute inset-y-0 z-40 w-[7px] cursor-col-resize outline-none max-[899px]:hidden ${side === 'left' ? '-right-[4px]' : '-left-[4px]'}`}
+      onKeyDown={(e) => {
+        const step = e.shiftKey ? 64 : 16;
+        const d = e.key === 'ArrowRight' ? step : e.key === 'ArrowLeft' ? -step : 0;
+        if (e.key === 'Home') onChange(initial);
+        else if (d) onChange(clamp(width + (side === 'left' ? d : -d)));
+        else return;
+        e.preventDefault();
+        e.stopPropagation();
+      }}
       onPointerDown={(e) => {
         start.current = { x: e.clientX, w: width };
         (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
@@ -293,21 +362,27 @@ export function DockResizer({
         if (!s0) return;
         const dx = e.clientX - s0.x;
         const w = s0.w + (side === 'left' ? dx : -dx);
-        onChange(Math.round(Math.min(Math.min(max, window.innerWidth * 0.45), Math.max(min, w))));
+        onChange(clamp(w));
       }}
       onPointerUp={() => (start.current = null)}
       onDoubleClick={() => onChange(initial)}
     >
-      <div className="mx-auto h-full w-px bg-transparent transition-colors group-hover:bg-accent/60" />
+      <div className="mx-auto h-full w-px bg-transparent transition-colors group-hover:bg-accent/60 group-focus-visible:bg-accent" />
     </div>
   );
 }
 
 /** Label above a control, the way instrument front panels are lettered. */
-export function Field({ label, children, className = '' }: { label: ReactNode; children: ReactNode; className?: string }) {
+export function Field({ label, children, className = '', htmlFor }: { label: ReactNode; children: ReactNode; className?: string; htmlFor?: string }) {
   return (
     <div className={className}>
-      <div className="cap mb-1">{label}</div>
+      {htmlFor ? (
+        <label htmlFor={htmlFor} className="cap mb-1 block">
+          {label}
+        </label>
+      ) : (
+        <div className="cap mb-1">{label}</div>
+      )}
       {children}
     </div>
   );

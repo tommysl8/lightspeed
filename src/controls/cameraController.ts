@@ -15,6 +15,7 @@ import { BODIES, C_KM_S, type BodyId } from '../physics/constants';
 import { addVelocities } from '../physics/relativity';
 import { logitToBeta } from '../physics/speedScale';
 import { sim } from '../sim/sim';
+import { docRoute } from '../state/route';
 import { useUI, type ControlMode } from '../state/ui';
 import { easeInOut, zoomPanPath, type ZoomPanPath } from './zoomPan';
 import { framingDistance, minDistance } from './framing';
@@ -168,7 +169,8 @@ export class CameraController {
         : this.niceDirection(id);
     const A = fromBody ? sim.bodies[fromBody].pos : fromPoint;
     const path = zoomPanPath(A.distanceTo(B), w0, w1);
-    const duration = Math.min(6, Math.max(1.1, 0.8 + path.S * 0.3));
+    // A long zoom-and-pan is disorienting for some people: keep it brief when reduced motion is asked for.
+    const duration = reducedMotion() ? 0.35 : Math.min(6, Math.max(1.1, 0.8 + path.S * 0.3));
     const rot = new Quaternion().setFromUnitVectors(dir0, dir1);
 
     this.tr = { fromBody, fromPoint, toBody: id, w0, w1, dir0, dir1, rot, path, t: 0, duration };
@@ -458,7 +460,8 @@ export class CameraController {
   private onContextMenu = (e: Event): void => e.preventDefault();
 
   private onKeyDown = (e: KeyboardEvent): void => {
-    if (isTyping(e) || useUI.getState().reportFor) return;
+    const ui = useUI.getState();
+    if (e.defaultPrevented || isTyping(e) || ui.reportFor || docRoute()) return;
     this.keys.add(e.code);
     if (this.mode === 'free' && (e.code === 'Space' || e.code.startsWith('Arrow'))) e.preventDefault();
   };
@@ -473,6 +476,9 @@ export class CameraController {
     if (!document.pointerLockElement && this.mode === 'free') this.exitFreeFlight();
   };
 }
+
+const motionQuery = typeof window !== 'undefined' ? window.matchMedia?.('(prefers-reduced-motion: reduce)') : undefined;
+const reducedMotion = (): boolean => !!motionQuery?.matches;
 
 export function isTyping(e: KeyboardEvent): boolean {
   const t = e.target as HTMLElement | null;

@@ -310,6 +310,225 @@ export function Plot({ x, y, series, height = 200, equal = false, caption, empty
     return d;
   };
 
+  // Everything but the hover readout, memoised so that moving the pointer redraws only the readout.
+  const layers = useMemo(
+    () => (
+      <>
+        <defs>
+          <clipPath id={clip}>
+            <rect x={x0} y={y1} width={x1 - x0} height={y0 - y1} />
+          </clipPath>
+        </defs>
+        <rect x={x0} y={y1} width={x1 - x0} height={y0 - y1} fill={pal.bg} />
+        {/* Grid */}
+        <g stroke={pal.grid} strokeWidth={1}>
+          {sx.major.map((t) => inX(t) && <line key={`gx${t}`} x1={sx.map(t)} x2={sx.map(t)} y1={y1} y2={y0} />)}
+          {sy.major.map((t) => inY(t) && <line key={`gy${t}`} y1={sy.map(t)} y2={sy.map(t)} x1={x0} x2={x1} />)}
+        </g>
+        {/* Zero lines */}
+        <g stroke={pal.zero} strokeWidth={1}>
+          {!sx.log && sx.lo < 0 && sx.hi > 0 && <line x1={sx.map(0)} x2={sx.map(0)} y1={y1} y2={y0} />}
+          {!sy.log && sy.lo < 0 && sy.hi > 0 && <line y1={sy.map(0)} y2={sy.map(0)} x1={x0} x2={x1} />}
+        </g>
+
+        {/* Series */}
+        <g clipPath={`url(#${clip})`}>
+          {series.map((s, i) => {
+            switch (s.kind) {
+              case 'fn':
+                return (
+                  <path
+                    key={i}
+                    d={fnPath(s.f, s.domain)}
+                    fill="none"
+                    stroke={tone(s.color ?? PLOT_COLORS.theory)}
+                    strokeWidth={s.width ?? 1.2}
+                    strokeDasharray={s.dash ?? '5 3'}
+                  />
+                );
+              case 'line': {
+                const pts = s.data.filter((p) => Number.isFinite(p.x) && Number.isFinite(p.y) && (!sy.log || p.y > 0) && (!sx.log || p.x > 0));
+                if (pts.length < 2) return null;
+                const d = pts.map((p, k) => `${k ? 'L' : 'M'}${sx.map(p.x).toFixed(1)} ${sy.map(p.y).toFixed(1)}`).join('');
+                return (
+                  <path
+                    key={i}
+                    d={d}
+                    fill="none"
+                    stroke={tone(s.color ?? PLOT_COLORS.data)}
+                    strokeWidth={s.width ?? 1.4}
+                    strokeDasharray={s.dash}
+                    opacity={s.opacity ?? 1}
+                  />
+                );
+              }
+              case 'hline':
+                return inY(s.value) ? (
+                  <line
+                    key={i}
+                    x1={x0}
+                    x2={x1}
+                    y1={sy.map(s.value)}
+                    y2={sy.map(s.value)}
+                    stroke={tone(s.color ?? PLOT_COLORS.dim)}
+                    strokeDasharray={s.dash ?? '2 3'}
+                  />
+                ) : null;
+              case 'vline':
+                return inX(s.value) ? (
+                  <line
+                    key={i}
+                    y1={y1}
+                    y2={y0}
+                    x1={sx.map(s.value)}
+                    x2={sx.map(s.value)}
+                    stroke={tone(s.color ?? PLOT_COLORS.dim)}
+                    strokeDasharray={s.dash ?? '2 3'}
+                  />
+                ) : null;
+              case 'points': {
+                const color = tone(s.color ?? PLOT_COLORS.data);
+                return (
+                  <g key={i} stroke={color} fill={color}>
+                    {s.data.map((p, k) => {
+                      if (!Number.isFinite(p.x) || !Number.isFinite(p.y) || (sy.log && p.y <= 0) || (sx.log && p.x <= 0)) return null;
+                      const px = sx.map(p.x);
+                      const py = sy.map(p.y);
+                      const last = s.newest && k === s.data.length - 1;
+                      return (
+                        <g key={k}>
+                          {p.sy !== undefined && p.sy > 0 && (
+                            <g strokeWidth={1}>
+                              <line x1={px} x2={px} y1={sy.map(p.y - p.sy)} y2={sy.map(p.y + p.sy)} />
+                              <line x1={px - 2.5} x2={px + 2.5} y1={sy.map(p.y - p.sy)} y2={sy.map(p.y - p.sy)} />
+                              <line x1={px - 2.5} x2={px + 2.5} y1={sy.map(p.y + p.sy)} y2={sy.map(p.y + p.sy)} />
+                            </g>
+                          )}
+                          {p.sx !== undefined && p.sx > 0 && (
+                            <line strokeWidth={1} y1={py} y2={py} x1={sx.map(p.x - p.sx)} x2={sx.map(p.x + p.sx)} />
+                          )}
+                          <g stroke="none">{pointPath(s.shape ?? 'circle', px, py, 2.6)}</g>
+                          {last && <circle cx={px} cy={py} r={5.5} fill="none" strokeWidth={1} />}
+                        </g>
+                      );
+                    })}
+                  </g>
+                );
+              }
+              case 'marker': {
+                if (!inX(s.x) || !inY(s.y)) return null;
+                const px = sx.map(s.x);
+                const py = sy.map(s.y);
+                const c = tone(s.color ?? PLOT_COLORS.accent);
+                return (
+                  <g key={i} stroke={c} fill="none" strokeWidth={1.2}>
+                    <circle cx={px} cy={py} r={4} />
+                    <line x1={px - 8} x2={px - 5} y1={py} y2={py} />
+                    <line x1={px + 5} x2={px + 8} y1={py} y2={py} />
+                    <line x1={px} x2={px} y1={py - 8} y2={py - 5} />
+                    <line x1={px} x2={px} y1={py + 5} y2={py + 8} />
+                  </g>
+                );
+              }
+              case 'text':
+                return (
+                  <text
+                    key={i}
+                    x={sx.map(s.x)}
+                    y={sy.map(s.y) + (s.dy ?? 0)}
+                    fill={tone(s.color ?? PLOT_COLORS.label)}
+                    fontSize={9.5}
+                    fontFamily="var(--font-mono)"
+                    textAnchor={s.anchor ?? 'start'}
+                  >
+                    {s.text}
+                  </text>
+                );
+            }
+          })}
+        </g>
+
+        {/* Frame and inward ticks on all four sides */}
+        <rect x={x0 + 0.5} y={y1 + 0.5} width={x1 - x0 - 1} height={y0 - y1 - 1} fill="none" stroke={pal.frame} />
+        <g stroke={pal.frame} strokeWidth={1}>
+          {sx.major.map((t) => {
+            if (!inX(t)) return null;
+            const p = Math.round(sx.map(t)) + 0.5;
+            return (
+              <g key={`tx${t}`}>
+                <line x1={p} x2={p} y1={y0} y2={y0 - 5} />
+                <line x1={p} x2={p} y1={y1} y2={y1 + 5} />
+              </g>
+            );
+          })}
+          {sx.minor.map((t) => {
+            if (!inX(t)) return null;
+            const p = Math.round(sx.map(t)) + 0.5;
+            return (
+              <g key={`mx${t}`}>
+                <line x1={p} x2={p} y1={y0} y2={y0 - 2.5} />
+                <line x1={p} x2={p} y1={y1} y2={y1 + 2.5} />
+              </g>
+            );
+          })}
+          {sy.major.map((t) => {
+            if (!inY(t)) return null;
+            const p = Math.round(sy.map(t)) + 0.5;
+            return (
+              <g key={`ty${t}`}>
+                <line y1={p} y2={p} x1={x0} x2={x0 + 5} />
+                <line y1={p} y2={p} x1={x1} x2={x1 - 5} />
+              </g>
+            );
+          })}
+          {sy.minor.map((t) => {
+            if (!inY(t)) return null;
+            const p = Math.round(sy.map(t)) + 0.5;
+            return (
+              <g key={`my${t}`}>
+                <line y1={p} y2={p} x1={x0} x2={x0 + 2.5} />
+                <line y1={p} y2={p} x1={x1} x2={x1 - 2.5} />
+              </g>
+            );
+          })}
+        </g>
+
+        {/* Tick labels */}
+        <g fill={pal.label} fontFamily="var(--font-mono)" fontSize={9.5}>
+          {sx.major.map(
+            (t) =>
+              inX(t) && (
+                <text key={`lx${t}`} x={sx.map(t)} y={y0 + 12} textAnchor="middle">
+                  {svgRich(tickLabel(sx, t).replace('-', MINUS))}
+                </text>
+              ),
+          )}
+          {sy.major.map(
+            (t) =>
+              inY(t) && (
+                <text key={`ly${t}`} x={x0 - 5} y={sy.map(t) + 3.2} textAnchor="end">
+                  {svgRich(tickLabel(sy, t).replace('-', MINUS))}
+                </text>
+              ),
+          )}
+        </g>
+
+        {/* Axis titles */}
+        <text x={(x0 + x1) / 2} y={H - 4} textAnchor="middle" fill={pal.title}>
+          <AxisTitle axis={x} exp={sx.exp} />
+        </text>
+        <text
+          transform={`translate(11 ${(y0 + y1) / 2}) rotate(-90)`}
+          textAnchor="middle"
+          fill={pal.title}
+        >
+          <AxisTitle axis={y} exp={sy.exp} />
+        </text>
+      </>
+    ),
+    [series, sx, sy, pal, x, y, x0, x1, y0, y1, H, clip],
+  );
+
   const legendItems = legend ? series.filter((s) => 'label' in s && !!s.label) : [];
 
   return (
@@ -345,216 +564,7 @@ export function Plot({ x, y, series, height = 200, equal = false, caption, empty
             setHover(best);
           }}
         >
-          <defs>
-            <clipPath id={clip}>
-              <rect x={x0} y={y1} width={x1 - x0} height={y0 - y1} />
-            </clipPath>
-          </defs>
-          <rect x={x0} y={y1} width={x1 - x0} height={y0 - y1} fill={pal.bg} />
-          {/* Grid */}
-          <g stroke={pal.grid} strokeWidth={1}>
-            {sx.major.map((t) => inX(t) && <line key={`gx${t}`} x1={sx.map(t)} x2={sx.map(t)} y1={y1} y2={y0} />)}
-            {sy.major.map((t) => inY(t) && <line key={`gy${t}`} y1={sy.map(t)} y2={sy.map(t)} x1={x0} x2={x1} />)}
-          </g>
-          {/* Zero lines */}
-          <g stroke={pal.zero} strokeWidth={1}>
-            {!sx.log && sx.lo < 0 && sx.hi > 0 && <line x1={sx.map(0)} x2={sx.map(0)} y1={y1} y2={y0} />}
-            {!sy.log && sy.lo < 0 && sy.hi > 0 && <line y1={sy.map(0)} y2={sy.map(0)} x1={x0} x2={x1} />}
-          </g>
-
-          {/* Series */}
-          <g clipPath={`url(#${clip})`}>
-            {series.map((s, i) => {
-              switch (s.kind) {
-                case 'fn':
-                  return (
-                    <path
-                      key={i}
-                      d={fnPath(s.f, s.domain)}
-                      fill="none"
-                      stroke={tone(s.color ?? PLOT_COLORS.theory)}
-                      strokeWidth={s.width ?? 1.2}
-                      strokeDasharray={s.dash ?? '5 3'}
-                    />
-                  );
-                case 'line': {
-                  const pts = s.data.filter((p) => Number.isFinite(p.x) && Number.isFinite(p.y) && (!sy.log || p.y > 0) && (!sx.log || p.x > 0));
-                  if (pts.length < 2) return null;
-                  const d = pts.map((p, k) => `${k ? 'L' : 'M'}${sx.map(p.x).toFixed(1)} ${sy.map(p.y).toFixed(1)}`).join('');
-                  return (
-                    <path
-                      key={i}
-                      d={d}
-                      fill="none"
-                      stroke={tone(s.color ?? PLOT_COLORS.data)}
-                      strokeWidth={s.width ?? 1.4}
-                      strokeDasharray={s.dash}
-                      opacity={s.opacity ?? 1}
-                    />
-                  );
-                }
-                case 'hline':
-                  return inY(s.value) ? (
-                    <line
-                      key={i}
-                      x1={x0}
-                      x2={x1}
-                      y1={sy.map(s.value)}
-                      y2={sy.map(s.value)}
-                      stroke={tone(s.color ?? PLOT_COLORS.dim)}
-                      strokeDasharray={s.dash ?? '2 3'}
-                    />
-                  ) : null;
-                case 'vline':
-                  return inX(s.value) ? (
-                    <line
-                      key={i}
-                      y1={y1}
-                      y2={y0}
-                      x1={sx.map(s.value)}
-                      x2={sx.map(s.value)}
-                      stroke={tone(s.color ?? PLOT_COLORS.dim)}
-                      strokeDasharray={s.dash ?? '2 3'}
-                    />
-                  ) : null;
-                case 'points': {
-                  const color = tone(s.color ?? PLOT_COLORS.data);
-                  return (
-                    <g key={i} stroke={color} fill={color}>
-                      {s.data.map((p, k) => {
-                        if (!Number.isFinite(p.x) || !Number.isFinite(p.y) || (sy.log && p.y <= 0) || (sx.log && p.x <= 0)) return null;
-                        const px = sx.map(p.x);
-                        const py = sy.map(p.y);
-                        const last = s.newest && k === s.data.length - 1;
-                        return (
-                          <g key={k}>
-                            {p.sy !== undefined && p.sy > 0 && (
-                              <g strokeWidth={1}>
-                                <line x1={px} x2={px} y1={sy.map(p.y - p.sy)} y2={sy.map(p.y + p.sy)} />
-                                <line x1={px - 2.5} x2={px + 2.5} y1={sy.map(p.y - p.sy)} y2={sy.map(p.y - p.sy)} />
-                                <line x1={px - 2.5} x2={px + 2.5} y1={sy.map(p.y + p.sy)} y2={sy.map(p.y + p.sy)} />
-                              </g>
-                            )}
-                            {p.sx !== undefined && p.sx > 0 && (
-                              <line strokeWidth={1} y1={py} y2={py} x1={sx.map(p.x - p.sx)} x2={sx.map(p.x + p.sx)} />
-                            )}
-                            <g stroke="none">{pointPath(s.shape ?? 'circle', px, py, 2.6)}</g>
-                            {last && <circle cx={px} cy={py} r={5.5} fill="none" strokeWidth={1} />}
-                          </g>
-                        );
-                      })}
-                    </g>
-                  );
-                }
-                case 'marker': {
-                  if (!inX(s.x) || !inY(s.y)) return null;
-                  const px = sx.map(s.x);
-                  const py = sy.map(s.y);
-                  const c = tone(s.color ?? PLOT_COLORS.accent);
-                  return (
-                    <g key={i} stroke={c} fill="none" strokeWidth={1.2}>
-                      <circle cx={px} cy={py} r={4} />
-                      <line x1={px - 8} x2={px - 5} y1={py} y2={py} />
-                      <line x1={px + 5} x2={px + 8} y1={py} y2={py} />
-                      <line x1={px} x2={px} y1={py - 8} y2={py - 5} />
-                      <line x1={px} x2={px} y1={py + 5} y2={py + 8} />
-                    </g>
-                  );
-                }
-                case 'text':
-                  return (
-                    <text
-                      key={i}
-                      x={sx.map(s.x)}
-                      y={sy.map(s.y) + (s.dy ?? 0)}
-                      fill={tone(s.color ?? PLOT_COLORS.label)}
-                      fontSize={9.5}
-                      fontFamily="var(--font-mono)"
-                      textAnchor={s.anchor ?? 'start'}
-                    >
-                      {s.text}
-                    </text>
-                  );
-              }
-            })}
-          </g>
-
-          {/* Frame and inward ticks on all four sides */}
-          <rect x={x0 + 0.5} y={y1 + 0.5} width={x1 - x0 - 1} height={y0 - y1 - 1} fill="none" stroke={pal.frame} />
-          <g stroke={pal.frame} strokeWidth={1}>
-            {sx.major.map((t) => {
-              if (!inX(t)) return null;
-              const p = Math.round(sx.map(t)) + 0.5;
-              return (
-                <g key={`tx${t}`}>
-                  <line x1={p} x2={p} y1={y0} y2={y0 - 5} />
-                  <line x1={p} x2={p} y1={y1} y2={y1 + 5} />
-                </g>
-              );
-            })}
-            {sx.minor.map((t) => {
-              if (!inX(t)) return null;
-              const p = Math.round(sx.map(t)) + 0.5;
-              return (
-                <g key={`mx${t}`}>
-                  <line x1={p} x2={p} y1={y0} y2={y0 - 2.5} />
-                  <line x1={p} x2={p} y1={y1} y2={y1 + 2.5} />
-                </g>
-              );
-            })}
-            {sy.major.map((t) => {
-              if (!inY(t)) return null;
-              const p = Math.round(sy.map(t)) + 0.5;
-              return (
-                <g key={`ty${t}`}>
-                  <line y1={p} y2={p} x1={x0} x2={x0 + 5} />
-                  <line y1={p} y2={p} x1={x1} x2={x1 - 5} />
-                </g>
-              );
-            })}
-            {sy.minor.map((t) => {
-              if (!inY(t)) return null;
-              const p = Math.round(sy.map(t)) + 0.5;
-              return (
-                <g key={`my${t}`}>
-                  <line y1={p} y2={p} x1={x0} x2={x0 + 2.5} />
-                  <line y1={p} y2={p} x1={x1} x2={x1 - 2.5} />
-                </g>
-              );
-            })}
-          </g>
-
-          {/* Tick labels */}
-          <g fill={pal.label} fontFamily="var(--font-mono)" fontSize={9.5}>
-            {sx.major.map(
-              (t) =>
-                inX(t) && (
-                  <text key={`lx${t}`} x={sx.map(t)} y={y0 + 12} textAnchor="middle">
-                    {svgRich(tickLabel(sx, t).replace('-', MINUS))}
-                  </text>
-                ),
-            )}
-            {sy.major.map(
-              (t) =>
-                inY(t) && (
-                  <text key={`ly${t}`} x={x0 - 5} y={sy.map(t) + 3.2} textAnchor="end">
-                    {svgRich(tickLabel(sy, t).replace('-', MINUS))}
-                  </text>
-                ),
-            )}
-          </g>
-
-          {/* Axis titles */}
-          <text x={(x0 + x1) / 2} y={H - 4} textAnchor="middle" fill={pal.title}>
-            <AxisTitle axis={x} exp={sx.exp} />
-          </text>
-          <text
-            transform={`translate(11 ${(y0 + y1) / 2}) rotate(-90)`}
-            textAnchor="middle"
-            fill={pal.title}
-          >
-            <AxisTitle axis={y} exp={sy.exp} />
-          </text>
+          {layers}
 
           {hover && (
             <g pointerEvents="none" fontFamily="var(--font-mono)" fontSize={9.5}>
