@@ -67,6 +67,9 @@ export class CameraController {
   private look = { x: 0, y: 0 };
   private frameBody: BodyId = 'earth';
   private thrustVel = new Vector3();
+  /** Where the reference body was last frame, so free flight rides along its curved path. */
+  private frameBodyPrev = new Vector3();
+  private frameBodyPrevId: BodyId | null = null;
 
   // Travel: free look relative to the direction of motion.
   private lookYaw = 0;
@@ -137,7 +140,7 @@ export class CameraController {
     id: BodyId,
     opts: { keepDistance?: boolean; keepDirection?: boolean; distance?: number; direction?: Vector3 } = {},
   ): void {
-    if (this.mode === 'travel') return;
+    if (this.mode === 'travel' || !sim.bodies[id].present) return;
     const eye = sim.camera.pos;
     const B = sim.bodies[id].pos;
     let fromBody: BodyId | null = null;
@@ -183,6 +186,7 @@ export class CameraController {
     if (this.mode === 'travel') return;
     if (this.mode === 'transition') this.finishTransition();
     this.frameBody = this.target;
+    this.frameBodyPrevId = null;
     this.setMode('free');
     this.dom?.requestPointerLock?.();
   }
@@ -314,10 +318,21 @@ export class CameraController {
     } else this.thrustVel.set(0, 0, 0);
 
     // Velocity relative to the reference body, composed relativistically.
-    const ref = sim.bodies[this.frameBody].vel;
+    const body = sim.bodies[this.frameBody];
+    const ref = body.vel;
     const w = addVelocities(ref, this.thrustVel);
     sim.ship.vel.set(w.x, w.y, w.z);
-    sim.camera.pos.addScaledVector(sim.ship.vel, dtSim);
+    // Ride along with the reference body: follow its actual displacement this frame, plus the
+    // thrust relative to it. The same as vel·dt for small steps, but at a time warp of years a
+    // frame, straight-line drift would fling the camera off the body's curved path.
+    if (this.frameBodyPrevId !== this.frameBody) {
+      this.frameBodyPrev.copy(body.pos);
+      this.frameBodyPrevId = this.frameBody;
+    }
+    sim.camera.pos
+      .add(v1.copy(body.pos).sub(this.frameBodyPrev))
+      .addScaledVector(v2.set(w.x - ref.x, w.y - ref.y, w.z - ref.z), dtSim);
+    this.frameBodyPrev.copy(body.pos);
   }
 
   private updateTransition(dt: number): void {
@@ -384,6 +399,7 @@ export class CameraController {
     let best: BodyId = 'sun';
     let bestScore = Infinity;
     for (const b of Object.values(sim.bodies)) {
+      if (!b.present) continue;
       // Prefer bodies that are close relative to their size (so a nearby Moon beats a distant Sun).
       const score = b.pos.distanceTo(sim.camera.pos) / Math.sqrt(BODIES[b.id].radiusKm + 1);
       if (score < bestScore) {

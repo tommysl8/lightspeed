@@ -8,8 +8,27 @@
  *
  * Flip-and-burn trip: accelerate for half the distance, turn around, decelerate to arrive at
  * rest. Everything is symmetric about the midpoint.
+ *
+ * Numerics: every expression is written so it keeps full relative precision from a one-second
+ * hop (rapidity 3 × 10⁻⁸) to intergalactic trips (γ ≈ 10⁹): cosh φ − 1 as 2 sinh²(φ/2),
+ * acosh(1 + x) through asinh, and t − τ as (c/a)(sinh φ − φ) with a series for small φ.
  */
 import { C_KM_S, G0_KM_S2 } from './constants';
+
+/** cosh φ − 1 without cancellation. */
+export function coshMinusOne(phi: number): number {
+  const s = Math.sinh(phi / 2);
+  return 2 * s * s;
+}
+
+/** sinh φ − φ without cancellation (a series below |φ| = 0.1, where the difference is < 2 × 10⁻⁴). */
+export function sinhMinusX(phi: number): number {
+  if (Math.abs(phi) < 0.1) {
+    const p2 = phi * phi;
+    return ((phi * p2) / 6) * (1 + (p2 / 20) * (1 + (p2 / 42) * (1 + (p2 / 72) * (1 + p2 / 110))));
+  }
+  return Math.sinh(phi) - phi;
+}
 
 export interface RocketState {
   /** Coordinate (Sun-frame) time since departure, s. */
@@ -25,7 +44,7 @@ export function acceleratingState(tau: number, a: number = G0_KM_S2): RocketStat
   const phi = (a * tau) / C_KM_S; // rapidity
   return {
     t: (C_KM_S / a) * Math.sinh(phi),
-    d: ((C_KM_S * C_KM_S) / a) * (Math.cosh(phi) - 1),
+    d: ((C_KM_S * C_KM_S) / a) * coshMinusOne(phi),
     beta: Math.tanh(phi),
     gamma: Math.cosh(phi),
   };
@@ -33,7 +52,8 @@ export function acceleratingState(tau: number, a: number = G0_KM_S2): RocketStat
 
 /** Proper time needed to cover distance d (km) from rest at constant proper acceleration a. */
 export function properTimeToCover(d: number, a: number = G0_KM_S2): number {
-  return (C_KM_S / a) * Math.acosh(1 + (d * a) / (C_KM_S * C_KM_S));
+  // acosh(1 + x) = 2 asinh(√(x/2)): exact for tiny hops as well as huge distances.
+  return ((2 * C_KM_S) / a) * Math.asinh(Math.sqrt((d * a) / (2 * C_KM_S * C_KM_S)));
 }
 
 export interface FlipAndBurnTrip {
@@ -85,8 +105,8 @@ export function flipAndBurnAtEarthTime(trip: FlipAndBurnTrip, t: number): Rocket
   // First half, from rest: at/c = sinh(aτ/c) ⇒ τ = (c/a) asinh(at/c), γ = √(1 + (at/c)²).
   const leg = (time: number) => {
     const x = (a * time) / c;
-    const g = Math.sqrt(1 + x * x);
-    return { tau: (c / a) * Math.asinh(x), d: ((c * c) / a) * (g - 1), beta: x / g, gamma: g };
+    const g = Math.hypot(1, x);
+    return { tau: (c / a) * Math.asinh(x), d: ((c * c) / a) * ((x * x) / (g + 1)), beta: x / g, gamma: g };
   };
   if (tc <= T / 2) {
     const s = leg(tc);
@@ -94,6 +114,35 @@ export function flipAndBurnAtEarthTime(trip: FlipAndBurnTrip, t: number): Rocket
   }
   const s = leg(T - tc);
   return { t: tc, d: trip.distance - s.d, beta: s.beta, gamma: s.gamma, tau: trip.shipTime - s.tau };
+}
+
+/** Earth (coordinate) time at ship time τ of a flip-and-burn trip. Inverse of shipTimeAtEarthTime. */
+export function earthTimeAtShipTime(trip: FlipAndBurnTrip, tau: number): number {
+  const tc = Math.min(Math.max(tau, 0), trip.shipTime);
+  const k = C_KM_S / trip.accel;
+  if (tc <= trip.shipTime / 2) return k * Math.sinh(tc / k);
+  return trip.earthTime - k * Math.sinh((trip.shipTime - tc) / k);
+}
+
+/** Ship (proper) time at Earth time t of a flip-and-burn trip. Inverse of earthTimeAtShipTime. */
+export function shipTimeAtEarthTime(trip: FlipAndBurnTrip, t: number): number {
+  const tc = Math.min(Math.max(t, 0), trip.earthTime);
+  const k = C_KM_S / trip.accel;
+  if (tc <= trip.earthTime / 2) return k * Math.asinh(tc / k);
+  return trip.shipTime - k * Math.asinh((trip.earthTime - tc) / k);
+}
+
+/**
+ * The lag t − τ at ship time τ, computed directly rather than as a difference: 1.8 × 10⁻¹⁶ s
+ * after the first second of a 1 g burn, nearly all of t on a relativistic trip, exact either way.
+ */
+export function flipAndBurnLag(trip: FlipAndBurnTrip, tau: number): number {
+  const tc = Math.min(Math.max(tau, 0), trip.shipTime);
+  const k = C_KM_S / trip.accel;
+  const half = trip.shipTime / 2;
+  if (tc <= half) return k * sinhMinusX(tc / k);
+  // Second half mirrors the first: lag = 2·lag(half) − lag(remaining).
+  return 2 * k * sinhMinusX(half / k) - k * sinhMinusX((trip.shipTime - tc) / k);
 }
 
 /**

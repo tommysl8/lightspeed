@@ -10,17 +10,12 @@ import {
   WebGLCubeRenderTarget,
   type WebGLRenderer,
 } from 'three';
-import {
-  BODIES,
-  GM_SOLAR_SYSTEM_KM3_S2,
-  GM_SUN_KM3_S2,
-  VOYAGER1_SATURN_FLYBY_UTC,
-  type BodyId,
-} from '../physics/constants';
+import { BODIES, GM_SOLAR_SYSTEM_KM3_S2, GM_SUN_KM3_S2, type BodyId } from '../physics/constants';
 import { solveKepler, solveKeplerHyperbolic, stateToOrbit, type Orbit } from '../physics/kepler';
 import { createOrbitMaterial } from '../render/materials';
 import { GUIDES_LAYER } from '../render/LightspeedScenePass';
 import { pixelsPerRadian } from '../sim/derived';
+import { VOYAGER1_MODEL_START_MS } from '../sim/ephemeris';
 import { sim } from '../sim/sim';
 import { useUI } from '../state/ui';
 
@@ -53,7 +48,6 @@ function segmentGeometry(): InstancedBufferGeometry {
   return g;
 }
 
-const FLYBY_MS = Date.parse(VOYAGER1_SATURN_FLYBY_UTC);
 
 function anomalyAt(o: Orbit, M: number): number {
   if (!o.hyperbolic) {
@@ -78,6 +72,10 @@ function OrbitLine({ id }: { id: BodyId }) {
 
   useFrame(({ camera, gl }) => {
     const b = sim.bodies[id];
+    if (!b.present) {
+      material.uniforms.uOpacity.value = 0;
+      return;
+    }
     const parent = id === 'moon' ? sim.bodies.earth : null;
     const mu =
       id === 'voyager1'
@@ -101,7 +99,7 @@ function OrbitLine({ id }: { id: BodyId }) {
     u.uClosed.value = o.hyperbolic ? 0 : 1;
     if (o.hyperbolic) {
       // Trail back to Voyager 1's Saturn flyby (1980), after which it has coasted on this hyperbola.
-      const dt = (FLYBY_MS - sim.timeMs) / 1000;
+      const dt = (VOYAGER1_MODEL_START_MS - sim.timeMs) / 1000;
       const H0 = solveKeplerHyperbolic(o.meanAnomaly + o.meanMotion * dt, o.e);
       u.uSpanMin.value = Math.min(0, H0 - o.anomaly);
     }

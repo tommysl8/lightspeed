@@ -12,7 +12,8 @@ import { relView, REL_THRESHOLD_BETA } from '../../render/relativisticView';
 import { chrono, chronoTau, zeroChrono } from '../../sim/chronometer';
 import { earthLight } from '../../sim/lightDelay';
 import { sim } from '../../sim/sim';
-import { shipStateAt, travel, tripElapsed } from '../../sim/travel';
+import { lagAtTau, travel, tripElapsed, tripShipTime } from '../../sim/travel';
+import { formatSimDate } from '../../lib/time';
 import { useUI, type ScopeChannel } from '../../state/ui';
 import { angularDiameterDeg, eclipticLonLat, observerBeta, rangeRate, reticleReading, targetReading } from '../../lab/measure';
 import { emitLightPulse } from '../../lab/logger';
@@ -103,9 +104,10 @@ function Clocks() {
   const zero = () => {
     const tr = travel.trip;
     const el = tr ? tripElapsed(tr) : 0;
-    zeroChrono(el, tr ? shipStateAt(tr, el).tau : 0);
+    const tau = tr ? tripShipTime(tr) : 0;
+    zeroChrono(el, tau, tr ? lagAtTau(tr, tau) : 0);
   };
-  const since = new Date(chrono.zeroMs);
+  const since = chrono.zeroMs;
   return (
     <Sec
       id="clk"
@@ -126,7 +128,7 @@ function Clocks() {
       />
       <Ro l={<>Mean rate <Sym>τ</Sym>/<Sym>t</Sym></>} v={valid && t > 0 ? oneMinus(1 - lag / t) : '—'} />
       <div className="mono px-2.5 pb-1 pt-0.5 text-[10px] text-fg-3">
-        zeroed {Number.isNaN(since.getTime()) ? '—' : since.toISOString().replace('T', ' ').slice(0, 19)} UTC
+        zeroed {formatSimDate(since, 'datetime')} UTC
         {!valid && <span className="text-hazard"> · τ invalid after superluminal transfer</span>}
       </div>
     </Sec>

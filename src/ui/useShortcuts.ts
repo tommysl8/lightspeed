@@ -1,7 +1,8 @@
 import { useEffect } from 'react';
 import { BODY_ORDER, type BodyId } from '../physics/constants';
 import { controller, isTyping } from '../controls/cameraController';
-import { resetToNow, stepWarp, togglePause } from '../sim/clock';
+import { resetToNow, togglePause } from '../sim/clock';
+import { stepRate } from '../sim/travel';
 import { useUI } from '../state/ui';
 import { recordManual } from '../lab/logger';
 import { BODY_KEYS, goToBody } from './navigation';
@@ -54,8 +55,8 @@ export function useShortcuts() {
         togglePause();
         return;
       }
-      if (k === '[' || k === ',') return stepWarp(-1);
-      if (k === ']' || k === '.') return stepWarp(1);
+      if (k === '[' || k === ',') return stepRate(-1);
+      if (k === ']' || k === '.') return stepRate(1);
       if (k === 'n') return resetToNow();
       if (k === 'z') {
         useUI.setState({ relMode: ui.relMode === 'off' ? 'on' : 'off' });

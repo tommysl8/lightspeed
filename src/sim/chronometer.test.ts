@@ -32,6 +32,21 @@ describe('chronometers', () => {
     expect(chrono.lag).toBeCloseTo(0.1 * lagRate(29.78 / C_KM_S), 20);
   });
 
+  it('takes a trip’s own τ as is, even when the lag is nearly all of t (γ = 10⁹)', () => {
+    zeroChrono();
+    sim.ship.vel.set(0, 0, 0);
+    chronoIntegrate(1.25);
+    chronoLaunch();
+    const tau = 1.234_567_890_123e9; // ship seconds
+    const t = tau * 1e9;
+    chronoTrip(t, t - tau, tau);
+    // t − lag would leave only a few digits of τ; the explicit τ keeps all of them.
+    expect(chronoTau()).toBe(1.25 + tau);
+    chronoTripEnd();
+    zeroChrono();
+    expect(chronoTau()).toBe(0);
+  });
+
   it('follows a trip exactly and invalidates τ after a superluminal one', () => {
     zeroChrono();
     sim.ship.vel.set(0, 0, 0);

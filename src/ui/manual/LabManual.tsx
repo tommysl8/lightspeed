@@ -24,6 +24,7 @@ import { Plot } from '../plot/Plot';
 import { Eq } from '../TeX';
 import { useTicker } from '../useTicker';
 import { rich } from '../rich';
+import { formatSimDate } from '../../lib/time';
 
 // ─── Utilities ───────────────────────────────────────────────────────────────────────────
 
@@ -652,7 +653,7 @@ function NotebookTab() {
   const { rows, noise, setNoise, clear } = useNotebook(useShallow((s) => ({ rows: s.rows, noise: s.noise, setNoise: s.setNoise, clear: s.clear })));
   const events = useLabEvents();
   const exportLog = () => {
-    const lines = events.map((e) => `${new Date(e.simMs).toISOString()}  ${e.kind.padEnd(4)}  ${e.text}`);
+    const lines = events.map((e) => `${formatSimDate(e.simMs, 'iso')}  ${e.kind.padEnd(4)}  ${e.text}`);
     download(
       `lightspeed-event-log-${new Date().toISOString().slice(0, 10)}.txt`,
       ['# Lightspeed event log (simulation time, UTC)', ...lines].join('\n') + '\n',

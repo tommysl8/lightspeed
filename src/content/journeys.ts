@@ -1,14 +1,14 @@
 /**
  * One-click journeys: set-piece trips and scenes that show the program at its best, each
- * with a line on what to look for. Flights leave from Earth and set the simulation rate so
- * that the trip takes about half a minute of real time.
+ * with a line on what to look for. Flights leave from Earth and play by ship time, about a
+ * minute each whatever their length (see sim/travel.ts); scenes set the time warp.
  */
 import { Vector3 } from 'three';
 import { AU_KM, type BodyId } from '../physics/constants';
 import { controller } from '../controls/cameraController';
-import { setPaused, setWarp, WARP_STEPS } from '../sim/clock';
+import { setPaused, setWarp } from '../sim/clock';
 import { sim } from '../sim/sim';
-import { planTrip, travel, type Drive, type TripPlan } from '../sim/travel';
+import { planTrip, type Drive, type TripPlan } from '../sim/travel';
 import { useUI } from '../state/ui';
 import { emitLightPulse } from '../lab/logger';
 import { startTrip } from '../ui/tripActions';
@@ -34,12 +34,6 @@ export interface Journey {
   /** For scenes: what the clock is set to. */
   clock?: string;
   run: () => boolean;
-}
-
-/** The simulation rate (a power of ten) at which `seconds` of simulated time take about `targetReal` real seconds. */
-export function rateFor(seconds: number, targetReal = 30): number {
-  const e = Math.round(Math.log10(Math.max(1, seconds / targetReal)));
-  return WARP_STEPS[Math.max(0, Math.min(WARP_STEPS.length - 1, e))];
 }
 
 /** Predict a journey's flight as it would leave Earth now. */
@@ -75,9 +69,8 @@ function fly(f: Flight, look: string): boolean {
   // Journeys leave from Earth: put the camera there now (a flight departs from the camera).
   controller.placeAt('earth', 26_000);
   controller.update(0, 0);
+  // The trip paces itself by ship time (about a minute); only the pause needs lifting.
   if (!startTrip(f.dest, f.beta, f.drive)) return false;
-  const t = travel.trip!;
-  setWarp(rateFor(t.earthTime));
   setPaused(false);
   useUI.setState((s) => ({ journeyNote: look, journeysOpen: false, relMode: f.split ? 'split' : s.relMode === 'off' ? 'on' : s.relMode }));
   return true;
@@ -140,7 +133,7 @@ const PROXIMA: Journey = {
   title: 'Proxima Centauri at 1 g',
   sub: 'A rocket pushing at one Earth gravity, turning round halfway',
   flight: { dest: 'proxima', drive: 'rocket', beta: 0 },
-  look: 'A steady push of one Earth gravity takes you to the nearest star in 3.5 years of your time while 5.9 years pass on Earth. Time runs a million times faster than real; Skip to arrival when you have seen enough.',
+  look: 'A steady push of one Earth gravity takes you to the nearest star in 3.5 years of your time while 5.9 years pass on Earth. Each second here is three weeks on board; Skip to arrival when you have seen enough.',
   run: () => fly(PROXIMA.flight!, PROXIMA.look),
 };
 

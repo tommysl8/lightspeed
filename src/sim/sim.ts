@@ -6,8 +6,9 @@
  * (floating origin), so the GPU only ever sees camera-relative coordinates.
  */
 import { Quaternion, Vector3 } from 'three';
-import { MakeTime, type AstroTime } from 'astronomy-engine';
+import type { AstroTime } from 'astronomy-engine';
 import { BODY_ORDER, type BodyId } from '../physics/constants';
+import { astroTimeAt } from '../lib/time';
 
 export interface ScreenPoint {
   /** CSS pixels from the top-left of the canvas. */
@@ -21,6 +22,11 @@ export interface ScreenPoint {
 
 export interface BodyState {
   id: BodyId;
+  /**
+   * Whether the body exists and is modelled at this date (Voyager 1 only after its 1980 Saturn
+   * flyby). Absent bodies are not drawn, labelled, picked or targeted.
+   */
+  present: boolean;
   /** World position, km (float64). */
   pos: Vector3;
   /** Velocity in the Sun's rest frame, km/s. */
@@ -57,6 +63,7 @@ export type SizeMode = 'true' | 'visible';
 function makeBody(id: BodyId): BodyState {
   return {
     id,
+    present: true,
     pos: new Vector3(),
     vel: new Vector3(),
     quat: new Quaternion(),
@@ -74,13 +81,23 @@ function makeBody(id: BodyId): BodyState {
   };
 }
 
+const startMs = Date.now();
+
 export const sim = {
-  /** Simulation time, ms since the Unix epoch (UTC). */
-  timeMs: Date.now(),
+  /**
+   * Simulation time, ms since the Unix epoch (UTC), as a plain float64 for any date from the Big
+   * Bang to 10¹³ years ahead. Never turn it into a Date: see lib/time.ts.
+   */
+  timeMs: startMs,
+  /**
+   * Sub-resolution remainder of the clock (ms). Far from 1970 a float64 resolves seconds or hours,
+   * so small steps are carried here until they add up (Kahan summation; see clock.ts).
+   */
+  timeCarryMs: 0,
   /** Time-warp factor (simulated seconds per real second). */
   warp: 1,
   paused: false,
-  astroTime: MakeTime(new Date()) as AstroTime,
+  astroTime: astroTimeAt(startMs) as AstroTime,
 
   camera: {
     /** World position, km (float64). */
@@ -111,6 +128,13 @@ export const sim = {
 };
 
 export type Sim = typeof sim;
+
+/** Set the simulation time outright (clearing the clock's carry) and the matching astronomy time. */
+export function setSimTime(ms: number): void {
+  sim.timeMs = ms;
+  sim.timeCarryMs = 0;
+  sim.astroTime = astroTimeAt(ms);
+}
 
 /** Seconds of simulated time since the J2000 epoch (TT), for the current frame. */
 export function simTTSeconds(): number {

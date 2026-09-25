@@ -18,6 +18,7 @@ import { CloseIcon, Kbd } from '../kit';
 import { useTicker } from '../useTicker';
 import { rich } from '../rich';
 import { BodyCard } from './BodyCard';
+import { formatSimDate } from '../../lib/time';
 
 function Corners() {
   const c = 'vf-corner';
@@ -105,9 +106,7 @@ const KIND_COLOR: Record<EventKind, string> = {
 };
 
 function fmtSimTime(ms: number) {
-  const d = new Date(ms);
-  if (Number.isNaN(d.getTime())) return '';
-  return d.toISOString().slice(11, 19);
+  return Number.isFinite(ms) ? formatSimDate(ms, 'time') : '';
 }
 
 /**

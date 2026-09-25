@@ -5,6 +5,13 @@
  * its front is a sphere of radius c(t − t₀). Every body carries a detector. When a front
  * passes a body between two frames, the exact crossing time is solved from the ephemeris
  * (physics/lightTime.pulseArrival), so time warp does not degrade the timing.
+ *
+ * Time warp: pulses are kept, and kept exact, at any warp. However long a frame is (up to
+ * 3 × 10¹⁴ s at the fastest warp), each crossing is bisected inside it, so a pulse fired at
+ * 320 million years a second still logs Earth at 499 s. Times of flight are measured from the
+ * emission as a difference of seconds, never of absolute timestamps, which far from 1970 are
+ * only good to seconds or hours. Once every detector has fired and the front is far past
+ * everything (RETIRE_KM), the pulse is dropped: it has nothing left to tell.
  */
 import { Vector3 } from 'three';
 import { BODIES, BODY_ORDER, C_KM_S, type BodyId } from '../physics/constants';
@@ -42,6 +49,8 @@ export const pulses = {
 };
 
 const MAX_PULSES = 4;
+/** A spent pulse is dropped once its front passes this radius (about 10 light-years, beyond Proxima). */
+const RETIRE_KM = 1e14;
 type Listener = (p: Pulse, d: Detection) => void;
 const listeners = new Set<Listener>();
 
@@ -61,7 +70,8 @@ export function emitPulse(source: BodyId | null): Pulse {
     origin,
     source,
     sourceName: source ? BODIES[source].name : 'observer',
-    pending: new Set(BODY_ORDER.filter((id) => id !== source)),
+    // Only bodies that exist now can see it (not Voyager 1 before 1980).
+    pending: new Set(BODY_ORDER.filter((id) => id !== source && sim.bodies[id].present)),
     detections: [],
     lastMs: sim.timeMs,
   };
@@ -97,13 +107,17 @@ export function updatePulses(): void {
       const s = span > 0 ? pulseArrival(positionAt, p.origin, t0, 0, span, 1e-7) : 0;
       const atMs = p.lastMs + s * 1000;
       const d = positionAt(s).distanceTo(p.origin);
-      const det: Detection = { pulse: p.id, body: id, atMs, dt: (atMs - p.t0Ms) / 1000, d };
+      // Time of flight from seconds relative to lastMs: exact even where atMs is not.
+      const det: Detection = { pulse: p.id, body: id, atMs, dt: s - t0, d };
       p.detections.push(det);
       p.pending.delete(id);
       for (const fn of listeners) fn(p, det);
     }
     p.lastMs = now;
   }
-  // Drop pulses once time has run backwards past their emission.
-  for (let i = pulses.list.length - 1; i >= 0; i--) if (now < pulses.list[i].t0Ms) pulses.list.splice(i, 1);
+  // Drop pulses once time has run backwards past their emission, or once they are spent.
+  for (let i = pulses.list.length - 1; i >= 0; i--) {
+    const p = pulses.list[i];
+    if (now < p.t0Ms || (p.pending.size === 0 && pulseRadius(p) > RETIRE_KM)) pulses.list.splice(i, 1);
+  }
 }

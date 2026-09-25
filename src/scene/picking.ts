@@ -10,7 +10,7 @@ export function pickBody(x: number, y: number): BodyId | null {
   let bestScore = Infinity;
   for (const id of BODY_ORDER) {
     const b = sim.bodies[id];
-    if (!b.screen.inFront) continue;
+    if (!b.present || !b.screen.inFront) continue;
     const reach = Math.max(b.radiusPx, 14);
     const d = Math.hypot(b.screen.x - x, b.screen.y - y);
     if (d > reach) continue;

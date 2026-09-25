@@ -1,6 +1,7 @@
 import type { BodyId } from '../physics/constants';
 import { useUI } from '../state/ui';
 import { controller } from '../controls/cameraController';
+import { sim } from '../sim/sim';
 
 export const BODY_KEYS: Partial<Record<BodyId, string>> = {
   sun: '0',
@@ -18,6 +19,8 @@ export const BODY_KEYS: Partial<Record<BodyId, string>> = {
 };
 
 export function goToBody(id: BodyId) {
+  // A body that does not exist at this date (Voyager 1 before 1980) cannot be targeted.
+  if (!sim.bodies[id].present) return;
   useUI.getState().select(id);
   controller.goTo(id);
 }

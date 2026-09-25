@@ -18,7 +18,7 @@ import { gaussian, hashSeed, mulberry32 } from '../lib/stats';
 import { niceStep } from '../ui/plot/ticks';
 import { sim } from '../sim/sim';
 import { emitPulse, onDetection, pulses } from '../sim/pulses';
-import { shipStateAt, travel, tripElapsed, type Trip } from '../sim/travel';
+import { travel, tripShipTime, type Trip } from '../sim/travel';
 import { useUI } from '../state/ui';
 import { relView } from '../render/relativisticView';
 import { logEvent } from './events';
@@ -135,7 +135,7 @@ function rocketSamples(t: Trip, upToTau: number): void {
 /** Per-frame acquisition while a trip is under way (call after updateTrip). */
 export function labFrame(): void {
   const t = travel.trip;
-  if (t?.drive === 'rocket') rocketSamples(t, shipStateAt(t, tripElapsed(t)).tau);
+  if (t?.drive === 'rocket') rocketSamples(t, tripShipTime(t));
   if (relView.split) labFlags.splitUsed = true;
 }
 

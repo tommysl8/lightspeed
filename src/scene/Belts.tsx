@@ -5,6 +5,7 @@ import { AU_KM, J2000_JD } from '../physics/constants';
 import { createBeltMaterial } from '../render/materials';
 import { assetUrl } from '../render/textures';
 import { sim } from '../sim/sim';
+import { shaderDays } from '../lib/time';
 import { useUI } from '../state/ui';
 import { POINTS_LAYER } from '../render/LightspeedScenePass';
 
@@ -60,7 +61,8 @@ export function Belts() {
   useFrame(({ gl }) => {
     if (!data) return;
     const u = material.uniforms;
-    u.uDays.value = sim.astroTime.tt + J2000_JD - data.refEpochJd;
+    // Wrapped far from the elements' epoch so float32 keeps resolving the motion (see shaderDays).
+    u.uDays.value = shaderDays(sim.astroTime.tt + J2000_JD - data.refEpochJd);
     u.uCamAU.value.copy(sim.camera.pos).divideScalar(AU_KM);
     u.uPointSize.value = 1.6 * gl.getPixelRatio();
     u.uRetarded.value = useUI.getState().retarded ? 1 : 0;

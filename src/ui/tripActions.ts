@@ -23,7 +23,7 @@ export function startTrip(dest: BodyId, beta: number, drive?: Drive): boolean {
   return true;
 }
 
-/** A journey sped the clock up for its flight; once the flight is over, time runs normally again. */
+/** After a journey's flight, time runs at real time again (a scene before it may have left the clock racing). */
 function endJourney(): void {
   if (useUI.getState().journeyNote) setWarp(1);
   useUI.setState({ journeyNote: null });

@@ -1,14 +1,13 @@
 import { useEffect, useRef } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import type { PerspectiveCamera } from 'three';
-import { MakeTime } from 'astronomy-engine';
 import { controller } from '../controls/cameraController';
 import { updateDerived } from '../sim/derived';
 import { updateEphemeris } from '../sim/ephemeris';
 import { earthLight, updateApparentPositions, updateEarthLight } from '../sim/lightDelay';
 import { sim } from '../sim/sim';
-import { shipStateAt, travel, tripElapsed, updateTrip } from '../sim/travel';
-import { chronoIntegrate, chronoTrip, chronoTripEnd, lagRate } from '../sim/chronometer';
+import { travel } from '../sim/travel';
+import { tickClock, tickTrip } from '../sim/tick';
 import { updatePulses } from '../sim/pulses';
 import { labArrival, labFrame } from '../lab/logger';
 import { useUI } from '../state/ui';
@@ -48,10 +47,9 @@ export function SimDriver() {
     const cam = camera as PerspectiveCamera;
     sim.camera.fovDeg = cam.fov;
 
-    // Clock
-    const dtSim = sim.paused ? 0 : dtReal * sim.warp;
-    sim.timeMs += dtSim * 1000;
-    sim.astroTime = MakeTime(new Date(sim.timeMs));
+    // Clock: a real trip plays by ship time and sets the Earth clock from it; otherwise the
+    // clock runs at the time warp.
+    const dtSim = tickClock(dtReal);
 
     // World
     updateEphemeris();
@@ -59,22 +57,16 @@ export function SimDriver() {
       initialised.current = true;
       controller.placeAt('earth', 26_000);
     }
-    const trip = travel.trip;
-    if (trip) {
-      const arrived = updateTrip();
-      // The chronometers follow the trip's closed-form solution, so skips stay exact.
-      const elapsed = tripElapsed(trip);
-      const s = shipStateAt(trip, elapsed);
-      chronoTrip(elapsed, trip.warp ? NaN : trip.rocket ? elapsed - s.tau : elapsed * lagRate(trip.beta));
-      if (arrived) {
-        chronoTripEnd();
-        // The rest of this frame after arrival (large with time warp or a skip) is spent at
-        // rest with the destination.
-        chronoIntegrate((sim.timeMs - trip.startMs) / 1000 - trip.earthTime);
-        labArrival(trip);
-        onArrival(trip.dest);
-      }
-    } else chronoIntegrate(dtSim);
+    // Trip and chronometers (both exact at any frame length)
+    const arrived = tickTrip(dtSim);
+    if (arrived) {
+      labArrival(arrived);
+      onArrival(arrived.dest);
+    }
+
+    // Bodies that do not exist at this date (Voyager 1 before 1980) cannot stay targeted.
+    if (!sim.bodies[ui.focus].present && controller.mode !== 'travel') controller.goTo('earth');
+    if (ui.selected && !sim.bodies[ui.selected].present) ui.select(null);
     labFrame();
     updatePulses();
 

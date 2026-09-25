@@ -1,11 +1,13 @@
 import { useMemo, useState } from 'react';
-import { Body, MakeTime, SearchRelativeLongitude } from 'astronomy-engine';
+import { Body, SearchRelativeLongitude } from 'astronomy-engine';
 import { useShallow } from 'zustand/react/shallow';
 import { EPOCH_MAX_MS, EPOCH_MIN_MS, resetToNow, setEpoch } from '../../sim/clock';
 import { logEvent } from '../../lab/events';
 import { useUI } from '../../state/ui';
 import { sim } from '../../sim/sim';
 import { fixed, julianDate } from '../../lib/sci';
+import { astroTimeAt, civilFromMs, formatSimDate, isDistantYear, msFromAstroTime, parseSimDate } from '../../lib/time';
+import { ephemerisQuality } from '../../sim/ephemeris';
 import { openDoc } from '../../state/route';
 import { Check, Menu, MenuHeading, Seg } from '../kit';
 import { useTicker } from '../useTicker';
@@ -13,19 +15,15 @@ import { openPlanner } from '../tripActions';
 import { Icon } from '../icons';
 import { Wordmark } from '../Logo';
 
-function pad(n: number) {
-  return String(n).padStart(2, '0');
-}
-
-/** Epoch readout: UTC date and time, and the Julian Date. */
+/** Epoch readout: UTC date and time (only the year, far from now), and the Julian Date. */
 function Epoch() {
   useTicker(10);
-  const d = new Date(sim.timeMs);
-  const ok = !Number.isNaN(d.getTime());
-  const date = ok ? `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}` : '—';
-  const time = ok ? `${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())}` : '';
+  const ms = sim.timeMs;
+  const distant = isDistantYear(civilFromMs(ms).year);
+  const date = formatSimDate(ms, 'date');
+  const time = distant ? '' : formatSimDate(ms, 'time');
   return (
-    <div className="flex items-baseline gap-3 whitespace-nowrap" title="Simulation epoch (UTC) and Julian Date">
+    <div className="flex items-baseline gap-3 whitespace-nowrap" title={`Simulation epoch: ${formatSimDate(ms, 'long')}`}>
       <span className="cap max-xl:hidden">Epoch</span>
       <span className="mono text-[12px] text-fg lg:text-[13.5px]">
         {date} <span className="text-fg">{time}</span> <span className="text-fg-3 max-lg:hidden">UTC</span>
@@ -68,26 +66,20 @@ function ScaleSeg() {
   );
 }
 
-/** "2026-09-24 14:03:27" (UTC). */
-const isoText = (ms: number) => new Date(ms).toISOString().slice(0, 19).replace('T', ' ');
+/** "2026-09-24 14:03:27" (UTC); "-1999-03-12 00:00:00" before 1 CE. Parsed back by parseSimDate. */
+const isoText = (ms: number) => formatSimDate(ms, 'input');
 
-/** Parse "YYYY-MM-DD[ hh:mm[:ss]]" as UTC. */
-function parseUtc(text: string): number {
-  const m = text.trim().match(/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2})(?::(\d{2}(?:\.\d+)?))?)?$/);
-  if (!m) return NaN;
-  const [, y, mo, d, h = '0', mi = '0', sec = '0'] = m;
-  const ms = Date.UTC(+y, +mo - 1, +d, +h, +mi, 0) + Number(sec) * 1000;
-  // Reject rolled-over dates such as 2026-02-31.
-  return new Date(ms).getUTCDate() === +d ? ms : NaN;
-}
+/** Parse "YYYY-MM-DD[ hh:mm[:ss]]" as UTC (a leading minus, or a trailing BCE, for early years). */
+const parseUtc = (text: string): number => parseSimDate(text);
 
-/** Next oppositions of the outer planets after the current epoch (Astronomy Engine). */
+/** Next oppositions of the outer planets after the current epoch (Astronomy Engine, where it is precise). */
 function nextOppositions(fromMs: number): { name: string; ms: number }[] {
-  const t = MakeTime(new Date(fromMs));
+  if (ephemerisQuality(fromMs) !== 'precise') return [];
+  const t = astroTimeAt(fromMs);
   return (['Mars', 'Jupiter', 'Saturn'] as const)
     .map((b): { name: string; ms: number } | null => {
       try {
-        return { name: b, ms: SearchRelativeLongitude(Body[b], 0, t).date.getTime() };
+        return { name: b, ms: msFromAstroTime(SearchRelativeLongitude(Body[b], 0, t)) };
       } catch {
         return null;
       }
@@ -145,11 +137,12 @@ function EpochSetter() {
             if (e.key === 'Enter' && valid && setEpoch(ms)) logEvent('SYS', `Epoch set to ${isoText(ms)} UTC; chronometers zeroed`);
           }}
         />
-        <div className="mono mt-1 text-[10px] text-fg-3">format YYYY-MM-DD hh:mm:ss, UTC</div>
+        <div className="mono mt-1 text-[10px] text-fg-3">format YYYY-MM-DD hh:mm:ss, UTC; add BCE for early years</div>
         <OppositionPresets onPick={(t) => setText(isoText(t))} />
         <p className="mt-1.5 text-[11px] leading-snug text-fg-3">
-          Bodies move to their positions at this instant. The chronometers are zeroed and pulses in flight discarded. Valid 1981–2199;
-          the Voyager 1 model begins after its 1980 Saturn flyby.
+          Bodies move to their positions at this instant. The chronometers are zeroed and pulses in flight discarded. Any year
+          from −9999 (10,000 BCE) to 9999: positions are precise for 1700–2200 and approximate from 3000 BCE to 3000 CE. Voyager 1
+          appears after its 1980 Saturn flyby.
         </p>
         <div className="mt-2 flex justify-end gap-1.5">
           <button className="btn btn-sm" disabled={tripActive} onClick={() => {

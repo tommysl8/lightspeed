@@ -101,6 +101,13 @@ export function updateDerived(camera: PerspectiveCamera): void {
     b.radiusPx = b.distCamera > b.displayRadius ? Math.asin(b.displayRadius / b.distCamera) * pxPerRad : 1e4;
     // Aberration shrinks apparent sizes ahead (and enlarges them behind) by 1/D.
     if (b.dopplerFactor !== 1) b.radiusPx /= b.dopplerFactor;
+    if (!b.present) {
+      // Not there at this date: nothing to draw, label, pick or measure.
+      b.radiusPx = 0;
+      b.magnitude = 99;
+      b.screen.onScreen = false;
+      b.screen.inFront = false;
+    }
   }
 
   sim.ship.beta = Math.min(sim.ship.vel.length() / C_KM_S, 0.999_999_999);
