@@ -98,6 +98,9 @@ export function useShortcuts() {
         case 'u':
           ui.toggle('showOverlays');
           break;
+        case 'j':
+          ui.toggle('showGrid');
+          break;
         case 'k':
           ui.toggle('leftOpen');
           break;

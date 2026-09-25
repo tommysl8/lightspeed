@@ -7,6 +7,7 @@ import { Orbits } from './scene/Orbits';
 import { Belts } from './scene/Belts';
 import { Glints } from './scene/Glints';
 import { LightPulses } from './scene/LightPulses';
+import { EclipticGrid } from './scene/EclipticGrid';
 import { RenderPipeline } from './render/RenderPipeline';
 import { AdaptiveQuality } from './render/AdaptiveQuality';
 import { LabelSync, LabelsLayer } from './ui/Labels';
@@ -54,6 +55,7 @@ export default function App() {
         >
           <SimDriver />
           <Starfield />
+          <EclipticGrid />
           <Bodies />
           <Orbits />
           <Belts />

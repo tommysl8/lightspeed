@@ -44,6 +44,7 @@ const GROUPS: { title: string; keys: [ReactNode, string][] }[] = [
       [<Kbd key="t">T</Kbd>, 'True scale ↔ enlarged bodies'],
       [<><Kbd>O</Kbd> <Kbd>L</Kbd> <Kbd>B</Kbd></>, 'Orbits, labels, small bodies'],
       [<Kbd key="u">U</Kbd>, 'Viewport overlays (reticle, apex, scale, axes)'],
+      [<Kbd key="j">J</Kbd>, 'Ecliptic coordinate grid'],
       [<Kbd key="esc">Esc</Kbd>, 'Close dialogs, leave free flight'],
       [<Kbd key="q">?</Kbd>, 'This sheet'],
     ],

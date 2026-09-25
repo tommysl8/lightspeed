@@ -21,6 +21,8 @@ export interface UIState {
   showBelts: boolean;
   /** Viewport instruments: reticle, scale bar, axis triad, apex markers. */
   showOverlays: boolean;
+  /** Ecliptic coordinate grid on the sky. */
+  showGrid: boolean;
   helpOpen: boolean;
   aboutOpen: boolean;
   /** Frame-rate and render-quality readout in the status bar. */
@@ -71,7 +73,7 @@ export interface UIState {
 
   select: (id: BodyId | null) => void;
   toggle: (
-    key: 'showOrbits' | 'showLabels' | 'showBelts' | 'showOverlays' | 'helpOpen' | 'retarded' | 'aboutOpen' | 'showFps' | 'leftOpen' | 'rightOpen',
+    key: 'showOrbits' | 'showLabels' | 'showBelts' | 'showOverlays' | 'showGrid' | 'helpOpen' | 'retarded' | 'aboutOpen' | 'showFps' | 'leftOpen' | 'rightOpen',
   ) => void;
   setSizeMode: (m: SizeMode) => void;
 }
@@ -89,6 +91,7 @@ export const useUI = create<UIState>()(
       showLabels: true,
       showBelts: true,
       showOverlays: true,
+      showGrid: false,
       helpOpen: false,
       aboutOpen: false,
       showFps: false,
@@ -128,6 +131,7 @@ export const useUI = create<UIState>()(
         showLabels: s.showLabels,
         showBelts: s.showBelts,
         showOverlays: s.showOverlays,
+        showGrid: s.showGrid,
         showFps: s.showFps,
         leftOpen: s.leftOpen,
         rightOpen: s.rightOpen,

@@ -12,6 +12,7 @@ import { MANUAL, type StepCtx } from '../../lab/manual';
 import { PROTOCOLS, PROTOCOL_LIST, cellText, columnUnits, sigmaText, toCsv, type Protocol, type ResultLine } from '../../lab/protocols';
 import { EXPERIMENT_IDS, rowsFor, useNotebook, type DataRow, type ExperimentId } from '../../lab/notebook';
 import { recordManual } from '../../lab/logger';
+import { useLabEvents } from '../../lab/events';
 import { reticleReading, targetReading } from '../../lab/measure';
 import { useUI } from '../../state/ui';
 import { openExplainer } from '../explainerActions';
@@ -478,6 +479,15 @@ function ExperimentPage({ exp }: { exp: ExperimentId }) {
 
 function NotebookTab() {
   const { rows, noise, setNoise, clear } = useNotebook(useShallow((s) => ({ rows: s.rows, noise: s.noise, setNoise: s.setNoise, clear: s.clear })));
+  const events = useLabEvents();
+  const exportLog = () => {
+    const lines = events.map((e) => `${new Date(e.simMs).toISOString()}  ${e.kind.padEnd(4)}  ${e.text}`);
+    download(
+      `lightspeed-event-log-${new Date().toISOString().slice(0, 10)}.txt`,
+      ['# Lightspeed event log (simulation time, UTC)', ...lines].join('\n') + '\n',
+      'text/plain',
+    );
+  };
   return (
     <div className="px-4 pb-6 pt-3">
       <div className="cap">Notebook</div>
@@ -528,6 +538,9 @@ function NotebookTab() {
           onClick={() => download(`lightspeed-notebook-${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify({ rows }, null, 1), 'application/json')}
         >
           Export all (JSON)
+        </button>
+        <button className="btn btn-sm" disabled={!events.length} onClick={exportLog} title="Detector hits, readings, arrivals and system messages from this session">
+          Event log ({events.length})
         </button>
         <button
           className="btn btn-sm btn-hazard"

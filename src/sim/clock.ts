@@ -40,6 +40,22 @@ export function resetToNow(): void {
   setPaused(false);
 }
 
+/** Earliest and latest settable epochs: the Voyager 1 model starts after its Saturn flyby (1980). */
+export const EPOCH_MIN_MS = Date.UTC(1981, 0, 1);
+export const EPOCH_MAX_MS = Date.UTC(2199, 11, 31);
+
+/**
+ * Set the simulation epoch (UTC ms). Not allowed mid-trip. Like "now", it zeroes the
+ * chronometers and discards pulses in flight, since time may have run backwards.
+ */
+export function setEpoch(ms: number): boolean {
+  if (useUI.getState().tripActive || !Number.isFinite(ms)) return false;
+  sim.timeMs = Math.min(EPOCH_MAX_MS, Math.max(EPOCH_MIN_MS, ms));
+  zeroChrono();
+  clearPulses();
+  return true;
+}
+
 /** Jump forward in simulated time (used by "jump to arrival"). */
 export function advanceTime(seconds: number): void {
   if (seconds > 0) sim.timeMs += seconds * 1000;

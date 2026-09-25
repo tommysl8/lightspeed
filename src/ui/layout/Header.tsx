@@ -1,4 +1,8 @@
+import { useMemo, useState } from 'react';
+import { Body, MakeTime, SearchRelativeLongitude } from 'astronomy-engine';
 import { useShallow } from 'zustand/react/shallow';
+import { EPOCH_MAX_MS, EPOCH_MIN_MS, resetToNow, setEpoch } from '../../sim/clock';
+import { logEvent } from '../../lab/events';
 import { useUI } from '../../state/ui';
 import { sim } from '../../sim/sim';
 import { fixed, julianDate } from '../../lib/sci';
@@ -60,6 +64,112 @@ function ScaleSeg() {
   );
 }
 
+/** "2026-09-24 14:03:27" (UTC). */
+const isoText = (ms: number) => new Date(ms).toISOString().slice(0, 19).replace('T', ' ');
+
+/** Parse "YYYY-MM-DD[ hh:mm[:ss]]" as UTC. */
+function parseUtc(text: string): number {
+  const m = text.trim().match(/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2})(?::(\d{2}(?:\.\d+)?))?)?$/);
+  if (!m) return NaN;
+  const [, y, mo, d, h = '0', mi = '0', sec = '0'] = m;
+  const ms = Date.UTC(+y, +mo - 1, +d, +h, +mi, 0) + Number(sec) * 1000;
+  // Reject rolled-over dates such as 2026-02-31.
+  return new Date(ms).getUTCDate() === +d ? ms : NaN;
+}
+
+/** Next oppositions of the outer planets after the current epoch (Astronomy Engine). */
+function nextOppositions(fromMs: number): { name: string; ms: number }[] {
+  const t = MakeTime(new Date(fromMs));
+  return (['Mars', 'Jupiter', 'Saturn'] as const)
+    .map((b): { name: string; ms: number } | null => {
+      try {
+        return { name: b, ms: SearchRelativeLongitude(Body[b], 0, t).date.getTime() };
+      } catch {
+        return null;
+      }
+    })
+    .filter((x): x is { name: string; ms: number } => !!x && x.ms <= EPOCH_MAX_MS)
+    .sort((a, b) => a.ms - b.ms);
+}
+
+/** Buttons that load the next oppositions into the epoch field (computed when the menu opens). */
+function OppositionPresets({ onPick }: { onPick: (ms: number) => void }) {
+  const list = useMemo(() => nextOppositions(sim.timeMs), []);
+  if (!list.length) return null;
+  return (
+    <div className="mt-2">
+      <div className="cap mb-1">Next oppositions</div>
+      <div className="flex flex-wrap gap-1">
+        {list.map((o) => (
+          <button
+            key={o.name}
+            className="btn btn-sm"
+            onClick={() => onPick(o.ms)}
+            title={`${o.name} opposite the Sun as seen from Earth: ${isoText(o.ms)} UTC`}
+          >
+            {o.name} <span className="mono text-fg-3">{isoText(o.ms).slice(0, 10)}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/** Epoch readout that opens a UTC date-time setter. */
+function EpochSetter() {
+  const tripActive = useUI((s) => s.tripActive);
+  const [text, setText] = useState(() => isoText(sim.timeMs));
+  const ms = parseUtc(text);
+  const valid = Number.isFinite(ms) && ms >= EPOCH_MIN_MS && ms <= EPOCH_MAX_MS;
+  return (
+    <Menu label={<Epoch />} align="left" width={320} title="Simulation epoch: click to set">
+      <div className="px-2.5 pb-2 pt-1">
+        <div className="cap mb-1.5">Set epoch (UTC)</div>
+        <input
+          className="fld w-full"
+          value={text}
+          placeholder="YYYY-MM-DD hh:mm:ss"
+          spellCheck={false}
+          aria-label="Epoch, UTC"
+          aria-invalid={!valid}
+          onFocus={(e) => {
+            setText(isoText(sim.timeMs));
+            requestAnimationFrame(() => e.target.select());
+          }}
+          onChange={(e) => setText(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && valid && setEpoch(ms)) logEvent('SYS', `Epoch set to ${isoText(ms)} UTC; chronometers zeroed`);
+          }}
+        />
+        <div className="mono mt-1 text-[10px] text-fg-4">format YYYY-MM-DD hh:mm:ss, UTC</div>
+        <OppositionPresets onPick={(t) => setText(isoText(t))} />
+        <p className="mt-1.5 text-[11px] leading-snug text-fg-3">
+          Bodies move to their positions at this instant. The chronometers are zeroed and pulses in flight discarded. Valid 1981–2199;
+          the Voyager 1 model begins after its 1980 Saturn flyby.
+        </p>
+        <div className="mt-2 flex justify-end gap-1.5">
+          <button className="btn btn-sm" disabled={tripActive} onClick={() => {
+              resetToNow();
+              setText(isoText(sim.timeMs));
+            }}>
+            Now
+          </button>
+          <button
+            className="btn btn-pri btn-sm"
+            disabled={tripActive || !valid}
+            onClick={() => {
+              if (setEpoch(ms)) logEvent('SYS', `Epoch set to ${isoText(ms)} UTC; chronometers zeroed`);
+            }}
+          >
+            Set epoch
+          </button>
+        </div>
+        {tripActive && <p className="mt-1.5 text-[11px] text-accent">Unavailable in flight.</p>}
+      </div>
+    </Menu>
+  );
+}
+
 function DisplayMenu() {
   const s = useUI(
     useShallow((u) => ({
@@ -67,6 +177,7 @@ function DisplayMenu() {
       showLabels: u.showLabels,
       showBelts: u.showBelts,
       showOverlays: u.showOverlays,
+      showGrid: u.showGrid,
       retarded: u.retarded,
       showFps: u.showFps,
     })),
@@ -94,6 +205,9 @@ function DisplayMenu() {
       </Check>
       <Check checked={s.showBelts} onChange={() => t('showBelts')} kbd="B" hint="31 930 catalogued asteroids, Trojans and TNOs (JPL SBDB)">
         Small bodies
+      </Check>
+      <Check checked={s.showGrid} onChange={() => t('showGrid')} kbd="J" hint="Ecliptic longitude and latitude every 15°; the ecliptic ticked every 10°">
+        Ecliptic grid
       </Check>
       <MenuHeading>Instruments</MenuHeading>
       <Check checked={s.showOverlays} onChange={() => t('showOverlays')} kbd="U" hint="Reticle, apex markers, scale bar, axis triad">
@@ -146,7 +260,7 @@ export function Header() {
 
       <div className="mx-1 h-4 w-px bg-line-2 max-sm:hidden" />
       <div className="max-sm:hidden">
-        <Epoch />
+        <EpochSetter />
       </div>
 
       <div className="ml-auto flex min-w-0 items-center gap-2">

@@ -69,6 +69,11 @@ function scaleBody(): BodyId {
 
 const AXES = [new Vector3(1, 0, 0), new Vector3(0, 0, -1), new Vector3(0, 1, 0)]; // ecliptic X, Y, Z in world axes
 
+/** Ecliptic longitudes labelled on the grid. */
+const GRID_LONS = Array.from({ length: 12 }, (_, i) => i * 30);
+const gridEls: (HTMLElement | null)[] = [];
+const gridDir = new Vector3();
+
 export function OverlaySync() {
   const frameRef = useRef(0);
   useFrame(({ camera }) => {
@@ -103,6 +108,19 @@ export function OverlaySync() {
         els.scaleText.textContent = `${s.label}  at ${BODIES[id].name}`;
       }
     }
+
+    // Longitude labels on the ecliptic (grid on, classical view only)
+    const grid = useUI.getState().showGrid && !relView.active;
+    GRID_LONS.forEach((l, i) => {
+      const el = gridEls[i];
+      if (!el) return;
+      if (!grid) {
+        el.style.opacity = '0';
+        return;
+      }
+      const r = (l * Math.PI) / 180;
+      place(el, projectDir(gridDir.set(Math.cos(r), 0, -Math.sin(r)), cam));
+    });
 
     // Axis triad (orthographic, 26 px arms)
     const ids: [Key, Key][] = [
@@ -159,6 +177,21 @@ export function ViewportInstruments() {
 
       <Marker kind="apex" />
       <Marker kind="antapex" />
+
+      {GRID_LONS.map((l, i) => (
+        <div
+          key={l}
+          ref={(el) => {
+            gridEls[i] = el;
+          }}
+          className="mono pointer-events-none absolute left-0 top-0 opacity-0"
+          aria-hidden
+        >
+          <span className="absolute left-1 top-1 whitespace-nowrap text-[9.5px] text-accent/70 [text-shadow:0_0_3px_#000]">
+            {l === 0 ? 'λ 0° equinox' : `${l}°`}
+          </span>
+        </div>
+      ))}
 
       {/* Scale bar */}
       <div className="absolute bottom-3 left-3">
