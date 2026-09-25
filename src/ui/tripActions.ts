@@ -4,6 +4,7 @@ import { controller } from '../controls/cameraController';
 import { sim } from '../sim/sim';
 import { abortTrip, launch, planTrip, travel, type Drive } from '../sim/travel';
 import { useUI } from '../state/ui';
+import { chronoLaunch, chronoTripEnd } from '../sim/chronometer';
 
 export function openPlanner(dest?: BodyId): void {
   const ui = useUI.getState();
@@ -15,6 +16,7 @@ export function startTrip(dest: BodyId, beta: number, drive?: Drive): boolean {
   const plan = planTrip(dest, beta, sim.camera.pos.clone(), sim.astroTime, drive);
   if (!plan || plan.distance <= 0) return false;
   launch(plan);
+  chronoLaunch();
   controller.startTravel(travel.trip!.dir);
   useUI.setState({ tripActive: true, plannerOpen: false, selected: null });
   return true;
@@ -23,6 +25,7 @@ export function startTrip(dest: BodyId, beta: number, drive?: Drive): boolean {
 /** Stop mid-course: the ship halts (instantly, idealised) and the camera orbits the nearest body. */
 export function stopTrip(): void {
   abortTrip();
+  chronoTripEnd();
   sim.camera.pos.copy(travel.shipPos);
   useUI.setState({ tripActive: false });
   controller.exitTravelToNearest();

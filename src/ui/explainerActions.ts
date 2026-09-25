@@ -1,12 +1,13 @@
 import type { ExplainerId } from '../content/explainers';
 import { useUI } from '../state/ui';
 
+/** Open a reference section in the lab manual. */
 export function openExplainer(id: ExplainerId): void {
-  useUI.setState({ explainerOpen: true, explainerTopic: id });
+  useUI.setState({ leftOpen: true, manualTab: 'reference', refTopic: id, noteTopic: null });
   markSeen(id);
 }
 
-// ── "Seen" bookkeeping so auto-surfacing only happens once per topic ─────────────────────
+// ── "Seen" bookkeeping so a section is only suggested once ────────────────────────────────
 
 const SEEN_KEY = 'lightspeed.seenExplainers';
 function readSeen(): Set<string> {
@@ -26,8 +27,12 @@ function markSeen(id: ExplainerId): void {
   }
 }
 
-/** Open a topic the first time something relevant happens (e.g. first time past 0.1c). */
+/**
+ * Suggest a reference section the first time something relevant happens (e.g. first time
+ * past 0.1c). It appears as a margin note in the viewport rather than taking over the screen.
+ */
 export function surfaceOnce(id: ExplainerId): void {
   if (seen.has(id)) return;
-  openExplainer(id);
+  markSeen(id);
+  useUI.setState({ noteTopic: id });
 }

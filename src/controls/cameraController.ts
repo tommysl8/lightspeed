@@ -132,7 +132,10 @@ export class CameraController {
   // ── Public actions ────────────────────────────────────────────────────────────────────
 
   /** Fly smoothly to a body and orbit it. */
-  goTo(id: BodyId, opts: { keepDistance?: boolean; keepDirection?: boolean } = {}): void {
+  goTo(
+    id: BodyId,
+    opts: { keepDistance?: boolean; keepDirection?: boolean; distance?: number; direction?: Vector3 } = {},
+  ): void {
     if (this.mode === 'travel') return;
     const eye = sim.camera.pos;
     const B = sim.bodies[id].pos;
@@ -153,10 +156,16 @@ export class CameraController {
       dir0.copy(fwd).negate();
     }
 
-    const w1 = opts.keepDistance
-      ? Math.max(minDistance(id), eye.distanceTo(B))
-      : framingDistance(id);
-    const dir1 = opts.keepDirection ? v2.copy(eye).sub(B).normalize().clone() : this.niceDirection(id);
+    const w1 = opts.distance
+      ? Math.min(MAX_DIST_KM, Math.max(minDistance(id), opts.distance))
+      : opts.keepDistance
+        ? Math.max(minDistance(id), eye.distanceTo(B))
+        : framingDistance(id);
+    const dir1 = opts.direction
+      ? opts.direction.clone().normalize()
+      : opts.keepDirection
+        ? v2.copy(eye).sub(B).normalize().clone()
+        : this.niceDirection(id);
     const A = fromBody ? sim.bodies[fromBody].pos : fromPoint;
     const path = zoomPanPath(A.distanceTo(B), w0, w1);
     const duration = Math.min(6, Math.max(1.1, 0.8 + path.S * 0.3));

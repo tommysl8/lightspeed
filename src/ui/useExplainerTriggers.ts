@@ -5,16 +5,16 @@ import { useUI } from '../state/ui';
 import { surfaceOnce } from './explainerActions';
 
 /**
- * Surface the relevant explainer the first time something happens: leaving Earth's
- * neighbourhood, crossing 0.1c / 0.5c / 0.9c / 0.99c, trying to approach c, switching size
- * mode, or engaging the fictional warp.
+ * Suggest the relevant reference section the first time something happens: leaving Earth's
+ * neighbourhood, crossing 0.1c / 0.5c / 0.9c / 0.99c, approaching c, switching size mode, or
+ * engaging the fictional warp.
  */
 export function useExplainerTriggers() {
   useEffect(() => {
     let lastSize = useUI.getState().sizeMode;
     const id = window.setInterval(() => {
       const ui = useUI.getState();
-      if (ui.explainerOpen) return; // don't interrupt a topic being read
+      if (ui.noteTopic) return; // one suggestion at a time
       const trip = travel.trip;
       if (trip?.warp) return surfaceOnce('ftl');
       if (trip?.drive === 'rocket' || (ui.plannerOpen && ui.plannerDrive === 'rocket')) return surfaceOnce('rocket');

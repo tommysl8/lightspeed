@@ -1,12 +1,15 @@
 import { useEffect, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { BODIES, BODY_ORDER, type BodyId } from '../physics/constants';
+import { BODIES, BODY_ORDER, C_KM_S, type BodyId } from '../physics/constants';
+import { qty } from '../lib/sci';
 import { sim } from '../sim/sim';
 import { useUI } from '../state/ui';
 import { controller } from '../controls/cameraController';
 
 /** DOM label elements, registered by <LabelsLayer/> and positioned by <LabelSync/> each frame. */
 const labelEls = new Map<BodyId, HTMLDivElement>();
+const subEls = new Map<BodyId, HTMLSpanElement>();
+let subFrame = 0;
 
 const PRIORITY: Record<BodyId, number> = {
   sun: 0,
@@ -38,6 +41,16 @@ function smoothstep(a: number, b: number, x: number) {
 export function LabelSync() {
   useFrame(() => {
     const { showLabels, selected } = useUI.getState();
+    // Range and light-time under the selected body's name, a few times a second.
+    if (selected && ++subFrame % 8 === 0) {
+      const sub = subEls.get(selected);
+      if (sub) {
+        const b = sim.bodies[selected];
+        const r = qty(b.distTrue, 'length', 4);
+        const lt = qty(b.distTrue / C_KM_S, 'time', 3);
+        sub.textContent = `${r.v} ${r.u} · ${lt.v} ${lt.u}`;
+      }
+    }
     const placed: { x: number; y: number; w: number }[] = [];
     for (const id of selected ? [selected, ...ORDER.filter((i) => i !== selected)] : ORDER) {
       const el = labelEls.get(id);
@@ -78,13 +91,17 @@ export function LabelsLayer() {
 
 function Label({ id }: { id: BodyId }) {
   const ref = useRef<HTMLDivElement>(null);
+  const sub = useRef<HTMLSpanElement>(null);
+  const selected = useUI((s) => s.selected === id);
   useEffect(() => {
     const el = ref.current!;
     labelEls.set(id, el);
+    if (sub.current) subEls.set(id, sub.current);
     return () => {
       labelEls.delete(id);
+      subEls.delete(id);
     };
-  }, [id]);
+  }, [id, selected]);
   return (
     <div
       ref={ref}
@@ -103,7 +120,10 @@ function Label({ id }: { id: BodyId }) {
       }}
     >
       <span className="body-marker" />
-      <span className="body-name">{BODIES[id].name}</span>
+      <span className="body-name">
+        {BODIES[id].name}
+        {selected && <span ref={sub} className="body-sub" />}
+      </span>
     </div>
   );
 }

@@ -4,6 +4,8 @@
  */
 import { sim } from './sim';
 import { useUI } from '../state/ui';
+import { zeroChrono } from './chronometer';
+import { clearPulses } from './pulses';
 
 export const WARP_STEPS = [1, 10, 100, 1_000, 10_000, 100_000, 1_000_000];
 
@@ -25,10 +27,15 @@ export function stepWarp(dir: 1 | -1): void {
   setWarp(next);
 }
 
-/** Back to the present moment at real time. Not allowed mid-trip, where time can't run backwards. */
+/**
+ * Back to the present moment at real time. Not allowed mid-trip, where time can't run
+ * backwards. The chronometers are zeroed and pulses in flight are discarded.
+ */
 export function resetToNow(): void {
   if (useUI.getState().tripActive) return;
   sim.timeMs = Date.now();
+  zeroChrono();
+  clearPulses();
   setWarp(1);
   setPaused(false);
 }

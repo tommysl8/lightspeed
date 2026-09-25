@@ -26,7 +26,7 @@ export interface Explainer {
   note?: ReactNode;
 }
 
-const P = ({ children }: { children: ReactNode }) => <p className="mb-3 last:mb-0">{children}</p>;
+const P = ({ children }: { children: ReactNode }) => <p>{children}</p>;
 
 export const EXPLAINERS: Explainer[] = [
   {
@@ -61,7 +61,7 @@ export const EXPLAINERS: Explainer[] = [
     body: (
       <>
         <P>Shrink the Sun to a ball 1 metre across and keep everything in proportion:</P>
-        <ul className="mb-3 list-disc space-y-1 pl-5">
+        <ul>
           <li>Earth is a 9 mm marble, 107 m away.</li>
           <li>Jupiter is a 10 cm ball, 560 m away.</li>
           <li>Neptune is a 3.6 cm ball, 3.2 km away.</li>
@@ -85,15 +85,16 @@ export const EXPLAINERS: Explainer[] = [
           Special relativity’s effects all scale with one number, γ. It stays within a hair of 1 at everyday speeds,
           then climbs without limit as v approaches c:
         </P>
-        <table className="mb-3 w-full text-[12.5px] tabular-nums">
-          <tbody className="[&_td]:py-0.5">
-            <tr><td className="text-white/60">Earth’s orbit (30 km/s)</td><td className="text-right">1.000000005</td></tr>
-            <tr><td className="text-white/60">0.1c</td><td className="text-right">1.005</td></tr>
-            <tr><td className="text-white/60">0.5c</td><td className="text-right">1.155</td></tr>
-            <tr><td className="text-white/60">0.9c</td><td className="text-right">2.294</td></tr>
-            <tr><td className="text-white/60">0.99c</td><td className="text-right">7.09</td></tr>
-            <tr><td className="text-white/60">0.9999c</td><td className="text-right">70.7</td></tr>
-            <tr><td className="text-white/60">0.99999c</td><td className="text-right">224</td></tr>
+        <table className="tbl">
+          <thead><tr><th>Speed</th><th>γ</th></tr></thead>
+          <tbody>
+            <tr><td>Earth’s orbit (29.8 km/s)</td><td>1 + 4.9 × 10<sup>−9</sup></td></tr>
+            <tr><td>0.1c</td><td>1.005</td></tr>
+            <tr><td>0.5c</td><td>1.155</td></tr>
+            <tr><td>0.9c</td><td>2.294</td></tr>
+            <tr><td>0.99c</td><td>7.09</td></tr>
+            <tr><td>0.9999c</td><td>70.7</td></tr>
+            <tr><td>0.99999c</td><td>224</td></tr>
           </tbody>
         </table>
         <P>Time dilation, length contraction and the energy of motion all grow with γ.</P>
@@ -181,7 +182,7 @@ export const EXPLAINERS: Explainer[] = [
           and at extreme speeds much of their light shifts out of the visible band altogether.
         </P>
         <P>
-          <b>Beaming.</b> Surface brightness scales as D⁴ (because I<sub>ν</sub>/ν³ is invariant). The total flux from a
+          <b>Beaming.</b> Surface brightness scales as D<sup>4</sup> (because I<sub>ν</sub>/ν³ is invariant). The total flux from a
           point source like a star scales as D² for a moving observer, because aberration also squeezes its patch of sky.
           What the eye sees depends on how much of the shifted spectrum falls in the visible.
         </P>
@@ -204,7 +205,7 @@ export const EXPLAINERS: Explainer[] = [
       <>
         <P>
           As v approaches c, γ grows without bound, and so does the energy needed to go any faster. Getting 1 kg up to
-          0.99c takes about 5.5 × 10¹⁷ J, roughly 130 megatons of TNT or a thousandth of humanity’s yearly energy use.
+          0.99c takes about 5.5 × 10<sup>17</sup> J, roughly 130 megatons of TNT or a thousandth of humanity’s yearly energy use.
           0.99999c takes 37 times more. Reaching c itself would take infinitely much.
         </P>
         <P>

@@ -51,3 +51,30 @@ export function signalDelay(
   }
   return tau;
 }
+
+/**
+ * Arrival time of a light pulse at a moving receiver. The pulse leaves `origin` at time t0
+ * (s) and its front is a sphere of radius c(t − t0). The receiver at x(t) is reached at the
+ * root of
+ *   g(t) = |x(t) − origin| − c (t − t0)
+ * in [tLo, tHi], which the caller brackets (g(tLo) > 0 ≥ g(tHi)). For any receiver slower
+ * than light g decreases monotonically, so bisection cannot miss the root.
+ */
+export function pulseArrival(
+  positionAt: (t: number) => Vec3,
+  origin: Vec3,
+  t0: number,
+  tLo: number,
+  tHi: number,
+  toleranceSeconds = 1e-6,
+): number {
+  const g = (t: number) => distance(positionAt(t), origin) - C_KM_S * (t - t0);
+  let lo = tLo;
+  let hi = tHi;
+  for (let i = 0; i < 100 && hi - lo > toleranceSeconds; i++) {
+    const mid = 0.5 * (lo + hi);
+    if (g(mid) > 0) lo = mid;
+    else hi = mid;
+  }
+  return 0.5 * (lo + hi);
+}

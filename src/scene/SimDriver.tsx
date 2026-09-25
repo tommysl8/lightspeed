@@ -7,7 +7,10 @@ import { updateDerived } from '../sim/derived';
 import { updateEphemeris } from '../sim/ephemeris';
 import { earthLight, updateApparentPositions, updateEarthLight } from '../sim/lightDelay';
 import { sim } from '../sim/sim';
-import { travel, updateTrip } from '../sim/travel';
+import { shipStateAt, travel, tripElapsed, updateTrip } from '../sim/travel';
+import { chronoIntegrate, chronoTrip, chronoTripEnd } from '../sim/chronometer';
+import { updatePulses } from '../sim/pulses';
+import { labArrival, labFrame } from '../lab/logger';
 import { useUI } from '../state/ui';
 import { psfUniforms } from '../render/materials';
 import { updateRelativisticView } from '../render/relativisticView';
@@ -57,7 +60,18 @@ export function SimDriver() {
       controller.placeAt('earth', 26_000);
     }
     const trip = travel.trip;
-    if (trip && updateTrip()) onArrival(trip.dest);
+    if (trip) {
+      const arrived = updateTrip();
+      // Chronometer τ follows the trip's closed-form proper time, so skips stay exact.
+      chronoTrip(arrived ? trip.shipTime : shipStateAt(trip, tripElapsed(trip)).tau);
+      if (arrived) {
+        chronoTripEnd();
+        labArrival(trip);
+        onArrival(trip.dest);
+      }
+    } else chronoIntegrate(dtSim);
+    labFrame();
+    updatePulses();
 
     // Camera (floating origin: the three.js camera never leaves the origin)
     controller.update(dtReal, dtSim, travel.shipPos);

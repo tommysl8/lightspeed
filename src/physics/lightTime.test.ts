@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { AU_KM, BODIES, C_KM_S, LIGHT_YEAR_KM, PROXIMA_DISTANCE_KM, PARSEC_KM } from './constants';
-import { lightTime, retardedDelay, signalDelay } from './lightTime';
+import { lightTime, pulseArrival, retardedDelay, signalDelay } from './lightTime';
 
 describe('light-travel time sanity checks', () => {
   it('Sun → Earth (1 au) ≈ 499 s (8 min 19 s)', () => {
@@ -48,5 +48,26 @@ describe('light-delay solvers', () => {
     const u = 30;
     const tau = signalDelay((dt) => ({ x: d + u * dt, y: 0, z: 0 }), { x: 0, y: 0, z: 0 });
     expect(tau).toBeCloseTo(d / (C_KM_S - u), 6);
+  });
+});
+
+describe('pulse arrival', () => {
+  it('times a pulse to a receiver at rest', () => {
+    const d = 1.5e8;
+    const t = pulseArrival(() => ({ x: d, y: 0, z: 0 }), { x: 0, y: 0, z: 0 }, 0, 0, 1000);
+    expect(t).toBeCloseTo(d / C_KM_S, 5);
+  });
+
+  it('times a pulse chasing a receiver that recedes', () => {
+    // Receiver starts at d and recedes at v: d + v t = c t  ⇒  t = d / (c − v)
+    const d = 7.8e8;
+    const v = 13;
+    const t = pulseArrival((s) => ({ x: d + v * s, y: 0, z: 0 }), { x: 0, y: 0, z: 0 }, 0, 0, 1e4);
+    expect(t).toBeCloseTo(d / (C_KM_S - v), 5);
+  });
+
+  it('respects the emission time and an off-axis origin', () => {
+    const t = pulseArrival(() => ({ x: 0, y: 3e5, z: 4e5 }), { x: 0, y: 0, z: 0 }, 100, 100, 200);
+    expect(t).toBeCloseTo(100 + 5e5 / C_KM_S, 5);
   });
 });
