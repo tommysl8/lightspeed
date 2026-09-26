@@ -1,6 +1,6 @@
 /**
  * Index of the physics sections (ids, titles and a one-sentence plain-language summary).
- * The full text, with its equations, lives in reference.tsx and loads with the physics panel.
+ * The full text, with its equations, lives in reference.tsx and loads with the lab (its Reference tab).
  */
 export type ExplainerId =
   | 'light-time'

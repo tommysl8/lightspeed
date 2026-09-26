@@ -18,6 +18,11 @@ export interface ZoomPanPath {
 }
 
 export function zoomPanPath(d: number, w0: number, w1: number, rho = Math.SQRT2): ZoomPanPath {
+  // A zero (or negative, or NaN) scale has no logarithm: the path would be NaN throughout.
+  const W_MIN = 1e-9;
+  w0 = w0 > W_MIN ? w0 : W_MIN;
+  w1 = w1 > W_MIN ? w1 : W_MIN;
+  d = d > 0 ? d : 0;
   const rho2 = rho * rho;
   const rho4 = rho2 * rho2;
   if (d < 1e-9 * Math.max(w0, w1)) {

@@ -1,0 +1,265 @@
+{
+  "schema": "lightspeed.galaxy-model/1",
+  "title": "Parametric model of the Milky Way for rendering",
+  "summary": "Every number below is either a published measurement (with its reference key) or an explicit modelling choice (ref 'model'). Lengths in kpc unless a unit says otherwise. Angles in degrees. The model frame G is galactocentric (see frames.galactocentric).",
+  "units": { "length": "kpc", "angle": "deg", "luminosity": "L_sun (Johnson V)", "mass": "M_sun", "extinction": "mag of A_V per kpc of path" },
+
+  "frames": {
+    "icrsToGalactic": {
+      "note": "IAU galactic coordinates as realised in the ICRS by the Hipparcos/Gaia convention: north galactic pole at (RA, Dec) = (192.85948, +27.12825) deg, galactic longitude of the north celestial pole = 122.93192 deg. Rows are the galactic x (l=0,b=0), y (l=90,b=0) and z (b=+90) axes written in ICRS components, so v_gal = M v_icrs. Differs from astropy's FK5-based Galactic frame by 0.02 arcsec (frame bias).",
+      "matrix": [
+        [-0.0548755604162154, -0.8734370902348850, -0.4838350155487132],
+        [ 0.4941094278755837, -0.4448296299600112,  0.7469822444972189],
+        [-0.8676661490190047, -0.1980763734312015,  0.4559837761750669]
+      ],
+      "ref": "Hipparcos1997"
+    },
+    "eclipticJ2000ToGalactic": {
+      "note": "v_gal = M v_ecl, where ecliptic J2000 uses the mean obliquity 84381.448 arcsec (the value the app and astronomy-engine use). M = icrsToGalactic x R_x(+eps). Treats EQJ as ICRS (the 23 mas frame bias is ignored).",
+      "obliquityArcsec": 84381.448,
+      "matrix": [
+        [-0.0548755604162155, -0.9938213790616487, -0.0964766261278290],
+        [ 0.4941094278755836, -0.1109907334174410,  0.8622858750901130],
+        [-0.8676661490190047, -0.0003515899048314,  0.4971471917159636]
+      ],
+      "ref": "Hipparcos1997"
+    },
+    "appWorldToGalactic": {
+      "note": "The app's world axes are world = (x_ecl, z_ecl, -y_ecl). v_gal = M v_world. Its transpose maps galactic to world.",
+      "matrix": [
+        [-0.0548755604162155, -0.0964766261278290,  0.9938213790616487],
+        [ 0.4941094278755836,  0.8622858750901130,  0.1109907334174410],
+        [-0.8676661490190047,  0.4971471917159636,  0.0003515899048314]
+      ]
+    },
+    "galactocentric": {
+      "note": "Model frame G (right-handed, kpc): origin at Sgr A*, x from the Sun's projection towards Sgr A*, y towards l = 90 deg (the direction of Galactic rotation at the Sun), z towards the north galactic pole; the Sun sits at z = +z0 above the midplane. Same construction as astropy's Galactocentric frame (roll = 0) with the parameters below. Transform from heliocentric galactic Cartesian (x_gal, kpc): x_G = R x_gal + sunG. Inverse: x_gal = R^T (x_G - sunG).",
+      "R0": { "value": 8.277, "unc": 0.009, "uncSys": 0.030, "unit": "kpc", "ref": "GRAVITY2022" },
+      "z0": { "value": 0.0208, "unc": 0.0003, "unit": "kpc", "ref": "BennettBovy2019" },
+      "sgrA_icrs": { "raDeg": 266.4168370833, "decDeg": -29.0078105556, "ref": "ReidBrunthaler2004", "galacticLDeg": 359.94425, "galacticBDeg": -0.04616 },
+      "sunG": [-8.2769738649, 0.0, 0.0208],
+      "R": [
+        [ 0.9999980695118587, -0.0009727463073357,  0.0017072601380173],
+        [ 0.0009729203334801,  0.9999995216017424, -0.0001011054434291],
+        [-0.0017071609713203,  0.0001027662763491,  0.9999985375191858]
+      ],
+      "azimuthConvention": "Galactocentric azimuth beta (as in Reid et al. 2019 and Chen et al. 2019): 0 towards the Sun, increasing in the direction of Galactic rotation. In frame G a point at radius R and azimuth beta is (x, y) = (-R cos beta, R sin beta)."
+    }
+  },
+
+  "sun": {
+    "R0": { "value": 8.277, "unc": 0.009, "uncSys": 0.030, "unit": "kpc", "ref": "GRAVITY2022" },
+    "z0": { "value": 0.0208, "unc": 0.0003, "unit": "kpc", "ref": "BennettBovy2019" },
+    "peculiarVelocityUVW": { "value": [11.1, 12.24, 7.25], "unc": [0.69, 0.47, 0.37], "unit": "km/s", "ref": "Schoenrich2010", "note": "Relative to the local standard of rest; U towards the Galactic centre, V towards rotation, W towards the NGP. Systematic uncertainties (1, 2, 0.5) km/s." },
+    "sgrAProperMotionAlongL": { "value": -6.411, "unc": 0.008, "unit": "mas/yr", "ref": "ReidBrunthaler2020", "note": "Apparent motion of Sgr A* along galactic longitude = reflex of the Sun's orbit. Total tangential speed of the Sun = 4.74047 x 6.411 x R0 = 251.5 km/s for R0 = 8.277 kpc." },
+    "circularSpeedAtSun": { "value": 236, "unc": 7, "unit": "km/s", "ref": "Reid2019" }
+  },
+
+  "sgrA": {
+    "mass": { "value": 4.297e6, "unc": 0.012e6, "uncSys": 0.040e6, "unit": "M_sun", "ref": "GRAVITY2022" },
+    "distance": { "value": 8.277, "unc": 0.009, "uncSys": 0.030, "unit": "kpc", "ref": "GRAVITY2022" },
+    "earlierMeasurements": [
+      { "ref": "GRAVITY2019", "R0_pc": 8178, "R0_unc_pc": [13, 22], "mass": 4.152e6, "mass_unc": 0.014e6 },
+      { "ref": "GRAVITY2020", "R0_pc": 8246.7, "R0_unc_pc": [9.3], "mass": 4.261e6, "mass_unc": 0.012e6 },
+      { "ref": "GRAVITY2021", "R0_pc": 8275, "R0_unc_pc": [9, 33], "mass": 4.297e6, "mass_unc": [0.012e6, 0.040e6] }
+    ]
+  },
+
+  "components": {
+    "thinDisc": {
+      "density": "rho = exp(-R/hR) * exp(-|z - zWarp(R,beta)|/hz), R <= Rmax",
+      "hR": { "value": 2.6, "unc": 0.5, "ref": "BHG16" },
+      "hz": { "value": 0.300, "unc": 0.050, "ref": "BHG16" },
+      "Rmax": { "value": 20.0, "ref": "model", "note": "Sampling limit only; BHG16 give no truncation radius. Density at 20 kpc is 1% of the local value." },
+      "stellarMass": { "value": 3.5e10, "unc": 1.0e10, "ref": "BHG16" }
+    },
+    "thickDisc": {
+      "density": "rho = exp(-R/hR) * exp(-|z - zWarp|/hz), R <= Rmax",
+      "hR": { "value": 2.0, "unc": 0.2, "ref": "BHG16" },
+      "hz": { "value": 0.900, "unc": 0.180, "ref": "BHG16" },
+      "Rmax": { "value": 20.0, "ref": "model" },
+      "localDensityRatioToThin": { "value": 0.04, "unc": 0.02, "ref": "BHG16" },
+      "localSurfaceDensityRatioToThin": { "value": 0.12, "unc": 0.04, "ref": "BHG16" },
+      "stellarMass": { "value": 6e9, "unc": 3e9, "ref": "BHG16" }
+    },
+    "bulge": {
+      "note": "Box/peanut bulge. In-plane exponential along the bar's principal axes (WG13 fitted scale lengths); vertical exponential whose scale height varies along the major axis as measured by WG13, which produces the peanut shape seen side-on. The X-shape above ~400 pc is not modelled explicitly.",
+      "density": "rho = exp(-sqrt((x/hx)^2 + (y/hy)^2)) * exp(-|z|/hz(|x|)); (x,y) along the bulge major/intermediate axes",
+      "barAngle": { "value": 27, "unc": 2, "ref": "WG13", "note": "Angle between the major axis and the Sun-GC line; near end at positive longitude (first quadrant)." },
+      "axisRatios": { "value": [1.0, 0.63, 0.26], "ref": "WG13", "note": "10 : 6.3 : 2.6 from the exponential scale lengths along the three axes inside ~1 kpc" },
+      "faceOnAxisRatio": { "value": 0.5, "unc": 0.05, "ref": "BHG16", "note": "projected axis ratio seen from the NGP, isophotes to ~2 kpc" },
+      "radiusOfMaximumX": { "value": 1.5, "unc": 0.2, "ref": "BHG16" },
+      "hx": { "value": 0.70, "ref": "WG13" },
+      "hy": { "value": 0.44, "ref": "WG13" },
+      "hzProfile": { "x": [0.0, 0.525, 1.125, 1.725, 2.5], "hz": [0.18, 0.25, 0.56, 0.46, 0.20], "ref": "WG13", "note": "0.18 kpc at x~0 (BHG16/WG13 minor-axis fit), 0.25/0.56/0.46 kpc at 0.525/1.125/1.725 kpc (WG13 conclusions). The 2.5 kpc node (0.20 kpc, the thin long bar's height from Wegg2015) is a model choice that joins the bulge to the long bar. Linear interpolation; constant beyond the ends." },
+      "stellarMass": { "value": 1.55e10, "range": [1.4e10, 1.7e10], "ref": "BHG16", "note": "Stellar mass in the VVV bulge region." },
+      "sampleBox": [3.5, 2.5, 2.5]
+    },
+    "longBar": {
+      "note": "Two-component long bar of Wegg, Gerhard & Portail (2015) Table 1, 'N-body model + 2 components' row, fitted with R0 = 8.3 kpc. Cut(u) = exp(-u^2) if u > 1 else 1. For the super-thin component x0 < 0 means density rising outwards along x; we evaluate its in-plane term as |y|/y0 - |x|/|x0| (the cutoffs dominate; see galaxy.md).",
+      "density": "rho = exp(-[(|x|/x0)^c + (|y|/y0)^c]^(1/c)) * exp(-|z|/z0) * Cut((R - Rout)/sOut) * Cut((Rin - R)/sIn)",
+      "thin": {
+        "barAngle": { "value": 29.1, "ref": "Wegg2015" },
+        "x0": { "value": 0.82, "ref": "Wegg2015" }, "y0": { "value": 0.23, "ref": "Wegg2015" }, "z0": { "value": 0.20, "ref": "Wegg2015" },
+        "Rout": { "value": 4.37, "ref": "Wegg2015" }, "sOut": { "value": 0.11, "ref": "Wegg2015" },
+        "Rin": { "value": 3.26, "ref": "Wegg2015" }, "sIn": { "value": 0.56, "ref": "Wegg2015" },
+        "cPerp": { "value": 3.98, "ref": "Wegg2015" },
+        "stellarMass": { "value": 4.0e9, "ref": "Wegg2015" }
+      },
+      "superThin": {
+        "barAngle": { "value": 30.0, "ref": "Wegg2015" },
+        "x0": { "value": -32.66, "ref": "Wegg2015" }, "y0": { "value": 1.88, "ref": "Wegg2015" }, "z0": { "value": 0.04, "ref": "Wegg2015" },
+        "Rout": { "value": 3.36, "ref": "Wegg2015" }, "sOut": { "value": 0.76, "ref": "Wegg2015" },
+        "Rin": { "value": 7.09, "ref": "Wegg2015" }, "sIn": { "value": 2.24, "ref": "Wegg2015" },
+        "cPerp": { "value": 1.67, "ref": "Wegg2015" },
+        "stellarMass": { "value": 3.3e9, "ref": "Wegg2015" }
+      },
+      "halfLength": { "value": 5.0, "unc": 0.2, "ref": "BHG16" },
+      "sampleBox": [6.0, 6.0, 1.2]
+    },
+    "nuclearStellarDisc": {
+      "density": "rho = (R/rb)^-1.3 for R < rb; (R/rb)^-3 for rb <= R < Redge; 0 beyond; times exp(-|z|/hz). Chosen so the projected profile along l goes as |l|^-0.3 inside ~90 pc and |l|^-2 outside, as BHG16 summarise.",
+      "rb": { "value": 0.090, "ref": "BHG16" },
+      "Redge": { "value": 0.230, "ref": "BHG16" },
+      "hz": { "value": 0.045, "ref": "BHG16", "note": "Nishiyama et al. 2013 via BHG16" },
+      "Rmin": { "value": 0.003, "ref": "model", "note": "Inner sampling limit (avoids the integrable cusp)." },
+      "stellarMass": { "value": 1.4e9, "unc": 0.6e9, "ref": "Launhardt2002" }
+    },
+    "nuclearStarCluster": {
+      "density": "Plummer sphere flattened to axis ratio q, half-light radius rh (Plummer scale a = rh / 1.305)",
+      "rh": { "value": 0.0042, "unc": 0.0004, "ref": "BHG16", "note": "Schoedel et al. 2014 via BHG16" },
+      "q": { "value": 0.71, "unc": 0.02, "ref": "BHG16" },
+      "stellarMass": { "value": 1.8e7, "unc": 0.3e7, "ref": "BHG16" },
+      "rmax": { "value": 0.05, "ref": "model" }
+    },
+    "stellarHalo": {
+      "density": "rho = (m/rs)^-alphaIn for m < rs, (m/rs)^-alphaOut beyond, with m^2 = R^2 + (z/q(m))^2; q rises smoothly from qIn to qOut between 15 and 35 kpc (model)",
+      "alphaIn": { "value": 2.5, "unc": 0.3, "ref": "BHG16" },
+      "alphaOut": { "value": 4.5, "unc": 0.5, "ref": "BHG16", "note": "RR Lyrae and BHB value; red giants give 3.8." },
+      "rs": { "value": 25, "unc": 10, "ref": "BHG16" },
+      "qIn": { "value": 0.65, "unc": 0.05, "ref": "BHG16" },
+      "qOut": { "value": 0.8, "unc": 0.1, "ref": "BHG16" },
+      "mRange": { "value": [1.0, 55.0], "ref": "model", "note": "Sampling limits: inside 1 kpc the bulge dominates; 55 kpc keeps every particle inside the int16 position range." },
+      "stellarMass": { "value": 5.5e8, "range": [4e8, 7e8], "ref": "BHG16" }
+    },
+
+    "spiralArms": {
+      "note": "Log-periodic spiral segments with one kink each: ln(R/Rkink) = -(beta - betaKink) tan(psi), psi = psiLt for beta <= betaKink, psiGt beyond. Gaussian 1-sigma width w(R) = width + 0.042 (R - Rkink) kpc. Reid et al. assumed R0 = 8.15 kpc; we scale every radius and width by R0/8.15 (= 1.0156) so the arms stay centred on Sgr A* and near-Sun distances change by < 2%. betaData is the azimuth range covered by parallaxes; outside it the arm is an extrapolation (see extension).",
+      "ref": "Reid2019",
+      "R0source": 8.15,
+      "dwdR": { "value": 0.042, "ref": "Reid2019" },
+      "arms": [
+        { "id": "3kpc",    "name": "3-kpc arm (near)",           "N": 3,  "betaData": [15, 18],   "betaKink": 15, "Rkink": 3.52,  "psiLt": -4.2, "psiGt": -4.2, "width": 0.18 },
+        { "id": "norma",   "name": "Norma arm",                  "N": 11, "betaData": [5, 54],    "betaKink": 18, "Rkink": 4.46,  "psiLt": -1.0, "psiGt": 19.5, "width": 0.14 },
+        { "id": "sctcen",  "name": "Scutum-Centaurus arm",       "N": 36, "betaData": [0, 104],   "betaKink": 23, "Rkink": 4.91,  "psiLt": 14.1, "psiGt": 12.1, "width": 0.23 },
+        { "id": "sgrcar",  "name": "Sagittarius-Carina arm",     "N": 35, "betaData": [2, 97],    "betaKink": 24, "Rkink": 6.04,  "psiLt": 17.1, "psiGt": 1.0,  "width": 0.27 },
+        { "id": "local",   "name": "Local (Orion) arm",          "N": 28, "betaData": [-8, 34],   "betaKink": 9,  "Rkink": 8.26,  "psiLt": 11.4, "psiGt": 11.4, "width": 0.31 },
+        { "id": "perseus", "name": "Perseus arm",                "N": 41, "betaData": [-23, 115], "betaKink": 40, "Rkink": 8.87,  "psiLt": 10.3, "psiGt": 8.7,  "width": 0.35 },
+        { "id": "outer",   "name": "Outer (Norma-Cygnus) arm",   "N": 11, "betaData": [-16, 71],  "betaKink": 18, "Rkink": 12.24, "psiLt": 3.0,  "psiGt": 9.4,  "width": 0.65 }
+      ],
+      "tangencyPriorsL": { "value": { "3kpc": 337, "norma": 328, "sctcen": 308, "sgrcar": 283 }, "ref": "Reid2019", "note": "Bronfman et al. 2000 tangencies used by Reid et al. as priors in quadrant 4." },
+      "extension": {
+        "ref": "model",
+        "note": "Arms are continued beyond betaData with the pitch angle of the nearest segment for up to 150 deg of azimuth (90 deg for the 3-kpc arm, which reaches its l = 337 deg tangency, a prior in the Reid et al. fit), inside 3.0 <= R <= 16.0 kpc (2.5 kpc for the 3-kpc arm). Along the extension the arm strength falls linearly from 0.6 at the data edge to 0 at the end. The far side of the Galaxy is not constrained by parallaxes.",
+        "maxDeltaBeta": 150, "maxDeltaBeta3kpc": 90, "Rmin": 3.0, "Rmin3kpc": 2.5, "Rmax": 16.0, "edgeStrength": 0.6
+      }
+    },
+
+    "youngArmStars": {
+      "note": "Young (<~100 Myr) OB-dominated population that makes the arms blue. Placed about the Reid et al. arm ridge lines with the fitted Gaussian widths; weight along each arm follows the thin-disc surface density times the arm length element.",
+      "hz": { "value": 0.060, "ref": "Wegg2015", "note": "'Young stars locally have a scale height of ~60 pc' (Wegg et al. 2015, sec. 7, citing Joshi 2007)." },
+      "Rmin": { "value": 2.5, "ref": "model" }
+    },
+    "hiiRegions": {
+      "note": "Individual HII regions drawn as compact pink sprites along the arms. Positions are a model (sampled like the young stars); scale height from the maser-traced high-mass star-forming regions.",
+      "hz": { "value": 0.019, "unc": 0.002, "ref": "Reid2019", "note": "Scale height of high-mass star-forming regions within 7 kpc of the centre." },
+      "radiusPc": { "median": 8, "sigmaDex": 0.35, "clip": [2, 60], "ref": "model" },
+      "lineRatios": { "Halpha": 1.0, "NII6583": 0.30, "Hbeta": 0.35, "OIII5007": 0.30, "Hgamma": 0.165, "SII6716_31": 0.15, "ref": "model", "note": "Hbeta/Halpha = 1/2.86 is Case B recombination at 10^4 K (Osterbrock & Ferland 2006); the metal-line ratios are typical of Galactic HII regions and only set the display colour." }
+    },
+
+    "warp": {
+      "density": "zWarp(R, beta) = a (R - Rw)^b sin(beta - betaW) for R > Rw, else 0",
+      "ref": "Chen2019",
+      "note": "Power-law fit to 1339 classical Cepheids ('All' row), fitted with R0 = 8.0 kpc; Rw scaled by R0/8.0 here. Applied to all disc components, arms and dust.",
+      "Rw": { "value": 7.72, "unc": 0.27, "ref": "Chen2019" },
+      "betaW": { "value": 17.5, "unc": 1.0, "ref": "Chen2019" },
+      "a": { "value": 0.060, "unc": 0.012, "ref": "Chen2019" },
+      "b": { "value": 1.33, "unc": 0.08, "ref": "Chen2019" },
+      "R0source": 8.0
+    },
+
+    "dust": {
+      "note": "Dust density expressed directly as V-band extinction per unit path, a_V = 1.086 kappaV rho, where rho is Drimmel & Spergel's dust density (MJy/sr/kpc) and kappaV their fitted V opacity. D&S defined the model with R_sun = 1 (8 kpc); we evaluate their formulas at x/s with s = R0/8.0 and divide the density by s, which keeps every column density they fitted unchanged. The arm dust uses D&S's cross-section, height and radial cut-off but is placed on the Reid et al. 2019 arm ridge lines (D&S used the Taylor & Cordes 1993 arms). D&S's separate Local-arm dust segment and the Sag-Car reduction factor are not used. No central molecular zone.",
+      "ref": "DS2001",
+      "R0source": 8.0,
+      "kappaV": { "value": 0.0180, "unc": 0.0029, "unit": "(MJy/sr)^-1", "ref": "DS2001" },
+      "disc": {
+        "density": "rho0 exp(-r/hr) sech^2(z/hd(r)); hd = hd0 + hd1 (r - rf) for r > rf; for r < rHole: rho(rHole) exp(-((r - rHole)/sHole)^2)",
+        "rho0": { "value": 1098, "unc": 41, "unit": "MJy/sr/kpc", "ref": "DS2001" },
+        "hr": { "value": 2.26, "unc": 0.16, "ref": "DS2001" },
+        "hd0": { "value": 0.1344, "unc": 0.0085, "ref": "DS2001" },
+        "hd1": { "value": 0.0148, "unc": 0.0099, "unit": "kpc/kpc", "ref": "DS2001" },
+        "rf": { "value": 4.40, "ref": "DS2001" },
+        "rHole": { "value": 4.0, "ref": "DS2001", "note": "0.5 R_sun" },
+        "sHole": { "value": 2.0, "ref": "DS2001", "note": "0.25 R_sun" }
+      },
+      "arms": {
+        "density": "rhoA gA(Ra) exp(-(d/wa)^2) exp(-(z/ha)^2); wa = ca Ra; ha = ha0 + ha1 (Ra - rfa)^2 for Ra > rfa; gA = exp(-((Ra - rm)/ra)^2) for Ra > rm, else 1. d = in-plane distance to the arm ridge, Ra = galactocentric radius of the nearest ridge point.",
+        "rhoA": { "value": 61, "unc": 16, "unit": "MJy/sr/kpc", "ref": "DS2001", "note": "NIR-fit value (their Table 3)." },
+        "ca": { "value": 0.0641, "unc": 0.0088, "unit": "kpc/kpc", "ref": "DS2001" },
+        "ha0": { "value": 0.080, "ref": "DS2001" },
+        "ha1": { "value": 0.0146, "unc": 0.0014, "unit": "kpc/kpc^2", "ref": "DS2001" },
+        "rfa": { "value": 5.48, "unc": 0.13, "ref": "DS2001" },
+        "rm": { "value": 6.71, "unc": 0.48, "ref": "DS2001" },
+        "ra": { "value": 2.07, "unc": 0.22, "ref": "DS2001" }
+      },
+      "checks": {
+        "note": "Values computed from this model by staging/galaxy/src/galaxyModel.ts (see galaxy.md): a_V in the plane at the Sun, and A_V from the Sun to Sgr A* and to the galactic poles, against the literature.",
+        "observedAVtoSgrA": { "value": 40, "note": "A_K ~ 2.6, A_V ~ 40 mag", "ref": "BHG16" }
+      }
+    }
+  },
+
+  "luminosity": {
+    "note": "V-band luminosity budget used to set particle brightness. Total from the Milky Way analogue photometry of Licquia et al. 2015 (M_V = -21.37, B-V = 0.73) as tabulated by BHG16, with M_V,sun = 4.83. The split between components is a model: stellar masses from the references above divided by assumed mass-to-light ratios (thick disc 3.4, bulge 3.2, thin bar 3.0, super-thin bar 1.5, NSD 3.0, halo 1.5; M/L_V of old populations with a Kroupa IMF lie between ~1.5 and ~4), with the remainder given to the thin disc. The implied thin-disc M/L_V is 1.8, compared with 1.70 for the Galaxy as a whole (BHG16 Table 3).",
+    "totalLV": { "value": 3.02e10, "ref": "BHG16", "note": "10^(-0.4 (-21.37 - 4.83))" },
+    "fractions": {
+      "thinDisc": 0.522, "youngArmStars": 0.100, "hiiRegions": 0.015,
+      "thickDisc": 0.058, "bulge": 0.160, "barThin": 0.044, "barSuperThin": 0.073,
+      "nuclearStellarDisc": 0.015, "nuclearStarCluster": 0.0006, "stellarHalo": 0.012
+    },
+    "ref": "model"
+  },
+
+  "colours": {
+    "note": "Display colours. Each particle gets a B-V drawn from a normal distribution, converted to an effective temperature with Ballesteros (2012) and to linear sRGB through a blackbody and the CIE 1931 fit of Wyman, Sloan & Shirley (2013), the same pipeline the app uses for stars. Integrated population colours are not blackbodies; this is a display approximation. HII regions use the emission-line mix in components.hiiRegions.lineRatios.",
+    "BV": {
+      "thinDisc": [0.80, 0.20], "youngArmStars": [-0.10, 0.15], "thickDisc": [0.85, 0.10],
+      "bulge": [1.00, 0.10], "barThin": [0.95, 0.10], "barSuperThin": [0.75, 0.15],
+      "nuclearStellarDisc": [1.00, 0.10], "nuclearStarCluster": [1.00, 0.10], "stellarHalo": [0.70, 0.10]
+    },
+    "ref": "model"
+  },
+
+  "references": {
+    "GRAVITY2022": { "cite": "GRAVITY Collaboration (Abuter R. et al.) 2022, A&A 657, L12: Mass distribution in the Galactic Center based on interferometric astrometry of multiple stellar orbits", "doi": "10.1051/0004-6361/202142465", "licence": "CC BY 4.0" },
+    "GRAVITY2021": { "cite": "GRAVITY Collaboration (Abuter R. et al.) 2021, A&A 647, A59: Improved GRAVITY astrometric accuracy from modeling optical aberrations", "doi": "10.1051/0004-6361/202040208" },
+    "GRAVITY2020": { "cite": "GRAVITY Collaboration (Abuter R. et al.) 2020, A&A 636, L5: Detection of the Schwarzschild precession in the orbit of the star S2 near the Galactic centre massive black hole", "doi": "10.1051/0004-6361/202037813" },
+    "GRAVITY2019": { "cite": "GRAVITY Collaboration (Abuter R. et al.) 2019, A&A 625, L10: A geometric distance measurement to the Galactic center black hole with 0.3% uncertainty", "doi": "10.1051/0004-6361/201935656" },
+    "BennettBovy2019": { "cite": "Bennett M., Bovy J. 2019, MNRAS 482, 1417: Vertical waves in the solar neighbourhood in Gaia DR2", "doi": "10.1093/mnras/sty2813" },
+    "ReidBrunthaler2004": { "cite": "Reid M.J., Brunthaler A. 2004, ApJ 616, 872: The Proper Motion of Sagittarius A*. II. The Mass of Sagittarius A*", "doi": "10.1086/424960" },
+    "ReidBrunthaler2020": { "cite": "Reid M.J., Brunthaler A. 2020, ApJ 892, 39: The Proper Motion of Sagittarius A*. III. The Case for a Supermassive Black Hole", "doi": "10.3847/1538-4357/ab76cd" },
+    "Schoenrich2010": { "cite": "Schoenrich R., Binney J., Dehnen W. 2010, MNRAS 403, 1829: Local kinematics and the local standard of rest", "doi": "10.1111/j.1365-2966.2010.16253.x" },
+    "BHG16": { "cite": "Bland-Hawthorn J., Gerhard O. 2016, ARA&A 54, 529: The Galaxy in Context: Structural, Kinematic, and Integrated Properties", "doi": "10.1146/annurev-astro-081915-023441" },
+    "Reid2019": { "cite": "Reid M.J. et al. 2019, ApJ 885, 131: Trigonometric Parallaxes of High-mass Star-forming Regions: Our View of the Milky Way (Table 2)", "doi": "10.3847/1538-4357/ab4a11" },
+    "WG13": { "cite": "Wegg C., Gerhard O. 2013, MNRAS 435, 1874: Mapping the three-dimensional density of the Galactic bulge with VVV red clump stars", "doi": "10.1093/mnras/stt1376" },
+    "Wegg2015": { "cite": "Wegg C., Gerhard O., Portail M. 2015, MNRAS 450, 4050: The structure of the Milky Way's bar outside the bulge (Table 1)", "doi": "10.1093/mnras/stv745" },
+    "Launhardt2002": { "cite": "Launhardt R., Zylka R., Mezger P.G. 2002, A&A 384, 112: The nuclear bulge of the Galaxy. III.", "doi": "10.1051/0004-6361:20020017" },
+    "Chen2019": { "cite": "Chen X. et al. 2019, Nature Astronomy 3, 320: An intuitive 3D map of the Galactic warp's precession traced by classical Cepheids (Table 1)", "doi": "10.1038/s41550-018-0686-7" },
+    "DS2001": { "cite": "Drimmel R., Spergel D.N. 2001, ApJ 556, 181: Three-dimensional Structure of the Milky Way Disk: The Distribution of Stars and Dust beyond 0.35 R_sun (Tables 1 and 3)", "doi": "10.1086/321556" },
+    "Hipparcos1997": { "cite": "ESA 1997, The Hipparcos and Tycho Catalogues, ESA SP-1200, Vol. 1, Section 1.5.3 (galactic coordinates)" },
+    "Ballesteros2012": { "cite": "Ballesteros F.J. 2012, EPL 97, 34008: New insights into black bodies", "doi": "10.1209/0295-5075/97/34008" },
+    "Wyman2013": { "cite": "Wyman C., Sloan P.-P., Shirley P. 2013, JCGT 2(2), 1: Simple Analytic Approximations to the CIE XYZ Color Matching Functions" },
+    "model": { "cite": "Modelling choice made for this app; see galaxy.md for the reasoning." }
+  }
+}

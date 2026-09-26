@@ -199,6 +199,16 @@ export function propagateTwoBody(r0: Vec3, v0: Vec3, dt: number, mu: number): { 
   const sqrtMu = Math.sqrt(mu);
 
   let chi = sqrtMu * Math.abs(alpha) * dt;
+  if (alpha < -1e-12) {
+    // Hyperbola: the elliptic guess grows linearly with dt, and cosh(√−z) overflows within
+    // centuries for Voyager. Vallado's guess grows only logarithmically, so any span works
+    // (Vallado, Fundamentals of Astrodynamics and Applications, 4th ed., Algorithm 8).
+    const a = 1 / alpha;
+    const sgn = Math.sign(dt);
+    const den = dot(r0, v0) + sgn * Math.sqrt(-mu * a) * (1 - r0m * alpha);
+    const guess = sgn * Math.sqrt(-a) * Math.log((-2 * mu * alpha * dt) / den);
+    if (Number.isFinite(guess) && guess * sgn > 0) chi = guess;
+  }
   if (!Number.isFinite(chi) || chi === 0) chi = (sqrtMu * dt) / r0m;
   for (let k = 0; k < 200; k++) {
     const z = alpha * chi * chi;

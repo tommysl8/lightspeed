@@ -1,19 +1,23 @@
-import { lazy, Suspense, useRef, type KeyboardEvent } from 'react';
+import { lazy, Suspense, useEffect, useRef, type KeyboardEvent } from 'react';
 import { useNotebook } from '../../lab/notebook';
 import { useUI, type ManualTab } from '../../state/ui';
 import { CloseIcon, DockResizer } from '../kit';
 
-// The physics panel pulls in KaTeX, so it loads on first use.
+// The lab pulls in KaTeX, so it loads on first use.
 const LabManual = lazy(() => import('./LabManual'));
 
 const TABS: { id: ManualTab; label: string; title: string }[] = [
-  { id: 'reference', label: 'Reference', title: 'Ten short sections on the physics of what you see' },
-  { id: 'experiments', label: 'Experiments', title: 'The lab: five guided experiments for students' },
+  { id: 'experiments', label: 'Experiments', title: 'Five guided experiments in special relativity, for students' },
   { id: 'notebook', label: 'Notebook', title: 'Your recorded readings' },
+  { id: 'reference', label: 'Reference', title: 'Ten short sections on the physics, with their equations' },
 ];
 
-/** The physics panel (left dock): the explanations, the experiments and the notebook. */
+/** The lab (left dock): the experiments, the notebook and the reference sections. */
 export function ManualDock() {
+  // Once the lab has been opened, the rest of the interface may mention it (see labUsed).
+  useEffect(() => {
+    if (!useUI.getState().labUsed) useUI.setState({ labUsed: true });
+  }, []);
   const tab = useUI((s) => s.manualTab);
   const count = useNotebook((s) => s.rows.length);
   const width = useUI((s) => s.leftWidth);
@@ -31,15 +35,16 @@ export function ManualDock() {
     refs.current[j]?.focus();
   };
   return (
-    <aside className="dock dock-l relative" aria-label="Physics" style={{ width }}>
+    <aside className="dock dock-l relative" aria-label="Lab" style={{ width }}>
       <DockResizer side="left" width={width} initial={384} onChange={(w) => useUI.setState({ leftWidth: w })} />
       <div className="titlebar !h-[30px]">
-        <span className="cap !text-fg-2">Physics</span>
-        <button className="btn btn-q btn-sq ml-auto !h-5 !w-5" onClick={() => useUI.setState({ leftOpen: false })} aria-label="Close the physics panel">
+        <span className="cap !text-fg-2">Lab</span>
+        <span className="ml-2 truncate text-[11px] text-fg-3">For students</span>
+        <button className="btn btn-q btn-sq ml-auto !h-5 !w-5" onClick={() => useUI.setState({ leftOpen: false })} aria-label="Close the lab (K)" title="Close the lab (K)">
           <CloseIcon />
         </button>
       </div>
-      <div className="tabs" role="tablist" aria-label="Physics panel sections">
+      <div className="tabs" role="tablist" aria-label="Lab sections">
         {TABS.map((t, i) => (
           <button
             key={t.id}

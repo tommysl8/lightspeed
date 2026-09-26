@@ -17,12 +17,14 @@ varying float vSigma;
 varying float vSize;
 
 void main() {
+  // (The CPU keeps |position| below 10^16 km, so dot(p, p) cannot overflow float32.)
   float dist = max(length(position), 1e-6);
-  float D;
-  vec3 dShip = relAberrate(position / dist, D);
+  float lnD;
+  vec3 dShip = relAberrate(position / dist, lnD);
   vec3 shifted;
-  float mag = aMag + dopplerMagnitudeShift(aTemp, D, shifted) - 2.5 * log2(uExposure) * 0.30103;
-  vec4 rest = blackbodyLookup(aTemp);
+  float lnT = log(aTemp);
+  float mag = aMag + dopplerMagnitudeShift(lnT, lnD, shifted) - MAG_PER_LN * uLnExposure;
+  vec4 rest = blackbodyLn(lnT);
   float sigma, peak, size;
   psfFromMagnitude(mag, sigma, peak, size);
   vColor = aColor * shifted / max(rest.rgb, vec3(1e-3));

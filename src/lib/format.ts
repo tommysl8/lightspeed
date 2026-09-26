@@ -1,39 +1,12 @@
 import { AU_KM, JULIAN_YEAR_S, LIGHT_YEAR_KM, DAY_S } from '../physics/constants';
+import { formatSimDate } from './time';
 
 const nf0 = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 });
 const nf1 = new Intl.NumberFormat('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 const nf2 = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-/** Human-readable duration: "33 ms", "8.4 s", "8 min 19 s", "5 h 28 min", "12.3 days", "4.25 years". */
-export function formatDuration(seconds: number): string {
-  if (!Number.isFinite(seconds)) return '∞';
-  const s = Math.abs(seconds);
-  const sign = seconds < 0 ? '−' : '';
-  if (s === 0) return '0 s';
-  if (s < 1e-6) return `${sign}${nf0.format(s * 1e9)} ns`;
-  if (s < 1e-3) return `${sign}${nf0.format(s * 1e6)} µs`;
-  if (s < 1) return `${sign}${nf0.format(s * 1e3)} ms`;
-  if (s < 60) return `${sign}${s < 10 ? nf1.format(s) : nf0.format(s)} s`;
-  if (s < 3600) {
-    const m = Math.floor(s / 60);
-    const sec = Math.floor(s - m * 60);
-    return `${sign}${m} min ${sec} s`;
-  }
-  if (s < DAY_S) {
-    const h = Math.floor(s / 3600);
-    const m = Math.floor((s - h * 3600) / 60);
-    return `${sign}${h} h ${m} min`;
-  }
-  if (s < 2 * DAY_S) {
-    const d = Math.floor(s / DAY_S);
-    const h = Math.floor((s - d * DAY_S) / 3600);
-    return `${sign}${d} day ${h} h`;
-  }
-  if (s < JULIAN_YEAR_S) return `${sign}${nf1.format(s / DAY_S)} days`;
-  const y = s / JULIAN_YEAR_S;
-  if (y < 1000) return `${sign}${nf2.format(y)} years`;
-  return `${sign}${nf0.format(y)} years`;
-}
+/** Human-readable duration, from nanoseconds to trillions of years (see lib/time.ts). */
+export { formatDuration } from './time';
 
 /** Compact clock-style duration for HUD counters: "00:08:19", "3 d 04:12:07", "4.25 yr". */
 export function formatClock(seconds: number): string {
@@ -142,17 +115,8 @@ export function formatPeriodDays(days: number): string {
 export const formatNumber = (x: number, digits = 0): string =>
   new Intl.NumberFormat('en-US', { maximumFractionDigits: digits, minimumFractionDigits: digits }).format(x);
 
-function pad(n: number) {
-  return String(n).padStart(2, '0');
-}
-
-/** UTC date and time strings for the clock display. */
+/** UTC date and time strings for the clock display, at any year (no JavaScript Date involved). */
 export function formatUtc(ms: number): { date: string; time: string } {
-  const d = new Date(ms);
-  if (Number.isNaN(d.getTime())) return { date: '—', time: '' };
-  const y = d.getUTCFullYear();
-  return {
-    date: `${y} ${d.toLocaleString('en-US', { month: 'short', timeZone: 'UTC' })} ${pad(d.getUTCDate())}`,
-    time: `${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())} UTC`,
-  };
+  if (!Number.isFinite(ms)) return { date: '—', time: '' };
+  return { date: formatSimDate(ms, 'date'), time: `${formatSimDate(ms, 'time')} UTC` };
 }

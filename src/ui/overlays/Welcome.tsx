@@ -1,12 +1,13 @@
 /**
- * First-visit welcome: what Lightspeed is, and three ways to start. Shown once; the guide
- * can bring it back.
+ * First-visit welcome: what Lightspeed is, and three ways to start: the tour, "Where to?" and
+ * the journeys. Shown once; the guide can bring it back. The lab is a quiet link at the foot,
+ * for students who want it.
  */
 import type { ReactNode } from 'react';
 import { APP, AUTHOR } from '../../content/author';
-import { openDoc } from '../../state/route';
+import { openDoc, openLearn } from '../../state/route';
 import { useUI } from '../../state/ui';
-import { markWelcomed, openJourneys, startExperiment1, startTour } from '../onboarding';
+import { markWelcomed, openJourneys, openLab, openSearch, startTour } from '../onboarding';
 import { CloseIcon, Kbd } from '../kit';
 import { Icon } from '../icons';
 import { Wordmark } from '../Logo';
@@ -21,7 +22,7 @@ function Choice({
   primary,
 }: {
   n: string;
-  icon: 'tour' | 'compass' | 'orbit';
+  icon: 'tour' | 'compass' | 'search';
   title: string;
   children: ReactNode;
   onClick: () => void;
@@ -82,22 +83,25 @@ function WelcomeCard() {
             <Choice n="01" icon="tour" title="Take the tour" primary onClick={() => close(startTour)}>
               One minute: what everything on the screen is, and where to click.
             </Choice>
-            <Choice n="02" icon="compass" title="Take a journey" onClick={() => close(openJourneys)}>
-              Seven one-click trips, from a pulse of sunlight to Proxima Centauri at 1 g.
+            <Choice n="02" icon="search" title="Where to?" onClick={() => close(openSearch)}>
+              Name a planet, the Moon, Voyager 1 or the nearest star, and go there.
             </Choice>
-            <Choice n="03" icon="orbit" title="Explore freely" onClick={() => close()}>
-              Just the view. Drag to look around, scroll to zoom, click a planet.
+            <Choice n="03" icon="compass" title="Take a journey" onClick={() => close(openJourneys)}>
+              Seven one-click trips, from a pulse of sunlight to Proxima Centauri at 1 g.
             </Choice>
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 border-t border-line-2 px-5 py-2.5 text-[11.5px] text-fg-3 sm:px-7">
+          <button className="inline-flex items-center gap-1.5 text-fg-2 hover:text-fg" onClick={() => close(() => openLearn())}>
+            <Icon name="book" /> Learn
+          </button>
           <button className="inline-flex items-center gap-1.5 text-fg-2 hover:text-fg" onClick={() => close(() => openDoc('guide'))}>
-            <Icon name="book" /> Guide
+            <Icon name="info" /> Guide
           </button>
           <button className="inline-flex items-center gap-1.5 text-fg-2 hover:text-fg" onClick={() => close(() => openDoc('about'))}>
-            <Icon name="info" /> About
+            About
           </button>
-          <button className="inline-flex items-center gap-1.5 text-fg-2 hover:text-fg" onClick={() => close(startExperiment1)} title="Five guided experiments in special relativity, with a notebook and printable reports">
+          <button className="inline-flex items-center gap-1.5 text-fg-2 hover:text-fg" onClick={() => close(() => openLab())} title="Five guided experiments in special relativity, with a notebook and printable reports">
             <Icon name="flask" /> For students: the lab
           </button>
           <span className="max-sm:hidden">

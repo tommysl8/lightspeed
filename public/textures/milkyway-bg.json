@@ -1,0 +1,74 @@
+{
+  "files": {
+    "milkyway-bg.jpg": {
+      "width": 4096,
+      "height": 2048,
+      "bytes": 3577623
+    },
+    "milkyway-bg-2k.jpg": {
+      "width": 2048,
+      "height": 1024,
+      "bytes": 971438
+    }
+  },
+  "source": {
+    "product": "NASA SVS Deep Star Maps 2020, 'Milky Way background' layer, celestial coordinates, milkyway_2020_4k.exr",
+    "url": "https://svs.gsfc.nasa.gov/4851",
+    "credit": "NASA/Goddard Space Flight Center Scientific Visualization Studio. Gaia DR2: ESA/Gaia/DPAC.",
+    "content": "Summed light of Gaia DR2 stars fainter than the Hipparcos/Tycho catalogues (those bright stars are omitted), rendered by SVS. Contains stellar light and its real dust absorption; no nebular emission, zodiacal light or airglow."
+  },
+  "projection": {
+    "type": "plate carree (equirectangular)",
+    "frame": "ICRS / J2000 equatorial (geocentric directions; parallax of the background is negligible)",
+    "pixelCentre": "RA = 360 * (0.5 - (i + 0.5) / W) mod 360, Dec = 90 - 180 * (j + 0.5) / H; i = column from the left, j = row from the top",
+    "orientation": "RA = 0 at the image centre, RA increasing to the left; north (Dec +90) at the top",
+    "threeJsUV": "u = fract(0.5 - RA / 360), v = 0.5 + Dec / 180 with the default flipY = true"
+  },
+  "encoding": {
+    "type": "per-channel logarithmic, 8 bit, sRGB primaries, linear light after decoding",
+    "P0": 0.0002,
+    "PMAX": 1.0,
+    "decode": "p = P0 * (exp(e * ln(1 + PMAX / P0)) - 1), e = byte / 255",
+    "lnOnePlusPmaxOverP0": 8.517393171418904,
+    "loadAs": "THREE.NoColorSpace (the bytes are not sRGB; do not let the browser or three.js apply sRGB decoding)",
+    "roundTripErrorAt1024": {
+      "medianRelative": 0.012,
+      "p95Relative": 0.0392
+    }
+  },
+  "calibration": {
+    "fullMapEqualsKTimesMilkyWayPlusBrightStars": 0.5,
+    "pixelCentreCheck": {
+      "note": "median star centroid minus the stated pixel-centre convention, in pixels (0 = convention holds)",
+      "medianDx_px": 0.002,
+      "medianDy_px": 0.012,
+      "stars": 5804
+    },
+    "zeroPointStarSum": 5.186,
+    "zeroPointStarSumScatterMAD": 0.333,
+    "surfaceBrightnessZeroPoint": 18.439,
+    "samples": {
+      "northGalacticPole": {
+        "p": 0.003839,
+        "muV": 24.48
+      },
+      "southGalacticPole": {
+        "p": 0.004809,
+        "muV": 24.23
+      },
+      "galacticCentre": {
+        "p": 0.190691,
+        "muV": 20.24
+      },
+      "scutumStarCloud": {
+        "p": 0.188622,
+        "muV": 20.25
+      },
+      "galacticAnticentre": {
+        "p": 0.041362,
+        "muV": 21.9
+      }
+    }
+  },
+  "calibrationNote": "The full SVS star map equals 0.5 x this layer + the bright-star layer (measured ratio above), so the physically consistent background is 0.5 p. Star sums in the bright-star layer (x cos Dec, because the maps are rendered per unit solid angle) give V = zeroPointStarSum - 2.5 log10(sum). Hence the V-band surface brightness of a texel is muV = surfaceBrightnessZeroPoint - 2.5 log10(p) mag/arcsec^2 (uncertainty about 0.3 mag: HYG V against the SVS colour rendering). It excludes stars brighter than the Tycho-2 limit (V ~ 11), which the app draws as points."
+}

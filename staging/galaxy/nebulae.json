@@ -1,0 +1,3535 @@
+{
+ "schema": "lightspeed.nebulae/1",
+ "note": "Positions: SIMBAD (ICRS). billboard.center* is the centre of the shipped image (after any crop), which is where the billboard should be placed; its width/height in pc follow from the image's field of view and the adopted distance. northAngleDeg: north on the image is this many degrees counterclockwise from image-up (negative = clockwise); east is 90 deg counterclockwise from north (standard sky orientation, not mirrored). helioGalacticPc: heliocentric galactic Cartesian (x -> l = 0, y -> l = 90, z -> NGP).",
+ "imageProcessing": "Downloaded from the archive page, cropped where noted, resized so the longer side is at most 512 px (Lanczos), the 2nd-percentile black level subtracted per channel, the outer 8% of each side faded to black with a smoothstep, saved as sRGB JPEG (quality 90). Intended for additive blending.",
+ "licence": "Every image is CC BY 4.0 (ESA/Hubble, ESA/Webb, ESO, NSF NOIRLab). Wherever an image is shown, show its 'credit' string unaltered, followed by its 'modificationNote' (CC BY 4.0 section 3(a)(1)(B) requires saying that the image was modified), with a link to 'imageSource.page' and to the licence, https://creativecommons.org/licenses/by/4.0/.",
+ "objects": [
+  {
+   "id": "orion-nebula",
+   "name": "Orion Nebula",
+   "otherNames": [
+    "M42",
+    "M43",
+    "NGC 1976"
+   ],
+   "kind": "HII region",
+   "parent": null,
+   "position": {
+    "raDeg": 83.8201,
+    "decDeg": -5.3876,
+    "lDeg": 209.0095,
+    "bDeg": -19.3818,
+    "source": "SIMBAD (M 42)"
+   },
+   "distance": {
+    "pc": 388,
+    "minusPc": 5,
+    "plusPc": 5,
+    "method": "VLBA radio parallaxes of young stars",
+    "ref": "Kounkel M. et al. 2017, ApJ 834, 142 (VLBA parallaxes, GOBELINS II)",
+    "doi": "10.3847/1538-4357/834/2/142"
+   },
+   "helioGalacticPc": [
+    -320.09,
+    -177.5,
+    -128.76
+   ],
+   "catalogueSizeArcmin": 66.0,
+   "catalogueSizePc": 7.449,
+   "billboard": {
+    "image": "images/nebulae/orion-nebula.jpg",
+    "centerRaDeg": 83.78442,
+    "centerDecDeg": -5.4787,
+    "widthArcmin": 59.95,
+    "heightArcmin": 46.56,
+    "northAngleDeg": 0.2,
+    "pixels": [
+     512,
+     398
+    ],
+    "bytes": 39923,
+    "blackLevel": [
+     0.0431,
+     0.0235,
+     0.0196
+    ],
+    "widthPc": 6.766,
+    "heightPc": 5.255,
+    "helioGalacticPc": [
+     -319.73,
+     -177.81,
+     -129.23
+    ]
+   },
+   "imageSource": {
+    "archive": "ESO",
+    "id": "eso1723a",
+    "title": "The Orion Nebula and cluster from the VLT Survey Telescope",
+    "page": "https://www.eso.org/public/images/eso1723a/",
+    "file": "https://cdn.eso.org/images/screen/eso1723a.jpg",
+    "band": "visible",
+    "cropped": false,
+    "fullFrame": {
+     "centerRaDeg": 83.78442,
+     "centerDecDeg": -5.4787,
+     "fovArcmin": [
+      59.95,
+      46.56
+     ],
+     "northAngleDeg": 0.2
+    }
+   },
+   "credit": "ESO/G. Beccari",
+   "licence": "CC BY 4.0",
+   "modificationNote": "Image modified for Lightspeed: resized, black level subtracted and edges faded (see imageProcessing).",
+   "blurb": "The nearest large stellar nursery, lit by the Trapezium stars. About 2,000 young stars in the cluster."
+  },
+  {
+   "id": "horsehead",
+   "name": "Horsehead Nebula",
+   "otherNames": [
+    "Barnard 33"
+   ],
+   "kind": "dark nebula",
+   "parent": null,
+   "position": {
+    "raDeg": 85.2458,
+    "decDeg": -2.4583,
+    "lDeg": 206.9561,
+    "bDeg": -16.7753,
+    "source": "SIMBAD (Barnard 33)"
+   },
+   "distance": {
+    "pc": 396.1,
+    "minusPc": 2.4,
+    "plusPc": 2.4,
+    "method": "Gaia DR3 parallaxes of members of the cluster Sigma Orionis (16th-84th percentiles, plus a 0.015 mas systematic)",
+    "ref": "Hunt E.L., Reffert S. 2024, A&A 686, A42 (VizieR J/A+A/686/A42)",
+    "doi": "10.1051/0004-6361/202348662"
+   },
+   "helioGalacticPc": [
+    -338.04,
+    -171.91,
+    -114.32
+   ],
+   "catalogueSizeArcmin": 6.0,
+   "catalogueSizePc": 0.691,
+   "billboard": {
+    "image": "images/nebulae/horsehead.jpg",
+    "centerRaDeg": 85.24579,
+    "centerDecDeg": -2.45823,
+    "widthArcmin": 6.53,
+    "heightArcmin": 6.72,
+    "northAngleDeg": 89.9,
+    "pixels": [
+     498,
+     512
+    ],
+    "bytes": 47730,
+    "blackLevel": [
+     0.098,
+     0.0667,
+     0.0667
+    ],
+    "widthPc": 0.752,
+    "heightPc": 0.774,
+    "helioGalacticPc": [
+     -338.04,
+     -171.91,
+     -114.32
+    ]
+   },
+   "imageSource": {
+    "archive": "ESO",
+    "id": "eso0202a",
+    "title": "The Horsehead Nebula*",
+    "page": "https://www.eso.org/public/images/eso0202a/",
+    "file": "https://cdn.eso.org/images/screen/eso0202a.jpg",
+    "band": "visible",
+    "cropped": false,
+    "fullFrame": {
+     "centerRaDeg": 85.24579,
+     "centerDecDeg": -2.45823,
+     "fovArcmin": [
+      6.53,
+      6.72
+     ],
+     "northAngleDeg": 89.9
+    }
+   },
+   "credit": "ESO",
+   "licence": "CC BY 4.0",
+   "modificationNote": "Image modified for Lightspeed: resized, black level subtracted and edges faded (see imageProcessing).",
+   "blurb": "A dark pillar of dust silhouetted against the glowing IC 434, which is lit by sigma Orionis."
+  },
+  {
+   "id": "flame-nebula",
+   "name": "Flame Nebula",
+   "otherNames": [
+    "NGC 2024"
+   ],
+   "kind": "HII region",
+   "parent": null,
+   "position": {
+    "raDeg": 85.429,
+    "decDeg": -1.842,
+    "lDeg": 206.4756,
+    "bDeg": -16.3267,
+    "source": "SIMBAD (NGC 2024)"
+   },
+   "distance": {
+    "pc": 420,
+    "minusPc": 20,
+    "plusPc": 20,
+    "method": "VLBA radio parallaxes",
+    "ref": "Kounkel M. et al. 2017, ApJ 834, 142 ('roughly ~420 pc towards NGC 2024'; the +-20 pc is our reading of 'roughly')",
+    "doi": "10.3847/1538-4357/834/2/142"
+   },
+   "helioGalacticPc": [
+    -360.79,
+    -179.69,
+    -118.07
+   ],
+   "catalogueSizeArcmin": null,
+   "catalogueSizePc": null,
+   "billboard": {
+    "image": "images/nebulae/flame-nebula.jpg",
+    "centerRaDeg": 85.42804,
+    "centerDecDeg": -1.91227,
+    "widthArcmin": 42.92,
+    "heightArcmin": 52.52,
+    "northAngleDeg": 10.0,
+    "pixels": [
+     418,
+     512
+    ],
+    "bytes": 53847,
+    "blackLevel": [
+     0.0549,
+     0.0118,
+     0.051
+    ],
+    "widthPc": 5.244,
+    "heightPc": 6.417,
+    "helioGalacticPc": [
+     -360.53,
+     -180.07,
+     -118.3
+    ]
+   },
+   "imageSource": {
+    "archive": "ESO",
+    "id": "eso0949a",
+    "title": "The hidden fires of the Flame Nebula*",
+    "page": "https://www.eso.org/public/images/eso0949a/",
+    "file": "https://cdn.eso.org/images/screen/eso0949a.jpg",
+    "band": "near-infrared",
+    "cropped": false,
+    "fullFrame": {
+     "centerRaDeg": 85.42804,
+     "centerDecDeg": -1.91227,
+     "fovArcmin": [
+      42.92,
+      52.52
+     ],
+     "northAngleDeg": 10.0
+    }
+   },
+   "credit": "ESO/J. Emerson/VISTA. Acknowledgment: Cambridge Astronomical Survey Unit",
+   "licence": "CC BY 4.0",
+   "modificationNote": "Image modified for Lightspeed: resized, black level subtracted and edges faded (see imageProcessing).",
+   "blurb": "Infrared image (VISTA): the dust hides a young cluster that visible light cannot reach."
+  },
+  {
+   "id": "m78",
+   "name": "M78",
+   "otherNames": [
+    "NGC 2068"
+   ],
+   "kind": "reflection nebula",
+   "parent": null,
+   "position": {
+    "raDeg": 86.6908,
+    "decDeg": 0.0792,
+    "lDeg": 205.3287,
+    "bDeg": -14.3119,
+    "source": "SIMBAD (M 78)"
+   },
+   "distance": {
+    "pc": 404.2,
+    "minusPc": 2.5,
+    "plusPc": 2.5,
+    "method": "Gaia DR3 parallaxes of members of the cluster NGC 2068 (16th-84th percentiles, plus a 0.015 mas systematic)",
+    "ref": "Hunt E.L., Reffert S. 2024, A&A 686, A42 (VizieR J/A+A/686/A42)",
+    "doi": "10.1051/0004-6361/202348662"
+   },
+   "helioGalacticPc": [
+    -354.0,
+    -167.55,
+    -99.92
+   ],
+   "catalogueSizeArcmin": null,
+   "catalogueSizePc": null,
+   "billboard": {
+    "image": "images/nebulae/m78.jpg",
+    "centerRaDeg": 86.65592,
+    "centerDecDeg": 0.11128,
+    "widthArcmin": 34.43,
+    "heightArcmin": 33.36,
+    "northAngleDeg": -1.6,
+    "pixels": [
+     512,
+     496
+    ],
+    "bytes": 55675,
+    "blackLevel": [
+     0.0824,
+     0.0431,
+     0.0588
+    ],
+    "widthPc": 4.048,
+    "heightPc": 3.922,
+    "helioGalacticPc": [
+     -354.12,
+     -167.26,
+     -100.03
+    ]
+   },
+   "imageSource": {
+    "archive": "ESO",
+    "id": "eso1105a",
+    "title": "Messier 78: a reflection nebula in Orion",
+    "page": "https://www.eso.org/public/images/eso1105a/",
+    "file": "https://cdn.eso.org/images/screen/eso1105a.jpg",
+    "band": "visible",
+    "cropped": false,
+    "fullFrame": {
+     "centerRaDeg": 86.65592,
+     "centerDecDeg": 0.11128,
+     "fovArcmin": [
+      34.43,
+      33.36
+     ],
+     "northAngleDeg": -1.6
+    }
+   },
+   "credit": "ESO/Igor Chekalin",
+   "licence": "CC BY 4.0",
+   "modificationNote": "Image modified for Lightspeed: resized, black level subtracted and edges faded (see imageProcessing).",
+   "blurb": "Blue starlight scattered by dust in the Orion B cloud."
+  },
+  {
+   "id": "rosette-nebula",
+   "name": "Rosette Nebula",
+   "otherNames": [
+    "NGC 2237",
+    "NGC 2244"
+   ],
+   "kind": "HII region",
+   "parent": null,
+   "position": {
+    "raDeg": 97.65042,
+    "decDeg": 4.98072,
+    "lDeg": 206.12,
+    "bDeg": -2.3445,
+    "source": "SIMBAD (NGC 2237)"
+   },
+   "distance": {
+    "pc": 1415.2,
+    "minusPc": 30.3,
+    "plusPc": 30.3,
+    "method": "Gaia DR3 parallaxes of members of the cluster NGC 2244 (16th-84th percentiles, plus a 0.015 mas systematic)",
+    "ref": "Hunt E.L., Reffert S. 2024, A&A 686, A42 (VizieR J/A+A/686/A42)",
+    "doi": "10.1051/0004-6361/202348662"
+   },
+   "helioGalacticPc": [
+    -1269.61,
+    -622.52,
+    -57.89
+   ],
+   "catalogueSizeArcmin": null,
+   "catalogueSizePc": null,
+   "billboard": {
+    "image": "images/nebulae/rosette-nebula.jpg",
+    "centerRaDeg": 98.04567,
+    "centerDecDeg": 4.91767,
+    "widthArcmin": 94.75,
+    "heightArcmin": 80.62,
+    "northAngleDeg": 0.0,
+    "pixels": [
+     512,
+     436
+    ],
+    "bytes": 65048,
+    "blackLevel": [
+     0.1137,
+     0.0431,
+     0.0118
+    ],
+    "widthPc": 39.008,
+    "heightPc": 33.19,
+    "helioGalacticPc": [
+     -1267.28,
+     -627.92,
+     -49.99
+    ]
+   },
+   "imageSource": {
+    "archive": "NSF NOIRLab",
+    "id": "noirlab2424a",
+    "title": "Rosette Nebula Captured with DECam",
+    "page": "https://noirlab.edu/public/images/noirlab2424a/",
+    "file": "https://storage.noirlab.edu/media/archives/images/screen/noirlab2424a.jpg",
+    "band": "visible",
+    "cropped": false,
+    "fullFrame": {
+     "centerRaDeg": 98.04567,
+     "centerDecDeg": 4.91767,
+     "fovArcmin": [
+      94.75,
+      80.62
+     ],
+     "northAngleDeg": 0.0
+    }
+   },
+   "credit": "CTIO/NOIRLab/DOE/NSF/AURA Image Processing: T.A. Rector (University of Alaska Anchorage/NSF NOIRLab), D. de Martin & M. Zamani (NSF NOIRLab)",
+   "licence": "CC BY 4.0",
+   "modificationNote": "Image modified for Lightspeed: resized, black level subtracted and edges faded (see imageProcessing).",
+   "blurb": "A hollow shell of ionised gas blown out by the young cluster NGC 2244 at its centre."
+  },
+  {
+   "id": "ngc-2264",
+   "name": "NGC 2264: Cone Nebula and Christmas Tree Cluster",
+   "otherNames": [
+    "NGC 2264"
+   ],
+   "kind": "HII region",
+   "parent": null,
+   "position": {
+    "raDeg": 100.2171,
+    "decDeg": 9.8769,
+    "lDeg": 202.9408,
+    "bDeg": 2.1659,
+    "source": "SIMBAD (NGC 2264)"
+   },
+   "distance": {
+    "pc": 700.4,
+    "minusPc": 7.5,
+    "plusPc": 7.5,
+    "method": "Gaia DR3 parallaxes of members of the cluster NGC 2264 (16th-84th percentiles, plus a 0.015 mas systematic)",
+    "ref": "Hunt E.L., Reffert S. 2024, A&A 686, A42 (VizieR J/A+A/686/A42)",
+    "doi": "10.1051/0004-6361/202348662"
+   },
+   "helioGalacticPc": [
+    -644.54,
+    -272.81,
+    26.47
+   ],
+   "catalogueSizeArcmin": null,
+   "catalogueSizePc": null,
+   "billboard": {
+    "image": "images/nebulae/ngc-2264.jpg",
+    "centerRaDeg": 100.22142,
+    "centerDecDeg": 9.60467,
+    "widthArcmin": 33.3,
+    "heightArcmin": 38.11,
+    "northAngleDeg": -1.6,
+    "pixels": [
+     447,
+     512
+    ],
+    "bytes": 54696,
+    "blackLevel": [
+     0.0745,
+     0.0314,
+     0.0
+    ],
+    "widthPc": 6.785,
+    "heightPc": 7.765,
+    "helioGalacticPc": [
+     -643.42,
+     -275.57,
+     25.0
+    ]
+   },
+   "imageSource": {
+    "archive": "ESO",
+    "id": "eso0848a",
+    "title": "NGC 2264 and the Christmas Tree cluster*",
+    "page": "https://www.eso.org/public/images/eso0848a/",
+    "file": "https://cdn.eso.org/images/screen/eso0848a.jpg",
+    "band": "visible",
+    "cropped": false,
+    "fullFrame": {
+     "centerRaDeg": 100.22142,
+     "centerDecDeg": 9.60467,
+     "fovArcmin": [
+      33.3,
+      38.11
+     ],
+     "northAngleDeg": -1.6
+    }
+   },
+   "credit": "ESO",
+   "licence": "CC BY 4.0",
+   "modificationNote": "Image modified for Lightspeed: resized, black level subtracted and edges faded (see imageProcessing).",
+   "blurb": "A young cluster and its nebula; the dark Cone Nebula points up from the bottom of the frame."
+  },
+  {
+   "id": "cone-nebula",
+   "name": "Cone Nebula",
+   "otherNames": [],
+   "kind": "dark nebula",
+   "parent": "ngc-2264",
+   "position": {
+    "raDeg": 100.28,
+    "decDeg": 9.88,
+    "lDeg": 202.9664,
+    "bDeg": 2.2225,
+    "source": "SIMBAD (Cone Nebula)"
+   },
+   "distance": {
+    "pc": 700.4,
+    "minusPc": 7.5,
+    "plusPc": 7.5,
+    "method": "Gaia DR3 parallaxes of members of the cluster NGC 2264 (16th-84th percentiles, plus a 0.015 mas systematic)",
+    "ref": "Hunt E.L., Reffert S. 2024, A&A 686, A42 (VizieR J/A+A/686/A42)",
+    "doi": "10.1051/0004-6361/202348662"
+   },
+   "helioGalacticPc": [
+    -644.4,
+    -273.08,
+    27.16
+   ],
+   "catalogueSizeArcmin": null,
+   "catalogueSizePc": null,
+   "billboard": {
+    "image": "images/nebulae/cone-nebula.jpg",
+    "centerRaDeg": 100.30588,
+    "centerDecDeg": 9.4011,
+    "widthArcmin": 6.88,
+    "heightArcmin": 7.06,
+    "northAngleDeg": 10.4,
+    "pixels": [
+     499,
+     512
+    ],
+    "bytes": 30395,
+    "blackLevel": [
+     0.1255,
+     0.0941,
+     0.0627
+    ],
+    "widthPc": 1.402,
+    "heightPc": 1.438,
+    "helioGalacticPc": [
+     -642.37,
+     -278.04,
+     24.77
+    ]
+   },
+   "imageSource": {
+    "archive": "ESO",
+    "id": "eso2215a",
+    "title": "ESO’s 60th anniversary image: the Cone Nebula as seen by the VLT",
+    "page": "https://www.eso.org/public/images/eso2215a/",
+    "file": "https://cdn.eso.org/images/screen/eso2215a.jpg",
+    "band": "visible",
+    "cropped": false,
+    "fullFrame": {
+     "centerRaDeg": 100.30588,
+     "centerDecDeg": 9.4011,
+     "fovArcmin": [
+      6.88,
+      7.06
+     ],
+     "northAngleDeg": 10.4
+    }
+   },
+   "credit": "ESO",
+   "licence": "CC BY 4.0",
+   "modificationNote": "Image modified for Lightspeed: resized, black level subtracted and edges faded (see imageProcessing).",
+   "blurb": "A pillar of cold gas and dust being eroded by ultraviolet light from nearby hot stars."
+  },
+  {
+   "id": "eagle-nebula",
+   "name": "Eagle Nebula",
+   "otherNames": [
+    "M16",
+    "NGC 6611"
+   ],
+   "kind": "HII region",
+   "parent": null,
+   "position": {
+    "raDeg": 274.688,
+    "decDeg": -13.792,
+    "lDeg": 16.9614,
+    "bDeg": 0.8106,
+    "source": "SIMBAD (M 16)"
+   },
+   "distance": {
+    "pc": 1698.4,
+    "minusPc": 43.5,
+    "plusPc": 43.5,
+    "method": "Gaia DR3 parallaxes of members of the cluster NGC 6611 (16th-84th percentiles, plus a 0.015 mas systematic)",
+    "ref": "Hunt E.L., Reffert S. 2024, A&A 686, A42 (VizieR J/A+A/686/A42)",
+    "doi": "10.1051/0004-6361/202348662"
+   },
+   "helioGalacticPc": [
+    1624.36,
+    495.42,
+    24.03
+   ],
+   "catalogueSizeArcmin": null,
+   "catalogueSizePc": null,
+   "billboard": {
+    "image": "images/nebulae/eagle-nebula.jpg",
+    "centerRaDeg": 274.70004,
+    "centerDecDeg": -13.81995,
+    "widthArcmin": 32.08,
+    "heightArcmin": 32.08,
+    "northAngleDeg": 0.0,
+    "pixels": [
+     512,
+     512
+    ],
+    "bytes": 88311,
+    "blackLevel": [
+     0.0118,
+     0.0157,
+     0.0118
+    ],
+    "widthPc": 15.849,
+    "heightPc": 15.849,
+    "helioGalacticPc": [
+     1624.53,
+     494.88,
+     23.33
+    ]
+   },
+   "imageSource": {
+    "archive": "ESO",
+    "id": "eso0926a",
+    "title": "The Eagle Nebula",
+    "page": "https://www.eso.org/public/images/eso0926a/",
+    "file": "https://cdn.eso.org/images/screen/eso0926a.jpg",
+    "band": "visible",
+    "cropped": false,
+    "fullFrame": {
+     "centerRaDeg": 274.70004,
+     "centerDecDeg": -13.81995,
+     "fovArcmin": [
+      32.08,
+      32.08
+     ],
+     "northAngleDeg": 0.0
+    }
+   },
+   "credit": "ESO",
+   "licence": "CC BY 4.0",
+   "modificationNote": "Image modified for Lightspeed: resized, black level subtracted and edges faded (see imageProcessing).",
+   "blurb": "Star cluster NGC 6611 and the nebula it lights, home of the Pillars of Creation."
+  },
+  {
+   "id": "pillars-of-creation",
+   "name": "Pillars of Creation",
+   "otherNames": [],
+   "kind": "dark nebula",
+   "parent": "eagle-nebula",
+   "position": {
+    "raDeg": 274.688,
+    "decDeg": -13.792,
+    "lDeg": 16.9614,
+    "bDeg": 0.8106,
+    "source": "SIMBAD (M 16)"
+   },
+   "distance": {
+    "pc": 1698.4,
+    "minusPc": 43.5,
+    "plusPc": 43.5,
+    "method": "Gaia DR3 parallaxes of members of the cluster NGC 6611 (16th-84th percentiles, plus a 0.015 mas systematic)",
+    "ref": "Hunt E.L., Reffert S. 2024, A&A 686, A42 (VizieR J/A+A/686/A42)",
+    "doi": "10.1051/0004-6361/202348662"
+   },
+   "helioGalacticPc": [
+    1624.36,
+    495.42,
+    24.03
+   ],
+   "catalogueSizeArcmin": null,
+   "catalogueSizePc": null,
+   "billboard": {
+    "image": "images/nebulae/pillars-of-creation.jpg",
+    "centerRaDeg": 274.71967,
+    "centerDecDeg": -13.83944,
+    "widthArcmin": 4.53,
+    "heightArcmin": 4.72,
+    "northAngleDeg": 35.0,
+    "pixels": [
+     491,
+     512
+    ],
+    "bytes": 56127,
+    "blackLevel": [
+     0.1333,
+     0.0549,
+     0.0627
+    ],
+    "widthPc": 2.238,
+    "heightPc": 2.332,
+    "helioGalacticPc": [
+     1624.61,
+     494.65,
+     22.56
+    ]
+   },
+   "imageSource": {
+    "archive": "ESA/Hubble",
+    "id": "heic1501a",
+    "title": "New view of the Pillars of Creation — visible",
+    "page": "https://esahubble.org/images/heic1501a/",
+    "file": "https://cdn.esahubble.org/archives/images/screen/heic1501a.jpg",
+    "band": "visible",
+    "cropped": false,
+    "fullFrame": {
+     "centerRaDeg": 274.71967,
+     "centerDecDeg": -13.83944,
+     "fovArcmin": [
+      4.53,
+      4.72
+     ],
+     "northAngleDeg": 35.0
+    }
+   },
+   "credit": "NASA, ESA/Hubble and the Hubble Heritage Team",
+   "licence": "CC BY 4.0",
+   "modificationNote": "Image modified for Lightspeed: resized, black level subtracted and edges faded (see imageProcessing).",
+   "blurb": "Columns of gas a few light years tall, being evaporated by the cluster's ultraviolet light."
+  },
+  {
+   "id": "lagoon-nebula",
+   "name": "Lagoon Nebula",
+   "otherNames": [
+    "M8",
+    "NGC 6523",
+    "NGC 6530"
+   ],
+   "kind": "HII region",
+   "parent": null,
+   "position": {
+    "raDeg": 270.904,
+    "decDeg": -24.387,
+    "lDeg": 5.9571,
+    "bDeg": -1.1667,
+    "source": "SIMBAD (M 8)"
+   },
+   "distance": {
+    "pc": 1229.5,
+    "minusPc": 22.9,
+    "plusPc": 22.9,
+    "method": "Gaia DR3 parallaxes of members of the cluster NGC 6530 (16th-84th percentiles, plus a 0.015 mas systematic)",
+    "ref": "Hunt E.L., Reffert S. 2024, A&A 686, A42 (VizieR J/A+A/686/A42)",
+    "doi": "10.1051/0004-6361/202348662"
+   },
+   "helioGalacticPc": [
+    1222.61,
+    127.58,
+    -25.03
+   ],
+   "catalogueSizeArcmin": null,
+   "catalogueSizePc": null,
+   "billboard": {
+    "image": "images/nebulae/lagoon-nebula.jpg",
+    "centerRaDeg": 270.90413,
+    "centerDecDeg": -24.38694,
+    "widthArcmin": 58.12,
+    "heightArcmin": 39.74,
+    "northAngleDeg": -0.1,
+    "pixels": [
+     512,
+     350
+    ],
+    "bytes": 61792,
+    "blackLevel": [
+     0.0471,
+     0.0353,
+     0.0314
+    ],
+    "widthPc": 20.787,
+    "heightPc": 14.213,
+    "helioGalacticPc": [
+     1222.61,
+     127.58,
+     -25.04
+    ]
+   },
+   "imageSource": {
+    "archive": "ESO",
+    "id": "eso1403a",
+    "title": "VST images the Lagoon Nebula",
+    "page": "https://www.eso.org/public/images/eso1403a/",
+    "file": "https://cdn.eso.org/images/screen/eso1403a.jpg",
+    "band": "visible",
+    "cropped": false,
+    "fullFrame": {
+     "centerRaDeg": 270.90413,
+     "centerDecDeg": -24.38694,
+     "fovArcmin": [
+      58.12,
+      39.74
+     ],
+     "northAngleDeg": -0.1
+    }
+   },
+   "credit": "ESO/VPHAS+ team",
+   "licence": "CC BY 4.0",
+   "modificationNote": "Image modified for Lightspeed: resized, black level subtracted and edges faded (see imageProcessing).",
+   "blurb": "A giant cloud of glowing hydrogen around the young cluster NGC 6530."
+  },
+  {
+   "id": "trifid-nebula",
+   "name": "Trifid Nebula",
+   "otherNames": [
+    "M20",
+    "NGC 6514"
+   ],
+   "kind": "HII region",
+   "parent": null,
+   "position": {
+    "raDeg": 270.675,
+    "decDeg": -22.972,
+    "lDeg": 7.0856,
+    "bDeg": -0.2875,
+    "source": "SIMBAD (M 20)"
+   },
+   "distance": {
+    "pc": 1264,
+    "minusPc": 68,
+    "plusPc": 76,
+    "method": "Gaia DR2 parallaxes of cluster members",
+    "ref": "Kuhn M.A. et al. 2019, ApJ 870, 32, Table 1 (Gaia DR2)",
+    "doi": "10.3847/1538-4357/aaef8c"
+   },
+   "helioGalacticPc": [
+    1254.33,
+    155.92,
+    -6.34
+   ],
+   "catalogueSizeArcmin": 28.0,
+   "catalogueSizePc": 10.295,
+   "billboard": {
+    "image": "images/nebulae/trifid-nebula.jpg",
+    "centerRaDeg": 270.67479,
+    "centerDecDeg": -22.97116,
+    "widthArcmin": 13.89,
+    "heightArcmin": 22.82,
+    "northAngleDeg": 0.2,
+    "pixels": [
+     311,
+     512
+    ],
+    "bytes": 49344,
+    "blackLevel": [
+     0.0745,
+     0.0706,
+     0.0824
+    ],
+    "widthPc": 5.107,
+    "heightPc": 8.391,
+    "helioGalacticPc": [
+     1254.33,
+     155.93,
+     -6.33
+    ]
+   },
+   "imageSource": {
+    "archive": "ESO",
+    "id": "eso0930a",
+    "title": "The Trifid Nebula",
+    "page": "https://www.eso.org/public/images/eso0930a/",
+    "file": "https://cdn.eso.org/images/screen/eso0930a.jpg",
+    "band": "visible",
+    "cropped": false,
+    "fullFrame": {
+     "centerRaDeg": 270.67479,
+     "centerDecDeg": -22.97116,
+     "fovArcmin": [
+      13.89,
+      22.82
+     ],
+     "northAngleDeg": 0.2
+    }
+   },
+   "credit": "ESO",
+   "licence": "CC BY 4.0",
+   "modificationNote": "Image modified for Lightspeed: resized, black level subtracted and edges faded (see imageProcessing).",
+   "blurb": "Red emission split by dark dust lanes, next to a blue reflection nebula."
+  },
+  {
+   "id": "omega-nebula",
+   "name": "Omega Nebula",
+   "otherNames": [
+    "M17",
+    "Swan Nebula",
+    "NGC 6618"
+   ],
+   "kind": "HII region",
+   "parent": null,
+   "position": {
+    "raDeg": 275.196,
+    "decDeg": -16.172,
+    "lDeg": 15.095,
+    "bDeg": -0.7457,
+    "source": "SIMBAD (NGC 6618)"
+   },
+   "distance": {
+    "pc": 1680,
+    "minusPc": 110,
+    "plusPc": 130,
+    "method": "Gaia DR2 parallaxes of cluster members",
+    "ref": "Kuhn M.A. et al. 2019, ApJ 870, 32, Table 1 (Gaia DR2)",
+    "doi": "10.3847/1538-4357/aaef8c"
+   },
+   "helioGalacticPc": [
+    1621.89,
+    437.47,
+    -21.86
+   ],
+   "catalogueSizeArcmin": null,
+   "catalogueSizePc": null,
+   "billboard": {
+    "image": "images/nebulae/omega-nebula.jpg",
+    "centerRaDeg": 275.24446,
+    "centerDecDeg": -16.14777,
+    "widthArcmin": 53.4,
+    "heightArcmin": 53.4,
+    "northAngleDeg": -0.1,
+    "pixels": [
+     512,
+     512
+    ],
+    "bytes": 105299,
+    "blackLevel": [
+     0.0431,
+     0.0392,
+     0.051
+    ],
+    "widthPc": 26.097,
+    "heightPc": 26.097,
+    "helioGalacticPc": [
+     1621.55,
+     438.69,
+     -22.73
+    ]
+   },
+   "imageSource": {
+    "archive": "ESO",
+    "id": "eso1119a",
+    "title": "VST image of the star-forming region Messier 17",
+    "page": "https://www.eso.org/public/images/eso1119a/",
+    "file": "https://cdn.eso.org/images/screen/eso1119a.jpg",
+    "band": "visible",
+    "cropped": false,
+    "fullFrame": {
+     "centerRaDeg": 275.24446,
+     "centerDecDeg": -16.14777,
+     "fovArcmin": [
+      53.4,
+      53.4
+     ],
+     "northAngleDeg": -0.1
+    }
+   },
+   "credit": "ESO/INAF-VST/OmegaCAM. Acknowledgement: OmegaCen/Astro-WISE/Kapteyn Institute",
+   "licence": "CC BY 4.0",
+   "modificationNote": "Image modified for Lightspeed: resized, black level subtracted and edges faded (see imageProcessing).",
+   "blurb": "One of the brightest and most massive star-forming regions in the Galaxy."
+  },
+  {
+   "id": "carina-nebula",
+   "name": "Carina Nebula",
+   "otherNames": [
+    "NGC 3372"
+   ],
+   "kind": "HII region",
+   "parent": null,
+   "position": {
+    "raDeg": 161.25929,
+    "decDeg": -59.69994,
+    "lDeg": 287.6016,
+    "bDeg": -0.6445,
+    "source": "SIMBAD (NGC 3372)"
+   },
+   "distance": {
+    "pc": 2297.0,
+    "minusPc": 79.4,
+    "plusPc": 79.4,
+    "method": "Gaia DR3 parallaxes of members of the cluster Trumpler 16 (16th-84th percentiles, plus a 0.015 mas systematic)",
+    "ref": "Hunt E.L., Reffert S. 2024, A&A 686, A42 (VizieR J/A+A/686/A42)",
+    "doi": "10.1051/0004-6361/202348662"
+   },
+   "helioGalacticPc": [
+    694.56,
+    -2189.32,
+    -25.84
+   ],
+   "catalogueSizeArcmin": null,
+   "catalogueSizePc": null,
+   "billboard": {
+    "image": "images/nebulae/carina-nebula.jpg",
+    "centerRaDeg": 161.27375,
+    "centerDecDeg": -59.86324,
+    "widthArcmin": 61.82,
+    "heightArcmin": 66.34,
+    "northAngleDeg": -0.0,
+    "pixels": [
+     477,
+     512
+    ],
+    "bytes": 92479,
+    "blackLevel": [
+     0.0275,
+     0.051,
+     0.0667
+    ],
+    "widthPc": 41.307,
+    "heightPc": 44.328,
+    "helioGalacticPc": [
+     697.69,
+     -2188.25,
+     -31.49
+    ]
+   },
+   "imageSource": {
+    "archive": "ESO",
+    "id": "eso1250a",
+    "title": "The Carina Nebula imaged by the VLT Survey Telescope",
+    "page": "https://www.eso.org/public/images/eso1250a/",
+    "file": "https://cdn.eso.org/images/screen/eso1250a.jpg",
+    "band": "visible",
+    "cropped": false,
+    "fullFrame": {
+     "centerRaDeg": 161.27375,
+     "centerDecDeg": -59.86324,
+     "fovArcmin": [
+      61.82,
+      66.34
+     ],
+     "northAngleDeg": -0.0
+    }
+   },
+   "credit": "ESO. Acknowledgement: VPHAS+ Consortium/Cambridge Astronomical Survey Unit",
+   "licence": "CC BY 4.0",
+   "modificationNote": "Image modified for Lightspeed: resized, black level subtracted and edges faded (see imageProcessing).",
+   "blurb": "A complex four times the size of the Orion Nebula, with Eta Carinae and dozens of O stars."
+  },
+  {
+   "id": "cosmic-cliffs",
+   "name": "Cosmic Cliffs (NGC 3324)",
+   "otherNames": [
+    "NGC 3324"
+   ],
+   "kind": "HII region",
+   "parent": "carina-nebula",
+   "position": {
+    "raDeg": 159.3408,
+    "decDeg": -58.615,
+    "lDeg": 286.2186,
+    "bDeg": -0.1633,
+    "source": "SIMBAD (NGC 3324)"
+   },
+   "distance": {
+    "pc": 2418.9,
+    "minusPc": 89.6,
+    "plusPc": 89.7,
+    "method": "Gaia DR3 parallaxes of members of the cluster NGC 3324 (16th-84th percentiles, plus a 0.015 mas systematic)",
+    "ref": "Hunt E.L., Reffert S. 2024, A&A 686, A42 (VizieR J/A+A/686/A42)",
+    "doi": "10.1051/0004-6361/202348662"
+   },
+   "helioGalacticPc": [
+    675.6,
+    -2322.63,
+    -6.89
+   ],
+   "catalogueSizeArcmin": null,
+   "catalogueSizePc": null,
+   "billboard": {
+    "image": "images/nebulae/cosmic-cliffs.jpg",
+    "centerRaDeg": 159.21263,
+    "centerDecDeg": -58.62002,
+    "widthArcmin": 7.29,
+    "heightArcmin": 4.22,
+    "northAngleDeg": -103.0,
+    "pixels": [
+     512,
+     296
+    ],
+    "bytes": 55471,
+    "blackLevel": [
+     0.0706,
+     0.0745,
+     0.0863
+    ],
+    "widthPc": 5.129,
+    "heightPc": 2.969,
+    "helioGalacticPc": [
+     673.34,
+     -2323.28,
+     -8.47
+    ]
+   },
+   "imageSource": {
+    "archive": "ESA/Webb",
+    "id": "weic2205a",
+    "title": "NIRCam Image of the “Cosmic Cliffs” in Carina",
+    "page": "https://esawebb.org/images/weic2205a/",
+    "file": "https://cdn.esawebb.org/archives/images/screen/weic2205a.jpg",
+    "band": "near-infrared",
+    "cropped": false,
+    "fullFrame": {
+     "centerRaDeg": 159.21263,
+     "centerDecDeg": -58.62002,
+     "fovArcmin": [
+      7.29,
+      4.22
+     ],
+     "northAngleDeg": -103.0
+    }
+   },
+   "credit": "NASA, ESA, CSA, and STScI",
+   "licence": "CC BY 4.0",
+   "modificationNote": "Image modified for Lightspeed: resized, black level subtracted and edges faded (see imageProcessing).",
+   "blurb": "Webb's first-image view of the edge of the cavity carved by NGC 3324."
+  },
+  {
+   "id": "eta-carinae",
+   "name": "Homunculus Nebula around Eta Carinae",
+   "otherNames": [
+    "eta Car"
+   ],
+   "kind": "LBV nebula",
+   "parent": "carina-nebula",
+   "position": {
+    "raDeg": 161.2647742,
+    "decDeg": -59.6844309,
+    "lDeg": 287.5968,
+    "bDeg": -0.6295,
+    "source": "SIMBAD (eta Car)"
+   },
+   "distance": {
+    "pc": 2350,
+    "minusPc": 50,
+    "plusPc": 50,
+    "method": "expansion parallax of the Homunculus",
+    "ref": "Smith N. 2006, ApJ 644, 1151",
+    "doi": "10.1086/503766"
+   },
+   "helioGalacticPc": [
+    710.4,
+    -2239.9,
+    -25.82
+   ],
+   "catalogueSizeArcmin": null,
+   "catalogueSizePc": null,
+   "billboard": {
+    "image": "images/nebulae/eta-carinae.jpg",
+    "centerRaDeg": 161.26517,
+    "centerDecDeg": -59.68414,
+    "widthArcmin": 0.42,
+    "heightArcmin": 0.42,
+    "northAngleDeg": -0.8,
+    "pixels": [
+     512,
+     512
+    ],
+    "bytes": 29890,
+    "blackLevel": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "widthPc": 0.287,
+    "heightPc": 0.287,
+    "helioGalacticPc": [
+     710.4,
+     -2239.9,
+     -25.8
+    ]
+   },
+   "imageSource": {
+    "archive": "ESA/Hubble",
+    "id": "opo9623a",
+    "title": "The expansion of Eta Carinae debris",
+    "page": "https://esahubble.org/images/opo9623a/",
+    "file": "https://cdn.esahubble.org/archives/images/screen/opo9623a.jpg",
+    "band": "visible",
+    "cropped": false,
+    "fullFrame": {
+     "centerRaDeg": 161.26517,
+     "centerDecDeg": -59.68414,
+     "fovArcmin": [
+      0.42,
+      0.42
+     ],
+     "northAngleDeg": -0.8
+    }
+   },
+   "credit": "Jon Morse (University of Colorado), and NASA/ESA",
+   "licence": "CC BY 4.0",
+   "modificationNote": "Image modified for Lightspeed: resized, black level subtracted and edges faded (see imageProcessing).",
+   "blurb": "Two lobes of gas and dust thrown off in the 1840s 'Great Eruption' of a star of about 100 solar masses."
+  },
+  {
+   "id": "cats-paw-nebula",
+   "name": "Cat's Paw Nebula",
+   "otherNames": [
+    "NGC 6334"
+   ],
+   "kind": "HII region",
+   "parent": null,
+   "position": {
+    "raDeg": 260.21842,
+    "decDeg": -36.13067,
+    "lDeg": 351.13,
+    "bDeg": 0.45,
+    "source": "SIMBAD (NGC 6334)"
+   },
+   "distance": {
+    "pc": 1649.6,
+    "minusPc": 41.4,
+    "plusPc": 41.4,
+    "method": "Gaia DR3 parallaxes of members of the cluster NGC 6334 (16th-84th percentiles, plus a 0.015 mas systematic)",
+    "ref": "Hunt E.L., Reffert S. 2024, A&A 686, A42 (VizieR J/A+A/686/A42)",
+    "doi": "10.1051/0004-6361/202348662"
+   },
+   "helioGalacticPc": [
+    1629.82,
+    -254.35,
+    12.96
+   ],
+   "catalogueSizeArcmin": null,
+   "catalogueSizePc": null,
+   "billboard": {
+    "image": "images/nebulae/cats-paw-nebula.jpg",
+    "centerRaDeg": 259.99175,
+    "centerDecDeg": -35.96307,
+    "widthArcmin": 30.71,
+    "heightArcmin": 31.91,
+    "northAngleDeg": -0.0,
+    "pixels": [
+     493,
+     512
+    ],
+    "bytes": 77904,
+    "blackLevel": [
+     0.0039,
+     0.0588,
+     0.0549
+    ],
+    "widthPc": 14.736,
+    "heightPc": 15.312,
+    "helioGalacticPc": [
+     1629.9,
+     -253.4,
+     20.04
+    ]
+   },
+   "imageSource": {
+    "archive": "ESO",
+    "id": "eso1003a",
+    "title": "The Cat's Paw Nebula*",
+    "page": "https://www.eso.org/public/images/eso1003a/",
+    "file": "https://cdn.eso.org/images/screen/eso1003a.jpg",
+    "band": "visible",
+    "cropped": false,
+    "fullFrame": {
+     "centerRaDeg": 259.99175,
+     "centerDecDeg": -35.96307,
+     "fovArcmin": [
+      30.71,
+      31.91
+     ],
+     "northAngleDeg": -0.0
+    }
+   },
+   "credit": "ESO",
+   "licence": "CC BY 4.0",
+   "modificationNote": "Image modified for Lightspeed: resized, black level subtracted and edges faded (see imageProcessing).",
+   "blurb": "A very active star-forming complex. A water-maser parallax (0.752 +- 0.069 mas, Reid et al. 2019 Table 1) gives 1.33 kpc, closer than Gaia."
+  },
+  {
+   "id": "lobster-nebula",
+   "name": "Lobster Nebula",
+   "otherNames": [
+    "NGC 6357",
+    "War and Peace Nebula"
+   ],
+   "kind": "HII region",
+   "parent": null,
+   "position": {
+    "raDeg": 261.185,
+    "decDeg": -34.203,
+    "lDeg": 353.1664,
+    "bDeg": 0.89,
+    "source": "SIMBAD (NGC 6357)"
+   },
+   "distance": {
+    "pc": 1672.2,
+    "minusPc": 42.5,
+    "plusPc": 42.5,
+    "method": "Gaia DR3 parallaxes of members of the cluster NGC 6357 (16th-84th percentiles, plus a 0.015 mas systematic)",
+    "ref": "Hunt E.L., Reffert S. 2024, A&A 686, A42 (VizieR J/A+A/686/A42)",
+    "doi": "10.1051/0004-6361/202348662"
+   },
+   "helioGalacticPc": [
+    1660.12,
+    -198.94,
+    25.97
+   ],
+   "catalogueSizeArcmin": null,
+   "catalogueSizePc": null,
+   "billboard": {
+    "image": "images/nebulae/lobster-nebula.jpg",
+    "centerRaDeg": 261.18026,
+    "centerDecDeg": -34.20001,
+    "widthArcmin": 59.993,
+    "heightArcmin": 59.993,
+    "northAngleDeg": 89.8,
+    "pixels": [
+     512,
+     512
+    ],
+    "bytes": 94019,
+    "blackLevel": [
+     0.098,
+     0.0941,
+     0.0863
+    ],
+    "widthPc": 29.183,
+    "heightPc": 29.183,
+    "helioGalacticPc": [
+     1660.12,
+     -198.94,
+     26.12
+    ]
+   },
+   "imageSource": {
+    "archive": "ESO",
+    "id": "eso1705a",
+    "title": "The Cat’s Paw and Lobster Nebulae",
+    "page": "https://www.eso.org/public/images/eso1705a/",
+    "file": "https://cdn.eso.org/images/publicationjpg/eso1705a.jpg",
+    "band": "visible",
+    "cropped": true,
+    "fullFrame": {
+     "centerRaDeg": 260.73108,
+     "centerDecDeg": -34.96229,
+     "fovArcmin": [
+      176.71,
+      139.6
+     ],
+     "northAngleDeg": 89.8
+    }
+   },
+   "credit": "ESO",
+   "licence": "CC BY 4.0",
+   "modificationNote": "Image modified for Lightspeed: cropped, resized, black level subtracted and edges faded (see imageProcessing).",
+   "blurb": "Shaped by Pismis 24, a cluster with some of the most massive stars known."
+  },
+  {
+   "id": "ngc-3603",
+   "name": "NGC 3603",
+   "otherNames": [],
+   "kind": "HII region",
+   "parent": null,
+   "position": {
+    "raDeg": 168.7411,
+    "decDeg": -61.2422,
+    "lDeg": 291.5937,
+    "bDeg": -0.5123,
+    "source": "SIMBAD (NGC 3603)"
+   },
+   "distance": {
+    "pc": 6775.2,
+    "minusPc": 695.3,
+    "plusPc": 695.7,
+    "method": "Gaia DR3 parallaxes of members of the cluster NGC 3603 (16th-84th percentiles, plus a 0.015 mas systematic)",
+    "ref": "Hunt E.L., Reffert S. 2024, A&A 686, A42 (VizieR J/A+A/686/A42)",
+    "doi": "10.1051/0004-6361/202348662"
+   },
+   "helioGalacticPc": [
+    2493.33,
+    -6299.44,
+    -60.58
+   ],
+   "catalogueSizeArcmin": null,
+   "catalogueSizePc": null,
+   "billboard": {
+    "image": "images/nebulae/ngc-3603.jpg",
+    "centerRaDeg": 168.78817,
+    "centerDecDeg": -61.27152,
+    "widthArcmin": 8.96,
+    "heightArcmin": 9.04,
+    "northAngleDeg": 0.0,
+    "pixels": [
+     508,
+     512
+    ],
+    "bytes": 106724,
+    "blackLevel": [
+     0.0431,
+     0.0235,
+     0.0706
+    ],
+    "widthPc": 17.659,
+    "heightPc": 17.816,
+    "helioGalacticPc": [
+     2496.81,
+     -6298.04,
+     -62.84
+    ]
+   },
+   "imageSource": {
+    "archive": "ESO",
+    "id": "eso1005a",
+    "title": "Stellar nursery NGC 3603*",
+    "page": "https://www.eso.org/public/images/eso1005a/",
+    "file": "https://cdn.eso.org/images/screen/eso1005a.jpg",
+    "band": "visible",
+    "cropped": false,
+    "fullFrame": {
+     "centerRaDeg": 168.78817,
+     "centerDecDeg": -61.27152,
+     "fovArcmin": [
+      8.96,
+      9.04
+     ],
+     "northAngleDeg": 0.0
+    }
+   },
+   "credit": "ESO",
+   "licence": "CC BY 4.0",
+   "modificationNote": "Image modified for Lightspeed: resized, black level subtracted and edges faded (see imageProcessing).",
+   "blurb": "The most massive visible young cluster in the Milky Way, about 7 kpc away."
+  },
+  {
+   "id": "westerlund-2",
+   "name": "Westerlund 2 and Gum 29",
+   "otherNames": [
+    "Gum 29",
+    "RCW 49"
+   ],
+   "kind": "HII region",
+   "parent": null,
+   "position": {
+    "raDeg": 155.9921,
+    "decDeg": -57.7636,
+    "lDeg": 284.2669,
+    "bDeg": -0.3379,
+    "source": "SIMBAD (Westerlund 2)"
+   },
+   "distance": {
+    "pc": 4532.7,
+    "minusPc": 318.0,
+    "plusPc": 318.7,
+    "method": "Gaia DR3 parallaxes of members of the cluster Westerlund 2 (16th-84th percentiles, plus a 0.015 mas systematic)",
+    "ref": "Hunt E.L., Reffert S. 2024, A&A 686, A42 (VizieR J/A+A/686/A42)",
+    "doi": "10.1051/0004-6361/202348662"
+   },
+   "helioGalacticPc": [
+    1117.01,
+    -4392.83,
+    -26.73
+   ],
+   "catalogueSizeArcmin": null,
+   "catalogueSizePc": null,
+   "billboard": {
+    "image": "images/nebulae/westerlund-2.jpg",
+    "centerRaDeg": 156.02708,
+    "centerDecDeg": -57.76345,
+    "widthArcmin": 7.44,
+    "heightArcmin": 5.57,
+    "northAngleDeg": 8.8,
+    "pixels": [
+     512,
+     384
+    ],
+    "bytes": 66036,
+    "blackLevel": [
+     0.0275,
+     0.0471,
+     0.0431
+    ],
+    "widthPc": 9.81,
+    "heightPc": 7.344,
+    "helioGalacticPc": [
+     1118.22,
+     -4392.53,
+     -25.94
+    ]
+   },
+   "imageSource": {
+    "archive": "ESA/Hubble",
+    "id": "heic1509a",
+    "title": "Westerlund 2 — Hubble’s 25th anniversary image",
+    "page": "https://esahubble.org/images/heic1509a/",
+    "file": "https://cdn.esahubble.org/archives/images/screen/heic1509a.jpg",
+    "band": "visible",
+    "cropped": false,
+    "fullFrame": {
+     "centerRaDeg": 156.02708,
+     "centerDecDeg": -57.76345,
+     "fovArcmin": [
+      7.44,
+      5.57
+     ],
+     "northAngleDeg": 8.8
+    }
+   },
+   "credit": "NASA, ESA, the Hubble Heritage Team (STScI/AURA), A. Nota (ESA/STScI), and the Westerlund 2 Science Team\nThe original observations of Westerlund 2 were obtained by the science team: Antonella Nota (ESA/STScI), Elena Sabbi (STScI), Eva Grebel and Peter Zeidler (Astronomisches Rechen-Institut Heidelberg), Monica Tosi (INAF, Osservatorio Astronomico di Bologna), Alceste Bonanos (National Observatory of Athens, Astronomical Institute), Carol Christian (STScI/AURA) and Selma de Mink (University of Amsterdam). Follow-up observations were made by the Hubble Heritage team: Zoltan Levay (STScI), Max Mutchler, Jennifer Mack, Lisa Frattare, Shelly Meyett, Mario Livio, Carol Christian (STScI/AURA), and Keith Noll (NASA/GSFC).",
+   "licence": "CC BY 4.0",
+   "modificationNote": "Image modified for Lightspeed: resized, black level subtracted and edges faded (see imageProcessing).",
+   "blurb": "A 2-million-year-old cluster of about 3,000 stars, Hubble's 25th-anniversary image."
+  },
+  {
+   "id": "running-chicken-nebula",
+   "name": "Running Chicken Nebula",
+   "otherNames": [
+    "IC 2944",
+    "IC 2948"
+   ],
+   "kind": "HII region",
+   "parent": null,
+   "position": {
+    "raDeg": 174.58333,
+    "decDeg": -63.37278,
+    "lDeg": 294.8489,
+    "bDeg": -1.6541,
+    "source": "SIMBAD (IC 2944)"
+   },
+   "distance": {
+    "pc": 2362.7,
+    "minusPc": 86.1,
+    "plusPc": 86.2,
+    "method": "Gaia DR3 parallaxes of members of the cluster IC 2944 (16th-84th percentiles, plus a 0.015 mas systematic)",
+    "ref": "Hunt E.L., Reffert S. 2024, A&A 686, A42 (VizieR J/A+A/686/A42)",
+    "doi": "10.1051/0004-6361/202348662"
+   },
+   "helioGalacticPc": [
+    992.46,
+    -2143.07,
+    -68.2
+   ],
+   "catalogueSizeArcmin": null,
+   "catalogueSizePc": null,
+   "billboard": {
+    "image": "images/nebulae/running-chicken-nebula.jpg",
+    "centerRaDeg": 174.39991,
+    "centerDecDeg": -63.35015,
+    "widthArcmin": 90.031,
+    "heightArcmin": 80.02,
+    "northAngleDeg": 0.0,
+    "pixels": [
+     512,
+     455
+    ],
+    "bytes": 83911,
+    "blackLevel": [
+     0.0627,
+     0.0706,
+     0.0902
+    ],
+    "widthPc": 61.88,
+    "heightPc": 54.999,
+    "helioGalacticPc": [
+     989.26,
+     -2144.54,
+     -68.26
+    ]
+   },
+   "imageSource": {
+    "archive": "ESO",
+    "id": "eso2320a",
+    "title": "The Running Chicken Nebula",
+    "page": "https://www.eso.org/public/images/eso2320a/",
+    "file": "https://cdn.eso.org/images/publicationjpg/eso2320a.jpg",
+    "band": "visible",
+    "cropped": true,
+    "fullFrame": {
+     "centerRaDeg": 173.80008,
+     "centerDecDeg": -63.17517,
+     "fovArcmin": [
+      149.99,
+      131.99
+     ],
+     "northAngleDeg": 0.0
+    }
+   },
+   "credit": "ESO/VPHAS+ team. Acknowledgement: CASU",
+   "licence": "CC BY 4.0",
+   "modificationNote": "Image modified for Lightspeed: cropped, resized, black level subtracted and edges faded (see imageProcessing).",
+   "blurb": "A large H II region in Centaurus with dark Thackeray's globules."
+  },
+  {
+   "id": "north-america-nebula",
+   "name": "North America and Pelican Nebulae",
+   "otherNames": [
+    "NGC 7000",
+    "IC 5070"
+   ],
+   "kind": "HII region",
+   "parent": null,
+   "position": {
+    "raDeg": 314.696,
+    "decDeg": 44.33,
+    "lDeg": 85.5013,
+    "bDeg": -0.9847,
+    "source": "SIMBAD (NGC 7000)"
+   },
+   "distance": {
+    "pc": 795,
+    "minusPc": 25,
+    "plusPc": 25,
+    "method": "Gaia DR2 parallaxes of young stars",
+    "ref": "Kuhn M.A. et al. 2020, ApJ 899, 128 (Gaia DR2)",
+    "doi": "10.3847/1538-4357/aba19a"
+   },
+   "helioGalacticPc": [
+    62.35,
+    792.43,
+    -13.66
+   ],
+   "catalogueSizeArcmin": null,
+   "catalogueSizePc": null,
+   "billboard": {
+    "image": "images/nebulae/north-america-nebula.jpg",
+    "centerRaDeg": 313.46612,
+    "centerDecDeg": 44.31067,
+    "widthArcmin": 250.61,
+    "heightArcmin": 171.37,
+    "northAngleDeg": -3.0,
+    "pixels": [
+     512,
+     351
+    ],
+    "bytes": 84950,
+    "blackLevel": [
+     0.051,
+     0.0627,
+     0.0275
+    ],
+    "widthPc": 57.981,
+    "heightPc": 39.639,
+    "helioGalacticPc": [
+     70.45,
+     791.86,
+     -4.54
+    ]
+   },
+   "imageSource": {
+    "archive": "NSF NOIRLab",
+    "id": "noao-n7000mosblock",
+    "title": "NGC 7000: The North America Nebula and the Pelican Nebula",
+    "page": "https://noirlab.edu/public/images/noao-n7000mosblock/",
+    "file": "https://storage.noirlab.edu/media/archives/images/screen/noao-n7000mosblock.jpg",
+    "band": "visible",
+    "cropped": false,
+    "fullFrame": {
+     "centerRaDeg": 313.46612,
+     "centerDecDeg": 44.31067,
+     "fovArcmin": [
+      250.61,
+      171.37
+     ],
+     "northAngleDeg": -3.0
+    }
+   },
+   "credit": "KPNO/NOIRLab/NSF/AURA/Adam Block",
+   "licence": "CC BY 4.0",
+   "modificationNote": "Image modified for Lightspeed: resized, black level subtracted and edges faded (see imageProcessing).",
+   "blurb": "One H II region split in two by a foreground dust cloud; the ionising 'Bajamar Star' hides behind it."
+  },
+  {
+   "id": "bubble-nebula",
+   "name": "Bubble Nebula",
+   "otherNames": [
+    "NGC 7635"
+   ],
+   "kind": "wind-blown bubble",
+   "parent": null,
+   "position": {
+    "raDeg": 350.2012,
+    "decDeg": 61.2017,
+    "lDeg": 112.237,
+    "bDeg": 0.2261,
+    "source": "SIMBAD (NGC 7635)"
+   },
+   "distance": {
+    "pc": 2829.5,
+    "minusPc": 156.1,
+    "plusPc": 179.6,
+    "method": "Gaia EDR3 geometric distance of the central/ionising star, Gaia DR3 2014149897293278848 (16th-84th percentiles, plus a 0.015 mas systematic)",
+    "ref": "Bailer-Jones C.A.L. et al. 2021, AJ 161, 147 (VizieR I/352)",
+    "doi": "10.3847/1538-3881/abd806"
+   },
+   "helioGalacticPc": [
+    -1070.78,
+    2619.04,
+    11.17
+   ],
+   "catalogueSizeArcmin": null,
+   "catalogueSizePc": null,
+   "billboard": {
+    "image": "images/nebulae/bubble-nebula.jpg",
+    "centerRaDeg": 350.17537,
+    "centerDecDeg": 61.19122,
+    "widthArcmin": 5.19,
+    "heightArcmin": 4.93,
+    "northAngleDeg": 33.6,
+    "pixels": [
+     512,
+     486
+    ],
+    "bytes": 36972,
+    "blackLevel": [
+     0.0824,
+     0.0588,
+     0.0824
+    ],
+    "widthPc": 4.272,
+    "heightPc": 4.058,
+    "helioGalacticPc": [
+     -1070.09,
+     2619.33,
+     10.89
+    ]
+   },
+   "imageSource": {
+    "archive": "ESA/Hubble",
+    "id": "heic1608a",
+    "title": "The Bubble Nebula",
+    "page": "https://esahubble.org/images/heic1608a/",
+    "file": "https://cdn.esahubble.org/archives/images/screen/heic1608a.jpg",
+    "band": "visible",
+    "cropped": false,
+    "fullFrame": {
+     "centerRaDeg": 350.17537,
+     "centerDecDeg": 61.19122,
+     "fovArcmin": [
+      5.19,
+      4.93
+     ],
+     "northAngleDeg": 33.6
+    }
+   },
+   "credit": "NASA, ESA, Hubble Heritage Team",
+   "licence": "CC BY 4.0",
+   "modificationNote": "Image modified for Lightspeed: resized, black level subtracted and edges faded (see imageProcessing).",
+   "blurb": "A 7-light-year bubble blown by the wind of the young O star BD+60 2522."
+  },
+  {
+   "id": "thors-helmet",
+   "name": "Thor's Helmet",
+   "otherNames": [
+    "NGC 2359"
+   ],
+   "kind": "Wolf-Rayet nebula",
+   "parent": null,
+   "position": {
+    "raDeg": 109.625,
+    "decDeg": -13.226667,
+    "lDeg": 227.7604,
+    "bDeg": -0.1298,
+    "source": "SIMBAD (NGC 2359)"
+   },
+   "distance": {
+    "pc": 4117.6,
+    "minusPc": 473.7,
+    "plusPc": 598.5,
+    "method": "Gaia EDR3 geometric distance of the central/ionising star, Gaia DR3 3032940844556081408 (16th-84th percentiles, plus a 0.015 mas systematic)",
+    "ref": "Bailer-Jones C.A.L. et al. 2021, AJ 161, 147 (VizieR I/352)",
+    "doi": "10.3847/1538-3881/abd806"
+   },
+   "helioGalacticPc": [
+    -2767.98,
+    -3048.42,
+    -9.33
+   ],
+   "catalogueSizeArcmin": null,
+   "catalogueSizePc": null,
+   "billboard": {
+    "image": "images/nebulae/thors-helmet.jpg",
+    "centerRaDeg": 109.62538,
+    "centerDecDeg": -13.23017,
+    "widthArcmin": 7.21,
+    "heightArcmin": 7.24,
+    "northAngleDeg": 90.1,
+    "pixels": [
+     510,
+     512
+    ],
+    "bytes": 77889,
+    "blackLevel": [
+     0.0745,
+     0.0784,
+     0.0431
+    ],
+    "widthPc": 8.636,
+    "heightPc": 8.672,
+    "helioGalacticPc": [
+     -2767.8,
+     -3048.57,
+     -9.42
+    ]
+   },
+   "imageSource": {
+    "archive": "ESO",
+    "id": "eso1238a",
+    "title": "Thor’s Helmet Nebula imaged on the occasion of ESO’s 50th anniversary",
+    "page": "https://www.eso.org/public/images/eso1238a/",
+    "file": "https://cdn.eso.org/images/screen/eso1238a.jpg",
+    "band": "visible",
+    "cropped": false,
+    "fullFrame": {
+     "centerRaDeg": 109.62538,
+     "centerDecDeg": -13.23017,
+     "fovArcmin": [
+      7.21,
+      7.24
+     ],
+     "northAngleDeg": 90.1
+    }
+   },
+   "credit": "ESO/B. Bailleul",
+   "licence": "CC BY 4.0",
+   "modificationNote": "Image modified for Lightspeed: resized, black level subtracted and edges faded (see imageProcessing).",
+   "blurb": "A bubble inflated by the fierce wind of the Wolf-Rayet star WR 7."
+  },
+  {
+   "id": "seagull-nebula",
+   "name": "Seagull Nebula",
+   "otherNames": [
+    "IC 2177",
+    "Sh2-292",
+    "Sh2-296"
+   ],
+   "kind": "HII region",
+   "parent": null,
+   "position": {
+    "raDeg": 106.104,
+    "decDeg": -10.455,
+    "lDeg": 223.7086,
+    "bDeg": -1.9031,
+    "source": "SIMBAD (IC 2177)"
+   },
+   "distance": {
+    "pc": 1105.2,
+    "minusPc": 18.5,
+    "plusPc": 18.5,
+    "method": "Gaia DR3 parallaxes of members of the cluster vdBergh 92 (16th-84th percentiles, plus a 0.015 mas systematic)",
+    "ref": "Hunt E.L., Reffert S. 2024, A&A 686, A42 (VizieR J/A+A/686/A42)",
+    "doi": "10.1051/0004-6361/202348662"
+   },
+   "helioGalacticPc": [
+    -798.47,
+    -763.26,
+    -36.7
+   ],
+   "catalogueSizeArcmin": null,
+   "catalogueSizePc": null,
+   "billboard": {
+    "image": "images/nebulae/seagull-nebula.jpg",
+    "centerRaDeg": 106.29988,
+    "centerDecDeg": -11.10026,
+    "widthArcmin": 180.06,
+    "heightArcmin": 119.85,
+    "northAngleDeg": -90.1,
+    "pixels": [
+     512,
+     341
+    ],
+    "bytes": 62452,
+    "blackLevel": [
+     0.0902,
+     0.0392,
+     0.0471
+    ],
+    "widthPc": 57.901,
+    "heightPc": 38.534,
+    "helioGalacticPc": [
+     -789.53,
+     -772.38,
+     -39.1
+    ]
+   },
+   "imageSource": {
+    "archive": "ESO",
+    "id": "eso1913a",
+    "title": "The Rosy Glow of a Cosmic Seagull",
+    "page": "https://www.eso.org/public/images/eso1913a/",
+    "file": "https://cdn.eso.org/images/screen/eso1913a.jpg",
+    "band": "visible",
+    "cropped": false,
+    "fullFrame": {
+     "centerRaDeg": 106.29988,
+     "centerDecDeg": -11.10026,
+     "fovArcmin": [
+      180.06,
+      119.85
+     ],
+     "northAngleDeg": -90.1
+    }
+   },
+   "credit": "ESO/VPHAS+ team/N.J. Wright (Keele University)",
+   "licence": "CC BY 4.0",
+   "modificationNote": "Image modified for Lightspeed: resized, black level subtracted and edges faded (see imageProcessing).",
+   "blurb": "A wide H II complex on the Monoceros-Canis Major border."
+  },
+  {
+   "id": "prawn-nebula",
+   "name": "Prawn Nebula",
+   "otherNames": [
+    "IC 4628",
+    "Gum 56"
+   ],
+   "kind": "HII region",
+   "parent": null,
+   "position": {
+    "raDeg": 254.2278,
+    "decDeg": -40.5123,
+    "lDeg": 344.8111,
+    "bDeg": 1.6052,
+    "source": "SIMBAD (IC 4628)"
+   },
+   "distance": {
+    "pc": 1592.8,
+    "minusPc": 38.6,
+    "plusPc": 38.6,
+    "method": "Gaia DR3 parallaxes of members of the cluster ESO 332-13 (16th-84th percentiles, plus a 0.015 mas systematic)",
+    "ref": "Hunt E.L., Reffert S. 2024, A&A 686, A42 (VizieR J/A+A/686/A42)",
+    "doi": "10.1051/0004-6361/202348662"
+   },
+   "helioGalacticPc": [
+    1536.56,
+    -417.15,
+    44.62
+   ],
+   "catalogueSizeArcmin": null,
+   "catalogueSizePc": null,
+   "billboard": {
+    "image": "images/nebulae/prawn-nebula.jpg",
+    "centerRaDeg": 254.30525,
+    "centerDecDeg": -40.41246,
+    "widthArcmin": 63.1,
+    "heightArcmin": 45.6,
+    "northAngleDeg": -0.2,
+    "pixels": [
+     512,
+     370
+    ],
+    "bytes": 71369,
+    "blackLevel": [
+     0.0941,
+     0.0706,
+     0.0706
+    ],
+    "widthPc": 29.237,
+    "heightPc": 21.128,
+    "helioGalacticPc": [
+     1537.38,
+     -414.07,
+     45.07
+    ]
+   },
+   "imageSource": {
+    "archive": "ESO",
+    "id": "eso1340a",
+    "title": "Detailed view of the Prawn Nebula from ESO's VST",
+    "page": "https://www.eso.org/public/images/eso1340a/",
+    "file": "https://cdn.eso.org/images/screen/eso1340a.jpg",
+    "band": "visible",
+    "cropped": false,
+    "fullFrame": {
+     "centerRaDeg": 254.30525,
+     "centerDecDeg": -40.41246,
+     "fovArcmin": [
+      63.1,
+      45.6
+     ],
+     "northAngleDeg": -0.2
+    }
+   },
+   "credit": "ESO. Acknowledgement: Martin Pugh",
+   "licence": "CC BY 4.0",
+   "modificationNote": "Image modified for Lightspeed: resized, black level subtracted and edges faded (see imageProcessing).",
+   "blurb": "A star-forming cloud in Scorpius lit by young massive stars."
+  },
+  {
+   "id": "crescent-nebula",
+   "name": "Crescent Nebula",
+   "otherNames": [
+    "NGC 6888"
+   ],
+   "kind": "Wolf-Rayet nebula",
+   "parent": null,
+   "position": {
+    "raDeg": 303.0272579,
+    "decDeg": 38.3549401,
+    "lDeg": 75.4756,
+    "bDeg": 2.4262,
+    "source": "SIMBAD (NGC 6888)"
+   },
+   "distance": {
+    "pc": 1669.0,
+    "minusPc": 56.5,
+    "plusPc": 59.2,
+    "method": "Gaia EDR3 geometric distance of the central/ionising star, Gaia DR3 2061690233159124352 (16th-84th percentiles, plus a 0.015 mas systematic)",
+    "ref": "Bailer-Jones C.A.L. et al. 2021, AJ 161, 147 (VizieR I/352)",
+    "doi": "10.3847/1538-3881/abd806"
+   },
+   "helioGalacticPc": [
+    418.2,
+    1614.21,
+    70.65
+   ],
+   "catalogueSizeArcmin": null,
+   "catalogueSizePc": null,
+   "billboard": {
+    "image": "images/nebulae/crescent-nebula.jpg",
+    "centerRaDeg": 302.91204,
+    "centerDecDeg": 38.61249,
+    "widthArcmin": 60.73,
+    "heightArcmin": 58.09,
+    "northAngleDeg": -89.8,
+    "pixels": [
+     512,
+     490
+    ],
+    "bytes": 108551,
+    "blackLevel": [
+     0.0549,
+     0.051,
+     0.0235
+    ],
+    "widthPc": 29.485,
+    "heightPc": 28.203,
+    "helioGalacticPc": [
+     413.44,
+     1615.15,
+     76.96
+    ]
+   },
+   "imageSource": {
+    "archive": "NSF NOIRLab",
+    "id": "noao-04494",
+    "title": "Crescent, NGC 6888",
+    "page": "https://noirlab.edu/public/images/noao-04494/",
+    "file": "https://storage.noirlab.edu/media/archives/images/screen/noao-04494.jpg",
+    "band": "visible",
+    "cropped": false,
+    "fullFrame": {
+     "centerRaDeg": 302.91204,
+     "centerDecDeg": 38.61249,
+     "fovArcmin": [
+      60.73,
+      58.09
+     ],
+     "northAngleDeg": -89.8
+    }
+   },
+   "credit": "T.A. Rector (NRAO/AUI/NSF and NOIRLab/NSF/AURA)",
+   "licence": "CC BY 4.0",
+   "modificationNote": "Image modified for Lightspeed: resized, black level subtracted and edges faded (see imageProcessing).",
+   "blurb": "Shells of gas swept up by the Wolf-Rayet star WR 136 ramming its earlier, slower wind."
+  },
+  {
+   "id": "iris-nebula",
+   "name": "Iris Nebula",
+   "otherNames": [
+    "NGC 7023"
+   ],
+   "kind": "reflection nebula",
+   "parent": null,
+   "position": {
+    "raDeg": 315.4037,
+    "decDeg": 68.1633,
+    "lDeg": 104.0616,
+    "bDeg": 14.1926,
+    "source": "SIMBAD (NGC 7023)"
+   },
+   "distance": {
+    "pc": 351.8,
+    "minusPc": 5.3,
+    "plusPc": 5.1,
+    "method": "Gaia EDR3 geometric distance of the central/ionising star, Gaia DR3 2270245431209611776 (16th-84th percentiles, plus a 0.015 mas systematic)",
+    "ref": "Bailer-Jones C.A.L. et al. 2021, AJ 161, 147 (VizieR I/352)",
+    "doi": "10.3847/1538-3881/abd806"
+   },
+   "helioGalacticPc": [
+    -82.87,
+    330.84,
+    86.25
+   ],
+   "catalogueSizeArcmin": null,
+   "catalogueSizePc": null,
+   "billboard": {
+    "image": "images/nebulae/iris-nebula.jpg",
+    "centerRaDeg": 315.82675,
+    "centerDecDeg": 68.06963,
+    "widthArcmin": 24.0,
+    "heightArcmin": 22.19,
+    "northAngleDeg": 29.8,
+    "pixels": [
+     512,
+     470
+    ],
+    "bytes": 54962,
+    "blackLevel": [
+     0.0196,
+     0.0157,
+     0.0118
+    ],
+    "widthPc": 2.456,
+    "heightPc": 2.271,
+    "helioGalacticPc": [
+     -83.1,
+     331.06,
+     85.18
+    ]
+   },
+   "imageSource": {
+    "archive": "NSF NOIRLab",
+    "id": "noao-ngc7023",
+    "title": "Iris Nebula NGC 7023",
+    "page": "https://noirlab.edu/public/images/noao-ngc7023/",
+    "file": "https://storage.noirlab.edu/media/archives/images/screen/noao-ngc7023.jpg",
+    "band": "visible",
+    "cropped": false,
+    "fullFrame": {
+     "centerRaDeg": 315.82675,
+     "centerDecDeg": 68.06963,
+     "fovArcmin": [
+      24.0,
+      22.19
+     ],
+     "northAngleDeg": 29.8
+    }
+   },
+   "credit": "T.A. Rector/University of Alaska Anchorage, H. Schweiker/WIYN and NOIRLab/NSF/AURA",
+   "licence": "CC BY 4.0",
+   "modificationNote": "Image modified for Lightspeed: resized, black level subtracted and edges faded (see imageProcessing).",
+   "blurb": "Dust lit by the young star HD 200775."
+  },
+  {
+   "id": "pleiades-nebulosity",
+   "name": "Pleiades reflection nebula",
+   "otherNames": [
+    "M45"
+   ],
+   "kind": "reflection nebula",
+   "parent": null,
+   "position": {
+    "raDeg": 56.6008,
+    "decDeg": 24.1139,
+    "lDeg": 166.4627,
+    "bDeg": -23.6148,
+    "source": "SIMBAD (M 45)"
+   },
+   "distance": {
+    "pc": 134.8,
+    "minusPc": 0.3,
+    "plusPc": 0.3,
+    "method": "Gaia DR3 parallaxes of members of the cluster Melotte 22 (16th-84th percentiles, plus a 0.015 mas systematic)",
+    "ref": "Hunt E.L., Reffert S. 2024, A&A 686, A42 (VizieR J/A+A/686/A42)",
+    "doi": "10.1051/0004-6361/202348662"
+   },
+   "helioGalacticPc": [
+    -120.08,
+    28.91,
+    -54.0
+   ],
+   "catalogueSizeArcmin": null,
+   "catalogueSizePc": null,
+   "billboard": {
+    "image": "images/nebulae/pleiades-nebulosity.jpg",
+    "centerRaDeg": 56.55438,
+    "centerDecDeg": 24.11007,
+    "widthArcmin": 68.68,
+    "heightArcmin": 50.13,
+    "northAngleDeg": -90.7,
+    "pixels": [
+     512,
+     374
+    ],
+    "bytes": 43387,
+    "blackLevel": [
+     0.0196,
+     0.0157,
+     0.0157
+    ],
+    "widthPc": 2.693,
+    "heightPc": 1.966,
+    "helioGalacticPc": [
+     -120.04,
+     28.97,
+     -54.07
+    ]
+   },
+   "imageSource": {
+    "archive": "NSF NOIRLab",
+    "id": "noao-m45",
+    "title": "M45 Pleiades",
+    "page": "https://noirlab.edu/public/images/noao-m45/",
+    "file": "https://storage.noirlab.edu/media/archives/images/screen/noao-m45.jpg",
+    "band": "visible",
+    "cropped": false,
+    "fullFrame": {
+     "centerRaDeg": 56.55438,
+     "centerDecDeg": 24.11007,
+     "fovArcmin": [
+      68.68,
+      50.13
+     ],
+     "northAngleDeg": -90.7
+    }
+   },
+   "credit": "NOIRLab/NSF/AURA/T.A. Rector (University of Alaska Anchorage), R. Cool (University of Arizona) and WIYN",
+   "licence": "CC BY 4.0",
+   "modificationNote": "Image modified for Lightspeed: resized, black level subtracted and edges faded (see imageProcessing).",
+   "blurb": "The cluster is passing through an unrelated dust cloud; the blue haze is starlight scattered by it."
+  },
+  {
+   "id": "tarantula-nebula",
+   "name": "Tarantula Nebula",
+   "otherNames": [
+    "30 Doradus",
+    "NGC 2070"
+   ],
+   "kind": "HII region",
+   "parent": null,
+   "position": {
+    "raDeg": 84.67665,
+    "decDeg": -69.100933,
+    "lDeg": 279.4652,
+    "bDeg": -31.6719,
+    "source": "SIMBAD (30 Dor)"
+   },
+   "distance": {
+    "pc": 49590,
+    "minusPc": 544,
+    "plusPc": 544,
+    "method": "detached eclipsing binaries",
+    "ref": "Pietrzynski G. et al. 2019, Nature 567, 200 (49.59 +- 0.09 stat +- 0.54 sys kpc)",
+    "doi": "10.1038/s41586-019-0999-4"
+   },
+   "helioGalacticPc": [
+    6940.44,
+    -41629.92,
+    -26037.43
+   ],
+   "catalogueSizeArcmin": null,
+   "catalogueSizePc": null,
+   "billboard": {
+    "image": "images/nebulae/tarantula-nebula.jpg",
+    "centerRaDeg": 84.67654,
+    "centerDecDeg": -69.10088,
+    "widthArcmin": 39.998,
+    "heightArcmin": 39.998,
+    "northAngleDeg": 0.1,
+    "pixels": [
+     512,
+     512
+    ],
+    "bytes": 111367,
+    "blackLevel": [
+     0.0588,
+     0.0784,
+     0.0157
+    ],
+    "widthPc": 576.984,
+    "heightPc": 576.984,
+    "helioGalacticPc": [
+     6940.4,
+     -41629.91,
+     -26037.47
+    ]
+   },
+   "imageSource": {
+    "archive": "ESO",
+    "id": "eso0650a",
+    "title": "Portrait of a dramatic stellar crib*",
+    "page": "https://www.eso.org/public/images/eso0650a/",
+    "file": "https://cdn.eso.org/images/publicationjpg/eso0650a.jpg",
+    "band": "visible",
+    "cropped": true,
+    "fullFrame": {
+     "centerRaDeg": 84.65829,
+     "centerDecDeg": -69.09491,
+     "fovArcmin": [
+      62.4,
+      62.31
+     ],
+     "northAngleDeg": 0.1
+    }
+   },
+   "credit": "ESO/R. Fosbury (ST-ECF)",
+   "licence": "CC BY 4.0",
+   "modificationNote": "Image modified for Lightspeed: cropped, resized, black level subtracted and edges faded (see imageProcessing).",
+   "blurb": "The most powerful star-forming region in the Local Group, in the Large Magellanic Cloud."
+  },
+  {
+   "id": "ngc-346",
+   "name": "NGC 346",
+   "otherNames": [
+    "N66"
+   ],
+   "kind": "HII region",
+   "parent": null,
+   "position": {
+    "raDeg": 14.7683333,
+    "decDeg": -72.1775,
+    "lDeg": 302.1067,
+    "bDeg": -44.9385,
+    "source": "SIMBAD (NGC 346)"
+   },
+   "distance": {
+    "pc": 62440,
+    "minusPc": 934,
+    "plusPc": 934,
+    "method": "detached eclipsing binaries",
+    "ref": "Graczyk D. et al. 2020, ApJ 904, 13 (62.44 +- 0.47 stat +- 0.81 sys kpc)",
+    "doi": "10.3847/1538-4357/abbb2b"
+   },
+   "helioGalacticPc": [
+    23491.71,
+    -37439.29,
+    -44104.34
+   ],
+   "catalogueSizeArcmin": null,
+   "catalogueSizePc": null,
+   "billboard": {
+    "image": "images/nebulae/ngc-346.jpg",
+    "centerRaDeg": 14.768,
+    "centerDecDeg": -72.17381,
+    "widthArcmin": 4.11,
+    "heightArcmin": 5.96,
+    "northAngleDeg": -5.4,
+    "pixels": [
+     353,
+     512
+    ],
+    "bytes": 61011,
+    "blackLevel": [
+     0.0471,
+     0.0471,
+     0.0471
+    ],
+    "widthPc": 74.65,
+    "heightPc": 108.252,
+    "helioGalacticPc": [
+     23490.15,
+     -37436.91,
+     -44107.19
+    ]
+   },
+   "imageSource": {
+    "archive": "ESA/Webb",
+    "id": "weic2301a",
+    "title": "Webb Inspects NGC 346 (NIRCam Image)",
+    "page": "https://esawebb.org/images/weic2301a/",
+    "file": "https://cdn.esawebb.org/archives/images/screen/weic2301a.jpg",
+    "band": "near-infrared",
+    "cropped": false,
+    "fullFrame": {
+     "centerRaDeg": 14.768,
+     "centerDecDeg": -72.17381,
+     "fovArcmin": [
+      4.11,
+      5.96
+     ],
+     "northAngleDeg": -5.4
+    }
+   },
+   "credit": "NASA, ESA, CSA, STScI, A. Pagan (STScI)",
+   "licence": "CC BY 4.0",
+   "modificationNote": "Image modified for Lightspeed: resized, black level subtracted and edges faded (see imageProcessing).",
+   "blurb": "The brightest star-forming region in the Small Magellanic Cloud, seen by Webb."
+  },
+  {
+   "id": "sn-1987a",
+   "name": "SN 1987A",
+   "otherNames": [],
+   "kind": "supernova remnant",
+   "parent": null,
+   "position": {
+    "raDeg": 83.86661833,
+    "decDeg": -69.26975372,
+    "lDeg": 279.7034,
+    "bDeg": -31.9371,
+    "source": "SIMBAD (SN 1987A)"
+   },
+   "distance": {
+    "pc": 49590,
+    "minusPc": 544,
+    "plusPc": 544,
+    "method": "detached eclipsing binaries",
+    "ref": "Pietrzynski G. et al. 2019, Nature 567, 200 (49.59 +- 0.09 stat +- 0.54 sys kpc)",
+    "doi": "10.1038/s41586-019-0999-4"
+   },
+   "helioGalacticPc": [
+    7093.12,
+    -41481.45,
+    -26232.52
+   ],
+   "catalogueSizeArcmin": null,
+   "catalogueSizePc": null,
+   "billboard": {
+    "image": "images/nebulae/sn-1987a.jpg",
+    "centerRaDeg": 83.86692,
+    "centerDecDeg": -69.26987,
+    "widthArcmin": 2.4,
+    "heightArcmin": 2.63,
+    "northAngleDeg": 11.1,
+    "pixels": [
+     466,
+     512
+    ],
+    "bytes": 95584,
+    "blackLevel": [
+     0.0353,
+     0.0353,
+     0.051
+    ],
+    "widthPc": 34.62,
+    "heightPc": 37.938,
+    "helioGalacticPc": [
+     7093.22,
+     -41481.49,
+     -26232.43
+    ]
+   },
+   "imageSource": {
+    "archive": "ESA/Hubble",
+    "id": "heic1704a",
+    "title": "New image of SN 1987A",
+    "page": "https://esahubble.org/images/heic1704a/",
+    "file": "https://cdn.esahubble.org/archives/images/screen/heic1704a.jpg",
+    "band": "visible",
+    "cropped": false,
+    "fullFrame": {
+     "centerRaDeg": 83.86692,
+     "centerDecDeg": -69.26987,
+     "fovArcmin": [
+      2.4,
+      2.63
+     ],
+     "northAngleDeg": 11.1
+    }
+   },
+   "credit": "NASA, ESA, and R. Kirshner (Harvard-Smithsonian Center for Astrophysics and Gordon and Betty Moore Foundation) and P. Challis (Harvard-Smithsonian Center for Astrophysics)",
+   "licence": "CC BY 4.0",
+   "modificationNote": "Image modified for Lightspeed: resized, black level subtracted and edges faded (see imageProcessing).",
+   "blurb": "The nearest supernova seen since 1604; its blast wave is lighting up a ring thrown off 20,000 years earlier."
+  },
+  {
+   "id": "ring-nebula",
+   "name": "Ring Nebula",
+   "otherNames": [
+    "M57",
+    "NGC 6720"
+   ],
+   "kind": "planetary nebula",
+   "parent": null,
+   "position": {
+    "raDeg": 283.3962365,
+    "decDeg": 33.0291342,
+    "lDeg": 63.1701,
+    "bDeg": 13.9781,
+    "source": "SIMBAD (M 57)"
+   },
+   "distance": {
+    "pc": 782.5,
+    "minusPc": 33.0,
+    "plusPc": 30.4,
+    "method": "Gaia EDR3 geometric distance of the central/ionising star, Gaia DR3 2090486618786534784 (16th-84th percentiles, plus a 0.015 mas systematic)",
+    "ref": "Bailer-Jones C.A.L. et al. 2021, AJ 161, 147 (VizieR I/352)",
+    "doi": "10.3847/1538-3881/abd806"
+   },
+   "helioGalacticPc": [
+    342.72,
+    677.59,
+    189.01
+   ],
+   "catalogueSizeArcmin": 1.153,
+   "catalogueSizePc": 0.262,
+   "billboard": {
+    "image": "images/nebulae/ring-nebula.jpg",
+    "centerRaDeg": 283.39671,
+    "centerDecDeg": 33.02893,
+    "widthArcmin": 2.1,
+    "heightArcmin": 2.1,
+    "northAngleDeg": 11.7,
+    "pixels": [
+     512,
+     512
+    ],
+    "bytes": 34801,
+    "blackLevel": [
+     0.0235,
+     0.0235,
+     0.0039
+    ],
+    "widthPc": 0.478,
+    "heightPc": 0.478,
+    "helioGalacticPc": [
+     342.72,
+     677.59,
+     189.01
+    ]
+   },
+   "imageSource": {
+    "archive": "ESA/Hubble",
+    "id": "heic1310a",
+    "title": "Hubble image of the Ring Nebula (Messier 57)",
+    "page": "https://esahubble.org/images/heic1310a/",
+    "file": "https://cdn.esahubble.org/archives/images/screen/heic1310a.jpg",
+    "band": "visible",
+    "cropped": false,
+    "fullFrame": {
+     "centerRaDeg": 283.39671,
+     "centerDecDeg": 33.02893,
+     "fovArcmin": [
+      2.1,
+      2.1
+     ],
+     "northAngleDeg": 11.7
+    }
+   },
+   "credit": "NASA, ESA, and C. Robert O’Dell (Vanderbilt University).",
+   "licence": "CC BY 4.0",
+   "modificationNote": "Image modified for Lightspeed: resized, black level subtracted and edges faded (see imageProcessing).",
+   "blurb": "A dying Sun-like star's outer layers, now a glowing barrel seen almost end-on."
+  },
+  {
+   "id": "helix-nebula",
+   "name": "Helix Nebula",
+   "otherNames": [
+    "NGC 7293"
+   ],
+   "kind": "planetary nebula",
+   "parent": null,
+   "position": {
+    "raDeg": 337.4106059,
+    "decDeg": -20.837152,
+    "lDeg": 36.1613,
+    "bDeg": -57.1184,
+    "source": "SIMBAD (NGC 7293)"
+   },
+   "distance": {
+    "pc": 198.6,
+    "minusPc": 1.8,
+    "plusPc": 1.7,
+    "method": "Gaia EDR3 geometric distance of the central/ionising star, Gaia DR3 6628874205642084224 (16th-84th percentiles, plus a 0.015 mas systematic)",
+    "ref": "Bailer-Jones C.A.L. et al. 2021, AJ 161, 147 (VizieR I/352)",
+    "doi": "10.3847/1538-3881/abd806"
+   },
+   "helioGalacticPc": [
+    87.05,
+    63.62,
+    -166.78
+   ],
+   "catalogueSizeArcmin": 13.4,
+   "catalogueSizePc": 0.774,
+   "billboard": {
+    "image": "images/nebulae/helix-nebula.jpg",
+    "centerRaDeg": 337.41071,
+    "centerDecDeg": -20.83717,
+    "widthArcmin": 28.02,
+    "heightArcmin": 25.94,
+    "northAngleDeg": 0.1,
+    "pixels": [
+     512,
+     474
+    ],
+    "bytes": 39857,
+    "blackLevel": [
+     0.0235,
+     0.0314,
+     0.0235
+    ],
+    "widthPc": 1.619,
+    "heightPc": 1.499,
+    "helioGalacticPc": [
+     87.05,
+     63.62,
+     -166.78
+    ]
+   },
+   "imageSource": {
+    "archive": "ESO",
+    "id": "eso0907a",
+    "title": "The Helix Nebula*",
+    "page": "https://www.eso.org/public/images/eso0907a/",
+    "file": "https://cdn.eso.org/images/screen/eso0907a.jpg",
+    "band": "visible",
+    "cropped": false,
+    "fullFrame": {
+     "centerRaDeg": 337.41071,
+     "centerDecDeg": -20.83717,
+     "fovArcmin": [
+      28.02,
+      25.94
+     ],
+     "northAngleDeg": 0.1
+    }
+   },
+   "credit": "ESO",
+   "licence": "CC BY 4.0",
+   "modificationNote": "Image modified for Lightspeed: resized, black level subtracted and edges faded (see imageProcessing).",
+   "blurb": "One of the nearest planetary nebulae, about 200 pc away."
+  },
+  {
+   "id": "dumbbell-nebula",
+   "name": "Dumbbell Nebula",
+   "otherNames": [
+    "M27",
+    "NGC 6853"
+   ],
+   "kind": "planetary nebula",
+   "parent": null,
+   "position": {
+    "raDeg": 299.9015133,
+    "decDeg": 22.7211978,
+    "lDeg": 60.8361,
+    "bDeg": -3.6963,
+    "source": "SIMBAD (M 27)"
+   },
+   "distance": {
+    "pc": 386.8,
+    "minusPc": 6.6,
+    "plusPc": 7.7,
+    "method": "Gaia EDR3 geometric distance of the central/ionising star, Gaia DR3 1827256624493300096 (16th-84th percentiles, plus a 0.015 mas systematic)",
+    "ref": "Bailer-Jones C.A.L. et al. 2021, AJ 161, 147 (VizieR I/352)",
+    "doi": "10.3847/1538-3881/abd806"
+   },
+   "helioGalacticPc": [
+    188.1,
+    337.06,
+    -24.94
+   ],
+   "catalogueSizeArcmin": 6.7,
+   "catalogueSizePc": 0.754,
+   "billboard": {
+    "image": "images/nebulae/dumbbell-nebula.jpg",
+    "centerRaDeg": 299.90171,
+    "centerDecDeg": 22.72111,
+    "widthArcmin": 6.76,
+    "heightArcmin": 6.82,
+    "northAngleDeg": 0.0,
+    "pixels": [
+     512,
+     512
+    ],
+    "bytes": 65928,
+    "blackLevel": [
+     0.0,
+     0.0353,
+     0.0314
+    ],
+    "widthPc": 0.761,
+    "heightPc": 0.767,
+    "helioGalacticPc": [
+     188.1,
+     337.06,
+     -24.94
+    ]
+   },
+   "imageSource": {
+    "archive": "ESO",
+    "id": "eso9846a",
+    "title": "The Dumbbell Nebula",
+    "page": "https://www.eso.org/public/images/eso9846a/",
+    "file": "https://cdn.eso.org/images/screen/eso9846a.jpg",
+    "band": "visible",
+    "cropped": false,
+    "fullFrame": {
+     "centerRaDeg": 299.90171,
+     "centerDecDeg": 22.72111,
+     "fovArcmin": [
+      6.76,
+      6.82
+     ],
+     "northAngleDeg": 0.0
+    }
+   },
+   "credit": "ESO/I. Appenzeller, W. Seifert, O. Stahl, M. Zamani",
+   "licence": "CC BY 4.0",
+   "modificationNote": "Image modified for Lightspeed: resized, black level subtracted and edges faded (see imageProcessing).",
+   "blurb": "The first planetary nebula ever found (Messier, 1764)."
+  },
+  {
+   "id": "cats-eye-nebula",
+   "name": "Cat's Eye Nebula",
+   "otherNames": [
+    "NGC 6543"
+   ],
+   "kind": "planetary nebula",
+   "parent": null,
+   "position": {
+    "raDeg": 269.6391832,
+    "decDeg": 66.6329863,
+    "lDeg": 96.4679,
+    "bDeg": 29.9545,
+    "source": "SIMBAD (NGC 6543)"
+   },
+   "distance": {
+    "pc": 1316.9,
+    "minusPc": 50.4,
+    "plusPc": 60.6,
+    "method": "Gaia EDR3 geometric distance of the central/ionising star, Gaia DR3 1633325248915154176 (16th-84th percentiles, plus a 0.015 mas systematic)",
+    "ref": "Bailer-Jones C.A.L. et al. 2021, AJ 161, 147 (VizieR I/352)",
+    "doi": "10.3847/1538-3881/abd806"
+   },
+   "helioGalacticPc": [
+    -128.53,
+    1133.73,
+    657.54
+   ],
+   "catalogueSizeArcmin": 0.623,
+   "catalogueSizePc": 0.239,
+   "billboard": {
+    "image": "images/nebulae/cats-eye-nebula.jpg",
+    "centerRaDeg": 269.63858,
+    "centerDecDeg": 66.63282,
+    "widthArcmin": 1.17,
+    "heightArcmin": 1.17,
+    "northAngleDeg": 144.6,
+    "pixels": [
+     512,
+     512
+    ],
+    "bytes": 33771,
+    "blackLevel": [
+     0.0,
+     0.0039,
+     0.0196
+    ],
+    "widthPc": 0.448,
+    "heightPc": 0.448,
+    "helioGalacticPc": [
+     -128.53,
+     1133.73,
+     657.55
+    ]
+   },
+   "imageSource": {
+    "archive": "ESA/Hubble",
+    "id": "heic0414a",
+    "title": "Dying star creates fantasy-like sculpture of gas and dust",
+    "page": "https://esahubble.org/images/heic0414a/",
+    "file": "https://cdn.esahubble.org/archives/images/screen/heic0414a.jpg",
+    "band": "visible",
+    "cropped": false,
+    "fullFrame": {
+     "centerRaDeg": 269.63858,
+     "centerDecDeg": 66.63282,
+     "fovArcmin": [
+      1.17,
+      1.17
+     ],
+     "northAngleDeg": 144.6
+    }
+   },
+   "credit": "ESA, NASA, HEIC and The Hubble Heritage Team (STScI/AURA)",
+   "licence": "CC BY 4.0",
+   "modificationNote": "Image modified for Lightspeed: resized, black level subtracted and edges faded (see imageProcessing).",
+   "blurb": "Concentric shells puffed off every ~1,500 years before the final ejection."
+  },
+  {
+   "id": "butterfly-nebula",
+   "name": "Butterfly Nebula",
+   "otherNames": [
+    "NGC 6302",
+    "Bug Nebula"
+   ],
+   "kind": "planetary nebula",
+   "parent": null,
+   "position": {
+    "raDeg": 258.4354,
+    "decDeg": -37.1031,
+    "lDeg": 349.5092,
+    "bDeg": 1.0557,
+    "source": "SIMBAD (NGC 6302)"
+   },
+   "distance": {
+    "pc": 1170,
+    "minusPc": 140,
+    "plusPc": 140,
+    "method": "expansion proper motions over 50 years",
+    "ref": "Meaburn J. et al. 2008, MNRAS 385, 269",
+    "doi": "10.1111/j.1365-2966.2007.12782.x"
+   },
+   "helioGalacticPc": [
+    1150.25,
+    -213.0,
+    21.56
+   ],
+   "catalogueSizeArcmin": 0.47,
+   "catalogueSizePc": 0.16,
+   "billboard": {
+    "image": "images/nebulae/butterfly-nebula.jpg",
+    "centerRaDeg": 258.43233,
+    "centerDecDeg": -37.10348,
+    "widthArcmin": 2.35,
+    "heightArcmin": 2.74,
+    "northAngleDeg": -128.4,
+    "pixels": [
+     439,
+     512
+    ],
+    "bytes": 47394,
+    "blackLevel": [
+     0.0118,
+     0.0118,
+     0.0039
+    ],
+    "widthPc": 0.8,
+    "heightPc": 0.933,
+    "helioGalacticPc": [
+     1150.24,
+     -213.03,
+     21.59
+    ]
+   },
+   "imageSource": {
+    "archive": "ESA/Hubble",
+    "id": "heic0910h",
+    "title": "Butterfly emerges from stellar demise in planetary nebula NGC 6302",
+    "page": "https://esahubble.org/images/heic0910h/",
+    "file": "https://cdn.esahubble.org/archives/images/screen/heic0910h.jpg",
+    "band": "visible",
+    "cropped": false,
+    "fullFrame": {
+     "centerRaDeg": 258.43233,
+     "centerDecDeg": -37.10348,
+     "fovArcmin": [
+      2.35,
+      2.74
+     ],
+     "northAngleDeg": -128.4
+    }
+   },
+   "credit": "NASA, ESA and the Hubble SM4 ERO Team",
+   "licence": "CC BY 4.0",
+   "modificationNote": "Image modified for Lightspeed: resized, black level subtracted and edges faded (see imageProcessing).",
+   "blurb": "Gas streaming out at 950,000 km/h from one of the hottest stars known (about 250,000 K)."
+  },
+  {
+   "id": "southern-ring-nebula",
+   "name": "Southern Ring Nebula",
+   "otherNames": [
+    "NGC 3132"
+   ],
+   "kind": "planetary nebula",
+   "parent": null,
+   "position": {
+    "raDeg": 151.7573568,
+    "decDeg": -40.4364252,
+    "lDeg": 272.1139,
+    "bDeg": 12.3973,
+    "source": "SIMBAD (NGC 3132)"
+   },
+   "distance": {
+    "pc": 753.6,
+    "minusPc": 20.0,
+    "plusPc": 16.9,
+    "method": "Gaia EDR3 geometric distance of the central/ionising star, Gaia DR3 5420219732228461184 (16th-84th percentiles, plus a 0.015 mas systematic)",
+    "ref": "Bailer-Jones C.A.L. et al. 2021, AJ 161, 147 (VizieR I/352)",
+    "doi": "10.3847/1538-3881/abd806"
+   },
+   "helioGalacticPc": [
+    27.15,
+    -735.53,
+    161.79
+   ],
+   "catalogueSizeArcmin": 0.75,
+   "catalogueSizePc": 0.164,
+   "billboard": {
+    "image": "images/nebulae/southern-ring-nebula.jpg",
+    "centerRaDeg": 151.75704,
+    "centerDecDeg": -40.43643,
+    "widthArcmin": 2.42,
+    "heightArcmin": 2.25,
+    "northAngleDeg": -112.0,
+    "pixels": [
+     512,
+     477
+    ],
+    "bytes": 47799,
+    "blackLevel": [
+     0.0196,
+     0.0078,
+     0.0039
+    ],
+    "widthPc": 0.53,
+    "heightPc": 0.493,
+    "helioGalacticPc": [
+     27.15,
+     -735.53,
+     161.79
+    ]
+   },
+   "imageSource": {
+    "archive": "ESA/Webb",
+    "id": "weic2207b",
+    "title": "Southern Ring Nebula (NIRCam Image)",
+    "page": "https://esawebb.org/images/weic2207b/",
+    "file": "https://cdn.esawebb.org/archives/images/screen/weic2207b.jpg",
+    "band": "near-infrared",
+    "cropped": false,
+    "fullFrame": {
+     "centerRaDeg": 151.75704,
+     "centerDecDeg": -40.43643,
+     "fovArcmin": [
+      2.42,
+      2.25
+     ],
+     "northAngleDeg": -112.0
+    }
+   },
+   "credit": "NASA, ESA, CSA, STScI, and the Webb ERO Production Team",
+   "licence": "CC BY 4.0",
+   "modificationNote": "Image modified for Lightspeed: resized, black level subtracted and edges faded (see imageProcessing).",
+   "blurb": "Webb found the dying star is the fainter of a pair; the bright companion's distance is used here."
+  },
+  {
+   "id": "hourglass-nebula",
+   "name": "Hourglass Nebula",
+   "otherNames": [
+    "MyCn 18"
+   ],
+   "kind": "planetary nebula",
+   "parent": null,
+   "position": {
+    "raDeg": 204.8960817,
+    "decDeg": -67.3810418,
+    "lDeg": 307.5494,
+    "bDeg": -4.9419,
+    "source": "SIMBAD (PN MyCn 18)"
+   },
+   "distance": {
+    "pc": 4812.8,
+    "minusPc": 1511.0,
+    "plusPc": 4305.0,
+    "method": "Gaia EDR3 geometric distance of the central/ionising star, Gaia DR3 5851342841411810304 (16th-84th percentiles, plus a 0.015 mas systematic)",
+    "ref": "Bailer-Jones C.A.L. et al. 2021, AJ 161, 147 (VizieR I/352)",
+    "doi": "10.3847/1538-3881/abd806"
+   },
+   "helioGalacticPc": [
+    2922.23,
+    -3801.54,
+    -414.6
+   ],
+   "catalogueSizeArcmin": 0.059,
+   "catalogueSizePc": 0.083,
+   "billboard": {
+    "image": "images/nebulae/hourglass-nebula.jpg",
+    "centerRaDeg": 204.89633,
+    "centerDecDeg": -67.38115,
+    "widthArcmin": 0.41,
+    "heightArcmin": 0.41,
+    "northAngleDeg": -155.4,
+    "pixels": [
+     512,
+     509
+    ],
+    "bytes": 29386,
+    "blackLevel": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "widthPc": 0.574,
+    "heightPc": 0.574,
+    "helioGalacticPc": [
+     2922.24,
+     -3801.54,
+     -414.61
+    ]
+   },
+   "imageSource": {
+    "archive": "ESA/Hubble",
+    "id": "opo9607a",
+    "title": "The Hourglass Nebula",
+    "page": "https://esahubble.org/images/opo9607a/",
+    "file": "https://cdn.esahubble.org/archives/images/screen/opo9607a.jpg",
+    "band": "visible",
+    "cropped": false,
+    "fullFrame": {
+     "centerRaDeg": 204.89633,
+     "centerDecDeg": -67.38115,
+     "fovArcmin": [
+      0.41,
+      0.41
+     ],
+     "northAngleDeg": -155.4
+    }
+   },
+   "credit": "Raghvendra Sahai and John Trauger (JPL), the WFPC2 science team, and NASA/ESA",
+   "licence": "CC BY 4.0",
+   "modificationNote": "Image modified for Lightspeed: resized, black level subtracted and edges faded (see imageProcessing).",
+   "blurb": "A young planetary nebula with a pinched waist. Its distance is poorly known (Gaia parallax error 32%)."
+  },
+  {
+   "id": "saturn-nebula",
+   "name": "Saturn Nebula",
+   "otherNames": [
+    "NGC 7009"
+   ],
+   "kind": "planetary nebula",
+   "parent": null,
+   "position": {
+    "raDeg": 316.0450647,
+    "decDeg": -11.3634944,
+    "lDeg": 37.7621,
+    "bDeg": -34.5713,
+    "source": "SIMBAD (NGC 7009)"
+   },
+   "distance": {
+    "pc": 1182.5,
+    "minusPc": 69.3,
+    "plusPc": 81.9,
+    "method": "Gaia EDR3 geometric distance of the central/ionising star, Gaia DR3 6889338034837425920 (16th-84th percentiles, plus a 0.015 mas systematic)",
+    "ref": "Bailer-Jones C.A.L. et al. 2021, AJ 161, 147 (VizieR I/352)",
+    "doi": "10.3847/1538-3881/abd806"
+   },
+   "helioGalacticPc": [
+    769.76,
+    596.28,
+    -670.99
+   ],
+   "catalogueSizeArcmin": 0.707,
+   "catalogueSizePc": 0.243,
+   "billboard": {
+    "image": "images/nebulae/saturn-nebula.jpg",
+    "centerRaDeg": 316.04504,
+    "centerDecDeg": -11.3635,
+    "widthArcmin": 1.21,
+    "heightArcmin": 1.23,
+    "northAngleDeg": -0.0,
+    "pixels": [
+     505,
+     512
+    ],
+    "bytes": 16620,
+    "blackLevel": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "widthPc": 0.416,
+    "heightPc": 0.423,
+    "helioGalacticPc": [
+     769.76,
+     596.28,
+     -670.99
+    ]
+   },
+   "imageSource": {
+    "archive": "ESO",
+    "id": "eso1731a",
+    "title": "MUSE image of the Saturn Nebula",
+    "page": "https://www.eso.org/public/images/eso1731a/",
+    "file": "https://cdn.eso.org/images/screen/eso1731a.jpg",
+    "band": "visible",
+    "cropped": false,
+    "fullFrame": {
+     "centerRaDeg": 316.04504,
+     "centerDecDeg": -11.3635,
+     "fovArcmin": [
+      1.21,
+      1.23
+     ],
+     "northAngleDeg": -0.0
+    }
+   },
+   "credit": "ESO/J. Walsh",
+   "licence": "CC BY 4.0",
+   "modificationNote": "Image modified for Lightspeed: resized, black level subtracted and edges faded (see imageProcessing).",
+   "blurb": "MUSE image of a planetary nebula with jets ending in 'ansae' like Saturn's rings seen edge-on."
+  },
+  {
+   "id": "spirograph-nebula",
+   "name": "Spirograph Nebula",
+   "otherNames": [
+    "IC 418"
+   ],
+   "kind": "planetary nebula",
+   "parent": null,
+   "position": {
+    "raDeg": 81.8675248,
+    "decDeg": -12.6973006,
+    "lDeg": 215.212,
+    "bDeg": -24.2837,
+    "source": "SIMBAD (IC 418)"
+   },
+   "distance": {
+    "pc": 1321.1,
+    "minusPc": 58.5,
+    "plusPc": 67.7,
+    "method": "Gaia EDR3 geometric distance of the central/ionising star, Gaia DR3 2985789113026163584 (16th-84th percentiles, plus a 0.015 mas systematic)",
+    "ref": "Bailer-Jones C.A.L. et al. 2021, AJ 161, 147 (VizieR I/352)",
+    "doi": "10.3847/1538-3881/abd806"
+   },
+   "helioGalacticPc": [
+    -983.87,
+    -694.35,
+    -543.31
+   ],
+   "catalogueSizeArcmin": 0.263,
+   "catalogueSizePc": 0.101,
+   "billboard": {
+    "image": "images/nebulae/spirograph-nebula.jpg",
+    "centerRaDeg": 81.86775,
+    "centerDecDeg": -12.69729,
+    "widthArcmin": 0.35,
+    "heightArcmin": 0.38,
+    "northAngleDeg": 42.8,
+    "pixels": [
+     481,
+     512
+    ],
+    "bytes": 22681,
+    "blackLevel": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "widthPc": 0.135,
+    "heightPc": 0.146,
+    "helioGalacticPc": [
+     -983.87,
+     -694.35,
+     -543.3
+    ]
+   },
+   "imageSource": {
+    "archive": "ESA/Hubble",
+    "id": "opo0028a",
+    "title": "The Spirograph Nebula",
+    "page": "https://esahubble.org/images/opo0028a/",
+    "file": "https://cdn.esahubble.org/archives/images/screen/opo0028a.jpg",
+    "band": "visible",
+    "cropped": false,
+    "fullFrame": {
+     "centerRaDeg": 81.86775,
+     "centerDecDeg": -12.69729,
+     "fovArcmin": [
+      0.35,
+      0.38
+     ],
+     "northAngleDeg": 42.8
+    }
+   },
+   "credit": "NASA/ESA and The Hubble Heritage Team (STScI/AURA)",
+   "licence": "CC BY 4.0",
+   "modificationNote": "Image modified for Lightspeed: resized, black level subtracted and edges faded (see imageProcessing).",
+   "blurb": "A young planetary nebula with an intricate textured shell."
+  },
+  {
+   "id": "egg-nebula",
+   "name": "Egg Nebula",
+   "otherNames": [
+    "CRL 2688",
+    "V1610 Cyg"
+   ],
+   "kind": "pre-planetary nebula",
+   "parent": null,
+   "position": {
+    "raDeg": 315.57612,
+    "decDeg": 36.69361,
+    "lDeg": 80.1663,
+    "bDeg": -6.5021,
+    "source": "SIMBAD (V1610 Cyg)"
+   },
+   "distance": {
+    "pc": 420,
+    "minusPc": 60,
+    "plusPc": 60,
+    "method": "expansion proper motions (HST NICMOS)",
+    "ref": "Ueta T., Murakawa K., Meixner M. 2006, ApJ 641, 1113 ('about 420 pc'; the +-60 pc is our allowance, not quoted)",
+    "doi": "10.1086/500642"
+   },
+   "helioGalacticPc": [
+    71.27,
+    411.17,
+    -47.56
+   ],
+   "catalogueSizeArcmin": 0.562,
+   "catalogueSizePc": 0.069,
+   "billboard": {
+    "image": "images/nebulae/egg-nebula.jpg",
+    "centerRaDeg": 315.57754,
+    "centerDecDeg": 36.69345,
+    "widthArcmin": 1.1,
+    "heightArcmin": 1.03,
+    "northAngleDeg": 45.0,
+    "pixels": [
+     512,
+     476
+    ],
+    "bytes": 35244,
+    "blackLevel": [
+     0.0118,
+     0.0118,
+     0.0039
+    ],
+    "widthPc": 0.134,
+    "heightPc": 0.126,
+    "helioGalacticPc": [
+     71.27,
+     411.17,
+     -47.57
+    ]
+   },
+   "imageSource": {
+    "archive": "ESA/Hubble",
+    "id": "heic2604a",
+    "title": "The Egg Nebula",
+    "page": "https://esahubble.org/images/heic2604a/",
+    "file": "https://cdn.esahubble.org/archives/images/screen/heic2604a.jpg",
+    "band": "visible",
+    "cropped": false,
+    "fullFrame": {
+     "centerRaDeg": 315.57754,
+     "centerDecDeg": 36.69345,
+     "fovArcmin": [
+      1.1,
+      1.03
+     ],
+     "northAngleDeg": 45.0
+    }
+   },
+   "credit": "ESA/Hubble & NASA, B. Balick (University of Washington)",
+   "licence": "CC BY 4.0",
+   "modificationNote": "Image modified for Lightspeed: resized, black level subtracted and edges faded (see imageProcessing).",
+   "blurb": "A star caught a few hundred years into becoming a planetary nebula; searchlight beams escape its dusty cocoon."
+  },
+  {
+   "id": "crab-nebula",
+   "name": "Crab Nebula",
+   "otherNames": [
+    "M1",
+    "NGC 1952"
+   ],
+   "kind": "supernova remnant",
+   "parent": null,
+   "position": {
+    "raDeg": 83.6324,
+    "decDeg": 22.0174,
+    "lDeg": 184.5546,
+    "bDeg": -5.7833,
+    "source": "SIMBAD (M 1)"
+   },
+   "distance": {
+    "pc": 2000,
+    "minusPc": 500,
+    "plusPc": 500,
+    "method": "expansion parallax and radial velocities",
+    "ref": "Trimble V. 1973, PASP 85, 579",
+    "doi": "10.1086/129507"
+   },
+   "helioGalacticPc": [
+    -1983.54,
+    -158.01,
+    -201.53
+   ],
+   "catalogueSizeArcmin": 7.0,
+   "catalogueSizePc": 4.072,
+   "billboard": {
+    "image": "images/nebulae/crab-nebula.jpg",
+    "centerRaDeg": 83.63554,
+    "centerDecDeg": 22.01524,
+    "widthArcmin": 6.41,
+    "heightArcmin": 6.41,
+    "northAngleDeg": 0.0,
+    "pixels": [
+     512,
+     512
+    ],
+    "bytes": 85478,
+    "blackLevel": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "widthPc": 3.729,
+    "heightPc": 3.729,
+    "helioGalacticPc": [
+     -1983.53,
+     -158.13,
+     -201.49
+    ]
+   },
+   "imageSource": {
+    "archive": "ESA/Hubble",
+    "id": "heic0515a",
+    "title": "Most detailed image of the Crab Nebula",
+    "page": "https://esahubble.org/images/heic0515a/",
+    "file": "https://cdn.esahubble.org/archives/images/screen/heic0515a.jpg",
+    "band": "visible",
+    "cropped": false,
+    "fullFrame": {
+     "centerRaDeg": 83.63554,
+     "centerDecDeg": 22.01524,
+     "fovArcmin": [
+      6.41,
+      6.41
+     ],
+     "northAngleDeg": 0.0
+    }
+   },
+   "credit": "NASA, ESA and Allison Loll/Jeff Hester (Arizona State University). Acknowledgement: Davide De Martin (ESA/Hubble)",
+   "licence": "CC BY 4.0",
+   "modificationNote": "Image modified for Lightspeed: resized, black level subtracted and edges faded (see imageProcessing).",
+   "blurb": "Debris of the supernova of 1054, powered by a pulsar spinning 30 times a second."
+  },
+  {
+   "id": "cygnus-loop",
+   "name": "Cygnus Loop (Veil Nebula)",
+   "otherNames": [
+    "NGC 6960",
+    "NGC 6992",
+    "Veil Nebula"
+   ],
+   "kind": "supernova remnant",
+   "parent": null,
+   "position": {
+    "raDeg": 312.75,
+    "decDeg": 30.67,
+    "lDeg": 73.9842,
+    "bDeg": -8.5624,
+    "source": "SIMBAD (Cygnus Loop)"
+   },
+   "distance": {
+    "pc": 725,
+    "minusPc": 15,
+    "plusPc": 15,
+    "method": "Gaia EDR3 parallaxes of stars in and behind the shell",
+    "ref": "Fesen R.A., Weil K.E., Cisneros I. 2021, MNRAS 507, 244",
+    "doi": "10.1093/mnras/stab2066"
+   },
+   "helioGalacticPc": [
+    197.8,
+    689.09,
+    -107.94
+   ],
+   "catalogueSizeArcmin": 230.0,
+   "catalogueSizePc": 48.524,
+   "billboard": {
+    "image": "images/nebulae/cygnus-loop.jpg",
+    "centerRaDeg": 312.45179,
+    "centerDecDeg": 30.42952,
+    "widthArcmin": 173.1,
+    "heightArcmin": 173.97,
+    "northAngleDeg": -0.6,
+    "pixels": [
+     510,
+     512
+    ],
+    "bytes": 87851,
+    "blackLevel": [
+     0.0235,
+     0.0196,
+     0.0118
+    ],
+    "widthPc": 36.513,
+    "heightPc": 36.697,
+    "helioGalacticPc": [
+     202.06,
+     687.96,
+     -107.31
+    ]
+   },
+   "imageSource": {
+    "archive": "NSF NOIRLab",
+    "id": "noao1209a",
+    "title": "Panoramic Loop in Cygnus",
+    "page": "https://noirlab.edu/public/images/noao1209a/",
+    "file": "https://storage.noirlab.edu/media/archives/images/screen/noao1209a.jpg",
+    "band": "visible",
+    "cropped": false,
+    "fullFrame": {
+     "centerRaDeg": 312.45179,
+     "centerDecDeg": 30.42952,
+     "fovArcmin": [
+      173.1,
+      173.97
+     ],
+     "northAngleDeg": -0.6
+    }
+   },
+   "credit": "T.A. Rector (University of Alaska Anchorage) and WIYN/NOIRLab/NSF/AURA",
+   "licence": "CC BY 4.0",
+   "modificationNote": "Image modified for Lightspeed: resized, black level subtracted and edges faded (see imageProcessing).",
+   "blurb": "A 36-pc shell from a star that exploded 10,000 to 20,000 years ago."
+  },
+  {
+   "id": "cassiopeia-a",
+   "name": "Cassiopeia A",
+   "otherNames": [
+    "Cas A",
+    "SN 1680"
+   ],
+   "kind": "supernova remnant",
+   "parent": null,
+   "position": {
+    "raDeg": 350.8584,
+    "decDeg": 58.8113,
+    "lDeg": 111.7376,
+    "bDeg": -2.1345,
+    "source": "SIMBAD (Cas A)"
+   },
+   "distance": {
+    "pc": 3400,
+    "minusPc": 100,
+    "plusPc": 300,
+    "method": "3D kinematics of the ejecta knots",
+    "ref": "Reed J.E. et al. 1995, ApJ 440, 706",
+    "doi": "10.1086/175308"
+   },
+   "helioGalacticPc": [
+    -1258.34,
+    3156.03,
+    -126.64
+   ],
+   "catalogueSizeArcmin": 5.0,
+   "catalogueSizePc": 4.945,
+   "billboard": {
+    "image": "images/nebulae/cassiopeia-a.jpg",
+    "centerRaDeg": 350.85875,
+    "centerDecDeg": 58.81487,
+    "widthArcmin": 8.55,
+    "heightArcmin": 6.15,
+    "northAngleDeg": 0.4,
+    "pixels": [
+     512,
+     368
+    ],
+    "bytes": 54177,
+    "blackLevel": [
+     0.0,
+     0.0,
+     0.0039
+    ],
+    "widthPc": 8.456,
+    "heightPc": 6.082,
+    "helioGalacticPc": [
+     -1258.42,
+     3156.01,
+     -126.44
+    ]
+   },
+   "imageSource": {
+    "archive": "ESA/Hubble",
+    "id": "heic0609a",
+    "title": "Cassiopeia A - The colourful aftermath of a violent stellar death",
+    "page": "https://esahubble.org/images/heic0609a/",
+    "file": "https://cdn.esahubble.org/archives/images/screen/heic0609a.jpg",
+    "band": "visible",
+    "cropped": false,
+    "fullFrame": {
+     "centerRaDeg": 350.85875,
+     "centerDecDeg": 58.81487,
+     "fovArcmin": [
+      8.55,
+      6.15
+     ],
+     "northAngleDeg": 0.4
+    }
+   },
+   "credit": "NASA, ESA, and the Hubble Heritage (STScI/AURA)-ESA/Hubble Collaboration. Acknowledgement: Robert A. Fesen (Dartmouth College, USA) and James Long (ESA/Hubble)",
+   "licence": "CC BY 4.0",
+   "modificationNote": "Image modified for Lightspeed: resized, black level subtracted and edges faded (see imageProcessing).",
+   "blurb": "The youngest known remnant of a core-collapse supernova in the Galaxy; its light reached Earth around 1680."
+  },
+  {
+   "id": "pencil-nebula",
+   "name": "Pencil Nebula",
+   "otherNames": [
+    "NGC 2736"
+   ],
+   "kind": "supernova remnant",
+   "parent": null,
+   "position": {
+    "raDeg": 135.05,
+    "decDeg": -45.95,
+    "lDeg": 266.8878,
+    "bDeg": 0.1103,
+    "source": "SIMBAD (NGC 2736)"
+   },
+   "distance": {
+    "pc": 293,
+    "minusPc": 17,
+    "plusPc": 19,
+    "method": "VLBI parallax of the Vela pulsar",
+    "ref": "Dodson R. et al. 2003, ApJ 596, 1137",
+    "doi": "10.1086/378089"
+   },
+   "helioGalacticPc": [
+    -15.91,
+    -292.57,
+    0.56
+   ],
+   "catalogueSizeArcmin": null,
+   "catalogueSizePc": null,
+   "billboard": {
+    "image": "images/nebulae/pencil-nebula.jpg",
+    "centerRaDeg": 135.05008,
+    "centerDecDeg": -45.95007,
+    "widthArcmin": 33.16,
+    "heightArcmin": 33.16,
+    "northAngleDeg": 90.1,
+    "pixels": [
+     512,
+     512
+    ],
+    "bytes": 101391,
+    "blackLevel": [
+     0.0157,
+     0.0392,
+     0.0314
+    ],
+    "widthPc": 2.826,
+    "heightPc": 2.826,
+    "helioGalacticPc": [
+     -15.91,
+     -292.57,
+     0.56
+    ]
+   },
+   "imageSource": {
+    "archive": "ESO",
+    "id": "eso1236a",
+    "title": "The Pencil Nebula, a strangely shaped leftover from a vast explosion",
+    "page": "https://www.eso.org/public/images/eso1236a/",
+    "file": "https://cdn.eso.org/images/screen/eso1236a.jpg",
+    "band": "visible",
+    "cropped": false,
+    "fullFrame": {
+     "centerRaDeg": 135.05008,
+     "centerDecDeg": -45.95007,
+     "fovArcmin": [
+      33.16,
+      33.16
+     ],
+     "northAngleDeg": 90.1
+    }
+   },
+   "credit": "ESO",
+   "licence": "CC BY 4.0",
+   "modificationNote": "Image modified for Lightspeed: resized, black level subtracted and edges faded (see imageProcessing).",
+   "blurb": "A shock front in the Vela supernova remnant, moving at 650,000 km/h."
+  }
+ ]
+}

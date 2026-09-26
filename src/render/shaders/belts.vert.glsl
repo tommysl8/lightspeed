@@ -67,11 +67,11 @@ void main() {
   vec3 rel = relAU * AU_KM;
   float dist = max(length(rel), 1e-6);
 
-  float D;
-  vec3 dShip = relAberrate(rel / dist, D);
+  float lnD;
+  vec3 dShip = relAberrate(rel / dist, lnD);
   vec3 shifted;
-  float dm = dopplerMagnitudeShift(5772.0, D, shifted);
-  vec4 rest = blackbodyLookup(5772.0);
+  float dm = dopplerMagnitudeShift(LN_T_SUN, lnD, shifted);
+  vec4 rest = blackbodyLn(LN_T_SUN);
 
   int kind = int(aKind * 255.0 + 0.5);
   vec3 base = kind == 2 ? uColorTno : (kind == 1 ? uColorTrojan : uColorMain);
@@ -83,7 +83,8 @@ void main() {
   float distAU = dist / AU_KM;
   float falloff = min(uNearCap, 0.5 * (uRefDistAU * uRefDistAU) / (distAU * distAU));
   vColor = base * shifted / max(rest.rgb, vec3(1e-3));
-  vAlpha = uOpacity * falloff * sizeWeight * show * clamp(exp2(-1.3287712 * dm), 0.0, 8.0) * uExposure;
+  // Doppler brightening capped at 8x; exposure applied in log space (it can be e^-20 at extreme speed).
+  vAlpha = uOpacity * falloff * sizeWeight * show * exp2(clamp(-1.3287712 * dm, -126.0, 3.0)) * exp(max(uLnExposure, -80.0));
 
   vec4 mv = viewMatrix * vec4(dShip * dist, 1.0);
   gl_Position = projectionMatrix * mv;

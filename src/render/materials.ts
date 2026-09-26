@@ -15,11 +15,14 @@ import {
   ShaderMaterial,
   Vector2,
   Vector3,
+  Vector4,
 } from 'three';
-import { BB_LUT_LOG_T_MAX, BB_LUT_LOG_T_MIN, blackbodyRgb, buildBlackbodyLut } from '../physics/blackbody';
+import { blackbodyLut, blackbodyRgb } from '../physics/blackbody';
 import { SATURN_RING_INNER_KM, SATURN_RING_OUTER_KM, SUN_TEFF_K } from '../physics/constants';
 
+import blackbodyGlsl from './shaders/blackbody.glsl?raw';
 import relativityGlsl from './shaders/relativity.glsl?raw';
+import cmbVert from './shaders/cmb.vert.glsl?raw';
 import psfGlsl from './shaders/psf.glsl?raw';
 import pointFrag from './shaders/point.frag.glsl?raw';
 import starsVert from './shaders/stars.vert.glsl?raw';
@@ -36,15 +39,19 @@ import ringFrag from './shaders/ring.frag.glsl?raw';
 
 // Register custom chunks so shaders can `#include <lightspeed_…>`.
 const chunks = ShaderChunk as unknown as Record<string, string>;
+chunks.lightspeed_blackbody = blackbodyGlsl;
 chunks.lightspeed_relativity = relativityGlsl;
 chunks.lightspeed_psf = psfGlsl;
 
-/** Blackbody lookup texture shared by all point-source shaders. */
+/**
+ * Blackbody lookup texture shared by the point-source shaders and the remap pass. Float32 with
+ * nearest sampling (float32 linear filtering is an extension); the shaders interpolate by hand.
+ */
 let bbTexture: DataTexture | null = null;
 export function blackbodyTexture(): DataTexture {
   if (!bbTexture) {
-    const size = 1024;
-    bbTexture = new DataTexture(buildBlackbodyLut(size), size, 1, RGBAFormat, FloatType);
+    const lut = blackbodyLut();
+    bbTexture = new DataTexture(lut.data, lut.size, 1, RGBAFormat, FloatType);
     bbTexture.magFilter = NearestFilter;
     bbTexture.minFilter = NearestFilter;
     bbTexture.needsUpdate = true;
@@ -52,18 +59,65 @@ export function blackbodyTexture(): DataTexture {
   return bbTexture;
 }
 
+/** The blackbody table's range for the shaders: (ln T_min, ln T_max, size, cold-asymptote K). */
+export function blackbodyRange(): Vector4 {
+  const lut = blackbodyLut();
+  return new Vector4(lut.lnTMin, lut.lnTMax, lut.size, lut.wienK);
+}
+
 /** Colour of sunlight (5772 K blackbody, white-balanced to 6500 K, luminance 1). */
 export const SUN_COLOR = new Color(...blackbodyRgb(SUN_TEFF_K));
 
-/** Uniforms shared (by reference) with every relativistic point shader. */
+/**
+ * Radiance of a 5,772 K surface as rendered (luminance, before any exposure). Other blackbodies
+ * are calibrated against it, the CMB included, and V = −26.74 is the Sun's disc at this
+ * radiance. 5,772 K is the Sun's effective temperature, which describes the disc as a whole, so
+ * this is the disc's average: its centre is brighter and its limb darker (SUN_CENTRE_RADIANCE).
+ */
+export const SUN_SURFACE_RADIANCE = 8;
+
+/**
+ * Limb darkening of a star's disc, I(μ)/I(1) = 1 − u (1 − μ) with μ the cosine of the angle
+ * from the disc's centre, per linear-RGB channel: about 0.8 in blue down to 0.5 in red
+ * (approximating Neckel & Labs 1994, Solar Physics 153, 91). Used by sun.frag.glsl.
+ */
+export const LIMB_DARKENING_U = new Vector3(0.52, 0.64, 0.8);
+
+/**
+ * The disc's mean brightness as a fraction of its centre's: 1 − u (1 − μ) averaged over the
+ * projected disc is 2∫(1 − u + uμ) μ dμ = 1 − u/3, here weighted by the luminance of sunlight
+ * (about 0.79).
+ */
+export const SUN_LIMB_DISC_MEAN = (() => {
+  const w = [0.2126 * SUN_COLOR.r, 0.7152 * SUN_COLOR.g, 0.0722 * SUN_COLOR.b];
+  const u = [LIMB_DARKENING_U.x, LIMB_DARKENING_U.y, LIMB_DARKENING_U.z];
+  return w.reduce((a, wi, i) => a + wi * (1 - u[i] / 3), 0) / (w[0] + w[1] + w[2]);
+})();
+
+/** Radiance at the centre of the Sun's disc, so that the disc as a whole averages SUN_SURFACE_RADIANCE. */
+export const SUN_CENTRE_RADIANCE = SUN_SURFACE_RADIANCE / SUN_LIMB_DISC_MEAN;
+
+/**
+ * Uniforms shared (by reference) with every relativistic point shader. The ship's motion
+ * enters as its rapidity φ and e^±φ (see shaders/relativity.glsl); all zero-motion values
+ * (φ = 0, e^±φ = 1, ln exposure = 0) give the classical view.
+ */
 export const relativityUniforms = {
-  uBeta: { value: 0 },
-  uGamma: { value: 1 },
-  uExposure: { value: 1 },
+  uPhi: { value: 0 },
+  uEPhi: { value: 1 },
+  uEmPhi: { value: 1 },
+  uLnExposure: { value: 0 },
   uVelDir: { value: new Vector3(0, 0, -1) },
   uBlackbody: { value: null as DataTexture | null },
-  uLogTMin: { value: BB_LUT_LOG_T_MIN },
-  uLogTMax: { value: BB_LUT_LOG_T_MAX },
+  uBbRange: { value: new Vector4() },
+};
+
+/** The CMB's unresolved hot spot, written each frame by relativisticView.ts. */
+export const cmbPointUniforms = {
+  uCmbPointDir: { value: new Vector3(0, 0, -1) },
+  uCmbPointMag: { value: 99 },
+  uCmbPointColor: { value: new Color(1, 1, 1) },
+  uCmbPointFade: { value: 0 },
 };
 
 /** Point-spread-function uniforms shared by stars and glints. */
@@ -73,9 +127,26 @@ export const psfUniforms = {
   uStarGain: { value: 1.6 },
 };
 
-function shared() {
+function initBlackbodyUniforms(): void {
   relativityUniforms.uBlackbody.value = blackbodyTexture();
+  relativityUniforms.uBbRange.value.copy(blackbodyRange());
+}
+
+function shared() {
+  initBlackbodyUniforms();
   return { ...relativityUniforms, ...psfUniforms };
+}
+
+export function createCmbPointMaterial(): ShaderMaterial {
+  return new ShaderMaterial({
+    uniforms: { ...shared(), ...cmbPointUniforms },
+    vertexShader: cmbVert,
+    fragmentShader: pointFrag,
+    blending: AdditiveBlending,
+    depthTest: false,
+    depthWrite: false,
+    transparent: false, // with the stars: at infinity, under everything else
+  });
 }
 
 export function createStarMaterial(): ShaderMaterial {
@@ -103,7 +174,7 @@ export function createGlintMaterial(): ShaderMaterial {
 }
 
 export function createBeltMaterial(): ShaderMaterial {
-  relativityUniforms.uBlackbody.value = blackbodyTexture();
+  initBlackbodyUniforms();
   return new ShaderMaterial({
     uniforms: {
       ...relativityUniforms,
@@ -172,6 +243,8 @@ export interface PlanetMaterialOptions {
   fillBlack?: boolean;
   flat?: boolean;
   ambient?: number;
+  /** Multiplies the surface map (to tint a greyscale map with the body's hue). */
+  mapTint?: Color;
 }
 
 export function createPlanetMaterial(o: PlanetMaterialOptions): ShaderMaterial {
@@ -194,6 +267,9 @@ export function createPlanetMaterial(o: PlanetMaterialOptions): ShaderMaterial {
       uFillBlack: { value: o.fillBlack ? 1 : 0 },
       uAmbient: { value: o.ambient ?? 0.004 },
       uFlat: { value: o.flat ? 1 : 0 },
+      uMapTint: { value: o.mapTint ?? new Color(1, 1, 1) },
+      // The map is a single-channel greyscale texture holding sRGB values (textures.ts).
+      uMapGrey: { value: 0 },
       uRingShadow: { value: 0 },
       uRingMap: { value: null },
       uRingNormalW: { value: new Vector3(0, 1, 0) },
@@ -212,7 +288,8 @@ export function createSunMaterial(color: Color = SUN_COLOR): ShaderMaterial {
       uMap: { value: null },
       uHasMap: { value: 0 },
       uSunColor: { value: color },
-      uIntensity: { value: 8 },
+      uIntensity: { value: SUN_CENTRE_RADIANCE },
+      uLimbU: { value: LIMB_DARKENING_U },
     },
     vertexShader: planetVert,
     fragmentShader: sunFrag,

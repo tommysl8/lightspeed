@@ -1,26 +1,24 @@
 /**
  * The card for the selected body: what it is, a few facts, its distance and light-time, and
- * the things to do with it. The instruments hold the full data sheet.
+ * the things to do with it: go there, fly there, read about it, or open its full data sheet
+ * in the instrument panel.
  */
-import { BODIES, C_KM_S } from '../../physics/constants';
+import { C_KM_S } from '../../physics/constants';
+import { getBody } from '../../sim/bodies';
 import { fixed, qty, sig } from '../../lib/sci';
 import { sim } from '../../sim/sim';
 import { useUI } from '../../state/ui';
 import { targetReading } from '../../lab/measure';
 import { goToBody } from '../navigation';
-import { openPlanner } from '../tripActions';
+import { planOneG } from '../tripActions';
+import { articleForBody } from '../../content/bodyArticles';
+import { bodyKindText } from '../../content/destinations';
+import { openLearn } from '../../state/route';
+import { useHasArticle } from '../learn/articleIndex';
 import { CloseIcon } from '../kit';
 import { Icon } from '../icons';
 import { useTicker } from '../useTicker';
 import { rich } from '../rich';
-
-const KIND: Record<string, string> = {
-  star: 'Star',
-  planet: 'Planet',
-  'dwarf-planet': 'Dwarf planet',
-  moon: 'Earth’s moon',
-  spacecraft: 'Spacecraft',
-};
 
 export function BodyCard() {
   const id = useUI((s) => s.selected);
@@ -28,10 +26,13 @@ export function BodyCard() {
   const tripActive = useUI((s) => s.tripActive);
   const focus = useUI((s) => s.focus);
   const mode = useUI((s) => s.controlMode);
+  const slug = id ? articleForBody(id) : undefined;
+  const readable = useHasArticle(slug);
   useTicker(3, !!id && show);
   if (!id || !show) return null;
-  const d = BODIES[id];
+  const d = getBody(id);
   const b = sim.bodies[id];
+  if (!d || !b) return null;
   const r = qty(b.distTrue, 'length', 4);
   const lt = qty(b.distTrue / C_KM_S, 'time', 3);
   const geo = targetReading(id);
@@ -42,7 +43,12 @@ export function BodyCard() {
       <div className="flex items-start gap-2 px-3.5 pb-1 pt-2.5">
         <div className="min-w-0 flex-1">
           <div className="font-serif text-[18px] font-medium leading-tight text-fg">{d.name}</div>
-          <div className="mt-0.5 text-[11px] text-fg-3">{KIND[d.kind]}</div>
+          <div className="mt-0.5 text-[11px] text-fg-3">{bodyKindText(id)}</div>
+          {(b.regime === 'illustrative' || b.regime === 'extrapolated') && (
+            <div className="mt-0.5 text-[11px] text-hazard" title={d.provider.label}>
+              {b.regime === 'illustrative' ? 'Position illustrative at this date' : 'Position extrapolated beyond its data'}
+            </div>
+          )}
         </div>
         <button className="btn btn-q btn-sq -mr-1.5 -mt-1 !h-6 !w-6" onClick={() => useUI.setState({ bodyCard: false })} aria-label="Close card">
           <CloseIcon />
@@ -62,7 +68,7 @@ export function BodyCard() {
         )}
       </div>
       <div className="border-t border-line px-3.5 pb-2.5 pt-2">
-        {d.facts.map((f) => (
+        {(d.facts ?? []).map((f) => (
           <p key={f} className="mb-1.5 font-serif text-[12.5px] leading-snug text-fg-2 last:mb-0">
             {f}
           </p>
@@ -73,12 +79,23 @@ export function BodyCard() {
           <Icon name="orbit" size={11} />
           {here ? 'You are here' : 'Go there'}
         </button>
-        <button className="btn btn-sm" disabled={tripActive} onClick={() => openPlanner(id)} title="Plan a flight there at a chosen speed (G)">
+        <button
+          className="btn btn-sm"
+          disabled={tripActive || here}
+          onClick={() => planOneG(id)}
+          title="Plan a 1 g rocket flight there from where you are; the planner shows both clocks before you go"
+        >
           <Icon name="flight" size={11} />
           Fly here
         </button>
-        <button className="btn btn-q btn-sm ml-auto" onClick={() => useUI.setState({ rightOpen: true })} title="The full data sheet, in the instruments (I)">
-          Numbers
+        {readable && (
+          <button className="btn btn-sm" onClick={() => openLearn(slug)} title="Read its story in Learn">
+            <Icon name="book" size={11} />
+            Read
+          </button>
+        )}
+        <button className="btn btn-q btn-sm ml-auto" onClick={() => useUI.setState({ rightOpen: true })} title="The full data sheet and live readouts, in the instrument panel (I)">
+          Details
           <Icon name="arrow-right" size={11} />
         </button>
       </div>

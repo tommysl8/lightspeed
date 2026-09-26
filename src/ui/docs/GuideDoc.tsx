@@ -1,21 +1,26 @@
 /**
- * The Lightspeed guide: how to explore, fly and understand what you see, with a chapter for
- * students on the lab. British spelling, SI units, symbols in italics (ital() for plain strings).
+ * The Lightspeed guide: how to explore, fly and find your way around, with a chapter for
+ * students on the lab. British spelling, SI units, symbols in italics (ital() for plain
+ * strings). Everything here describes the interface as the code builds it: when a control
+ * moves, this file moves with it.
  */
 import type { ReactNode } from 'react';
-import { Vector3 } from 'three';
-import { AU_KM, type BodyId } from '../../physics/constants';
-import { controller } from '../../controls/cameraController';
-import { setPaused, setWarp } from '../../sim/clock';
+import type { BodyId } from '../../sim/bodies';
+import { setPaused, setWarp, WARP_STEPS } from '../../sim/clock';
+import { TRIP_PLAYBACK_S } from '../../sim/travel';
 import { logEvent } from '../../lab/events';
 import { JOURNEYS } from '../../content/journeys';
-import { sectionNo, type ExplainerId } from '../../content/explainers';
+import { FEATURED_IDS, findDestination } from '../../content/destinations';
+import { findArticle, useArticles } from '../../content/learn/library';
+import { formatDurationShort } from '../../lib/time';
+import { superscript } from '../../lib/sci';
+import { openLearn } from '../../state/route';
 import { useUI } from '../../state/ui';
-import { goToBody } from '../navigation';
-import { openExplainer } from '../explainerActions';
-import { openJourneys, openPhysics, resetPreferences, showWelcome, startExperiment1, startTour } from '../onboarding';
+import { frameSolarSystem, goToBody } from '../navigation';
+import { openJourneys, openLab, openSearch, resetPreferences, showWelcome, startExperiment1, startTour } from '../onboarding';
 import { KEY_GROUPS } from '../keys';
 import { Kbd } from '../kit';
+import { rich } from '../rich';
 import { AberrationFigure, ScreenMap, WorkflowFigure } from './figures';
 import { Callout, Chapter, Fig, H3, KeyTable, Lamp, Note, Ref, Steps, Try, type TocEntry } from './parts';
 
@@ -54,14 +59,6 @@ const planFlight = (dest: BodyId, beta: number, fromEarth = false) =>
     useUI.setState({ plannerOpen: true, plannerDest: dest, plannerDrive: 'cruise', plannerBeta: beta });
   });
 
-const frameSystem = docked(() => {
-  useUI.getState().select('sun');
-  controller.goTo('sun', { distance: 60 * AU_KM, direction: new Vector3(0.2, 1, 0.35) });
-});
-
-/** Open the physics panel on one of its sections. */
-const readPhysics = (id: ExplainerId) => () => openExplainer(id);
-
 // ─── Typography helpers ──────────────────────────────────────────────────────────────────
 
 /** Power of ten, typeset: 10ⁿ. */
@@ -77,12 +74,20 @@ function ital(s: string): ReactNode {
   return s.split(/([βγτφθχνσλ]′?|(?<![A-Za-z])[vct](?![A-Za-z]))/).map((part, k) => (k % 2 ? <i key={k}>{part}</i> : part));
 }
 
-/** "§3 The Lorentz factor", as a button that opens the section. */
-const ReadPhysics = ({ id, title }: { id: ExplainerId; title: string }) => (
-  <Try run={readPhysics(id)}>
-    Read the physics: §{sectionNo(id)} {title}
-  </Try>
-);
+/** A link into Learn that closes nothing: the reading view simply turns to the article. */
+function LearnLink({ slug, children }: { slug: string; children: ReactNode }) {
+  return (
+    <a
+      href={`#/learn/${slug}`}
+      onClick={(e) => {
+        e.preventDefault();
+        openLearn(slug);
+      }}
+    >
+      {children}
+    </a>
+  );
+}
 
 // ─── Chapters ────────────────────────────────────────────────────────────────────────────
 
@@ -103,33 +108,35 @@ function Welcome() {
       <H3>What you can do</H3>
       <ul>
         <li>
-          <b>Explore.</b> Look around the real sky, jump from planet to planet, read about each one, and run time forwards to watch
-          the orbits turn.
+          <b>Explore.</b> Press <b>Where to?</b> and name a place: a planet, the Moon, Voyager 1, the nearest star. Read each
+          body’s card, run time forwards to watch the orbits turn, or go to any date from 10,000 BCE to 9999.
         </li>
         <li>
-          <b>Fly.</b> Take a one-click journey, or plan your own flight to any body at any speed below <i>c</i>. Watch the stars
-          crowd ahead of you and change colour, and compare your clock with Earth’s when you arrive.
+          <b>Fly.</b> Take a one-click journey, or fly anywhere at 1 g or at any speed below <i>c</i>. Watch the stars crowd ahead
+          of you and change colour, and see how much less time passes for you than at home.
         </li>
         <li>
-          <b>Understand.</b> The numbers are always a click away in the instruments, and the physics panel explains what you are
-          seeing in ten short sections. A note appears in the corner the first time each applies.
+          <b>Read.</b> <b>Learn</b> has long reads on the science behind the view: how it was found out, what the physics says and
+          what comes next, with sources to go further (<Ref to="seeing">Chapter 7</Ref>).
         </li>
         <li>
-          <b>Measure.</b> For students, the lab holds five guided experiments, from timing a light pulse across the Solar System to
-          measuring the acceleration of a relativistic rocket, each ending in a printable report (<Ref to="lab">Chapter 9</Ref>).
+          <b>Measure, if you want to.</b> Every number is live in the instrument panel (<Ref to="readings">Chapter 8</Ref>). For
+          students, the lab holds five guided experiments, each ending in a printable report (<Ref to="lab">Chapter 9</Ref>).
+          Neither opens unless you ask for it.
         </li>
       </ul>
 
       <H3>What is real, and what is not</H3>
       <p>
-        Planet positions come from published ephemerides for the date shown at the top of the screen. Distances are never
-        compressed, light travels at 299 792.458 km/s, and what you see in flight follows the transformation laws of special
-        relativity exactly.
+        Planet positions come from published ephemerides for the date shown at the top of the screen: to about an arcminute
+        between 1700 and 2200, to about half a degree between 3000 BCE and 3000 CE, and only illustrative beyond (the orbits are
+        right, the places along them are not). Distances are never compressed, light travels at 299,792.458 km/s, and what you
+        see in flight follows the transformation laws of special relativity exactly.
       </p>
       <p>
         Two things are idealised, and the program says so where it matters: the constant-speed drive starts and stops
-        instantly, and gravity is ignored. A third drive, faster than light, is outright fiction, offered only for comparison.
-        It is marked in red and none of its readings are recorded. The full list is under{' '}
+        instantly, and gravity is ignored on a flight. A third drive, faster than light, is outright fiction, offered only for
+        comparison. It is marked in red and none of its readings are recorded. The full list is under{' '}
         <Ref page="about" to="limitations">
           Model limitations
         </Ref>{' '}
@@ -144,14 +151,14 @@ function Welcome() {
       </p>
       <TryRow>
         <Try run={startTour}>Take the tour</Try>
-        <Try run={openJourneys}>See the journeys</Try>
+        <Try run={openSearch}>Where to?</Try>
         <Try run={showWelcome}>Show the welcome screen</Try>
       </TryRow>
 
       <Note title="What you need">
         A desktop or laptop browser with WebGL 2: a recent Chrome, Edge, Firefox or Safari. A mouse or trackpad is easiest;
         phones work, with a simpler layout. Nothing is installed and there is no account. Anything you record stays in your
-        browser (<Ref to="lab">Chapter 9</Ref>).
+        browser.
       </Note>
     </Chapter>
   );
@@ -166,23 +173,24 @@ function QuickStart() {
           so the same gesture takes you from the Moon’s orbit to the edge of the Solar System.
         </li>
         <li>
-          <b>Visit a planet.</b> Press <Kbd>6</Kbd>, or click Saturn in the target bar at the bottom. The camera glides there, and
-          a card in the corner tells you about it. Camera moves are for looking; they are not journeys.
+          <b>Go somewhere.</b> Press <b>Where to?</b> (or <Kbd>/</Kbd>), type <i>sat</i> and press <Kbd>Enter</Kbd>. The camera
+          glides to Saturn and a card in the corner tells you about it. Camera moves are for looking; they are not journeys.
           <TryRow>
+            <Try run={openSearch}>Open Where to?</Try>
             <Try run={docked(() => goToBody('saturn'))}>Go to Saturn</Try>
           </TryRow>
         </li>
         <li>
-          <b>See the scale.</b> Zoom out until the planets’ orbits fit on screen. At true scale even Jupiter, seen from Earth,
-          is smaller than a pixel, so rings and labels mark where the planets are. Press <Kbd>T</Kbd> to draw every body at
-          least a few pixels across; the distances stay the same.
+          <b>See the scale.</b> Click <b>Solar System</b> at the bottom of the screen to see the whole of it. At true scale even
+          Jupiter, seen from Earth, is smaller than a pixel, so rings and labels mark where the planets are. Press <Kbd>T</Kbd>{' '}
+          to draw every body at least a few pixels across; the distances stay the same.
           <TryRow>
-            <Try run={frameSystem}>Frame the Solar System</Try>
+            <Try run={docked(frameSolarSystem)}>Frame the Solar System</Try>
           </TryRow>
         </li>
         <li>
-          <b>Speed up time.</b> Press <Kbd>]</Kbd> a few times, or choose <P10 n={4} /> in the time controls: one real second
-          is then 2.8 simulated hours. Press <Kbd>N</Kbd> to return to the present.
+          <b>Speed up time.</b> Press <Kbd>]</Kbd> four times, or click the arrow to the right of the rate at the bottom left:
+          each real second is then 2.8 hours. Press <Kbd>N</Kbd> to return to the present.
           <TryRow>
             <Try
               run={() => {
@@ -190,7 +198,7 @@ function QuickStart() {
                 setPaused(false);
               }}
             >
-              Run time at <P10 n={4} />
+              Run time at 2.8 hours a second
             </Try>
           </TryRow>
         </li>
@@ -202,9 +210,10 @@ function QuickStart() {
           </TryRow>
         </li>
         <li>
-          <b>Fly somewhere yourself.</b> Flights leave from wherever the camera is, so press <Kbd>H</Kbd> to return to Earth
-          first. Then press <b>Plan flight</b> in the header (or <Kbd>G</Kbd>), choose a destination and a speed, and press{' '}
-          <b>Execute</b>. The planner shows in advance how long the trip will take by the Sun’s clocks and by yours.
+          <b>Fly somewhere yourself.</b> Select a planet and press <b>Fly here</b> on its card, or <b>Fly</b> beside it in Where
+          to?. The flight planner opens, set to a rocket pushing at 1 g from where you are, and shows how long the trip will
+          take for you and at home. Press <b>Ignite</b>. To fly at a steady speed instead, choose <b>Constant speed</b> in the
+          planner and pick the speed.
           <TryRow>
             <Try run={planFlight('saturn', 0.9, true)}>Plan a flight from Earth to Saturn at 0.9c</Try>
           </TryRow>
@@ -212,8 +221,8 @@ function QuickStart() {
         <li>
           <b>Look at the sky.</b> In flight, drag to look around. Stars crowd towards the direction of motion, turn blue ahead
           and red behind, and brighten ahead. Press <Kbd>X</Kbd> to split the screen: the left side shows the sky without
-          relativity. The flight recorder along the bottom shows two clocks: <i>t</i>, kept in the Sun’s frame, and <i>τ</i>,
-          kept on board. <b>Skip to arrival</b> jumps to the end, and the readings stay exact.
+          relativity. The panel along the bottom shows your speed, your clock, the clock at home and the distance left.{' '}
+          <b>Skip to arrival</b> jumps to the end, and the readings stay exact.
         </li>
       </Steps>
       <Note title="For students">
@@ -227,22 +236,37 @@ function QuickStart() {
 }
 
 const SCREEN_PARTS: [number, ReactNode, ReactNode][] = [
-  [1, <>Physics <Kbd>K</Kbd></>, <>Opens the physics panel on the left (<Ref to="seeing">Chapter 7</Ref>).</>],
-  [2, 'Epoch', <>The date and time being simulated, in UTC. Click it to change it (<Ref to="time">Chapter 5</Ref>).</>],
-  [3, 'Journeys', <>Seven one-click trips and scenes (<Ref to="flying">Chapter 6</Ref>).</>],
-  [4, <>Plan flight <Kbd>G</Kbd></>, <>Opens the flight planner (<Ref to="flying">Chapter 6</Ref>).</>],
-  [5, 'View · Guide', 'Display options; this guide. About Lightspeed is under the name at the left, and in the View menu.'],
-  [6, <>Instruments <Kbd>I</Kbd></>, 'Opens the instrument panel on the right.'],
-  [7, 'Physics panel', <>What you are seeing, explained; the lab’s experiments; your notebook (<Ref to="seeing">Chapter 7</Ref>).</>],
+  [1, 'Lightspeed', 'The name opens the About page.'],
+  [
+    2,
+    'Date',
+    <>
+      The date and time being shown, in UTC. Amber, with a dot, when it is not the present. Click it to go to another date (
+      <Ref to="time">Chapter 5</Ref>).
+    </>,
+  ],
+  [3, <>Where to? <Kbd>/</Kbd></>, <>Find any place by name and go there or fly there (<Ref to="looking">Chapter 4</Ref>).</>],
+  [4, 'Journeys', <>Seven one-click trips and scenes (<Ref to="flying">Chapter 6</Ref>).</>],
+  [5, <>Learn <Kbd>E</Kbd></>, <>Long reads on the science behind the view (<Ref to="seeing">Chapter 7</Ref>).</>],
+  [6, <>Lab <Kbd>K</Kbd></>, <>For students: five guided experiments, in a panel on the left (<Ref to="lab">Chapter 9</Ref>).</>],
+  [
+    7,
+    'View',
+    'Display layers, body size and optics; the instrument panel and physics hints; the guide, the keys and About. Below 900 pixels it shows as an icon.',
+  ],
   [
     8,
-    'View',
-    'The simulation. Top left: what the camera is doing and its range to the target. Top centre: status lamps. Top right: the card of the selected body. Bottom left: a scale bar.',
+    'The view',
+    'The simulation. Top left: what the camera is doing and its range to the target. Top centre: status lamps. Top right: the card of the selected body. Bottom left: a scale bar. In flight, a panel along the bottom.',
   ],
-  [9, 'Instrument panel', <>Live readouts of speed, clocks, the target, optics and light-time (<Ref to="readings">Chapter 8</Ref>).</>],
-  [10, 'Time controls', 'Pause, the simulation rate, and Now.'],
-  [11, 'Target bar', 'Every body in the simulation. Click one to go there.'],
-  [12, <>Keys <Kbd>?</Kbd></>, 'The keyboard and mouse on one sheet. On wide screens the status beside it says what the camera is doing.'],
+  [9, 'Time', <>Pause; slower and faster, with the rate in words; Now (<Ref to="time">Chapter 5</Ref>).</>],
+  [
+    10,
+    'Where you are',
+    'Where the camera is, as a trail: Solar System › Earth › Moon. Click a level to go there. Bodies lists everything you can visit, by kind.',
+  ],
+  [11, <>Keys <Kbd>?</Kbd></>, 'The keyboard and mouse on one sheet. On wide screens the status beside it says what the camera is doing.'],
+  [12, <>Instrument panel <Kbd>I</Kbd></>, <>Every number, live: speed, clocks, the target, optics and light-time (<Ref to="readings">Chapter 8</Ref>).</>],
 ];
 
 function Screen() {
@@ -251,9 +275,13 @@ function Screen() {
       id="screen"
       n={3}
       title="The screen"
-      lead="Everything on screen, numbered as in Figure 3.1. The two side panels start closed; open them when you want them."
+      lead="Everything on screen, numbered as in Figure 3.1. A first visit shows only the header, the view and the footer; the two side panels open when you ask for them."
     >
-      <Fig n="3.1" wide caption="The Lightspeed screen with both side panels open. On a first visit only the header, the view and the footer are shown.">
+      <Fig
+        n="3.1"
+        wide
+        caption="The Lightspeed screen with the instrument panel open on the right (View › Instrument panel, or I). The lab, when you open it, sits on the left."
+      >
         <ScreenMap />
       </Fig>
       <table className="doc-tbl doc-tbl-parts">
@@ -269,12 +297,18 @@ function Screen() {
           ))}
         </tbody>
       </table>
+      <p>
+        On narrow screens the header keeps its icons and drops their words, <b>Where to?</b> last; <b>Lab</b> leaves the header
+        below 640 pixels. Point at an icon to see its name.
+      </p>
 
       <H3>Panels</H3>
       <p>
-        Drag the inner edge of a panel to resize it, or double-click the edge to reset it. From the keyboard, Tab to the edge and
-        use the arrow keys. Close a panel with its × or with the button that opened it. On screens narrower than 900 pixels the
-        panels open over the view, one at a time, and get out of the way when you plan a flight.
+        The instrument panel opens on the right from <b>View › Instrument panel</b>, from <b>Details</b> on a body’s card, or
+        with <Kbd>I</Kbd>. The lab opens on the left from <b>Lab</b> or <Kbd>K</Kbd>. Nothing opens either panel by itself, and
+        the lab stays closed when you reload the page. Drag the inner edge of a panel to resize it, or double-click the edge to
+        reset it; from the keyboard, Tab to the edge and use the arrow keys. On screens narrower than 900 pixels the panels open
+        over the view, one at a time, and get out of the way when you plan a flight.
       </p>
 
       <H3>Status lamps</H3>
@@ -288,6 +322,7 @@ function Screen() {
             </Lamp>,
             'Time runs faster than real time. The view also gets an amber border.',
           ],
+          [<Lamp tone="amber">1 s = 3.4 months on board</Lamp>, <>In flight: how much of your time passes each second (<Ref to="flying">Chapter 6</Ref>).</>],
           [<Lamp tone="amber">Free flight</Lamp>, <>You are flying the camera by hand (<Ref to="looking">Chapter 4</Ref>).</>],
           [
             <Lamp tone="cyan">Relativistic optics</Lamp>,
@@ -302,12 +337,13 @@ function Screen() {
         ]}
       />
 
-      <H3>Messages and notes</H3>
+      <H3>Messages and hints</H3>
       <p>
-        Events, such as pulse detections, readings, arrivals and errors, appear for about 14 seconds in the top-left corner of
-        the view. The first time something new happens (passing 0.1<i>c</i>, say), a short note in the top-right corner says in
-        a sentence what is going on and offers the matching section of the physics. Click <b>Read more</b> to open it, or × to
-        dismiss it.
+        When something you asked for cannot be done, a message says why for about 14 seconds in the top-left corner of the
+        view. Once you have opened the lab, its records appear there too: pulse detections and arrivals as they are logged.
+        If you turn on <b>View › Physics hints</b> (it starts off), a short note in the top-right corner says in a sentence
+        what is going on the first time something new happens, passing 0.1<i>c</i> say, and <b>Read more</b> opens the Learn
+        article that tells the whole story. Each note appears once.
       </p>
     </Chapter>
   );
@@ -329,27 +365,44 @@ function Looking() {
             <>
               Scroll, <Kbd>+</Kbd> <Kbd>−</Kbd>
             </>,
-            'Move in and out (the scale is logarithmic)',
+            'Move in and out (the scale is logarithmic; hold Shift to go five times faster)',
           ],
           ['Arrow keys', 'Orbit'],
           [<Kbd key="h">H</Kbd>, 'Return to Earth'],
         ]}
       />
 
+      <H3>Where to?</H3>
+      <p>
+        <b>Where to?</b> in the header (or <Kbd>/</Kbd>, or <Kbd>Ctrl</Kbd>+<Kbd>K</Kbd>) finds any place by name. It forgives
+        part of a name (<i>prox</i>), a nickname (<i>Luna</i>, <i>the red planet</i>) and a slip of the keyboard (
+        <i>Satrun</i>). Each result gives what it is, how far away it is and how long its light takes to reach you; the
+        highlighted one also shows what a flight there at 1 g would take for you and at home. Choose with the arrow keys.{' '}
+        <Kbd>Enter</Kbd> (or <b>Go</b>) takes the camera there; <Kbd>Shift</Kbd>+<Kbd>Enter</Kbd> (or <b>Fly</b>) opens the
+        flight planner set to that 1 g flight. Before you type, it offers {featuredNames()}, with what a 1 g flight to each
+        would take, and the journeys.
+      </p>
+      <TryRow>
+        <Try run={openSearch}>Open Where to?</Try>
+      </TryRow>
+
       <H3>Choosing a body</H3>
       <p>
         Click a body or its label to <i>select</i> it. Amber brackets mark it, its label shows its range and light-time, and a
         card in the top-right corner of the view says what it is, how far away it is, how long its light took to reach you, and
-        three things worth knowing about it. <b>Go there</b> takes the camera to it, <b>Fly here</b> plans a flight, and{' '}
-        <b>Numbers</b> opens its full data sheet in the instruments. To take the camera there directly, double-click the body,
-        click its name in the target bar, or press its key: <Kbd>0</Kbd> for the Sun, <Kbd>1</Kbd> to <Kbd>9</Kbd> for Mercury
-        to Pluto, <Kbd>M</Kbd> for the Moon and <Kbd>V</Kbd> for Voyager 1. Proxima Centauri, 4.2 light-years away, is at the
-        end of the target bar. <Kbd>Esc</Kbd> clears the selection.
+        three things worth knowing about it. On the card, <b>Go there</b> takes the camera to it, <b>Fly here</b> plans a 1 g
+        flight, <b>Read</b> opens its story in Learn where there is one, and <b>Details</b> opens the instrument panel with its
+        full data sheet. <Kbd>Esc</Kbd> clears the selection.
+      </p>
+      <p>
+        To take the camera somewhere directly, double-click the body, click it in <b>Bodies</b> at the bottom of the screen, or
+        press its key: <Kbd>0</Kbd> for the Sun, <Kbd>1</Kbd> to <Kbd>9</Kbd> for Mercury to Pluto, <Kbd>M</Kbd> for the Moon
+        and <Kbd>V</Kbd> for Voyager 1. Proxima Centauri, 4.2 light-years away, is under <b>Bodies › Stars</b>. The trail beside
+        <b> Bodies</b> says where the camera is; click <b>Solar System</b> in it to see the whole system at once.
       </p>
       <Note title="The camera is not a spaceship">
         Camera moves ignore physics: the camera glides to its target in a few seconds (never more than six), whatever the
-        distance. To travel physically, with clocks that obey relativity, take a journey or plan a flight (
-        <Ref to="flying">Chapter 6</Ref>).
+        distance. To travel physically, with clocks that obey relativity, take a journey or fly (<Ref to="flying">Chapter 6</Ref>).
       </Note>
 
       <H3>True scale and enlarged</H3>
@@ -369,7 +422,7 @@ function Looking() {
         rows={[
           [<>Orbits <Kbd>O</Kbd></>, 'Each body’s orbit, computed from its current position and velocity.'],
           [<>Labels <Kbd>L</Kbd></>, 'Names, and the range and light-time of the selected body.'],
-          [<>Small bodies <Kbd>B</Kbd></>, '31 930 asteroids, Trojans and trans-Neptunian objects from the JPL Small-Body Database.'],
+          [<>Small bodies <Kbd>B</Kbd></>, '31,930 asteroids, Trojans and trans-Neptunian objects from the JPL Small-Body Database.'],
           [<>Ecliptic grid <Kbd>J</Kbd></>, 'Lines of ecliptic longitude and latitude every 15°, labelled, with an axis triad in the corner.'],
           [<>Readouts over the view <Kbd>U</Kbd></>, <>The camera readout and scale bar; in flight also the reticle and the apex markers (<Ref to="readings">Chapter 8</Ref>).</>],
           ['Light-time correction', 'Draw each body where it was when the light now reaching you left it.'],
@@ -406,10 +459,34 @@ function Looking() {
         ]}
       />
       <p>
-        Free flight is for sightseeing. The throttle is shown in the status bar, and the relativistic optics switch on above
-        0.01<i>c</i>, but only planned flights are recorded.
+        Free flight is for sightseeing. The throttle is shown in the status bar at the bottom right, and the relativistic
+        optics switch on above 0.01<i>c</i>, but only planned flights count as trips.
       </p>
     </Chapter>
+  );
+}
+
+/** The rate steps, from clock.ts, in powers of ten and in words. */
+function RateTable() {
+  return (
+    <table className="doc-tbl doc-tbl-narrow">
+      <thead>
+        <tr>
+          <th>Rate</th>
+          <th>One real second is</th>
+        </tr>
+      </thead>
+      <tbody>
+        {WARP_STEPS.map((w) => (
+          <tr key={w}>
+            <td className="doc-tbl-k">
+              <P10 n={Math.round(Math.log10(w))} />
+            </td>
+            <td className="mono">{w === 1 ? '1 s (real time)' : formatDurationShort(w, 2)}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
   );
 }
 
@@ -419,66 +496,65 @@ function Time() {
       id="time"
       n={5}
       title="Time"
-      lead="The simulation starts at the present moment and runs in real time. You can stop it, speed it up a million-fold, or jump to another date."
+      lead="The simulation starts at the present moment and runs in real time. You can stop it, run it up to hundreds of millions of years a second, or jump to another date."
     >
-      <H3>The epoch</H3>
+      <H3>The date</H3>
       <p>
-        The header shows the <i>epoch</i>: the instant being simulated, in UTC, followed on wide screens by the Julian Date.
-        Click it to type any instant between 1981 and 2199, or to load the date of the next opposition of Mars, Jupiter or
-        Saturn, when that planet stands opposite the Sun in Earth’s sky and is near its closest. Press <b>Set epoch</b> (or{' '}
-        <Kbd>Enter</Kbd>) to go there: every body moves at once, the chronometers are zeroed and any light pulses still in
-        flight are discarded.
+        The chip beside the name shows the instant being simulated, in UTC. It turns amber, with a dot, whenever that is not the
+        present: while the clock is paused or running fast, and after a pause, a date you set or a flight, until <b>Now</b>{' '}
+        brings it back. Point at it to see how exact the planets’ positions are at that date.
       </p>
+      <p>
+        Click it to type any date and time from 10,000 BCE to the end of 9999 (years −9999 to 9999 in astronomers’ numbering),
+        or just a year: <i>1969</i>, <i>500 BCE</i>. Between 1700 and 2200 it also offers the next oppositions of Mars, Jupiter
+        and Saturn, when each stands opposite the Sun in Earth’s sky and is near its closest. Press <b>Go to date</b> (or{' '}
+        <Kbd>Enter</Kbd>): every body moves at once, both clocks on the instrument panel restart from zero and any light
+        pulse still in flight is discarded. Voyager 1 appears after its 1980 Saturn flyby.
+      </p>
+      <KeyTable
+        head={['Dates', 'Planet positions']}
+        rows={[
+          ['1700 to 2200', 'Precise: about an arcminute, checked against JPL’s DE405.'],
+          ['3000 BCE to 3000 CE', 'Approximate: about half a degree, from JPL’s approximate orbital elements.'],
+          ['Beyond', 'Illustrative: the orbits are right, the places along them are not.'],
+        ]}
+      />
 
       <H3>Rate</H3>
       <p>
-        The rate is how much simulated time passes per real second, from <P10 n={0} /> (real time) to <P10 n={6} />. Choose it
-        in the time controls, or step with <Kbd>[</Kbd> and <Kbd>]</Kbd> (or <Kbd>,</Kbd> and <Kbd>.</Kbd>). Point at a rate button to
-        see it in everyday units (on very wide screens a readout beside the buttons shows it too), and an amber border round
-        the view reminds you that time is running fast. Journeys set the rate for you.
+        The rate is how much simulated time passes per real second. The arrows either side of it at the bottom left (or{' '}
+        <Kbd>[</Kbd> and <Kbd>]</Kbd>, or <Kbd>,</Kbd> and <Kbd>.</Kbd>) step it from real time to{' '}
+        {formatDurationShort(WARP_STEPS[WARP_STEPS.length - 1], 2)} a second, and it is written out in words, such as{' '}
+        <i>2.8 h/s</i>. When time runs fast a lamp at the top of the view shows the power of ten and an amber border goes round
+        the view. Journeys set the rate for you.
       </p>
-      <table className="doc-tbl doc-tbl-narrow">
-        <thead>
-          <tr>
-            <th>Rate</th>
-            <th>One real second is</th>
-          </tr>
-        </thead>
-        <tbody>
-          {(
-            [
-              [0, '1 s'],
-              [1, '10 s'],
-              [2, '100 s'],
-              [3, '16.7 min'],
-              [4, '2.78 h'],
-              [5, '27.8 h'],
-              [6, '11.6 d'],
-            ] as const
-          ).map(([n, t]) => (
-            <tr key={n}>
-              <td className="doc-tbl-k">
-                <P10 n={n} />
-              </td>
-              <td className="mono">{t}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <RateTable />
+      <p>
+        However far time runs, the clock stays exact from the Big Bang, 13.8 billion years ago, to ten trillion years ahead;
+        far from the present it simply advances in coarser steps.
+      </p>
+
+      <H3>In flight</H3>
+      <p>
+        A flight plays by the clock on board. The same arrows then set how much of your time passes each second, shown as, say,{' '}
+        <i>1 s = 3.4 months aboard</i>; the clock at home follows from the trip. By default any trip plays in about{' '}
+        {Math.round(TRIP_PLAYBACK_S)} seconds, and never slower than real time on board. The fictional faster-than-light drive
+        has no time on board, so it follows the ordinary rate.
+      </p>
 
       <H3>Pause and Now</H3>
       <p>
         <Kbd>Space</Kbd> or <Kbd>P</Kbd> pauses and resumes (in free flight only <Kbd>P</Kbd>, since Space is up). <b>Now</b>{' '}
-        (<Kbd>N</Kbd>) returns to the present at real time and
-        zeroes the chronometers. It is unavailable during a flight: a traveller’s clock cannot be wound back.
+        (<Kbd>N</Kbd>) returns to the present at real time and restarts both clocks on the instrument panel from zero. It is
+        unavailable during a flight: a traveller’s clock cannot be wound back.
       </p>
 
       <H3>Two clocks</H3>
       <p>
-        Instruments › B holds two clocks. <i>t</i> is <i>coordinate time</i>, kept by clocks at rest relative to the Sun. <i>τ</i>{' '}
-        is <i>proper time</i>, kept by a clock travelling with you. Even while you orbit Earth, <i>τ</i> falls behind <i>t</i> by
-        about 5 parts in <P10 n={9} />, because Earth carries you round the Sun at 30 km/s. In flight the difference grows to
-        minutes, hours or years. <b>Zero</b> sets both clocks to zero.
+        Section B of the instrument panel holds two clocks. <i>t</i> is <i>coordinate time</i>, kept by clocks at rest relative
+        to the Sun. <i>τ</i> is <i>proper time</i>, kept by a clock travelling with you. Even while you orbit Earth, <i>τ</i>{' '}
+        falls behind <i>t</i> by about 5 parts in <P10 n={9} />, because Earth carries you round the Sun at 30 km/s. In flight
+        the difference grows to minutes, hours or years. <b>Zero</b> sets both clocks to zero.
       </p>
     </Chapter>
   );
@@ -490,13 +566,13 @@ function Flying() {
       id="flying"
       n={6}
       title="Journeys and flights"
-      lead="A flight is a physical journey: a straight line through the Solar System at a speed you choose, with clocks that obey special relativity. Journeys are flights and scenes set up for you."
+      lead="A flight is a physical journey: a straight line through space at 1 g or at a speed you choose, with clocks that obey special relativity. Journeys are flights and scenes set up for you."
     >
       <H3>Journeys</H3>
       <p>
-        <b>Journeys</b> in the header lists seven set pieces. Each is one click: the camera is placed, the clock is set so that
-        a trip takes about half a minute of real time, and a line says what to look for. Flights leave from Earth and show
-        their predicted times, by Earth’s clocks and by yours, before you go.
+        <b>Journeys</b> in the header lists seven set pieces. Each is one click: the camera is placed, the clock is set, and a
+        line says what to look for. Flights leave from Earth and show their predicted times, by Earth’s clocks and by yours,
+        before you go.
       </p>
       <table className="doc-tbl">
         <thead>
@@ -520,50 +596,32 @@ function Flying() {
 
       <H3>Planning a flight</H3>
       <p>
-        Press <b>Plan flight</b> in the header (or <Kbd>G</Kbd>), or <b>Fly here</b> on a body’s card, and choose a destination.
-        You leave from wherever the camera is, and the planner aims at the point where the destination will be when you arrive,
-        not where it is now.
+        <b>Fly here</b> on a body’s card and <b>Fly</b> in Where to? open the flight planner set to a 1 g rocket to that body.{' '}
+        <Kbd>G</Kbd> opens it for the selected body, with the drive and speed chosen last. You leave from wherever the camera is, and the planner aims at the
+        point where the destination will be when you arrive, not where it is now. Press <b>Ignite</b> (or <b>Execute</b> for a
+        constant speed) to go.
       </p>
       <TryRow>
         <Try run={planFlight('mars', 0.5)}>Plan a flight to Mars at 0.5c</Try>
       </TryRow>
 
       <H3>Three drives</H3>
-      <table className="doc-tbl">
-        <thead>
-          <tr>
-            <th>Drive</th>
-            <th>What it does</th>
-            <th>Logged by</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td className="doc-tbl-k">Constant speed</td>
-            <td>
-              Jumps instantly to the chosen speed, coasts, and stops instantly on arrival. Idealised, but the clock readings
-              between the jumps are exact.
-            </td>
-            <td>Experiment 2</td>
-          </tr>
-          <tr>
-            <td className="doc-tbl-k">1 g flip-and-burn</td>
-            <td>
-              Accelerates at one Earth gravity, turns round halfway and decelerates, arriving at rest. A real rocket could in
-              principle fly this.
-            </td>
-            <td>Experiment 5</td>
-          </tr>
-          <tr>
-            <td className="doc-tbl-k !text-hazard">Superluminal (fiction)</td>
-            <td>
-              Faster than light, for comparison only. The planner and the view are hatched in red, proper time is undefined, and
-              nothing is recorded.
-            </td>
-            <td>Nothing</td>
-          </tr>
-        </tbody>
-      </table>
+      <KeyTable
+        head={['Drive', 'What it does']}
+        rows={[
+          [
+            '1 g flip-and-burn',
+            'Accelerates at one Earth gravity, turns round halfway and decelerates, arriving at rest. A real rocket could in principle fly this, and the crew would feel their normal weight all the way.',
+          ],
+          ['Constant speed', 'Jumps instantly to the chosen speed, coasts, and stops instantly on arrival. Idealised, but the clock readings between the jumps are exact.'],
+          [
+            <span key="w" className="!text-hazard">
+              Superluminal (fiction)
+            </span>,
+            'Faster than light, for comparison only. The planner and the view are hatched in red, time on board is undefined, and nothing is recorded.',
+          ],
+        ]}
+      />
 
       <H3>Choosing a speed</H3>
       <p>
@@ -576,29 +634,64 @@ function Flying() {
       <p>
         Before you launch, the planner lists what the flight will involve: the path length; the time Δ<i>t</i> it takes by the
         Sun’s clocks; the time Δ<i>τ</i> that will pass on board; their difference; for the constant-speed drive, the length of
-        the path as measured on the ship; and how long light would take over the same path. For 1 g flights it adds the peak speed and the mass ratio a
-        perfect photon rocket would need. The worldline preview plots the trip on a spacetime diagram in which light travels at
-        45°.
+        the path as measured on the ship; and how long light would take over the same path. For 1 g flights it adds the peak
+        speed and the mass ratio a perfect photon rocket would need. The worldline preview plots the trip on a spacetime
+        diagram in which light travels at 45°.
       </p>
 
       <H3>In flight</H3>
       <p>
-        The flight recorder along the bottom of the view shows your progress, both clocks, and the distance left, measured in
-        the Sun’s frame and in yours. Drag to look around, or use <b>Ahead</b> and <b>Astern</b>. <b>Skip to arrival</b>{' '}
-        advances the clock to the end of the trip, and the readings stay exact. <b>Abort</b> stops the ship where it is
-        (instantly, which no real ship could do). You can still select bodies and read their data, but the camera stays with
+        A panel along the bottom of the view shows where you are going, a progress bar and four big numbers: your <b>speed</b>{' '}
+        as a fraction of <i>c</i>, with as many nines as it has, and the Lorentz factor <i>γ</i> under it; <b>your clock</b>,
+        the time passed on board; the time passed <b>at home</b>, with the date there on long trips; and the distance still to
+        go, with how long light would take to cover it. On a journey it also says what to look for.
+      </p>
+      <p>
+        Drag to look around, or use <b>Ahead</b> and <b>Astern</b>. The arrows beside <i>1 s = …</i> set the pace (
+        <Ref to="time">Chapter 5</Ref>). <b>Skip to arrival</b> advances the clocks to the end of the trip, and the readings stay
+        exact. <b>Abort</b> stops the ship where it is (instantly, which no real ship could do). <b>Details</b> opens the full
+        flight recorder: both clocks to more figures, their difference, the distance left measured in the Sun’s frame and in
+        yours, a ruler of the path, and the optics. You can still select bodies and read their cards, but the camera stays with
         the ship.
       </p>
       <p>
-        On arrival a report sums up the flight (Δ<i>t</i>, Δ<i>τ</i> and their ratio). For students, every constant-speed and
-        1 g flight is also kept as a reading in the lab.
+        On arrival a card sums the trip up: for example, <i>Arrived at Saturn. The trip took 34 min for you and 1 h 18 min at
+        home.</i> After a trip of a year or more at home it adds how much older you are and the date at home.
       </p>
       <Note title="Faster than light" tone="hazard">
         Nothing with mass can reach <i>c</i>: the energy needed grows without limit as <i>β</i> approaches 1. The superluminal
-        drive exists to show why. During it the Lorentz factor is imaginary, proper time has no meaning, and some observers would
-        reckon that you arrived before you left. Physics sections 8 and 9 explain.
+        drive exists to show why. During it the Lorentz factor is imaginary, time on board has no meaning, and some observers
+        would reckon that you arrived before you left. <LearnLink slug="nothing-outruns-light">Why nothing outruns light</LearnLink>{' '}
+        tells the story.
       </Note>
     </Chapter>
+  );
+}
+
+/** The Learn articles about what you see, in the order to read them. */
+const SEEING: { slug: string; title: string; what: string }[] = [
+  { slug: 'light-takes-time', title: 'Light takes time', what: 'Why nothing you see is current, and how the speed of light was first timed.' },
+  { slug: 'how-big-is-the-solar-system', title: 'How big is the Solar System?', what: 'The scale of it all, and why the planets are specks at true scale.' },
+  { slug: 'nothing-outruns-light', title: 'Why nothing outruns light', what: 'The Lorentz factor, the energy cost of each extra nine, and what faster than light would break.' },
+  { slug: 'time-dilation', title: 'Time dilation is real', what: 'Why your clock falls behind Earth’s in flight, the twin paradox, and the experiments that prove it.' },
+  { slug: 'seeing-near-light-speed', title: 'What you would see near the speed of light', what: 'Aberration, the Doppler shift and beaming: the sky of Figure 7.1.' },
+  { slug: 'rockets-to-the-stars', title: 'Rockets to the stars', what: 'The 1 g flip-and-burn, and the fuel it would need.' },
+];
+
+function SeeingReads() {
+  useArticles(); // the list follows the article index as articles are added
+  return (
+    <dl className="doc-dl">
+      {SEEING.map((a) => {
+        const meta = findArticle(a.slug);
+        return (
+          <div key={a.slug}>
+            <dt>{meta ? <LearnLink slug={a.slug}>{meta.title}</LearnLink> : <span className="text-fg-3">{a.title} (coming soon)</span>}</dt>
+            <dd>{a.what}</dd>
+          </div>
+        );
+      })}
+    </dl>
   );
 }
 
@@ -608,61 +701,21 @@ function Seeing() {
       id="seeing"
       n={7}
       title="What you are seeing"
-      lead="The strange things that happen near the speed of light, in plain words. The physics panel (Physics, or K) has the same ten topics with their equations and further reading."
+      lead="Near the speed of light the sky and the clocks behave strangely, and every bit of it is real physics. Learn tells the full stories; this chapter points to them."
     >
-      <H3>Light takes time</H3>
-      <p>
-        Nothing you see is current. Sunlight is 8 minutes 19 seconds old when it reaches Earth, 43 minutes old at Jupiter, and
-        about a day old at Voyager 1. The instruments’ light-time section says how old your view of Earth is from wherever you
-        are, and <b>Light-time correction</b> in the View menu draws every body where it was when its light left it.
-      </p>
+      <SeeingReads />
       <TryRow>
-        <ReadPhysics id="light-time" title="Light-travel time" />
+        <button type="button" className="doc-try" onClick={() => openLearn()}>
+          <span className="doc-try-k">Learn</span>
+          <span className="doc-try-t">All the articles</span>
+        </button>
       </TryRow>
 
-      <H3>The scale of things</H3>
+      <H3>The sky in flight</H3>
       <p>
-        Shrink the Sun to a ball one metre across and Earth becomes a 9 mm bead 107 m away; Neptune is 3 km off and the nearest
-        star 29 000 km. That is why the planets are specks at true scale, and why the target bar exists.
-      </p>
-      <TryRow>
-        <ReadPhysics id="scale" title="The scale of the Solar System" />
-      </TryRow>
-
-      <H3>Past a tenth of the speed of light</H3>
-      <p>
-        Below about 0.1<i>c</i> relativity is invisible. Above it one number takes over: the Lorentz factor <i>γ</i>, which is
-        1.15 at 0.5<i>c</i>, 2.3 at 0.9<i>c</i>, 7.1 at 0.99<i>c</i> and 22 at 0.999<i>c</i>. Everything below scales with it.
-      </p>
-      <TryRow>
-        <ReadPhysics id="lorentz" title="The Lorentz factor" />
-      </TryRow>
-
-      <H3>Your clock runs slow</H3>
-      <p>
-        On board, time passes <i>γ</i> times more slowly than for Earth. The flight recorder shows both clocks side by side: on
-        the Saturn journey at 0.9<i>c</i>, Earth counts about an hour and a half while you count under forty minutes. To Proxima
-        Centauri at a steady 1 g, 5.9 years pass on Earth and 3.5 on board. That is the twin paradox, and it is real.
-      </p>
-      <TryRow>
-        <ReadPhysics id="time-dilation" title="Time dilation and the twin paradox" />
-      </TryRow>
-
-      <H3>Distances shrink</H3>
-      <p>
-        Measured from the ship, the road ahead is <i>γ</i> times shorter. The planner lists the path length in both frames, and
-        the recorder shows the distance still to go in both.
-      </p>
-      <TryRow>
-        <ReadPhysics id="length-contraction" title="Length contraction" />
-      </TryRow>
-
-      <H3>The sky crowds ahead</H3>
-      <p>
-        Your motion tilts the light coming in, the way rain seems to come from ahead when you run through it. Every direction
-        except dead astern shifts towards the <i>apex</i>, the point you are heading for. At 0.9<i>c</i> the whole forward half
-        of the sky fits within 26° of the apex (Figure 7.1); at 0.999<i>c</i>, within 2.6°. Press <Kbd>X</Kbd> for a split
-        screen with the undistorted sky on the left.
+        Your motion tilts the light coming in, the way rain seems to come from ahead when you run through it. At 0.9<i>c</i> the
+        whole forward half of the sky fits within 26° of the point you are heading for (Figure 7.1); at 0.999<i>c</i>, within
+        2.6°. Light from ahead is shifted to the blue and brightened, and the sky behind fades to red.
       </p>
       <Fig
         n="7.1"
@@ -677,38 +730,21 @@ function Seeing() {
       >
         <AberrationFigure beta={0.9} />
       </Fig>
+      <p>
+        <b>View › Optics</b> offers three models: <b>Relativistic</b>; <b>Classical</b>, which draws the sky as it is in the
+        Sun’s frame; and <b>Split</b> (<Kbd>X</Kbd>), with classical on the left and relativistic on the right of a divider you
+        can drag. <Kbd>Z</Kbd> switches between classical and relativistic. All three look the same at rest: the difference
+        appears in flight, above 0.01<i>c</i>. To see the crowding on its own, turn off <i>Doppler shift and beaming</i> in
+        section D of the instrument panel.
+      </p>
       <TryRow>
-        <ReadPhysics id="aberration" title="Aberration of light" />
         <Try run={() => useUI.setState({ relMode: 'split' })}>Split the view (for your next flight)</Try>
       </TryRow>
-
-      <H3>Colours shift and the view brightens</H3>
       <p>
-        Light from ahead is squeezed to higher frequencies and light from behind is stretched. The Doppler factor straight ahead
-        is √((1 + <i>β</i>)/(1 − <i>β</i>)): 4.4 at 0.9<i>c</i>, so stars ahead turn blue and the Sun, if it lay dead ahead, would
-        look like a 25 000 K star. Light from ahead is also concentrated and brightened, and the sky behind fades: that is
-        beaming. To see the crowding on its own, turn off <i>Doppler shift and beaming</i> in Instruments › D.
+        With <b>View › Physics hints</b> on, a note in the corner points to the right article the first time each of these
+        things happens. For students, the lab’s <b>Reference</b> tab has the same physics in ten short sections with their
+        equations (<Ref to="lab">Chapter 9</Ref>).
       </p>
-      <p>
-        The View menu offers three optics models: <b>Relativistic</b>; <b>Classical</b>, which draws the sky as it is in the
-        Sun’s frame, without aberration or Doppler shift; and <b>Split</b> (<Kbd>X</Kbd>), with classical on the left and
-        relativistic on the right of a divider you can drag. <Kbd>Z</Kbd> switches between classical and relativistic. All
-        three look the same at rest: the difference appears in flight, above 0.01<i>c</i>.
-      </p>
-      <TryRow>
-        <ReadPhysics id="doppler" title="Doppler shift and relativistic beaming" />
-      </TryRow>
-
-      <H3>Why not faster?</H3>
-      <p>
-        Each extra nine in your speed costs far more energy than the last, and the speed of light stays out of reach for anything
-        with mass. A rocket pushing at 1 g feels perfectly normal on board and yet never quite gets there. The fictional drive
-        beyond <i>c</i> is included to show what would break: causality itself.
-      </p>
-      <TryRow>
-        <ReadPhysics id="mass-limit" title="Why no massive body reaches c" />
-        <ReadPhysics id="rocket" title="The relativistic rocket" />
-      </TryRow>
     </Chapter>
   );
 }
@@ -719,7 +755,7 @@ function Readings() {
       id="readings"
       n={8}
       title="Readings"
-      lead="The card tells you about a body; the instrument panel (I) gives every number, several times a second. Its sections are lettered; click a heading to fold it."
+      lead="The card tells you about a body; the instrument panel gives every number, several times a second. Open it from View › Instrument panel, from Details on a card, or with I. Its sections are lettered; click a heading to fold it."
     >
       <table className="doc-tbl">
         <thead>
@@ -752,13 +788,14 @@ function Readings() {
         </tbody>
       </table>
       <TryRow>
-        <Try run={() => useUI.setState({ rightOpen: true })}>Open the instruments</Try>
+        <Try run={() => useUI.setState({ rightOpen: true })}>Open the instrument panel</Try>
       </TryRow>
 
       <H3>In the view</H3>
       <KeyTable
         rows={[
-          ['Body card', 'Top right, for the selected body: what it is, its range and light-time, three facts, and buttons to go there, fly there or open its numbers. × closes it; the next selection brings it back.'],
+          ['Body card', 'Top right, for the selected body: what it is, its range and light-time, three facts, and Go there, Fly here, Read and Details. × closes it; the next selection brings it back.'],
+          ['Flight panel', <>Along the bottom in flight: speed, your clock, the clock at home and the distance left (<Ref to="flying">Chapter 6</Ref>).</>],
           ['Reticle', <>In motion, marks the centre of the view. Its spectrometer reads the angle <i>θ</i>′ from the apex and the Doppler factor <i>D</i> there.</>],
           ['APEX, ANTAPEX', 'The directions you are heading towards and away from.'],
           ['Scale bar', 'A length at the distance of the body named beside it. In the relativistic view it reads “scale undefined”, since the scale varies across the sky.'],
@@ -787,16 +824,21 @@ function Lab() {
       id="lab"
       n={9}
       title="For students: the lab"
-      lead="The lab turns the simulator into apparatus. Five experiments are laid out like a university lab script, and the program does the bookkeeping. Anyone else can skip this chapter."
+      lead="The lab turns the simulator into apparatus. Five experiments are laid out like a university lab script, and the program does the bookkeeping. Anyone else can skip this chapter: the lab never opens by itself."
     >
       <H3>Opening the lab</H3>
       <p>
-        Press <b>Physics</b> in the header, or <Kbd>K</Kbd>, and choose the <b>Experiments</b> tab. The panel’s other tabs are{' '}
-        <b>Reference</b>, the physics behind what you see (<Ref to="seeing">Chapter 7</Ref>), and <b>Notebook</b>, where your
-        readings are kept.
+        Press <b>Lab</b> in the header (on screens 640 pixels wide or more), or <Kbd>K</Kbd>; the same way closes it. It is also
+        at the end of the Learn shelves and at the foot of the welcome screen. The lab opens on the left, on its{' '}
+        <b>Experiments</b> tab. Its other tabs are <b>Notebook</b>, where your readings are kept, and <b>Reference</b>, the
+        physics behind what you see in ten short sections with equations.
+      </p>
+      <p>
+        The lab keeps every constant-speed and 1 g flight as a reading, whether or not it is open. Once you have opened it, the
+        arrival card also says which experiment logged the flight, and the planner says which experiment will.
       </p>
       <TryRow>
-        <Try run={() => openPhysics('experiments')}>Open the experiments</Try>
+        <Try run={() => openLab()}>Open the lab</Try>
       </TryRow>
 
       <H3>The experiments</H3>
@@ -831,6 +873,10 @@ function Lab() {
         Earth’s own 20 arcsecond shift. <b>Experiment 5</b> samples a 1 g flight to Proxima Centauri: the rapidity grows in
         proportion to proper time, and <i>c</i> times the slope is the acceleration felt on board.
       </p>
+      <p>
+        Constant-speed flights are logged by Experiment 2 and 1 g flights by Experiment 5. Journeys count too. Flights with the
+        fictional drive are never logged.
+      </p>
       <TryRow>
         <Try run={startExperiment1}>Open Experiment 1</Try>
       </TryRow>
@@ -850,7 +896,8 @@ function Lab() {
         Procedure steps tick themselves off when the simulation reaches the state they ask for: the right rate, a pulse emitted,
         five speeds recorded. Many steps have a button that sets the apparatus up for you. The small boxes beside each
         experiment in the list show how far you have got, and the <b>Next step</b> box at the top of each experiment shows the
-        one you are on.
+        one you are on. Where a step asks for a rate such as <P10 n={2} />, step the rate with <Kbd>]</Kbd> or the footer’s
+        arrows until its lamp shows that power of ten.
       </p>
 
       <H3>Recording data</H3>
@@ -887,7 +934,7 @@ function Lab() {
         written answers as JSON, and the session’s event log as text.
       </p>
       <TryRow>
-        <Try run={() => openPhysics('notebook')}>Open the notebook</Try>
+        <Try run={() => openLab('notebook')}>Open the notebook</Try>
       </TryRow>
     </Chapter>
   );
@@ -899,7 +946,7 @@ function Controls() {
       id="controls"
       n={10}
       title="Keyboard and mouse"
-      lead="Single-key shortcuts work whenever you are not typing in a field. Press ? at any time for this list on one sheet. If the keys clash with assistive software, turn them off in View › Keyboard shortcuts."
+      lead="Single-key shortcuts work whenever you are not typing in a field. Press ? at any time for this list on one sheet. If the keys clash with assistive software, turn them off in View › Single-key shortcuts (or on the keys sheet); Ctrl+K still opens Where to?."
     >
       <div className="doc-keygrid">
         {KEY_GROUPS.map((g) => (
@@ -911,9 +958,9 @@ function Controls() {
       </div>
       <H3>Using the keyboard alone</H3>
       <p>
-        <Kbd>Tab</Kbd> moves between controls. Within a set of options, such as the rate buttons, the arrow keys move the
-        choice. <Kbd>Esc</Kbd> closes menus, dialogs and this guide. A panel edge takes focus too: the arrow keys resize it, and{' '}
-        <Kbd>Home</Kbd> resets it.
+        <Kbd>Tab</Kbd> moves between controls. Within a set of options, such as the optics models, the arrow keys move the
+        choice. In Where to?, the arrow keys move through the list. <Kbd>Esc</Kbd> closes menus, dialogs and this guide. A panel
+        edge takes focus too: the arrow keys resize it, and <Kbd>Home</Kbd> resets it.
       </p>
     </Chapter>
   );
@@ -946,15 +993,23 @@ function Troubleshooting() {
     [
       'I’m lost',
       <>
-        <Kbd>H</Kbd> takes the camera back to Earth, and <Kbd>N</Kbd> sets the clock back to the present. <Kbd>Esc</Kbd> leaves
-        free flight. A journey always starts from a known place.
+        <Kbd>H</Kbd> takes the camera back to Earth, <b>Solar System</b> at the bottom of the screen shows the whole system, and{' '}
+        <Kbd>N</Kbd> sets the clock back to the present. <Kbd>Esc</Kbd> leaves free flight. A journey always starts from a
+        known place.
+      </>,
+    ],
+    [
+      'The date is amber',
+      <>
+        It is not the present: the clock is paused, running fast, set to another date, or behind after a pause or a flight.
+        Press <Kbd>N</Kbd> (or <b>Now</b>) to come back.
       </>,
     ],
     [
       'A journey will not start',
       <>
         Journeys wait until you are not in flight: finish the current trip with <b>Skip to arrival</b>, or <b>Abort</b> it, on
-        the flight recorder.
+        the flight panel.
       </>,
     ],
     [
@@ -968,11 +1023,11 @@ function Troubleshooting() {
     [
       'Pressing R does nothing',
       <>
-        Readings by hand belong to Experiments 3 and 4, so one of them must be open under Physics › Experiments. Experiment 3
-        needs you to be moving, which means in flight. Experiment 4 needs a selected body and a moving observer: a flight, or an
-        orbit round a planet, which carries you with it (not the Sun, which is at rest). In free flight <Kbd>R</Kbd> moves you
-        up instead, and it does nothing while keyboard shortcuts are off; use the <b>Record</b> button. The message in the
-        top-left corner of the view says what is missing.
+        Readings by hand belong to Experiments 3 and 4, so one of them must be open under Lab › Experiments. Experiment 3 needs
+        you to be moving, which means in flight. Experiment 4 needs a selected body and a moving observer: a flight, or an orbit
+        round a planet, which carries you with it (not the Sun, which is at rest). In free flight <Kbd>R</Kbd> moves you up
+        instead, and it does nothing while keyboard shortcuts are off; use the <b>Record</b> button. The message in the top-left
+        corner of the view says what is missing.
       </>,
     ],
     [
@@ -1001,7 +1056,7 @@ function Troubleshooting() {
       <H3>Starting again</H3>
       <p>
         The button below resets the layout, the display settings and the welcome screen, and reloads the page. It keeps your
-        notebook; to delete readings as well, use <b>Clear notebook</b> in the Notebook tab.
+        notebook; to delete readings as well, use <b>Clear notebook</b> in the lab’s Notebook tab.
       </p>
       <TryRow>
         <button
@@ -1020,23 +1075,23 @@ function Troubleshooting() {
 const GLOSSARY: [ReactNode, ReactNode][] = [
   ['Aberration', 'The change in the apparent direction of light caused by the observer’s motion.'],
   ['Apex, antapex', 'The points on the sky towards which, and away from which, the observer is moving.'],
-  ['Astronomical unit (au)', 'A defined length, 149 597 870.7 km, close to the mean distance from Earth to the Sun: about 8 minutes 19 seconds of light-time.'],
+  ['Astronomical unit (au)', 'A defined length, 149,597,870.7 km, close to the mean distance from Earth to the Sun: about 8 minutes 19 seconds of light-time.'],
   [<><i>β</i> (beta)</>, <>Speed as a fraction of the speed of light, <i>v</i>/<i>c</i>.</>],
   ['Beaming', 'The brightening of light from ahead, and dimming of light from behind, seen by a fast observer.'],
-  [<>Coordinate time, <i>t</i></>, 'Time kept by clocks at rest in the Sun’s frame S.'],
+  [<>Coordinate time, <i>t</i></>, 'Time kept by clocks at rest in the Sun’s frame S: the clock “at home”.'],
   [<>Doppler factor, <i>D</i></>, <>The ratio of observed to emitted frequency. <i>D</i> greater than 1 is a blueshift.</>],
   ['Ecliptic', 'The plane of Earth’s orbit, and the circle it traces on the sky; the reference plane for the coordinates used here.'],
-  ['Epoch', 'The instant being simulated.'],
+  ['Epoch', 'The instant being simulated: the date on the chip in the header.'],
   ['Frame, S and S′', 'S is the rest frame of the Sun; S′ is the frame moving with the observer.'],
   [<><i>γ</i> (gamma), Lorentz factor</>, <>1/√(1 − <i>β</i><sup className="sup">2</sup>): the factor by which moving clocks run slow and moving lengths contract.</>],
   ['Journey', 'One of the seven set pieces under Journeys: a flight from Earth, or a scene with the clock set, with a line on what to look for.'],
   ['Light-time', 'How long light takes to cover a given distance.'],
   ['Light-year (ly)', <>The distance light travels in a Julian year, 9.46 × 10<sup className="sup">12</sup> km.</>],
   ['Opposition', 'The time when a planet stands opposite the Sun in Earth’s sky, near its closest to Earth.'],
-  [<>Proper time, <i>τ</i> (tau)</>, 'Time kept by a clock travelling with the observer.'],
+  [<>Proper time, <i>τ</i> (tau)</>, 'Time kept by a clock travelling with the observer: “your clock”.'],
   [<>Rapidity, <i>φ</i> (phi)</>, <>artanh <i>β</i>: a measure of speed that adds simply for successive boosts along a line, and grows in proportion to proper time at constant acceleration.</>],
   [<>Reduced chi-squared, <i>χ</i><sup className="sup">2</sup>/<i>ν</i></>, 'The sum of squared residuals, each divided by its variance, over the degrees of freedom. About 1 for a good fit with honest error bars.'],
-  ['Simulation rate', 'Simulated seconds per real second.'],
+  ['Simulation rate', <>Simulated seconds per real second, from 1 to {rich(`10${superscript(Math.round(Math.log10(WARP_STEPS[WARP_STEPS.length - 1])))}`)}.</>],
   ['True scale', 'Every body drawn at its real size and at its real distance.'],
   ['Worldline', 'The path of an object through spacetime.'],
 ];
@@ -1059,13 +1114,19 @@ function Glossary() {
   );
 }
 
+/** The featured destinations, named as in Where to?, for the guide's opening line. */
+function featuredNames(): string {
+  const names = FEATURED_IDS.map((id) => findDestination(id)?.name).filter(Boolean) as string[];
+  return names.length > 1 ? `${names.slice(0, -1).join(', ')} and ${names.at(-1)}` : (names[0] ?? '');
+}
+
 export default function GuideDoc() {
   return (
     <>
       <header className="doc-mast">
         <div className="doc-mast-k">Guide</div>
         <h1>Exploring with Lightspeed</h1>
-        <p>How to look around, fly, and understand what you see. Chapter 9 is for students using the lab.</p>
+        <p>How to look around, fly, and find your way, and what everything on the screen does. Chapter 9 is for students using the lab.</p>
       </header>
       <Welcome />
       <QuickStart />
@@ -1082,3 +1143,4 @@ export default function GuideDoc() {
     </>
   );
 }
+

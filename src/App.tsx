@@ -23,6 +23,7 @@ import { Welcome } from './ui/overlays/Welcome';
 import { Tour } from './ui/overlays/Tour';
 import { Journeys } from './ui/overlays/Journeys';
 import { KeysSheet } from './ui/overlays/KeysSheet';
+import { Search } from './ui/overlays/Search';
 import { useShortcuts } from './ui/useShortcuts';
 import { useExplainerTriggers } from './ui/useExplainerTriggers';
 import { useUI } from './state/ui';
@@ -76,7 +77,10 @@ export default function App() {
             powerPreference: 'high-performance',
             stencil: false,
           }}
-          camera={{ fov: 50, near: 0.001, far: 1e15, position: [0, 0, 0] }}
+          // Near 1 m, far 10²⁵ km (beyond the observable universe). The logarithmic depth buffer
+          // spreads its 24 bits over log2(10²⁵) = 83 octaves of distance: a relative depth
+          // resolution of 3.4 × 10⁻⁶ (34 m at 10,000 km, 3,400 km at a billion km).
+          camera={{ fov: 50, near: 0.001, far: 1e25, position: [0, 0, 0] }}
           className="!absolute inset-0"
         >
           <SimDriver />
@@ -103,6 +107,7 @@ export default function App() {
       <Welcome />
       <Tour />
       <Journeys />
+      <Search />
       <KeysSheet />
       {reportFor && (
         <Suspense fallback={null}>

@@ -1,0 +1,174 @@
+{
+  "input": "data-raw/nea_pscomppars_2026-09-25.csv.gz",
+  "retrieved": "2026-09-25",
+  "rawBytes": 1384493,
+  "gzipBytes": 404120,
+  "counts": {
+    "planets": 6372,
+    "hosts": 4779,
+    "multiPlanetHosts": 1070,
+    "hostsWithMultipleStars": 432,
+    "controversial": 58,
+    "circumbinary": 53,
+    "transiting": 4739,
+    "byMethod": {
+      "Transit": 4709,
+      "Radial Velocity": 1202,
+      "Microlensing": 292,
+      "Imaging": 97,
+      "Transit Timing Variations": 29,
+      "Eclipse Timing Variations": 17,
+      "Orbital Brightness Modulation": 9,
+      "Pulsar Timing": 8,
+      "Astrometry": 6,
+      "Pulsation Timing Variations": 2,
+      "Disk Kinematics": 1
+    },
+    "byYear": {
+      "1992": 2,
+      "1994": 1,
+      "1995": 1,
+      "1996": 6,
+      "1997": 1,
+      "1998": 6,
+      "1999": 13,
+      "2000": 16,
+      "2001": 12,
+      "2002": 29,
+      "2003": 22,
+      "2004": 27,
+      "2005": 36,
+      "2006": 32,
+      "2007": 52,
+      "2008": 62,
+      "2009": 87,
+      "2010": 93,
+      "2011": 141,
+      "2012": 144,
+      "2013": 128,
+      "2014": 872,
+      "2015": 155,
+      "2016": 1504,
+      "2017": 152,
+      "2018": 308,
+      "2019": 194,
+      "2020": 234,
+      "2021": 564,
+      "2022": 367,
+      "2023": 323,
+      "2024": 260,
+      "2025": 245,
+      "2026": 283
+    },
+    "withPeriod": 6019,
+    "withSemiMajorAxis": 5944,
+    "withEccentricity": 5305,
+    "withInclination": 4842,
+    "withArgPeriastron": 2107,
+    "withTimeOfPeriastron": 1066,
+    "withTransitOrConjunctionTime": 5074,
+    "withLongitudeOfNode": 0,
+    "withRadius": 6322,
+    "withMeasuredRadius": 4786,
+    "withMass": 6341,
+    "withMassKind": {
+      "Msini": 894,
+      "Mass": 2462,
+      "Msin(i)/sin(i)": 15,
+      "M-R relationship": 2970,
+      "none": 31
+    },
+    "withEquilibriumTemperature": 5836,
+    "hostsWithDistance": 4751,
+    "hostsWithHip": 800,
+    "hostsWithHd": 751,
+    "hostsWithGaiaDr3": 4413,
+    "hostsWithNoCatalogueId": 349,
+    "nearestHostsPc": [
+      [
+        "Proxima Cen",
+        1.30119
+      ],
+      [
+        "Barnard's star",
+        1.82655
+      ],
+      [
+        "eps Eri",
+        3.2026
+      ],
+      [
+        "GJ 887",
+        3.28679
+      ],
+      [
+        "Ross 128",
+        3.37454
+      ],
+      [
+        "Gl 725 A",
+        3.5214
+      ],
+      [
+        "GJ 15 A",
+        3.56228
+      ],
+      [
+        "tau Cet",
+        3.60304
+      ],
+      [
+        "eps Ind A",
+        3.63857
+      ],
+      [
+        "GJ 1061",
+        3.67278
+      ],
+      [
+        "YZ Cet",
+        3.71207
+      ],
+      [
+        "Teegarden's Star",
+        3.83078
+      ]
+    ],
+    "hostFieldDisagreementsResolved": 616
+  },
+  "positions": {
+    "hipparcos": 131,
+    "gaia": 4288,
+    "archive": 360,
+    "maxShiftArcsec": 160.93242842704467,
+    "maxShiftHost": "Barnard's star",
+    "archiveEpochFastHosts": [
+      "K2-288 B (200 mas/yr)",
+      "Kepler-1063 (36 mas/yr)",
+      "Kepler-1064 (34 mas/yr)",
+      "Kepler-132 (24 mas/yr)",
+      "Kepler-1384 (22 mas/yr)",
+      "Kepler-1493 (25 mas/yr)",
+      "Kepler-449 (45 mas/yr)",
+      "Kepler-477 (27 mas/yr)",
+      "Kepler-515 (100 mas/yr)",
+      "Kepler-636 (27 mas/yr)",
+      "KOI-984 (58 mas/yr)",
+      "SR 12 AB (28 mas/yr)",
+      "TOI-2267 B (291 mas/yr)",
+      "TOI-6158 (72 mas/yr)",
+      "WASP-102 (27 mas/yr)",
+      "WASP-149 (23 mas/yr)",
+      "WASP-155 (34 mas/yr)"
+    ]
+  },
+  "starMatch": {
+    "catalogue": "data-raw/athyg_40_reduced_m10.csv.gz",
+    "rows": 332178,
+    "byGaia": 984,
+    "byHipOnly": 16,
+    "byHdOnly": 0,
+    "notFoundById": 3779,
+    "byHipOrHd": 867
+  }
+}

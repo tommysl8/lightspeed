@@ -1,0 +1,4133 @@
+{
+ "format": "lightspeed-tracks",
+ "version": 1,
+ "binary": "tracks.bin",
+ "generated": "2026-09-26",
+ "source": "JPL Horizons API (https://ssd.jpl.nasa.gov/horizons/), NASA/JPL-Caltech",
+ "frame": "Ecliptic and mean equinox of J2000 (Horizons REF_PLANE=ECLIPTIC, REF_SYSTEM=ICRF; obliquity 84381.448″)",
+ "time": "TDB days since J2000.0 (JD 2451545.0 TDB)",
+ "units": {
+  "position": "km",
+  "velocity": "km/s",
+  "mu": "km^3/s^2"
+ },
+ "chebyshev": "x = (2t − t0 − t1)/(t1 − t0); position = Σ c_k T_k(x), k = 0..n, per axis",
+ "centres": {
+  "sun": {
+   "horizons": "@10",
+   "label": "Sun (body centre)"
+  },
+  "ssb": {
+   "horizons": "@0",
+   "label": "Solar System barycentre",
+   "appModel": "astronomy-engine HelioVector(Body.SSB): Sun + Jupiter, Saturn, Uranus, Neptune"
+  },
+  "earth": {
+   "horizons": "@399",
+   "label": "Earth (geocentre)"
+  },
+  "venus": {
+   "horizons": "@299",
+   "label": "Venus (body centre)"
+  },
+  "jupiter": {
+   "horizons": "@599",
+   "label": "Jupiter (body centre)"
+  },
+  "saturn": {
+   "horizons": "@699",
+   "label": "Saturn (body centre)"
+  },
+  "uranus": {
+   "horizons": "@799",
+   "label": "Uranus (body centre)"
+  },
+  "neptune": {
+   "horizons": "@899",
+   "label": "Neptune (body centre)"
+  },
+  "pluto": {
+   "horizons": "@9",
+   "label": "Pluto system barycentre (Horizons 9)"
+  },
+  "arrokoth": {
+   "horizons": "@2486958",
+   "label": "Arrokoth, New Horizons project ephemeris (Horizons 2486958)",
+   "track": "arrokoth"
+  }
+ },
+ "bodies": {
+  "ceres": {
+   "name": "Ceres",
+   "designation": "1 Ceres",
+   "kind": "dwarf-planet",
+   "horizons": {
+    "command": "1;",
+    "target": "1 Ceres (A801 AA)",
+    "ephemeris": "JPL#48",
+    "record": "1",
+    "solution": "JPL#48",
+    "solutionDate": "2021-Apr-13_11:04:44"
+   },
+   "precise": [
+    -6939.5,
+    73048.5
+   ],
+   "preciseIso": [
+    "1981-01-01 00:00:00.000",
+    "2200-01-01 00:00:00.000"
+   ],
+   "pieces": [
+    {
+     "centre": "sun",
+     "role": "outer",
+     "t0": -6939.5,
+     "t1": 73048.5,
+     "seg0": 0,
+     "segCount": 49,
+     "blendIn": 0,
+     "blendOut": 0,
+     "tolKm": 1000,
+     "accuracy": {
+      "fitSamples": 19998,
+      "fitMaxKm": 250,
+      "independent": {
+       "points": 100,
+       "maxKm": 244,
+       "rmsKm": 138
+      }
+     }
+    }
+   ],
+   "before": {
+    "regime": "extrapolated",
+    "model": "two-body",
+    "centre": "sun",
+    "epoch": -6939.5,
+    "r": [
+     -123436817.0748147,
+     368770324.2270329,
+     33872584.56466806
+    ],
+    "v": [
+     -17.31100318236469,
+     -7.120941673729202,
+     2.983651255321696
+    ],
+    "mu": 132712440041.27942
+   },
+   "after": {
+    "regime": "extrapolated",
+    "model": "two-body",
+    "centre": "sun",
+    "epoch": 73048.5,
+    "r": [
+     342631469.3428565,
+     -273865420.4248098,
+     -73268612.8542963
+    ],
+    "v": [
+     10.42350730399429,
+     12.88304558653615,
+     -1.383935164972283
+    ],
+    "mu": 132712440041.27942
+   },
+   "accuracy": {
+    "requirementKm": 1000,
+    "independentPoints": 100,
+    "maxKm": 250,
+    "rmsKm": 138,
+    "fitSamples": 19998,
+    "fitMaxKm": 250
+   }
+  },
+  "vesta": {
+   "name": "Vesta",
+   "designation": "4 Vesta",
+   "kind": "asteroid",
+   "horizons": {
+    "command": "4;",
+    "target": "4 Vesta (A807 FA)",
+    "ephemeris": "JPL#36",
+    "record": "4",
+    "solution": "JPL#36",
+    "solutionDate": "2021-Apr-13_11:15:57"
+   },
+   "precise": [
+    -6939.5,
+    73048.5
+   ],
+   "preciseIso": [
+    "1981-01-01 00:00:00.000",
+    "2200-01-01 00:00:00.000"
+   ],
+   "pieces": [
+    {
+     "centre": "sun",
+     "role": "outer",
+     "t0": -6939.5,
+     "t1": 73048.5,
+     "seg0": 49,
+     "segCount": 59,
+     "blendIn": 0,
+     "blendOut": 0,
+     "tolKm": 1000,
+     "accuracy": {
+      "fitSamples": 19998,
+      "fitMaxKm": 250,
+      "independent": {
+       "points": 100,
+       "maxKm": 242,
+       "rmsKm": 132
+      }
+     }
+    }
+   ],
+   "before": {
+    "regime": "extrapolated",
+    "model": "two-body",
+    "centre": "sun",
+    "epoch": -6939.5,
+    "r": [
+     -277894868.5204306,
+     233337828.9196512,
+     26625366.27510318
+    ],
+    "v": [
+     -10.66849998445327,
+     -15.39145357898135,
+     1.766840029135693
+    ],
+    "mu": 132712440041.27942
+   },
+   "after": {
+    "regime": "extrapolated",
+    "model": "two-body",
+    "centre": "sun",
+    "epoch": 73048.5,
+    "r": [
+     25858385.53360417,
+     -321943240.4893748,
+     5371755.272023782
+    ],
+    "v": [
+     20.92841123181802,
+     1.119385401967128,
+     -2.596024211019746
+    ],
+    "mu": 132712440041.27942
+   },
+   "accuracy": {
+    "requirementKm": 1000,
+    "independentPoints": 100,
+    "maxKm": 250,
+    "rmsKm": 132,
+    "fitSamples": 19998,
+    "fitMaxKm": 250
+   }
+  },
+  "eris": {
+   "name": "Eris",
+   "designation": "136199 Eris (2003 UB313)",
+   "kind": "dwarf-planet",
+   "horizons": {
+    "command": "136199;",
+    "target": "136199 Eris (2003 UB313)",
+    "ephemeris": "JPL#103",
+    "record": "136199",
+    "solution": "JPL#103",
+    "solutionDate": "2026-Jun-06_21:06:42"
+   },
+   "precise": [
+    -6939.5,
+    73048.5
+   ],
+   "preciseIso": [
+    "1981-01-01 00:00:00.000",
+    "2200-01-01 00:00:00.000"
+   ],
+   "pieces": [
+    {
+     "centre": "sun",
+     "role": "outer",
+     "t0": -6939.5,
+     "t1": 73048.5,
+     "seg0": 108,
+     "segCount": 50,
+     "blendIn": 0,
+     "blendOut": 0,
+     "tolKm": 1000,
+     "accuracy": {
+      "fitSamples": 5000,
+      "fitMaxKm": 250,
+      "independent": {
+       "points": 100,
+       "maxKm": 243,
+       "rmsKm": 143
+      }
+     }
+    }
+   ],
+   "before": {
+    "regime": "extrapolated",
+    "model": "two-body",
+    "centre": "ssb",
+    "epoch": -6939.5,
+    "r": [
+     13325493351.24904,
+     3563931926.7271624,
+     -4773147258.798065
+    ],
+    "v": [
+     -0.001038509475776182,
+     1.781633820650028,
+     1.392572682767032
+    ],
+    "mu": 132890518671.29366,
+    "ssbOffsetKm": 975.5333627168069
+   },
+   "after": {
+    "regime": "extrapolated",
+    "model": "two-body",
+    "centre": "ssb",
+    "epoch": 73048.5,
+    "r": [
+     -607250753.0249836,
+     5983755114.354294,
+     5019452399.356844
+    ],
+    "v": [
+     -3.696548500994332,
+     -2.677226106280735,
+     0.004746668451500402
+    ],
+    "mu": 132890518671.29366,
+    "ssbOffsetKm": 1374.2321881656671
+   },
+   "accuracy": {
+    "requirementKm": 1000,
+    "independentPoints": 100,
+    "maxKm": 250,
+    "rmsKm": 143,
+    "fitSamples": 5000,
+    "fitMaxKm": 250
+   }
+  },
+  "haumea": {
+   "name": "Haumea",
+   "designation": "136108 Haumea (2003 EL61)",
+   "kind": "dwarf-planet",
+   "horizons": {
+    "command": "136108;",
+    "target": "136108 Haumea (2003 EL61)",
+    "ephemeris": "JPL#132",
+    "record": "136108",
+    "solution": "JPL#132",
+    "solutionDate": "2026-Jun-06_21:06:04"
+   },
+   "precise": [
+    -6939.5,
+    73048.5
+   ],
+   "preciseIso": [
+    "1981-01-01 00:00:00.000",
+    "2200-01-01 00:00:00.000"
+   ],
+   "pieces": [
+    {
+     "centre": "sun",
+     "role": "outer",
+     "t0": -6939.5,
+     "t1": 73048.5,
+     "seg0": 158,
+     "segCount": 50,
+     "blendIn": 0,
+     "blendOut": 0,
+     "tolKm": 1000,
+     "accuracy": {
+      "fitSamples": 5000,
+      "fitMaxKm": 250,
+      "independent": {
+       "points": 100,
+       "maxKm": 246,
+       "rmsKm": 134
+      }
+     }
+    }
+   ],
+   "before": {
+    "regime": "extrapolated",
+    "model": "two-body",
+    "centre": "ssb",
+    "epoch": -6939.5,
+    "r": [
+     -7016244006.451964,
+     1384926523.3102705,
+     2799879521.830501
+    ],
+    "v": [
+     -0.38892024350214033,
+     -3.5294100518146676,
+     1.178586734143381
+    ],
+    "mu": 132890518671.29366,
+    "ssbOffsetKm": 975.5333604892244
+   },
+   "after": {
+    "regime": "extrapolated",
+    "model": "two-body",
+    "centre": "ssb",
+    "epoch": 73048.5,
+    "r": [
+     -2301533748.6271863,
+     6129256952.780349,
+     -691396687.9139239
+    ],
+    "v": [
+     -3.994496694949746,
+     -0.3564027122839593,
+     1.919100686787271
+    ],
+    "mu": 132890518671.29366,
+    "ssbOffsetKm": 1374.9296218915276
+   },
+   "accuracy": {
+    "requirementKm": 1000,
+    "independentPoints": 100,
+    "maxKm": 250,
+    "rmsKm": 134,
+    "fitSamples": 5000,
+    "fitMaxKm": 250
+   }
+  },
+  "makemake": {
+   "name": "Makemake",
+   "designation": "136472 Makemake (2005 FY9)",
+   "kind": "dwarf-planet",
+   "horizons": {
+    "command": "136472;",
+    "target": "136472 Makemake (2005 FY9)",
+    "ephemeris": "JPL#130",
+    "record": "136472",
+    "solution": "JPL#130",
+    "solutionDate": "2026-Jun-06_21:09:02"
+   },
+   "precise": [
+    -6939.5,
+    73048.5
+   ],
+   "preciseIso": [
+    "1981-01-01 00:00:00.000",
+    "2200-01-01 00:00:00.000"
+   ],
+   "pieces": [
+    {
+     "centre": "sun",
+     "role": "outer",
+     "t0": -6939.5,
+     "t1": 73048.5,
+     "seg0": 208,
+     "segCount": 50,
+     "blendIn": 0,
+     "blendOut": 0,
+     "tolKm": 1000,
+     "accuracy": {
+      "fitSamples": 5000,
+      "fitMaxKm": 250,
+      "independent": {
+       "points": 100,
+       "maxKm": 239,
+       "rmsKm": 142
+      }
+     }
+    }
+   ],
+   "before": {
+    "regime": "extrapolated",
+    "model": "two-body",
+    "centre": "ssb",
+    "epoch": -6939.5,
+    "r": [
+     -5454974025.20047,
+     3780289786.108466,
+     3356745805.9789877
+    ],
+    "v": [
+     -2.322616528584809,
+     -3.15005158320954,
+     0.9458409841429222
+    ],
+    "mu": 132890518671.29366,
+    "ssbOffsetKm": 975.5333610123902
+   },
+   "after": {
+    "regime": "extrapolated",
+    "model": "two-body",
+    "centre": "ssb",
+    "epoch": 73048.5,
+    "r": [
+     4167058189.05929,
+     3495362888.10387,
+     -1915418531.9492538
+    ],
+    "v": [
+     -2.394030817836663,
+     4.222046079488993,
+     1.734178796282845
+    ],
+    "mu": 132890518671.29366,
+    "ssbOffsetKm": 1372.50171439784
+   },
+   "accuracy": {
+    "requirementKm": 1000,
+    "independentPoints": 100,
+    "maxKm": 250,
+    "rmsKm": 142,
+    "fitSamples": 5000,
+    "fitMaxKm": 250
+   }
+  },
+  "gonggong": {
+   "name": "Gonggong",
+   "designation": "225088 Gonggong (2007 OR10)",
+   "kind": "tno",
+   "horizons": {
+    "command": "225088;",
+    "target": "225088 Gonggong (2007 OR10)",
+    "ephemeris": "JPL#25",
+    "record": "225088",
+    "solution": "JPL#25",
+    "solutionDate": "2026-Aug-27_09:12:03"
+   },
+   "precise": [
+    -6939.5,
+    73048.5
+   ],
+   "preciseIso": [
+    "1981-01-01 00:00:00.000",
+    "2200-01-01 00:00:00.000"
+   ],
+   "pieces": [
+    {
+     "centre": "sun",
+     "role": "outer",
+     "t0": -6939.5,
+     "t1": 73048.5,
+     "seg0": 258,
+     "segCount": 50,
+     "blendIn": 0,
+     "blendOut": 0,
+     "tolKm": 1000,
+     "accuracy": {
+      "fitSamples": 5000,
+      "fitMaxKm": 250,
+      "independent": {
+       "points": 100,
+       "maxKm": 231,
+       "rmsKm": 134
+      }
+     }
+    }
+   ],
+   "before": {
+    "regime": "extrapolated",
+    "model": "two-body",
+    "centre": "ssb",
+    "epoch": -6939.5,
+    "r": [
+     8969929038.890491,
+     -7185548520.625738,
+     -1835346010.5765414
+    ],
+    "v": [
+     2.79282487543075,
+     0.78390004037671,
+     1.084546801795996
+    ],
+    "mu": 132890518671.29366,
+    "ssbOffsetKm": 975.533360339504
+   },
+   "after": {
+    "regime": "extrapolated",
+    "model": "two-body",
+    "centre": "ssb",
+    "epoch": 73048.5,
+    "r": [
+     12830531890.973753,
+     3965291102.7054505,
+     5182042493.707174
+    ],
+    "v": [
+     -1.464117978917097,
+     1.659615380035724,
+     0.5663697677920613
+    ],
+    "mu": 132890518671.29366,
+    "ssbOffsetKm": 1373.5991418124966
+   },
+   "accuracy": {
+    "requirementKm": 1000,
+    "independentPoints": 100,
+    "maxKm": 250,
+    "rmsKm": 134,
+    "fitSamples": 5000,
+    "fitMaxKm": 250
+   }
+  },
+  "quaoar": {
+   "name": "Quaoar",
+   "designation": "50000 Quaoar (2002 LM60)",
+   "kind": "tno",
+   "horizons": {
+    "command": "50000;",
+    "target": "50000 Quaoar (2002 LM60)",
+    "ephemeris": "JPL#51",
+    "record": "50000",
+    "solution": "JPL#51",
+    "solutionDate": "2026-Jun-06_04:23:41"
+   },
+   "precise": [
+    -6939.5,
+    73048.5
+   ],
+   "preciseIso": [
+    "1981-01-01 00:00:00.000",
+    "2200-01-01 00:00:00.000"
+   ],
+   "pieces": [
+    {
+     "centre": "sun",
+     "role": "outer",
+     "t0": -6939.5,
+     "t1": 73048.5,
+     "seg0": 308,
+     "segCount": 50,
+     "blendIn": 0,
+     "blendOut": 0,
+     "tolKm": 1000,
+     "accuracy": {
+      "fitSamples": 5000,
+      "fitMaxKm": 250,
+      "independent": {
+       "points": 100,
+       "maxKm": 245,
+       "rmsKm": 147
+      }
+     }
+    }
+   ],
+   "before": {
+    "regime": "extrapolated",
+    "model": "two-body",
+    "centre": "ssb",
+    "epoch": -6939.5,
+    "r": [
+     -4757265636.517134,
+     -4551459132.422632,
+     527721352.310189
+    ],
+    "v": [
+     3.18075523357851,
+     -3.0624470504836796,
+     0.4939236008026605
+    ],
+    "mu": 132890518671.29366,
+    "ssbOffsetKm": 975.5333609975892
+   },
+   "after": {
+    "regime": "extrapolated",
+    "model": "two-body",
+    "centre": "ssb",
+    "epoch": 73048.5,
+    "r": [
+     -5533768600.910692,
+     3729613889.706475,
+     -637516296.670181
+    ],
+    "v": [
+     -2.51661482257556,
+     -3.55268068067469,
+     0.4380482735204321
+    ],
+    "mu": 132890518671.29366,
+    "ssbOffsetKm": 1372.2833574208491
+   },
+   "accuracy": {
+    "requirementKm": 1000,
+    "independentPoints": 100,
+    "maxKm": 250,
+    "rmsKm": 147,
+    "fitSamples": 5000,
+    "fitMaxKm": 250
+   }
+  },
+  "sedna": {
+   "name": "Sedna",
+   "designation": "90377 Sedna (2003 VB12)",
+   "kind": "tno",
+   "horizons": {
+    "command": "90377;",
+    "target": "90377 Sedna (2003 VB12)",
+    "ephemeris": "JPL#51",
+    "record": "90377",
+    "solution": "JPL#51",
+    "solutionDate": "2026-Jun-06_14:12:24"
+   },
+   "precise": [
+    -6939.5,
+    73048.5
+   ],
+   "preciseIso": [
+    "1981-01-01 00:00:00.000",
+    "2200-01-01 00:00:00.000"
+   ],
+   "pieces": [
+    {
+     "centre": "sun",
+     "role": "outer",
+     "t0": -6939.5,
+     "t1": 73048.5,
+     "seg0": 358,
+     "segCount": 50,
+     "blendIn": 0,
+     "blendOut": 0,
+     "tolKm": 1000,
+     "accuracy": {
+      "fitSamples": 5000,
+      "fitMaxKm": 250,
+      "independent": {
+       "points": 100,
+       "maxKm": 247,
+       "rmsKm": 144
+      }
+     }
+    }
+   ],
+   "before": {
+    "regime": "extrapolated",
+    "model": "two-body",
+    "centre": "ssb",
+    "epoch": -6939.5,
+    "r": [
+     11526812949.130941,
+     8544750783.144036,
+     -2885216481.813221
+    ],
+    "v": [
+     -3.622161618551599,
+     1.807605909677423,
+     0.1349173434002787
+    ],
+    "mu": 132890518671.29366,
+    "ssbOffsetKm": 975.5333623581624
+   },
+   "after": {
+    "regime": "extrapolated",
+    "model": "two-body",
+    "centre": "ssb",
+    "epoch": 73048.5,
+    "r": [
+     -15818201379.669786,
+     4080052966.4664125,
+     1244393836.3582582
+    ],
+    "v": [
+     -2.684511481857161,
+     -2.581423058178354,
+     0.7735463777285434
+    ],
+    "mu": 132890518671.29366,
+    "ssbOffsetKm": 1373.882026820624
+   },
+   "accuracy": {
+    "requirementKm": 1000,
+    "independentPoints": 100,
+    "maxKm": 250,
+    "rmsKm": 144,
+    "fitSamples": 5000,
+    "fitMaxKm": 250
+   }
+  },
+  "orcus": {
+   "name": "Orcus",
+   "designation": "90482 Orcus (2004 DW)",
+   "kind": "tno",
+   "horizons": {
+    "command": "90482;",
+    "target": "90482 Orcus (2004 DW)",
+    "ephemeris": "JPL#61",
+    "record": "90482",
+    "solution": "JPL#61",
+    "solutionDate": "2026-Jun-06_14:13:31"
+   },
+   "precise": [
+    -6939.5,
+    73048.5
+   ],
+   "preciseIso": [
+    "1981-01-01 00:00:00.000",
+    "2200-01-01 00:00:00.000"
+   ],
+   "pieces": [
+    {
+     "centre": "sun",
+     "role": "outer",
+     "t0": -6939.5,
+     "t1": 73048.5,
+     "seg0": 408,
+     "segCount": 50,
+     "blendIn": 0,
+     "blendOut": 0,
+     "tolKm": 1000,
+     "accuracy": {
+      "fitSamples": 5000,
+      "fitMaxKm": 250,
+      "independent": {
+       "points": 100,
+       "maxKm": 248,
+       "rmsKm": 138
+      }
+     }
+    }
+   ],
+   "before": {
+    "regime": "extrapolated",
+    "model": "two-body",
+    "centre": "ssb",
+    "epoch": -6939.5,
+    "r": [
+     -3455587568.195719,
+     5660754714.599484,
+     -1348707681.0717623
+    ],
+    "v": [
+     -3.505276811414652,
+     -1.637032994302761,
+     -1.299744836722502
+    ],
+    "mu": 132890518671.29366,
+    "ssbOffsetKm": 975.5333603099022
+   },
+   "after": {
+    "regime": "extrapolated",
+    "model": "two-body",
+    "centre": "ssb",
+    "epoch": 73048.5,
+    "r": [
+     -62697369.07425917,
+     6024680835.104798,
+     -79879324.66094956
+    ],
+    "v": [
+     -4.242956760592274,
+     0.9671215920090916,
+     -1.6006356117710703
+    ],
+    "mu": 132890518671.29366,
+    "ssbOffsetKm": 1375.9471488029992
+   },
+   "accuracy": {
+    "requirementKm": 1000,
+    "independentPoints": 100,
+    "maxKm": 250,
+    "rmsKm": 138,
+    "fitSamples": 5000,
+    "fitMaxKm": 250
+   }
+  },
+  "arrokoth": {
+   "name": "Arrokoth",
+   "designation": "486958 Arrokoth (2014 MU69)",
+   "kind": "tno",
+   "horizons": {
+    "command": "486958;, 2486958",
+    "target": "486958 Arrokoth (2014 MU69)",
+    "solutions": "see \"solutions\""
+   },
+   "solutions": [
+    {
+     "source": "JPL ground-based orbit solution",
+     "command": "486958;",
+     "from": -6939.5,
+     "to": -1826.5,
+     "handoverToNextKm": 47900
+    },
+    {
+     "source": "New Horizons flight-project ephemeris (NavSBE_2014MU69_od159)",
+     "command": "2486958",
+     "from": -1826.5,
+     "to": 12053.5,
+     "handoverToNextKm": 65400
+    },
+    {
+     "source": "JPL ground-based orbit solution",
+     "command": "486958;",
+     "from": 12053.5,
+     "to": 73048.5
+    }
+   ],
+   "precise": [
+    -6939.5,
+    73048.5
+   ],
+   "preciseIso": [
+    "1981-01-01 00:00:00.000",
+    "2200-01-01 00:00:00.000"
+   ],
+   "pieces": [
+    {
+     "centre": "sun",
+     "role": "outer",
+     "t0": -6939.5,
+     "t1": 73048.5,
+     "seg0": 458,
+     "segCount": 53,
+     "blendIn": 0,
+     "blendOut": 0,
+     "tolKm": 1000,
+     "accuracy": {
+      "fitSamples": 5039,
+      "fitMaxKm": 249,
+      "independent": {
+       "points": 100,
+       "maxKm": 242,
+       "rmsKm": 136
+      }
+     },
+     "jumps": [
+      {
+       "t": -1826.5,
+       "iso": "1995-01-01 00:00:00",
+       "cause": "solution-switch",
+       "from": "486958",
+       "to": "2486958",
+       "jumpKm": 47930,
+       "jump": [
+        9675.78,
+        -46485.4,
+        6532.75
+       ],
+       "rampDays": 18.5
+      },
+      {
+       "t": 12053.5,
+       "iso": "2033-01-01 00:00:00",
+       "cause": "solution-switch",
+       "from": "2486958",
+       "to": "486958",
+       "jumpKm": 65450,
+       "jump": [
+        16102.8,
+        -63222.4,
+        5169.42
+       ],
+       "rampDays": 24.6
+      }
+     ]
+    }
+   ],
+   "before": {
+    "regime": "extrapolated",
+    "model": "two-body",
+    "centre": "ssb",
+    "epoch": -6939.5,
+    "r": [
+     -3437398127.9833527,
+     -5706946601.459732,
+     280615086.7868421
+    ],
+    "v": [
+     3.891753362307219,
+     -2.150869727298883,
+     0.026411007538143627
+    ],
+    "mu": 132890518671.29366,
+    "ssbOffsetKm": 975.5333596740184
+   },
+   "after": {
+    "regime": "extrapolated",
+    "model": "two-body",
+    "centre": "ssb",
+    "epoch": 73048.5,
+    "r": [
+     -6069590650.385423,
+     3197653083.918442,
+     -34878843.96978722
+    ],
+    "v": [
+     -2.039705859348855,
+     -3.8028752527835397,
+     0.1831729293166946
+    ],
+    "mu": 132890518671.29366,
+    "ssbOffsetKm": 1373.3093550278847
+   },
+   "accuracy": {
+    "requirementKm": 1000,
+    "independentPoints": 100,
+    "maxKm": 249,
+    "rmsKm": 136,
+    "fitSamples": 5039,
+    "fitMaxKm": 249
+   },
+   "notes": [
+    "From 1995-01-01 to 2033-01-01 this follows the New Horizons flight-project ephemeris (Horizons 2486958, NavSBE_2014MU69_od159), which Horizons describes as more accurate than the ground-based orbit; outside it, the JPL ground-based solution (486958). The two differ by about 22,000 km at the 2019 flyby and grow apart linearly away from 2011, so each switch is an exact jump (about 48,000 km in 1995 and 66,000 km in 2033, listed under the piece’s \"jumps\"). No continuous path can stay within 1,000 km of both."
+   ]
+  },
+  "halley": {
+   "name": "Halley’s Comet",
+   "designation": "1P/Halley",
+   "kind": "comet",
+   "horizons": {
+    "command": "90000030",
+    "target": "1P/Halley",
+    "ephemeris": "JPL#75",
+    "record": "90000030",
+    "solution": "JPL#75",
+    "solutionDate": "2025-Nov-21_15:57:34",
+    "dataArc": "1835-08-21 to 1994-01-11"
+   },
+   "solutions": [
+    {
+     "record": "90000030",
+     "solution": "JPL#75",
+     "solutionDate": "2025-Nov-21_15:57:34",
+     "dataArc": "1835-08-21 to 1994-01-11",
+     "elementEpoch": "1968-01-20",
+     "from": -6939.5,
+     "to": 73048.5
+    }
+   ],
+   "precise": [
+    -6939.5,
+    73048.4999999879
+   ],
+   "preciseIso": [
+    "1981-01-01 00:00:00.000",
+    "2199-12-31 23:59:59.998"
+   ],
+   "pieces": [
+    {
+     "centre": "sun",
+     "role": "outer",
+     "t0": -6939.5,
+     "t1": 73048.4999999879,
+     "seg0": 511,
+     "segCount": 49,
+     "blendIn": 0,
+     "blendOut": 0,
+     "tolKm": 1000,
+     "accuracy": {
+      "fitSamples": 10614,
+      "fitMaxKm": 249,
+      "independent": {
+       "points": 100,
+       "maxKm": 218,
+       "rmsKm": 127
+      }
+     }
+    }
+   ],
+   "before": {
+    "regime": "extrapolated",
+    "model": "two-body",
+    "centre": "ssb",
+    "epoch": -6939.5,
+    "r": [
+     -638040690.4891044,
+     2008725206.2488186,
+     -507683211.79443204
+    ],
+    "v": [
+     4.458049802307204,
+     -6.896246571228303,
+     2.36689105988418
+    ],
+    "mu": 132890518671.29366,
+    "ssbOffsetKm": 975.5333610012894
+   },
+   "after": {
+    "regime": "extrapolated",
+    "model": "two-body",
+    "centre": "ssb",
+    "epoch": 73048.4999999879,
+    "r": [
+     -1160441540.4232624,
+     2705031141.5035753,
+     -753574945.2027844
+    ],
+    "v": [
+     3.651823496577369,
+     -4.585083004695319,
+     1.767701119468046
+    ],
+    "mu": 132890518671.29366,
+    "ssbOffsetKm": 1373.309534048515
+   },
+   "accuracy": {
+    "requirementKm": 1000,
+    "independentPoints": 100,
+    "maxKm": 249,
+    "rmsKm": 127,
+    "fitSamples": 10614,
+    "fitMaxKm": 249
+   },
+   "notes": [
+    "Single Horizons solution (record 90000030, JPL#75, arc 1835–1994, with non-gravitational terms). Its 2061 perihelion is 2061-07-28."
+   ]
+  },
+  "encke": {
+   "name": "Comet Encke",
+   "designation": "2P/Encke",
+   "kind": "comet",
+   "horizons": {
+    "command": "90000082, 90000083, 90000084, 90000085, 90000086, 90000088, 90000089, 90000090, 90000091",
+    "target": "2P/Encke",
+    "solutions": "see \"solutions\""
+   },
+   "solutions": [
+    {
+     "record": "90000082",
+     "solution": "SAO/1980",
+     "dataArc": "93 (1970-1985)",
+     "elementEpoch": "1980-11-17",
+     "from": -6939.5,
+     "to": -6359.5,
+     "perihelia": [],
+     "handoverToNextKm": 13300
+    },
+    {
+     "record": "90000083",
+     "solution": "SAO/1984",
+     "dataArc": "197 (1984-1996)",
+     "elementEpoch": "1984-04-10",
+     "from": -6359.5,
+     "to": -5151.5,
+     "perihelia": [
+      "1984-03-28"
+     ],
+     "handoverToNextKm": 772
+    },
+    {
+     "record": "90000084",
+     "solution": "SAO/1987",
+     "dataArc": "197 (1984-1996)",
+     "elementEpoch": "1987-07-24",
+     "from": -5151.5,
+     "to": -3951.5,
+     "perihelia": [
+      "1987-07-17"
+     ],
+     "handoverToNextKm": 3020
+    },
+    {
+     "record": "90000085",
+     "solution": "SAO/1990",
+     "dataArc": "197 (1984-1996)",
+     "elementEpoch": "1990-11-05",
+     "from": -3951.5,
+     "to": -2751.5,
+     "perihelia": [
+      "1990-10-29"
+     ],
+     "handoverToNextKm": 5050
+    },
+    {
+     "record": "90000086",
+     "solution": "SAO/1994",
+     "dataArc": "1601 (1993-2007)",
+     "elementEpoch": "1994-02-17",
+     "from": -2751.5,
+     "to": -1551.5,
+     "perihelia": [
+      "1994-02-10"
+     ],
+     "handoverToNextKm": 3750
+    },
+    {
+     "record": "90000088",
+     "solution": "JPL#J974/1",
+     "solutionDate": "2003-Jul-24_15:57:23",
+     "dataArc": "1986-08-31 to 1998-10-19",
+     "elementEpoch": "1998-11-03",
+     "from": -1551.5,
+     "to": 856.5,
+     "perihelia": [
+      "1997-05-23",
+      "2000-09-10"
+     ],
+     "handoverToNextKm": 2050
+    },
+    {
+     "record": "90000089",
+     "solution": "JPL#K105/6",
+     "solutionDate": "2016-Oct-26_15:54:43",
+     "dataArc": "1996-07-24 to 2010-10-06",
+     "elementEpoch": "2004-09-05",
+     "from": 856.5,
+     "to": 3268.5,
+     "perihelia": [
+      "2003-12-30",
+      "2007-04-19"
+     ],
+     "handoverToNextKm": 2410
+    },
+    {
+     "record": "90000090",
+     "solution": "JPL#K204/20",
+     "solutionDate": "2022-May-23_10:10:06",
+     "dataArc": "2009-08-15 to 2021-10-02",
+     "elementEpoch": "2015-10-01",
+     "from": 3268.5,
+     "to": 6880.5,
+     "perihelia": [
+      "2010-08-07",
+      "2013-11-21",
+      "2017-03-11"
+     ],
+     "handoverToNextKm": 1210
+    },
+    {
+     "record": "90000091",
+     "solution": "JPL#K273/17",
+     "solutionDate": "2026-Sep-21_09:56:43",
+     "dataArc": "2018-11-05 to 2026-09-20",
+     "elementEpoch": "2023-04-28",
+     "from": 6880.5,
+     "to": 73048.5,
+     "perihelia": [
+      "2020-06-25",
+      "2023-10-22",
+      "2027-02-11",
+      "2030-06-01",
+      "2033-09-19",
+      "2037-01-07",
+      "2040-05-01",
+      "2043-08-22",
+      "2046-12-12",
+      "2050-03-24",
+      "2053-07-08",
+      "2056-10-18",
+      "2060-02-06",
+      "2063-05-27",
+      "2066-09-14",
+      "2069-12-31",
+      "2073-04-16",
+      "2076-08-02",
+      "2079-11-17",
+      "2083-03-15",
+      "2086-07-05",
+      "2089-10-27",
+      "2093-02-14",
+      "2096-06-06",
+      "2099-09-29",
+      "2103-01-20",
+      "2106-05-14",
+      "2109-08-26",
+      "2112-12-10",
+      "2116-03-24",
+      "2119-07-11",
+      "2122-10-29",
+      "2126-02-16",
+      "2129-06-04",
+      "2132-09-18",
+      "2136-01-03",
+      "2139-04-19",
+      "2142-08-13",
+      "2145-12-05",
+      "2149-03-29",
+      "2152-07-19",
+      "2155-11-09",
+      "2159-03-03",
+      "2162-06-25",
+      "2165-10-17",
+      "2169-01-31",
+      "2172-05-17",
+      "2175-08-30",
+      "2178-12-16",
+      "2182-04-05",
+      "2185-07-24",
+      "2188-11-09",
+      "2192-02-22",
+      "2195-06-08",
+      "2198-09-22"
+     ]
+    }
+   ],
+   "precise": [
+    -6939.5,
+    73048.5
+   ],
+   "preciseIso": [
+    "1981-01-01 00:00:00.000",
+    "2200-01-01 00:00:00.000"
+   ],
+   "pieces": [
+    {
+     "centre": "sun",
+     "role": "outer",
+     "t0": -6939.5,
+     "t1": 73048.5,
+     "seg0": 560,
+     "segCount": 293,
+     "blendIn": 0,
+     "blendOut": 0,
+     "tolKm": 1000,
+     "accuracy": {
+      "fitSamples": 33281,
+      "fitMaxKm": 250,
+      "independent": {
+       "points": 100,
+       "maxKm": 237,
+       "rmsKm": 116
+      }
+     },
+     "jumps": [
+      {
+       "t": -6359.5,
+       "iso": "1982-08-04 00:00:00",
+       "cause": "solution-switch",
+       "from": "90000082",
+       "to": "90000083",
+       "jumpKm": 13320,
+       "jump": [
+        -9922.11,
+        7541.15,
+        4687.45
+       ],
+       "rampDays": 4.01
+      },
+      {
+       "t": -5151.5,
+       "iso": "1985-11-24 00:00:00",
+       "cause": "solution-switch",
+       "from": "90000083",
+       "to": "90000084",
+       "jumpKm": 772.3,
+       "jump": [
+        765.576,
+        -98.7089,
+        -25.1043
+       ],
+       "rampDays": 0.234
+      },
+      {
+       "t": -3951.5,
+       "iso": "1989-03-08 00:00:00",
+       "cause": "solution-switch",
+       "from": "90000084",
+       "to": "90000085",
+       "jumpKm": 3023,
+       "jump": [
+        1500.02,
+        2552.37,
+        611.258
+       ],
+       "rampDays": 0.92
+      },
+      {
+       "t": -2751.5,
+       "iso": "1992-06-20 00:00:00",
+       "cause": "solution-switch",
+       "from": "90000085",
+       "to": "90000086",
+       "jumpKm": 5047,
+       "jump": [
+        -1730.56,
+        3512.16,
+        3184.05
+       ],
+       "rampDays": 1.54
+      },
+      {
+       "t": -1551.5,
+       "iso": "1995-10-03 00:00:00",
+       "cause": "solution-switch",
+       "from": "90000086",
+       "to": "90000088",
+       "jumpKm": 3748,
+       "jump": [
+        -1777.26,
+        3090.72,
+        -1155.53
+       ],
+       "rampDays": 1.14
+      },
+      {
+       "t": 856.5,
+       "iso": "2002-05-07 00:00:00",
+       "cause": "solution-switch",
+       "from": "90000088",
+       "to": "90000089",
+       "jumpKm": 2054,
+       "jump": [
+        195.778,
+        -1252.98,
+        1615.5
+       ],
+       "rampDays": 0.62
+      },
+      {
+       "t": 3268.5,
+       "iso": "2008-12-13 00:00:00",
+       "cause": "solution-switch",
+       "from": "90000089",
+       "to": "90000090",
+       "jumpKm": 2412,
+       "jump": [
+        -1224.42,
+        -1168.12,
+        1718.64
+       ],
+       "rampDays": 0.728
+      },
+      {
+       "t": 6880.5,
+       "iso": "2018-11-03 00:00:00",
+       "cause": "solution-switch",
+       "from": "90000090",
+       "to": "90000091",
+       "jumpKm": 1211,
+       "jump": [
+        -454.162,
+        77.8541,
+        1119.87
+       ],
+       "rampDays": 0.366
+      }
+     ]
+    }
+   ],
+   "before": {
+    "regime": "extrapolated",
+    "model": "two-body",
+    "centre": "sun",
+    "epoch": -6939.5,
+    "r": [
+     -20455274.3194404,
+     -101231290.7234783,
+     -21241534.50441428
+    ],
+    "v": [
+     26.591514735197993,
+     -37.2520903195321,
+     -4.753500049098498
+    ],
+    "mu": 132712440041.27942
+   },
+   "after": {
+    "regime": "extrapolated",
+    "model": "two-body",
+    "centre": "sun",
+    "epoch": 73048.5,
+    "r": [
+     541769420.4105414,
+     -240219600.9473698,
+     9024820.548540369
+    ],
+    "v": [
+     5.66344220904666,
+     3.8296635251567173,
+     1.030546722429423
+    ],
+    "mu": 132712440041.27942
+   },
+   "accuracy": {
+    "requirementKm": 1000,
+    "independentPoints": 100,
+    "maxKm": 250,
+    "rmsKm": 116,
+    "fitSamples": 33281,
+    "fitMaxKm": 250
+   },
+   "notes": [
+    "One Horizons apparition solution per perihelion passage (see \"solutions\"), switched exactly at the aphelion between passages. The solutions differ there by 770–13,300 km, which the track keeps as listed jumps rather than blending: at every instant it follows one JPL solution."
+   ]
+  },
+  "churyumov-gerasimenko": {
+   "name": "Comet 67P/Churyumov–Gerasimenko",
+   "designation": "67P/Churyumov-Gerasimenko",
+   "kind": "comet",
+   "horizons": {
+    "command": "90000697, 90000698, 90000699, 90000700, 90000701, 90000703",
+    "target": "67P/Churyumov-Gerasimenko",
+    "solutions": "see \"solutions\""
+   },
+   "solutions": [
+    {
+     "record": "90000697",
+     "solution": "SAO/1982",
+     "dataArc": "1154 (1969-2004)",
+     "elementEpoch": "1982-11-07",
+     "from": -6939.5,
+     "to": -5051.5,
+     "perihelia": [
+      "1982-11-12"
+     ],
+     "handoverToNextKm": 8350
+    },
+    {
+     "record": "90000698",
+     "solution": "SAO/1989",
+     "dataArc": "1154 (1969-2004)",
+     "elementEpoch": "1989-06-03",
+     "from": -5051.5,
+     "to": -2647.5,
+     "perihelia": [
+      "1989-06-18"
+     ],
+     "handoverToNextKm": 11300
+    },
+    {
+     "record": "90000699",
+     "solution": "SAO/1996",
+     "dataArc": "1154 (1969-2004)",
+     "elementEpoch": "1995-12-29",
+     "from": -2647.5,
+     "to": -239.5,
+     "perihelia": [
+      "1996-01-17"
+     ],
+     "handoverToNextKm": 12500
+    },
+    {
+     "record": "90000700",
+     "solution": "SAO/2002",
+     "dataArc": "1154 (1969-2004)",
+     "elementEpoch": "2002-09-03",
+     "from": -239.5,
+     "to": 2156.5,
+     "perihelia": [
+      "2002-08-19"
+     ],
+     "handoverToNextKm": 10100
+    },
+    {
+     "record": "90000701",
+     "solution": "JPL#K097/1",
+     "solutionDate": "2021-May-26_09:39:44",
+     "dataArc": "1969-09-09 to 2012-05-28",
+     "elementEpoch": "2006-10-17",
+     "from": 2156.5,
+     "to": 4524.5,
+     "perihelia": [
+      "2009-03-01"
+     ],
+     "handoverToNextKm": 2810
+    },
+    {
+     "record": "90000703",
+     "solution": "JPL#K284/1",
+     "solutionDate": "2026-Sep-04_10:25:07",
+     "dataArc": "2008-06-01 to 2025-06-21",
+     "elementEpoch": "2015-10-10",
+     "from": 4524.5,
+     "to": 73048.5,
+     "perihelia": [
+      "2015-08-13",
+      "2021-11-03",
+      "2028-04-10",
+      "2034-11-03",
+      "2041-06-19",
+      "2048-02-03",
+      "2054-09-21",
+      "2061-05-09",
+      "2067-12-12",
+      "2074-07-08",
+      "2080-12-09",
+      "2087-09-04",
+      "2094-06-19",
+      "2101-04-18",
+      "2108-02-15",
+      "2114-12-06",
+      "2121-09-24",
+      "2128-05-22",
+      "2135-05-28",
+      "2142-06-02",
+      "2149-06-17",
+      "2156-06-30",
+      "2163-06-16",
+      "2170-01-16",
+      "2176-10-29",
+      "2183-09-17",
+      "2190-08-01",
+      "2197-06-17"
+     ]
+    }
+   ],
+   "precise": [
+    -6939.5,
+    73048.5
+   ],
+   "preciseIso": [
+    "1981-01-01 00:00:00.000",
+    "2200-01-01 00:00:00.000"
+   ],
+   "pieces": [
+    {
+     "centre": "sun",
+     "role": "outer",
+     "t0": -6939.5,
+     "t1": 73048.5,
+     "seg0": 853,
+     "segCount": 109,
+     "blendIn": 0,
+     "blendOut": 0,
+     "tolKm": 1000,
+     "accuracy": {
+      "fitSamples": 20061,
+      "fitMaxKm": 250,
+      "independent": {
+       "points": 100,
+       "maxKm": 232,
+       "rmsKm": 129
+      }
+     },
+     "jumps": [
+      {
+       "t": -5051.5,
+       "iso": "1986-03-04 00:00:00",
+       "cause": "solution-switch",
+       "from": "90000697",
+       "to": "90000698",
+       "jumpKm": 8355,
+       "jump": [
+        -8247.92,
+        726.653,
+        1117.77
+       ],
+       "rampDays": 1.91
+      },
+      {
+       "t": -2647.5,
+       "iso": "1992-10-02 00:00:00",
+       "cause": "solution-switch",
+       "from": "90000698",
+       "to": "90000699",
+       "jumpKm": 11350,
+       "jump": [
+        -10913.9,
+        2906.68,
+        1114.72
+       ],
+       "rampDays": 2.6
+      },
+      {
+       "t": -239.5,
+       "iso": "1999-05-07 00:00:00",
+       "cause": "solution-switch",
+       "from": "90000699",
+       "to": "90000700",
+       "jumpKm": 12460,
+       "jump": [
+        -12390.8,
+        -148.364,
+        1303.94
+       ],
+       "rampDays": 2.86
+      },
+      {
+       "t": 2156.5,
+       "iso": "2005-11-27 00:00:00",
+       "cause": "solution-switch",
+       "from": "90000700",
+       "to": "90000701",
+       "jumpKm": 10110,
+       "jump": [
+        -9871.2,
+        -451.386,
+        2158.55
+       ],
+       "rampDays": 2.33
+      },
+      {
+       "t": 4524.5,
+       "iso": "2012-05-22 00:00:00",
+       "cause": "solution-switch",
+       "from": "90000701",
+       "to": "90000703",
+       "jumpKm": 2813,
+       "jump": [
+        -2641.62,
+        900.073,
+        -354.971
+       ],
+       "rampDays": 0.653
+      }
+     ]
+    }
+   ],
+   "before": {
+    "regime": "extrapolated",
+    "model": "two-body",
+    "centre": "sun",
+    "epoch": -6939.5,
+    "r": [
+     -30197011.67362181,
+     -734075774.4374322,
+     -54727332.58500716
+    ],
+    "v": [
+     8.996704159341592,
+     5.202080958948802,
+     -0.4647149868962659
+    ],
+    "mu": 132712440041.27942
+   },
+   "after": {
+    "regime": "extrapolated",
+    "model": "two-body",
+    "centre": "sun",
+    "epoch": 73048.5,
+    "r": [
+     -640104918.3176119,
+     -527101347.8661796,
+     -56856039.65497467
+    ],
+    "v": [
+     2.646926521723143,
+     -8.157979965210226,
+     0.628891885153628
+    ],
+    "mu": 132712440041.27942
+   },
+   "accuracy": {
+    "requirementKm": 1000,
+    "independentPoints": 100,
+    "maxKm": 250,
+    "rmsKm": 129,
+    "fitSamples": 20061,
+    "fitMaxKm": 250
+   },
+   "notes": [
+    "One Horizons apparition solution per perihelion passage (see \"solutions\"), switched exactly at the aphelion between passages. The solutions differ there by 2,800–12,500 km, which the track keeps as listed jumps rather than blending: at every instant it follows one JPL solution."
+   ]
+  },
+  "hale-bopp": {
+   "name": "Comet Hale–Bopp",
+   "designation": "C/1995 O1 (Hale-Bopp)",
+   "kind": "comet",
+   "horizons": {
+    "command": "90002256",
+    "target": "Hale-Bopp (C/1995 O1)",
+    "ephemeris": "JPL#226",
+    "record": "90002256",
+    "solution": "JPL#226",
+    "solutionDate": "2022-Aug-01_01:56:46",
+    "dataArc": "1993-04-27 to 2022-07-09"
+   },
+   "solutions": [
+    {
+     "record": "90002256",
+     "solution": "JPL#226",
+     "solutionDate": "2022-Aug-01_01:56:46",
+     "dataArc": "1993-04-27 to 2022-07-09",
+     "elementEpoch": "2022-09-15",
+     "from": -6939.5,
+     "to": 73048.5
+    }
+   ],
+   "precise": [
+    -6939.5,
+    73048.4999999879
+   ],
+   "preciseIso": [
+    "1981-01-01 00:00:00.000",
+    "2199-12-31 23:59:59.998"
+   ],
+   "pieces": [
+    {
+     "centre": "sun",
+     "role": "outer",
+     "t0": -6939.5,
+     "t1": 73048.4999999879,
+     "seg0": 962,
+     "segCount": 48,
+     "blendIn": 0,
+     "blendOut": 0,
+     "tolKm": 1000,
+     "accuracy": {
+      "fitSamples": 10093,
+      "fitMaxKm": 250,
+      "independent": {
+       "points": 100,
+       "maxKm": 249,
+       "rmsKm": 143
+      }
+     }
+    }
+   ],
+   "before": {
+    "regime": "extrapolated",
+    "model": "two-body",
+    "centre": "ssb",
+    "epoch": -6939.5,
+    "r": [
+     907531616.5906993,
+     -4331374211.364647,
+     -2707681255.838292
+    ],
+    "v": [
+     -1.045262128674961,
+     5.105760867372443,
+     4.548075127077506
+    ],
+    "mu": 132890518671.29366,
+    "ssbOffsetKm": 975.5333608108666
+   },
+   "after": {
+    "regime": "extrapolated",
+    "model": "two-body",
+    "centre": "ssb",
+    "epoch": 73048.4999999879,
+    "r": [
+     2928290601.3221183,
+     -14232791327.456795,
+     -21070610066.752514
+    ],
+    "v": [
+     0.3088608024639894,
+     -1.478357386129589,
+     -1.774585578301192
+    ],
+    "mu": 132890518671.29366,
+    "ssbOffsetKm": 1373.2696362436784
+   },
+   "accuracy": {
+    "requirementKm": 1000,
+    "independentPoints": 100,
+    "maxKm": 250,
+    "rmsKm": 143,
+    "fitSamples": 10093,
+    "fitMaxKm": 250
+   }
+  },
+  "oumuamua": {
+   "name": "1I/ʻOumuamua",
+   "designation": "1I/2017 U1 (ʻOumuamua)",
+   "kind": "interstellar",
+   "horizons": {
+    "command": "DES=A/2017 U1;",
+    "target": "1I/'Oumuamua (A/2017 U1)",
+    "ephemeris": "JPL#16",
+    "record": "50322313",
+    "solution": "JPL#16",
+    "solutionDate": "2018-Jun-26_12:17:57"
+   },
+   "precise": [
+    -146097.5,
+    182621.5
+   ],
+   "preciseIso": [
+    "1600-01-01 00:00:00.000",
+    "2500-01-01 00:00:00.000"
+   ],
+   "pieces": [
+    {
+     "centre": "sun",
+     "role": "outer",
+     "t0": -146097.5,
+     "t1": 182621.5,
+     "seg0": 1010,
+     "segCount": 215,
+     "blendIn": 0,
+     "blendOut": 0,
+     "tolKm": 1000,
+     "accuracy": {
+      "fitSamples": 21047,
+      "fitMaxKm": 250,
+      "independent": {
+       "points": 100,
+       "maxKm": 244,
+       "rmsKm": 141
+      }
+     }
+    }
+   ],
+   "before": {
+    "regime": "extrapolated",
+    "model": "two-body",
+    "centre": "ssb",
+    "epoch": -146097.5,
+    "r": [
+     47734727363.70989,
+     -185032675021.4219,
+     292284885467.0369
+    ],
+    "v": [
+     -3.6183782860954103,
+     13.988110897988252,
+     -22.10236913306773
+    ],
+    "mu": 132890518671.29366,
+    "ssbOffsetKm": 826.4793026761457
+   },
+   "after": {
+    "regime": "extrapolated",
+    "model": "two-body",
+    "centre": "ssb",
+    "epoch": 182621.5,
+    "r": [
+     365983078801.37427,
+     54524793576.92758,
+     160038005473.97458
+    ],
+    "v": [
+     23.97366340460065,
+     3.566645054993516,
+     10.4902633300251
+    ],
+    "mu": 132890518671.29366,
+    "ssbOffsetKm": 619.3427093346025
+   },
+   "accuracy": {
+    "requirementKm": 1000,
+    "independentPoints": 100,
+    "maxKm": 250,
+    "rmsKm": 141,
+    "fitSamples": 21047,
+    "fitMaxKm": 250
+   },
+   "notes": [
+    "JPL solution with the Micheli et al. (2018) non-gravitational acceleration; JPL warns that the acceleration outside the 2017-10-14 to 2018-01-02 arc is assumed, so positions far from 2017 are much less certain than the fit."
+   ]
+  },
+  "borisov": {
+   "name": "2I/Borisov",
+   "designation": "2I/Borisov (C/2019 Q4)",
+   "kind": "interstellar",
+   "horizons": {
+    "command": "DES=C/2019 Q4;",
+    "target": "Borisov (C/2019 Q4)",
+    "ephemeris": "JPL#54",
+    "record": "90004568",
+    "solution": "JPL#54",
+    "solutionDate": "2024-Jun-24_15:49:04",
+    "dataArc": "2019-02-24 to 2020-09-30"
+   },
+   "precise": [
+    -146097.5,
+    182621.5
+   ],
+   "preciseIso": [
+    "1600-01-01 00:00:00.000",
+    "2500-01-01 00:00:00.000"
+   ],
+   "pieces": [
+    {
+     "centre": "sun",
+     "role": "outer",
+     "t0": -146097.5,
+     "t1": 182621.5,
+     "seg0": 1225,
+     "segCount": 213,
+     "blendIn": 0,
+     "blendOut": 0,
+     "tolKm": 1000,
+     "accuracy": {
+      "fitSamples": 20637,
+      "fitMaxKm": 250,
+      "independent": {
+       "points": 100,
+       "maxKm": 224,
+       "rmsKm": 142
+      }
+     }
+    }
+   ],
+   "before": {
+    "regime": "extrapolated",
+    "model": "two-body",
+    "centre": "ssb",
+    "epoch": -146097.5,
+    "r": [
+     182890570578.57367,
+     255435338014.1207,
+     291650815288.46106
+    ],
+    "v": [
+     -13.800248227900992,
+     -19.22227484296002,
+     -21.97589831977049
+    ],
+    "mu": 132890518671.29366,
+    "ssbOffsetKm": 826.4794169463636
+   },
+   "after": {
+    "regime": "extrapolated",
+    "model": "two-body",
+    "centre": "ssb",
+    "epoch": 182621.5,
+    "r": [
+     28118575772.867363,
+     -429006719635.39056,
+     -234758805685.62073
+    ],
+    "v": [
+     1.875820136974525,
+     -28.28205086855363,
+     -15.459508431026139
+    ],
+    "mu": 132890518671.29366,
+    "ssbOffsetKm": 619.3427442680659
+   },
+   "accuracy": {
+    "requirementKm": 1000,
+    "independentPoints": 100,
+    "maxKm": 250,
+    "rmsKm": 142,
+    "fitSamples": 20637,
+    "fitMaxKm": 250
+   },
+   "notes": [
+    "JPL#54 solution with non-gravitational terms, data arc 2019-02-24 to 2020-09-30."
+   ]
+  },
+  "atlas-3i": {
+   "name": "3I/ATLAS",
+   "designation": "3I/ATLAS (C/2025 N1)",
+   "kind": "interstellar",
+   "horizons": {
+    "command": "DES=C/2025 N1;",
+    "target": "ATLAS (C/2025 N1)",
+    "ephemeris": "JPL#54",
+    "record": "90004935",
+    "solution": "JPL#54",
+    "solutionDate": "2026-Feb-19_09:10:47",
+    "dataArc": "2025-05-15 to 2026-02-19"
+   },
+   "precise": [
+    -146097.5,
+    182621.5
+   ],
+   "preciseIso": [
+    "1600-01-01 00:00:00.000",
+    "2500-01-01 00:00:00.000"
+   ],
+   "pieces": [
+    {
+     "centre": "sun",
+     "role": "outer",
+     "t0": -146097.5,
+     "t1": 182621.5,
+     "seg0": 1438,
+     "segCount": 216,
+     "blendIn": 0,
+     "blendOut": 0,
+     "tolKm": 1000,
+     "accuracy": {
+      "fitSamples": 20726,
+      "fitMaxKm": 250,
+      "independent": {
+       "points": 100,
+       "maxKm": 243,
+       "rmsKm": 144
+      }
+     }
+    }
+   ],
+   "before": {
+    "regime": "extrapolated",
+    "model": "two-body",
+    "centre": "ssb",
+    "epoch": -146097.5,
+    "r": [
+     311487979002.62897,
+     -713598822160.4891,
+     31840660550.30147
+    ],
+    "v": [
+     -23.18828350685515,
+     53.078357626376665,
+     -2.367333816292767
+    ],
+    "mu": 132890518671.29366,
+    "ssbOffsetKm": 826.47922169692
+   },
+   "after": {
+    "regime": "extrapolated",
+    "model": "two-body",
+    "centre": "ssb",
+    "epoch": 182621.5,
+    "r": [
+     -74484970088.75299,
+     863082324569.2562,
+     -53673466327.08716
+    ],
+    "v": [
+     -4.960332284232524,
+     57.662513761719325,
+     -3.5867202097665856
+    ],
+    "mu": 132890518671.29366,
+    "ssbOffsetKm": 619.3427473338587
+   },
+   "accuracy": {
+    "requirementKm": 1000,
+    "independentPoints": 100,
+    "maxKm": 250,
+    "rmsKm": 144,
+    "fitSamples": 20726,
+    "fitMaxKm": 250
+   },
+   "notes": [
+    "JPL#54 solution with non-gravitational terms (CO₂-driven g(r) = (1 au/r)²), data arc 2025-05-15 to 2026-02-19. Future solutions may shift it."
+   ]
+  },
+  "voyager1": {
+   "name": "Voyager 1",
+   "kind": "spacecraft",
+   "horizons": {
+    "command": "-31",
+    "target": "Voyager 1 (spacecraft) (-31)",
+    "ephemeris": "Voyager_1_ST+refit2022_m",
+    "coverage": [
+     "A.D. 1977-SEP-05 13:59:24.3830 TDB",
+     "A.D. 2100-JAN-01 00:00:00.0000 TDB"
+    ]
+   },
+   "precise": [
+    -8152.916384456214,
+    36524.49930553092
+   ],
+   "preciseIso": [
+    "1977-09-05 14:00:24.382",
+    "2099-12-31 23:58:59.997"
+   ],
+   "pieces": [
+    {
+     "centre": "earth",
+     "role": "inner",
+     "t0": -8152.916384456214,
+     "t1": -8151.889472316951,
+     "seg0": 1654,
+     "segCount": 3,
+     "blendIn": 0,
+     "blendOut": 0.12964824769210687,
+     "tolKm": 100,
+     "accuracy": {
+      "fitSamples": 500,
+      "fitMaxKm": 24.9,
+      "independent": {
+       "points": 100,
+       "maxKm": 24.9,
+       "rmsKm": 11.1
+      },
+      "flyby": {
+       "points": 60,
+       "maxKm": 0.0671,
+       "rmsKm": 0.0406
+      }
+     },
+     "fineRadiusKm": 63781.4,
+     "fineTolKm": 1,
+     "switchRadiusKm": 929200,
+     "appPlanetOffsetKm": 1150
+    },
+    {
+     "centre": "sun",
+     "role": "outer",
+     "t0": -8152.01912056515,
+     "t1": -7652.260318567045,
+     "seg0": 1657,
+     "segCount": 5,
+     "blendIn": 0,
+     "blendOut": 0,
+     "tolKm": 100,
+     "accuracy": {
+      "fitSamples": 529,
+      "fitMaxKm": 24.7,
+      "independent": {
+       "points": 100,
+       "maxKm": 24.3,
+       "rmsKm": 13.6
+      }
+     }
+    },
+    {
+     "centre": "jupiter",
+     "role": "inner",
+     "t0": -7654.977743811905,
+     "t1": -7559.044160412159,
+     "seg0": 1662,
+     "segCount": 18,
+     "blendIn": 2.71742524535129,
+     "blendOut": 2.71742524535129,
+     "tolKm": 100,
+     "accuracy": {
+      "fitSamples": 769,
+      "fitMaxKm": 25,
+      "independent": {
+       "points": 100,
+       "maxKm": 25.2,
+       "rmsKm": 15.5
+      },
+      "flyby": {
+       "points": 61,
+       "maxKm": 0.223,
+       "rmsKm": 0.138
+      }
+     },
+     "fineRadiusKm": 714920,
+     "fineTolKm": 1,
+     "switchRadiusKm": 48220000,
+     "appPlanetOffsetKm": 25900,
+     "closestApproach": {
+      "t": -7606.996231772233,
+      "iso": "1979-03-05 12:05:25.574",
+      "distanceKm": 348435.3
+     }
+    },
+    {
+     "centre": "sun",
+     "role": "outer",
+     "t0": -7561.761585657019,
+     "t1": -7025.526936102193,
+     "seg0": 1680,
+     "segCount": 2,
+     "blendIn": 0,
+     "blendOut": 0,
+     "tolKm": 100,
+     "accuracy": {
+      "fitSamples": 537,
+      "fitMaxKm": 23.7,
+      "independent": {
+       "points": 100,
+       "maxKm": 23.6,
+       "rmsKm": 10.4
+      }
+     }
+    },
+    {
+     "centre": "saturn",
+     "role": "inner",
+     "t0": -7029.7330682748,
+     "t1": -6947.126492439769,
+     "seg0": 1682,
+     "segCount": 9,
+     "blendIn": 4.206132173785678,
+     "blendOut": 4.206132173785678,
+     "tolKm": 100,
+     "accuracy": {
+      "fitSamples": 757,
+      "fitMaxKm": 23.2,
+      "independent": {
+       "points": 100,
+       "maxKm": 20.8,
+       "rmsKm": 11.8
+      },
+      "flyby": {
+       "points": 61,
+       "maxKm": 0.202,
+       "rmsKm": 0.0897
+      }
+     },
+     "fineRadiusKm": 602680,
+     "fineTolKm": 1,
+     "switchRadiusKm": 54810000,
+     "appPlanetOffsetKm": 55100,
+     "closestApproach": {
+      "t": -6988.509389286496,
+      "iso": "1980-11-12 23:46:28.765",
+      "distanceKm": 184030
+     }
+    },
+    {
+     "centre": "sun",
+     "role": "outer",
+     "t0": -6951.332624612842,
+     "t1": 36524.49930553092,
+     "seg0": 1691,
+     "segCount": 38,
+     "blendIn": 0,
+     "blendOut": 0,
+     "tolKm": 100,
+     "accuracy": {
+      "fitSamples": 43589,
+      "fitMaxKm": 25,
+      "independent": {
+       "points": 100,
+       "maxKm": 24.4,
+       "rmsKm": 12.3
+      }
+     },
+     "jumps": [
+      {
+       "t": -6939.499998236934,
+       "iso": "1981-01-01 00:00:00",
+       "cause": "source",
+       "jumpKm": 65180,
+       "jump": [
+        -12977.9,
+        59523.1,
+        23164.6
+       ],
+       "rampDays": 5.27
+      }
+     ]
+    }
+   ],
+   "before": {
+    "regime": "before-launch",
+    "centre": "earth",
+    "epoch": -8152.916384456214,
+    "pos": [
+     7827.005697472316,
+     -650.91685536551,
+     -302.2515284018201
+    ]
+   },
+   "after": {
+    "regime": "extrapolated",
+    "model": "two-body",
+    "centre": "ssb",
+    "epoch": 36524.49930553092,
+    "r": [
+     -9517316799.659306,
+     -51699709261.43998,
+     37382805926.28983
+    ],
+    "v": [
+     -2.022154200097508,
+     -13.45699620700134,
+     9.730177820622872
+    ],
+    "mu": 132890518671.29366,
+    "ssbOffsetKm": 1394.2338363454737
+   },
+   "accuracy": {
+    "requirementKm": 100,
+    "independentPoints": 782,
+    "maxKm": 25.2,
+    "rmsKm": 11,
+    "fitSamples": 46681,
+    "fitMaxKm": 25,
+    "flyby": {
+     "requirementKm": 1,
+     "points": 182,
+     "maxKm": 0.223,
+     "rmsKm": 0.0982
+    }
+   },
+   "appSwitchOffsetsKm": [
+    {
+     "centre": "earth",
+     "t": -8151.9542964407965,
+     "iso": "1977-09-06 13:05:48",
+     "offsetKm": 1165
+    },
+    {
+     "centre": "jupiter",
+     "t": -7653.61903118923,
+     "iso": "1979-01-17 21:08:35",
+     "offsetKm": 24430
+    },
+    {
+     "centre": "jupiter",
+     "t": -7560.402873034835,
+     "iso": "1979-04-21 02:19:51",
+     "offsetKm": 27310
+    },
+    {
+     "centre": "saturn",
+     "t": -7027.630002187907,
+     "iso": "1980-10-04 20:52:47",
+     "offsetKm": 55420
+    },
+    {
+     "centre": "saturn",
+     "t": -6949.229558526662,
+     "iso": "1980-12-22 06:29:26",
+     "offsetKm": 54960
+    }
+   ],
+   "notes": [
+    "Horizons merges two trajectories: 1977-09-05 to 1981-01-01 is a patched-conic mission-design trajectory with \"rough accuracy\" (JPL); 1981-01-01 to 2100-01-01 is R. Jacobson’s 2022 refit of the 1981–1992 tracking data (DE440), a prediction after the last two-way tracking in 1992.",
+    "JPL quotes a formal geocentric pointing uncertainty of about ±1.7″ (RA) and ±1.5″ (Dec) on 2030-01-01, roughly 1.3 million km at Voyager 1’s distance.",
+    "After 2100-01-01 the position is a two-body hyperbola about the Solar System barycentre with the whole Solar System’s mass."
+   ]
+  },
+  "voyager2": {
+   "name": "Voyager 2",
+   "kind": "spacecraft",
+   "horizons": {
+    "command": "-32",
+    "target": "Voyager 2 (spacecraft) (-32)",
+    "ephemeris": "Voyager_2_ST+refit2022_m",
+    "coverage": [
+     "A.D. 1977-AUG-20 15:32:32.1830 TDB",
+     "A.D. 2100-JAN-01 00:00:00.0000 TDB"
+    ]
+   },
+   "precise": [
+    -8168.851710844785,
+    36524.49930553278
+   ],
+   "preciseIso": [
+    "1977-08-20 15:33:32.183",
+    "2099-12-31 23:58:59.998"
+   ],
+   "pieces": [
+    {
+     "centre": "earth",
+     "role": "inner",
+     "t0": -8168.851710844785,
+     "t1": -8167.812305931002,
+     "seg0": 1729,
+     "segCount": 3,
+     "blendIn": 0,
+     "blendOut": 0.11860995426974677,
+     "tolKm": 100,
+     "accuracy": {
+      "fitSamples": 487,
+      "fitMaxKm": 24.8,
+      "independent": {
+       "points": 100,
+       "maxKm": 24.8,
+       "rmsKm": 10.3
+      },
+      "flyby": {
+       "points": 60,
+       "maxKm": 0.0658,
+       "rmsKm": 0.0379
+      }
+     },
+     "fineRadiusKm": 63781.4,
+     "fineTolKm": 1,
+     "switchRadiusKm": 929200,
+     "appPlanetOffsetKm": 1040
+    },
+    {
+     "centre": "sun",
+     "role": "outer",
+     "t0": -8167.930915886071,
+     "t1": -7540.69865683699,
+     "seg0": 1732,
+     "segCount": 5,
+     "blendIn": 0,
+     "blendOut": 0,
+     "tolKm": 100,
+     "accuracy": {
+      "fitSamples": 642,
+      "fitMaxKm": 24.3,
+      "independent": {
+       "points": 100,
+       "maxKm": 20.6,
+       "rmsKm": 11.1
+      }
+     }
+    },
+    {
+     "centre": "jupiter",
+     "role": "inner",
+     "t0": -7545.024866037071,
+     "t1": -7415.631779369898,
+     "seg0": 1737,
+     "segCount": 20,
+     "blendIn": 4.326209201065714,
+     "blendOut": 4.326209201065714,
+     "tolKm": 100,
+     "accuracy": {
+      "fitSamples": 971,
+      "fitMaxKm": 25,
+      "independent": {
+       "points": 100,
+       "maxKm": 24.3,
+       "rmsKm": 14.9
+      },
+      "flyby": {
+       "points": 61,
+       "maxKm": 0.267,
+       "rmsKm": 0.0913
+      }
+     },
+     "fineRadiusKm": 1089140,
+     "fineTolKm": 1,
+     "switchRadiusKm": 48220000,
+     "appPlanetOffsetKm": 29600,
+     "closestApproach": {
+      "t": -7480.562598497891,
+      "iso": "1979-07-09 22:29:51.489",
+      "distanceKm": 721375.4
+     }
+    },
+    {
+     "centre": "sun",
+     "role": "outer",
+     "t0": -7419.957988571841,
+     "t1": -6753.938921180088,
+     "seg0": 1757,
+     "segCount": 2,
+     "blendIn": 0,
+     "blendOut": 0,
+     "tolKm": 100,
+     "accuracy": {
+      "fitSamples": 667,
+      "fitMaxKm": 24.3,
+      "independent": {
+       "points": 100,
+       "maxKm": 22.4,
+       "rmsKm": 12.2
+      }
+     }
+    },
+    {
+     "centre": "saturn",
+     "role": "inner",
+     "t0": -6760.18132892577,
+     "t1": -6644.537987499032,
+     "seg0": 1759,
+     "segCount": 9,
+     "blendIn": 6.242407746483442,
+     "blendOut": 6.242407746483442,
+     "tolKm": 100,
+     "accuracy": {
+      "fitSamples": 974,
+      "fitMaxKm": 24.8,
+      "independent": {
+       "points": 100,
+       "maxKm": 24.4,
+       "rmsKm": 12
+      },
+      "flyby": {
+       "points": 61,
+       "maxKm": 0.227,
+       "rmsKm": 0.118
+      }
+     },
+     "fineRadiusKm": 602680,
+     "fineTolKm": 1,
+     "switchRadiusKm": 54810000,
+     "appPlanetOffsetKm": 58000,
+     "closestApproach": {
+      "t": -6702.357676272745,
+      "iso": "1981-08-26 03:24:56.770",
+      "distanceKm": 160691.2
+     }
+    },
+    {
+     "centre": "sun",
+     "role": "outer",
+     "t0": -6650.7803952451795,
+     "t1": -5122.827055242844,
+     "seg0": 1768,
+     "segCount": 6,
+     "blendIn": 0,
+     "blendOut": 0,
+     "tolKm": 100,
+     "accuracy": {
+      "fitSamples": 1543,
+      "fitMaxKm": 24.8,
+      "independent": {
+       "points": 100,
+       "maxKm": 23.5,
+       "rmsKm": 10.6
+      }
+     }
+    },
+    {
+     "centre": "uranus",
+     "role": "inner",
+     "t0": -5131.120350411162,
+     "t1": -5048.40616231598,
+     "seg0": 1774,
+     "segCount": 10,
+     "blendIn": 8.29329516805895,
+     "blendOut": 8.29329516805895,
+     "tolKm": 100,
+     "accuracy": {
+      "fitSamples": 787,
+      "fitMaxKm": 24.9,
+      "independent": {
+       "points": 100,
+       "maxKm": 24.9,
+       "rmsKm": 11.8
+      },
+      "flyby": {
+       "points": 61,
+       "maxKm": 0.216,
+       "rmsKm": 0.1
+      }
+     },
+     "fineRadiusKm": 541839,
+     "fineTolKm": 1,
+     "switchRadiusKm": 52810000,
+     "appPlanetOffsetKm": 106000,
+     "closestApproach": {
+      "t": -5089.750155850135,
+      "iso": "1986-01-24 17:59:46.534",
+      "distanceKm": 107154.1
+     }
+    },
+    {
+     "centre": "sun",
+     "role": "outer",
+     "t0": -5056.699457485229,
+     "t1": -3834.0936306901276,
+     "seg0": 1784,
+     "segCount": 6,
+     "blendIn": 0,
+     "blendOut": 0,
+     "tolKm": 100,
+     "accuracy": {
+      "fitSamples": 1238,
+      "fitMaxKm": 24.8,
+      "independent": {
+       "points": 100,
+       "maxKm": 24.8,
+       "rmsKm": 12.2
+      }
+     }
+    },
+    {
+     "centre": "neptune",
+     "role": "inner",
+     "t0": -3841.0794814759865,
+     "t1": -3721.5876621319912,
+     "seg0": 1790,
+     "segCount": 16,
+     "blendIn": 6.985850786324953,
+     "blendOut": 6.985850786324953,
+     "tolKm": 100,
+     "accuracy": {
+      "fitSamples": 1895,
+      "fitMaxKm": 24.6,
+      "independent": {
+       "points": 100,
+       "maxKm": 23.3,
+       "rmsKm": 12.9
+      },
+      "flyby": {
+       "points": 61,
+       "maxKm": 0.232,
+       "rmsKm": 0.107
+      }
+     },
+     "fineRadiusKm": 415396,
+     "fineTolKm": 1,
+     "switchRadiusKm": 86600000,
+     "appPlanetOffsetKm": 101000,
+     "jumps": [
+      {
+       "t": -3777.1666665271327,
+       "iso": "1989-08-29 08:00:00",
+       "cause": "source",
+       "jumpKm": 609.9,
+       "jump": [
+        -153.064,
+        490.086,
+        329.263
+       ],
+       "rampDays": 0.063
+      }
+     ],
+     "closestApproach": {
+      "t": -3781.3356913691364,
+      "iso": "1989-08-25 03:56:36.265",
+      "distanceKm": 29235.85
+     }
+    },
+    {
+     "centre": "sun",
+     "role": "outer",
+     "t0": -3728.57351291785,
+     "t1": 36524.49930553278,
+     "seg0": 1806,
+     "segCount": 24,
+     "blendIn": 0,
+     "blendOut": 0,
+     "tolKm": 100,
+     "accuracy": {
+      "fitSamples": 40254,
+      "fitMaxKm": 24.8,
+      "independent": {
+       "points": 100,
+       "maxKm": 24.2,
+       "rmsKm": 11.9
+      }
+     }
+    }
+   ],
+   "before": {
+    "regime": "before-launch",
+    "centre": "earth",
+    "epoch": -8168.851710844785,
+    "pos": [
+     7513.43835453038,
+     -371.7509568620869,
+     2438.481852276576
+    ]
+   },
+   "after": {
+    "regime": "extrapolated",
+    "model": "two-body",
+    "centre": "ssb",
+    "epoch": 36524.49930553278,
+    "r": [
+     15596267481.108976,
+     -37086656532.86495,
+     -39335157783.135284
+    ],
+    "v": [
+     4.138710821915431,
+     -9.15749307206675,
+     -11.15398538644175
+    ],
+    "mu": 132890518671.29366,
+    "ssbOffsetKm": 1394.2338552612073
+   },
+   "accuracy": {
+    "requirementKm": 100,
+    "independentPoints": 1304,
+    "maxKm": 25,
+    "rmsKm": 10.5,
+    "fitSamples": 49458,
+    "fitMaxKm": 25,
+    "flyby": {
+     "requirementKm": 1,
+     "points": 304,
+     "maxKm": 0.267,
+     "rmsKm": 0.0951
+    }
+   },
+   "appSwitchOffsetsKm": [
+    {
+     "centre": "earth",
+     "t": -8167.871610908137,
+     "iso": "1977-08-21 15:04:52",
+     "offsetKm": 1049
+    },
+    {
+     "centre": "jupiter",
+     "t": -7542.861761436538,
+     "iso": "1979-05-08 15:19:03",
+     "offsetKm": 27560
+    },
+    {
+     "centre": "jupiter",
+     "t": -7417.794883970431,
+     "iso": "1979-09-10 16:55:22",
+     "offsetKm": 31520
+    },
+    {
+     "centre": "saturn",
+     "t": -6757.060125052528,
+     "iso": "1981-07-02 10:33:25",
+     "offsetKm": 56570
+    },
+    {
+     "centre": "saturn",
+     "t": -6647.659191372274,
+     "iso": "1981-10-19 20:10:45",
+     "offsetKm": 59960
+    },
+    {
+     "centre": "uranus",
+     "t": -5126.973702827132,
+     "iso": "1985-12-18 12:37:52",
+     "offsetKm": 104800
+    },
+    {
+     "centre": "uranus",
+     "t": -5052.552809900009,
+     "iso": "1986-03-02 22:43:57",
+     "offsetKm": 106300
+    },
+    {
+     "centre": "neptune",
+     "t": -3837.5865560828242,
+     "iso": "1989-06-29 21:55:21",
+     "offsetKm": 104000
+    },
+    {
+     "centre": "neptune",
+     "t": -3725.0805875251535,
+     "iso": "1989-10-20 10:03:57",
+     "offsetKm": 98560
+    }
+   ],
+   "notes": [
+    "Horizons merges two trajectories: 1977-08-20 to 1989-08-29 is a patched-conic mission-design trajectory with \"rough accuracy\" (JPL), so the Jupiter, Saturn, Uranus and Neptune flybys are design conics matched to encounter events, not reconstructions; 1989-08-29 to 2100-01-01 is R. Jacobson’s 2022 refit of the 1989–1992 tracking data (DE440).",
+    "JPL quotes a formal geocentric pointing uncertainty of about ±4.7″ (RA) and ±3.7″ (Dec) on 2030-01-01.",
+    "After 2100-01-01 the position is a two-body hyperbola about the Solar System barycentre with the whole Solar System’s mass."
+   ]
+  },
+  "new-horizons": {
+   "name": "New Horizons",
+   "kind": "spacecraft",
+   "horizons": {
+    "command": "-98",
+    "target": "New Horizons (spacecraft) (-98)",
+    "ephemeris": "NH_merged",
+    "coverage": [
+     "A.D. 2006-JAN-19 19:51:18.3305 TDB",
+     "A.D. 2050-JAN-01 00:00:00.0000 TDB"
+    ]
+   },
+   "precise": [
+    2210.327989935875,
+    18262.499305556063
+   ],
+   "preciseIso": [
+    "2006-01-19 19:52:18.330",
+    "2049-12-31 23:59:00.000"
+   ],
+   "pieces": [
+    {
+     "centre": "earth",
+     "role": "inner",
+     "t0": 2210.327989935875,
+     "t1": 2211.1649545640685,
+     "seg0": 1830,
+     "segCount": 2,
+     "blendIn": 0,
+     "blendOut": 0.02,
+     "tolKm": 100,
+     "accuracy": {
+      "fitSamples": 430,
+      "fitMaxKm": 14,
+      "independent": {
+       "points": 100,
+       "maxKm": 13.6,
+       "rmsKm": 5.72
+      },
+      "flyby": {
+       "points": 60,
+       "maxKm": 0.0959,
+       "rmsKm": 0.0551
+      }
+     },
+     "fineRadiusKm": 63781.4,
+     "fineTolKm": 1,
+     "switchRadiusKm": 929200,
+     "appPlanetOffsetKm": 199
+    },
+    {
+     "centre": "sun",
+     "role": "outer",
+     "t0": 2211.14495456405,
+     "t1": 2586.6986010749824,
+     "seg0": 1832,
+     "segCount": 14,
+     "blendIn": 0,
+     "blendOut": 0,
+     "tolKm": 100,
+     "accuracy": {
+      "fitSamples": 517,
+      "fitMaxKm": 24.9,
+      "independent": {
+       "points": 100,
+       "maxKm": 21,
+       "rmsKm": 5.44
+      }
+     },
+     "jumps": [
+      {
+       "t": 2556.5000033090664,
+       "iso": "2007-01-01 00:00:00",
+       "cause": "source",
+       "jumpKm": 1205,
+       "jump": [
+        1056.23,
+        480.09,
+        324.196
+       ],
+       "rampDays": 0.104
+      }
+     ]
+    },
+    {
+     "centre": "jupiter",
+     "role": "inner",
+     "t0": 2585.155759708956,
+     "t1": 2644.3243828509003,
+     "seg0": 1846,
+     "segCount": 7,
+     "blendIn": 1.5428413650694526,
+     "blendOut": 1.5428413650694526,
+     "tolKm": 100,
+     "accuracy": {
+      "fitSamples": 429,
+      "fitMaxKm": 24.2,
+      "independent": {
+       "points": 100,
+       "maxKm": 24.4,
+       "rmsKm": 13.6
+      },
+      "flyby": {
+       "points": 61,
+       "maxKm": 0.075,
+       "rmsKm": 0.0435
+      }
+     },
+     "fineRadiusKm": 3511360,
+     "fineTolKm": 1,
+     "switchRadiusKm": 48220000,
+     "appPlanetOffsetKm": 24800,
+     "closestApproach": {
+      "t": 2614.739415326779,
+      "iso": "2007-02-28 05:44:45.484",
+      "distanceKm": 2304505
+     }
+    },
+    {
+     "centre": "sun",
+     "role": "outer",
+     "t0": 2642.781541485805,
+     "t1": 5648.348539372906,
+     "seg0": 1853,
+     "segCount": 26,
+     "blendIn": 0,
+     "blendOut": 0,
+     "tolKm": 100,
+     "accuracy": {
+      "fitSamples": 3189,
+      "fitMaxKm": 24.9,
+      "independent": {
+       "points": 100,
+       "maxKm": 20.7,
+       "rmsKm": 11.1
+      }
+     },
+     "jumps": [
+      {
+       "t": 4504.074437764197,
+       "iso": "2012-05-01 13:47:11",
+       "cause": "source",
+       "jumpKm": 193.7,
+       "jump": [
+        90.0235,
+        -66.4291,
+        158.18
+       ],
+       "rampDays": 0.022
+      },
+      {
+       "t": 5446.325161607849,
+       "iso": "2014-11-29 19:48:13",
+       "cause": "source",
+       "jumpKm": 193.4,
+       "jump": [
+        -42.3967,
+        -187.065,
+        -24.8274
+       ],
+       "rampDays": 0.0229
+      }
+     ]
+    },
+    {
+     "centre": "pluto",
+     "role": "inner",
+     "t0": 5642.187242992222,
+     "t1": 5703.800464220811,
+     "seg0": 1879,
+     "segCount": 3,
+     "blendIn": 6.161296381400062,
+     "blendOut": 6.161296381400062,
+     "tolKm": 100,
+     "accuracy": {
+      "fitSamples": 1115,
+      "fitMaxKm": 24.6,
+      "independent": {
+       "points": 100,
+       "maxKm": 24.6,
+       "rmsKm": 10.8
+      },
+      "flyby": {
+       "points": 61,
+       "maxKm": 0.192,
+       "rmsKm": 0.113
+      }
+     },
+     "fineRadiusKm": 25554.3,
+     "fineTolKm": 1,
+     "switchRadiusKm": 36690000,
+     "appPlanetOffsetKm": 73400,
+     "closestApproach": {
+      "t": 5672.993851959967,
+      "iso": "2015-07-14 11:51:08.809",
+      "distanceKm": 15381.91
+     }
+    },
+    {
+     "centre": "sun",
+     "role": "outer",
+     "t0": 5697.639167839196,
+     "t1": 6937.981999998912,
+     "seg0": 1882,
+     "segCount": 24,
+     "blendIn": 0,
+     "blendOut": 0,
+     "tolKm": 100,
+     "accuracy": {
+      "fitSamples": 1423,
+      "fitMaxKm": 24.9,
+      "independent": {
+       "points": 100,
+       "maxKm": 24.1,
+       "rmsKm": 9.89
+      }
+     },
+     "jumps": [
+      {
+       "t": 5891.32242088948,
+       "iso": "2016-02-17 19:44:17",
+       "cause": "source",
+       "jumpKm": 331.7,
+       "jump": [
+        26.3566,
+        329.045,
+        32.3379
+       ],
+       "rampDays": 0.0399
+      }
+     ]
+    },
+    {
+     "centre": "arrokoth",
+     "role": "inner",
+     "t0": 6937.731999998912,
+     "t1": 6941.731999998912,
+     "seg0": 1906,
+     "segCount": 1,
+     "blendIn": 0.25,
+     "blendOut": 0.25,
+     "tolKm": 100,
+     "accuracy": {
+      "fitSamples": 1040,
+      "fitMaxKm": 0.285,
+      "independent": {
+       "points": 100,
+       "maxKm": 0.284,
+       "rmsKm": 0.154
+      },
+      "flyby": {
+       "points": 61,
+       "maxKm": 0.0878,
+       "rmsKm": 0.0869
+      }
+     },
+     "fineRadiusKm": 5336.96,
+     "fineTolKm": 1,
+     "switchRadiusKm": 4031000,
+     "closestApproach": {
+      "t": 6939.732309869185,
+      "iso": "2019-01-01 05:34:31.572",
+      "distanceKm": 3536.932
+     }
+    },
+    {
+     "centre": "sun",
+     "role": "outer",
+     "t0": 6941.481999998912,
+     "t1": 18262.499305556063,
+     "seg0": 1907,
+     "segCount": 15,
+     "blendIn": 0,
+     "blendOut": 0,
+     "tolKm": 100,
+     "accuracy": {
+      "fitSamples": 11406,
+      "fitMaxKm": 24.9,
+      "independent": {
+       "points": 100,
+       "maxKm": 21.5,
+       "rmsKm": 11.9
+      }
+     },
+     "jumps": [
+      {
+       "t": 7943.500003568856,
+       "iso": "2021-10-01 00:00:00",
+       "cause": "source",
+       "jumpKm": 4719,
+       "jump": [
+        -1817.57,
+        3283.59,
+        2860.35
+       ],
+       "rampDays": 0.592
+      }
+     ]
+    }
+   ],
+   "before": {
+    "regime": "before-launch",
+    "centre": "earth",
+    "epoch": 2210.327989935875,
+    "pos": [
+     -12207.42915272497,
+     -880.0266232635563,
+     -5543.343103015194
+    ]
+   },
+   "after": {
+    "regime": "extrapolated",
+    "model": "two-body",
+    "centre": "ssb",
+    "epoch": 18262.499305556063,
+    "r": [
+     6945627400.986197,
+     -18264056354.328564,
+     695188019.0212871
+    ],
+    "v": [
+     5.148038894212929,
+     -12.00871548579094,
+     0.4734691707303967
+    ],
+    "mu": 132890518671.29366,
+    "ssbOffsetKm": 90.96093516088487
+   },
+   "accuracy": {
+    "requirementKm": 100,
+    "independentPoints": 1043,
+    "maxKm": 24.9,
+    "rmsKm": 8.35,
+    "fitSamples": 19549,
+    "fitMaxKm": 24.9,
+    "flyby": {
+     "requirementKm": 1,
+     "points": 243,
+     "maxKm": 0.192,
+     "rmsKm": 0.0794
+    }
+   },
+   "appSwitchOffsetsKm": [
+    {
+     "centre": "earth",
+     "t": 2211.1549545640682,
+     "iso": "2006-01-20 15:43:08",
+     "offsetKm": 248.7
+    },
+    {
+     "centre": "jupiter",
+     "t": 2585.9271803914908,
+     "iso": "2007-01-30 10:15:08",
+     "offsetKm": 24910
+    },
+    {
+     "centre": "jupiter",
+     "t": 2643.5529621683654,
+     "iso": "2007-03-29 01:16:15",
+     "offsetKm": 25200
+    },
+    {
+     "centre": "pluto",
+     "t": 5645.2678911829225,
+     "iso": "2015-06-16 18:25:45",
+     "offsetKm": 72990
+    },
+    {
+     "centre": "pluto",
+     "t": 5700.71981603011,
+     "iso": "2015-08-11 05:16:32",
+     "offsetKm": 73900
+    },
+    {
+     "centre": "arrokoth",
+     "t": 6937.856999998912,
+     "iso": "2018-12-30 08:34:04",
+     "offsetKm": 44.72
+    },
+    {
+     "centre": "arrokoth",
+     "t": 6941.606999998912,
+     "iso": "2019-01-03 02:34:04",
+     "offsetKm": 50.11
+    }
+   ],
+   "notes": [
+    "Concatenated KinetX navigation reconstructions and predictions (tracking cut-off 2026-07-20); the Pluto system uses the plu060 reconstruction. Prediction to 2050-01-01.",
+    "The Pluto flyby is stored relative to the Pluto–Charon barycentre (Horizons 9), which is what astronomy-engine’s Pluto is. Pluto’s body centre is about 2,100 km from it.",
+    "The Arrokoth flyby (±2 days) is stored relative to the New Horizons flight-project ephemeris of Arrokoth (Horizons centre 2486958) and resolved against this file’s own Arrokoth track, which follows that same ephemeris from 1995 to 2033, so the 3,538 km flyby is exact in the app.",
+    "After 2050-01-01 the position is a two-body hyperbola about the Solar System barycentre."
+   ]
+  },
+  "pioneer10": {
+   "name": "Pioneer 10",
+   "kind": "spacecraft",
+   "horizons": {
+    "command": "-23",
+    "target": "Pioneer 10 (spacecraft) (-23)",
+    "ephemeris": "pioneer_10_merged",
+    "coverage": [
+     "A.D. 1972-MAR-03 02:04:42.1854 TDB",
+     "A.D. 2050-JAN-01 00:10:00.0000 TDB"
+    ]
+   },
+   "precise": [
+    -10165.412706186995,
+    18262.506250000093
+   ],
+   "preciseIso": [
+    "1972-03-03 02:05:42.185",
+    "2050-01-01 00:09:00.000"
+   ],
+   "pieces": [
+    {
+     "centre": "earth",
+     "role": "inner",
+     "t0": -10165.412706186995,
+     "t1": -10164.267187424004,
+     "seg0": 1922,
+     "segCount": 2,
+     "blendIn": 0,
+     "blendOut": 0.08666804529499436,
+     "tolKm": 100,
+     "accuracy": {
+      "fitSamples": 470,
+      "fitMaxKm": 9.59,
+      "independent": {
+       "points": 100,
+       "maxKm": 7.95,
+       "rmsKm": 3.66
+      },
+      "flyby": {
+       "points": 60,
+       "maxKm": 0.141,
+       "rmsKm": 0.0546
+      }
+     },
+     "fineRadiusKm": 63781.4,
+     "fineTolKm": 1,
+     "switchRadiusKm": 929200,
+     "appPlanetOffsetKm": 690
+    },
+    {
+     "centre": "sun",
+     "role": "outer",
+     "t0": -10164.353855468798,
+     "t1": -9579.765566330869,
+     "seg0": 1924,
+     "segCount": 21,
+     "blendIn": 0,
+     "blendOut": 0,
+     "tolKm": 100,
+     "accuracy": {
+      "fitSamples": 908,
+      "fitMaxKm": 23.3,
+      "independent": {
+       "points": 100,
+       "maxKm": 23.4,
+       "rmsKm": 9.56
+      }
+     },
+     "jumps": [
+      {
+       "t": -10144.020344124581,
+       "iso": "1972-03-24 11:30:42",
+       "cause": "source",
+       "jumpKm": 6478,
+       "jump": [
+        -403.827,
+        -6461.18,
+        222.128
+       ],
+       "rampDays": 0.297
+      },
+      {
+       "t": -9964.582756485615,
+       "iso": "1972-09-19 22:00:49",
+       "cause": "source",
+       "jumpKm": 743.1,
+       "jump": [
+        -601.358,
+        -353.503,
+        -256.156
+       ],
+       "rampDays": 0.0624
+      },
+      {
+       "t": -9747.874996242357,
+       "iso": "1973-04-24 15:00:00",
+       "cause": "source",
+       "jumpKm": 754.1,
+       "jump": [
+        454.052,
+        -198.147,
+        568.533
+       ],
+       "rampDays": 0.0975
+      }
+     ]
+    },
+    {
+     "centre": "jupiter",
+     "role": "inner",
+     "t0": -9582.832299498841,
+     "t1": -9465.846543516964,
+     "seg0": 1945,
+     "segCount": 27,
+     "blendIn": 3.0667331683500603,
+     "blendOut": 3.0667331683500603,
+     "tolKm": 100,
+     "accuracy": {
+      "fitSamples": 1126,
+      "fitMaxKm": 24.7,
+      "independent": {
+       "points": 100,
+       "maxKm": 24.7,
+       "rmsKm": 15.4
+      },
+      "flyby": {
+       "points": 61,
+       "maxKm": 0.237,
+       "rmsKm": 0.113
+      }
+     },
+     "fineRadiusKm": 714920,
+     "fineTolKm": 1,
+     "switchRadiusKm": 48220000,
+     "appPlanetOffsetKm": 23300,
+     "jumps": [
+      {
+       "t": -9534.416662840606,
+       "iso": "1973-11-24 02:00:00",
+       "cause": "source",
+       "jumpKm": 2531,
+       "jump": [
+        -1480.37,
+        1846.8,
+        -897.557
+       ],
+       "rampDays": 0.445
+      },
+      {
+       "t": -9504.499994476952,
+       "iso": "1973-12-24 00:00:00",
+       "cause": "source",
+       "jumpKm": 19360,
+       "jump": [
+        18980.2,
+        -3827.84,
+        50.7247
+       ],
+       "rampDays": 3.62
+      }
+     ],
+     "closestApproach": {
+      "t": -9524.39851612043,
+      "iso": "1973-12-04 02:26:08.207",
+      "distanceKm": 203121.9
+     }
+    },
+    {
+     "centre": "sun",
+     "role": "outer",
+     "t0": -9468.913276685867,
+     "t1": 18262.506250000093,
+     "seg0": 1972,
+     "segCount": 29,
+     "blendIn": 0,
+     "blendOut": 0,
+     "tolKm": 100,
+     "accuracy": {
+      "fitSamples": 27942,
+      "fitMaxKm": 25,
+      "independent": {
+       "points": 100,
+       "maxKm": 23.7,
+       "rmsKm": 11.7
+      }
+     },
+     "jumps": [
+      {
+       "t": -6047.499383798514,
+       "iso": "1983-06-12 00:00:53",
+       "cause": "source",
+       "jumpKm": 126500,
+       "jump": [
+        -61010.6,
+        -104330,
+        37392.1
+       ],
+       "rampDays": 16.1
+      },
+      {
+       "t": -3651.4993380883066,
+       "iso": "1990-01-02 00:00:57",
+       "cause": "source",
+       "jumpKm": 31020,
+       "jump": [
+        -26467.9,
+        -15990.3,
+        2509.75
+       ],
+       "rampDays": 4.19
+      }
+     ]
+    }
+   ],
+   "before": {
+    "regime": "before-launch",
+    "centre": "earth",
+    "epoch": -10165.412706186995,
+    "pos": [
+     -6686.633834144283,
+     2246.278429255127,
+     -213.4345119858946
+    ]
+   },
+   "after": {
+    "regime": "extrapolated",
+    "model": "two-body",
+    "centre": "ssb",
+    "epoch": 18262.506250000093,
+    "r": [
+     4498575113.563032,
+     29473234219.987778,
+     1544980513.1106503
+    ],
+    "v": [
+     1.212797560493136,
+     11.62348563286717,
+     0.5948274721640994
+    ],
+    "mu": 132890518671.29366,
+    "ssbOffsetKm": 90.9611238764134
+   },
+   "accuracy": {
+    "requirementKm": 100,
+    "independentPoints": 521,
+    "maxKm": 25,
+    "rmsKm": 9.58,
+    "fitSamples": 30446,
+    "fitMaxKm": 25,
+    "flyby": {
+     "requirementKm": 1,
+     "points": 121,
+     "maxKm": 0.237,
+     "rmsKm": 0.0893
+    }
+   },
+   "appSwitchOffsetsKm": [
+    {
+     "centre": "earth",
+     "t": -10164.310521446652,
+     "iso": "1972-03-04 04:32:50",
+     "offsetKm": 678.2
+    },
+    {
+     "centre": "jupiter",
+     "t": -9581.298932914666,
+     "iso": "1973-10-08 04:49:32",
+     "offsetKm": 24740
+    },
+    {
+     "centre": "jupiter",
+     "t": -9467.37991010114,
+     "iso": "1974-01-30 02:52:55",
+     "offsetKm": 22590
+    }
+   ],
+   "notes": [
+    "JPL describes this trajectory (pfile10.nio, merged PN10A–G on DE118) as \"suitable for general historical purposes\" and to be used cautiously for high precision: the Jupiter flyby geometry relative to modern planet and satellite ephemerides may differ from the original solutions.",
+    "Horizons data end 2050-01-01 (last signal 2003); later positions are a two-body hyperbola about the Solar System barycentre."
+   ]
+  },
+  "parker-solar-probe": {
+   "name": "Parker Solar Probe",
+   "kind": "spacecraft",
+   "horizons": {
+    "command": "-96",
+    "target": "Parker Solar Probe (spacecraft) (-96)",
+    "ephemeris": "psp_merged",
+    "coverage": [
+     "A.D. 2018-AUG-12 08:16:23.3431 TDB",
+     "A.D. 2030-JAN-01 00:01:09.1839 TDB"
+    ]
+   },
+   "precise": [
+    6797.845409064088,
+    10957.500106295105
+   ],
+   "preciseIso": [
+    "2018-08-12 08:17:23.343",
+    "2030-01-01 00:00:09.183"
+   ],
+   "pieces": [
+    {
+     "centre": "earth",
+     "role": "inner",
+     "t0": 6797.845409064088,
+     "t1": 6798.698959568981,
+     "seg0": 2001,
+     "segCount": 2,
+     "blendIn": 0,
+     "blendOut": 0.14546911682637095,
+     "tolKm": 100,
+     "accuracy": {
+      "fitSamples": 437,
+      "fitMaxKm": 23.4,
+      "independent": {
+       "points": 100,
+       "maxKm": 21.3,
+       "rmsKm": 6.17
+      },
+      "flyby": {
+       "points": 60,
+       "maxKm": 0.0553,
+       "rmsKm": 0.0344
+      }
+     },
+     "fineRadiusKm": 63781.4,
+     "fineTolKm": 1,
+     "switchRadiusKm": 929200,
+     "appPlanetOffsetKm": 1550
+    },
+    {
+     "centre": "sun",
+     "role": "outer",
+     "t0": 6798.553490452003,
+     "t1": 6849.5532621149905,
+     "seg0": 2003,
+     "segCount": 7,
+     "blendIn": 0,
+     "blendOut": 0,
+     "tolKm": 100,
+     "accuracy": {
+      "fitSamples": 138,
+      "fitMaxKm": 24.9,
+      "independent": {
+       "points": 100,
+       "maxKm": 24.9,
+       "rmsKm": 5.71
+      }
+     }
+    },
+    {
+     "centre": "venus",
+     "role": "inner",
+     "t0": 6849.475077014882,
+     "t1": 6850.254947334994,
+     "seg0": 2010,
+     "segCount": 6,
+     "blendIn": 0.0781850990101953,
+     "blendOut": 0.0781850990101953,
+     "tolKm": 100,
+     "accuracy": {
+      "fitSamples": 507,
+      "fitMaxKm": 24.8,
+      "independent": {
+       "points": 100,
+       "maxKm": 24.1,
+       "rmsKm": 12
+      },
+      "flyby": {
+       "points": 61,
+       "maxKm": 0.239,
+       "rmsKm": 0.0769
+      }
+     },
+     "fineRadiusKm": 60518,
+     "fineTolKm": 1,
+     "switchRadiusKm": 775200,
+     "appPlanetOffsetKm": 1550,
+     "closestApproach": {
+      "t": 6849.86501154693,
+      "iso": "2018-10-03 08:45:36.997",
+      "distanceKm": 8480.474
+     }
+    },
+    {
+     "centre": "sun",
+     "role": "outer",
+     "t0": 6850.176762234885,
+     "t1": 7299.003814391792,
+     "seg0": 2016,
+     "segCount": 15,
+     "blendIn": 0,
+     "blendOut": 0,
+     "tolKm": 100,
+     "accuracy": {
+      "fitSamples": 1182,
+      "fitMaxKm": 24.8,
+      "independent": {
+       "points": 100,
+       "maxKm": 23,
+       "rmsKm": 10.7
+      }
+     }
+    },
+    {
+     "centre": "venus",
+     "role": "inner",
+     "t0": 7298.9513103961945,
+     "t1": 7299.5707899429835,
+     "seg0": 2031,
+     "segCount": 5,
+     "blendIn": 0.05250399686393239,
+     "blendOut": 0.05250399686393239,
+     "tolKm": 100,
+     "accuracy": {
+      "fitSamples": 525,
+      "fitMaxKm": 22.9,
+      "independent": {
+       "points": 100,
+       "maxKm": 22.9,
+       "rmsKm": 9.31
+      },
+      "flyby": {
+       "points": 61,
+       "maxKm": 0.216,
+       "rmsKm": 0.103
+      }
+     },
+     "fineRadiusKm": 60518,
+     "fineTolKm": 1,
+     "switchRadiusKm": 616300,
+     "appPlanetOffsetKm": 1040,
+     "closestApproach": {
+      "t": 7299.261049804541,
+      "iso": "2019-12-26 18:15:54.703",
+      "distanceKm": 9056.439
+     }
+    },
+    {
+     "centre": "sun",
+     "role": "outer",
+     "t0": 7299.5182859469205,
+     "t1": 7496.220658516046,
+     "seg0": 2036,
+     "segCount": 9,
+     "blendIn": 0,
+     "blendOut": 0,
+     "tolKm": 100,
+     "accuracy": {
+      "fitSamples": 561,
+      "fitMaxKm": 24.9,
+      "independent": {
+       "points": 100,
+       "maxKm": 24.5,
+       "rmsKm": 10.3
+      }
+     }
+    },
+    {
+     "centre": "venus",
+     "role": "inner",
+     "t0": 7496.114976626821,
+     "t1": 7497.169514724053,
+     "seg0": 2045,
+     "segCount": 6,
+     "blendIn": 0.10568188981918822,
+     "blendOut": 0.10568188981918822,
+     "tolKm": 100,
+     "accuracy": {
+      "fitSamples": 883,
+      "fitMaxKm": 22.9,
+      "independent": {
+       "points": 100,
+       "maxKm": 22.9,
+       "rmsKm": 9.87
+      },
+      "flyby": {
+       "points": 61,
+       "maxKm": 0.229,
+       "rmsKm": 0.111
+      }
+     },
+     "fineRadiusKm": 60518,
+     "fineTolKm": 1,
+     "switchRadiusKm": 1049000,
+     "appPlanetOffsetKm": 2100,
+     "closestApproach": {
+      "t": 7496.642241504056,
+      "iso": "2020-07-11 03:24:49.665",
+      "distanceKm": 6885.134
+     }
+    },
+    {
+     "centre": "sun",
+     "role": "outer",
+     "t0": 7497.063832832966,
+     "t1": 7721.082977796905,
+     "seg0": 2051,
+     "segCount": 10,
+     "blendIn": 0,
+     "blendOut": 0,
+     "tolKm": 100,
+     "accuracy": {
+      "fitSamples": 863,
+      "fitMaxKm": 24.9,
+      "independent": {
+       "points": 100,
+       "maxKm": 20.1,
+       "rmsKm": 10.6
+      }
+     }
+    },
+    {
+     "centre": "venus",
+     "role": "inner",
+     "t0": 7721.028797638137,
+     "t1": 7721.647460921202,
+     "seg0": 2061,
+     "segCount": 5,
+     "blendIn": 0.05418015893648701,
+     "blendOut": 0.05418015893648701,
+     "tolKm": 100,
+     "accuracy": {
+      "fitSamples": 626,
+      "fitMaxKm": 22.8,
+      "independent": {
+       "points": 100,
+       "maxKm": 22.8,
+       "rmsKm": 6.91
+      },
+      "flyby": {
+       "points": 61,
+       "maxKm": 0.243,
+       "rmsKm": 0.104
+      }
+     },
+     "fineRadiusKm": 60518,
+     "fineTolKm": 1,
+     "switchRadiusKm": 616300,
+     "appPlanetOffsetKm": 1080,
+     "closestApproach": {
+      "t": 7721.338128785506,
+      "iso": "2021-02-20 20:06:54.327",
+      "distanceKm": 8436.543
+     }
+    },
+    {
+     "centre": "sun",
+     "role": "outer",
+     "t0": 7721.593280761968,
+     "t1": 7958.359113596845,
+     "seg0": 2066,
+     "segCount": 10,
+     "blendIn": 0,
+     "blendOut": 0,
+     "tolKm": 100,
+     "accuracy": {
+      "fitSamples": 763,
+      "fitMaxKm": 24.7,
+      "independent": {
+       "points": 100,
+       "maxKm": 25.5,
+       "rmsKm": 9.14
+      }
+     }
+    },
+    {
+     "centre": "venus",
+     "role": "inner",
+     "t0": 7958.224297554232,
+     "t1": 7959.570125842001,
+     "seg0": 2076,
+     "segCount": 6,
+     "blendIn": 0.1348160425090133,
+     "blendOut": 0.1348160425090133,
+     "tolKm": 100,
+     "accuracy": {
+      "fitSamples": 883,
+      "fitMaxKm": 23,
+      "independent": {
+       "points": 100,
+       "maxKm": 23,
+       "rmsKm": 9.37
+      },
+      "flyby": {
+       "points": 61,
+       "maxKm": 0.231,
+       "rmsKm": 0.106
+      }
+     },
+     "fineRadiusKm": 60518,
+     "fineTolKm": 1,
+     "switchRadiusKm": 1337000,
+     "appPlanetOffsetKm": 2670,
+     "closestApproach": {
+      "t": 7958.897208015263,
+      "iso": "2021-10-16 09:31:58.772",
+      "distanceKm": 9860.404
+     }
+    },
+    {
+     "centre": "sun",
+     "role": "outer",
+     "t0": 7959.435309799854,
+     "t1": 8632.741808618885,
+     "seg0": 2082,
+     "segCount": 26,
+     "blendIn": 0,
+     "blendOut": 0,
+     "tolKm": 100,
+     "accuracy": {
+      "fitSamples": 2614,
+      "fitMaxKm": 24.9,
+      "independent": {
+       "points": 100,
+       "maxKm": 23.9,
+       "rmsKm": 10.8
+      }
+     }
+    },
+    {
+     "centre": "venus",
+     "role": "inner",
+     "t0": 8632.693299145903,
+     "t1": 8633.312329944223,
+     "seg0": 2108,
+     "segCount": 6,
+     "blendIn": 0.04850947318255886,
+     "blendOut": 0.04850947318255886,
+     "tolKm": 100,
+     "accuracy": {
+      "fitSamples": 515,
+      "fitMaxKm": 24.8,
+      "independent": {
+       "points": 100,
+       "maxKm": 24.8,
+       "rmsKm": 13.1
+      },
+      "flyby": {
+       "points": 61,
+       "maxKm": 0.228,
+       "rmsKm": 0.0787
+      }
+     },
+     "fineRadiusKm": 60518,
+     "fineTolKm": 1,
+     "switchRadiusKm": 616300,
+     "appPlanetOffsetKm": 963,
+     "closestApproach": {
+      "t": 8633.002814305153,
+      "iso": "2023-08-21 12:04:03.155",
+      "distanceKm": 10057.25
+     }
+    },
+    {
+     "centre": "sun",
+     "role": "outer",
+     "t0": 8633.263820470776,
+     "t1": 9075.896915195975,
+     "seg0": 2114,
+     "segCount": 21,
+     "blendIn": 0,
+     "blendOut": 0,
+     "tolKm": 100,
+     "accuracy": {
+      "fitSamples": 2779,
+      "fitMaxKm": 24.8,
+      "independent": {
+       "points": 100,
+       "maxKm": 23.1,
+       "rmsKm": 11
+      }
+     }
+    },
+    {
+     "centre": "venus",
+     "role": "inner",
+     "t0": 9075.800571112894,
+     "t1": 9076.761685543228,
+     "seg0": 2135,
+     "segCount": 6,
+     "blendIn": 0.0963440823095203,
+     "blendOut": 0.0963440823095203,
+     "tolKm": 100,
+     "accuracy": {
+      "fitSamples": 599,
+      "fitMaxKm": 22.9,
+      "independent": {
+       "points": 100,
+       "maxKm": 22.2,
+       "rmsKm": 9.27
+      },
+      "flyby": {
+       "points": 61,
+       "maxKm": 0.243,
+       "rmsKm": 0.105
+      }
+     },
+     "fineRadiusKm": 60518,
+     "fineTolKm": 1,
+     "switchRadiusKm": 956500,
+     "appPlanetOffsetKm": 1910,
+     "closestApproach": {
+      "t": 9076.281126954587,
+      "iso": "2024-11-06 18:44:49.368",
+      "distanceKm": 6428.194
+     }
+    },
+    {
+     "centre": "sun",
+     "role": "outer",
+     "t0": 9076.665341461077,
+     "t1": 10957.500106295105,
+     "seg0": 2141,
+     "segCount": 115,
+     "blendIn": 0,
+     "blendOut": 0,
+     "tolKm": 100,
+     "accuracy": {
+      "fitSamples": 11257,
+      "fitMaxKm": 25,
+      "independent": {
+       "points": 100,
+       "maxKm": 24.1,
+       "rmsKm": 12
+      }
+     },
+     "jumps": [
+      {
+       "t": 9306.750802727925,
+       "iso": "2025-06-25 06:01:09",
+       "cause": "source",
+       "jumpKm": 79880,
+       "jump": [
+        -57348.9,
+        55610,
+        -375.571
+       ],
+       "rampDays": 2.19
+      },
+      {
+       "t": 9663.500801158376,
+       "iso": "2026-06-17 00:01:09",
+       "cause": "source",
+       "jumpKm": 491.6,
+       "jump": [
+        -383.894,
+        302.238,
+        54.2756
+       ],
+       "rampDays": 0.0169
+      }
+     ]
+    }
+   ],
+   "before": {
+    "regime": "before-launch",
+    "centre": "earth",
+    "epoch": 6797.845409064088,
+    "pos": [
+     -9817.936950995483,
+     -1510.345573126132,
+     -6275.121184577226
+    ]
+   },
+   "after": {
+    "regime": "extrapolated",
+    "model": "two-body",
+    "centre": "sun",
+    "epoch": 10957.500106295105,
+    "r": [
+     85699303.32379168,
+     -35246200.77934607,
+     -5425410.776180472
+    ],
+    "v": [
+     -12.56284726742401,
+     20.40804128071217,
+     1.00656054480467
+    ],
+    "mu": 132712440041.27942
+   },
+   "accuracy": {
+    "requirementKm": 100,
+    "independentPoints": 2087,
+    "maxKm": 25.5,
+    "rmsKm": 8.73,
+    "fitSamples": 25132,
+    "fitMaxKm": 25,
+    "flyby": {
+     "requirementKm": 1,
+     "points": 487,
+     "maxKm": 0.243,
+     "rmsKm": 0.0929
+    }
+   },
+   "appSwitchOffsetsKm": [
+    {
+     "centre": "earth",
+     "t": 6798.626225010568,
+     "iso": "2018-08-13 03:01:45",
+     "offsetKm": 1585
+    },
+    {
+     "centre": "venus",
+     "t": 6849.514169564387,
+     "iso": "2018-10-03 00:20:24",
+     "offsetKm": 1564
+    },
+    {
+     "centre": "venus",
+     "t": 6850.215854785489,
+     "iso": "2018-10-03 17:10:49",
+     "offsetKm": 1537
+    },
+    {
+     "centre": "venus",
+     "t": 7298.977562394626,
+     "iso": "2019-12-26 11:27:41",
+     "offsetKm": 1063
+    },
+    {
+     "centre": "venus",
+     "t": 7299.544537944552,
+     "iso": "2019-12-27 01:04:08",
+     "offsetKm": 1020
+    },
+    {
+     "centre": "venus",
+     "t": 7496.167817571731,
+     "iso": "2020-07-10 16:01:39",
+     "offsetKm": 2081
+    },
+    {
+     "centre": "venus",
+     "t": 7497.116673779144,
+     "iso": "2020-07-11 14:48:00",
+     "offsetKm": 2116
+    },
+    {
+     "centre": "venus",
+     "t": 7721.055887717605,
+     "iso": "2021-02-20 13:20:28",
+     "offsetKm": 1064
+    },
+    {
+     "centre": "venus",
+     "t": 7721.620370841733,
+     "iso": "2021-02-21 02:53:20",
+     "offsetKm": 1089
+    },
+    {
+     "centre": "venus",
+     "t": 7958.291705575487,
+     "iso": "2021-10-15 19:00:03",
+     "offsetKm": 2649
+    },
+    {
+     "centre": "venus",
+     "t": 7959.5027178207465,
+     "iso": "2021-10-17 00:03:54",
+     "offsetKm": 2700
+    },
+    {
+     "centre": "venus",
+     "t": 8632.717553882494,
+     "iso": "2023-08-21 05:13:16",
+     "offsetKm": 959.5
+    },
+    {
+     "centre": "venus",
+     "t": 8633.288075207633,
+     "iso": "2023-08-21 18:54:49",
+     "offsetKm": 966.3
+    },
+    {
+     "centre": "venus",
+     "t": 9075.848743154049,
+     "iso": "2024-11-06 08:22:11",
+     "offsetKm": 1907
+    },
+    {
+     "centre": "venus",
+     "t": 9076.713513502073,
+     "iso": "2024-11-07 05:07:27",
+     "offsetKm": 1919
+    }
+   ],
+   "notes": [
+    "Reconstructed trajectory fitted to tracking through 2026-01-27; the reference planning trajectory after that, to 2030-01-01.",
+    "After 2030-01-01 the position is a heliocentric two-body ellipse (no further Venus flybys are modelled)."
+   ]
+  },
+  "jwst": {
+   "name": "James Webb Space Telescope",
+   "kind": "spacecraft",
+   "horizons": {
+    "command": "-170",
+    "target": "James Webb Space Telescope (spacecraft) (-170)",
+    "ephemeris": "JWST_merged",
+    "coverage": [
+     "A.D. 2021-DEC-25 13:01:09.1837 TDB",
+     "A.D. 2031-SEP-21 00:01:09.1824 TDB"
+    ]
+   },
+   "precise": [
+    8029.043161849026,
+    11585.500106277876
+   ],
+   "preciseIso": [
+    "2021-12-25 13:02:09.183",
+    "2031-09-21 00:00:09.182"
+   ],
+   "pieces": [
+    {
+     "centre": "earth",
+     "role": "inner",
+     "t0": 8029.043161849026,
+     "t1": 11585.500106277876,
+     "seg0": 2256,
+     "segCount": 38,
+     "blendIn": 0,
+     "blendOut": 0,
+     "tolKm": 100,
+     "accuracy": {
+      "fitSamples": 14517,
+      "fitMaxKm": 24.9,
+      "independent": {
+       "points": 100,
+       "maxKm": 24.1,
+       "rmsKm": 11.5
+      },
+      "flyby": {
+       "points": 60,
+       "maxKm": 0.0774,
+       "rmsKm": 0.041
+      }
+     },
+     "fineRadiusKm": 63781.4,
+     "fineTolKm": 1
+    }
+   ],
+   "before": {
+    "regime": "before-launch",
+    "centre": "earth",
+    "epoch": 8029.043161849026,
+    "pos": [
+     11731.773937107,
+     285.6377246237067,
+     -1055.304379516205
+    ]
+   },
+   "after": {
+    "regime": "unknown",
+    "centre": "earth",
+    "epoch": 11585.500106277876,
+    "pos": [
+     1321447.830405437,
+     631061.8799273624,
+     59664.34323422267
+    ]
+   },
+   "accuracy": {
+    "requirementKm": 100,
+    "independentPoints": 160,
+    "maxKm": 24.9,
+    "rmsKm": 9.05,
+    "fitSamples": 14517,
+    "fitMaxKm": 24.9,
+    "flyby": {
+     "requirementKm": 1,
+     "points": 60,
+     "maxKm": 0.0774,
+     "rmsKm": 0.041
+    }
+   },
+   "notes": [
+    "Stored relative to the Earth (geocentre) because JWST orbits near the Sun–Earth L2 point. Definitive ephemeris to the Horizons tracking cut-off, then Goddard FDF predictions (station-keeping schedule) to 2031-09-21.",
+    "After the data end the position is flagged \"unknown\" (the app hides it)."
+   ]
+  }
+ }
+}

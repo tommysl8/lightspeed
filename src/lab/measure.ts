@@ -7,7 +7,8 @@
  * and the light's Doppler factor is D = 1/(γ(1 − β cos θ′)).
  */
 import { Vector3 } from 'three';
-import { BODIES, C_KM_S, type BodyId } from '../physics/constants';
+import { C_KM_S } from '../physics/constants';
+import { displayRadiusKm, getBody, type BodyId } from '../sim/bodies';
 import { cosRestFromShip, cosShipFromRest, dopplerFromShipAngle, gamma } from '../physics/relativity';
 import { sim } from '../sim/sim';
 
@@ -81,8 +82,9 @@ export function reticleReading(): ApexGeometry | null {
 /** Goniometer on a body: its catalogue angle θ (from its light-time-corrected position) and θ′. */
 export function targetReading(id: BodyId): ApexGeometry | null {
   const apex = apexDirection(apexTmp);
-  if (!apex) return null;
-  rel.copy(sim.bodies[id].apparentPos).sub(sim.camera.pos);
+  const b = sim.bodies[id];
+  if (!apex || !b) return null;
+  rel.copy(b.apparentPos).sub(sim.camera.pos);
   if (rel.lengthSq() === 0) return null;
   return geometryFromRest(rel.normalize(), observerBeta(), apex);
 }
@@ -90,6 +92,7 @@ export function targetReading(id: BodyId): ApexGeometry | null {
 /** Rate of change of the range to a body, km/s (positive: receding), in S. */
 export function rangeRate(id: BodyId): number {
   const b = sim.bodies[id];
+  if (!b) return NaN;
   rel.copy(b.pos).sub(sim.camera.pos);
   const r = rel.length();
   if (r === 0) return 0;
@@ -99,7 +102,9 @@ export function rangeRate(id: BodyId): number {
 /** Angular diameter of a body from the camera, degrees. */
 export function angularDiameterDeg(id: BodyId): number {
   const b = sim.bodies[id];
-  const R = BODIES[id].equatorialRadiusKm ?? BODIES[id].radiusKm;
+  const r = getBody(id);
+  if (!b || !r) return NaN;
+  const R = displayRadiusKm(r);
   const d = b.distCamera;
   return d > R ? 2 * Math.asin(R / d) * DEG : 180;
 }

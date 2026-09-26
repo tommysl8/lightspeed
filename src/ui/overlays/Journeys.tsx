@@ -68,7 +68,10 @@ function Card() {
   const ref = useModal<HTMLDivElement>(close);
   const pred = usePredictions(true);
   return (
-    <div className="fixed inset-0 z-50 grid grid-cols-[minmax(0,1fr)] place-items-center overflow-y-auto bg-black/50 p-4">
+    <div
+      className="fixed inset-0 z-50 grid grid-cols-[minmax(0,1fr)] place-items-center overflow-y-auto bg-black/50 p-4"
+      onPointerDown={(e) => e.target === e.currentTarget && close()}
+    >
       <div ref={ref} role="dialog" aria-modal="true" aria-labelledby="journeys-title" className="panel-float appear w-[560px] max-w-full">
         <div className="flex items-center gap-3 border-b border-line-2 py-2.5 pl-5 pr-2.5">
           <Icon name="compass" size={14} className="text-accent" />
@@ -80,11 +83,11 @@ function Card() {
           </button>
         </div>
         <p className="border-b border-line px-5 py-2.5 text-[12px] leading-snug text-fg-2">
-          Seven set pieces, one click each. Flights leave from Earth, and time runs fast enough for a trip to take about half a
-          minute; the recorder along the bottom shows both clocks and can skip to arrival.
+          Seven set pieces, one click each. Flights leave from Earth and play in about a minute, paced by the clock on board;
+          the panel along the bottom shows both clocks and can skip to arrival.
         </p>
         {tripActive && (
-          <p className="border-b border-line bg-accent/[0.06] px-5 py-2 text-[12px] text-accent">A flight is under way: finish it, or abort it on the recorder, before starting another journey.</p>
+          <p className="border-b border-line bg-accent/[0.06] px-5 py-2 text-[12px] text-accent">A flight is under way: finish it, or abort it on the flight panel, before starting another journey.</p>
         )}
         <ol className="scroll max-h-[min(60vh,560px)] list-none">
           {JOURNEYS.map((j, i) => (

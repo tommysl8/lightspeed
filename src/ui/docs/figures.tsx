@@ -1,5 +1,5 @@
 /**
- * Figures for the manual, drawn as SVG in the laboratory's colours (CSS variables, so they
+ * Figures for the guide, drawn as SVG in the interface's colours (CSS variables, so they
  * re-ink for print).
  */
 import type { ReactNode } from 'react';
@@ -14,6 +14,7 @@ const C = {
   fg: 'var(--color-fg)',
   fg2: 'var(--color-fg-2)',
   fg3: 'var(--color-fg-3)',
+  fg4: 'var(--color-fg-4)',
   accent: 'var(--color-accent)',
   data: 'var(--color-data)',
   view: 'var(--doc-fig-view, #000)',
@@ -43,43 +44,42 @@ const Bar = ({ x, y, w, h = 3, fill = C.line3 }: { x: number; y: number; w: numb
 );
 
 // Deterministic "stars" for the view.
-const STARS = Array.from({ length: 70 }, (_, i) => {
+const STARS = Array.from({ length: 80 }, (_, i) => {
   const a = Math.sin(i * 12.9898) * 43758.5453;
   const b = Math.sin(i * 78.233) * 12345.6789;
-  return { x: 172 + (a - Math.floor(a)) * 376, y: 30 + (b - Math.floor(b)) * 360, r: 0.4 + ((i * 7) % 5) * 0.18 };
+  return { x: 4 + (a - Math.floor(a)) * 542, y: 30 + (b - Math.floor(b)) * 360, r: 0.4 + ((i * 7) % 5) * 0.18 };
 });
 
 const CALLOUTS: { n: number; cx: number; cy: number; x: number; y: number }[] = [
-  { n: 1, cx: 32, cy: -24, x: 32, y: 6 },
-  { n: 2, cx: 268, cy: -24, x: 268, y: 10 },
-  { n: 3, cx: 412, cy: -24, x: 412, y: 10 },
-  { n: 4, cx: 477, cy: -24, x: 477, y: 6 },
-  { n: 5, cx: 560, cy: -24, x: 560, y: 10 },
-  { n: 6, cx: 677, cy: -24, x: 677, y: 6 },
-  { n: 7, cx: -28, cy: 220, x: 0, y: 220 },
-  { n: 8, cx: 300, cy: 96, x: 300, y: 96 },
-  { n: 9, cx: 748, cy: 220, x: 720, y: 220 },
-  { n: 10, cx: 86, cy: 448, x: 86, y: 420 },
-  { n: 11, cx: 390, cy: 448, x: 390, y: 420 },
-  { n: 12, cx: 706, cy: 448, x: 706, y: 420 },
+  { n: 1, cx: 44, cy: -24, x: 44, y: 10 },
+  { n: 2, cx: 150, cy: -24, x: 150, y: 8 },
+  { n: 3, cx: 486, cy: -24, x: 486, y: 6 },
+  { n: 4, cx: 554, cy: -24, x: 554, y: 10 },
+  { n: 5, cx: 602, cy: -24, x: 602, y: 10 },
+  { n: 6, cx: 640, cy: -24, x: 640, y: 10 },
+  { n: 7, cx: 684, cy: -24, x: 684, y: 10 },
+  { n: 8, cx: 250, cy: 96, x: 250, y: 96 },
+  { n: 9, cx: 56, cy: 448, x: 56, y: 420 },
+  { n: 10, cx: 200, cy: 448, x: 200, y: 420 },
+  { n: 11, cx: 706, cy: 448, x: 706, y: 420 },
+  { n: 12, cx: 748, cy: 220, x: 720, y: 220 },
 ];
 
-/** Fig. 3.1: the screen, with numbered parts. */
+/** Fig. 3.1: the screen, with numbered parts (the instrument panel open on the right). */
 export function ScreenMap() {
+  const C0 = { x: 262, y: 214 };
   const orbit = (rx: number, ry: number, deg: number) => {
     const a = (deg * Math.PI) / 180;
-    return { x: 360 + rx * Math.cos(a), y: 212 + ry * Math.sin(a) };
+    return { x: C0.x + rx * Math.cos(a), y: C0.y + ry * Math.sin(a) };
   };
   const earth = orbit(80, 32, 30);
   const mars = orbit(116, 46, 200);
   const jup = orbit(172, 68, 118);
-  const targets = ['Sun', 'Mercury', 'Venus', 'Earth', 'Moon', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune'];
-  let tx = 246;
   return (
     <svg viewBox="-48 -44 816 510" className="block h-auto w-full" role="img" aria-label="Diagram of the Lightspeed screen with twelve numbered parts">
       <defs>
         <clipPath id="sm-view">
-          <rect x="170" y="28" width="380" height="364" />
+          <rect x="0" y="28" width="550" height="364" />
         </clipPath>
       </defs>
       <rect x="0" y="0" width="720" height="420" fill={C.bg} stroke={C.line3} />
@@ -87,100 +87,53 @@ export function ScreenMap() {
       {/* Header */}
       <rect x="0" y="0" width="720" height="28" fill={C.panel} />
       <line x1="0" y1="28" x2="720" y2="28" stroke={C.line2} />
-      <rect x="6" y="6" width="52" height="16" fill="none" stroke={C.accent} strokeOpacity="0.6" />
-      <T x={32} y={17.5} anchor="middle" size={9} fill={C.accent} mono={false}>
-        Physics
-      </T>
-      {/* the mark, 9 units across */}
-      <g transform="translate(65.4 8.4) scale(0.16)">
+      {/* the mark, 9 units across, and the name */}
+      <g transform="translate(8.4 8.4) scale(0.16)">
         <g fill="none" stroke={C.fg} strokeWidth="8">
           <circle cx="32" cy="32" r="24" />
           <circle cx="44" cy="32" r="12" />
         </g>
         <circle cx="52" cy="32" r="8" fill={C.accent} />
       </g>
-      <T x={78} y={17.5} size={9} fill={C.fg} weight={600} spacing={1.6}>
+      <T x={21} y={17.5} size={9} fill={C.fg} weight={600} spacing={1.6}>
         LIGHTSPEED
       </T>
-      <line x1="182" y1="8" x2="182" y2="20" stroke={C.line2} />
-      <T x={192} y={17.5} size={7.5} fill={C.fg3} spacing={1}>
-        EPOCH
+      <line x1="100" y1="8" x2="100" y2="20" stroke={C.line2} />
+      {/* The date chip: amber with a dot, since time runs fast here (the RATE lamp) and so is not the present */}
+      <rect x="104" y="7" width="128" height="15" fill={C.accent} fillOpacity="0.08" stroke={C.accent} strokeOpacity="0.4" />
+      <circle cx="110" cy="14.5" r="1.7" fill={C.accent} />
+      <T x={115} y={17.5} size={8.5} fill={C.accent}>
+        2026-09-25 12:00:00
       </T>
-      <T x={224} y={17.5} size={8.5} fill={C.fg}>
-        2026-09-24 12:00:00 UTC
+      <T x={212} y={17.5} size={8} fill={C.fg3}>
+        UTC ▾
       </T>
-      {/* Journeys: a compass and its name */}
-      <circle cx="389" cy="13.8" r="3.6" fill="none" stroke={C.accent} />
-      <path d="M390.8 11.9l-.9 2.6-2.6.9.9-2.6z" fill={C.accent} />
-      <T x={397} y={17.5} size={9} fill={C.fg2} mono={false}>
+      {/* Where to? */}
+      <rect x="450" y="6" width="72" height="16" fill={C.accent} />
+      <circle cx="459" cy="13.2" r="2.8" fill="none" stroke="#1b1204" strokeWidth="1.1" />
+      <path d="M461 15.2l2 2" stroke="#1b1204" strokeWidth="1.1" />
+      <T x={468} y={17.5} size={9} fill="#1b1204" weight={600} mono={false}>
+        Where to?
+      </T>
+      {/* Journeys */}
+      <circle cx="534" cy="13.8" r="3.6" fill="none" stroke={C.accent} />
+      <path d="M535.8 11.9l-.9 2.6-2.6.9.9-2.6z" fill={C.accent} />
+      <T x={541} y={17.5} size={9} fill={C.fg2} mono={false}>
         Journeys
       </T>
-      <rect x="442" y="6" width="70" height="16" fill={C.accent} />
-      <T x={477} y={17.5} anchor="middle" size={9} fill="#1b1204" weight={600} mono={false}>
-        Plan flight
+      <T x={590} y={17.5} size={9} fill={C.fg2} mono={false}>
+        Learn
       </T>
-      <line x1="520" y1="8" x2="520" y2="20" stroke={C.line2} />
-      <T x={528} y={17.5} size={9} fill={C.fg2} mono={false}>
+      <T x={630} y={17.5} size={9} fill={C.fg2} mono={false}>
+        Lab
+      </T>
+      <line x1="658" y1="8" x2="658" y2="20" stroke={C.line2} />
+      <T x={666} y={17.5} size={9} fill={C.fg2} mono={false}>
         View ▾
       </T>
-      <T x={570} y={17.5} size={9} fill={C.fg2} mono={false}>
-        Guide
-      </T>
-      <rect x="638" y="6" width="76" height="16" fill="none" stroke={C.accent} strokeOpacity="0.6" />
-      <T x={676} y={17.5} anchor="middle" size={9} fill={C.accent} mono={false}>
-        Instruments
-      </T>
-
-      {/* Physics panel, on its reference tab */}
-      <rect x="0" y="28" width="170" height="364" fill={C.panel} />
-      <line x1="170" y1="28" x2="170" y2="392" stroke={C.line2} />
-      <T x={8} y={40} size={7} fill={C.fg3} spacing={1}>
-        PHYSICS
-      </T>
-      <rect x="0" y="45" width="170" height="15" fill={C.panel2} />
-      <rect x="0" y="45" width="50" height="15" fill={C.panel} />
-      <line x1="0" y1="45.5" x2="50" y2="45.5" stroke={C.accent} strokeWidth="1.5" />
-      <T x={8} y={55.5} size={7.5} fill={C.fg} mono={false}>
-        Reference
-      </T>
-      <T x={58} y={55.5} size={7.5} fill={C.fg3} mono={false}>
-        Experiments
-      </T>
-      <T x={116} y={55.5} size={7.5} fill={C.fg3} mono={false}>
-        Notebook
-      </T>
-      <rect x="8" y="68" width="130" height="11" fill="none" stroke={C.line2} />
-      <T x={13} y={76} size={6.5} fill={C.fg2} mono={false}>
-        §3 The Lorentz factor
-      </T>
-      <T x={8} y={94} size={6.5} fill={C.fg3} spacing={1}>
-        REFERENCE §3
-      </T>
-      <Bar x={8} y={100} w={104} h={7} fill={C.fg} />
-      <rect x="8" y="115" width="154" height="22" fill={C.panel2} stroke={C.line2} />
-      <T x={20} y={129} size={8} fill={C.fg} mono={false}>
-        γ = 1 / √(1 − β²)
-      </T>
-      <T x={150} y={129} size={6} fill={C.fg3} anchor="end">
-        (R3)
-      </T>
-      {[146, 153, 160, 167, 174, 181].map((y, i) => (
-        <Bar key={y} x={8} y={y} w={[154, 148, 150, 132, 152, 96][i]} />
-      ))}
-      <rect x="8" y="194" width="154" height="46" fill="none" stroke={C.line2} />
-      <rect x="8" y="194" width="2" height="46" fill={C.accent} />
-      <T x={16} y={204} size={5.5} fill={C.fg3} spacing={1}>
-        IN THE SIMULATOR
-      </T>
-      {[210, 217, 224, 231].map((y, i) => (
-        <Bar key={y} x={16} y={y} w={[138, 132, 136, 84][i]} />
-      ))}
-      {[254, 261, 268, 275, 282].map((y, i) => (
-        <Bar key={y} x={8} y={y} w={[150, 154, 144, 150, 70][i]} />
-      ))}
 
       {/* View */}
-      <rect x="170" y="28" width="380" height="364" fill={C.view} />
+      <rect x="0" y="28" width="550" height="364" fill={C.view} />
       <g clipPath="url(#sm-view)">
         {STARS.map((s, i) => (
           <circle key={i} cx={s.x} cy={s.y} r={s.r} fill="#cfd6de" opacity="0.7" />
@@ -192,10 +145,10 @@ export function ScreenMap() {
           [116, 46],
           [172, 68],
         ].map(([rx, ry]) => (
-          <ellipse key={rx} cx="360" cy="212" rx={rx} ry={ry} fill="none" stroke="#d8dde3" strokeOpacity="0.2" />
+          <ellipse key={rx} cx={C0.x} cy={C0.y} rx={rx} ry={ry} fill="none" stroke="#d8dde3" strokeOpacity="0.2" />
         ))}
-        <circle cx="360" cy="212" r="3.2" fill={C.accent} />
-        <T x={366} y={209} size={8} fill="#d8dde3" mono={false}>
+        <circle cx={C0.x} cy={C0.y} r="3.2" fill={C.accent} />
+        <T x={C0.x + 6} y={C0.y - 3} size={8} fill="#d8dde3" mono={false}>
           Sun
         </T>
         {[
@@ -218,57 +171,63 @@ export function ScreenMap() {
             </T>
           </g>
         ))}
-        <T x={180} y={42} size={6.5} fill={C.fg3}>
+        <T x={10} y={42} size={6.5} fill={C.fg3}>
           VIEW
         </T>
-        <T x={204} y={42} size={6.5} fill={C.fg2}>
+        <T x={34} y={42} size={6.5} fill={C.fg2}>
           ORBIT · SUN
         </T>
-        <T x={180} y={51} size={6.5} fill={C.fg3}>
+        <T x={10} y={51} size={6.5} fill={C.fg3}>
           RANGE
         </T>
-        <T x={204} y={51} size={6.5} fill={C.fg2}>
+        <T x={34} y={51} size={6.5} fill={C.fg2}>
           13.0 au
         </T>
-        <rect x="334" y="35" width="52" height="12" fill="rgba(28,19,5,0.9)" stroke={C.accent} strokeOpacity="0.6" />
-        <rect x="339" y="39.5" width="3" height="3" fill={C.accent} />
-        <T x={346} y={44} size={6.5} fill={C.accent} weight={600} spacing={0.8}>
+        <rect x="236" y="35" width="52" height="12" fill="rgba(28,19,5,0.9)" stroke={C.accent} strokeOpacity="0.6" />
+        <rect x="241" y="39.5" width="3" height="3" fill={C.accent} />
+        <T x={248} y={44} size={6.5} fill={C.accent} weight={600} spacing={0.8}>
           RATE 10
         </T>
-        <T x={375.5} y={41} size={5} fill={C.accent} weight={600}>
-          2
+        <T x={277.5} y={41} size={5} fill={C.accent} weight={600}>
+          4
         </T>
-        <line x1="180" y1="380" x2="244" y2="380" stroke={C.fg2} />
-        <line x1="180" y1="377" x2="180" y2="380" stroke={C.fg2} />
-        <line x1="244" y1="377" x2="244" y2="380" stroke={C.fg2} />
-        <T x={180} y={389} size={6.5} fill={C.fg2}>
+        <line x1="10" y1="380" x2="74" y2="380" stroke={C.fg2} />
+        <line x1="10" y1="377" x2="10" y2="380" stroke={C.fg2} />
+        <line x1="74" y1="377" x2="74" y2="380" stroke={C.fg2} />
+        <T x={10} y={389} size={6.5} fill={C.fg2}>
           2 au at Sun
         </T>
         {/* The selected body's card */}
-        <rect x="438" y="34" width="106" height="70" fill="rgba(9,11,13,0.94)" stroke={C.line2} />
-        <T x={444} y={46} size={8.5} fill={C.fg} mono={false}>
+        <rect x="428" y="34" width="116" height="74" fill="rgba(9,11,13,0.94)" stroke={C.line2} />
+        <T x={434} y={46} size={8.5} fill={C.fg} mono={false}>
           Earth
         </T>
-        <T x={444} y={54} size={5.5} fill={C.fg3} mono={false}>
+        <T x={434} y={54} size={5.5} fill={C.fg3} mono={false}>
           Planet
         </T>
-        <T x={444} y={63} size={5.5} fill={C.fg2}>
+        <T x={434} y={63} size={5.5} fill={C.fg2}>
           from you 13.0 au
         </T>
         {[69, 75, 81].map((y, i) => (
-          <Bar key={y} x={444} y={y} w={[94, 88, 60][i]} />
+          <Bar key={y} x={434} y={y} w={[100, 94, 64][i]} />
         ))}
-        <rect x="444" y="89" width="36" height="9" fill="none" stroke={C.line3} />
-        <T x={462} y={95.5} size={5.5} anchor="middle" fill={C.fg2} mono={false}>
-          Go there
-        </T>
-        <rect x="484" y="89" width="36" height="9" fill="none" stroke={C.line3} />
-        <T x={502} y={95.5} size={5.5} anchor="middle" fill={C.fg2} mono={false}>
-          Fly here
-        </T>
+        {(['Go there', 'Fly here', 'Read', 'Details'] as const).map((label, i) => {
+          const x = 434 + [0, 28, 56, 80][i];
+          const w = [26, 26, 22, 26][i];
+          return (
+            <g key={label}>
+              <rect x={x} y="92" width={w} height="10" fill="none" stroke={C.line3} />
+              <T x={x + w / 2} y={99} size={5} anchor="middle" fill={C.fg2} mono={false}>
+                {label}
+              </T>
+            </g>
+          );
+        })}
       </g>
+      {/* The amber border round the view while time runs fast */}
+      <rect x="0.5" y="28.5" width="549" height="363" fill="none" stroke={C.accent} strokeOpacity="0.55" />
 
-      {/* Instruments panel */}
+      {/* Instrument panel (open here; View › Instrument panel, or I) */}
       <rect x="550" y="28" width="170" height="364" fill={C.panel} />
       <line x1="550" y1="28" x2="550" y2="392" stroke={C.line2} />
       <T x={558} y={40} size={7} fill={C.fg3} spacing={1}>
@@ -299,45 +258,39 @@ export function ScreenMap() {
         </g>
       ))}
 
-      {/* Footer */}
+      {/* Footer: time, where you are, keys */}
       <rect x="0" y="392" width="720" height="28" fill={C.panel} />
       <line x1="0" y1="392" x2="720" y2="392" stroke={C.line2} />
       <rect x="6" y="398" width="16" height="16" fill="none" stroke={C.line2} />
       <rect x="11" y="402" width="2" height="8" fill={C.fg} />
       <rect x="15" y="402" width="2" height="8" fill={C.fg} />
-      <T x={28} y={409} size={6.5} fill={C.fg3} spacing={1}>
-        RATE
+      <T x={30} y={409} size={8} fill={C.fg2}>
+        ‹
       </T>
-      <rect x="50" y="399" width="112" height="14" fill="none" stroke={C.line2} />
-      {Array.from({ length: 7 }, (_, i) => (
-        <g key={i}>
-          {i > 0 && <line x1={50 + i * 16} y1="399" x2={50 + i * 16} y2="413" stroke={C.line2} />}
-          {i === 2 && <line x1={50 + i * 16 + 1} y1="412" x2={50 + i * 16 + 15} y2="412" stroke={C.accent} strokeWidth="2" />}
-          <text x={50 + i * 16 + 7} y={409} fontSize="6" textAnchor="middle" fontFamily={MONO} fill={i === 2 ? C.accent : C.fg3}>
-            10
-            <tspan dy="-2.6" fontSize="4.2">
-              {i}
-            </tspan>
-          </text>
-        </g>
-      ))}
-      <rect x="168" y="399" width="26" height="14" fill="none" stroke={C.line2} />
-      <T x={181} y={409} size={7} anchor="middle" fill={C.fg} mono={false}>
+      <T x={56} y={409} size={7.5} anchor="middle" fill={C.fg}>
+        2.8 h/s
+      </T>
+      <T x={78} y={409} size={8} fill={C.fg2}>
+        ›
+      </T>
+      <rect x="90" y="399" width="26" height="14" fill="none" stroke={C.line2} />
+      <T x={103} y={409} size={7} anchor="middle" fill={C.fg} mono={false}>
         Now
       </T>
-      <line x1="202" y1="400" x2="202" y2="412" stroke={C.line2} />
-      <T x={210} y={409} size={6.5} fill={C.fg3} spacing={1}>
-        TARGET
+      <line x1="124" y1="400" x2="124" y2="412" stroke={C.line2} />
+      <T x={132} y={409} size={7.5} fill={C.fg2} mono={false}>
+        Solar System
       </T>
-      {targets.map((name) => {
-        const x = tx;
-        tx += name.length * 4.6 + 10;
-        return (
-          <T key={name} x={x} y={409} size={7.5} fill={name === 'Earth' ? C.accent : C.fg2} mono={false}>
-            {name}
-          </T>
-        );
-      })}
+      <T x={180} y={409} size={7.5} fill={C.fg4} mono={false}>
+        ›
+      </T>
+      <T x={188} y={409} size={7.5} fill={C.fg} mono={false}>
+        Earth
+      </T>
+      <ellipse cx="222" cy="405.5" rx="4" ry="1.9" transform="rotate(-24 222 405.5)" fill="none" stroke={C.fg2} strokeWidth="0.9" />
+      <T x={230} y={409} size={7.5} fill={C.fg2} mono={false}>
+        Bodies ▴
+      </T>
       <T x={688} y={409} size={6.5} anchor="end" fill={C.fg2} spacing={0.6}>
         ORBIT · SUN
       </T>
@@ -370,7 +323,7 @@ const WHITE: [number, number, number] = [216, 221, 227];
 const BLUE: [number, number, number] = [134, 182, 255];
 const RED: [number, number, number] = [255, 128, 110];
 
-/** Fig. 6.1: a ring of evenly spaced stars at rest and seen from a ship at β. */
+/** Fig. 7.1: a ring of evenly spaced stars at rest and seen from a ship at β. */
 export function AberrationFigure({ beta = 0.9 }: { beta?: number }) {
   const R = 104;
   const N = 24;
@@ -449,7 +402,7 @@ const FLOW: [string, string][] = [
   ['Report', 'A printable A4 document with everything'],
 ];
 
-/** Fig. 7.1: the stages of an experiment. */
+/** Fig. 9.1: the stages of an experiment. */
 export function WorkflowFigure() {
   return (
     <ol className="doc-flow">

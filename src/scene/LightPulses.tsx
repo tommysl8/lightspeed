@@ -15,6 +15,13 @@ import { createOrbitMaterial } from '../render/materials';
 import { GUIDES_LAYER } from '../render/LightspeedScenePass';
 import { pulses } from '../sim/pulses';
 import { sim } from '../sim/sim';
+import { solarSystemHidden } from '../sim/derived';
+
+/**
+ * Beyond this radius a wavefront is no longer drawn: the ribbon shader squares offsets of order
+ * the radius, and float32 overflows above ~10¹⁹ km. (10¹⁸ km is 100,000 light-years.)
+ */
+const PULSE_MAX_KM = 1e18;
 
 const SEGMENTS = 512;
 const POOL = 4;
@@ -69,7 +76,7 @@ function PulseRing({ slot, outline }: { slot: number; outline: boolean }) {
     const m = mesh.current;
     if (!m) return;
     const R = pulse ? (C_KM_S * (sim.timeMs - pulse.t0Ms)) / 1000 : 0;
-    if (!pulse || !(R > 0)) {
+    if (!pulse || !(R > 0) || R > PULSE_MAX_KM || solarSystemHidden()) {
       m.visible = false;
       return;
     }

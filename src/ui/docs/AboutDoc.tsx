@@ -55,7 +55,7 @@ function CopyButton({ text, label }: { text: string; label: string }) {
 
 const PRINCIPLES: [string, string][] = [
   ['True scale', 'Distances and sizes are never compressed. Drawing bodies larger is an explicit option, and says so.'],
-  ['The real sky', 'Positions from published ephemerides for any instant from 1981 to 2199, among 8 920 catalogued stars.'],
+  ['The real sky', 'Positions from published ephemerides, good to an arcminute from 1700 to 2200 and to about half a degree from 3000 BCE to 3000 CE, among 8,920 catalogued stars.'],
   ['Exact relativity', 'Aberration, Doppler shift, beaming and time dilation follow from the Lorentz transformation, not from low-speed approximations.'],
   ['Fiction labelled', 'The one non-physical feature, faster-than-light travel, is marked in red and never enters the notebook.'],
 ];
@@ -70,7 +70,7 @@ function Overview() {
       </p>
       <p>
         It is for anyone who has wondered what the sky would look like from a starship, and how long the trip would really
-        take. The numbers are always a click away, and the physics is explained as it happens. For students and teachers there
+        take. The numbers are always a click away, and Learn tells the science behind it. For students and teachers there
         is also a lab: five guided experiments in special relativity that use the simulation as apparatus, with a notebook and
         printable reports. It runs in a web browser, needs no installation or account, and keeps anything you record on your
         own computer.
@@ -210,11 +210,11 @@ function Sources() {
         items={[
           <>
             D. Nash, <Ext href="https://codeberg.org/astronexus/hyg">HYG Database v4.4</Ext>, licensed{' '}
-            <Ext href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</Ext>: 8 920 stars to V = 6.5. The derived
+            <Ext href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</Ext>: 8,920 stars to V = 6.5. The derived
             star files are CC BY-SA 4.0.
           </>,
           <>
-            JPL <Ext href="https://ssd-api.jpl.nasa.gov/doc/sbdb_query.html">Small-Body Database</Ext>: 31 930 asteroids, Trojans
+            JPL <Ext href="https://ssd-api.jpl.nasa.gov/doc/sbdb_query.html">Small-Body Database</Ext>: 31,930 asteroids, Trojans
             and trans-Neptunian objects, their orbits solved from Kepler’s equation on the GPU.
           </>,
           <>
@@ -241,7 +241,7 @@ function Sources() {
           <>
             Relativistic rendering: the rest-frame scene is rendered to a cube map and resampled per pixel by the aberration
             formula; point sources are transformed analytically. Colour: a blackbody at <i>D</i>·<i>T</i> for stars; surfaces use
-            a reflectance basis under a 5 772 K spectrum shifted by <i>D</i>, with <i>I</i>′<sub>λ</sub> = <i>D</i>
+            a reflectance basis under a 5,772 K spectrum shifted by <i>D</i>, with <i>I</i>′<sub>λ</sub> = <i>D</i>
             <sup className="sup">5</sup> <i>I</i>
             <sub>λ</sub>(<i>λD</i>).
           </>,
@@ -307,7 +307,7 @@ function Privacy() {
       <p>
         Lightspeed runs entirely in your browser. There are no accounts, cookies, advertising or analytics, and nothing you do is
         sent anywhere. Your preferences, and any readings and written answers from the lab, are kept in this browser’s local
-        storage. The Notebook tab under Physics exports them and clears the readings; clearing this site’s data in your browser
+        storage. The Notebook tab in the lab exports them and clears the readings; clearing this site’s data in your browser
         removes everything. The site is served as static files; the web host may keep ordinary request logs, but Lightspeed
         itself collects nothing.
       </p>

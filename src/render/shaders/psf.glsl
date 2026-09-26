@@ -11,7 +11,8 @@ const float PSF_PEAK_MAX = 24.0;
 const float PSF_CUTOFF = 0.0015;
 
 void psfFromMagnitude(float mag, out float sigmaPx, out float peak, out float sizePx) {
-  float flux = exp2(-1.3287712 * (mag - uMagZero)); // 10^(-0.4 (m - m0))
+  // 10^(-0.4 (m - m0)), kept inside float32's range for any magnitude
+  float flux = exp2(clamp(-1.3287712 * (mag - uMagZero), -126.0, 126.0));
   float p = uStarGain * sqrt(flux);
   // Beyond the cap, spread the excess over a wider core (energy grows ~ peak * sigma^2).
   float spread = p > PSF_PEAK_MAX ? pow(p / PSF_PEAK_MAX, 0.25) : 1.0;

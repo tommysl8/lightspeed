@@ -1,24 +1,38 @@
 import { useEffect } from 'react';
-import { BODY_ORDER, type BodyId } from '../physics/constants';
 import { controller, isTyping } from '../controls/cameraController';
-import { resetToNow, stepWarp, togglePause } from '../sim/clock';
+import { resetToNow, togglePause } from '../sim/clock';
+import { stepRate } from '../sim/travel';
 import { useUI } from '../state/ui';
 import { recordManual } from '../lab/logger';
-import { BODY_KEYS, goToBody } from './navigation';
+import { bodyForKey, goToBody } from './navigation';
 import { openPlanner } from './tripActions';
-import { closeDoc, docRoute } from '../state/route';
+import { openSearch, toggleLab } from './onboarding';
+import { closeDoc, docRoute, openLearn } from '../state/route';
 
 /** Controls that Space activates, or that use the arrow keys, when focused from the keyboard. */
 const OWN_KEYS = 'button, a[href], summary, [role="radio"], [role="tab"], [role="slider"], [role="separator"], [tabindex]';
 
-const KEY_TO_BODY = new Map<string, BodyId>(
-  BODY_ORDER.filter((id) => BODY_KEYS[id]).map((id) => [BODY_KEYS[id]!.toLowerCase(), id]),
-);
 
 export function useShortcuts() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.defaultPrevented || isTyping(e) || e.ctrlKey || e.metaKey || e.altKey) return;
+      if (e.defaultPrevented) return;
+      // Ctrl+K (Cmd+K on a Mac) opens "Where to?" from anywhere but a reading page or dialog,
+      // and a second press closes it, wherever the focus is inside it (never the browser's own
+      // Ctrl+K, which would take focus to the address bar).
+      if ((e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey && e.key.toLowerCase() === 'k') {
+        const u = useUI.getState();
+        if (u.searchOpen) {
+          e.preventDefault();
+          useUI.setState({ searchOpen: false });
+          return;
+        }
+        if (docRoute() || u.reportFor || u.welcomeOpen || u.tourStep !== null || u.journeysOpen || u.keysOpen) return;
+        e.preventDefault();
+        openSearch();
+        return;
+      }
+      if (isTyping(e) || e.ctrlKey || e.metaKey || e.altKey) return;
       // A held key must not repeat readings or toggles; only the rate keys step on repeat.
       if (e.repeat && !'[],.'.includes(e.key)) return;
       if ((e.target as HTMLElement | null)?.tagName === 'SELECT') return;
@@ -31,7 +45,7 @@ export function useShortcuts() {
         if (e.key === 'Escape') closeDoc();
         return;
       }
-      if (ui.reportFor || ui.welcomeOpen || ui.tourStep !== null || ui.journeysOpen || ui.keysOpen) return;
+      if (ui.reportFor || ui.welcomeOpen || ui.tourStep !== null || ui.journeysOpen || ui.keysOpen || ui.searchOpen) return;
       if (!ui.shortcuts && e.key !== 'Escape') return;
       // Space presses a button that was reached with Tab; it pauses only otherwise.
       const t = e.target as HTMLElement | null;
@@ -39,6 +53,11 @@ export function useShortcuts() {
 
       if (e.key === '?') {
         useUI.setState({ keysOpen: true });
+        return;
+      }
+      if (e.key === '/') {
+        e.preventDefault(); // or the slash lands in the search field as it takes focus
+        openSearch();
         return;
       }
       if (e.key === 'Escape') {
@@ -54,8 +73,8 @@ export function useShortcuts() {
         togglePause();
         return;
       }
-      if (k === '[' || k === ',') return stepWarp(-1);
-      if (k === ']' || k === '.') return stepWarp(1);
+      if (k === '[' || k === ',') return stepRate(-1);
+      if (k === ']' || k === '.') return stepRate(1);
       if (k === 'n') return resetToNow();
       if (k === 'z') {
         useUI.setState({ relMode: ui.relMode === 'off' ? 'on' : 'off' });
@@ -74,11 +93,14 @@ export function useShortcuts() {
       // Letters used for flying are not shortcuts while in flight.
       if (flying && 'wasdqerc'.includes(k)) return;
       if (k === 'e') {
-        const onRef = ui.leftOpen && ui.manualTab === 'reference';
-        useUI.setState(onRef ? { leftOpen: false } : { leftOpen: true, manualTab: 'reference' });
+        openLearn();
         return;
       }
+      // R records a lab reading, and only for someone using the lab: a stray R (next to WASD)
+      // must not bring up lab messages for anyone else.
       if (k === 'r') {
+        const byHand = ui.experiment === 'E3' || ui.experiment === 'E4';
+        if (!ui.leftOpen && !(ui.labUsed && byHand)) return;
         e.preventDefault();
         recordManual();
         return;
@@ -88,7 +110,8 @@ export function useShortcuts() {
         return;
       }
 
-      const body = KEY_TO_BODY.get(k);
+      // Body keys come from the registry: 0–9, M and V for the built-in bodies.
+      const body = bodyForKey(k);
       if (body) {
         if (ui.tripActive) ui.select(body);
         else goToBody(body);
@@ -117,7 +140,7 @@ export function useShortcuts() {
           ui.toggle('showGrid');
           break;
         case 'k':
-          ui.toggle('leftOpen');
+          toggleLab();
           break;
         case 'i':
           ui.toggle('rightOpen');
