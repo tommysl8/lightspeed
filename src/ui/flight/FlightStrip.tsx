@@ -5,7 +5,8 @@
  * arrival, a card sums the trip up in words.
  */
 import type { ReactNode } from 'react';
-import { BODIES, C_KM_S } from '../../physics/constants';
+import { C_KM_S } from '../../physics/constants';
+import { bodyName } from '../../sim/bodies';
 import { fmtBeta, qty, sig } from '../../lib/sci';
 import { formatClock } from '../../lib/format';
 import { formatDurationShort, formatSimDate } from '../../lib/time';
@@ -159,7 +160,7 @@ function InFlight({ t }: { t: Trip }) {
       <div className={`flex items-center gap-2 px-3 pb-1 pt-2 ${t.warp ? 'hatch' : ''}`}>
         <span className={`cap shrink-0 ${t.warp ? '!text-hazard' : '!text-data'}`}>In flight</span>
         <span className="min-w-0 truncate text-[13px] text-fg">
-          → {BODIES[t.dest].name}
+          → {bodyName(t.dest)}
           <span className="text-fg-3">
             {' '}
             · {drive} · {phase}
@@ -216,7 +217,7 @@ function InFlight({ t }: { t: Trip }) {
 function Report() {
   const a = travel.lastArrival!;
   const labUsed = useUI((s) => s.labUsed);
-  const text = arrivalText({ destName: BODIES[a.dest].name, earthTime: a.earthTime, shipTime: a.shipTime, warp: a.warp, endMs: a.endMs });
+  const text = arrivalText({ destName: bodyName(a.dest), earthTime: a.earthTime, shipTime: a.shipTime, warp: a.warp, endMs: a.endMs });
   // The lab's bookkeeping is mentioned only to those who have opened the lab.
   const logged = labUsed && !a.warp && lastTrial.at === a.at ? lastTrial : null;
   return (

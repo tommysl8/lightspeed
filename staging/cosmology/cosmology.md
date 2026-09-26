@@ -27,7 +27,7 @@ python staging/cosmology/fixtures/make_fixtures.py        # rebuilds src/fixture
 | `src/appearance.ts` | emission time, redshift, distances, Tolman dimming, Doppler and aberration, GPU lookup table + GLSL |
 | `src/future.ts` | home clock: the Sun, the Earth, the Local Group, the CMB at any cosmic time |
 | `src/index.ts` | public surface |
-| `future.json` | literature values for the home clock (14.6 kB, 4.6 kB gzipped), built by `scripts/build-cosmology-future.mjs` |
+| `future.json` | literature values for the home clock, including four extragalactic landmarks (16.7 kB, 5.3 kB gzipped), built by `scripts/build-cosmology-future.mjs` |
 | `src/fixtures/reference.json` | reference values from an independent Python implementation and astropy |
 | `fixtures/make_fixtures.py` | generator of the reference values |
 | `tools/trip-table.ts` | prints the tables below |
@@ -534,7 +534,7 @@ request uses `planStaticCruise`: 0.3 Mpc at gamma = 100 takes 9,793.5 yr aboard 
   in which the massive neutrino is matter at all times. Measured against this one: chi(z) agrees to 3.9e-9 at
   z = 0.1, 8.7e-8 at z = 1, 4.1e-7 at z = 3, 2.0e-6 at z = 10 and 3.6e-4 at z = 1100; the age today to 7.0e-6 and
   the age at z = 10 to 1.8e-4. Using this module everywhere keeps the app self-consistent.
-- No files are loaded at run time except `future.json` (import it as JSON; 4.6 kB gzipped). Nothing here needs
+- No files are loaded at run time except `future.json` (import it as JSON; 5.3 kB gzipped). Nothing here needs
   DecompressionStream.
 
 ## 8. Sources

@@ -2,14 +2,35 @@
 
 Compact fitted orbit models for 25 moons, plus Pluto about the Pluto–Charon barycentre. They are evaluated in the
 browser from `public/data/moons.json`. Every model reproduces JPL Horizons well inside the requirement
-max(100 km, 5·10⁻⁴ a) over 1981-01-01 to 2199-12-31 TDB. Relative to their targets, Nereid (54 %) and Hyperion
-(49 %) are the worst; every other body is under 10 % of its target. The measured errors are in the table below.
+max(100 km, 5·10⁻⁴ a) over 1981-01-01 to 2199-12-31 TDB. Each model carries a stated error bound (`boundKm`) and an
+out-of-sample RMS measured on about 19,000 epochs the fit never saw. Relative to their targets, the worst bounds
+are Nereid's (69 %) and Hyperion's (62 %); every other body's bound is at most 13 % of its target (Europa). The measured errors
+are in the table below.
+
+### Changes after the independent verification (2026-09-25)
+
+An independent check against 72 fresh Horizons epochs per body passed every model, and found three things to fix in
+how the accuracy was stated. The models themselves are unchanged.
+
+- **RMS was in-sample.** `rmsKm` was measured on the fitted grid, which flatters the fit: out of sample it was up to
+  1.7× higher (Europa 9.2 km against 5.4). `rmsKm` is now the RMS on a new validation grid of about 19,000 epochs per
+  body that the fit never saw; the in-sample figure is kept as `fitRmsKm`. Out of sample is 1.5–1.8× higher for Io,
+  Europa, Titan and Nix, 3.7× for Proteus, and at most 1.2× for the others.
+- **`maxKm` was not a bound.** Nix reached 5.37 km against a stated maximum of 5.01. `maxKm` is now the largest error
+  seen on every set, the validation grid included (the validation grid raised it for 12 bodies, most by under 10 %;
+  the largest changes are Titan from 27 to 40 km, Io from 12 to 16 km and Nix from 5.0 to 5.8 km), and it is
+  described as what it is: an observed maximum. A new
+  field, `boundKm` = 1.25 × `maxKm` rounded up to two figures, is the stated bound to quote. The independent check's
+  worst errors are all inside it (Nix 5.37 km against 7.2).
+- **Neptune's and Pluto's windows end a day or two early** (2199-12-30 and 2199-12-29), because Horizons' satellite
+  ephemerides stop there. This is a Horizons limit and cannot be fixed here; it is stated under Regimes and in
+  `window`.
 
 | Item | Path |
 | --- | --- |
-| Data | `public/data/moons.json` (149 KB, plain JSON) |
+| Data | `public/data/moons.json` (153 KB, plain JSON) |
 | Evaluator | `staging/phase2/src/sim/moonModels.ts` (pure functions, no dependencies) |
-| Tests | `staging/phase2/src/sim/moonModels.test.ts` (136 tests) and `staging/phase2/src/sim/__fixtures__/moon-checkpoints.json` (126 KB) |
+| Tests | `staging/phase2/src/sim/moonModels.test.ts` (137 tests) and `staging/phase2/src/sim/__fixtures__/moon-checkpoints.json` (125 KB) |
 | Build | `scripts/build-moons.mjs`, which reads its Horizons cache from `data-raw/moons/` |
 
 Run the tests with `npx vitest run --root staging/phase2 moonModels`. The test file finds `public/data/moons.json`
@@ -45,6 +66,11 @@ have fitted models too, and the app should use them instead of `JupiterMoons()`.
 - **Heliocentric position of a moon:** `planetHelio(t) + evalMoon(model, t)`, with the planet from
   astronomy-engine. Every model is relative to its planet, so the moons sit correctly around the planet however
   large the error of the planetary theory (thousands of km for the giant planets).
+- **Build astronomy-engine's time from TT:** `AstroTime.FromTerrestrialTime(tdbDays)`, or simply use the app's
+  `AstroTime` and pass its `.tt` here. `MakeTime(tdbDays)` reads its argument as UT; the planet would then be placed
+  ΔT (about a minute now, several minutes near 2200) away from the moon models' time, which for Jupiter is about
+  800 km of orbital motion. The moons would still sit correctly around the planet, but the whole system would be
+  shifted along its orbit.
 
 ## API (`moonModels.ts`)
 
@@ -81,9 +107,14 @@ often; it costs one `moonElements` call.
   and for Nereid, Nix and Hydra, whose spin periods are unrelated to their orbits. It is true for Pluto, which is
   locked to Charon.
 - `accuracy`
-  - `maxKm`: the worst error over the fitted samples inside the window, the independent dense window and the
-    independent checkpoints.
-  - `rmsKm`, `fitMaxKm`, `denseMaxKm`, `checkpointMaxKm` and `targetKm`.
+  - `boundKm`: **the stated error bound** inside the window, km: 1.25 × `maxKm` rounded up to two figures. It is a
+    margin over the largest error seen, not a proof; no check so far has exceeded it.
+  - `maxKm`: the largest error seen inside the window over every set compared (the fitted grid, the dense window,
+    the 64 checkpoints and the validation grid): an observed maximum over 60,000–230,000 epochs.
+  - `rmsKm`: RMS error on the validation grid, epochs the fit never saw (**out of sample**).
+  - `fitRmsKm`: RMS error on the fitted grid (in sample; lower, see Accuracy).
+  - `validation`: `{ points, stepMinutes, startTdb, maxKm, maxAtTdb, rmsKm }` of the validation grid.
+  - `fitMaxKm`, `denseMaxKm`, `checkpointMaxKm` and `targetKm`.
   - `illustrativeOutsideKm`: errors at Horizons epochs outside 1981–2199, to show how the illustrative mode
     degrades.
 - `horizons` (target, centre, ephemeris) and `source`: what the model was fitted to.
@@ -176,12 +207,16 @@ frame is (2cp, −2cq, 1 − 2(q² + p²)).
    | 1.0 d | Titan, Hyperion, Titania, Oberon |
    | 2.0 d | Phobos, Iapetus, Triton, Nereid, Proteus, Charon, Pluto |
 
-   That gives 42 000 to 209 000 epochs per body. Two further sets are fetched separately and are never part of
+   That gives 42 000 to 209 000 epochs per body. Three further sets are fetched separately and are never part of
    the least-squares fit; they measure the error between grid points:
    - a dense window from 2020-01-01, at least a year and 24 orbits long, sampled at 1/16 of the period. It is also
      used to calibrate the effective GM (step 3) and to choose between aliases (step 5).
    - 64 random epochs per body (seeded, reproducible), plus a few outside the window. These are not used by the
      fit at all.
+   - the **validation grid**: positions every 6 007 minutes (4.17 days) across the whole window, starting 0.3137 days
+     after its start, so that no epoch coincides with a fitted sample (those are whole minutes from the start). That
+     is 19 173–19 174 epochs per body, at effectively random phases of every short-period term. It is not used by
+     the fit at all, and it is where `rmsKm` comes from.
 2. **Reference plane.** The pole of the fit frame is:
    - the Laplace-plane pole from JPL's mean-element table for the moons of Mars, Jupiter, Saturn and Neptune;
    - the IAU pole of the planet for Uranus and the Pluto system;
@@ -229,53 +264,64 @@ frame is (2cp, −2cq, 1 − 2(q² + p²)).
 
 ## Accuracy
 
-The errors below are 3-D position errors against Horizons, in km.
-- **Max** is the worst over the fitted samples inside the precise window, the independent dense window and the
-  independent checkpoints.
-- **Dense** and **checkpoints** are the two separately fetched sets on their own. Neither is part of the
-  least-squares fit; the checkpoints are not used by the fit in any way.
+The errors below are 3-D position errors against Horizons, in km, computed with the rounded model exactly as shipped.
+- **Bound** (`boundKm`) is the figure to quote: 1.25 × Max, rounded up to two figures.
+- **Max** is the largest error seen on any set inside the precise window: the fitted grid, the dense window, the
+  checkpoints and the validation grid. It is an observed maximum, not a guarantee.
+- **RMS** is over the validation grid, out of sample. **Fit RMS** is over the fitted grid, in sample. A fit's own
+  samples tend to look better than the epochs between them, because the terms were chosen and fitted there. The gap
+  is largest for Proteus (3.7×), whose 2-day grid is slower than its 1.1-day orbit, and 1.5–1.8× for Io, Europa,
+  Titan and Nix; for the other 21 bodies out of sample is within 1.22× of in sample.
+- **Validation**, **Dense** and **Checkpoints** are the three separately fetched sets on their own. None of them is
+  part of the least-squares fit (the dense window steers GM calibration and alias choice only).
+- **Independent check** is the worst of 72 fresh Horizons epochs per body from the separate verification
+  (40 random epochs, a 16-point burst over one orbit, the window edges, the first year and the last two years).
 - The requirement (target) is max(100 km, 5·10⁻⁴ a).
 
-| Body | a (km) | Target | Max | RMS | Dense window max | Checkpoints max | Terms | JSON |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Phobos | 9,375 | 100 | **2.1** | 0.6 | 1.0 | 1.6 | 17 | 2.0 KB |
-| Deimos | 23,458 | 100 | **1.8** | 0.7 | 1.6 | 1.1 | 26 | 2.3 KB |
-| Io | 421,766 | 211 | **12** | 2.5 | 10 | 6.8 | 57 | 3.5 KB |
-| Europa | 671,059 | 336 | **31** | 5.4 | 24 | 22 | 106 | 5.4 KB |
-| Ganymede | 1,070,430 | 535 | **44** | 8.2 | 24 | 17 | 106 | 5.6 KB |
-| Callisto | 1,882,745 | 941 | **43** | 13 | 29 | 20 | 84 | 4.7 KB |
-| Mimas | 185,536 | 100 | **8.0** | 2.0 | 7.1 | 4.1 | 197 | 9.0 KB |
-| Enceladus | 238,036 | 119 | **8.8** | 2.1 | 7.0 | 7.2 | 72 | 4.0 KB |
-| Tethys | 294,673 | 147 | **8.4** | 2.2 | 6.5 | 5.2 | 94 | 4.9 KB |
-| Dione | 377,415 | 189 | **7.4** | 2.2 | 5.2 | 5.1 | 84 | 4.5 KB |
-| Rhea | 527,068 | 264 | **11** | 3.4 | 6.7 | 5.7 | 76 | 4.3 KB |
-| Titan | 1,221,865 | 611 | **27** | 6.5 | 25 | 22 | 48 | 3.3 KB |
-| Hyperion | 1,480,903 | 740 | **360** | 81 | 269 | 178 | 512 | 21.5 KB |
-| Iapetus | 3,560,843 | 1780 | **93** | 31 | 89 | 65 | 137 | 6.9 KB |
-| Miranda | 129,848 | 100 | **9.4** | 2.1 | 3.6 | 6.6 | 81 | 4.5 KB |
-| Ariel | 190,929 | 100 | **5.9** | 1.4 | 4.2 | 5.1 | 95 | 5.0 KB |
-| Umbriel | 265,981 | 133 | **8.6** | 2.1 | 7.3 | 6.9 | 118 | 5.8 KB |
-| Titania | 436,281 | 218 | **14** | 3.1 | 8.0 | 6.5 | 125 | 6.1 KB |
-| Oberon | 583,449 | 292 | **15** | 3.6 | 9.6 | 7.3 | 113 | 5.8 KB |
-| Triton | 354,759 | 177 | **10** | 1.9 | 3.4 | 4.3 | 13 | 1.8 KB |
-| Nereid | 5,493,976 | 2747 | **1482** | 137 | 622 | 270 | 603 | 24.6 KB |
-| Proteus | 117,647 | 100 | **6.3** | 0.6 | 6.3 | 4.6 | 20 | 2.0 KB |
-| Charon | 17,464 | 100 | **0.8** | 0.4 | 0.7 | 0.8 | 3 | 1.4 KB |
-| Nix | 48,689 | 100 | **5.0** | 1.1 | 5.0 | 4.8 | 71 | 3.9 KB |
-| Hydra | 64,719 | 100 | **3.9** | 1.1 | 3.8 | 2.4 | 66 | 3.7 KB |
-| Pluto | 2,132 | 100 | **0.6** | 0.3 | 0.6 | 0.5 | 2 | 1.3 KB |
+| Body | a (km) | Target | Bound | Max | RMS | Fit RMS | Validation max | Dense max | Checkpoints max | Independent check | JSON |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Phobos | 9,375 | 100 | **2.7** | 2.14 | 0.63 | 0.63 | 2.05 | 1.02 | 1.60 | 1.83 | 2.1 KB |
+| Deimos | 23,458 | 100 | **2.3** | 1.82 | 0.67 | 0.67 | 1.75 | 1.59 | 1.07 | 1.35 | 2.5 KB |
+| Io | 421,766 | 211 | **21** | 16.0 | 3.76 | 2.49 | 16.0 | 10.3 | 6.82 | 8.10 | 3.6 KB |
+| Europa | 671,059 | 336 | **43** | 34.3 | 8.93 | 5.44 | 34.3 | 23.9 | 22.3 | 24.0 | 5.6 KB |
+| Ganymede | 1,070,430 | 535 | **55** | 43.8 | 8.24 | 8.21 | 41.3 | 23.6 | 17.3 | 27.5 | 5.7 KB |
+| Callisto | 1,882,745 | 941 | **54** | 42.6 | 13.1 | 13.1 | 42.3 | 29.1 | 20.2 | 34.9 | 4.8 KB |
+| Mimas | 185,536 | 100 | **10** | 8.00 | 2.03 | 2.03 | 7.47 | 7.11 | 4.07 | 5.62 | 9.2 KB |
+| Enceladus | 238,036 | 119 | **14** | 10.7 | 2.49 | 2.08 | 10.7 | 6.99 | 7.15 | 6.77 | 4.2 KB |
+| Tethys | 294,673 | 147 | **11** | 8.45 | 2.73 | 2.24 | 8.01 | 6.49 | 5.21 | 3.98 | 5.0 KB |
+| Dione | 377,415 | 189 | **9.3** | 7.37 | 2.20 | 2.23 | 6.71 | 5.16 | 5.09 | 5.45 | 4.6 KB |
+| Rhea | 527,068 | 264 | **14** | 10.9 | 3.40 | 3.40 | 10.2 | 6.66 | 5.71 | 8.03 | 4.4 KB |
+| Titan | 1,221,865 | 611 | **50** | 39.7 | 11.1 | 6.46 | 39.7 | 25.3 | 22.1 | 23.5 | 3.5 KB |
+| Hyperion | 1,480,903 | 740 | **460** | 360 | 81.6 | 81.0 | 330 | 269 | 178 | 314 | 21.6 KB |
+| Iapetus | 3,560,843 | 1780 | **120** | 95.2 | 31.2 | 31.2 | 95.2 | 88.6 | 65.0 | 71.7 | 7.0 KB |
+| Miranda | 129,848 | 100 | **12** | 9.53 | 2.18 | 2.10 | 9.53 | 3.61 | 6.56 | 6.22 | 4.6 KB |
+| Ariel | 190,929 | 100 | **7.4** | 5.86 | 1.51 | 1.45 | 4.56 | 4.19 | 5.09 | 5.04 | 5.1 KB |
+| Umbriel | 265,981 | 133 | **12** | 9.05 | 2.51 | 2.12 | 9.05 | 7.31 | 6.92 | 6.92 | 6.0 KB |
+| Titania | 436,281 | 218 | **18** | 14.2 | 3.10 | 3.10 | 14.2 | 7.95 | 6.49 | 10.6 | 6.2 KB |
+| Oberon | 583,449 | 292 | **19** | 14.8 | 3.56 | 3.57 | 14.5 | 9.61 | 7.28 | 11.3 | 6.0 KB |
+| Triton | 354,759 | 177 | **13** | 10.4 | 1.88 | 1.88 | 10.3 | 3.38 | 4.31 | 10.2 | 1.9 KB |
+| Nereid | 5,493,976 | 2747 | **1900** | 1482 | 137 | 137 | 1183 | 622 | 270 | 818 | 24.8 KB |
+| Proteus | 117,647 | 100 | **8.0** | 6.36 | 2.23 | 0.61 | 6.36 | 6.31 | 4.60 | 4.71 | 2.2 KB |
+| Charon | 17,464 | 100 | **1.3** | 1.00 | 0.43 | 0.41 | 1.00 | 0.74 | 0.82 | 0.81 | 1.5 KB |
+| Nix | 48,689 | 100 | **7.2** | 5.76 | 1.94 | 1.07 | 5.76 | 5.01 | 4.75 | 5.37 | 4.0 KB |
+| Hydra | 64,719 | 100 | **4.9** | 3.85 | 1.08 | 1.09 | 3.62 | 3.75 | 2.36 | 2.65 | 3.9 KB |
+| Pluto | 2,132 | 100 | **0.75** | 0.60 | 0.28 | 0.25 | 0.60 | 0.55 | 0.50 | 0.52 | 1.5 KB |
+
+The number of periodic terms per body is unchanged (2 926 in all; Mimas 197, Hyperion 512, Nereid 603, the rest
+2–137). The JSON column now includes the larger accuracy block.
 
 In PLU060 the Charon–Pluto binary is almost exactly Keplerian: 3 and 2 periodic terms suffice. Nix and Hydra carry
 the circumbinary short-period terms, up to 740 km-equivalent in Nix's mean longitude at 2(λ_Charon − λ_Nix).
 
 **Hyperion and Nereid** are the two bodies over the "about 20 KB" guideline:
 - Hyperion's orbit is regular, even though its rotation is chaotic. It needs the resonant libration, the
-  pericentre locked to Titan and many Titan terms. Its model is 21.5 KB and meets the target with a factor of two
-  in hand.
-- Nereid (e = 0.75, strongly perturbed by the Sun) needs many harmonics of its mean anomaly. Its model is 24.6 KB.
+  pericentre locked to Titan and many Titan terms. Its model is 21.6 KB and its bound (460 km) is 62 % of the target.
+- Nereid (e = 0.75, strongly perturbed by the Sun) needs many harmonics of its mean anomaly. Its model is 24.8 KB,
+  and its bound (1 900 km) is 69 % of the target.
   The 1 482 km worst case is a pericentre passage in mid-2199, half a year before Horizons' NEP098 ends (so the
   fit cannot extend past it). Before 2191 no decade exceeds 940 km. Hyperion's worst case (360 km) is also in the
-  last decade; earlier decades stay under 330 km.
+  last decade; earlier decades stay under 330 km. The validation grid shows the same pattern for Titan (39.7 km on
+  2191-01-10) and Io (16.0 km on 2198-01-02): for these bodies the largest errors come in the window's last decade.
 
 Both can be cut below 20 KB by raising their thresholds (`opt.thrFrac` in the build script) if the size matters
 more than the margin.
@@ -285,8 +331,8 @@ with positions converted from EQJ using `Rotation_EQJ_ECL`:
 
 | Moon | Max error | RMS error | Target | Fitted model max |
 | --- | ---: | ---: | ---: | ---: |
-| Io | 952 km | 482 km | 211 km | 11.8 km |
-| Europa | 560 km | 213 km | 336 km | 30.5 km |
+| Io | 952 km | 482 km | 211 km | 16.0 km |
+| Europa | 560 km | 213 km | 336 km | 34.3 km |
 | Ganymede | 608 km | 282 km | 535 km | 43.8 km |
 | Callisto | 896 km | 427 km | 941 km | 42.6 km |
 
@@ -342,18 +388,22 @@ A suggested row for `CREDITS.md`:
 node scripts/build-moons.mjs                 # everything; writes moons.json and the test fixture
 node scripts/build-moons.mjs --only titan    # refit some bodies, keep the others
 node scripts/build-moons.mjs --jobs 2        # fewer worker threads (default: cores − 1)
+node scripts/build-moons.mjs --validate-only # re-measure the shipped models on the validation grid (no refit)
 ```
 
 1. **Cache check.** The script first makes sure every Horizons response it needs is in `data-raw/moons/`: one
-   gzipped file per request, 182 MB in 253 files. Any missing files are fetched one at a time, 1.5 s apart, with
-   back-off on errors. Horizons sometimes drops the last grid point of a chunk (its STOP_TIME rounds down), so
+   gzipped file per request, 202 MB in 279 files (26 of them, 20 MB, the validation grids). Any missing files are
+   fetched one at a time, 1.5 s apart, with back-off on errors. Horizons sometimes drops the last grid point of a chunk (its STOP_TIME rounds down), so
    those single epochs are fetched separately by time list.
 2. **Fitting.** Worker threads, which never touch the network, do the fitting. A full rebuild takes about 45
    minutes on 5 threads; Hyperion and Nereid take 20 minutes each. The output is deterministic for a given cache
    and Node version.
-3. **Summary.** The script prints an accuracy table and the astronomy-engine comparison.
+3. **Validation.** Each fitted model is measured on its validation grid, which fills in `rmsKm`, `maxKm`,
+   `boundKm` and `validation`. `--validate-only` does just this for the models already in `moons.json`, without
+   refitting (a refit of Phobos through the full path reproduces the validated file byte for byte).
+4. **Summary.** The script prints an accuracy table and the astronomy-engine comparison.
 
-The build reads 250 of the 253 cached files. The two unused Horizons files come from exploratory runs and can be
+The build reads 276 of the 279 cached files. The two unused Horizons files come from exploratory runs and can be
 deleted:
 - `v2_402_499_2444605.50000_2524593.44375_2887m.txt.gz`: an early Deimos grid at a 2-day step, replaced by the
   0.7-day grid;
@@ -365,7 +415,11 @@ from.
 ## Known limitations
 
 - Horizons' satellite ephemerides for Neptune and Pluto stop at 2199-12-30 and 2199-12-29. The precise window ends
-  there, one or two days short of 2199-12-31. The illustrative mode takes over smoothly.
+  there, one or two days short of 2199-12-31. The illustrative mode takes over smoothly (checked C¹ across the edge),
+  and for the last day or two it is still within a few km of where the precise model would be.
+- The bounds are measured, not proven. They sit 25 % above the largest of 60 000–230 000 comparisons per body, and no
+  independent check has come near them, but a rare configuration (a Nereid pericentre, a Hyperion–Titan
+  conjunction) could in principle exceed a body's observed maximum.
 - Only positions are modelled. `evalMoonVelocity` differentiates them numerically. Against Horizons velocities in
   the dense 2020 window its error is at most 1.1 m/s for all bodies except Hyperion (2.1 m/s) and Nereid
   (9.0 m/s).

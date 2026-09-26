@@ -9,11 +9,11 @@ updated: 2026-09-25
 
 Between 10 and 12 January 2024 the James Webb Space Telescope held its near-infrared spectrograph, NIRSpec, on one faint smudge for almost ten hours.[^carniani2024][^nasa2024] The JADES team had flagged the smudge a year earlier as a galaxy that might date from less than 300 million years after the Big Bang, and then hesitated. It was too bright for something that far away, and it sat 0.4 arcseconds from an ordinary foreground galaxy that could have been fooling them.[^nasa2024][^carniani2024]
 
-The spectrum settled it. The light stopped dead at about 1.86 micrometres, which is where hydrogen's ultraviolet cut-off at 121.6 nm lands once it has been stretched by a factor of about 15. The smudge was a galaxy, JADES-GS-z14-0, and it was the most distant ever confirmed.[^carniani2024] Later that year the ALMA radio telescopes in Chile caught the glow of its oxygen and pinned the redshift at 14.18.[^carniani2025]
+The spectrum settled it. The light stopped dead at about 1.85 micrometres, which is where hydrogen's ultraviolet cut-off at 121.6 nm lands once it has been stretched by a factor of about 15. The smudge was a galaxy, JADES-GS-z14-0, and it was the most distant ever confirmed.[^carniani2024] Later that year the ALMA radio telescopes in Chile caught the glow of its oxygen and pinned the redshift at 14.18.[^carniani2025]
 
 Its light had been travelling for 13.5 billion years. The stranger fact is where the galaxy is now: about 33.7 billion light-years away, with that distance growing at more than twice the speed of light.[^calc] A radio message sent towards it today would never arrive, not in a trillion years, and nor would any ship. We can see JADES-GS-z14-0, and we can never touch it.
 
-The boundary between what we can see and what we could ever reach lies about 16.6 billion light-years away. It exists because the expansion of the universe is speeding up, and it is closing in on us by a light-year every year.[^calc]
+The boundary between what we can see and what we could ever reach lies about 16.6 billion light-years away. It exists because the expansion of the universe is speeding up, and, measured in today's distances, it is closing in on us by a light-year every year.[^calc]
 
 ::: see-it go:jades-gs-z14-0
 The camera glides to JADES-GS-z14-0 and shows its card. What you are looking at left the galaxy 13.5 billion years ago, when it was 2.2 billion light-years from us; it is now 33.7 billion light-years away.
@@ -43,13 +43,13 @@ The sum in the bracket, the harmonic series, grows without limit, but only about
 The natural logarithm of $n$, written $\ln n$, answers the question "$e$ to what power gives $n$?", where $e \approx 2.718$. So $\ln 1{,}000 \approx 6.9$ and $\ln 1{,}000{,}000 \approx 13.8$: each extra factor of a thousand adds only 6.9. The sum $1 + \tfrac12 + \tfrac13 + \cdots + \tfrac1n$ stays close to $\ln n + 0.58$, which is why it grows without limit, and so slowly.
 :::
 
-Now change one rule: the rope doubles in length every second. Paint marks on the rubber before the stretching begins, a centimetre apart. In the first second the ant walks past one mark. In the next the rope is twice as long, so its centimetre of walking covers only half the gap between marks. Then a quarter, then an eighth. Counted in marks, the total is
+Now change one rule: the rope doubles in length every second. To keep the sums simple, let each doubling happen in a sudden jerk at the end of the second. Paint marks on the rubber before the stretching begins, a centimetre apart. In the first second the ant walks past one mark. In the next the rope is twice as long, so its centimetre of walking covers only half the gap between marks. Then a quarter, then an eighth. Counted in marks, the total is
 
 $$1 + \frac{1}{2} + \frac{1}{4} + \frac{1}{8} + \cdots = 2$$
 
 In words: start with one, keep adding half of whatever you added last, and the total creeps up on two without ever passing it.
 
-Worked example: after 4 seconds the ant has covered $1 + 0.5 + 0.25 + 0.125 = 1.875$ cm of the original rope, and after 10 seconds 1.998 cm. It passes the mark that started 1.9 cm away a little after 4 seconds. The mark that started 2 cm away is never reached, and nor is the rest of the kilometre, although the ant never stops walking.[^calc]
+Worked example: after 4 seconds the ant has covered $1 + 0.5 + 0.25 + 0.125 = 1.875$ cm of the original rope, and after 10 seconds 1.998 cm. It passes the mark that started 1.9 cm away a little after 4 seconds. The mark that started 2 cm away is never reached, and nor is the rest of the kilometre, although the ant never stops walking. (If the rope stretched smoothly instead of in jerks, the limit would be lower, about 1.44 cm, but still finite.)[^calc]
 
 That 2 cm mark is an event horizon. What separates the two ropes is not how fast they stretch but whether the stretching speeds up. Steady stretching gives a series that grows without limit, and the ant arrives; accelerating stretching gives a finite total. In the universe the ant is a beam of light and the marks are galaxies, and the open question after Rindler was which kind of rope we are on.
 
@@ -57,11 +57,11 @@ That 2 cm mark is an event horizon. What separates the two ropes is not how fast
 
 In the autumn of 1997 Adam Riess, a postdoctoral fellow at the University of California, Berkeley, was analysing supernovae for the High-z Supernova Search Team led by Brian Schmidt.[^riessnobel][^nobel2011] Type Ia supernovae can be calibrated to nearly the same peak brightness, so how faint one looks tells you its distance, and its redshift tells you how much the universe has stretched since it exploded. Compare distant ones with nearby ones and you can measure how the expansion has changed.[^riess1998]
 
-The team expected to measure how much the expansion had slowed, and from that how much matter the universe contains. The answer Riess wrote in his lab notebook was a matter density of $-0.36 \pm 0.18$: less than nothing.[^riessnobel] Negative mass does not exist. The distant supernovae were 10 to 15% farther away than they should have been in a universe without a cosmological constant, and the only sensible reading was that the expansion had been speeding up.[^riess1998]
+The team expected to measure how much the expansion had slowed, and from that how much matter the universe contains. The answer Riess wrote in his lab notebook was a matter density of $-0.36 \pm 0.18$: less than nothing.[^riessnobel] Negative mass does not exist. The distant supernovae were 10 to 15% farther away than they should have been in a low-density universe without a cosmological constant, and the only sensible reading was that the expansion had been speeding up.[^riess1998]
 
-He spent weeks hunting for a mistake and found none. In early January 1998 Schmidt ran the calculation and got the same answer. Riess married on 10 January, and two days later, on the eve of his honeymoon, he emailed the team: "Approach these results not with your heart or head but with your eyes."[^riessnobel] The paper went to the *Astronomical Journal* on 13 March 1998.[^riessnobel] The rival Supernova Cosmology Project, led by Saul Perlmutter and at work since 1988, reached the same conclusion from 42 distant supernovae.[^perlmutter1999][^nobel2011] Perlmutter, Schmidt and Riess shared the 2011 Nobel Prize in Physics.[^nobel2011]
+He spent a couple of weeks hunting for a mistake and found none. In early January 1998 Schmidt ran the calculation and got the same answer. Riess married on 10 January, and two days later, on the eve of his honeymoon, he emailed the team: "Approach these results not with your heart or head but with your eyes."[^riessnobel] The paper went to the *Astronomical Journal* on 13 March 1998.[^riessnobel] The rival Supernova Cosmology Project, led by Saul Perlmutter and at work since 1988, reached the same conclusion from 42 distant supernovae.[^perlmutter1999][^nobel2011] Perlmutter, Schmidt and Riess shared the 2011 Nobel Prize in Physics.[^nobel2011]
 
-Whatever drives the acceleration is called dark energy. The simplest version is de Sitter's cosmological constant, an energy of empty space itself, whose density stays the same as space expands while matter thins out. It now makes up about 69% of the universe's energy.[^planck2018] As the matter keeps thinning, the constant takes over and the universe settles into de Sitter's model, doubling in size every 12 billion years or so.[^calc] That is the doubling rope. Our universe has an event horizon, and most of what we can see lies beyond it.
+Whatever drives the acceleration is called dark energy. The simplest version is Einstein's cosmological constant, the one ingredient of de Sitter's model: an energy of empty space itself, whose density stays the same as space expands while matter thins out. It now makes up about 69% of the universe's energy.[^planck2018] As the matter keeps thinning, the constant takes over and the universe settles into de Sitter's model, doubling in size every 12 billion years or so.[^calc] That is the doubling rope. Our universe has an event horizon, and most of what we can see lies beyond it.
 
 ::: timeline Horizons since 1917
 - **1917:** de Sitter's empty universe, with a horizon.
@@ -184,7 +184,7 @@ Stopping at the far end costs about as much time again. Here is the app's 1 g fl
 | Bullet Cluster | 4.0 billion ly | 43.2 years | 4.6 billion years |
 | A galaxy at redshift 1 | 11.1 billion ly | 46.0 years | 18.9 billion years |
 | A galaxy at redshift 1.5 | 14.6 billion ly | 47.6 years | 36.7 billion years |
-| 99% of the way to the edge | 16.4 billion ly | 50.2 years | 80 billion years |
+| 99% of the way to the edge | 16.4 billion ly | 50.2 years | 78 billion years |
 | JADES-GS-z14-0 | 33.7 billion ly | never | never |
 
 The ship times hardly grow. A galaxy at redshift 1 is 200 times farther away than the Virgo Cluster and costs only 11 more years on board; almost all the extra time piles up at home. Every galaxy inside the event horizon can be reached within a human lifetime of ship time. The crew bound for redshift 1 would step out after 46 years into a universe 32.7 billion years old, 35 billion light-years from the Milky Way, and on their own: a message sent home on arrival gets back only from inside the round-trip limit.[^calc]
@@ -201,7 +201,7 @@ $$1 + z_{\text{seen}} = (1 + z)\sqrt{\frac{1-\beta}{1+\beta}}$$
 
 In words: one plus the redshift you see equals one plus the galaxy's cosmological redshift, multiplied by the Doppler factor for your speed $\beta$, written as a fraction of the speed of light.
 
-Worked example: to cancel the galaxy's redshift completely, the square root must equal $1/15.18$. That happens at $\beta = 0.9914$, a Lorentz factor of 7.6, which a 1 g ship reaches after 2.6 years of ship time.[^calc] At that moment the most distant galaxy known looks as blue as a galaxy next door, with its hydrogen cut-off back at 121.6 nm. None of this brings it within reach: it stopped being reachable before the Sun was born.[^calc]
+Worked example: to cancel the galaxy's redshift completely, the square root must equal $1/15.18$. That happens at $\beta = 0.9914$, a Lorentz factor of 7.6, which a 1 g ship reaches after 2.6 years of ship time.[^calc] At that moment JADES-GS-z14-0 looks as blue as a galaxy next door, with its hydrogen cut-off back at 121.6 nm. None of this brings it within reach: it stopped being reachable before the Sun was born.[^calc]
 
 ::: see-it cmb-glow
 The same squeeze works on the oldest light there is: on a 1 g flight the microwave background ahead is blueshifted until it glows.
@@ -213,7 +213,7 @@ The distance record has moved fast. In 2016 Pascal Oesch and colleagues used the
 
 Then came JADES-GS-z14-0, first at 14.32 from the shape of its break and then at 14.18 from ALMA's oxygen line.[^carniani2024][^carniani2025] The oxygen line has a wavelength of 88 micrometres when it leaves the galaxy and 1.34 millimetres when it arrives, far enough stretched to be picked up by a radio telescope.[^calc] In May 2025 Rohan Naidu and colleagues confirmed MoM-z14 at redshift 14.44, 280 million years after the Big Bang.[^naidu2025] As of September 2026 that is still the record: a galaxy confirmed in January 2026 at 13.53 was only the fourth most distant known, and a preprint posted this week notes that deeper spectroscopy of fainter candidates keeps finding impostors.[^donnan2026][^zhang2026]
 
-Some impostors are very close to home. In April 2026 Maruša Bradač and colleagues reported that two promising candidates beyond redshift 15, found in Webb images of the Bullet Cluster, had the spectra of brown dwarfs: failed stars a few hundred to about two thousand light-years away in our own galaxy, one of them at 272 to 351 K, the temperature range of liquid water. Images a year apart showed both moving across the sky, which no galaxy at redshift 15 could do.[^bradac2026]
+Some impostors are very close to home. In April 2026 Maruša Bradač and colleagues reported that two promising candidates beyond redshift 15, found in Webb images of the Bullet Cluster, had the spectra of brown dwarfs: failed stars a few hundred to about two thousand light-years away in our own galaxy, one of them at 272 to 351 K, roughly the temperature range of liquid water. Images a year apart showed both moving across the sky, which no galaxy at redshift 15 could do.[^bradac2026]
 
 Every one of the real record-holders lies about twice as far away as the edge of reach.[^calc] In 2002 Abraham Loeb pointed out what that means for the pictures we will get. Light from such a galaxy keeps arriving for ever, but it only ever shows the galaxy up to the moment it crossed our event horizon; after that the image freezes, reddens and fades.[^loeb2002] For JADES-GS-z14-0 that moment came when the universe was about 3.3 billion years old. We see it now at 290 million years; watch for a trillion years and it will never look older than 3.3 billion.[^calc]
 
@@ -249,13 +249,13 @@ The stars are winding down too. The rate at which the universe makes new stars h
 
 Every distance in this article rests on two measurements: how fast the universe is expanding today, and what dark energy will do in the future.
 
-The first is disputed. Planck's value of 67.66 km/s per megaparsec comes from the microwave background, read through the standard model of the universe. Measure the expansion directly, with Cepheid variable stars and supernovae, and the SH0ES team get $73.04 \pm 1.04$.[^planck2018][^riess2022] All horizon distances scale with $1/H_0$, so using 73 instead of 67.66 shrinks the event horizon from 16.6 to 15.4 billion light-years and the observable universe from 46.2 to 42.9.[^calc] That disagreement, the Hubble tension, is still unresolved.
+The first is disputed. Planck's value of 67.66 km/s per megaparsec comes from the microwave background, read through the standard model of the universe. Measure the expansion directly, with Cepheid variable stars and supernovae, and the SH0ES team get $73.04 \pm 1.04$.[^planck2018][^riess2022] All horizon distances scale with $1/H_0$, so using 73 instead of 67.66 shrinks the event horizon from 16.6 to 15.4 billion light-years and the observable universe from 46.2 to 42.8.[^calc] That disagreement, the Hubble tension, is still unresolved.
 
 The second matters far more. The event horizon exists because dark energy wins. Give the universe more matter and less dark energy and the horizon moves out: with 50% matter instead of 31% it would sit at 18.6 billion light-years. Take dark energy away entirely and there is no event horizon at all.[^calc] If dark energy is a true constant, the horizon is permanent. If it fades, the doors could reopen.
 
 That is why a 2025 result caused a stir. The Dark Energy Spectroscopic Instrument, DESI, on the 4-metre Mayall Telescope at Kitt Peak in Arizona, takes the spectra of 5,000 galaxies at a time and uses a ripple in their spacing, about 150 megaparsecs across and imprinted by sound waves in the early universe, as a ruler.[^lbl2025][^desiblog2026] In March 2025, from three years of data and more than 14 million galaxies and quasars, the collaboration reported that a dark energy which weakens with time fitted the combined data better than a constant, at 2.8 to 4.2 standard deviations depending on which supernova sample was added.[^desi2025][^lbl2025] Physicists want five before calling something a discovery, and the Berkeley Lab announcement said plainly that many 3-sigma results fade.[^lbl2025]
 
-Since then the hint has neither vanished nor grown. Recalibrating the Dark Energy Survey's supernovae brought the strongest figure down from 4.2 to 3.2 standard deviations; that survey's full six-year analysis, with the microwave background, gives 3.0; a combined sample of 2,884 supernovae released this month gives 3.3.[^popovic2025][^des2026][^camilleri2026] It is a persistent hint, not a discovery.
+Since then the hint has shrunk a little but not vanished. Recalibrating the Dark Energy Survey's supernovae brought the strongest figure down from 4.2 to 3.2 standard deviations; that survey's full six-year analysis, combined with DESI and the microwave background, gives 3.0; a combined sample of 2,884 supernovae released this month gives 3.3.[^popovic2025][^des2026][^camilleri2026] It is a persistent hint, not a discovery.
 
 ::: see-it cosmic-web
 The large-scale structure of real galaxies from redshift surveys: filaments, walls and voids. Surveys such as DESI read the history of dark energy from the spacing of this pattern at different distances.
@@ -269,7 +269,7 @@ Here is what is running or on its way as of September 2026.
 
 ### DESI's full survey
 
-DESI finished its planned five-year survey on 15 April 2026, ahead of schedule, with more than 47 million galaxies and quasars against a target of 34 million. It will keep observing through 2028 and enlarge its map from 14,000 to 17,000 square degrees.[^lbl2026]
+DESI finished its planned five-year survey on the night of 14 to 15 April 2026, ahead of schedule, with more than 47 million galaxies and quasars against a target of 34 million. It will keep observing through 2028 and enlarge its map from 14,000 to 17,000 square degrees.[^lbl2026]
 
 **Status:** the first dark energy results from the full five years of data are expected in 2027; no exact date has been announced.
 
@@ -281,19 +281,19 @@ ESA's Euclid space telescope is mapping galaxies across a large part of the sky.
 
 ### The Roman Space Telescope
 
-NASA's Nancy Grace Roman Space Telescope launched on a Falcon Heavy on 30 August 2026; its wide, deep surveys are meant partly to pin down dark energy.[^roman2026a] Its first course correction used less than a tenth of the fuel set aside for it, leaving enough for at least 22 years of science, and it should settle into its orbit around the L2 point, about a million miles from Earth, in early December.[^roman2026b][^roman2026c]
+NASA's Nancy Grace Roman Space Telescope launched on a Falcon Heavy on 30 August 2026; its wide, deep surveys are meant partly to pin down dark energy.[^roman2026a] Its first course correction used less than a tenth of the fuel set aside for it, leaving enough for at least 22 years of science, and it should settle into its orbit around the L2 point, about 1.5 million km from Earth, in early December.[^roman2026b][^roman2026c]
 
 **Status:** being commissioned; science operations are due to begin by early 2027.[^roman2026c]
 
 ### Rubin's ten-year survey
 
-The Vera C. Rubin Observatory in Chile began its ten-year Legacy Survey of Space and Time on 30 June 2026, returning to each point of the southern sky about 800 times; dark energy and dark matter are among its targets.[^noirlab2616]
+The Vera C. Rubin Observatory in Chile officially began its ten-year Legacy Survey of Space and Time at the end of June 2026 (announced on 30 June), returning to each point of the southern sky about 800 times; dark energy and dark matter are among its targets.[^noirlab2616]
 
 **Status:** running; data releases will come in stages over the decade.
 
 ### Beyond redshift 15
 
-Webb keeps pushing the distance record, and ESO's 39-metre Extremely Large Telescope is planned to see first light in 2029, with science observations from December 2030.[^elt] Whether galaxies existed in any numbers before redshift 15 is open. One preprint from this week argues the drop-off is real and points to an unusual kind of dark matter; others expect fainter galaxies to turn up as the searches go deeper.[^zhang2026]
+Webb keeps hunting for galaxies beyond the current record, and ESO's 39-metre Extremely Large Telescope is planned to see first light in 2029, with science observations from December 2030.[^elt] Whether galaxies existed in any numbers before redshift 15 is open. One preprint from this week argues the drop-off is real and points to an unusual kind of dark matter; others expect fainter galaxies to turn up as the searches go deeper.[^zhang2026]
 
 **Status:** active research; ELT dates are plans, not guarantees.
 
@@ -316,8 +316,8 @@ Whether the event horizon is permanent depends on whether dark energy is truly c
 - J. S. Heyl, "The long-term future of space travel", *Physical Review D* 72, 107302 (2005). https://doi.org/10.1103/PhysRevD.72.107302 (open access at https://arxiv.org/abs/astro-ph/0509268)
 - J. Kwan, G. F. Lewis and J. B. James, "The adventures of the rocketeer: accelerated motion under the influence of expanding space", *Publications of the Astronomical Society of Australia* 27, 15-22 (2010). https://doi.org/10.1071/AS09050 (open access at https://arxiv.org/abs/0909.1551)
 - S. Carniani et al., "Spectroscopic confirmation of two luminous galaxies at a redshift of 14", *Nature* 633, 318-322 (2024). https://doi.org/10.1038/s41586-024-07860-9 (open access at https://arxiv.org/abs/2405.18485)
-- R. P. Naidu et al., "A cosmic miracle: a remarkably luminous galaxy at z = 14.44 confirmed with JWST" (2025), preprint. https://arxiv.org/abs/2505.11263 (open access)
-- DESI Collaboration (M. Abdul Karim et al.), "DESI DR2 results II: measurements of baryon acoustic oscillations and cosmological constraints" (2025). https://arxiv.org/abs/2503.14738 (open access)
+- R. P. Naidu et al., "A cosmic miracle: a remarkably luminous galaxy at z = 14.44 confirmed with JWST", *The Open Journal of Astrophysics* 9 (2026). https://doi.org/10.33232/001c.156033 (open access; also https://arxiv.org/abs/2505.11263)
+- DESI Collaboration (M. Abdul Karim et al.), "DESI DR2 results II: measurements of baryon acoustic oscillations and cosmological constraints", *Physical Review D* 112, 083515 (2025). https://doi.org/10.1103/tr6y-kpc6 (open access at https://arxiv.org/abs/2503.14738)
 - T. Sawala et al., "No certainty of a Milky Way–Andromeda collision", *Nature Astronomy* 9, 1206-1217 (2025). https://doi.org/10.1038/s41550-025-02563-1 (open access at https://arxiv.org/abs/2408.00064)
 - F. C. Adams and G. Laughlin, "A dying universe: the long-term fate and evolution of astrophysical objects", *Reviews of Modern Physics* 69, 337-372 (1997). https://doi.org/10.1103/RevModPhys.69.337 (open access at https://arxiv.org/abs/astro-ph/9701131)
 - R. R. Caldwell, M. Kamionkowski and N. N. Weinberg, "Phantom energy: dark energy with w < −1 causes a cosmic doomsday", *Physical Review Letters* 91, 071301 (2003). https://doi.org/10.1103/PhysRevLett.91.071301 (open access at https://arxiv.org/abs/astro-ph/0302506)
@@ -325,7 +325,7 @@ Whether the event horizon is permanent depends on whether dark energy is truly c
 ### Books
 
 - Tamara M. Davis, *Fundamental Aspects of the Expansion of the Universe and Cosmic Horizons* (PhD thesis, University of New South Wales, 2003). Book-length, clear and free online at https://arxiv.org/abs/astro-ph/0402278
-- Edward Harrison, *Cosmology: The Science of the Universe* (Cambridge University Press, 2nd edition 2000). An introductory textbook that Davis's thesis lists among the few sources that got superluminal recession right.
+- Edward Harrison, *Cosmology: The Science of the Universe* (Cambridge University Press, 2nd edition 2000). An introductory textbook that Davis's thesis cites among the efforts to clear up the confusion over superluminal recession.
 - Barbara Ryden, *Introduction to Cosmology* (Cambridge University Press, 2nd edition 2017). The standard undergraduate text, for when you have some calculus.
 - Richard Panek, *The 4 Percent Universe* (Houghton Mifflin Harcourt, 2011). A journalist's account of dark matter, dark energy and the race between the two supernova teams.
 - Fred Adams and Greg Laughlin, *The Five Ages of the Universe* (Free Press, 1999). The popular version of their paper on the far future.
@@ -355,7 +355,7 @@ Whether the event horizon is permanent depends on whether dark energy is truly c
 - ESA, Euclid data release timeline: https://www.cosmos.esa.int/web/euclid/dr1-timeline
 
 [^calc]: Computed for this article in a flat Λ cold-dark-matter universe with the Planck 2018 parameters (H₀ = 67.66 km/s/Mpc, Ωm = 0.3111, radiation Ωr = 9.07 × 10⁻⁵, ΩΛ = 0.6888), by numerical integration of the expansion history; age 13.79 billion years. Ship flights assume a constant proper acceleration of 9.81 m/s² and include the loss of momentum to the expansion. Illustrative extrapolations of evolving dark energy use the DESI 2025 and later best fits. Planck Collaboration, "Planck 2018 results. VI. Cosmological parameters", *Astronomy & Astrophysics* 641, A6 (2020). https://doi.org/10.1051/0004-6361/201833910
-[^carniani2024]: S. Carniani et al., "Spectroscopic confirmation of two luminous galaxies at a redshift of 14", *Nature* 633, 318-322 (2024); observations 10-12 January 2024; the foreground galaxy 0.4 arcsec away. https://doi.org/10.1038/s41586-024-07860-9 (arXiv: https://arxiv.org/abs/2405.18485)
+[^carniani2024]: S. Carniani et al., "Spectroscopic confirmation of two luminous galaxies at a redshift of 14", *Nature* 633, 318-322 (2024); observations 10-12 January 2024; no flux blueward of 1.85 µm; the foreground galaxy 0.4 arcsec away. https://doi.org/10.1038/s41586-024-07860-9 (arXiv: https://arxiv.org/abs/2405.18485)
 [^nasa2024]: S. Carniani and K. Hainline, "NASA's James Webb Space Telescope finds most distant known galaxy", NASA Science Webb blog (30 May 2024). https://science.nasa.gov/blogs/webb/2024/05/30/nasas-james-webb-space-telescope-finds-most-distant-known-galaxy/
 [^carniani2025]: S. Carniani et al., "The eventful life of a luminous galaxy at z = 14: metal enrichment, feedback, and low gas fraction?", *Astronomy & Astrophysics* 696, A87 (2025): [O III] 88 µm at 223.524 GHz, z = 14.1796. https://doi.org/10.1051/0004-6361/202452451
 [^desitter1917]: W. de Sitter, "On Einstein's theory of gravitation and its astronomical consequences. Third paper", *Monthly Notices of the Royal Astronomical Society* 78, 3-28 (1917). https://doi.org/10.1093/mnras/78.1.3
@@ -373,14 +373,14 @@ Whether the event horizon is permanent depends on whether dark energy is truly c
 [^mei2007]: S. Mei et al., "The ACS Virgo Cluster Survey. XIII. SBF distance catalog and the three-dimensional structure of the Virgo Cluster", *Astrophysical Journal* 655, 144-162 (2007): mean distance 16.5 Mpc. https://doi.org/10.1086/509598
 [^clowe2006]: D. Clowe et al., "A direct empirical proof of the existence of dark matter", *Astrophysical Journal* 648, L109-L113 (2006): the Bullet Cluster at z = 0.296. https://doi.org/10.1086/508162
 [^bunker2023]: A. J. Bunker et al., "JADES NIRSpec spectroscopy of GN-z11: Lyman-α emission and possible enhanced nitrogen abundance in a z = 10.60 luminous galaxy", *Astronomy & Astrophysics* 677, A88 (2023). https://doi.org/10.1051/0004-6361/202346159
-[^desi2025]: DESI Collaboration (M. Abdul Karim et al.), "DESI DR2 results II: measurements of baryon acoustic oscillations and cosmological constraints" (2025): more than 14 million galaxies and quasars; more than 1.2 million quasars at z > 1.77; preference for evolving dark energy of 2.8-4.2σ with supernovae. https://arxiv.org/abs/2503.14738
+[^desi2025]: DESI Collaboration (M. Abdul Karim et al.), "DESI DR2 results II: measurements of baryon acoustic oscillations and cosmological constraints", *Physical Review D* 112, 083515 (2025): more than 14 million galaxies and quasars; more than 1.2 million quasars at z > 1.77; preference for evolving dark energy of 2.8-4.2σ with supernovae. https://doi.org/10.1103/tr6y-kpc6 (arXiv: https://arxiv.org/abs/2503.14738)
 [^heyl2005]: J. S. Heyl, "The long-term future of space travel", *Physical Review D* 72, 107302 (2005): round trips limited to galaxies seen today at z ≈ 0.65 in his model. https://doi.org/10.1103/PhysRevD.72.107302
 [^kwan2010]: J. Kwan, G. F. Lewis and J. B. James, "The adventures of the rocketeer: accelerated motion under the influence of expanding space", *Publications of the Astronomical Society of Australia* 27, 15-22 (2010). https://doi.org/10.1071/AS09050 (arXiv: https://arxiv.org/abs/0909.1551)
 [^oesch2016]: P. A. Oesch et al., "A remarkably luminous galaxy at z = 11.1 measured with Hubble Space Telescope grism spectroscopy", *Astrophysical Journal* 819, 129 (2016). https://doi.org/10.3847/0004-637X/819/2/129
-[^naidu2025]: R. P. Naidu et al., "A cosmic miracle: a remarkably luminous galaxy at z_spec = 14.44 confirmed with JWST" (2025), preprint. https://arxiv.org/abs/2505.11263
-[^donnan2026]: C. T. Donnan et al., "Spectroscopic confirmation of a large and luminous galaxy with weak emission lines at z = 13.53" (January 2026), preprint. https://arxiv.org/abs/2601.11515
+[^naidu2025]: R. P. Naidu et al., "A cosmic miracle: a remarkably luminous galaxy at z_spec = 14.44 confirmed with JWST", *The Open Journal of Astrophysics* 9 (2026); preprint first posted 16 May 2025. https://doi.org/10.33232/001c.156033 (arXiv: https://arxiv.org/abs/2505.11263)
+[^donnan2026]: C. T. Donnan et al., "Spectroscopic confirmation of a large and luminous galaxy with weak emission lines at z = 13.53" (January 2026), preprint, accepted by the *Astrophysical Journal*: PAN-z14-1 is "the fourth most distant galaxy known to date". https://arxiv.org/abs/2601.11515
 [^zhang2026]: J. Zhang et al., "JWST evidence for a sharp 'Cosmic Daybreak' at z = 15" (23 September 2026), preprint. https://arxiv.org/abs/2609.28257
-[^bradac2026]: M. Bradač et al., "Two exciting high-redshift galaxy candidates turn out to be two exciting ultra-cool brown dwarfs" (April 2026), preprint: distances of about 150-650 parsecs. https://arxiv.org/abs/2604.23668
+[^bradac2026]: M. Bradač et al., "Two exciting high-redshift galaxy candidates turn out to be two exciting ultra-cool brown dwarfs" (April 2026), preprint, accepted by the *Astrophysical Journal Letters*: temperatures 272-351 K and 445-525 K, distances of about 150-650 parsecs, proper motions from imaging about a year later. https://arxiv.org/abs/2604.23668
 [^loeb2002]: A. Loeb, "Long-term future of extragalactic astronomy", *Physical Review D* 65, 047301 (2002). https://doi.org/10.1103/PhysRevD.65.047301 (arXiv: https://arxiv.org/abs/astro-ph/0107568)
 [^vdm2012]: R. P. van der Marel et al., "The M31 velocity vector. II. Radial orbit toward the Milky Way and implied Local Group mass", *Astrophysical Journal* 753, 8 (2012): radial velocity −109.3 ± 4.4 km/s. https://doi.org/10.1088/0004-637X/753/1/8
 [^sawala2025]: T. Sawala et al., "No certainty of a Milky Way–Andromeda collision", *Nature Astronomy* 9, 1206-1217 (2025). https://doi.org/10.1038/s41550-025-02563-1 (arXiv: https://arxiv.org/abs/2408.00064)
@@ -388,11 +388,11 @@ Whether the event horizon is permanent depends on whether dark energy is truly c
 [^sobral2013]: D. Sobral et al., "A large Hα survey at z = 2.23, 1.47, 0.84 and 0.40: the 11 Gyr evolution of star-forming galaxies from HiZELS", *Monthly Notices of the Royal Astronomical Society* 428, 1128-1146 (2013). https://doi.org/10.1093/mnras/sts096
 [^adams1997]: F. C. Adams and G. Laughlin, "A dying universe: the long-term fate and evolution of astrophysical objects", *Reviews of Modern Physics* 69, 337-372 (1997). https://doi.org/10.1103/RevModPhys.69.337
 [^riess2022]: A. G. Riess et al., "A comprehensive measurement of the local value of the Hubble constant with 1 km/s/Mpc uncertainty from the Hubble Space Telescope and the SH0ES team", *Astrophysical Journal Letters* 934, L7 (2022). https://doi.org/10.3847/2041-8213/ac5c5b
-[^lbl2026]: Berkeley Lab News Center, "DESI completes planned 3D map of the universe and continues exploring" (15 April 2026). https://newscenter.lbl.gov/2026/04/15/desi-completes-planned-3d-map-of-the-universe-and-continues-exploring/
+[^lbl2026]: Berkeley Lab News Center, "DESI completes planned 3D map of the universe and continues exploring" (15 April 2026; the survey's last planned observations were made "last night"). https://newscenter.lbl.gov/2026/04/15/desi-completes-planned-3d-map-of-the-universe-and-continues-exploring/
 [^desiblog2026]: DESI Collaboration, blog post on the DR2 Lyman-alpha full-shape results (30 July 2026), describing the 150-megaparsec baryon acoustic oscillation scale. https://www.desi.lbl.gov/2026/07/30/new-desi-dr2-lyman-alpha-results-shed-light-on-dark-energy/
 [^lbl2025]: Berkeley Lab News Center, "New DESI results strengthen hints that dark energy may evolve" (19 March 2025). https://newscenter.lbl.gov/2025/03/19/new-desi-results-strengthen-hints-that-dark-energy-may-evolve/
 [^popovic2025]: B. Popovic et al., "The Dark Energy Survey supernova program: a reanalysis of cosmology results and evidence for evolving dark energy with an updated type Ia supernova calibration", *Monthly Notices of the Royal Astronomical Society* (2026). https://arxiv.org/abs/2511.07517
-[^des2026]: DES Collaboration, "Constraints on dynamical dark energy from multiple probes in the full Dark Energy Survey" (May 2026), preprint. https://arxiv.org/abs/2605.27221
+[^des2026]: DES Collaboration, "Constraints on dynamical dark energy from multiple probes in the full Dark Energy Survey" (May 2026), preprint: 2.2σ from DES alone, 2.3σ with DESI DR2 BAO, 3.0σ with DESI DR2 BAO and the CMB. https://arxiv.org/abs/2605.27221
 [^camilleri2026]: R. Camilleri et al., "Supernovae Unite: combining Pantheon+ and DES-SN5YR" (September 2026), preprint. https://arxiv.org/abs/2609.05053
 [^caldwell2003]: R. R. Caldwell, M. Kamionkowski and N. N. Weinberg, "Phantom energy: dark energy with w < −1 causes a cosmic doomsday", *Physical Review Letters* 91, 071301 (2003): for w = −3/2 and H₀ = 70, the Big Rip comes in 22 billion years. https://doi.org/10.1103/PhysRevLett.91.071301
 [^euclid2026]: ESA Cosmos, "Euclid DR1 timeline" (update of 15 June 2026). https://www.cosmos.esa.int/web/euclid/dr1-timeline

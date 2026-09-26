@@ -3,8 +3,9 @@
  * you are in the middle (a breadcrumb, and the Bodies list), and on wide screens what the
  * camera is doing, with the keys sheet at the right.
  */
-import { BODIES } from '../../physics/constants';
-import { groupedDestinations } from '../../content/destinations';
+import { useState } from 'react';
+import { nestedDestinations, type NestedItem } from '../../content/destinations';
+import { bodyName, systemOf } from '../../sim/bodies';
 import { sci, superscript } from '../../lib/sci';
 import { rich } from '../rich';
 import { controller } from '../../controls/cameraController';
@@ -12,7 +13,7 @@ import { quality } from '../../render/quality';
 import { WARP_STEPS, resetToNow, setPaused, warpLabel } from '../../sim/clock';
 import { SHIP_RATE_MIN, stepRate, travel, tripPace } from '../../sim/travel';
 import { useUI } from '../../state/ui';
-import { frameSolarSystem, goToBody } from '../navigation';
+import { frameSolarSystem, goToBody, goToSystem } from '../navigation';
 import { locationPath } from '../location';
 import { Kbd, Menu } from '../kit';
 import { Icon } from '../icons';
@@ -102,10 +103,39 @@ function Transport() {
   );
 }
 
-/** Every body you can visit, grouped, in a list that opens upwards. */
+/** Parents with at most this many moons listed show them without being opened. */
+const OPEN_UP_TO = 2;
+
+/**
+ * Every body you can visit, grouped by kind, moons under their planet, in a list that opens
+ * upwards. A planet with many moons shows them when opened (and always for the system you are in).
+ */
 function BodiesMenu() {
   const tripActive = useUI((s) => s.tripActive);
   const selected = useUI((s) => s.selected);
+  const focus = useUI((s) => s.focus);
+  const [opened, setOpened] = useState<ReadonlySet<string>>(new Set());
+  const here = systemOf(focus)?.id;
+  const isOpen = (it: NestedItem) => it.children <= OPEN_UP_TO || it.destination.id === here || opened.has(it.destination.id);
+  const toggle = (id: string) =>
+    setOpened((s) => {
+      const n = new Set(s);
+      if (n.has(id)) n.delete(id);
+      else n.add(id);
+      return n;
+    });
+  /** Rows shown: everything at the top level, and the members of opened parents. */
+  const visible = (items: NestedItem[]) => {
+    const out: NestedItem[] = [];
+    let hideBelow = Infinity;
+    for (const it of items) {
+      if (it.depth > hideBelow) continue;
+      hideBelow = Infinity;
+      out.push(it);
+      if (it.children > 0 && !isOpen(it)) hideBelow = it.depth;
+    }
+    return out;
+  };
   return (
     <Menu
       placement="above"
@@ -122,29 +152,48 @@ function BodiesMenu() {
       }
     >
       {(close) =>
-        groupedDestinations().map((g) => (
+        nestedDestinations().map((g) => (
           <div key={g.id} className="pb-1">
             <div className="cap px-2.5 pb-0.5 pt-1.5">{g.title}</div>
-            {g.items.map((d) => {
+            {visible(g.items).map((it) => {
+              const d = it.destination;
               const why = d.unavailable();
+              const folded = it.children > 0 && !isOpen(it);
               return (
-                <button
-                  key={d.id}
-                  className={`flex h-7 w-full items-center gap-2 px-2.5 text-left text-[12.5px] hover:bg-hover disabled:opacity-40 ${
-                    selected === d.body ? 'text-accent' : 'text-fg'
-                  }`}
-                  disabled={!!why || (tripActive && !d.body)}
-                  title={why ?? (tripActive ? `Select ${d.name}` : `Go to ${d.name}${d.key ? ` (${d.key})` : ''}`)}
-                  onClick={() => {
-                    close();
-                    if (tripActive) {
-                      if (d.body) useUI.getState().select(d.body);
-                    } else d.go();
-                  }}
-                >
-                  <span className="min-w-0 flex-1 truncate">{d.name}</span>
-                  {d.key && <Kbd>{d.key}</Kbd>}
-                </button>
+                <div key={d.id} className="flex h-7 w-full items-center hover:bg-hover">
+                  <button
+                    className={`flex h-full min-w-0 flex-1 items-center gap-2 pr-1 text-left text-[12.5px] disabled:opacity-40 ${
+                      selected === d.body ? 'text-accent' : 'text-fg'
+                    }`}
+                    style={{ paddingLeft: `${10 + 14 * it.depth}px` }}
+                    disabled={!!why || (tripActive && !d.body)}
+                    title={why ?? (tripActive ? `Select ${d.name}` : `Go to ${d.name}${d.key ? ` (${d.key})` : ''}`)}
+                    onClick={() => {
+                      close();
+                      if (tripActive) {
+                        if (d.body) useUI.getState().select(d.body);
+                      } else d.go();
+                    }}
+                  >
+                    {it.depth > 0 && (
+                      <span className="text-fg-4" aria-hidden>
+                        ·
+                      </span>
+                    )}
+                    <span className="min-w-0 flex-1 truncate">{d.name}</span>
+                    {d.key && <Kbd>{d.key}</Kbd>}
+                  </button>
+                  {it.children > OPEN_UP_TO && d.id !== here && (
+                    <button
+                      className="mono h-full shrink-0 px-2 text-[10.5px] text-fg-3 hover:text-fg"
+                      aria-expanded={!folded}
+                      title={folded ? `Show the ${it.children} moons of ${d.name}` : `Hide the moons of ${d.name}`}
+                      onClick={() => toggle(d.id)}
+                    >
+                      {it.children} {folded ? '▸' : '▾'}
+                    </button>
+                  )}
+                </div>
               );
             })}
           </div>
@@ -165,6 +214,8 @@ function Location() {
       <ol className="flex min-w-0 items-center max-sm:hidden">
         {path.map((c, i) => {
           const last = i === path.length - 1;
+          // A level above the target frames its whole system (Saturn with the orbits of its moons).
+          const go = () => (c.to === 'solar-system' ? frameSolarSystem() : last ? goToBody(c.to!) : goToSystem(c.to!));
           return (
             <li key={`${i}-${c.label}`} className={`flex min-w-0 items-center ${last ? '' : 'shrink-0'}`}>
               {i > 0 && (
@@ -176,8 +227,8 @@ function Location() {
                 <button
                   className={`btn btn-q btn-sm min-w-0 !px-1.5 ${last ? '!text-fg' : ''}`}
                   aria-current={last ? 'location' : undefined}
-                  onClick={() => (c.to === 'solar-system' ? frameSolarSystem() : goToBody(c.to!))}
-                  title={c.to === 'solar-system' ? 'See the whole Solar System' : `Go to ${BODIES[c.to!].name}`}
+                  onClick={go}
+                  title={c.to === 'solar-system' ? 'See the whole Solar System' : last ? `Go to ${bodyName(c.to!)}` : `See ${bodyName(c.to!)} and what orbits it`}
                 >
                   <span className="truncate">{c.label}</span>
                 </button>
@@ -218,8 +269,8 @@ function Status() {
       </>
     );
   } else if (mode === 'travel') text = <span className="text-data">IN TRANSIT</span>;
-  else if (mode === 'transition') text = <span className="text-fg-2">SLEWING → {BODIES[focus].name.toUpperCase()}</span>;
-  else text = <span className="text-fg-2">ORBIT · {BODIES[focus].name.toUpperCase()}</span>;
+  else if (mode === 'transition') text = <span className="text-fg-2">SLEWING → {bodyName(focus).toUpperCase()}</span>;
+  else text = <span className="text-fg-2">ORBIT · {bodyName(focus).toUpperCase()}</span>;
   // The breadcrumb already says where the camera is, so the status shows only on wide screens
   // (and in free flight, where it carries the throttle).
   const hide = mode === 'free' || showFps ? 'max-md:hidden' : 'max-[1535px]:hidden';

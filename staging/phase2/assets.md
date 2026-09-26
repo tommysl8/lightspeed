@@ -1,25 +1,44 @@
 # Physical data, rotation, facts, surface maps, shapes and rings (task D3)
 
-Everything the app needs to draw and describe the 47 phase-2 bodies other than their positions: sizes, masses,
+Everything the app needs to draw and describe the 48 phase-2 bodies other than their positions: sizes, masses,
 albedos, IAU rotation models, colours, discovery notes and sourced facts; surface maps for 22 bodies; triangle
 meshes for 11 irregular bodies; ring systems for Jupiter, Uranus, Neptune, Haumea, Quaoar (and Chariklo).
 
 | Item | Path |
 | --- | --- |
-| Body data | `staging/phase2/bodies.json` (47 bodies, ≈ 170 KB; move to `public/data/` or import at build time) |
+| Body data | `staging/phase2/bodies.json` (48 bodies, ≈ 177 KB; move to `public/data/` or import at build time) |
 | Rings | `staging/phase2/rings.json` |
-| Surface maps | `public/textures/<id>.jpg` (22 files, 4.51 MB in total) |
+| Surface maps | `public/textures/<id>.jpg` (22 files, 4.46 MB in total) |
 | Shape meshes | `public/models/<id>.bin` (11 files, 47–48 KB each, 515 KB in total) |
 | Rotation evaluator | `staging/phase2/src/physical/rotation.ts` (pure functions, no dependencies) |
 | Mesh reader | `staging/phase2/src/physical/mesh.ts` |
 | Tests | `staging/phase2/src/physical/rotation.test.ts`, `assets.test.ts`; SPICE fixture in `src/physical/__fixtures__/` |
 | Build | `scripts/build-textures.mjs`, `scripts/build-shapes.mjs`, `scripts/build-bodies.mjs` (run in that order) |
 
-Run the tests with `npx vitest run --root staging/phase2 src/physical` (115 tests).
+Run the tests with `npx vitest run --root staging/phase2 src/physical` (121 tests).
 
-Rebuild: `node scripts/build-shapes.mjs`, `LIGHTSPEED_TOOLS=<folder with node_modules/sharp> node scripts/build-textures.mjs`,
-then `node scripts/build-bodies.mjs`. Raw downloads are cached in `data-raw/d3/` (gitignored); a second run downloads
-nothing. `sharp` is only needed for the textures and is not a project dependency (`npm install --prefix <folder> sharp`).
+Rebuild: `LIGHTSPEED_TOOLS=<tools folder> node scripts/build-shapes.mjs`, `LIGHTSPEED_TOOLS=<tools folder> node
+scripts/build-textures.mjs`, then `node scripts/build-bodies.mjs`. Raw downloads are cached in `data-raw/d3/`
+(gitignored); a second run downloads nothing. The tools folder holds two build-time libraries that are not project
+dependencies and are not shipped: `sharp` (JPEG/PNG/TIFF codec, Apache-2.0) for the textures and `manifold-3d`
+(Manifold mesh booleans, Apache-2.0) for the Arrokoth union. Install both with
+`npm install --prefix <tools folder> sharp manifold-3d`.
+
+### Changes after the independent verification (2026-09-25)
+
+| Finding | Fix |
+| --- | --- |
+| A1: 19 greyscale maps were 3-channel JPEGs, though `channels` said 1 | Re-encoded as true single-channel JPEGs (`toColourspace('b-w')`; the build now checks the written file). 4.51 → 4.46 MB. `textureInfo.bytes` added; a test compares the JPEG's component count with `channels`. |
+| A2: 67P GM 6.622 × 10⁻⁷ km³/s² (SBDB value) did not match the cited mass | GM = G × 9.982 × 10¹² kg (Pätzold et al. 2016) = 6.662 × 10⁻⁷ km³/s²; mass 9.982 × 10¹² kg; density 0.531 g/cm³ with `radiusKm` (`densityNote` gives Pätzold's 0.533 with their 18.7 km³). |
+| A3: Makemake 715 km was half the short axis; Quaoar's radius is area-equivalent | Makemake 733 km, the mean of the 715 and 751 km projected semi-axes. New field `radiusType` on every body says what kind of radius it is; Quaoar, Makemake and the other occultation or thermal sizes are `area-equivalent`. |
+| A4: Haumea "twice as long as it is wide" not on the cited page | Rewritten from Ortiz et al. 2017 (cited): 3.9 h spin; longest axis about 2,320 km, more than twice the shortest, about 1,030 km. |
+| A5: Hale–Bopp "back in the 4400s" conflicted with the cited 2,534-year period | "Not back until around the year 4530." |
+| A6: the Deimos WMS link lacked STYLES; Mimas' `download` had text appended | Deimos link fixed (re-fetched once: byte-identical to the cached source). `download` is always a plain URL; the zip entry moved to `downloadEntry`. A test checks both. |
+| A7: Vesta and Arrokoth were `dwarf-planet`; so were four bodies the IAU has not classified | `kind` is now `asteroid` for Vesta and `tno` for Arrokoth, Gonggong, Quaoar, Sedna and Orcus (the last four also `dwarfPlanetCandidate: true`). Only Ceres, Eris, Haumea and Makemake are `dwarf-planet`. The kinds match `tracks.json`, and a test checks that. |
+| A8: Voyager 1 missing | Added, with three sourced facts, launch data and status (NASA instrument table of 17 April 2026). |
+| A9: Umbriel's card albedo 0.21 against a "16 %" fact | The fact no longer quotes a number; `albedoNote` explains that NASA's 16 % is a different measure. |
+| A10: `arrokoth.bin` was two overlapping shells, so its volume counted the neck overlap twice | The two lobe meshes of the source are joined by a boolean union before simplification: one closed genus-0 surface. The overlap is 1.8 km³ (0.04 %). `radiusKm` is now the union's 9.947 km. A test requires V − E + F = 2 for every mesh. |
+| A11: dark jagged fringe on Oberon and Miranda | New edge mask for the Uranian maps (below): the dark rim and terminator speckle are treated as unimaged and the edge is feathered over 3 texels. This also fixed a worse, unreported problem: Hamlet crater's genuinely dark floor on Oberon had been painted over with the grey fill. |
 
 ---
 
@@ -38,13 +57,13 @@ Per body (fields absent when unknown; every number has a `…Source` string besi
 
 | Field | Meaning |
 | --- | --- |
-| `id`, `name`, `kind` | `kind` ∈ `moon`, `dwarf-planet`, `comet`, `interstellar`, `spacecraft`. `kindNote` explains edge cases (Vesta is an asteroid; Arrokoth is a small KBO; Gonggong, Quaoar, Sedna, Orcus are not IAU-recognised dwarf planets). |
+| `id`, `name`, `kind` | `kind` ∈ `moon`, `dwarf-planet` (IAU-recognised only: Ceres, Eris, Haumea, Makemake), `asteroid` (Vesta), `tno` (Gonggong, Quaoar, Sedna, Orcus, Arrokoth), `comet`, `interstellar`, `spacecraft`: the same kinds as `public/data/tracks.json`. `dwarfPlanetCandidate: true` marks the large TNOs often called dwarf planets that the IAU has not classified. `kindNote` explains edge cases. |
 | `parent` | For moons: `mars`, `jupiter`, `saturn`, `uranus`, `neptune`, `pluto`. (Pluto's moons are positioned about the Pluto system barycentre by the D1 models.) |
 | `naifId` | NAIF integer ID where one exists. |
-| `radiusKm` (+`radiusSigmaKm`) | Mean radius: the sphere of equal volume. For interstellar objects it is an order-of-magnitude placeholder, and the source says so. |
+| `radiusKm` (+`radiusSigmaKm`, `radiusType`) | Mean radius. `radiusType` says which kind: `volume-equivalent` (sphere of equal volume, from a shape model or ellipsoid: Haumea, Arrokoth, Halley, 67P), `area-equivalent` (disc of equal projected area, from occultations or thermal emission: Makemake, Gonggong, Quaoar, Sedna, Orcus, Encke, Hale–Bopp), `mean` (JPL SSD mean radius of the moons; Ceres, Vesta and Eris from their mission or occultation papers), `placeholder` (interstellar objects, order of magnitude only) or `size-scale` (spacecraft: half the largest dimension). |
 | `triaxialRadiiKm` | [a, b, c] along body-fixed x, y, z (IAU 2015 or the cited paper). `dimensionsKm` = full extents where only those are published. |
-| `gmKm3S2`, `massKg`, `densityGCm3` | GM from JPL satellite ephemerides (moons) or papers; mass = GM/G (CODATA 2018); density from mass and `radiusKm`. Orcus's GM is the Orcus–Vanth system. |
-| `geometricAlbedo` | V-band geometric albedo, with its original paper named in `albedoSource`. |
+| `gmKm3S2`, `massKg`, `densityGCm3` | GM from JPL satellite ephemerides (moons) or papers; mass = GM/G (CODATA 2018); density from mass and `radiusKm` (`densityNote` where the paper's own density differs). Orcus's GM is the Orcus–Vanth system. For 67P the GM is G times Pätzold et al.'s mass; the Small-Body Database's 662.2 × 10⁻⁹ km³/s² does not match that mass and is not used. |
+| `geometricAlbedo` | V-band geometric albedo, with its original paper named in `albedoSource`; `albedoNote` where a fact or page quotes a different measure (Umbriel) or the albedo varies strongly (Iapetus). |
 | `orbit` | Moons only: JPL SSD mean elements (a, e, i, P), for context. Positions come from the D1 models. |
 | `rotation` | See below. |
 | `colour`, `colourHue`, `colourSource` | Display tint and full-brightness hue (below). |
@@ -52,7 +71,7 @@ Per body (fields absent when unknown; every number has a `…Source` string besi
 | `facts`, `factSources` | Three facts in the app's voice; `factSources[i]` is the URL supporting `facts[i]`. |
 | `spacecraft` | Launch time (UTC), vehicle, site, mission summary, `status`, `statusAsOf`, `statusSource`, `statusCaveat`. |
 | `interstellar` | Eccentricity, perihelion, v∞ (from SBDB elements), and what is `known` / `unknown`. |
-| `assets` | `texture` (path under `public/`) + `textureInfo`; `model` + `modelInfo`; `rings` (`rings.json#<parent>`). `textureNote` when there is no map. |
+| `assets` | `texture` (path under `public/`) + `textureInfo` (`width`, `height`, `channels`, `bytes`, `imagedFraction`, `fillSrgb`, `product`, `download` (a plain URL), `downloadEntry` (file inside an archive, if any), `sourcePage`, `credit`, `licence`, `colourNote`); `model` + `modelInfo` (with `sourceUnion` for Arrokoth); `rings` (`rings.json#<parent>`). `textureNote` when there is no map. |
 
 ### Rotation
 
@@ -109,16 +128,25 @@ to match NASA photographs.
 
 ### Facts
 
-141 facts, three per body. Every fact has a URL; every distinct URL in `bodies.json`, `rings.json` and this file
+144 facts, three per body. Every fact has a URL; every distinct URL in `bodies.json`, `rings.json` and this file
 was fetched on 2026-09-25 (DOIs through the doi.org handle API) and resolves, except the USGS Astrogeology home
 page, which refuses scripted requests but works in a browser. (USGS Astropedia product pages are a
 JavaScript application that answers 200 even for missing pages, so only product pages confirmed by a search engine
 are cited; otherwise the S3 download URL is given.) Numbers in the facts were checked against
 the cached text of the cited NASA pages (`data-raw/d3/pages/`) or the cited paper. Spacecraft status is as of the
-cited page: Voyager 2 (NASA status table updated 2026-08-20: cosmic ray subsystem, magnetometer and plasma wave
-subsystem on; plasma science off since 2024-09-26, LECP off since 2025-03-24), Pioneer 10 (silent since
-2003-01-23), Webb (operating). New Horizons and Parker: NASA's pages say "operating" but carry no dated 2026
-statement; see `statusCaveat`.
+cited page. Voyager 1 and 2: NASA's instrument-status table on "Where Are Voyager 1 and 2 Now?" (table updated
+2026-04-17, page updated 2026-08-20). Voyager 1 has the magnetometer and plasma wave subsystem on, with the cosmic
+ray subsystem off since 2025-02-25 and LECP off since 2026-04-17. (Its mission page still lists four working
+instruments as of 2024; `statusCaveat` says so.) Voyager 2 has the cosmic ray subsystem, magnetometer and plasma wave
+subsystem on, with plasma science off since 2024-09-26 and LECP off since 2025-03-24. Pioneer 10 has been silent
+since 2003-01-23, and Webb is operating. New Horizons and Parker: NASA's pages say "operating" but carry no dated
+2026 statement; see `statusCaveat`.
+
+Facts changed after the verification: Haumea's shape (now from Ortiz et al. 2017, the paper it cites), Hale–Bopp's
+return (about the year 4530, from the cited 2,534-year period), Umbriel's darkness (no longer quotes a percentage
+that conflicts with the card's albedo), and three new ones for Voyager 1 (farthest human-made object since
+17 February 1998; left the heliosphere on 25 August 2012; one light-day from Earth on 18 November 2026). The Voyager 1
+mission page was fetched and cached on 2026-09-25 (`data-raw/d3/pages/mission_voyager_voyager-1.*`).
 
 ---
 
@@ -131,10 +159,26 @@ centre** and east increases to the right. In the IAU body-fixed frame a texel at
 v = 0 on local +y. So the maps line up with no extra rotation when the sphere's local axes are the body frame mapped
 the same way the app maps the ecliptic: three.js (x, y, z) = body (x, z, −y).
 
-Greyscale maps are single-channel JPEGs (smaller); multiply by `colourHue` if a tint is wanted. Unimaged areas
-(value 0 in the USGS sources, ≤ 15 in the Uranian sources to remove terminator speckle) are blended towards a flat
-fill equal to the area-weighted mean of the imaged surface: an albedo-matched neutral tone. `textureInfo.imagedFraction`
-gives the imaged share of the sphere and `fillSrgb` the fill value.
+Greyscale maps are single-channel JPEGs (one colour component; checked by the build and by a test); multiply by
+`colourHue` if a tint is wanted. Unimaged areas are blended towards a flat fill equal to the area-weighted mean of the
+imaged surface: an albedo-matched neutral tone. `textureInfo.imagedFraction` gives the imaged share of the sphere and
+`fillSrgb` the fill value.
+
+- **USGS sources:** "no data" is 0.
+- **Uranian moons (NASA 3D Resources):** unimaged areas are stored as near-black, and JPEG-era processing left a
+  dark rim and speckle along the edge of the imaged area. A plain threshold (≤ 15 = unimaged) keeps the rim and
+  also removes genuinely dark terrain: Hamlet crater's dark floor on Oberon was painted grey that way. So
+  `cleanEdgeMask()` in `build-textures.mjs` works at the source's 1440 × 720 resolution:
+  1. The unimaged region is the set of near-black pixels (≤ 15) connected to the top row, the north that Voyager 2
+     never saw.
+  2. Within 8 source pixels of it, near-black pixels and pixels darker than the 2nd percentile of the interior count
+     as unimaged too; this is the rim.
+  3. Imaged islands under 200 pixels inside the unimaged region are dropped.
+  4. Near-black pixels enclosed by imaged terrain are kept as data: 1,409 on Miranda, 249 on Oberon (Hamlet's floor
+     among them), 147 on Titania, 114 on Umbriel and 27 on Ariel.
+
+  The output coverage is then feathered over 3 texels, so the map fades into the fill instead of ending in a hard
+  line.
 
 **Registration was checked**: every map was overlaid with the IAU nomenclature centre points from the USGS
 Gazetteer (KMZ files cached in `data-raw/d3/nomenclature/`; script
@@ -149,27 +193,27 @@ mosaics, ≤ 0.25° for the 1440-pixel Uranian maps).
 | id | size | kind | imaged | KB | product (source page) | credit | licence |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | io | 2048×1024 | RGB | 100% | 223 | [Io Galileo SSI / Voyager Color Merged Global Mosaic 1 km](https://astrogeology.usgs.gov/search/map/io_voyager_galileo_ssi_global_mosaic_1km) | NASA/JPL-Caltech/USGS | public domain |
-| europa | 2048×1024 | grey | 99.5% | 336 | [Europa Voyager–Galileo SSI Global Mosaic 500 m](https://astrogeology.usgs.gov/search/map/Europa/Voyager-Galileo/Europa_Voyager_GalileoSSI_global_mosaic_500m) | NASA/JPL-Caltech/USGS | public domain |
+| europa | 2048×1024 | grey | 99.5% | 333 | [Europa Voyager–Galileo SSI Global Mosaic 500 m](https://astrogeology.usgs.gov/search/map/Europa/Voyager-Galileo/Europa_Voyager_GalileoSSI_global_mosaic_500m) | NASA/JPL-Caltech/USGS | public domain |
 | ganymede | 2048×1024 | RGB | 99.6% | 278 | Ganymede Voyager–Galileo SSI Global Color Mosaic 1.4 km ([tif](https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/Ganymede_Voyager_GalileoSSI_Global_ClrMosaic_1435m.tif)) | NASA/JPL-Caltech/USGS | public domain |
-| callisto | 2048×1024 | grey | 99.1% | 261 | [Callisto Voyager–Galileo SSI Global Mosaic 1 km](https://astrogeology.usgs.gov/search/map/callisto_galileo_voyager_global_mosaic_1km) | NASA/JPL-Caltech/USGS | public domain |
-| mimas | 1024×512 | grey | 100% | 123 | Mimas Cassini ISS global mosaic, DLR, 2017-06-30 (`Mimas/Cassini_DLR_Mimas.zip`, entry `MI_170630_DLR_basemap.tif`) | NASA/JPL-Caltech/SSI/DLR (T. Roatsch) | NASA/USGS, no use constraints |
-| enceladus | 1024×512 | grey | 100% | 134 | Enceladus Cassini Global Mosaic 110 m ([tif](https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/Enceladus_Cassini_mosaic_global_110m.tif)) | NASA/JPL-Caltech/SSI/DLR | NASA/USGS, no use constraints |
-| tethys | 2048×1024 | grey | 100% | 499 | Tethys Cassini Global Mosaic 293 m ([tif](https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/Tethys_Cassini_mosaic_global_293m.tif)) | NASA/JPL-Caltech/SSI/DLR | NASA/USGS, no use constraints |
-| dione | 2048×1024 | grey | 99.8% | 566 | Dione Cassini–Voyager Global Mosaic 154 m ([tif](https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/Dione_Cassini_Voyager_mosaic_global_154m.tif)) | NASA/JPL-Caltech/SSI/DLR | NASA/USGS, no use constraints |
-| rhea | 2048×1024 | grey | 100% | 361 | Rhea Cassini–Voyager Global Mosaic 417 m ([tif](https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/Rhea_Cassini_Voyager_mosaic_global_417m.tif)) | NASA/JPL-Caltech/SSI/DLR | NASA/USGS, no use constraints |
-| titan | 2048×1024 | grey | 100% | 215 | Titan Cassini ISS Global Mosaic 4 km ([tif](https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/Titan_ISS_P19658_Mosaic_Global_4km.tif)) | NASA/JPL-Caltech/SSI | NASA/USGS, no use constraints |
-| iapetus | 2048×1024 | grey | 100% | 424 | [Iapetus Cassini–Voyager Global Mosaic 783 m](https://astrogeology.usgs.gov/search/map/iapetus_cassini_voyager_global_mosaic_803m) | NASA/JPL-Caltech/SSI/DLR | NASA/USGS, no use constraints |
-| miranda | 1024×512 | grey | 39% | 39 | [NASA 3D Resources, "Uranus – Miranda"](https://github.com/nasa/NASA-3D-Resources/tree/master/Images%20and%20Textures/Uranus%20-%20Miranda) | NASA/JPL (Voyager 2) | NASA, "free and without copyright" |
-| ariel | 1024×512 | grey | 34% | 26 | NASA 3D Resources, "Uranus – Ariel" | NASA/JPL (Voyager 2) | as above |
-| umbriel | 1024×512 | grey | 37% | 19 | NASA 3D Resources, "Uranus – Umbriel" | NASA/JPL (Voyager 2) | as above |
-| titania | 1024×512 | grey | 32% | 32 | NASA 3D Resources, "Uranus – Titania" | NASA/JPL (Voyager 2) | as above |
-| oberon | 1024×512 | grey | 34% | 29 | NASA 3D Resources, "Uranus – Oberon" | NASA/JPL (Voyager 2) | as above |
+| callisto | 2048×1024 | grey | 99.1% | 257 | [Callisto Voyager–Galileo SSI Global Mosaic 1 km](https://astrogeology.usgs.gov/search/map/callisto_galileo_voyager_global_mosaic_1km) | NASA/JPL-Caltech/USGS | public domain |
+| mimas | 1024×512 | grey | 100% | 123 | Mimas Cassini ISS global mosaic, DLR, 2017-06-30 ([zip](https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/Mimas/Cassini_DLR_Mimas.zip), entry `Cassini_DLR/MI_170630_DLR_basemap.tif`, given as `downloadEntry`) | NASA/JPL-Caltech/SSI/DLR (T. Roatsch) | NASA/USGS, no use constraints |
+| enceladus | 1024×512 | grey | 100% | 133 | Enceladus Cassini Global Mosaic 110 m ([tif](https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/Enceladus_Cassini_mosaic_global_110m.tif)) | NASA/JPL-Caltech/SSI/DLR | NASA/USGS, no use constraints |
+| tethys | 2048×1024 | grey | 100% | 496 | Tethys Cassini Global Mosaic 293 m ([tif](https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/Tethys_Cassini_mosaic_global_293m.tif)) | NASA/JPL-Caltech/SSI/DLR | NASA/USGS, no use constraints |
+| dione | 2048×1024 | grey | 99.8% | 563 | Dione Cassini–Voyager Global Mosaic 154 m ([tif](https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/Dione_Cassini_Voyager_mosaic_global_154m.tif)) | NASA/JPL-Caltech/SSI/DLR | NASA/USGS, no use constraints |
+| rhea | 2048×1024 | grey | 100% | 358 | Rhea Cassini–Voyager Global Mosaic 417 m ([tif](https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/Rhea_Cassini_Voyager_mosaic_global_417m.tif)) | NASA/JPL-Caltech/SSI/DLR | NASA/USGS, no use constraints |
+| titan | 2048×1024 | grey | 100% | 210 | Titan Cassini ISS Global Mosaic 4 km ([tif](https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/Titan_ISS_P19658_Mosaic_Global_4km.tif)) | NASA/JPL-Caltech/SSI | NASA/USGS, no use constraints |
+| iapetus | 2048×1024 | grey | 100% | 420 | [Iapetus Cassini–Voyager Global Mosaic 783 m](https://astrogeology.usgs.gov/search/map/iapetus_cassini_voyager_global_mosaic_803m) | NASA/JPL-Caltech/SSI/DLR | NASA/USGS, no use constraints |
+| miranda | 1024×512 | grey | 38% | 35 | [NASA 3D Resources, "Uranus – Miranda"](https://github.com/nasa/NASA-3D-Resources/tree/master/Images%20and%20Textures/Uranus%20-%20Miranda) | NASA/JPL (Voyager 2) | NASA, "free and without copyright" |
+| ariel | 1024×512 | grey | 33% | 22 | NASA 3D Resources, "Uranus – Ariel" | NASA/JPL (Voyager 2) | as above |
+| umbriel | 1024×512 | grey | 35% | 16 | NASA 3D Resources, "Uranus – Umbriel" | NASA/JPL (Voyager 2) | as above |
+| titania | 1024×512 | grey | 30% | 28 | NASA 3D Resources, "Uranus – Titania" | NASA/JPL (Voyager 2) | as above |
+| oberon | 1024×512 | grey | 33% | 26 | NASA 3D Resources, "Uranus – Oberon" | NASA/JPL (Voyager 2) | as above |
 | triton | 2048×1024 | RGB | 67% | 157 | [Triton Voyager 2 Global Color Mosaic 600 m](https://astrogeology.usgs.gov/search/map/triton_voyager_2_global_color_mosaic_600m) (PIA18668) | NASA/JPL-Caltech/LPI (P. Schenk)/USGS | public domain ("please cite authors") |
-| charon | 2048×1024 | grey | 74% | 192 | Charon New Horizons Global Mosaic 300 m, July 2017 ([tif](https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/Charon_NewHorizons_Global_Mosaic_300m_Jul2017_8bit.tif)) | NASA/JHUAPL/SwRI/LPI | NASA/USGS, no use constraints |
-| ceres | 2048×1024 | grey | 99.6% | 486 | Ceres Dawn FC Global Mosaic 400 m, DLR, October 2015 ([tif](https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/Ceres_Dawn_FC_DLR_global_20ppd_Oct2015.tif)) | NASA/JPL-Caltech/UCLA/MPS/DLR/IDA | NASA/USGS, no use constraints |
-| vesta | 1024×512 | grey | 100% | 82 | [Vesta Dawn FC HAMO Global Mosaic 60 m](https://astrogeology.usgs.gov/search/map/vesta_dawn_fc_hamo_global_mosaic_60m), DLR, 2013 ([tif](https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/Vesta_Dawn_FC_HAMO_Mosaic_Global_74ppd.tif)) | NASA/JPL-Caltech/UCLA/MPS/DLR/IDA | NASA/USGS, no use constraints |
-| phobos | 1024×512 | grey | 100% | 94 | Phobos Viking Mosaic 40 ppd, DLR controlled ([tif](https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/Phobos_Viking_Mosaic_40ppd_DLRcontrol.tif)) | NASA/JPL (Viking); mosaic P. Stooke (UWO) | USGS metadata: no use constraints |
-| deimos | 1024×512 | grey | 100% | 42 | [Deimos Global Mosaic (Viking), USGS WMS](https://planetarymaps.usgs.gov/cgi-bin/mapserv?map=/maps/mars/deimos_simp_cyl.map&request=GetCapabilities&service=WMS) | NASA/JPL (Viking); map P. Stooke with C. Jongkind, M. Arntz; control P. Thomas (Cornell) | PDS/USGS, credit P. Stooke |
+| charon | 2048×1024 | grey | 74% | 189 | Charon New Horizons Global Mosaic 300 m, July 2017 ([tif](https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/Charon_NewHorizons_Global_Mosaic_300m_Jul2017_8bit.tif)) | NASA/JHUAPL/SwRI/LPI | NASA/USGS, no use constraints |
+| ceres | 2048×1024 | grey | 99.6% | 482 | Ceres Dawn FC Global Mosaic 400 m, DLR, October 2015 ([tif](https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/Ceres_Dawn_FC_DLR_global_20ppd_Oct2015.tif)) | NASA/JPL-Caltech/UCLA/MPS/DLR/IDA | NASA/USGS, no use constraints |
+| vesta | 1024×512 | grey | 100% | 81 | [Vesta Dawn FC HAMO Global Mosaic 60 m](https://astrogeology.usgs.gov/search/map/vesta_dawn_fc_hamo_global_mosaic_60m), DLR, 2013 ([tif](https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/Vesta_Dawn_FC_HAMO_Mosaic_Global_74ppd.tif)) | NASA/JPL-Caltech/UCLA/MPS/DLR/IDA | NASA/USGS, no use constraints |
+| phobos | 1024×512 | grey | 100% | 93 | Phobos Viking Mosaic 40 ppd, DLR controlled ([tif](https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/Phobos_Viking_Mosaic_40ppd_DLRcontrol.tif)) | NASA/JPL (Viking); mosaic P. Stooke (UWO) | USGS metadata: no use constraints |
+| deimos | 1024×512 | grey | 100% | 41 | [Deimos Global Mosaic (Viking), USGS WMS](https://planetarymaps.usgs.gov/cgi-bin/mapserv?map=/maps/mars/deimos_simp_cyl.map&request=GetCapabilities&service=WMS) ([GetMap](https://planetarymaps.usgs.gov/cgi-bin/mapserv?map=/maps/mars/deimos_simp_cyl.map&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&LAYERS=VIKING&STYLES=&SRS=EPSG:4326&BBOX=-180,-90,180,90&WIDTH=2048&HEIGHT=1024&FORMAT=image/png); the server needs the empty `STYLES=`) | NASA/JPL (Viking); map P. Stooke with C. Jongkind, M. Arntz; control P. Thomas (Cornell) | PDS/USGS, credit P. Stooke |
 
 Downloads came from the USGS S3 bucket `https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/<product>.tif`
 (the `planetarymaps.usgs.gov/mosaic/` address redirects there), the USGS planetary WMS, and
@@ -184,8 +228,9 @@ Map notes:
 - **Triton**: Voyager 2 saw the southern hemisphere and a band north of the equator; the north (33% of the sphere)
   is the neutral fill. The USGS product itself filled small gaps near the imaged edge with neighbouring pixels.
 - **Charon**: the far south was in polar night during the 2015 flyby (26% fill).
-- **Uranian moons**: Voyager 2 (January 1986) saw only the southern hemispheres (61–68% fill). The source maps are
-  1440 × 720, so these stay at 1024 × 512.
+- **Uranian moons**: Voyager 2 (January 1986) saw only the southern hemispheres (62–70% fill after the edge mask).
+  The source maps are 1440 × 720, so these stay at 1024 × 512. Dark crater floors inside the imaged area, such as
+  Hamlet's on Oberon, are real and kept.
 - **Vesta**: longitudes in the IAU 2015 "Claudia double-prime" system, the same as `rotation` (Dawn SPG PCK has the
   identical W₀ = 285.39°). High northern latitudes were in seasonal shadow during Dawn's mapping and look dark.
 - **Iapetus**: the USGS mosaic is brightness-normalised, so the dark Cassini Regio is not as black as in reality
@@ -216,8 +261,16 @@ Little-endian binary, read with `parseLsm1` in `src/physical/mesh.ts`:
 | 32 | f32[3V] | positions x, y, z in km, body-fixed frame |
 | 32 + 12V | u16/u32[3T] | triangle indices, counter-clockwise seen from outside |
 
-All meshes are closed and consistently wound (tested: every directed edge has its reverse; volume positive). No
-normals are stored: use `computeVertexNormals()`. Units are km, the same as the scene. Axes: +z along the spin
+All meshes are single closed surfaces of genus 0, consistently wound (tested: every directed edge has its reverse;
+V − E + F = 2; volume positive), so the header's equal-volume radius counts every part once. No normals are stored:
+use `computeVertexNormals()`.
+
+**Arrokoth's two lobes.** The Porter et al. model is two closed lobe meshes (Wenu and Weeyo) that overlap slightly at
+the neck; its PDS label warns that this "affects volume calculations". Their paper's equal-volume diameter, 19.896 km,
+adds the two lobes (17.349 and 13.845 km), so it counts the 1.805 km³ overlap twice. `build-shapes.mjs` joins the
+lobes with a boolean union (Manifold) before simplifying: 4,123.81 km³ summed, 4,122.00 km³ as a union, a sphere of
+radius 9.947 km (9.942 km after simplification, −0.12 % volume). `modelInfo.sourceUnion` records these numbers, and
+`radiusKm` is the union's 9.947 km. Units are km, the same as the scene. Axes: +z along the spin
 (north/positive) pole, +x at the prime meridian, so `bodyToEclipticAt` orients them directly.
 
 Simplification: quadric-error edge collapse (Garland & Heckbert 1997) with link-condition and normal-flip checks,
@@ -232,7 +285,7 @@ simplified surface; for the ellipsoids it is the gap between the flat facets and
 | proteus | P. Stooke, 5° radius grid (Voyager 2), [PDS SBN](https://sbnarchive.psi.edu/pds4/non_mission/small_bodies.stooke.shape-models/) | 5,040 | 4000 | 201.00 | 0.050 / 0.318 | IAU_PROTEUS (Stooke's west longitudes converted to east) |
 | halley | P. Stooke, 5° radius grid (Giotto, Vega), PDS SBN (as above) | 5,040 | 4000 | 4.579 | 0.002 / 0.011 | Stooke's frame (long axis ≈ z); no rotation model |
 | vesta | DLR Dawn HAMO global DTM 48 ppd (radius), USGS copy, 1° cell means | 129,600 | 4000 | 261.54 | 0.50 / 2.04 | IAU 2015 (Claudia double-prime) |
-| arrokoth | Porter et al. 2024, New Horizons LORRI model v01, [PDS SBN](https://pds-smallbodies.astro.umd.edu/holdings/pds4-nh_derived:arrokoth_shapemodel_porter2024-v1.0/) | 40,960 | 4000 | 9.944 | 0.008 / 0.031 | principal axes, origin at the centre of mass, c = spin pole; W from the product label |
+| arrokoth | Porter et al. 2024, New Horizons LORRI model v01, [PDS SBN](https://pds-smallbodies.astro.umd.edu/holdings/pds4-nh_derived:arrokoth_shapemodel_porter2024-v1.0/): two overlapping lobe meshes of 20,480 triangles each, joined by a boolean union (40,812 triangles) | 40,960 | 4000 | 9.942 | 0.008 / 0.032 | principal axes, origin at the centre of mass, c = spin pole; W from the product label |
 | churyumov-gerasimenko | Gaskell, Jorda et al., SPC SHAP5 24k-plate model, RO-C-MULTI-5-67P-SHAPE-V2.0 ([ESA PSA](https://archives.esac.esa.int/psa/ftp/INTERNATIONAL-ROSETTA-MISSION/SHAPE/RO-C-MULTI-5-67P-SHAPE-V2.0/)) | 24,134 | 4000 | 1.647 | 0.004 / 0.015 | Cheops frame (+z spin axis, Cheops boulder at 142.35° E) = IAU 2015 |
 | nix | ellipsoid 50 × 35 × 33 km (Weaver et al. 2016) | — | 3968 | 19.29 | 0.033 / 0.129 | a along x; chaotic rotator |
 | hydra | ellipsoid 65 × 45 × 25 km (Weaver et al. 2016) | — | 3968 | 20.85 | 0.062 / 0.331 | a along x; chaotic rotator |
@@ -285,6 +338,8 @@ Data sources (not redistributed as files unless listed in section 6):
 - USGS Astrogeology: mosaics, DTM, WMS, Gazetteer of Planetary Nomenclature. US Government, public domain unless
   noted.
 - ESA Planetary Science Archive: Rosetta 67P SHAP5 model (also in NASA PDS). ESA/Rosetta/MPS for OSIRIS Team.
+- Build-time tools, not shipped: sharp (Apache-2.0) and Manifold / `manifold-3d` (Apache-2.0,
+  https://github.com/elalish/manifold).
 - NASA 3D Resources (github.com/nasa/NASA-3D-Resources): Uranian moon maps. NASA, "free and without copyright".
 - NASA Science, NASA NSSDCA fact sheets, the Webb site, PDS Rings Node, ESA mission pages: facts and ring data.
 - Papers, all cited by DOI in the JSON: Ortiz et al. 2017 (Haumea), Weaver et al. 2016 (Nix, Hydra), Porter et
@@ -308,10 +363,15 @@ Data sources (not redistributed as files unless listed in section 6):
 | `public/models/{deimos,hyperion}.bin` | Decimated from P. Thomas's shape models (PDS Small Bodies Node) | NASA PDS, public |
 | `public/models/{proteus,halley}.bin` | Decimated from P. Stooke's shape models (PDS Small Bodies Node) | NASA PDS, public |
 | `public/models/vesta.bin` | Built from the DLR Dawn HAMO global DTM (NASA/JPL-Caltech/UCLA/MPS/DLR/IDA, via USGS Astrogeology) | Public domain / no use constraints |
-| `public/models/arrokoth.bin` | Decimated from the New Horizons Arrokoth shape model v01, S. Porter et al. 2024 (NASA/JHUAPL/SwRI, PDS Small Bodies Node) | NASA PDS, public |
+| `public/models/arrokoth.bin` | Union of the two lobes of the New Horizons Arrokoth shape model v01, S. Porter et al. 2024 (NASA/JHUAPL/SwRI, PDS Small Bodies Node), decimated | NASA PDS, public |
 | `public/models/churyumov-gerasimenko.bin` | Decimated from the SHAP5 shape model of comet 67P by R. Gaskell, L. Jorda et al. (ESA/Rosetta/MPS for OSIRIS Team MPS/UPD/LAM/IAA/SSO/INTA/UPM/DASP/IDA; ESA PSA and NASA PDS, RO-C-MULTI-5-67P-SHAPE-V2.0) | [CC BY-SA 3.0 IGO](https://creativecommons.org/licenses/by-sa/3.0/igo/). This derived file is released under the same licence. |
 | `public/models/{nix,hydra,haumea}.bin` | Triaxial ellipsoids from Weaver et al. 2016 (Science 351, aae0030) and Ortiz et al. 2017 (Nature 550, 219) | Generated; MIT with the source code |
 ```
+
+**The 67P row must stay in CREDITS.md.** `churyumov-gerasimenko.bin` is the only asset here under a share-alike
+licence (CC BY-SA 3.0 IGO) inside the MIT-licensed repository. The attribution and the licence notice have to travel
+with the file; the rest of the repository is unaffected. If that is unwanted, drop the 67P mesh and draw 67P as a
+sphere of `radiusKm`.
 
 Add to "Other sources used by the code": IAU WGCCRE 2015 rotation models (Archinal et al. 2018) via NAIF
 `pck00011.tpc`; JPL SSD satellite physical parameters and mean elements; JPL Small-Body Database; PDS SBN colour
@@ -324,6 +384,9 @@ compilations; PDS Rings Node ring tables; the papers listed in `bodies.json` and
 - Facts and spacecraft status reflect sources fetched on 2026-09-25. New Horizons' and Parker's status lines are
   "operating" per NASA's mission pages, which carry no dated 2026 notice.
 - Interstellar object sizes are placeholders with ranges in `radiusSource`; ʻOumuamua's shape is only inferred.
+- `radiusKm` is not one kind of radius for every body; read `radiusType`. For the large TNOs sized by occultations or
+  thermal emission it is area-equivalent, and the volume-equivalent radius is not known without their shapes and
+  poles (for Makemake an oblate spheroid would give 739 km instead of 733).
 - Colours for a third of the bodies are flagged neutral placeholders (no disk-integrated colour in the sources used).
 - The 2015 SSD albedos for Titan, Hyperion and Iapetus are rounded 1980s values; Iapetus's is the bright hemisphere.
 - Haumea's rotational phase is derived from one occultation plus the published period (about ±5° in 2026); a newer

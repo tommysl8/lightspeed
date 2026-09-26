@@ -14,7 +14,8 @@
  *  - transition: a smooth zoom-and-pan flight to a body (van Wijk & Nuij).
  */
 import { Matrix4, Quaternion, Vector3 } from 'three';
-import { BODIES, C_KM_S, type BodyId } from '../physics/constants';
+import { C_KM_S } from '../physics/constants';
+import { getBody, type BodyId } from '../sim/bodies';
 import { addVelocities } from '../physics/relativity';
 import { logitToBeta } from '../physics/speedScale';
 import { sim } from '../sim/sim';
@@ -152,7 +153,7 @@ export class CameraController {
     id: BodyId,
     opts: { keepDistance?: boolean; keepDirection?: boolean; distance?: number; direction?: Vector3 } = {},
   ): void {
-    if (this.mode === 'travel' || !sim.bodies[id].present) return;
+    if (this.mode === 'travel' || !sim.bodies[id]?.present) return;
     this.moves++;
     const eye = sim.camera.pos;
     const B = sim.bodies[id].pos;
@@ -224,8 +225,15 @@ export class CameraController {
     this.setMode('travel');
   }
 
-  /** After arriving (or stopping), orbit a body from where the ship is. */
+  /**
+   * After arriving (or stopping), orbit a body from where the ship is. A destination that has
+   * left the registry (or this date) meanwhile: orbit the nearest body instead.
+   */
   finishTravel(id: BodyId): void {
+    if (!sim.bodies[id]?.present) {
+      this.exitTravelToNearest();
+      return;
+    }
     const B = sim.bodies[id].pos;
     const dir = v1.copy(sim.camera.pos).sub(B);
     const dist = Math.max(minDistance(id), dir.length());
@@ -260,6 +268,11 @@ export class CameraController {
   // ── Per-frame update ──────────────────────────────────────────────────────────────────
 
   update(dtReal: number, dtSim: number, shipPos?: Vector3): void {
+    // A body can leave the registry (data unloaded): orbit Earth instead.
+    if (!sim.bodies[this.target] || !sim.bodies[this.frameBody] || (this.tr && !sim.bodies[this.tr.toBody])) {
+      this.tr = null;
+      this.placeAt('earth');
+    }
     if (this.mode === 'transition') this.updateTransition(dtReal);
     else if (this.mode === 'orbit') this.updateOrbit(dtReal);
     else if (this.mode === 'travel') this.updateTravel(dtReal, shipPos);
@@ -419,10 +432,10 @@ export class CameraController {
   private nearestBody(): BodyId {
     let best: BodyId = 'sun';
     let bestScore = Infinity;
-    for (const b of Object.values(sim.bodies)) {
+    for (const b of sim.bodyList) {
       if (!b.present) continue;
       // Prefer bodies that are close relative to their size (so a nearby Moon beats a distant Sun).
-      const score = b.pos.distanceTo(sim.camera.pos) / Math.sqrt(BODIES[b.id].radiusKm + 1);
+      const score = b.pos.distanceTo(sim.camera.pos) / Math.sqrt((getBody(b.id)?.physical.radiusKm ?? 0) + 1);
       if (score < bestScore) {
         bestScore = score;
         best = b.id;

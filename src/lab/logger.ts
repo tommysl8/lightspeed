@@ -11,7 +11,8 @@
  * With "simulated instrument uncertainty" on, each reading gets Gaussian noise of a stated σ
  * (independent draws from one pseudo-random stream per session) and the σ is stored alongside it.
  */
-import { BODIES, C_KM_S, type BodyId } from '../physics/constants';
+import { C_KM_S } from '../physics/constants';
+import { bodyName, type BodyId } from '../sim/bodies';
 import { flipAndBurnAt } from '../physics/rocket';
 import { fixed, fmtBeta, pickUnit, sig } from '../lib/sci';
 import { gaussian, hashSeed, mulberry32 } from '../lib/stats';
@@ -72,12 +73,12 @@ const lenText = (km: number) => {
 onDetection((p, det) => {
   const row = commit(
     'E1',
-    { rx: BODIES[det.body].name, pulse: p.id, dt: det.dt, d: det.d },
+    { rx: bodyName(det.body), pulse: p.id, dt: det.dt, d: det.d },
     { dt: 0.3 + 2e-4 * det.dt, d: 2000 + 5e-4 * det.d },
     'auto',
     det.atMs,
   );
-  logEvent('DET', `P${p.id} → ${BODIES[det.body].name}  Δt = ${timeText(det.dt)}  d = ${lenText(det.d)}  [E1 #${row.n}]`);
+  logEvent('DET', `P${p.id} → ${bodyName(det.body)}  Δt = ${timeText(det.dt)}  d = ${lenText(det.d)}  [E1 #${row.n}]`);
 });
 
 // ─── E2 / E5: trips ──────────────────────────────────────────────────────────────────────
@@ -145,23 +146,23 @@ export function labArrival(t: Trip): void {
     rocketSamples(t, t.shipTime);
     const rows = useNotebook.getState().rows.filter((r) => r.exp === 'E5' && r.v.flight === sampler?.flight);
     Object.assign(lastTrial, { exp: 'E5', n: sampler?.flight ?? 0, at: travel.lastArrival?.at ?? -1 });
-    logEvent('ARR', `${BODIES[t.dest].name}: 1 g flight F${sampler?.flight} complete, Δτ = ${timeText(t.shipTime)}, Δt = ${timeText(t.earthTime)}  [E5, ${rows.length} samples]`);
+    logEvent('ARR', `${bodyName(t.dest)}: 1 g flight F${sampler?.flight} complete, Δτ = ${timeText(t.shipTime)}, Δt = ${timeText(t.earthTime)}  [E5, ${rows.length} samples]`);
     return;
   }
   if (t.drive === 'warp') {
-    logEvent('ARR', `${BODIES[t.dest].name}: non-physical superluminal transfer, Δt = ${timeText(t.earthTime)}. Not logged.`);
+    logEvent('ARR', `${bodyName(t.dest)}: non-physical superluminal transfer, Δt = ${timeText(t.earthTime)}. Not logged.`);
     return;
   }
   const row = commit(
     'E2',
-    { dest: BODIES[t.dest].name, beta: t.beta, t: t.earthTime, tau: t.shipTime },
+    { dest: bodyName(t.dest), beta: t.beta, t: t.earthTime, tau: t.shipTime },
     { t: 1e-3 * t.earthTime, tau: 1e-3 * t.shipTime },
     'auto',
   );
   Object.assign(lastTrial, { exp: 'E2', n: row.n, at: travel.lastArrival?.at ?? -1 });
   logEvent(
     'ARR',
-    `${BODIES[t.dest].name} at β = ${fmtBeta(t.beta)}: Δt = ${timeText(t.earthTime)}, Δτ = ${timeText(t.shipTime)}  [E2 #${row.n}]`,
+    `${bodyName(t.dest)} at β = ${fmtBeta(t.beta)}: Δt = ${timeText(t.earthTime)}, Δτ = ${timeText(t.shipTime)}  [E2 #${row.n}]`,
   );
 }
 
@@ -188,7 +189,9 @@ export function recordManual(): boolean {
     logEvent('REC', `E3 #${row.n}: θ′ = ${fixed(g.thetaShipDeg, 2)}°  D = ${sig(g.D, 5)}  (β = ${fmtBeta(g.beta)})`);
     return true;
   }
-  const id: BodyId | null = useUI.getState().selected;
+  const selected: BodyId | null = useUI.getState().selected;
+  // Any selected body that is there now can be measured.
+  const id = selected && sim.bodies[selected]?.present ? selected : null;
   if (!id) {
     logEvent('ERR', 'E4 needs a target: select a body (click its label, or press 0–9).');
     return false;
@@ -199,8 +202,8 @@ export function recordManual(): boolean {
     logEvent('ERR', 'E4 needs a moving observer: start a trip, or orbit a planet (which moves with it).');
     return false;
   }
-  const row = commit('E4', { target: BODIES[id].name, beta: g.beta, th: g.thetaDeg, thS: g.thetaShipDeg }, { th: 0.05, thS: 0.05 }, 'manual');
-  logEvent('REC', `E4 #${row.n}: ${BODIES[id].name}  θ = ${fixed(g.thetaDeg, 3)}°  θ′ = ${fixed(g.thetaShipDeg, 3)}°`);
+  const row = commit('E4', { target: bodyName(id), beta: g.beta, th: g.thetaDeg, thS: g.thetaShipDeg }, { th: 0.05, thS: 0.05 }, 'manual');
+  logEvent('REC', `E4 #${row.n}: ${bodyName(id)}  θ = ${fixed(g.thetaDeg, 3)}°  θ′ = ${fixed(g.thetaShipDeg, 3)}°`);
   return true;
 }
 

@@ -628,3 +628,15 @@ And, under "Other sources used by the code":
   V 10 to 11 are in neither (a small share of the diffuse light).
 - The S-star evaluator ignores the Roemer delay and gravitational redshift. It is not a replacement for a full
   orbit fit.
+
+## 11. Changes after the independent verification (25 September 2026)
+
+The model parameters, particle file, Milky Way background, clusters, nebula distances and orientations, and the S2
+orbit were confirmed against their sources. Fixed here:
+
+- **S-star orbits.** The 16 orbits from Gillessen et al. 2017 were removed from `sstars.json`: the article is AAS
+  copyright and no licence for reusing its table could be confirmed. The four GRAVITY 2022 orbits (CC BY 4.0) remain.
+- **Westerlund 2 credit.** The credit line now includes the science and Hubble Heritage teams, as the ESA/Hubble page
+  gives it (the script used to cut it after the first sentence).
+- **Modified images.** Every nebula now has a `modificationNote` to show after its credit, as CC BY 4.0 requires.
+- **Stale text.** The gap between the Milky Way background and the 3D stars is now V 10–11, not V 6.5–11.

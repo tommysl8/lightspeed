@@ -6,12 +6,35 @@ fitted to JPL Horizons with adaptive Chebyshev segments, plus the evaluator that
 | File | What |
 | --- | --- |
 | `scripts/build-tracks.mjs` | Fetches Horizons (cached in `data-raw/tracks/`), fits, validates, writes everything below. |
-| `public/data/tracks.bin` | Segment table and float64 Chebyshev coefficients. 1,086,680 bytes (1.04 MiB); 1,020,170 bytes with `gzip -9`. |
-| `public/data/tracks.json` | Index: bodies, pieces, centres, fallbacks, provenance, measured accuracy. 83,761 bytes (15.7 kB gzipped). |
+| `public/data/tracks.bin` | Segment table and float64 Chebyshev coefficients. 1,089,536 bytes (1.04 MiB); 1,022,643 bytes with zlib level 9. |
+| `public/data/tracks.json` | Index: bodies, pieces, centres, fallbacks, jumps, provenance, measured accuracy. 88,811 bytes (16.9 kB gzipped). |
 | `staging/phase2/src/sim/tracks.ts` | Parser and evaluator. Pure TypeScript, no dependencies. |
-| `staging/phase2/src/sim/tracks.test.ts` | 87 tests (vitest). |
-| `staging/phase2/src/sim/__fixtures__/track-checkpoints.json` | 674 independent Horizons checkpoints used by the tests. |
+| `staging/phase2/src/sim/tracks.test.ts` | 91 tests (vitest). |
+| `staging/phase2/src/sim/__fixtures__/track-checkpoints.json` | 798 independent Horizons checkpoints used by the tests. |
 | `staging/phase2/vitest.config.ts` | Test config for `npx vitest run --root staging/phase2`. |
+
+### Changes after the independent verification (2026-09-25)
+
+An independent check against fresh Horizons vectors found four problems. All are fixed in the files
+above, and the same check, re-run on the new files, now passes everywhere.
+
+1. **Comet and Arrokoth solution hand-overs broke the bound.** Encke, 67P and Arrokoth switch between
+   JPL orbit solutions that differ by 770–65,000 km, and the old ±60-day (Arrokoth ±180-day) position
+   cross-fades sat up to 32,600 km from both solutions. No continuous path can stay within 1,000 km of
+   two solutions that far apart, so each hand-over is now an **exact switch**: before it the track is
+   the fit to the earlier solution, from it the fit to the later one, and the difference is a listed
+   jump (`cause: 'solution-switch'`). Re-checked: at most 193 km from the solution in force, on both
+   sides of every switch.
+2. **The default output broke the bound inside jump ramps** (up to 63,000 km for Pioneer 10).
+   `evalTrack`, `evalState` and `evalHelio` now return the fit to Horizons **exactly by default**,
+   jumps included. Smoothing is opt-in (`{ smoothJumps: true }`), uses a ramp centred on the jump, never
+   moves a position more than half the jump, and reports the shift as `adjustedKm`.
+3. **Positions froze beyond ±10⁷ days.** Elliptic fallbacks now reduce the time modulo the period and
+   keep moving at any finite date (Ceres moves 3.3–3.7 au a year at years ±1 million and 1 billion).
+   Hyperbolic fallbacks run to ±10¹⁵ days (2.7 trillion years); only beyond that do they stop, purely to
+   keep numbers finite.
+4. **The `ssb` centre needs a TT-based time.** Documented below and in `evalHelio`: build
+   astronomy-engine's time with `AstroTime.FromTerrestrialTime(tdbDays)`.
 
 ## Conventions
 
@@ -36,17 +59,29 @@ fitted to JPL Horizons with adaptive Chebyshev segments, plus the evaluator that
 All astronomy-engine vectors are heliocentric EQJ in au. Rotate them to ecliptic
 (y′ = cos ε·y + sin ε·z, z′ = −sin ε·y + cos ε·z) and scale by 149,597,870.7.
 
+**Build the astronomy-engine time from TT.** The evaluator's time is TDB days since J2000. Pass it to
+astronomy-engine as `AstroTime.FromTerrestrialTime(tdbDays)` (TT and TDB differ by under 2 ms), not
+`MakeTime(tdbDays)`, which reads its argument as UT. Read as UT, the time is off by ΔT (about a minute
+now, several minutes near 2200 and far more in the past), and every centre moves by ΔT times its speed:
+for `ssb` about 4 km near 2200, which shows as a step where a barycentric fallback takes over. The app
+already holds `AstroTime` objects, so pass `time.tt` to the evaluator and the same `time` to
+astronomy-engine.
+
 ## Using it
 
 ```ts
 import { loadTracks, parseTracks } from './tracks';
 
 const tracks = await loadTracks(`${import.meta.env.BASE_URL}data/`); // or parseTracks(indexJson, arrayBuffer)
-const r = tracks.evalTrack('voyager2', time.tt);          // { pos, centre, regime, blend?, adjustedKm? }
+const r = tracks.evalTrack('voyager2', time.tt);          // { pos, centre, regime, blend? }
 const h = tracks.evalHelio('voyager2', time.tt, centreHelio); // heliocentric, blends applied
 const s = tracks.evalState('parker-solar-probe', time.tt); // adds vel (km/s)
-tracks.evalTrack('voyager1', t, { raw: true });           // raw Horizons fit (no jump ramps)
+tracks.evalTrack('voyager1', t, { smoothJumps: true });   // display option: jumps spread over ramps, adds adjustedKm
 ```
+
+The default output is the fit to Horizons with nothing moved: every position is within the stated
+bound of the Horizons solution in force at that instant, including right next to a jump. `raw: true`
+from the first version is still accepted and is now the same as the default.
 
 `centreHelio(centre, tdbDays)` returns the heliocentric ecliptic km position of `ssb`, `earth`,
 `venus`, `jupiter`, `saturn`, `uranus`, `neptune` or `pluto`, computed with astronomy-engine as the app
@@ -62,8 +97,20 @@ already does. `sun` and track centres such as `arrokoth` are handled inside the 
 | `before-launch` | Before a spacecraft's first Horizons state | Fixed at that first state, relative to Earth. **Hide the craft.** |
 | `unknown` | JWST after 2031-09-21 | Fixed at the last state, relative to Earth. **Hide it.** |
 
-Every finite time returns a finite position. Times are clamped to ±10⁷ days for the conics. NaN
-throws a `RangeError`. An unknown body id throws.
+Every finite time, up to ±`Number.MAX_VALUE`, returns a finite position and velocity. NaN throws a
+`RangeError`. An unknown body id throws. How far the fallbacks run:
+
+- **Ellipses** (Ceres, Vesta, the TNOs, Halley, Encke, 67P, Hale–Bopp, Parker after 2030): no limit.
+  Two-body motion on an ellipse repeats every period, so the time since the edge state is reduced
+  modulo the period (`%`, exact) before Kepler's equation is solved. The body keeps moving at any date.
+  Beyond about 10¹⁶ days the rounding of t itself (a day or more) blurs the phase along the orbit, but
+  the position stays on the ellipse. (The two-body orbit is itself only plausible, not precise, beyond a
+  few years from the edge: see "Outside the precise span".)
+- **Hyperbolas** (the interstellar objects, the escaping spacecraft): evaluated up to ±10¹⁵ days
+  (2.7 trillion years) from the edge state, then held there, only so the numbers stay finite. The
+  hyperbolic solver is tested to |M| = 10¹² and e from 1.0001 to 50.
+- **Near-parabolic** (|e − 1| < 10⁻⁶, none in the current file): universal variables up to 10⁶ days,
+  then straight along the tangent, because the universal-variable functions overflow further out.
 
 Extrapolation:
 
@@ -107,14 +154,39 @@ How the switch is placed:
 Launch is handled the same way. Each craft starts relative to Earth and hands over to heliocentric at
 the Earth's sphere of influence (929,200 km).
 
-### Jumps in JPL's source data
+### Jumps
 
-Horizons stitches some trajectories together from separately fitted files, and it keeps the
-discontinuities between them. The fit keeps them too, and the raw data are faithful. Each jump
-is listed in its piece as `jumps: [{ t, jump, jumpKm, rampDays }]`. By default the evaluator hides
-each jump behind a smoothstep ramp over `[t − rampDays, t)`. The ramp is long enough to add at most
-1% to the speed, and inside it `adjustedKm` reports how far the position has been moved off Horizons.
-`{ raw: true }` turns the ramps off.
+The data contain two kinds of position jump, both listed in their piece as
+`jumps: [{ t, iso, cause, from?, to?, jump, jumpKm, rampDays }]`:
+
+- `cause: 'source'`: Horizons stitches some spacecraft trajectories together from separately fitted
+  files and keeps the discontinuities between them. The fit keeps them too.
+- `cause: 'solution-switch'`: where this file moves from one JPL orbit solution of a comet (or of
+  Arrokoth) to the next, `from` → `to` (Horizons record numbers or commands). See Method, items 5 and 6.
+
+`jump` is the position just after `t` minus just before (km, in the piece's centre). The segment join
+at `t` is flagged (bit 0) and the segments meet with no gap for solution switches, or a gap under 2 s
+for source jumps, which the evaluator bridges with the earlier segment.
+
+**The default output keeps every jump exactly.** A position just before a jump is within the bound of
+the data before it, and one just after is within the bound of the data after it, so the bound holds at
+every instant. Any continuous path from one side of a jump of D km to the other passes through a point
+at least D/2 from both sides, so no smoothing can keep the bound across a jump more than twice the
+bound: that is every source jump except New Horizons' two of 193 km, and every solution switch except
+Encke's of 772 km and 1,211 km. One rule for all jumps keeps the default simple: exact.
+
+**Optional smoothing, for display.** `{ smoothJumps: true }` spreads each jump over a smoothstep ramp
+centred on it, `[t − rampDays/2, t + rampDays/2]`: before `t` the position moves towards the later side
+by w·jump, after it back towards the earlier side by (1 − w)·jump. The path is then continuous in
+position and velocity, the ramp adds at most 1% to the speed (`rampDays` = 1.5·jumpKm / (0.01·speed)),
+and no position moves more than half the jump. Inside a ramp `adjustedKm` reports the displacement;
+such positions do not meet the stated accuracy.
+
+**For the app.** A jump in the default output is a step in the drawn position: at most 126,500 km
+(0.00085 au; Pioneer 10, 1983), up to about four hours of the body's own motion. Break trail polylines
+at listed jump times, or use `smoothJumps` for the moving marker only.
+
+Source jumps:
 
 | Body | Centre | Jump at (TDB) | Size (km) | Ramp (d) | Cause (Horizons notes) |
 | --- | --- | --- | ---: | ---: | --- |
@@ -138,7 +210,33 @@ each jump behind a smoothstep ramp over `[t − rampDays, t)`. The ramp is long 
 Five more flagged joins sit under a second before some of these jumps: New Horizons 2012-05-01, Pioneer 10
 1973-11-24 and 1983-06-12, Parker 2025-06-25 and 2026-06-17. At each, Horizons' velocity disagrees
 with its positions at the file boundary. The segments meet there without the velocity constraint
-(flag bit 0 in the table below), and the positions agree, so no ramp is needed.
+(flag bit 0 in the table below), and the positions agree, so they are not listed as jumps.
+
+Solution switches (all in the heliocentric piece; the switch sits at the aphelion between two
+perihelion passages for the comets, and at the ends of 1995–2033 for Arrokoth):
+
+| Body | Switch at (TDB) | From → to (Horizons) | Size (km) | Ramp (d) |
+| --- | --- | --- | ---: | ---: |
+| Encke | 1982-08-04 | 90000082 (SAO/1980) → 90000083 (SAO/1984) | 13,320 | 4.01 |
+| Encke | 1985-11-24 | 90000083 → 90000084 (SAO/1987) | 772 | 0.234 |
+| Encke | 1989-03-08 | 90000084 → 90000085 (SAO/1990) | 3,023 | 0.92 |
+| Encke | 1992-06-20 | 90000085 → 90000086 (SAO/1994) | 5,047 | 1.54 |
+| Encke | 1995-10-03 | 90000086 → 90000088 (JPL J974/1) | 3,748 | 1.14 |
+| Encke | 2002-05-07 | 90000088 → 90000089 (JPL K105/6) | 2,054 | 0.62 |
+| Encke | 2008-12-13 | 90000089 → 90000090 (JPL K204/20) | 2,412 | 0.728 |
+| Encke | 2018-11-03 | 90000090 → 90000091 (JPL K273/17) | 1,211 | 0.366 |
+| 67P | 1986-03-04 | 90000697 (SAO/1982) → 90000698 (SAO/1989) | 8,355 | 1.91 |
+| 67P | 1992-10-02 | 90000698 → 90000699 (SAO/1996) | 11,350 | 2.60 |
+| 67P | 1999-05-07 | 90000699 → 90000700 (SAO/2002) | 12,460 | 2.86 |
+| 67P | 2005-11-27 | 90000700 → 90000701 (JPL K097/1) | 10,110 | 2.33 |
+| 67P | 2012-05-22 | 90000701 → 90000703 (JPL K284/1) | 2,813 | 0.653 |
+| Arrokoth | 1995-01-01 | 486958 (JPL#3, ground-based) → 2486958 (NH project, od159) | 47,930 | 18.5 |
+| Arrokoth | 2033-01-01 | 2486958 → 486958 | 65,450 | 24.6 |
+
+Arrokoth's two solutions drift apart almost linearly, about 3,000 km a year either side of 2011 (where
+they are closest, 1,700 km): 22,000 km at the 2019 flyby. They never come close enough after 2011 for a
+seamless hand-over, and the project ephemeris is the better one near the flyby, so it is kept for its
+whole 1995–2033 span as before.
 
 ## `tracks.bin` (little-endian)
 
@@ -146,8 +244,8 @@ with its positions at the file boundary. The segments meet there without the vel
 | --- | --- | --- |
 | 0 | 4 × u8 | magic `LTRK` |
 | 4 | u32 | version = 1 |
-| 8 | u32 | segment count S (2,266) |
-| 12 | u32 | coefficient count C (129,033 float64) |
+| 8 | u32 | segment count S (2,294) |
+| 12 | u32 | coefficient count C (129,306 float64) |
 | 16 | u32 | segment table offset (32) |
 | 20 | u32 | coefficient offset (32 + 24·S, a multiple of 8) |
 | 24 | u32 | total byte length |
@@ -161,13 +259,14 @@ Segment table, 24 bytes per segment:
 | 8 | f64 | t1 |
 | 16 | u32 | index of the first coefficient (in float64s) |
 | 20 | u16 | degree n (3–31) |
-| 22 | u16 | flags. Bit 0: the next segment starts after a jump in the source (no continuity). |
+| 22 | u16 | flags. Bit 0: the next segment starts after a jump (a source jump or a solution switch; no continuity). |
 
 Each segment stores 3(n+1) float64 coefficients: x₀…xₙ, y₀…yₙ, z₀…zₙ, in km. With
 x = (2t − t0 − t1)/(t1 − t0), position = Σ cₖ Tₖ(x). The velocity is the derivative times 2/(t1 − t0), per day.
 A piece's segments are contiguous in the table and sorted by time. Consecutive segments share their
-end time. The only exception is a jump, which leaves a gap of under 2 s that the evaluator bridges
-with the earlier segment.
+end time. The only exception is a source jump, which leaves a gap of under 2 s that the evaluator
+bridges with the earlier segment. At a solution switch the two segments share the switch time, and the
+later one is used from that instant.
 
 ## `tracks.json`
 
@@ -187,14 +286,16 @@ with the earlier segment.
         "tolKm": 100, "fineRadiusKm": 43854, "fineTolKm": 1,
         "switchRadiusKm": 86600000, "appPlanetOffsetKm": 101000,
         "closestApproach": { "t": ..., "iso": "1989-08-25 03:56:36", "distanceKm": 29235.9 },
-        "jumps": [ { "t": ..., "jump": [dx, dy, dz], "jumpKm": 610, "rampDays": 0.063 } ],
+        "jumps": [ { "t": ..., "iso": "1989-08-29 08:00:00", "cause": "source", "jump": [dx, dy, dz], "jumpKm": 610, "rampDays": 0.063 } ],
+        // comets and Arrokoth: { ..., "cause": "solution-switch", "from": "90000082", "to": "90000083", ... }
         "accuracy": { "fitSamples": ..., "fitMaxKm": ..., "independent": { "points", "maxKm", "rmsKm" }, "flyby": {...} }
       }, ... ],
       "before": { "regime": "before-launch", "centre": "earth", "epoch": ..., "pos": [...] },
       "after":  { "regime": "extrapolated", "model": "two-body", "centre": "ssb", "epoch": ..., "r": [...], "v": [...], "mu": ..., "ssbOffsetKm": ... },
       "accuracy": { "requirementKm": 100, "maxKm": 25, "rmsKm": 10.5, "flyby": { "requirementKm": 1, "maxKm": 0.267 }, ... },
       "appSwitchOffsetsKm": [ { "centre": "neptune", "iso": "...", "offsetKm": 104000 }, ... ],
-      "solutions": [...],                                // comets and Arrokoth: which Horizons solution covers which dates
+      "solutions": [...],                                // comets and Arrokoth: which Horizons solution covers which dates,
+                                                         // with handoverToNextKm = the jump at the switch
       "notes": ["..."]
     }
   }
@@ -215,7 +316,7 @@ the blend intervals.
      with HTTP 502.
    - Requests go one at a time with a 1.5 s pause and back off on 429 and 5xx. Grids are chunked at 40,000 steps.
    - Every response is cached under `data-raw/tracks/`. A full build from an empty cache takes
-     about 1,200 requests and 30–40 minutes; with the cache, a rebuild takes about 45 s.
+     about 1,250 requests and 30–40 minutes; with the cache, a rebuild takes about 30 s.
 2. **Sampling.**
    - Each piece starts on a coarse grid: 16 days for TNOs and interstellar objects, 4–8 for
      Ceres, Vesta and comets, 1 for spacecraft in cruise (0.5 for Parker), 0.25 or less in planet
@@ -233,6 +334,8 @@ the blend intervals.
      That check catches a polynomial that wiggles between samples.
    - If even a two-interval segment fails, the build fetches 8× denser samples there. Below 2 s it
      declares a jump in the source (see above).
+   - Where a body switches solution, the samples of each solution are fitted separately, and the two
+     fits meet at the switch time, where both solutions are sampled.
    - **Targets are a quarter of the bound:** 250 km for small bodies (bound 1,000), 25 km for spacecraft (bound
      100), and 0.25 km inside the flyby radius (bound 1). The flyby radius is max(10 planet radii, 1.5 × closest
      approach).
@@ -242,9 +345,13 @@ the blend intervals.
 5. **Comets.** Horizons keeps one solution per apparition for periodic comets.
    - Each perihelion passage in the window uses the solution whose element epoch is closest to
      it.
-   - Solutions hand over at the aphelion between two passages, cross-faded over ±60 days. The
-     solutions differ there by 900–15,000 km. Each body's `solutions` lists records, arcs, dates and
-     handover offsets.
+   - Solutions hand over at the aphelion between two passages (snapped to the 4-day grid), where the
+     comet is slowest and the solutions' along-track difference is small in km. The hand-over is an
+     **exact switch**: the solutions still differ there by 770–13,300 km (Encke) and 2,800–12,500 km
+     (67P), and no blend can stay within 1,000 km of both. The first version cross-faded them over
+     ±60 days, which put the track up to 6,600 km from either solution; that is gone. Each body's
+     `solutions` lists records, arcs, dates and the jump at each switch, and the jumps are listed in
+     the piece (see "Jumps").
    - Encke uses records 90000082–86 (SAO, 1980–1994), 90000088 (JPL J974/1), 90000089 (K105/6),
      90000090 (K204/20) and 90000091 (K273/17, 2020 onwards).
    - 67P uses 90000697–700 (SAO) for 1982–2002, 90000701 (K097/1) for 2009, and 90000703 (K284/1)
@@ -254,9 +361,11 @@ the blend intervals.
    - Hale–Bopp uses the single record 90002256 (JPL#226).
 6. **Arrokoth** follows the New Horizons flight-project ephemeris (Horizons target `2486958`,
    NavSBE_2014MU69_od159) from 1995 to 2033. Horizons calls it more accurate than the
-   ground-based orbit (`486958;`), which is used outside that span. The two differ by ~22,000 km at the flyby
-   and are cross-faded over ±180 days. As a result, New Horizons' Arrokoth-relative track and the Arrokoth track agree to
-   within 131 km, so the 3,537 km flyby is exact in the app.
+   ground-based orbit (`486958;`), which is used outside that span. The two differ by ~22,000 km at the flyby,
+   ~48,000 km in 1995 and ~65,000 km in 2033, so the switches at 1995-01-01 and 2033-01-01 are exact
+   jumps (the first version's ±180-day cross-fades were up to 32,600 km from both). New Horizons'
+   Arrokoth-relative track and the Arrokoth track agree to within 50 km at the flyby blend
+   (`appSwitchOffsetsKm`), so the 3,537 km flyby is exact in the app.
 7. **Interstellar objects** cover Horizons' whole small-body span, 1600–2500. Horizons integrates a grid
    from the solution epoch back to its start, and then forward across the whole span. For these
    hyperbolic orbits with non-gravitational forces, that forward pass drifts from a direct integration after
@@ -266,10 +375,22 @@ the blend intervals.
 
 ## Accuracy
 
-All errors below are measured against Horizons. "Max" is the larger of the worst error at the 402,000 fit samples and the worst of the
-independent epochs; "RMS" is over the independent epochs only. Planet-centred pieces are measured
-relative to their planet. Figures are for the raw fit; inside a jump ramp the default output
-departs from Horizons by up to `adjustedKm`.
+All errors below are measured against Horizons, for the default output (which is the fit itself).
+"Max" is the larger of the worst error at the 402,000 fit samples and the worst of the independent
+epochs; "RMS" is over the independent epochs only (100 random epochs per piece, plus 60 in each flyby
+zone). Planet-centred pieces are measured relative to their planet. For Encke, 67P and Arrokoth the
+truth at each instant is the Horizons solution in force then (see the switch table under "Jumps").
+With `smoothJumps`, positions inside a ramp depart from these figures by up to `adjustedKm`.
+
+These are observed maxima, not proofs, but the fit targets are a quarter of the bound, and every
+independent check so far has come in under the target: the build's own 798 checkpoints, and a separate
+verification against 257 fresh Horizons requests (at least 40 random epochs per body plus edges, blend
+midpoints, closest approaches, ramps and both sides of every switch), re-run on these files for all 23
+bodies: small bodies at most 246 km (bound 1,000), within 193 km on both sides of every solution
+switch; spacecraft at most 24.9 km (bound 100); inside the flyby radii at most 0.254 km (bound 1). The
+interstellar objects must be checked with one epoch per Horizons request (at most 233 km that way): a
+long TLIST batch starting in 1600 reproduces the forward-integration drift described under Method,
+item 7, and shows false errors of 1,800–11,800 km.
 
 | Body | Precise span (TDB) | Centres | Segments | Bytes | Max (km) | RMS (km) | Bound (km) | Flyby max (km) |
 | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
@@ -282,10 +403,10 @@ departs from Horizons by up to `adjustedKm`.
 | Quaoar (`quaoar`) | 1981-01-01 – 2200-01-01 | sun | 50 | 27,528 | 250 | 147 | 1000 | – |
 | Sedna (`sedna`) | 1981-01-01 – 2200-01-01 | sun | 50 | 27,528 | 250 | 144 | 1000 | – |
 | Orcus (`orcus`) | 1981-01-01 – 2200-01-01 | sun | 50 | 27,528 | 250 | 138 | 1000 | – |
-| Arrokoth (`arrokoth`) | 1981-01-01 – 2200-01-01 | sun | 55 | 27,864 | 250 | 129 | 1000 | – |
+| Arrokoth (`arrokoth`) | 1981-01-01 – 2200-01-01 | sun | 53 | 27,888 | 249 | 136 | 1000 | – |
 | Halley (`halley`) | 1981-01-01 – 2200-01-01 | sun | 49 | 30,312 | 249 | 127 | 1000 | – |
-| Encke (`encke`) | 1981-01-01 – 2200-01-01 | sun | 272 | 115,152 | 250 | 103 | 1000 | – |
-| 67P (`churyumov-gerasimenko`) | 1981-01-01 – 2200-01-01 | sun | 100 | 51,168 | 249 | 125 | 1000 | – |
+| Encke (`encke`) | 1981-01-01 – 2200-01-01 | sun | 293 | 118,104 | 250 | 116 | 1000 | – |
+| 67P (`churyumov-gerasimenko`) | 1981-01-01 – 2200-01-01 | sun | 109 | 51,048 | 250 | 129 | 1000 | – |
 | Hale–Bopp (`hale-bopp`) | 1981-01-01 – 2200-01-01 | sun | 48 | 28,152 | 250 | 143 | 1000 | – |
 | 1I/ʻOumuamua (`oumuamua`) | 1600-01-01 – 2500-01-01 | sun | 215 | 115,032 | 250 | 141 | 1000 | – |
 | 2I/Borisov (`borisov`) | 1600-01-01 – 2500-01-01 | sun | 213 | 113,616 | 250 | 142 | 1000 | – |
@@ -353,7 +474,8 @@ Two-body errors against Horizons, taken from the fixture's `extrapolated` checkp
 
 These positions are plausible, not precise. Inner-system bodies drift fastest, because planetary
 perturbations and the comets' outgassing are not modelled. There is no truth to compare against
-after a spacecraft's data end.
+after a spacecraft's data end. The fallbacks never stop: at years ±1 million and 1 billion Ceres still
+moves 3.3–3.7 au a year along its ellipse (see "Regimes" for the limits).
 
 ## Known limits
 
@@ -372,8 +494,12 @@ after a spacecraft's data end.
   - New Horizons after its tracking cut-off on 2026-07-20.
   - Parker Solar Probe after 2026-01-27. From 2026-06-17 it follows the reference planning trajectory.
   - JWST after 2026-09-20, following Goddard's station-keeping schedule to 2031-09-21.
-- **Comets.** Inside the ±60-day handovers between apparition solutions, the position is a blend of two
-  JPL solutions. The Encke, 67P and Halley solutions include non-gravitational parameters; the SAO records do not.
+- **Comets and Arrokoth switch solutions with a jump.** At each switch the track steps from one JPL
+  solution to the next, by 770–65,450 km (table under "Jumps"). That is the honest picture: JPL's
+  solutions themselves disagree by that much there. The Encke, 67P and Halley JPL solutions include
+  non-gravitational parameters; the SAO records do not.
+- **Source jumps are kept.** The default output steps at every jump in Horizons' spacecraft data (up to
+  126,500 km); `smoothJumps` hides them for display at the cost of accuracy inside the ramps.
 - **Interstellar objects** far from their observed arcs rest on assumed non-gravitational
   accelerations. JPL itself warns about this for 1I. 3I/ATLAS is an early solution (arc to
   2026-02-19) and will be revised.
@@ -419,7 +545,12 @@ The tests read `public/data/tracks.{json,bin}` and the fixture. Their coverage:
 - Halley's 2061-07-28 perihelion.
 - C⁰/C¹ continuity at every segment join. Continuity across fit-to-extrapolation edges in the app
   frame.
-- The jump ramps.
+- Both sides of every jump and solution switch, with the default output (`jump-side` checkpoints).
+- Jumps: every listed jump sits on a flagged join; the default output keeps it exactly; `smoothJumps`
+  is continuous, moves no position more than half the jump, stays inside its piece, and has a velocity
+  that matches its position.
 - Blend weights.
-- Finite output from −10⁹ to 10⁹ days.
+- Finite position and velocity at every finite time, including ±1e300 and ±`Number.MAX_VALUE` days.
+- No freeze: extrapolated bodies keep moving at years ±30,000, ±1 million and ±1 billion; elliptic
+  fallbacks stay on their ellipse; near-parabolic fallbacks (synthetic) stay finite and recede.
 - The Kepler solvers, and budget and accuracy-table consistency.

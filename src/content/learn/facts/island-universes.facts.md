@@ -1,0 +1,155 @@
+# Fact file: island-universes
+
+One line per fact: claim | value | source | status. "computed" means recomputed here with node (25 Sep 2026) from the cited inputs. ADS scans were read page by page (image or OCR text layer); arXiv abstracts read on arxiv.org; DOIs checked against the Crossref API on 25 Sep 2026.
+
+## Opening: New Year's Day 1925
+- The 33rd meeting of the American Astronomical Society was held in Washington from 30 December 1924 to 1 January 1925, with the AAAS; more than 4,000 scientists registered for the AAAS meeting | 1924-25 | "Thirty-third meeting of the American Astronomical Society", Popular Astronomy 33, 158-160 (March 1925), https://archive.org/details/sim_popular-astronomy_1925-03_33_3 | verified (primary, full text)
+- On the Wednesday night (31 Dec 1924) at midnight American astronomers changed from astronomical (noon) to civil (midnight) reckoning | 1925-01-01 00:00 | same report | verified (primary)
+- Thursday morning (1 Jan 1925), joint session in Corcoran Hall, George Washington University; Eddington had been called home, so Russell summarised stellar evolution; "It was at this session that Professor Russell presented the communication by Dr. Edwin P. Hubble on 'Cepheids in Spiral Nebulae'", which shared the $1,000 prize; report says Hubble derived "distances approaching one million light years" | 1 Jan 1925 | same report | verified (primary)
+- Popular Astronomy (Feb 1925) described Hubble's paper as "presented at the meeting of the American Astronomical Society in Washington during the holidays" | 1925 | Popular Astronomy 33, no. 2 (Feb 1925), https://archive.org/details/sim_popular-astronomy_1925-02_33_2 | verified (primary)
+
+## Hubble 1925 paper (Cepheids in spiral nebulae)
+- M31 and M33 "the only spirals that can be seen with the naked eye"; 47 variables in M33, 36 variables and 46 novae in M31; periods for 22 Cepheids in M33 and 12 in M31; 65 plates of M33, 130 of M31 | 1925 | E. P. Hubble, Popular Astronomy 33, 252-255 (1925), https://adsabs.harvard.edu/full/1925PA.....33..252H ; reprinted The Observatory 48, 139-142 (1925), https://adsabs.harvard.edu/full/1925Obs....48..139H | verified (primary)
+- m - M about -22.3 (i.e. modulus 22.3); "The corresponding distance is about 285,000 parsecs"; footnote in Observatory: "Equal to 930,000 light-years"; "The greatest uncertainty is probably in the zero point of Shapley's curve" | 1925 | same | verified (primary)
+- Three assumptions: variables connected with spirals; "no serious amount of absorption"; Cepheid variation uniform | 1925 | same | verified (primary)
+- 10^((22.3+5)/5) = 288,400 pc; 285,000 pc = 929,600 ly | computed | verified
+- Hubble 1929: about 350 plates over about 18 years; 40 Cepheids in M31; "Distance = 275,000 parsecs = 900,000 light-years" (abstract gives 273,000); M31 8.5 times the SMC distance | 1929 | E. Hubble, ApJ 69, 103-158 (1929), https://doi.org/10.1086/143167 | verified (primary, OCR text)
+
+## Hubble's VAR! plate
+- Night of 5-6 October 1923, 100-inch Hooker telescope, 45-minute exposure, poor seeing, three suspected novae marked N; one found to vary on earlier plates; N crossed out, "VAR!" written; V1 period 31.4 days | 1923 | NASA, "Hubble views the star that changed the universe" (23 May 2011), https://science.nasa.gov/missions/hubble/hubble-views-the-star-that-changed-the-universe/ | verified (secondary, NASA)
+- Shapley reportedly said "Here is the letter that destroyed my universe" | 1924 | NASA 2011 (as "reportedly") | verified as a reported remark, not a documented quote
+- AAVSO amateurs made 214 observations of V1 in July-December 2010 | 2010 | NASA 2011 | verified
+- Date of Hubble's letter to Shapley (often given as 19 Feb 1924) | n/a | not found in a source opened | uncertain (not used)
+- NYT headline of 23 Nov 1924 ("Dr. Hubbell") | n/a | could not open nytimes.com | uncertain (not used)
+
+## Wright, Kant, Messier, Rosse, Huggins
+- Thomas Wright, An Original Theory or New Hypothesis of the Universe (London, printed for the author, 1750); Letter the Ninth: the many cloudy spots "may be external Creation, bordering upon the known one, too remote for even our Telescopes to reach" | 1750 | archive.org scan, https://archive.org/details/originaltheoryor00wrig | verified (primary)
+- Kant learned of Wright's treatise from the Hamburg "freien Urtheilen" of 1751 (AA I 231) | 1751 | Kant, Allgemeine Naturgeschichte und Theorie des Himmels (1755), Akademie-Ausgabe I, 231, https://korpora.org/kant/aa01/231.html | verified (primary)
+- Kant cites Maupertuis on nebulous stars as faint, more or less open ellipses (AA I 254) and concludes they are "Weltordnungen und, so zu reden, Milchstraßen" (AA I 255); "eine Welt von Welten" | 1755 | https://korpora.org/kant/aa01/254.html and /255.html | verified (primary)
+- The words Weltinsel/Welteninsel (island universe) do not occur in the book (AA I 215-368 searched; only literal islands, e.g. Jamaica, on 223-224 and 352) | 1755 | korpora.org pages 215-368 fetched and searched | verified (primary)
+- Who first coined "island universe" (often credited to Humboldt) | n/a | not verified | uncertain (not used)
+- Messier catalogue: first edition in Memoires de l'Academie for 1771 (published 1774), M1-M45; first supplement in Connoissance des Temps for 1783 (published 1780) to M68 (M69-70 added); final version in Connoissance des Temps for 1784 (published 1781) to M103 | 1774-1781 | H. Frommert and C. Kronberg, SEDS, http://www.messier.seds.org/xtra/history/m-cat.html | verified (secondary, detailed)
+- Messier hunted Halley's comet in 1758 using Delisle's wrong chart; found the comet-like patch in Taurus on 28 Aug 1758 that became M1 | 1758 | SEDS Messier biography, http://www.messier.seds.org/xtra/history/biograph.html | verified (secondary)
+- M31 known to al-Sufi (964 CE, "little cloud"); first telescopic description Simon Marius 1612; Messier catalogued it 3 Aug 1764 | n/a | SEDS M31, http://www.messier.seds.org/m/m031.html | verified (secondary)
+- M51 discovered by Messier on 13 Oct 1773 while observing a comet: "very faint nebula, without stars"; spiral structure found spring 1845 by Lord Rosse | n/a | SEDS M51, http://www.messier.seds.org/m/m051.html | verified (secondary; Linda Hall says sketched 1844, SEDS says spring 1845; article uses 1845)
+- Rosse's "Leviathan of Parsonstown" at Birr Castle: speculum mirror six feet across, world's largest reflector | 1844-45 | Linda Hall Library, W. B. Ashworth, "Scientist of the Day: William Parsons", https://www.lindahall.org/about/news/scientist-of-the-day/william-parsons/ | verified (secondary)
+- Huggins (Tulse Hill, London) found in 1864 that some nebulae give a gas (bright-line) spectrum while M31 gives a continuous spectrum | 1864 | SEDS M31 (citing Huggins & Miller, Phil. Trans. 154, 437, 1864); Linda Hall "William Huggins" | verified (secondary)
+- S Andromedae: discovered 20 Aug 1885 by Ernst Hartwig at Dorpat, reached magnitude 6 | 1885 | SEDS M31 | verified (secondary)
+- Baade and Zwicky identified supernovae as a class in 1934; S Andromedae was one | 1934 | Linda Hall, "Walter Baade", https://www.lindahall.org/about/news/scientist-of-the-day/walter-baade/ | verified (secondary)
+- Agnes Clerke (1890): "No competent thinker, with the whole of the available evidence before him, can now, it is safe to say, maintain any single nebula to be a star system of co-ordinate rank with the Milky Way." (ch. XXIV, "Status of the Nebulae", p. 368) | 1890 | A. M. Clerke, The System of the Stars (Longmans, Green, 1890), https://archive.org/details/systemstars01clergoog | verified (primary, full text)
+
+## Slipher
+- First plate 17 Sep 1912, exposure 6 h 50 min, very dense 64-degree prism, 24-inch telescope; velocities -284 (17 Sep), 296 (15-16 Nov), 308 (3-4 Dec), -301 (29-31 Dec) km/s; mean -300 km/s; "the greatest hitherto observed"; he speculated the nebula might have met a dark "star", causing the 1885 nova | 1912-13 | V. M. Slipher, "The radial velocity of the Andromeda Nebula", Lowell Observatory Bulletin 2, 56-57 (No. 58, 1913), https://adsabs.harvard.edu/full/1913LowOB...2...56S | verified (primary)
+- 1914: 15 nebulae, 12 receding; 1917: 25 nebulae, 21 redshifted, speeds up to 1,100 km/s (Proc. Am. Phil. Soc. 56, 1917) | 1914-17 | Linda Hall, "Vesto Slipher", https://www.lindahall.org/about/news/scientist-of-the-day/vesto-slipher/ | verified (secondary)
+- 300/299,792.458 = 1.0007e-3; 434 nm line shifts 0.434 nm | computed | verified
+
+## Leavitt, Cepheids
+- Circular 173, dated 3 March 1912, signed Edward C. Pickering, "prepared by Miss Leavitt"; 25 variables in the SMC; periods 1.25336 to 127.0 days; "A straight line can readily be drawn..."; "The logarithm of the period increases by about 0.48 for each increase of one magnitude in brightness"; "Since the variables are probably at nearly the same distance from the Earth, their periods are apparently associated with their actual emission of light"; in H.A. 60 No. 4 the brighter variables were noted to have longer periods but numbers were then too small | 1912 | Harvard College Observatory Circular 173, 1-3 (1912), https://adsabs.harvard.edu/full/1912HarCi.173....1L | verified (primary)
+- Catalogue of 1,777 variables in the two Clouds in H.A. 60, No. 4 (1908) | 1908 | Circular 173; Annals of Harvard College Observatory 60, 87-108 (1908) | verified (primary reference in Circular 173)
+- 1/0.48 = 2.08 magnitudes per factor 10 in period = factor 6.8 in brightness | computed | verified
+- Leavitt died 12 Dec 1921 aged 53; returned to Harvard 1903 at 30 cents an hour; progressive hearing loss; worked on plates from Harvard's southern station in Peru | n/a | Linda Hall, "Henrietta Swan Leavitt" (12 Dec 2024), https://www.lindahall.org/about/news/scientist-of-the-day/henrietta-swan-leavitt/ | verified (secondary)
+- Goodricke found delta Cephei's variability in 1784; born deaf; died aged 21 | 1784 | Fraknoi, Morrison, Wolff, Astronomy 2e, OpenStax, sec. 19.3, https://openstax.org/books/astronomy-2e/pages/19-3-variable-stars-one-key-to-cosmic-distances | verified (textbook)
+- Most Cepheids have periods of 3 to 50 days | n/a | OpenStax 19.3 | verified
+- Hertzsprung (A.N. 196, 201, 1913) used proper motions of 13 Cepheids: M = -2.3 for P = 6.6 d; SMC distance 33,000 light-years, then by far the largest distance for an individual object | 1913 | W. Baade, PASP 68, 5-16 (1956), https://doi.org/10.1086/126870 | verified (primary recollection)
+- Shapley (ApJ 48, 81, 1918) linked cluster-type variables to the SMC relation via long-period Cepheids in globular clusters such as omega Centauri; "nobody protested it" | 1918 | Baade 1956 | verified
+- Pulsation: opacity of the doubly ionised helium zone acts as heat engine and valve; traps energy, expands, cools, recombines, becomes transparent, falls back | n/a | W. L. Freedman and B. F. Madore, ARA&A 48, 673-710 (2010), sec. 3.1.1, https://doi.org/10.1146/annurev-astro-082708-101829 (ar5iv HTML) | verified
+- Modern SMC distance 62.44 +/- 0.47 +/- 0.81 kpc = 203,700 ly | 2020 | D. Graczyk et al., ApJ 904, 13 (2020), https://doi.org/10.3847/1538-4357/abbb2b | verified (abstract); ly computed
+- 203,700 / 33,000 = 6.2 | computed | verified
+
+## Great Debate
+- 26 April 1920, National Academy of Sciences meeting, Washington, 8:15 p.m., with a conversazione at 9:30; published papers in May 1921 Bulletin of the NRC would take over two hours to read; Abbot feared "the people care so little about island universes"; relativity rejected as topic; 40-minute compromise; Shapley's talk elementary (more than six pages before defining a light-year); Curtis used typewritten slides; Curtis wrote he "came out considerably in front"; Hoskin: "insofar as there was a contest, Curtis was the winner" | 1920 | M. A. Hoskin, "The 'Great Debate': what really happened", JHA 7, 169-182 (1976), https://doi.org/10.1177/002182867600700302 ; reprint https://apod.nasa.gov/diamond_jubilee/1920/cs_real.html | verified (secondary with primary archive quotes)
+- Shapley in Washington: "I prefer to believe that they are not composed of stars at all, but are truly nebulous objects"; used Seares' M51 yellow/blue plates | 1920 | Hoskin 1976 reprint (Shapley's typescript) | verified (primary via Hoskin)
+- Curtis slides: novae in Andromeda imply ~500,000 light-years; 16 novae in Andromeda vs ~30 historical in our galaxy; spirals avoid the Milky Way plane, explained by dark occulting rings | 1920 | Hoskin 1976 reprint; Shapley & Curtis 1921 | verified (primary)
+- Published version: Shapley cited van Maanen's rotations of M101, M81 and M33 as "fatal" to comparable-galaxy theory; Curtis: spirals average 1,200 km/s space velocity; dispersion of novae "at least ten absolute magnitudes" (S Andromedae) | 1921 | H. Shapley and H. D. Curtis, "The scale of the universe", Bull. NRC 2, 171-217 (1921), https://apod.nasa.gov/diamond_jubilee/1920/cs_nrc.html | verified (primary text)
+- Shapley's galaxy 300,000 light-years; Curtis's about 30,000 | 1920 | same | verified
+- van Maanen 1935 (ApJ 81, 336): remeasured with 100-inch; motions much smaller; together with measures of Hubble, Baade and Nicholson "make it desirable to view the motions with reserve" | 1935 | https://doi.org/10.1086/143634 | verified (primary)
+- Hubble 1935 "Angular rotations of spiral nebulae", ApJ 81, 334 | 1935 | https://doi.org/10.1086/143633 (Crossref) | verified (existence; content not read)
+- Milky Way disc closer to 100,000 light-years across (between Shapley's 300,000 and Curtis's 30,000) | n/a | Linda Hall, "Heber Curtis" (27 June 2019), https://www.lindahall.org/about/news/scientist-of-the-day/heber-curtis/ | verified (secondary)
+- Curtis noted a "curious straight ray" in NGC 4486 (M87) in a 1918 Lick study of 762 nebulae | 1918 | Linda Hall, "Heber Curtis", https://www.lindahall.org/about/news/scientist-of-the-day/heber-curtis/ | verified (secondary)
+- Opik 1922: from rotation (157 km/s at 150 arcsec) and mass-to-light like our Galaxy, distance 450,000 parsecs; "a stellar universe comparable with our Galaxy" | 1922 | E. Opik, ApJ 55, 406-410 (1922), https://doi.org/10.1086/142680 | verified (primary); 450,000 pc = 1.47 million ly computed
+
+## Baade
+- Baade 1944 resolved M32, NGC 205 and the central region of M31 on red-sensitive plates with the 100-inch; two stellar populations | 1944 | W. Baade, ApJ 100, 137 (1944), https://doi.org/10.1086/144650 | verified (primary abstract)
+- Wartime blackout detail | n/a | not in the paper text searched | uncertain (not used)
+- Hubble (1931) found M31's globular clusters 1.5 mag fainter at the top than ours; Baade and Hubble argued on cloudy nights on Mount Wilson | 1931-1940s | Baade 1956 | verified (primary recollection)
+- 200-inch observations of three M31 fields began early fall 1950; brightest Population II stars at photographic mag 22.4 where RR Lyrae stars were expected; RR Lyrae therefore at 23.9; type I Cepheids 1.5 mag brighter than thought; distances from them "multiplied by the factor 2"; presented at IAU Commission 28, Rome, September 1952; Thackeray rose to announce Radcliffe confirmation (NGC 121 in SMC: RR Lyrae near 19 instead of 17.3) | 1950-52 | Baade 1956 | verified (primary)
+- Baade 1956: new photoelectric scales give apparent modulus of M31 22.75 on the old zero point (Hubble had 22.3) | 1956 | Baade 1956 | verified
+- 10^(1.5/5) = 1.995; 10^(0.45/5) = 1.23; 285 kpc x 2 = 575 kpc = 1.88 Mly | computed | verified
+- Rubin & Ford 1970 adopted D = 690 kpc for M31 | 1970 | ApJ 159, 379 | verified (primary)
+- Modern: distance modulus 24.407 +/- 0.032 = 761 +/- 11 kpc from 55 Cepheids with HST | 2021 | H. Li et al., ApJ 920, 84 (2021), https://doi.org/10.3847/1538-4357/ac1597 | verified (abstract); 761 kpc = 2.48 Mly computed; 761/285 = 2.67 computed
+
+## Classification
+- Hubble 1926 footnote: "'Early' and 'late,' in spite of their temporal connotations, appear to be the most convenient adjectives available for describing relative positions in the sequence." | 1926 | E. Hubble, "Extra-galactic nebulae", ApJ 64, 321-369 (1926), https://doi.org/10.1086/143018 | verified (primary OCR)
+- Tuning-fork diagram appeared only in The Realm of the Nebulae (1936), not in the 1926 paper; Lundmark proposed a similar system at about the same time, and Hubble disputed priority | 1926-36 | A. Sandage, "Edwin Hubble 1889-1953", JRASC 83 (1989), https://apod.nasa.gov/diamond_jubilee/1996/sandage_hubble.html | verified (secondary)
+- Realm of the Nebulae (Yale, 1936): sequence "may be represented by a diagram shaped like the letter Y, or, since the spiral series are roughly parallel, like a tuning fork"; notes the sequence "closely resembles" Jeans's theory of nebular evolution | 1936 | https://archive.org/details/in.ernet.dli.2015.212163 | verified (primary full text)
+
+## Dark matter
+- Zwicky 1933 (Helv. Phys. Acta 6, 110-127): Coma spread of velocities at least 1,500 km/s; average density "at least 400 times greater than that derived on the basis of observations of luminous matter"; "dark matter exists in much greater density than luminous matter" (Andernach translation) | 1933 | arXiv:1711.01693, https://arxiv.org/abs/1711.01693 | verified (translation text extracted)
+- Zwicky used H0 = 558; with modern H0 ~67 his mass-to-light is overestimated by ~8.3 | n/a | Bertone & Hooper, RMP 90, 045002 (2018), https://doi.org/10.1103/RevModPhys.90.045002 | verified (review); 400/8.28 = 48 computed
+- Zwicky 1937 (ApJ 86, 217): virial theorem on Coma gives minimum mean nebular mass 4.5e10 Msun; conversion factor ~500 vs ~3 locally; proposed galaxies as gravitational lenses (method iv) | 1937 | https://doi.org/10.1086/143864 | verified (primary OCR)
+- Babcock 1939 rotation of M31 rising at large radii; cautious interpretation (absorption or new dynamics) | 1939 | Bertone & Hooper 2018 | verified (review)
+- Kahn & Woltjer 1959: M31 and Galaxy approach at 125 km/s; assumed masses 4e11 and 1e11; M* >= 1.8e12 Msun, six times larger than the reduced mass; at least 1.5e12 Msun of intergalactic matter needed; suggested hot gas | 1959 | ApJ 130, 705 (1959), https://doi.org/10.1086/146762 | verified (primary)
+- Rubin & Ford 1970: 67 H II regions from 3 to 24 kpc; DTM image-tube spectrograph; Lowell 72-inch and Kitt Peak 84-inch; exposures 60-90 min; mass to 24 kpc 1.85e11 Msun; rotation curve fitted to "remain flat near R = 24 kpc"; "extrapolation beyond that distance is clearly a matter of taste"; image intensifiers cut observing times by a factor of 10 | 1970 | ApJ 159, 379-403 (1970), https://doi.org/10.1086/150317 | verified (primary)
+- Roberts & Whitehurst 1975: 21-cm rotation essentially constant from 20 to 30 kpc; M/L ~200 for outer region; suggested dwarf M stars could explain it | 1975 | ApJ 201, 327-346 (1975), https://doi.org/10.1086/153889 | verified (primary abstract)
+- Rubin, Ford & Thonnard 1980: 21 Sc galaxies; "Neither high nor low luminosity Sc galaxies have falling rotation curves"; "must have significant mass located beyond the optical image" | 1980 | ApJ 238, 471-487 (1980), https://doi.org/10.1086/158003 | verified (primary abstract)
+- Earth orbital speed 29.8 km/s, Neptune 5.4 km/s | n/a | NASA NSSDC Planetary Fact Sheet, https://nssdc.gsfc.nasa.gov/planetary/factsheet/ | verified; 29.78/sqrt(30.07) = 5.43 computed
+- v = 210 km/s at 24 kpc -> M = 2.5e11 Msun (spherical estimate) | computed | verified
+- Bullet Cluster 1E 0657-558, z = 0.296; 8-sigma offset between total mass and baryonic mass peaks | 2006 | D. Clowe et al., ApJ 648, L109-L113 (2006), https://doi.org/10.1086/508162 | verified (abstract)
+- Chandra release 21 Aug 2006: about 3.8 billion light-years; pink = hot gas (most normal matter), blue = mass from lensing; telescopes Chandra, Hubble, Magellan, ESO WFI; "hundred-million-degree gas"; gas slowed by drag, dark matter not | 2006 | https://chandra.harvard.edu/photo/2006/1e0657/ and https://chandra.harvard.edu/press/06_releases/press_082106.html | verified
+
+## Local Group, Magellanic Clouds, Stream
+- Hubble 1936 named the "local group": galactic system with Magellanic Clouds; M31 with M32 and NGC 205; M33, NGC 6822, IC 1613 (NGC 6946, IC 10, IC 342 possible) | 1936 | Realm of the Nebulae, ch. VI, p. 125 | verified (primary)
+- Over 100 galaxies within 3 Mpc | 2012 | A. W. McConnachie, AJ 144, 4 (2012), https://doi.org/10.1088/0004-6256/144/1/4 | verified (abstract)
+- LMC 49.59 +/- 0.09 +/- 0.54 kpc from 20 eclipsing binaries | 2019 | G. Pietrzynski et al., Nature 567, 200-203 (2019), https://doi.org/10.1038/s41586-019-0999-4 | verified; = 161,700 ly computed
+- HST proper motions: Clouds moving ~100 km/s faster than thought, near escape velocity; first passage likely | 2006-07 | N. Kallivayalil et al., ApJ 638, 772 (2006), https://doi.org/10.1086/498972 ; G. Besla et al., ApJ 668, 949 (2007), https://doi.org/10.1086/521385 | verified (abstract)
+- LMC total mass 1.38 (+0.27/-0.24) e11 Msun from its pull on the Orphan stream | 2019 | D. Erkal et al., MNRAS 487, 2685-2700 (2019), https://doi.org/10.1093/mnras/stz1371 | verified (abstract)
+- Magellanic Stream named in 1974; 180-degree arc; filament joins H I found by Wannier & Wrixon | 1974 | D. S. Mathewson, M. N. Cleary, J. D. Murray, ApJ 190, 291-296 (1974), https://doi.org/10.1086/152875 | verified (primary abstract)
+- Stream plus Leading Arm at least 200 degrees long (GBT) | 2010 | D. L. Nidever et al., ApJ 723, 1618-1631 (2010), https://doi.org/10.1088/0004-637X/723/2/1618 | verified (abstract)
+- Magellanic System total gas ~2.0e9 Msun, ionised gas more than twice the atomic; covers ~11,000 square degrees (a quarter of the sky) | 2014 | A. J. Fox et al., ApJ 787, 147 (2014), https://doi.org/10.1088/0004-637X/787/2/147 | verified (abstract)
+- M33: about 3 million light-years, magnitude 5.7, visible to keen-eyed observers under exceptionally dark skies | n/a | NASA, "Messier 33", https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-33/ | verified
+- M51 31 million ly; M81 11.6 million ly; M104 28 million ly | n/a | NASA Hubble Messier pages | verified
+
+## Andromeda collision
+- M31 approaches at about 250,000 mph (= 111.8 km/s computed); collision about 4 billion years; merger about 6 billion years; "stars inside each galaxy are so far apart that they will not collide" | 31 May 2012 | NASA, "NASA's Hubble shows Milky Way is destined for head-on collision", https://science.nasa.gov/missions/hubble/nasas-hubble-shows-milky-way-is-destined-for-head-on-collision/ | verified
+- van der Marel et al. 2012 II: V_rad = -109.3 +/- 4.4 km/s; V_tan = 17.0 km/s (<34.3 at 1 sigma); Local Group mass 3.17 +/- 0.57 e12 Msun | 2012 | ApJ 753, 8 (2012), https://doi.org/10.1088/0004-637X/753/1/8 | verified (abstract)
+- van der Marel et al. 2012 III: first pericentre 3.87 (+0.42/-0.32) Gyr, merger 5.86 (+1.61/-0.72) Gyr; direct hit (pericentre < 25 kpc) p = 41%; Sun likely (85%) ends farther out | 2012 | ApJ 753, 9 (2012), https://doi.org/10.1088/0004-637X/753/1/9 | verified (abstract)
+- Gaia EDR3: M31 transverse velocity 82.4 +/- 31.2 km/s, "nearly radial orbit" | 2021 | T. Salomon et al., MNRAS (2021), https://doi.org/10.1093/mnras/stab2253 | verified (abstract)
+- Sawala et al. 2025 (Nature Astronomy 9, 1206-1217, published 2 June 2025): probability close to 50% of no MW-M31 merger in next 10 Gyr; M33 raises, LMC lowers merger probability; 22 variables, 100,000 Monte Carlo simulations; 2% chance of head-on collision in 4-5 Gyr; median merger time (when merging) 7.6-8.0 Gyr; LMC-MW merger median 1.3 Gyr; masses MW 1.0e12, M31 1.3e12, M33 3e11, LMC 1.5e11 | 2025 | https://doi.org/10.1038/s41550-025-02563-1 ; arXiv:2408.00064 (v1 HTML); ESA/Hubble heic2508, https://esahubble.org/news/heic2508/ | verified (abstract, paper HTML via summary tool, ESA release)
+- 761 kpc / 110 km/s = 6.8 Gyr at constant speed | computed | verified
+- Proxima distance / Sun diameter = 2.9e7; 0.5 mm grain -> 14 km | computed | verified
+- M31 "six times the apparent diameter of the full Moon"; Hubble mosaic (16 Jan 2025): over 600 fields, over 1,000 orbits, 200 million stars, 2.5 billion pixels; Andromeda ~1 trillion stars | 2025 | NASA, "NASA's Hubble traces hidden history of Andromeda galaxy" (16 Jan 2025), https://science.nasa.gov/missions/hubble/nasas-hubble-traces-hidden-history-of-andromeda-galaxy/ | verified
+
+## Other checks
+- Sun's circular velocity 216 km/s used by Kahn & Woltjer (1959); article says "more than 200 km/s" | 1959 | Kahn & Woltjer 1959 | verified
+- 100 km/s at 761,000 pc -> 100/(4.74 x 761,000) = 2.8e-5 arcsec/yr | computed | verified; Salomon et al. measured 52.5-61.9 microarcsec/yr, consistent in size
+- Van Maanen 1935: after measures by Hubble, Baade and Nicholson ("preceding article", Hubble, ApJ 81, 334, https://doi.org/10.1086/143633), "desirable to view the motions with reserve" | 1935 | ApJ 81, 336 | verified (primary); Hubble 1935 content not read
+
+## What comes next (status 25 Sep 2026)
+- Gaia DR4: 2 December 2026, based on 66 months of data | 2026 | ESA, https://www.cosmos.esa.int/web/gaia/release and /data-release-4 | verified
+- Euclid launched 1 July 2023 (Falcon 9), routine science from 14 Feb 2024; billions of galaxies out to 10 billion light-years over more than a third of the sky | n/a | ESA Euclid overview, https://www.esa.int/Science_Exploration/Space_Science/Euclid/Euclid_overview | verified
+- Euclid DR1-Foundation (about 1,900 square degrees, raw and calibrated data, catalogues, spectra) November 2026; complete DR1 mid-2027; update of 15 June 2026 | 2026 | ESA, https://www.cosmos.esa.int/web/euclid/dr1-timeline | verified
+- Rubin LSST officially began (release 30 June 2026); ten years | 2026 | NOIRLab noirlab2616, https://noirlab.edu/public/news/noirlab2616/ | verified
+- LSST aims include counting dwarf satellite galaxies and stream perturbations by dark-matter substructure | 2019 | Z. Ivezic et al., ApJ 873, 111 (2019), https://ar5iv.labs.arxiv.org/html/0805.2366 | verified
+- Roman launched 30 Aug 2026 on Falcon Heavy; Wide Field Instrument (300 megapixels) activated; science operations by early 2027; field of view at least 100 times Hubble's | 2026 | NASA Roman blog, https://science.nasa.gov/blogs/roman/ ; NASA Roman overview, https://science.nasa.gov/mission/roman-space-telescope/ | verified
+- ESO ELT: telescope first light 2029 (planned); scientific first light December 2030 (planned) | 2026 | ESO, https://elt.eso.org/about/timeline/ | verified
+- No confirmed laboratory detection of a dark-matter particle as of Sep 2026 | n/a | absence of evidence; not checked against 2026 experiment news | uncertain
+
+## Videos (checked with yt-dlp metadata, 25 Sep 2026)
+- 0MJCqJPMpeY | How big is the Universe? | *THE* Great Debate in Physics | Dr. Becky | 17:45 | 2020 | verified
+- e9hILyTc0kw | Edwin Hubble - VAR! Plate 100th Anniversary | Carnegie Science | 5:26 | 2023 | verified
+- I82ADyJC7wE | Galaxies, part 1: Crash Course Astronomy #38 | CrashCourse | 12:05 | 2015 | verified
+- 9W3RsaWuCuE | Dark Matter: Crash Course Astronomy #41 | CrashCourse | 11:59 | 2015 | verified
+- nbE8B7zggUg | All the evidence we have for dark matter | A century's worth of science history | Dr. Becky | 29:49 | 2019 | verified
+- ywppy_2M03I | How Vera Rubin Found the First Direct Evidence for Dark Matter | Great Minds | SciShow Space | 5:05 | 2017 | verified
+- xBe-5KSFXEs | The Bullet Cluster (of Galaxies) - Sixty Symbols | Sixty Symbols | 7:27 | 2021 | verified
+- d078KeA7Rn0 | Evidence Now Suggests Andromeda and Milky Way Will Not Collide Any Time Soon | Anton Petrov | 11:44 | 2024 | verified
+- fMNlt2FnHDg | Milky Way's Head On Collision | NASA Video | 1:17 | 2013 upload | verified
+
+## Books (archive.org records checked)
+- E. Hubble, The Realm of the Nebulae (Yale University Press, 1936), free scan at archive.org in.ernet.dli.2015.212163 | verified
+- A. M. Clerke, The System of the Stars (Longmans, Green, 1890), free at archive.org systemstars01clergoog | verified
+- R. W. Smith, The Expanding Universe: Astronomy's 'Great Debate' 1900-1931 (Cambridge University Press, 1982), archive.org expandingunivers00smit | verified (record)
+- M. Bartusiak, The Day We Found the Universe (Pantheon Books, 2009) | archive.org record daywefounduniver00bart | verified (record; book not read)
+- G. Johnson, Miss Leavitt's Stars (W. W. Norton, 2005) | archive.org metadata for missleavittsstar00john | verified (record; book not read)
+- D. Sobel, The Glass Universe (Viking, 2016) | recommended by Linda Hall | verified (title, publisher, year as given there)
+- V. Rubin, Bright Galaxies, Dark Matters | no record found | uncertain (not listed in article)

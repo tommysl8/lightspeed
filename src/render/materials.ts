@@ -243,6 +243,8 @@ export interface PlanetMaterialOptions {
   fillBlack?: boolean;
   flat?: boolean;
   ambient?: number;
+  /** Multiplies the surface map (to tint a greyscale map with the body's hue). */
+  mapTint?: Color;
 }
 
 export function createPlanetMaterial(o: PlanetMaterialOptions): ShaderMaterial {
@@ -265,6 +267,9 @@ export function createPlanetMaterial(o: PlanetMaterialOptions): ShaderMaterial {
       uFillBlack: { value: o.fillBlack ? 1 : 0 },
       uAmbient: { value: o.ambient ?? 0.004 },
       uFlat: { value: o.flat ? 1 : 0 },
+      uMapTint: { value: o.mapTint ?? new Color(1, 1, 1) },
+      // The map is a single-channel greyscale texture holding sRGB values (textures.ts).
+      uMapGrey: { value: 0 },
       uRingShadow: { value: 0 },
       uRingMap: { value: null },
       uRingNormalW: { value: new Vector3(0, 1, 0) },

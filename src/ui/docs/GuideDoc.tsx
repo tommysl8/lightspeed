@@ -5,7 +5,7 @@
  * moves, this file moves with it.
  */
 import type { ReactNode } from 'react';
-import { type BodyId } from '../../physics/constants';
+import type { BodyId } from '../../sim/bodies';
 import { setPaused, setWarp, WARP_STEPS } from '../../sim/clock';
 import { TRIP_PLAYBACK_S } from '../../sim/travel';
 import { logEvent } from '../../lab/events';

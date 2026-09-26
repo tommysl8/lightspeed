@@ -14,15 +14,18 @@ const REQUIRED = [
   'phobos', 'deimos', 'io', 'europa', 'ganymede', 'callisto', 'mimas', 'enceladus', 'tethys', 'dione', 'rhea', 'titan',
   'hyperion', 'iapetus', 'miranda', 'ariel', 'umbriel', 'titania', 'oberon', 'triton', 'proteus', 'nereid', 'charon',
   'nix', 'hydra', 'ceres', 'vesta', 'eris', 'haumea', 'makemake', 'gonggong', 'quaoar', 'sedna', 'orcus', 'arrokoth',
-  'halley', 'encke', 'churyumov-gerasimenko', 'hale-bopp', 'oumuamua', 'borisov', 'atlas-3i', 'voyager2',
+  'halley', 'encke', 'churyumov-gerasimenko', 'hale-bopp', 'oumuamua', 'borisov', 'atlas-3i', 'voyager1', 'voyager2',
   'new-horizons', 'pioneer10', 'parker-solar-probe', 'jwst',
 ];
 
 interface Body {
   id: string;
   kind: string;
+  dwarfPlanetCandidate?: boolean;
   parent?: string;
   radiusKm: number;
+  radiusType?: string;
+  massKg?: number;
   colour: string;
   facts: string[];
   factSources: string[];
@@ -34,7 +37,7 @@ interface Body {
   spacecraft?: { status: string };
   assets: {
     texture: string | null;
-    textureInfo: { width: number; height: number } | null;
+    textureInfo: { width: number; height: number; channels: number; bytes: number; download: string; downloadEntry?: string } | null;
     model: string | null;
   };
 }
@@ -49,7 +52,8 @@ describe('bodies.json', () => {
   for (const id of REQUIRED) {
     it(`${id}: required fields, three sourced facts, plausible numbers`, () => {
       const b = byId[id];
-      expect(['moon', 'dwarf-planet', 'comet', 'interstellar', 'spacecraft']).toContain(b.kind);
+      expect(['moon', 'dwarf-planet', 'asteroid', 'tno', 'comet', 'interstellar', 'spacecraft']).toContain(b.kind);
+      expect(['volume-equivalent', 'area-equivalent', 'mean', 'placeholder', 'size-scale']).toContain(b.radiusType);
       if (b.kind === 'moon') expect(typeof b.parent).toBe('string');
       expect(b.radiusKm).toBeGreaterThan(0);
       expect(b.radiusKm).toBeLessThan(3000);
@@ -89,6 +93,60 @@ function jpegSize(buf: Buffer): [number, number] | null {
   return null;
 }
 
+describe('classification', () => {
+  it('calls only the five IAU dwarf planets (four here; Pluto is elsewhere) dwarf planets', () => {
+    expect(list.filter((b) => b.kind === 'dwarf-planet').map((b) => b.id).sort()).toEqual(['ceres', 'eris', 'haumea', 'makemake']);
+    expect(byId.vesta.kind).toBe('asteroid');
+    expect(byId.arrokoth.kind).toBe('tno');
+    for (const id of ['gonggong', 'quaoar', 'sedna', 'orcus']) {
+      expect(byId[id].kind, id).toBe('tno');
+      expect(byId[id].dwarfPlanetCandidate, id).toBe(true);
+    }
+  });
+
+  it('uses the same kinds as tracks.json', () => {
+    const tracks = JSON.parse(readFileSync(join(root, 'public', 'data', 'tracks.json'), 'utf8')) as { bodies: Record<string, { kind: string }> };
+    let n = 0;
+    for (const [id, t] of Object.entries(tracks.bodies)) {
+      if (!byId[id]) continue;
+      expect(byId[id].kind, id).toBe(t.kind);
+      n++;
+    }
+    expect(n).toBeGreaterThan(20);
+  });
+
+  it('has a Voyager 1 entry to match its track', () => {
+    expect(byId.voyager1.kind).toBe('spacecraft');
+    expect(byId.voyager1.spacecraft?.status).toMatch(/interstellar/);
+  });
+
+  it('keeps 67P’s mass consistent with the cited Pätzold et al. (2016) value', () => {
+    const b = byId['churyumov-gerasimenko'];
+    expect(b.massKg! / 9.982e12).toBeCloseTo(1, 3);
+    expect(b.gmKm3S2! / (9.982e12 * 6.6743e-20)).toBeCloseTo(1, 3);
+    expect(b.densityGCm3!).toBeGreaterThan(0.525);
+    expect(b.densityGCm3!).toBeLessThan(0.54);
+  });
+
+  it('gives Makemake the mean of its occultation semi-axes (715 and 751 km)', () => {
+    expect(byId.makemake.radiusKm).toBe(733);
+    expect(byId.makemake.radiusType).toBe('area-equivalent');
+    expect(byId.quaoar.radiusType).toBe('area-equivalent');
+  });
+});
+
+/** Number of colour components in a JPEG's start-of-frame segment. */
+function jpegComponents(buf: Buffer): number | null {
+  let i = 2;
+  while (i + 9 < buf.length && buf[i] === 0xff) {
+    const marker = buf[i + 1];
+    const len = buf.readUInt16BE(i + 2);
+    if (marker === 0xc0 || marker === 0xc2) return buf[i + 9];
+    i += 2 + len;
+  }
+  return null;
+}
+
 describe('textures', () => {
   const withTex = list.filter((b) => b.assets.texture);
   for (const b of withTex) {
@@ -100,6 +158,11 @@ describe('textures', () => {
       expect(buf[1]).toBe(0xd8);
       expect(jpegSize(buf)).toEqual([b.assets.textureInfo!.width, b.assets.textureInfo!.height]);
       expect(b.assets.textureInfo!.width).toBe(2 * b.assets.textureInfo!.height);
+      // Greyscale maps are real single-channel JPEGs, as textureInfo.channels says.
+      expect(jpegComponents(buf)).toBe(b.assets.textureInfo!.channels);
+      expect(buf.length).toBe(b.assets.textureInfo!.bytes);
+      // The download field is a plain URL (an archive entry, if any, is separate).
+      expect(b.assets.textureInfo!.download).toMatch(/^https:\/\/\S+$/);
     });
   }
   it('new textures total at most 10 MB', () => {
@@ -135,6 +198,9 @@ describe('meshes', () => {
         vol += (ax * (by * cz - bz * cy) - ay * (bx * cz - bz * cx) + az * (bx * cy - by * cx)) / 6;
       }
       expect(vol).toBeGreaterThan(0);
+      // One closed surface of genus 0 (Euler characteristic V − E + F = 2), so the volume counts
+      // every part once. (Arrokoth's two overlapping lobes are joined by a union at build time.)
+      expect(m.vertexCount - edges.size / 2 + m.triangleCount, `${b.id} Euler characteristic`).toBe(2);
       const req = Math.cbrt((3 * vol) / (4 * Math.PI));
       expect(Math.abs(req / m.equalVolumeRadiusKm - 1)).toBeLessThan(1e-4);
       // Within 16% of the catalogue mean radius. The largest gaps are Nix and Hydra, whose meshes

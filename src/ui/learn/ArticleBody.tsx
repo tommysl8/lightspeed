@@ -4,13 +4,14 @@
  * renderer leaves. Loaded on first read with markdown-it and KaTeX, which the rest of the app
  * does not need.
  */
-import { useEffect, useLayoutEffect, useMemo, useRef, useState, type MouseEvent } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type MouseEvent } from 'react';
 import { createPortal } from 'react-dom';
 import 'katex/dist/katex.min.css';
 import type { ArticleMeta } from '../../content/learn/catalogue';
 import { loadArticle, useArticles, useLibraryRevision } from '../../content/learn/library';
 import { renderArticle } from '../../content/learn/markdown';
 import { runScene, sceneStatus } from '../../content/scenes';
+import { registryVersion, subscribeRegistry } from '../../sim/bodies';
 import { closeDoc, openDoc, openLearn, parseHash } from '../../state/route';
 import { useUI } from '../../state/ui';
 import { AberrationFigure } from '../docs/figures';
@@ -35,6 +36,8 @@ function scrollToElement(el: HTMLElement): void {
 /** "See it in Lightspeed": close the page and set the scene up, or say why it cannot. */
 function SeeIt({ spec }: { spec: string }) {
   useUI((s) => s.tripActive); // a flight under way blocks every scene
+  // Bodies registered after the page opened (the moons' data arriving) make scenes possible.
+  useSyncExternalStore(subscribeRegistry, registryVersion);
   const status = sceneStatus(spec);
   return (
     <>

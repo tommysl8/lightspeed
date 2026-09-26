@@ -4,7 +4,8 @@
  * ephemeris table and a strip-chart recorder. Everything polls the simulation at 8 Hz.
  */
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { BODIES, BODY_ORDER, C_KM_S, SUN_TEFF_K, type BodyId } from '../../physics/constants';
+import { C_KM_S, SUN_TEFF_K } from '../../physics/constants';
+import { bodyName, bodyRecords, getBody, isWithin, kindText, systemOf, type BodyId, type BodyRecord, type Regime } from '../../sim/bodies';
 import { gamma } from '../../physics/relativity';
 import { fixed, fmtBeta, fmtGamma, qty, sci, sig } from '../../lib/sci';
 import { controller } from '../../controls/cameraController';
@@ -25,12 +26,19 @@ import { useTicker } from '../useTicker';
 import { SpacetimeDiagram } from './SpacetimeDiagram';
 import { rich } from '../rich';
 
-const KIND: Record<string, string> = {
-  star: 'Star',
-  planet: 'Planet',
-  'dwarf-planet': 'Dwarf planet',
-  moon: 'Natural satellite of Earth',
-  spacecraft: 'Spacecraft',
+/** What the target is, for the data sheet ("Natural satellite of Earth"). */
+function kindLine(r: BodyRecord): string {
+  if (r.kind === 'moon' && r.parent) return `Natural satellite of ${bodyName(r.parent)}`;
+  if (r.id === 'sun') return 'Star';
+  return kindText(r.id);
+}
+
+const REGIME_TEXT: Record<Regime, string> = {
+  precise: 'precise',
+  approximate: 'approximate',
+  illustrative: 'illustrative',
+  extrapolated: 'extrapolated',
+  unknown: 'not modelled',
 };
 
 /** Newtonian constant of gravitation, km³ kg⁻¹ s⁻². [CODATA 2018: 6.674 30 × 10⁻¹¹ m³ kg⁻¹ s⁻²] */
@@ -151,11 +159,14 @@ function Target() {
       </Sec>
     );
   }
-  const d = BODIES[id];
+  const r = getBody(id);
   const b = sim.bodies[id];
+  if (!r || !b) return null;
+  const d = r.physical;
   const ang = angle(angularDiameterDeg(id));
   const geo = targetReading(id);
-  const massKg = d.gmKm3S2 ? d.gmKm3S2 / G_KM3 : NaN;
+  const massKg = d.massKg ?? (d.gmKm3S2 ? d.gmKm3S2 / G_KM3 : NaN);
+  const tiny = d.radiusKm < 0.01; // spacecraft: metres
   return (
     <Sec
       id="tgt"
@@ -168,8 +179,8 @@ function Target() {
       }
     >
       <div className="flex items-baseline justify-between gap-2 px-2.5 pb-1 pt-0.5">
-        <span className="font-serif text-[16px] text-fg">{d.name}</span>
-        <span className="text-[11px] text-fg-3">{KIND[d.kind]}</span>
+        <span className="font-serif text-[16px] text-fg">{r.name}</span>
+        <span className="text-[11px] text-fg-3">{kindLine(r)}</span>
       </div>
       <Ro l="Range" v={<Q x={b.distTrue} dim="length" d={7} />} tone="data" />
       <Ro l="Light-time" v={<Q x={b.distTrue / C_KM_S} dim="time" d={6} />} />
@@ -190,8 +201,13 @@ function Target() {
           <Ro l="Equatorial radius" v={sig(d.equatorialRadiusKm, 6)} u="km" />
           <Ro l="Polar radius" v={sig(d.polarRadiusKm ?? d.equatorialRadiusKm, 6)} u="km" />
         </>
+      ) : d.triaxialRadiiKm ? (
+        <>
+          <Ro l="Radii a × b × c" v={d.triaxialRadiiKm.map((x) => sig(x, 4)).join(' × ')} u="km" />
+          <Ro l="Mean radius" v={sig(d.radiusKm, 6)} u="km" />
+        </>
       ) : (
-        <Ro l="Radius" v={id === 'voyager1' ? '1.85' : sig(d.radiusKm, 6)} u={id === 'voyager1' ? 'm (antenna)' : 'km'} />
+        <Ro l="Radius" v={tiny ? sig(d.radiusKm * 1000, 3) : sig(d.radiusKm, 6)} u={tiny ? (r.kind === 'spacecraft' ? 'm (antenna)' : 'm') : 'km'} />
       )}
       {d.gmKm3S2 && <Ro l={<><Sym>GM</Sym></>} v={sci(d.gmKm3S2, 6)} u="km³/s²" />}
       {Number.isFinite(massKg) && <Ro l={<>Mass <Sym>GM</Sym>/<Sym>G</Sym></>} v={sci(massKg, 4)} u="kg" />}
@@ -202,14 +218,15 @@ function Target() {
       {d.semiMajorAxisKm !== undefined && <Ro l="Semi-major axis" v={<Q x={d.semiMajorAxisKm} dim="length" d={6} />} />}
       {d.obliquityDeg !== undefined && <Ro l="Obliquity" v={fixed(d.obliquityDeg, 2)} u="°" />}
       {d.geometricAlbedo !== undefined && <Ro l="Geometric albedo" v={fixed(d.geometricAlbedo, 3)} />}
+      {b.regime !== 'precise' && <Ro l="Position model" v={REGIME_TEXT[b.regime]} title={r.provider.label} />}
       <div className="px-2.5 pb-1 pt-1.5">
-        {d.facts.map((f) => (
+        {(r.facts ?? []).map((f) => (
           <p key={f} className="mb-1.5 font-serif text-[12.5px] leading-snug text-fg-2 last:mb-0">
             {f}
           </p>
         ))}
         <p className="mono mt-2 text-[9.5px] text-fg-3">
-          {id === 'voyager1' ? 'Trajectory: JPL Horizons' : id === 'proxima' ? 'Gaia DR3; Boyajian et al. 2012' : 'NASA Planetary Fact Sheets (NSSDCA)'}
+          {r.dataSource ?? r.provider.label ?? ''}
         </p>
       </div>
       <div className="flex flex-wrap gap-1 px-2.5 pb-2 pt-1">
@@ -296,7 +313,7 @@ function LightTime() {
       />
       <Ro l="Signal to Earth" v={far ? <Q x={earthLight.messageTime} dim="time" d={5} /> : '< 1 s'} title="Advanced light-time: a signal sent now reaches Earth after this long" />
       <Ro l="Sunlight here left the Sun" v={<Q x={sim.camera.pos.length() / C_KM_S} dim="time" d={5} />} u="ago" />
-      {sel && sel !== 'earth' && <Ro l={`Light-time to ${BODIES[sel].name}`} v={<Q x={sim.bodies[sel].distTrue / C_KM_S} dim="time" d={5} />} />}
+      {sel && sel !== 'earth' && sim.bodies[sel] && <Ro l={`Light-time to ${bodyName(sel)}`} v={<Q x={sim.bodies[sel].distTrue / C_KM_S} dim="time" d={5} />} />}
       <div className="pt-1">
         <Check
           checked={retarded}
@@ -337,8 +354,29 @@ function Ephemeris() {
   );
 }
 
+/**
+ * Rows of the ephemeris table: the bodies with a key (the Sun, the planets, Pluto, the Moon,
+ * Voyager 1), the stars registered as bodies (Proxima Centauri: the few people fly to, not the
+ * catalogue), the moons of the system in focus, and the focus and the target themselves; never
+ * hundreds of rows, however many bodies are registered.
+ */
+function ephemerisRows(focus: BodyId, selected: BodyId | null): BodyId[] {
+  const system = systemOf(focus)?.id;
+  return bodyRecords()
+    .filter(
+      (r) =>
+        r.key ||
+        (r.kind === 'star' && r.parent === null) ||
+        r.id === focus ||
+        r.id === selected ||
+        (system && system !== 'sun' && isWithin(r.id, system)),
+    )
+    .map((r) => r.id);
+}
+
 function EphemerisTable() {
   const selected = useUI((s) => s.selected);
+  const focus = useUI((s) => s.focus);
   const tripActive = useUI((s) => s.tripActive);
   return (
       <table className="tbl">
@@ -353,7 +391,7 @@ function EphemerisTable() {
           </tr>
         </thead>
         <tbody>
-          {BODY_ORDER.map((id: BodyId) => {
+          {ephemerisRows(focus, selected).map((id: BodyId) => {
             const b = sim.bodies[id];
             const rng = qty(b.distTrue, 'length', 4);
             const lt = qty(b.distTrue / C_KM_S, 'time', 3);
@@ -364,7 +402,7 @@ function EphemerisTable() {
                 onClick={() => useUI.getState().select(id)}
                 onDoubleClick={() => !tripActive && goToBody(id)}
               >
-                <td className="!font-sans">{BODIES[id].name}</td>
+                <td className="!font-sans">{bodyName(id)}</td>
                 <td>{id === 'sun' ? '0' : sig(b.distSun / 149_597_870.7, 5)}</td>
                 <td>
                   {rich(rng.v)} <span className="text-fg-3">{rng.u}</span>
@@ -392,7 +430,7 @@ const CHANNELS: Record<ScopeChannel, { label: string; q: string; unit?: string; 
     q: 'r',
     unit: 'km',
     log: true,
-    read: () => sim.bodies[useUI.getState().selected ?? useUI.getState().focus].distTrue,
+    read: () => sim.bodies[useUI.getState().selected ?? useUI.getState().focus]?.distTrue ?? NaN,
   },
 };
 const SPAN_S = 30;

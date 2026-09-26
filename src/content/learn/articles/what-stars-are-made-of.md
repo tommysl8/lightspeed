@@ -17,11 +17,11 @@ Finishing the job took about another century. The Sun turned out to be 92 atoms 
 
 ## Rainbows with gaps
 
-At the beginning of 1666 Isaac Newton bought a glass prism, darkened his room and let a beam of sunlight through a small hole in the shutter and the prism onto the far wall. He was surprised that the patch of colours came out oblong, and that surprise led him to the idea that white light is a mixture of colours.[^newton1672] He saw no gaps. His hole was round and fairly wide, so every colour smeared across its neighbours.[^ames1898]
+At the beginning of 1666 Isaac Newton bought a glass prism, darkened his room and let a beam of sunlight through a small hole in the shutter and the prism onto the far wall. He was surprised that the patch of colours came out oblong, and that surprise led him to the idea that white light is a mixture of colours.[^newton1672] He saw no gaps. His opening was a small round hole rather than a narrow slit, so every colour smeared across its neighbours.[^ames1898]
 
-In 1802 the English scientist William Hyde Wollaston looked at daylight through a narrow crack and a flint-glass prism. The spectrum broke into four colours bordered by sharp dark lines, with two more dark lines inside the green and blue. He took them all for the natural boundaries between colours and moved on.[^wollaston1802]
+In 1802 the English scientist William Hyde Wollaston looked at daylight through a narrow crack and a flint-glass prism. The spectrum broke into four colours bordered by dark lines, with two more dark lines inside the green and blue. He took the main ones for the natural boundaries between colours and moved on.[^wollaston1802]
 
-Joseph Fraunhofer had a harder start. Orphaned at twelve, he was apprenticed to a Munich glassmaker who would not let him read books or go to school on holidays. In 1801 his master's house collapsed on him and he was dug out of the rubble after many hours, a rescue that brought him to the notice of the Prince-Elector of Bavaria. Before long he was running the glassworks at Benediktbeuern Abbey.[^fhg]
+Joseph Fraunhofer had a harder start. Orphaned as a boy, he was apprenticed at twelve to a Munich glassmaker who would not let him read books or go to school on holidays.[^ames1898][^fhg] In 1801 his master's house collapsed on him and he was dug out of the rubble after many hours, a rescue that brought him to the notice of the Prince-Elector of Bavaria. By the age of 22 he was in charge of the glassworks at Benediktbeuern Abbey.[^fhg]
 
 His problem was practical. To make better telescope lenses he had to know exactly how much each kind of glass bent each colour, and a smear gives you nothing sharp to measure. Around 1814 he let sunlight through a slit in a window shutter onto a prism mounted on a theodolite 24 feet away. He saw "an almost countless number of strong and weak vertical lines", some of them nearly black, and counted about 574 between the lines he labelled B and H.[^fraunhofer1817] His letters are still in use: the sodium lines in Kirchhoff's flame are called D because Fraunhofer called them D.
 
@@ -95,9 +95,9 @@ On 25 September 1890, 136 years ago today, Edward Pickering, director of Harvard
 
 Harvard employed teams of women, known as computers, to examine its plates, a collection that eventually reached about half a million glass plates taken between 1886 and 1989.[^cfa] One of them, Henrietta Leavitt, found the rule for pulsing stars that became a yardstick for the universe; [How far are the stars?](#/learn/how-far-are-the-stars) tells that story.
 
-Antonia Maury took the bright northern stars, photographed in far more detail, and sorted them into 22 classes on her own.[^maury1897] Annie Jump Cannon took the southern stars. In her 1901 catalogue she kept Fleming's letters but dropped most of them and put the rest in a new order, O, B, A, F, G, K, M, with in-between types written as B5A, later shortened to B5.[^cannon1901] Pickering remarked that the names hardly mattered as long as the sorting was accurate. The order turned out to matter a great deal.
+Antonia Maury took the bright northern stars, photographed in far more detail, and sorted them into 22 classes on her own.[^maury1897] Annie Jump Cannon took the southern stars. In her 1901 catalogue she kept Fleming's letters but dropped most of them and put the rest in a new order, O, B, A, F, G, K, M, with in-between types written as B5A, later shortened to B5.[^cannon1901] Pickering remarked that the names hardly mattered as long as the sorting was accurate.[^cannon1901] The order turned out to matter a great deal.
 
-Cannon went on to classify every star on the Harvard plates down to about ninth magnitude: the Henry Draper Catalogue of 1918 to 1924 gives types for 225,300 stars, and its extension, completed by Margaret Walton Mayall in 1949, carries the numbers past 359,000.[^hd]
+Cannon went on to classify the stars of the whole sky down to about ninth or tenth magnitude: the Henry Draper Catalogue of 1918 to 1924 gives types for 225,300 stars, and its extension, completed by Margaret Walton Mayall in 1949, carries the numbers past 359,000.[^hd]
 
 Meanwhile, measured distances to nearby stars were showing how much light each really gives out. In 1905 the Danish astronomer Ejnar Hertzsprung noticed that stars of the same colour come in two very different brightnesses. In 1914 Henry Norris Russell at Princeton plotted true brightness against spectral class and found the same two groups, which, he wrote, Hertzsprung had given "the excellent names of giant and dwarf stars".[^russell1914] Most stars, the Sun included, lie along one diagonal band on that plot, the main sequence. What the letters actually measured was still missing.
 
@@ -126,7 +126,7 @@ Sirius A has 1.714 times the Sun's radius, so the first factor is 2.94. Its temp
 Astronomers usually run the formula backwards, to find the sizes of stars far too small to show a disc in any telescope.
 
 ::: see-it go:sirius
-Sirius A is the brilliant white star. The faint point beside it is Sirius B, a white dwarf with slightly more than the Sun's mass in a ball about 5,600 km across, smaller than Earth. It is hotter than Sirius A but a thousand times fainter, because it is so small.[^bond2017]
+Sirius A is the brilliant white star. The faint point beside it is Sirius B, a white dwarf with slightly more than the Sun's mass in a ball about 11,300 km across, smaller than Earth. It is hotter than Sirius A but a thousand times less luminous, because it is so small.[^bond2017]
 :::
 
 ## A million times too much hydrogen
@@ -137,7 +137,7 @@ Cecilia Payne, an Englishwoman who had studied physics at Cambridge, moved to Ha
 
 Her thesis, finished on 1 January 1925, found the heavier elements in stars in much the same proportions as in Earth's crust, and the same from star to star.[^aps2015][^payne1925] Hydrogen and helium broke the pattern: her table put hydrogen about a million times ahead of silicon or iron. Henry Norris Russell, the most influential astronomer in America, told her it could not be right, and she softened the result.[^aps2015] "The enormous abundance derived for these elements in the stellar atmosphere is almost certainly not real," the published thesis says.[^payne1925]
 
-It was real. In 1929 Russell's own analysis of the Sun's atmosphere, by a different method, also found hydrogen overwhelmingly abundant.[^russell1929] Payne had earned the first PhD in astronomy from Radcliffe College, a thesis Otto Struve later called the most brilliant ever written in astronomy. In 1956 she became the first woman promoted to full professor in Harvard's Faculty of Arts and Sciences, and then the first woman to chair a Harvard department.[^cfa]
+It was real. In 1929 Russell's own analysis of the Sun's atmosphere also found hydrogen overwhelmingly abundant.[^russell1929][^cfa] Payne had earned the first PhD in astronomy from Radcliffe College, a thesis Otto Struve later called the most brilliant ever written in astronomy. In 1956 she became the first woman promoted to full professor in Harvard's Faculty of Arts and Sciences, and then the first woman to chair a Harvard department.[^cfa]
 
 Her numbers were rough, and she said so: the method was good only to about a factor of ten.[^payne1925] Her ratio of hydrogen to iron, over a million to one, overshoots the modern value of about 35,000 to one.[^asplund2021] On the thing that mattered she was right.
 
@@ -165,7 +165,7 @@ On 24 August 1920 Arthur Eddington, Plumian Professor of Astronomy at Cambridge,
 Hermann von Helmholtz had shown that a Sun slowly shrinking under its own weight could shine for about 30 million years. Biologists needed far longer, and Hans Bethe, looking back in 1967, said simply that they were right: radioactive dating of the Earth and of meteorites puts the Sun's age near 5 billion years.[^bethe1967]
 
 ::: myth The Sun is a giant ball of fire.
-Fire is chemistry: fuel combining with oxygen. If the Sun's whole mass were coal, burning fast enough to match its present output, it would be gone in about 5,000 years. The Sun is about 4.6 billion years old.[^nasasun] Nuclear fusion releases roughly 20 million times more energy per kilogram than burning coal, and it needs no oxygen at all.[^bethe1967]
+Fire is chemistry: fuel combining with oxygen. If the Sun's whole mass were coal, burning fast enough to match its present output, it would be gone in about 5,000 years. The Sun is about 4.6 billion years old.[^nasasun] Nuclear fusion releases roughly 20 million times more energy per kilogram than burning coal, and it needs no oxygen at all.
 :::
 
 Eddington called the contraction theory a corpse that only tradition had kept from being buried. Francis Aston at Cambridge had just shown that a helium atom weighs about 1 part in 120 less than the four hydrogen atoms it could be built from, and mass that disappears must come out as energy. If stars built helium from hydrogen, the energy would easily cover their needs, and Ernest Rutherford was already knocking pieces off nuclei in the Cavendish Laboratory. "What is possible in the Cavendish laboratory may not be too difficult in the sun."[^eddington1920]
@@ -205,11 +205,11 @@ Eddington's idea had a hole in it. Protons repel each other, and by the rules of
 
 Quantum mechanics rescued him. A particle without the energy to climb a barrier still has a small chance of turning up on the far side, as George Gamow, Ronald Gurney and Edward Condon had shown for radioactive decay. In 1929 Robert Atkinson and Fritz Houtermans applied this tunnelling to stars: only a tiny fraction of nuclei get through, but a star has an enormous number of them.[^bethe1967][^atkinson1929]
 
-The reactions themselves were still missing. In April 1938 Gamow gathered physicists and astrophysicists in Washington, D.C., to hear what the astronomers knew about the insides of stars, and Hans Bethe was in the room.[^bethe1967] With Charles Critchfield he calculated the slow first step, in which two protons meet and one turns into a neutron, making deuterium, a positron and a neutrino.[^bethecritchfield1938] Within months he had the whole picture.[^bethe1939]
+The reactions themselves were still missing. In March 1938 Gamow gathered physicists and astrophysicists in Washington, D.C., to hear what the astronomers knew about the insides of stars, and Hans Bethe was in the room.[^bethe1967][^gwu1938] With Charles Critchfield he calculated the slow first step, in which two protons meet and one turns into a neutron, making deuterium, a positron and a neutrino.[^bethecritchfield1938] Within months he had the whole picture.[^bethe1939]
 
 There are two routes. In the proton–proton chain, deuterium picks up another proton to make helium-3, and two helium-3 nuclei combine into helium-4, handing back two protons. In the carbon–nitrogen–oxygen cycle, a carbon-12 nucleus swallows four protons one at a time, passing through isotopes of nitrogen and oxygen, then spits out a helium-4 nucleus and is carbon-12 again: carbon is only a catalyst. Carl Friedrich von Weizsäcker found the cycle independently but did not work out how fast it runs.[^bethe1967]
 
-Then Bethe took a wrong turn. His numbers made the carbon cycle the Sun's main engine.[^bethe1967] Better reaction rates and a better model of the Sun tipped the balance the other way: the proton–proton chain makes about 99% of the Sun's power and the carbon cycle about 1%, though the carbon cycle dominates in stars heavier than the Sun.[^borexino2020] Bethe won the 1967 Nobel Prize in Physics.[^nobel1967]
+Then Bethe took a wrong turn. His numbers made the carbon cycle the Sun's main engine.[^bethe1967] Better reaction rates and a better model of the Sun tipped the balance the other way: the proton–proton chain makes about 99% of the Sun's power and the carbon cycle about 1%, though the carbon cycle dominates in stars more than about 1.3 times the Sun's mass.[^borexino2020] Bethe won the 1967 Nobel Prize in Physics.[^nobel1967]
 
 ## Cooking the elements
 
@@ -233,17 +233,17 @@ On 11 August 1967 Raymond Davis, a chemist at Brookhaven National Laboratory, wr
 
 The count came out at about a third of the prediction. Davis titled the 1968 paper "Search for neutrinos from the Sun", which, he later joked, is how you say that nothing was found.[^davis2002][^davis1968] Over some thirty years the tank caught around 2,000 solar neutrinos, and the shortfall never went away.[^nobel2002] Either the Sun's core was not what everyone thought, or neutrinos did something nobody expected.
 
-Japan's Kamiokande, a water tank watched by light sensors, confirmed the shortfall and then caught something new. At 07:35:35 UT on 23 February 1987 it recorded 11 neutrinos in 13 seconds from a star that had exploded in the Large Magellanic Cloud; a detector in the United States caught 8 more, before anyone had seen the explosion in a telescope.[^hirata1987][^bionta1987]
+Japan's Kamiokande, a water tank watched by light sensors, first caught something new. At 07:35:35 UT on 23 February 1987 it recorded 11 neutrinos in 13 seconds from a star that had exploded in the Large Magellanic Cloud; a detector in the United States caught 8 more, before anyone had seen the explosion in a telescope.[^hirata1987][^bionta1987] In 1989 Kamiokande confirmed the solar shortfall too, catching about half the predicted number.[^hirata1989]
 
-The answer came from Canada. The Sudbury Neutrino Observatory, 2 km down a nickel mine in Ontario, held 1,000 tonnes of heavy water, which let it count electron-type neutrinos, the only kind the Sun makes, and all three types together.[^nobel2015pop] In 2001 and 2002 the verdict was clear: only about a third of the neutrinos arriving from the Sun were still electron-type, but the total matched the solar model.[^sno2002] The Sun was fine. The neutrinos were changing identity on the way, which is possible only if they have mass. Davis and Masatoshi Koshiba of Kamiokande shared the 2002 Nobel Prize; Takaaki Kajita and Arthur McDonald shared the 2015 one.[^nobel2002][^nobel2015pop]
+The answer came from Canada. The Sudbury Neutrino Observatory, 2 km down a nickel mine in Ontario, held 1,000 tonnes of heavy water, which let it count electron-type neutrinos, the only kind the Sun makes, and all three types together.[^nobel2015pop] In 2001 and 2002 the verdict was clear: only about a third of the neutrinos arriving from the Sun were still electron-type, but the total matched the solar model.[^sno2002] The Sun was fine. The neutrinos were changing identity on the way, which is possible only if they have mass. Davis and Masatoshi Koshiba of Kamiokande shared half of the 2002 Nobel Prize; Takaaki Kajita and Arthur McDonald shared the 2015 one.[^nobel2002][^nobel2015pop]
 
 The Borexino detector under the Gran Sasso mountains in Italy has since caught neutrinos from the first step of the proton–proton chain, in 2014, and from the carbon cycle, in 2020.[^borexino2014][^borexino2020] The Sun makes about $1.8 \times 10^{38}$ neutrinos a second.[^davis2002] Spread over a sphere the size of Earth's orbit, that is about 65 billion through every square centimetre of you every second,[^nobel2015pop] and your body stops one roughly once in a lifetime.[^davis2002]
 
 ## How stars live and die
 
-Mass decides almost everything. A heavier star squeezes its core harder, runs its reactions faster and burns out sooner. For lighter stars the lifetime falls roughly as the third or fourth power of mass: about 10 billion years for the Sun, trillions for a red dwarf a tenth of its mass.[^adams1997] A star ten times the Sun's mass is about 3,000 times as bright, so it burns each kilogram of fuel roughly 300 times faster and lives only tens of millions of years.[^bethe1967]
+Mass decides almost everything. A heavier star squeezes its core harder, runs its reactions faster and burns out sooner. For lighter stars the lifetime falls roughly as the third or fourth power of mass: about 10 billion years for the Sun, trillions for a red dwarf a tenth of its mass.[^adams1997] A star ten times the Sun's mass is thousands of times as bright, so it burns each kilogram of fuel hundreds of times faster and lives only tens of millions of years.[^bethe1967]
 
-The Sun is 4.6 billion years old. In about another 5 billion it will have swollen into a red giant and then shrunk to a white dwarf, a dense cinder like Sirius B.[^nasasun] Heavy stars fuse element after element until their cores reach iron, which cannot pay its way. The core then collapses into a neutron star or a black hole, and the rest of the star is blown into space as a supernova.[^montarges2021][^fowler1983]
+The Sun is 4.6 billion years old.[^nasasun] In about another 5 billion years it will begin to swell into a red giant, and about 8 billion years from now it will have shrunk to a white dwarf, a dense cinder like Sirius B.[^schroder2008] Heavy stars fuse element after element until their cores reach iron, which cannot pay its way. The core then collapses into a neutron star or a black hole, and the rest of the star is blown into space as a supernova.[^montarges2021][^fowler1983]
 
 ::: myth Most stars are like the Sun.
 Most stars are smaller, cooler and fainter. Of the stars and brown dwarfs within about 33 light-years, around 61% are red dwarfs of class M.[^reyle2021] The bright stars in the sky are a biased sample: they are the ones luminous enough to see from far away.
@@ -262,13 +262,13 @@ In October 2019 Betelgeuse, the red supergiant on Orion's shoulder, began to fad
 Images from ESO's Very Large Telescope showed the star's southern half ten times darker than usual: a patch of its surface had cooled and a cloud of dust had condensed in front of it.[^montarges2021][^eso2109] Hubble spectra showed where the dust came from. In 2019 Betelgeuse had thrown off part of its visible surface, several times the mass of our Moon, and its regular 400-day pulsation stopped, at least for a while.[^nasa2022betel]
 
 ::: myth Betelgeuse's Great Dimming meant it was about to explode.
-The dimming was a dust cloud made from material the star threw off. Betelgeuse is still burning helium in its core, and one detailed modelling study put the explosion around 100,000 years away.[^eso2109][^joyce2020][^physorg2020]
+The dimming was a dust cloud made from material the star threw off. Most models find Betelgeuse still burning helium in its core, and one detailed modelling study put the explosion around 100,000 years away.[^eso2109][^joyce2020][^physorg2020] A 2023 study that read its pulsations differently argued it is much further along, so the date is not settled.[^saio2023]
 :::
 
-Betelgeuse is somewhere between about 550 and 720 light-years away; the distance is still disputed.[^joyce2020][^montarges2021] It also has company. In July 2025 a team led by Steve Howell at NASA Ames reported an image of a faint companion star, taken with the Gemini North telescope, right where more than a century of measurements of Betelgeuse's brightness and motion had predicted. They named it Siwarha, "her bracelet".[^howell2025]
+Betelgeuse is somewhere between about 550 and 720 light-years away; the distance is still disputed.[^joyce2020][^montarges2021] It also has company. In July 2025 a team led by Steve Howell at NASA Ames reported an image of what is probably a faint companion star, taken with the Gemini North telescope, right where more than a century of measurements of Betelgeuse's brightness and motion had predicted. They named it Siwarha, "her bracelet".[^howell2025]
 
 ::: see-it go:betelgeuse
-Betelgeuse is so large that if it replaced the Sun, its surface would reach past the orbit of Jupiter.[^nasa2022betel] At about 3,600 K it glows orange-red and gives out most of its energy as infrared.
+Betelgeuse is so large that if it replaced the Sun, its surface would reach beyond the orbit of Mars, about two-thirds of the way to Jupiter; some estimates of its size take it past Jupiter's orbit.[^joyce2020][^nasa2022betel] At about 3,600 K it glows orange-red and gives out most of its energy as infrared.
 :::
 
 ::: see-it fly:betelgeuse
@@ -291,7 +291,7 @@ A 1 g flight to Betelgeuse takes about 12 years on the ship's clock while five c
 
 ### A ten-year film of the changing sky
 
-The Vera C. Rubin Observatory in Chile issued its first alerts on 25 February 2026 and on 30 June 2026 began the Legacy Survey of Space and Time. It will photograph each patch of the southern sky about 800 times over ten years and send out as many as seven million alerts a night about flaring stars, pulsating stars and supernovae.[^noirlab2605][^noirlab2616]
+The Vera C. Rubin Observatory in Chile issued its first scientific alerts on the night of 24 February 2026 and on 30 June 2026 began the Legacy Survey of Space and Time. It will photograph each patch of the southern sky about 800 times over ten years and send out as many as seven million alerts a night about flaring stars, pulsating stars and supernovae.[^noirlab2605][^noirlab2616]
 
 **Status:** running since 30 June 2026; planned to end around 2036.
 
@@ -319,9 +319,9 @@ GN-z11 is seen as it was when the universe was about 435 million years old, 3% o
 
 ### The next supernova in the Milky Way
 
-No supernova has been seen in our galaxy since the 17th century.[^eso2109] The best estimate of the rate is about 1.6 per century, one every 61 years on average, so the next could come any night, probably hidden behind dust.[^rozwadowska2021] The neutrinos will arrive first, and detectors worldwide have been linked since 2005 in a Supernova Early Warning System that raises the alarm when several see a burst at once.[^snews2021]
+No supernova has been seen in our galaxy since the 17th century.[^eso2109] One careful combined estimate puts the rate at about 1.6 per century, one every 61 years on average, so the next could come any night, probably hidden behind dust.[^rozwadowska2021] The neutrinos will arrive first, and detectors worldwide have been linked since 1998 in a Supernova Early Warning System, fully automatic since 2005, that raises the alarm when several see a burst at once.[^snews2021]
 
-**Status:** Super-Kamiokande, 50,000 tonnes of water, has run since 1996.[^nobel2015pop] China's JUNO, 20,000 tonnes of liquid scintillator, began taking data on 26 August 2025 and published its first result on 10 June 2026.[^juno2026] Japan's Hyper-Kamiokande finished its main cavern on 31 July 2025; operations were promised for 2027 at approval in 2020 and now look later, so treat any date as a target.[^hyperk2020][^hyperk2025] The Deep Underground Neutrino Experiment is being built in the old Homestake mine where Davis ran his tank; detector steel began going underground in May 2026, and no firm date has been set for physics.[^dune][^surf]
+**Status:** Super-Kamiokande, 50,000 tonnes of water, has run since 1996.[^nobel2015pop] China's JUNO, 20,000 tonnes of liquid scintillator, began taking data on 26 August 2025 and published its first result on 10 June 2026.[^juno2026] Japan's Hyper-Kamiokande finished digging its main cavern on 31 July 2025; operations were planned for 2027 when it was approved in 2020, but that date is not firm, so treat it as a target.[^hyperk2020][^hyperk2025] The Deep Underground Neutrino Experiment is being built in the old Homestake mine where Davis ran his tank; detector steel began going underground in May 2026, and the project's milestones give no date yet for the start of physics.[^dune][^surf]
 
 ### A second look at Siwarha
 
@@ -331,7 +331,7 @@ Betelgeuse's companion swings back to its widest separation from the star in Nov
 
 ### The Sun's own recipe
 
-Models of the Sun's interior built with the modern, lower amounts of carbon, nitrogen and oxygen do not match helioseismology, the measurements of the Sun's own vibrations, and the latest revision leaves this problem "intact".[^asplund2021] Carbon-cycle neutrinos give an independent check, because their rate depends directly on how much carbon, nitrogen and oxygen sit in the core.[^borexino2020]
+Models of the Sun's interior built with the lower amounts of carbon, nitrogen and oxygen measured by Asplund and colleagues do not match helioseismology, the measurements of the Sun's own vibrations, and their 2021 revision leaves this problem "intact".[^asplund2021] A 2022 reanalysis led by Ekaterina Magg found higher amounts that remove the mismatch, so the recipe itself is now in dispute.[^magg2022] Carbon-cycle neutrinos give an independent check, because their rate depends directly on how much carbon, nitrogen and oxygen sit in the core.[^borexino2020]
 
 **Status:** unresolved; better measurements of carbon-cycle neutrinos are the most direct test.
 
@@ -396,6 +396,7 @@ Models of the Sun's interior built with the modern, lower amounts of carbon, nit
 [^comte1835]: A. Comte, Cours de philosophie positive, vol. 2 (1835), 19th lesson (translation here by the author). Project Gutenberg eBook 31882. https://www.gutenberg.org/ebooks/31882
 [^sepcomte]: M. Bourdeau, "Auguste Comte", Stanford Encyclopedia of Philosophy. https://plato.stanford.edu/entries/comte/
 [^asplund2021]: M. Asplund, A. M. Amarsi and N. Grevesse, "The chemical make-up of the Sun: a 2020 vision", Astronomy & Astrophysics 653, A141 (2021). https://doi.org/10.1051/0004-6361/202140445
+[^magg2022]: E. Magg et al., "Observational constraints on the origin of the elements. IV: The standard composition of the Sun", Astronomy & Astrophysics 661, A140 (2022). https://doi.org/10.1051/0004-6361/202142971 (open access at https://arxiv.org/abs/2203.02255)
 [^fowler1983]: W. A. Fowler, "Experimental and theoretical nuclear astrophysics; the quest for the origin of the elements", Nobel lecture, 8 December 1983. https://www.nobelprize.org/uploads/2018/06/fowler-lecture.pdf
 [^newton1672]: I. Newton, "A letter of Mr. Isaac Newton ... containing his new theory about light and colors", Philosophical Transactions 6, 3075-3087 (1672). https://doi.org/10.1098/rstl.1671.0072
 [^ames1898]: J. S. Ames (ed.), Prismatic and Diffraction Spectra: Memoirs by Joseph von Fraunhofer (Harper & Brothers, 1898), introduction and biographical note. https://archive.org/details/prismaticanddif02wollgoog
@@ -434,6 +435,7 @@ Models of the Sun's interior built with the modern, lower amounts of carbon, nit
 [^bs2005]: J. N. Bahcall, A. M. Serenelli and S. Basu, "New solar opacities, abundances, helioseismology, and neutrino fluxes", Astrophysical Journal 621, L85-L88 (2005), model BS05(OP). https://doi.org/10.1086/428929 ; model table http://www.sns.ias.edu/~jnb/SNdata/Export/BS2005/bs05op.dat
 [^eddington1926]: A. S. Eddington, The Internal Constitution of the Stars (Cambridge University Press, 1926), p. 301. https://archive.org/details/in.ernet.dli.2015.165852
 [^atkinson1929]: R. d'E. Atkinson and F. G. Houtermans, "Zur Frage der Aufbaumöglichkeit der Elemente in Sternen", Zeitschrift für Physik 54, 656-665 (1929). https://doi.org/10.1007/BF01341595
+[^gwu1938]: George Washington University, University Historical Materials, photograph "4th Annual Washington Conference on Theoretical Physics" (dated 17 March 1938; Bethe, Gamow and Critchfield among those named). https://archive.org/details/RG0031-001-0002-00050-00056_0005 (Bethe's 1967 lecture recalls the meeting as April 1938.)
 [^bethecritchfield1938]: H. A. Bethe and C. L. Critchfield, "The formation of deuterons by proton combination", Physical Review 54, 248-254 (1938). https://doi.org/10.1103/PhysRev.54.248
 [^bethe1939]: H. A. Bethe, "Energy production in stars", Physical Review 55, 434-456 (1939). https://doi.org/10.1103/PhysRev.55.434
 [^borexino2020]: Borexino Collaboration, "Experimental evidence of neutrinos produced in the CNO fusion cycle in the Sun", Nature 587, 577-582 (2020). https://doi.org/10.1038/s41586-020-2934-0
@@ -449,15 +451,18 @@ Models of the Sun's interior built with the modern, lower amounts of carbon, nit
 [^nobel2002]: NobelPrize.org, "The Nobel Prize in Physics 2002", press release. https://www.nobelprize.org/prizes/physics/2002/press-release/
 [^hirata1987]: K. Hirata et al., "Observation of a neutrino burst from the supernova SN1987A", Physical Review Letters 58, 1490-1493 (1987). https://doi.org/10.1103/PhysRevLett.58.1490
 [^bionta1987]: R. M. Bionta et al., "Observation of a neutrino burst in coincidence with supernova 1987A in the Large Magellanic Cloud", Physical Review Letters 58, 1494-1496 (1987). https://doi.org/10.1103/PhysRevLett.58.1494
+[^hirata1989]: K. S. Hirata et al., "Observation of 8B solar neutrinos in the Kamiokande-II detector", Physical Review Letters 63, 16-19 (1989). https://doi.org/10.1103/PhysRevLett.63.16
 [^nobel2015pop]: Royal Swedish Academy of Sciences, "The chameleons of space", popular science background to the Nobel Prize in Physics 2015. https://www.nobelprize.org/uploads/2018/06/popular-physicsprize2015.pdf
 [^sno2002]: Q. R. Ahmad et al. (SNO Collaboration), "Direct evidence for neutrino flavor transformation from neutral-current interactions in the Sudbury Neutrino Observatory", Physical Review Letters 89, 011301 (2002). https://doi.org/10.1103/PhysRevLett.89.011301
 [^borexino2014]: Borexino Collaboration, "Neutrinos from the primary proton-proton fusion process in the Sun", Nature 512, 383-386 (2014). https://doi.org/10.1038/nature13702
 [^adams1997]: F. C. Adams and G. Laughlin, "A dying universe: the long-term fate and evolution of astrophysical objects", Reviews of Modern Physics 69, 337-372 (1997). https://doi.org/10.1103/RevModPhys.69.337
+[^schroder2008]: K.-P. Schröder and R. C. Smith, "Distant future of the Sun and Earth revisited", Monthly Notices of the Royal Astronomical Society 386, 155-163 (2008), Table 1 (main sequence ends at an age of 10.0 billion years, largest red giant at 12.17, white dwarf after about 12.3). https://doi.org/10.1111/j.1365-2966.2008.13022.x (open access at https://arxiv.org/abs/0801.4031)
 [^montarges2021]: M. Montargès et al., "A dusty veil shading Betelgeuse during its Great Dimming", Nature 594, 365-368 (2021). https://doi.org/10.1038/s41586-021-03546-8
 [^reyle2021]: C. Reylé et al., "The 10 parsec sample in the Gaia era", Astronomy & Astrophysics 650, A201 (2021). https://doi.org/10.1051/0004-6361/202140985
 [^nasa2020betel]: NASA Science, "Hubble finds that Betelgeuse's mysterious dimming is due to a traumatic outburst" (2020). https://science.nasa.gov/missions/hubble/hubble-finds-that-betelgeuses-mysterious-dimming-is-due-to-a-traumatic-outburst/
 [^eso2109]: ESO, "Mystery of Betelgeuse's dip in brightness solved", press release eso2109 (16 June 2021). https://www.eso.org/public/news/eso2109/
 [^nasa2022betel]: NASA Science, "Hubble sees red supergiant star Betelgeuse slowly recovering after blowing its top" (2022). https://science.nasa.gov/missions/hubble/hubble-sees-red-supergiant-star-betelgeuse-slowly-recovering-after-blowing-its-top/
+[^saio2023]: H. Saio, D. Nandal, G. Meynet and S. Ekström, "The evolutionary stage of Betelgeuse inferred from its pulsation periods", Monthly Notices of the Royal Astronomical Society 526, 2765-2775 (2023). https://doi.org/10.1093/mnras/stad2949 (open access at https://arxiv.org/abs/2306.00287)
 [^physorg2020]: Australian National University, "Supergiant star Betelgeuse smaller, closer than first thought", via Phys.org (16 October 2020). https://phys.org/news/2020-10-supergiant-star-betelgeuse-smaller-closer.html
 [^howell2025]: NASA Ames Research Center, "NASA scientist finds predicted companion star to Betelgeuse" (23 July 2025); S. B. Howell et al., "The probable direct-imaging detection of the stellar companion to Betelgeuse", Astrophysical Journal Letters 988, L47 (2025). https://www.nasa.gov/centers-and-facilities/ames/nasa-scientist-finds-predicted-companion-star-to-betelgeuse/ ; https://doi.org/10.3847/2041-8213/adeaaf
 [^noirlab2605]: NSF NOIRLab, "NSF–DOE Vera C. Rubin Observatory launches real-time discovery machine for monitoring the night sky", release noirlab2605 (25 February 2026). https://noirlab.edu/public/news/noirlab2605/

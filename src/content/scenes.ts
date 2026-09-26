@@ -9,14 +9,16 @@
  *   date:<YYYY-MM-DD>           set the simulation date
  *   <name>                      a named scene: race-sunlight, year-in-30s, mars-opposition …
  *
- * Targets are the ids in KNOWN_TARGETS; resolveTarget turns one into something the camera and
- * the planner can use. Today that is the bodies in physics/constants.ts; later updates add
- * resolvers (moons, stars, galaxies) and define the named scenes not built yet. Until then a
- * spec that needs them reports "Coming in a later update" and its button is disabled.
+ * Targets are the ids in KNOWN_TARGETS (the contract with the articles); resolveTarget turns
+ * one into something the camera and the planner can use: any body in the registry
+ * (sim/bodies), so a target resolves as soon as data registers its body. Later updates may add
+ * resolvers for things that are not bodies, and define the named scenes not built yet. Until
+ * then a spec that needs them reports "Coming in a later update" and its button is disabled.
  */
 import { SearchRelativeLongitude, Body } from 'astronomy-engine';
 import { Vector3 } from 'three';
-import { AU_KM, BODIES, C_KM_S, type BodyId } from '../physics/constants';
+import { AU_KM, C_KM_S } from '../physics/constants';
+import { bodyName, isBody, type BodyId } from '../sim/bodies';
 import { controller } from '../controls/cameraController';
 import { framingDistance } from '../controls/framing';
 import { setEpoch, setPaused, setWarp } from '../sim/clock';
@@ -156,9 +158,8 @@ export type TargetRef = { kind: 'body'; id: BodyId; name: string };
 /** Turns a target id into a TargetRef, or null when it does not handle that id. */
 export type TargetResolver = (id: string) => TargetRef | null;
 
-/** Today's targets: the bodies in physics/constants.ts (their ids are the target ids). */
-const bodyResolver: TargetResolver = (id) =>
-  Object.hasOwn(BODIES, id) ? { kind: 'body', id: id as BodyId, name: BODIES[id as BodyId].name } : null;
+/** Every registered body (body ids are target ids). */
+const bodyResolver: TargetResolver = (id) => (isBody(id) ? { kind: 'body', id, name: bodyName(id) } : null);
 
 const resolvers: TargetResolver[] = [bodyResolver];
 
@@ -509,7 +510,7 @@ function go(ref: TargetRef): boolean {
 
 function skyFrom(ref: TargetRef, note: string): boolean {
   return scene(note, () => {
-    const at = sim.bodies[ref.id].pos;
+    const at = sim.bodies[ref.id]!.pos;
     const home = ref.id === 'sun' ? sim.bodies.earth.pos : sim.bodies.sun.pos;
     // Beyond the body on the far side from home, raised a little, so home shows beside it.
     const dir = at.clone().sub(home);

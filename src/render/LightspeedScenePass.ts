@@ -14,6 +14,11 @@
  *      through its own Doppler factor, behind every surface. All of it works from the ship's
  *      rapidity, so it holds from rest to γ ≈ 10¹⁷ (see shaders/remap.frag.glsl).
  * Split view: the left part of the screen shows the naive render, the right the relativistic one.
+ *
+ * The cube map costs about 2 ms of GPU a frame on an integrated GPU (mostly its half-float
+ * mipmaps), so it is only redrawn while something is in it: in interstellar flight, where no
+ * body is wider than a pixel, it is cleared once and left alone. After the relativistic view has
+ * been off for half a minute its memory (about 88 MiB at 1024 px a face) is given back.
  */
 import {
   CubeCamera,
@@ -25,6 +30,7 @@ import {
   LinearMipmapLinearFilter,
   Mesh,
   NearestFilter,
+  type Object3D,
   OneFactor,
   OneMinusSrcAlphaFactor,
   OrthographicCamera,
@@ -47,6 +53,21 @@ import { quality } from './quality';
 import remapVert from './shaders/remap.vert.glsl?raw';
 import remapFrag from './shaders/remap.frag.glsl?raw';
 
+/** Layer drawn into the relativistic cube map: the meshes (bodies and rings). */
+const CUBE_LAYER_MASK = 1 << 0;
+/** The cube map's memory is released once the relativistic view has been off this long, ms. */
+const RELEASE_AFTER_MS = 30_000;
+
+/** Whether anything visible under `o` (itself included) would be drawn on the layers of `mask`. */
+export function anyVisibleOn(o: Object3D, mask: number): boolean {
+  if (!o.visible) return false;
+  const drawable = o as Object3D & { isMesh?: boolean; isLine?: boolean; isPoints?: boolean };
+  if ((drawable.isMesh || drawable.isLine || drawable.isPoints) && (o.layers.mask & mask) !== 0) return true;
+  const kids = o.children;
+  for (let i = 0; i < kids.length; i++) if (anyVisibleOn(kids[i], mask)) return true;
+  return false;
+}
+
 /** Layer for point sources drawn analytically in the ship frame (stars, glints, belts). */
 export const POINTS_LAYER = 1;
 /**
@@ -65,6 +86,11 @@ export class LightspeedScenePass extends Pass {
   private remap: ShaderMaterial;
   private clearColor = new Color();
   faceSize: number;
+  /** The cube holds something drawn since it was last cleared. */
+  private cubeDirty = true;
+  /** When the relativistic view went off (performance.now), or −1 while it is on. */
+  private offSince = -1;
+  private cubeReleased = false;
 
   constructor(scene: Scene, camera: PerspectiveCamera, faceSize = 1024) {
     super('LightspeedScenePass', scene, camera);
@@ -140,6 +166,7 @@ export class LightspeedScenePass extends Pass {
     const u = this.remap.uniforms;
     u.uCube.value = this.cubeRT.texture;
     u.uMaxLod.value = Math.log2(size);
+    this.cubeDirty = true;
   }
 
   render(renderer: WebGLRenderer, inputBuffer: WebGLRenderTarget | null): void {
@@ -154,6 +181,14 @@ export class LightspeedScenePass extends Pass {
     camera.layers.enableAll();
 
     if (!relView.active) {
+      const now = performance.now();
+      if (this.offSince < 0) this.offSince = now;
+      else if (!this.cubeReleased && now - this.offSince > RELEASE_AFTER_MS) {
+        // three.js makes the render target again when it is next drawn into.
+        this.cubeRT.dispose();
+        this.cubeReleased = true;
+        this.cubeDirty = true;
+      }
       setPointUniforms(false);
       renderer.autoClear = true;
       renderer.setRenderTarget(target);
@@ -161,13 +196,20 @@ export class LightspeedScenePass extends Pass {
       renderer.autoClear = autoClear;
       return;
     }
+    this.offSince = -1;
+    this.cubeReleased = false;
 
-    // 1. Cube map of the rest-frame scene (no point sources), transparent background.
-    renderer.autoClear = true;
-    renderer.setClearColor(0x000000, 0);
-    this.cubeCam.position.set(0, 0, 0);
-    this.cubeCam.updateMatrixWorld(true);
-    this.cubeCam.update(renderer, scene);
+    // 1. Cube map of the rest-frame scene (no point sources), transparent background. Nothing
+    // in it (no body a pixel wide): cleared once, then left as it is.
+    const content = anyVisibleOn(scene, CUBE_LAYER_MASK);
+    if (content || this.cubeDirty) {
+      renderer.autoClear = true;
+      renderer.setClearColor(0x000000, 0);
+      this.cubeCam.position.set(0, 0, 0);
+      this.cubeCam.updateMatrixWorld(true);
+      this.cubeCam.update(renderer, scene);
+      this.cubeDirty = content;
+    }
 
     renderer.setClearColor(this.clearColor, clearAlpha);
     renderer.autoClear = false;

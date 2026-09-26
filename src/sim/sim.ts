@@ -7,7 +7,7 @@
  */
 import { Quaternion, Vector3 } from 'three';
 import type { AstroTime } from 'astronomy-engine';
-import { BODY_ORDER, type BodyId } from '../physics/constants';
+import type { BodyId, Regime } from './bodies/types';
 import { astroTimeAt } from '../lib/time';
 
 export interface ScreenPoint {
@@ -27,6 +27,8 @@ export interface BodyState {
    * flyby). Absent bodies are not drawn, labelled, picked or targeted.
    */
   present: boolean;
+  /** How good its position is at this date (see bodies/types.ts). */
+  regime: Regime;
   /** World position, km (float64). */
   pos: Vector3;
   /** Velocity in the Sun's rest frame, km/s. */
@@ -60,10 +62,12 @@ export interface BodyState {
 
 export type SizeMode = 'true' | 'visible';
 
-function makeBody(id: BodyId): BodyState {
+/** A fresh state for a body (the registry makes one per registered body). */
+export function makeBody(id: BodyId): BodyState {
   return {
     id,
     present: true,
+    regime: 'precise',
     pos: new Vector3(),
     vel: new Vector3(),
     quat: new Quaternion(),
@@ -133,7 +137,14 @@ export const sim = {
    */
   solarSystemPx: Infinity,
 
-  bodies: Object.fromEntries(BODY_ORDER.map((id) => [id, makeBody(id)])) as Record<BodyId, BodyState>,
+  /**
+   * Every registered body's state, by id (filled by the body registry, sim/bodies/registry.ts).
+   * An id that is not registered gives undefined. Iterate `bodyList`, not this object.
+   */
+  bodies: Object.create(null) as Record<BodyId, BodyState>,
+
+  /** The same states in the registry's order: parents before their children, the Sun outwards. */
+  bodyList: [] as BodyState[],
 
   sizeMode: 'true' as SizeMode,
 

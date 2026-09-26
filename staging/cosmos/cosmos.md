@@ -442,3 +442,17 @@ And under "Other sources used by the code":
 - The high-redshift galaxies are placed at their comoving distance "now". The light we see left them when
   they were 0.28-0.43 Gyr old and 11.6-15.5 times closer in proper distance (1 + z) (`angularDiameterDistanceMpc` is
   the proper distance at emission).
+
+## Changes after the independent verification (25 September 2026)
+
+The cosmic-web file, CMB maps, positions of the named objects, high-redshift distances and Cosmicflows-4 values were
+confirmed against NED, VizieR and the papers. Fixed here:
+
+- **Local Group catalogue licence.** `local-galaxies.json.gz` was derived from McConnachie's updated catalogue, whose
+  licence could not be confirmed. It was removed and rebuilt from the Local Volume Database v1.1.1 (CC0 1.0): 169
+  galaxies instead of 145, every value cited.
+- **Mixed distance scales around M31.** The M31 satellites are now on one scale with M31 (M32 6.4 kpc from M31, not
+  44 kpc behind it).
+- **LMC and SMC positions** are no longer divided by 1 + z (Local Group members do not expand with the universe).
+- **Redshifts of M87 and Centaurus A** are NED's preferred values (0.004283 and 0.0018246) instead of coarser ones.
+- **Count.** 5,316 cosmic-web galaxies have no 2MASS Ks (the text said 5,309).

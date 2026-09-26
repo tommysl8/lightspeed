@@ -91,11 +91,21 @@ export interface MoonModel {
     nodalPeriodYears: number;
   };
   accuracy: {
-    /** Worst position error vs Horizons over the window: fit grid, dense window and checkpoints, km. */
+    /**
+     * Largest position error vs Horizons seen inside the window, km, over every set compared: the
+     * fitted grid, the dense 2020 window, the 64 random checkpoints and the validation grid. An
+     * observed maximum over 60,000–230,000 epochs, not a proof.
+     */
     maxKm: number;
-    /** RMS error over the fitted grid, km. */
+    /** Stated bound, km: 1.25 × maxKm rounded up to two figures. Use this as the error bar. */
+    boundKm: number;
+    /** RMS error on the validation grid (epochs the fit never saw), km: the out-of-sample RMS. */
     rmsKm: number;
+    /** RMS error on the fitted grid (in sample), km. Lower than rmsKm, up to 3.7× for Proteus. */
+    fitRmsKm: number;
     fitMaxKm: number;
+    /** Independent validation grid: every stepMinutes over the window, off the fitted epochs. */
+    validation: { points: number; stepMinutes: number; startTdb: number; maxKm: number; maxAtTdb: number; rmsKm: number };
     /** Worst error on the independent densely sampled window (2020 onwards), km. */
     denseMaxKm: number;
     /** Worst error at the 64 independent random checkpoints, km. */

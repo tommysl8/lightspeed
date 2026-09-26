@@ -1442,7 +1442,7 @@
     "fitMaxKm": 250
    },
    "notes": [
-    "One Horizons apparition solution per perihelion passage (see \"solutions\"), switched exactly at the aphelion between passages. The solutions differ there by 900–15,000 km, which the track keeps as listed jumps rather than blending: at every instant it follows one JPL solution."
+    "One Horizons apparition solution per perihelion passage (see \"solutions\"), switched exactly at the aphelion between passages. The solutions differ there by 770–13,300 km, which the track keeps as listed jumps rather than blending: at every instant it follows one JPL solution."
    ]
   },
   "churyumov-gerasimenko": {
@@ -1701,7 +1701,7 @@
     "fitMaxKm": 250
    },
    "notes": [
-    "One Horizons apparition solution per perihelion passage (see \"solutions\"), switched exactly at the aphelion between passages. The solutions differ there by 2,900–13,000 km, which the track keeps as listed jumps rather than blending: at every instant it follows one JPL solution."
+    "One Horizons apparition solution per perihelion passage (see \"solutions\"), switched exactly at the aphelion between passages. The solutions differ there by 2,800–12,500 km, which the track keeps as listed jumps rather than blending: at every instant it follows one JPL solution."
    ]
   },
   "hale-bopp": {

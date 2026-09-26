@@ -637,3 +637,16 @@ Space Agency (ESA) mission Gaia, processed by the Gaia Data Processing and Analy
 - **Proper motion.** Host positions are at J2000.0 (except 360 hosts without Gaia DR3 or Hipparcos
   astrometry, see "Epochs of the host positions"). The star build propagates stars; the integrator should put
   planets on the propagated host, and use the host's distance at time t in `observedTimeJd`.
+
+## 11. Changes after the independent verification (25 September 2026)
+
+A check against the live archive, SIMBAD and the papers confirmed the counts, the orbital elements, the
+transit geometry of every transiting planet and the featured systems, and found one real error, fixed here:
+
+- **Host positions were not at J2000.** The archive's coordinates are mostly Gaia DR2 positions at epoch J2015.5
+  (Barnard's Star 161″, Proxima 60″ from J2000), and `featured.json` gave α Cen's barycentre at J2019.5. Every host
+  is now rebuilt at J2000.0 from Gaia DR3 or Hipparcos (section 1, "Epochs of the host positions"); the featured
+  hosts agree with the star catalogue to 0.04–0.08″. New cached input:
+  `data-raw/gaia_dr3_exoplanet_hosts_2026-09-25.csv.gz`; new shared module `scripts/exoplanet-host-astrometry.mjs`.
+- **Licence wording.** The shipped files contain Gaia-derived values, so the CREDITS rows now carry ESA's
+  non-commercial condition (section 9).

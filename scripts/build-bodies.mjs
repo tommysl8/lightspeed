@@ -490,7 +490,7 @@ const CURATED = [
     id: 'umbriel', name: 'Umbriel', kind: 'moon', parent: 'uranus',
     discovery: { by: 'William Lassell', date: '1851-10-24', place: 'Liverpool', source: `${NASA}/uranus/moons/umbriel/` },
     facts: [
-      'Umbriel is the darkest of Uranus’s large moons, reflecting only 16% of the light that falls on it.',
+      'Umbriel is the darkest of Uranus’s large moons, with a surface about as dark as the highlands of Earth’s Moon.',
       'Its surface is old and heavily cratered, showing few signs of the geological activity seen on Ariel and Titania.',
       'William Lassell found Umbriel on the same night as Ariel, 24 October 1851.',
     ],
@@ -590,8 +590,8 @@ const CURATED = [
     factSources: [`${NASA}/dwarf-planets/ceres/facts/`, 'https://doi.org/10.1038/nature18290', `${NASA}/dwarf-planets/ceres/facts/`],
   },
   {
-    id: 'vesta', name: 'Vesta', kind: 'dwarf-planet',
-    kindNote: 'Vesta is officially an asteroid (a minor planet), not an IAU dwarf planet. It sits in this list because it is a differentiated protoplanet with its own surface map and shape model.',
+    id: 'vesta', name: 'Vesta', kind: 'asteroid',
+    kindNote: 'Vesta is an asteroid (a minor planet), not a dwarf planet: a differentiated protoplanet, the second most massive body in the asteroid belt.',
     discovery: { by: 'Heinrich Wilhelm Olbers', date: '1807-03-29', place: 'Bremen', source: `${NASA}/solar-system/asteroids/4-vesta/` },
     facts: [
       'Rheasilvia, the impact basin at Vesta’s south pole, is about 500 km wide, some 95% of Vesta’s mean diameter.',
@@ -620,11 +620,11 @@ const CURATED = [
       source: 'https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/?sstr=136108',
     },
     facts: [
-      'Haumea spins once every 3.9 hours, one of the fastest rotations of any large body, and has been stretched into an ellipsoid about twice as long as it is wide.',
+      'Haumea spins once every 3.9 hours, one of the fastest rotations of any large body. The spin has stretched it into an ellipsoid whose longest axis, about 2,320 km, is more than twice its shortest, about 1,030 km.',
       'A stellar occultation in January 2017 revealed a ring about 70 km wide, 2,287 km from its centre: the first ring found around a body beyond Neptune.',
       'Two moons, Hiʻiaka and Namaka, orbit Haumea. A large impact long ago may have set it spinning and created them.',
     ],
-    factSources: [`${NASA}/dwarf-planets/haumea/`, 'https://doi.org/10.1038/nature24051', `${NASA}/dwarf-planets/haumea/`],
+    factSources: ['https://doi.org/10.1038/nature24051', 'https://doi.org/10.1038/nature24051', `${NASA}/dwarf-planets/haumea/`],
   },
   {
     id: 'makemake', name: 'Makemake', kind: 'dwarf-planet',
@@ -637,8 +637,8 @@ const CURATED = [
     factSources: [`${NASA}/dwarf-planets/makemake/`, `${NASA}/dwarf-planets/makemake/`, 'https://doi.org/10.1038/nature11597'],
   },
   {
-    id: 'gonggong', name: 'Gonggong', kind: 'dwarf-planet',
-    kindNote: 'Not yet recognised as a dwarf planet by the IAU; widely considered one because of its size.',
+    id: 'gonggong', name: 'Gonggong', kind: 'tno', dwarfPlanetCandidate: true,
+    kindNote: 'The IAU recognises five dwarf planets (Ceres, Pluto, Eris, Haumea, Makemake); this large trans-Neptunian object is widely considered a candidate but has not been classified as one.',
     discovery: { by: 'Megan E. Schwamb, Michael E. Brown and David L. Rabinowitz', date: '2007-07-17', place: 'Palomar Observatory', source: 'https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/?sstr=225088' },
     facts: [
       'Gonggong is about 1,230 km across, one of the largest bodies beyond Neptune.',
@@ -648,8 +648,8 @@ const CURATED = [
     factSources: ['https://doi.org/10.1016/j.icarus.2019.03.013', 'https://doi.org/10.1016/j.icarus.2019.03.013', 'https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/?sstr=225088'],
   },
   {
-    id: 'quaoar', name: 'Quaoar', kind: 'dwarf-planet',
-    kindNote: 'Not yet recognised as a dwarf planet by the IAU; widely considered one because of its size.',
+    id: 'quaoar', name: 'Quaoar', kind: 'tno', dwarfPlanetCandidate: true,
+    kindNote: 'The IAU recognises five dwarf planets (Ceres, Pluto, Eris, Haumea, Makemake); this large trans-Neptunian object is widely considered a candidate but has not been classified as one.',
     discovery: { by: 'Chad A. Trujillo and Michael E. Brown', date: '2002-06-04', place: 'Palomar Observatory', source: 'https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/?sstr=50000' },
     facts: [
       'Quaoar is about 1,090 km across, measured by timing how long it blocked the light of background stars (Pereira et al. 2023).',
@@ -659,8 +659,8 @@ const CURATED = [
     factSources: ['https://doi.org/10.1051/0004-6361/202346365', 'https://doi.org/10.1038/s41586-022-05629-6', 'https://doi.org/10.1051/0004-6361/202346365'],
   },
   {
-    id: 'sedna', name: 'Sedna', kind: 'dwarf-planet',
-    kindNote: 'Not recognised as a dwarf planet by the IAU; its size and likely round shape make it a candidate.',
+    id: 'sedna', name: 'Sedna', kind: 'tno', dwarfPlanetCandidate: true,
+    kindNote: 'The IAU recognises five dwarf planets (Ceres, Pluto, Eris, Haumea, Makemake); this large trans-Neptunian object is widely considered a candidate but has not been classified as one. Strictly it is a detached object, far beyond the Kuiper Belt for its whole orbit.',
     discovery: { by: 'Michael E. Brown, Chad A. Trujillo and David L. Rabinowitz', date: '2003-11-14', place: 'Palomar Observatory', source: 'https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/?sstr=90377' },
     facts: [
       'Sedna never comes closer to the Sun than about 76 au, well beyond Neptune, and swings out to roughly 1,000 au.',
@@ -670,8 +670,8 @@ const CURATED = [
     factSources: ['https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/?sstr=90377', 'https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/?sstr=90377', 'https://doi.org/10.1051/0004-6361/201218874'],
   },
   {
-    id: 'orcus', name: 'Orcus', kind: 'dwarf-planet',
-    kindNote: 'Not yet recognised as a dwarf planet by the IAU; widely considered one because of its size.',
+    id: 'orcus', name: 'Orcus', kind: 'tno', dwarfPlanetCandidate: true,
+    kindNote: 'The IAU recognises five dwarf planets (Ceres, Pluto, Eris, Haumea, Makemake); this large trans-Neptunian object is widely considered a candidate but has not been classified as one.',
     discovery: { by: 'Michael E. Brown, Chad A. Trujillo and David L. Rabinowitz', date: '2004-02-17', place: 'Palomar Observatory', source: 'https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/?sstr=90482' },
     facts: [
       'Orcus is locked in the same 2:3 resonance with Neptune as Pluto, but on the opposite side of the Sun from it: it is sometimes called the ‘anti-Pluto’.',
@@ -681,8 +681,8 @@ const CURATED = [
     factSources: ['https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/?sstr=90482', 'https://doi.org/10.3847/1538-3881/aa6346', 'https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/?sstr=90482'],
   },
   {
-    id: 'arrokoth', name: 'Arrokoth', kind: 'dwarf-planet',
-    kindNote: 'Arrokoth is a small cold classical Kuiper Belt object, not a dwarf planet. It shares this category for convenience; the app may label it "Kuiper Belt object".',
+    id: 'arrokoth', name: 'Arrokoth', kind: 'tno',
+    kindNote: 'A small cold classical Kuiper Belt object (a contact binary about 36 km long), not a dwarf planet.',
     discovery: { by: 'New Horizons search team (Marc W. Buie et al.)', date: '2014-06-26', place: 'Hubble Space Telescope', source: 'https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/?sstr=486958' },
     facts: [
       'On 1 January 2019 New Horizons flew about 3,500 km from Arrokoth, the most distant object ever explored up close.',
@@ -728,7 +728,7 @@ const CURATED = [
     facts: [
       'Hale–Bopp stayed visible to the naked eye for about 18 months in 1996 and 1997, a record.',
       'Its nucleus is unusually large, roughly 60 km across.',
-      'It takes about 2,500 years to go round the Sun, so it will not be back until the 4400s.',
+      'It takes about 2,530 years to go round the Sun, so it will not be back until around the year 4530.',
     ],
     factSources: [`${NASA}/solar-system/comets/c-1995-o1-hale-bopp/`, `${NASA}/solar-system/comets/c-1995-o1-hale-bopp/`, `${NASA}/solar-system/comets/c-1995-o1-hale-bopp/`],
   },
@@ -764,6 +764,15 @@ const CURATED = [
     factSources: [`${NASA}/solar-system/comets/3i-atlas/`, `${NASA}/solar-system/comets/3i-atlas/`, `${NASA}/solar-system/comets/3i-atlas/`],
   },
   // ── Spacecraft ──
+  {
+    id: 'voyager1', name: 'Voyager 1', kind: 'spacecraft',
+    facts: [
+      'Voyager 1 has been the most distant human-made object since 17 February 1998, when it overtook Pioneer 10 at 69.4 au from the Sun.',
+      'On 25 August 2012 it became the first spacecraft to leave the heliosphere, the bubble of solar wind around the Sun, and begin measuring interstellar space.',
+      'On 18 November 2026 Voyager 1 is due to reach one light-day from Earth, about 25.9 billion km: no human-made object has been that far.',
+    ],
+    factSources: [`${NASA}/mission/voyager/voyager-1/`, `${NASA}/mission/voyager/voyager-1/`, `${NASA}/mission/voyager/where-are-voyager-1-and-voyager-2-now/`],
+  },
   {
     id: 'voyager2', name: 'Voyager 2', kind: 'spacecraft',
     facts: [
@@ -817,92 +826,97 @@ const PHYS = {
   // Satellites: mean radius and GM come from the SSD table; triaxial radii from IAU 2015 (pck00011).
   nix: { triaxialRadiiKm: [25, 17.5, 16.5], triaxialSource: SRC.weaver2016 + ' (full axes 50 × 35 × 33 km ± 3 km)', geometricAlbedo: 0.56, albedoSigma: 0.05, albedoSource: SRC.weaver2016 },
   hydra: { triaxialRadiiKm: [32.5, 22.5, 12.5], triaxialSource: SRC.weaver2016 + ' (full axes 65 × 45 × 25 km ± 10 km)', geometricAlbedo: 0.83, albedoSigma: 0.08, albedoSource: SRC.weaver2016 },
+  umbriel: { albedoNote: 'This is the geometric albedo (brightness at zero phase angle relative to a flat white disc). NASA’s Umbriel page says it reflects 16% of the light that strikes it, a different measure of reflectivity, so the two numbers are not directly comparable.' },
   iapetus: { albedoNote: 'Bright trailing hemisphere. The dark leading hemisphere (Cassini Regio) has an albedo of only 0.03 to 0.05 (NASA).' },
   hyperion: { triaxialRadiiKm: [180.1, 133, 102.7], triaxialSource: 'Thomas et al. 2007, Nature 448, 50, https://doi.org/10.1038/nature05779 (360.2 × 266 × 205.4 km)' },
   nereid: { rotationPeriodH: 11.594, rotationSource: 'Kiss et al. 2016, MNRAS 457, 2908, https://doi.org/10.1093/mnras/stw081 (K2 light curve)' },
   ceres: {
-    radiusKm: 469.7, radiusSigmaKm: 0.1, radiusSource: 'Park et al. 2016, Nature 537, 515 (mean diameter 939.4 ± 0.2 km), via ' + SRC.sbdb,
+    radiusKm: 469.7, radiusSigmaKm: 0.1, radiusType: 'mean', radiusSource: 'Park et al. 2016, Nature 537, 515 (mean diameter 939.4 ± 0.2 km), via ' + SRC.sbdb,
     triaxialRadiiKm: [482.2, 482.1, 445.9], triaxialSource: 'Park et al. 2016, Nature 537, 515, https://doi.org/10.1038/nature18955 (964.4 × 964.2 × 891.8 km)',
   },
   vesta: {
-    radiusKm: 261.385, radiusSigmaKm: 0.05, radiusSource: 'Park et al. 2025, Nature Astronomy, https://doi.org/10.1038/s41550-025-02533-7 (mean diameter 522.77 km), via ' + SRC.sbdb,
+    radiusKm: 261.385, radiusSigmaKm: 0.05, radiusType: 'mean', radiusSource: 'Park et al. 2025, Nature Astronomy, https://doi.org/10.1038/s41550-025-02533-7 (mean diameter 522.77 km), via ' + SRC.sbdb,
     triaxialRadiiKm: [284.62, 277.24, 226.33], triaxialSource: 'Park et al. 2025, Nature Astronomy (569.24 × 554.48 × 452.66 km), via ' + SRC.sbdb,
   },
   eris: {
-    radiusKm: 1163, radiusSigmaKm: 6, radiusSource: 'Sicardy et al. 2011, Nature 478, 493, https://doi.org/10.1038/nature10550 (occultation, diameter 2326 ± 12 km)',
+    radiusKm: 1163, radiusSigmaKm: 6, radiusType: 'mean', radiusSource: 'Sicardy et al. 2011, Nature 478, 493, https://doi.org/10.1038/nature10550 (occultation, diameter 2326 ± 12 km)',
     gmKm3S2: 1.6466e22 * 6.6743e-20, gmSource: 'Holler et al. 2021, Icarus 355, 114130, https://doi.org/10.1016/j.icarus.2020.114130 (mass 1.6466 ± 0.0085 × 10²² kg, from Dysnomia)',
     geometricAlbedo: 0.96, albedoSource: 'Sicardy et al. 2011 (0.96 +0.09/−0.04)',
     colourIndices: { 'B-V': 0.823, 'V-R': 0.391 }, colourIndexSource: SRC.tnocol + ' (Carraro et al. 2006)',
   },
   haumea: {
-    radiusKm: 797.5, radiusSigmaKm: 5.5, radiusSource: SRC.ortiz2017 + ' (volume-equivalent diameter 1,595 ± 11 km)',
+    radiusKm: 797.5, radiusSigmaKm: 5.5, radiusType: 'volume-equivalent', radiusSource: SRC.ortiz2017 + ' (volume-equivalent diameter 1,595 ± 11 km)',
     triaxialRadiiKm: [1161, 852, 513], triaxialSource: SRC.ortiz2017 + ' (a = 1161 ± 30, b = 852 ± 4, c = 513 ± 16 km)',
     gmKm3S2: 4.006e21 * 6.6743e-20, gmSource: 'Ragozzine & Brown 2009, AJ 137, 4766, https://doi.org/10.1088/0004-6256/137/6/4766 (system mass 4.006 ± 0.040 × 10²¹ kg)',
     geometricAlbedo: 0.51, albedoSigma: 0.02, albedoSource: SRC.ortiz2017,
     colourIndices: { 'B-V': 0.61, 'V-R': 0.37 }, colourIndexSource: SRC.tnocol + ' (Jewitt et al. 2007)',
   },
   makemake: {
-    radiusKm: 715, radiusSigmaKm: 15, radiusSource: 'Ortiz et al. 2012, Nature 491, 566, https://doi.org/10.1038/nature11597 (occultation: 1430 ± 9 × 1502 ± 45 km; mean radius rounded)',
-    triaxialRadiiKm: [751, 751, 715], triaxialSource: 'Ortiz et al. 2012 (oblate fit 1502 × 1430 km; the true shape is not known)',
+    radiusKm: 733, radiusSigmaKm: 12, radiusType: 'area-equivalent',
+    radiusSource: 'Ortiz et al. 2012, Nature 491, 566, https://doi.org/10.1038/nature11597 (occultation ellipse 1,430 ± 9 × 1,502 ± 45 km; 733 km is the mean of the two projected semi-axes, 715 and 751 km, and also the radius of a disc of the same area). The volume-equivalent radius depends on the unknown pole orientation: an oblate spheroid with these axes would give 739 km',
+    triaxialRadiiKm: [751, 751, 715], triaxialSource: 'Ortiz et al. 2012 (illustrative oblate fit to the 1,502 × 1,430 km occultation ellipse; the true shape is not known)',
     geometricAlbedo: 0.77, albedoSigma: 0.03, albedoSource: 'Ortiz et al. 2012',
     colourIndices: { 'B-V': 0.87, 'V-R': 0.46 }, colourIndexSource: SRC.tnocol + ' (Jewitt et al. 2007)',
   },
   gonggong: {
-    radiusKm: 615, radiusSigmaKm: 25, radiusSource: 'Kiss et al. 2019, Icarus 334, 3, https://doi.org/10.1016/j.icarus.2019.03.013 (diameter 1230 ± 50 km)',
+    radiusKm: 615, radiusSigmaKm: 25, radiusType: 'area-equivalent', radiusSource: 'Kiss et al. 2019, Icarus 334, 3, https://doi.org/10.1016/j.icarus.2019.03.013 (diameter 1230 ± 50 km)',
     gmKm3S2: 1.75e21 * 6.6743e-20, gmSource: 'Kiss et al. 2019 (system mass 1.75 ± 0.07 × 10²¹ kg, from Xiangliu)',
     geometricAlbedo: 0.14, albedoSigma: 0.01, albedoSource: 'Kiss et al. 2019',
   },
   quaoar: {
-    radiusKm: 543, radiusSigmaKm: 2, radiusSource: 'Pereira et al. 2023, A&A 673, L4, https://doi.org/10.1051/0004-6361/202346365 (area-equivalent radius 543 ± 2 km from the August 2022 occultation; Braga-Ribas et al. 2013 found 555 ± 2.5 km)',
+    radiusKm: 543, radiusSigmaKm: 2, radiusType: 'area-equivalent', radiusSource: 'Pereira et al. 2023, A&A 673, L4, https://doi.org/10.1051/0004-6361/202346365 (area-equivalent radius 543 ± 2 km from the August 2022 occultation; Braga-Ribas et al. 2013 found 555 ± 2.5 km)',
     gmKm3S2: 1.2e21 * 6.6743e-20, gmSource: 'Morgado et al. 2023, Nature 614, 239, https://doi.org/10.1038/s41586-022-05629-6 (adopted mass 1.2 × 10²¹ kg)',
     geometricAlbedo: 0.109, albedoSigma: 0.007, albedoSource: 'Braga-Ribas et al. 2013',
     colourIndices: { 'B-V': 0.94, 'V-R': 0.6 }, colourIndexSource: SRC.tnocol + ' (Tegler et al. 2003; Fornasier et al. 2004; DeMeo et al. 2009)',
   },
   sedna: {
-    radiusKm: 497.5, radiusSigmaKm: 40, radiusSource: 'Pál et al. 2012, A&A 541, L6, https://doi.org/10.1051/0004-6361/201218874 (diameter 995 ± 80 km)',
+    radiusKm: 497.5, radiusSigmaKm: 40, radiusType: 'area-equivalent', radiusSource: 'Pál et al. 2012, A&A 541, L6, https://doi.org/10.1051/0004-6361/201218874 (diameter 995 ± 80 km)',
     geometricAlbedo: 0.32, albedoSigma: 0.06, albedoSource: 'Pál et al. 2012',
     colourIndices: { 'B-V': 1.07, 'V-R': 0.61 }, colourIndexSource: SRC.tnocol + ' (Sheppard 2010: B−R 1.68, V−R 0.61)',
   },
   orcus: {
-    radiusKm: 455, radiusSigmaKm: 22, radiusSource: 'Brown & Butler 2017, AJ 154, 19, https://doi.org/10.3847/1538-3881/aa6346 (ALMA: diameter 910 +50/−40 km)',
+    radiusKm: 455, radiusSigmaKm: 22, radiusType: 'area-equivalent', radiusSource: 'Brown & Butler 2017, AJ 154, 19, https://doi.org/10.3847/1538-3881/aa6346 (ALMA: diameter 910 +50/−40 km)',
     gmKm3S2: 6.32e20 * 6.6743e-20, gmSource: 'Brown et al. 2010, AJ 139, 2700, https://doi.org/10.1088/0004-6256/139/6/2700 (Orcus–Vanth system mass 6.32 ± 0.05 × 10²⁰ kg). This is the system mass: it includes Vanth',
     geometricAlbedo: 0.23, albedoSource: 'Brown & Butler 2017 (0.23 ± 0.02)',
   },
   arrokoth: {
-    radiusKm: 9.948, radiusSource: SRC.porter2024 + ' (volume-equivalent diameter 19.896 km)',
+    radiusKm: 9.947, radiusType: 'volume-equivalent',
+    radiusSource: SRC.porter2024 + '. The model is two lobe meshes that overlap slightly at the neck; Porter et al. quote an equal-volume diameter of 19.896 km, which adds the two lobes (17.349 and 13.845 km) and so counts the 1.8 km³ overlap twice. The union of the two meshes is 4,122.0 km³, a sphere of radius 9.947 km (computed for this file; see public/models/arrokoth.bin)',
     dimensionsKm: [34.546, 19.838, 13.822], dimensionsSource: 'Porter et al. 2024, Table (overall extents a × b × c)',
     geometricAlbedo: 0.21, albedoSource: 'Hofgartner et al. 2021, Icarus 356, 113723, https://doi.org/10.1016/j.icarus.2020.113723 (geometric albedo 0.21 +0.05/−0.04)',
   },
   halley: {
-    radiusKm: 4.6, radiusSource: 'Volume-equivalent radius of P. Stooke’s Giotto/Vega shape model (4.58 km; public/models/halley.bin). SBDB lists an 11 km effective diameter (Lamy et al. 2004, in Comets II), a projected-area measure rather than a volume one',
+    radiusKm: 4.6, radiusType: 'volume-equivalent', radiusSource: 'Volume-equivalent radius of P. Stooke’s Giotto/Vega shape model (4.58 km; public/models/halley.bin). SBDB lists an 11 km effective diameter (Lamy et al. 2004, in Comets II), a projected-area measure rather than a volume one',
     dimensionsKm: [14.9, 8.2, 8.2], dimensionsSource: 'Keller et al. 1987, A&A 187, 807 (14.9 × 8.2 km), via ' + SRC.sbdb + '; NASA gives about 15 × 8 km',
     geometricAlbedo: 0.04, albedoSource: SRC.sbdb + ' (Lamy et al. 2004)',
   },
   encke: {
-    radiusKm: 2.4, radiusSource: 'Lamy et al. 2004, in Comets II, 223 (effective diameter 4.8 km), via ' + SRC.sbdb,
+    radiusKm: 2.4, radiusType: 'area-equivalent', radiusSource: 'Lamy et al. 2004, in Comets II, 223 (effective diameter 4.8 km), via ' + SRC.sbdb,
     geometricAlbedo: 0.046, albedoSigma: 0.023, albedoSource: SRC.sbdb + ' (Fernández 2002, EM&P 89, 117)',
   },
   'churyumov-gerasimenko': {
-    radiusKm: 1.649, radiusSource: 'Jorda et al. 2016, Icarus 277, 257, https://doi.org/10.1016/j.icarus.2016.05.002 (volume 18.8 ± 0.3 km³); our 24k-plate SHAP5 model gives 1.647 km',
+    radiusKm: 1.649, radiusType: 'volume-equivalent', radiusSource: 'Jorda et al. 2016, Icarus 277, 257, https://doi.org/10.1016/j.icarus.2016.05.002 (volume 18.8 ± 0.3 km³); our 24k-plate SHAP5 model gives 1.647 km',
     dimensionsKm: [4.1, 3.3, 1.8], dimensionsSource: 'Sierks et al. 2015, Science 347, aaa1044 (large lobe 4.1 × 3.3 × 1.8 km; small lobe 2.6 × 2.3 × 1.8 km)',
-    gmKm3S2: 662.2e-9, gmSigma: 0.2e-9, gmSource: 'Pätzold et al. 2016, Nature 530, 63, https://doi.org/10.1038/nature16535 (mass 9.982 ± 0.003 × 10¹² kg), via ' + SRC.sbdb,
+    gmKm3S2: 9.982e12 * 6.6743e-20, gmSigma: 0.2e-9,
+    gmSource: 'Pätzold et al. 2016, Nature 530, 63, https://doi.org/10.1038/nature16535 (mass 9.982 ± 0.003 × 10¹² kg; GM = G·M). The Small-Body Database lists GM = 662.2 × 10⁻⁹ km³/s², which does not match that mass (it would be 9.922 × 10¹² kg), so it is not used',
+    densityNote: 'Pätzold et al. 2016 give 0.533 ± 0.006 g/cm³ with a 18.7 km³ volume; the value here uses radiusKm (18.8 km³, Jorda et al. 2016).',
     geometricAlbedo: 0.062, albedoSource: 'Fornasier et al. 2015, A&A 583, A30, https://doi.org/10.1051/0004-6361/201525901 (6.2% at 535 nm)',
   },
   'hale-bopp': {
-    radiusKm: 30, radiusSigmaKm: 10, radiusSource: 'Fernández 2002, EM&P 89, 3 (diameter 60 ± 20 km), via ' + SRC.sbdb,
+    radiusKm: 30, radiusSigmaKm: 10, radiusType: 'area-equivalent', radiusSource: 'Fernández 2002, EM&P 89, 3 (diameter 60 ± 20 km), via ' + SRC.sbdb,
     geometricAlbedo: 0.04, albedoSigma: 0.03, albedoSource: SRC.sbdb,
   },
   oumuamua: {
-    radiusKm: 0.07, radiusSource: 'Order of magnitude only. Spitzer non-detection limits the spherical-equivalent diameter to under ~440 m (albedo 0.1; Trilling et al. 2018, AJ 156, 261, https://doi.org/10.3847/1538-3881/aae88f); a 115 × 111 × 19 m disc (Mashchenko 2019, MNRAS 489, 3003) or a ~230 × 35 m cigar (Meech et al. 2017, for albedo 0.04) fit the light curve',
+    radiusKm: 0.07, radiusType: 'placeholder', radiusSource: 'Order of magnitude only. Spitzer non-detection limits the spherical-equivalent diameter to under ~440 m (albedo 0.1; Trilling et al. 2018, AJ 156, 261, https://doi.org/10.3847/1538-3881/aae88f); a 115 × 111 × 19 m disc (Mashchenko 2019, MNRAS 489, 3003) or a ~230 × 35 m cigar (Meech et al. 2017, for albedo 0.04) fit the light curve',
     shapeNote: 'Never resolved. Shape inferred from the light curve: brightness varied by a factor of ~10, so the long-to-short axis ratio is large (≳6:1). Whether it is a cigar or a pancake is not known.',
     geometricAlbedo: null, albedoSource: 'unknown (assumed 0.04–0.1 in size estimates)',
   },
   borisov: {
-    radiusKm: 0.4, radiusSource: 'Jewitt et al. 2020, ApJL 888, L23, https://doi.org/10.3847/2041-8213/ab621b (nucleus radius 0.2 < r < 0.5 km)',
+    radiusKm: 0.4, radiusType: 'placeholder', radiusSource: 'Jewitt et al. 2020, ApJL 888, L23, https://doi.org/10.3847/2041-8213/ab621b (nucleus radius 0.2 < r < 0.5 km)',
     geometricAlbedo: null, albedoSource: 'unknown (0.04 assumed in size estimates)',
   },
   'atlas-3i': {
-    radiusKm: 1.5, radiusSource: 'NASA 3I/ATLAS page: Hubble limits the nucleus diameter to between 0.44 and 5.6 km (as of 20 August 2025); the value here is only a mid-range placeholder',
+    radiusKm: 1.5, radiusType: 'placeholder', radiusSource: 'NASA 3I/ATLAS page: Hubble limits the nucleus diameter to between 0.44 and 5.6 km (as of 20 August 2025); the value here is only a mid-range placeholder',
     geometricAlbedo: null, albedoSource: 'unknown',
   },
 };
@@ -929,6 +943,16 @@ const ROT = {
 
 // Spacecraft details. Status is as of 25 September 2026 unless the note says otherwise.
 const CRAFT = {
+  voyager1: {
+    radiusKm: 0.00183, sizeNote: 'High-gain antenna 3.66 m across; magnetometer boom 13 m long.',
+    massKg: 721.9, massSource: `${NASA}/mission/voyager/voyager-1/`,
+    launch: '1977-09-05T12:56:01Z', launchVehicle: 'Titan IIIE-Centaur', launchSite: 'Cape Canaveral, Florida (Launch Complex 41)',
+    mission: 'Flybys of Jupiter (closest approach 5 March 1979) and Saturn (12 November 1980, with a close pass of Titan); since 1 January 1990 the Voyager Interstellar Mission.',
+    status: 'Operating in interstellar space (since 25 August 2012). Instruments on: magnetometer, plasma wave subsystem. Off: low-energy charged particles (17 Apr 2026), cosmic ray subsystem (25 Feb 2025) and all others.',
+    statusAsOf: '2026-04-17', statusSource: `${NASA}/mission/voyager/where-are-voyager-1-and-voyager-2-now/`,
+    statusCaveat: 'From NASA’s instrument-status table (updated 17 April 2026; page updated 20 August 2026). The Voyager 1 mission page still lists four working instruments, as of 2024.',
+    colour: '#f2f2f2',
+  },
   voyager2: {
     radiusKm: 0.00183, sizeNote: 'High-gain antenna 3.66 m across; magnetometer boom 13 m long.',
     massKg: 721.9, massSource: `${NASA}/mission/voyager/voyager-2/`,
@@ -1014,8 +1038,8 @@ async function main() {
   const haumea = haumeaW0();
   const texMeta = new Map();
   // Texture metadata (credit etc.) lives with the texture builder; import lazily to avoid sharp.
-  return import('./build-textures.mjs').then(({ MAPS, downloadUrl }) => {
-    for (const m of MAPS) texMeta.set(m.id, { ...m, download: downloadUrl(m) });
+  return import('./build-textures.mjs').then(({ MAPS, downloadUrl, downloadEntry }) => {
+    for (const m of MAPS) texMeta.set(m.id, { ...m, download: downloadUrl(m), downloadEntry: downloadEntry(m) });
     const bodies = CURATED.map((c) => buildBody(c));
     const out = {
       format: 'lightspeed-bodies',
@@ -1025,7 +1049,8 @@ async function main() {
         units: 'km, kg, km³/s², degrees, hours, days; dates ISO 8601 (UTC for events)',
         time: 'Rotation models take TDB days since J2000.0 (JD 2451545.0 TDB); T = days / 36525',
         rotation: 'IAU: pole right ascension and declination in the ICRF, prime meridian W measured eastwards from the node of the body equator on the ICRF equator. Body-fixed → ICRF = Rz(α₀ + 90°) · Rx(90° − δ₀) · Rz(W). Evaluate with staging/phase2/src/rotation.ts.',
-        radius: 'radiusKm is the radius of the sphere of equal volume; triaxialRadiiKm = [a, b, c] along body-fixed x, y, z where known',
+        radius: 'radiusKm is a mean radius; radiusType says which kind: volume-equivalent (sphere of equal volume, from a shape model or ellipsoid), area-equivalent (disc of equal projected area, from occultations or thermal emission), mean (JPL SSD or mission mean radius), placeholder (order of magnitude only) or size-scale (spacecraft: half the largest dimension). triaxialRadiiKm = [a, b, c] along body-fixed x, y, z where known',
+        kind: 'moon | dwarf-planet (the five IAU dwarf planets; Pluto is not in this file) | asteroid | tno (trans-Neptunian object; dwarfPlanetCandidate marks the large ones the IAU has not classified) | comet | interstellar | spacecraft. The same kinds as public/data/tracks.json',
         colour: 'colour: sRGB display tint (hue from measured colour indices or imagery; lightness from geometric albedo: linear luminance 0.1 + 0.6·p, capped at 0.7). colourHue: the same hue at full brightness, for tinting greyscale maps.',
       },
       phaseAngles: phaseSystems(pck),
@@ -1038,6 +1063,7 @@ async function main() {
 
   function buildBody(c) {
     const b = { id: c.id, name: c.name, kind: c.kind };
+    if (c.dwarfPlanetCandidate) b.dwarfPlanetCandidate = true;
     if (c.kindNote) b.kindNote = c.kindNote;
     if (c.parent) b.parent = c.parent;
     const naif = NAIF[c.id];
@@ -1049,12 +1075,13 @@ async function main() {
     // Size
     if (c.kind === 'spacecraft') {
       const s = CRAFT[c.id];
-      Object.assign(b, { radiusKm: s.radiusKm, sizeNote: s.sizeNote, massKg: s.massKg, massSource: s.massSource });
+      Object.assign(b, { radiusKm: s.radiusKm, radiusType: 'size-scale', sizeNote: s.sizeNote, massKg: s.massKg, massSource: s.massSource });
     } else if (p.radiusKm) {
-      Object.assign(b, { radiusKm: p.radiusKm, radiusSigmaKm: p.radiusSigmaKm, radiusSource: p.radiusSource });
+      Object.assign(b, { radiusKm: p.radiusKm, radiusSigmaKm: p.radiusSigmaKm, radiusType: p.radiusType, radiusSource: p.radiusSource });
     } else if (sp) {
-      Object.assign(b, { radiusKm: sp.radius, radiusSigmaKm: sp.radiusSigma, radiusSource: SRC.ssdPhys });
+      Object.assign(b, { radiusKm: sp.radius, radiusSigmaKm: sp.radiusSigma, radiusType: 'mean', radiusSource: SRC.ssdPhys });
     }
+    if (c.kind !== 'spacecraft' && !b.radiusType) throw new Error(`${c.id}: radiusType missing`);
     const radii = naif ? pck[`BODY${naif}_RADII`] : undefined;
     if (p.triaxialRadiiKm) Object.assign(b, { triaxialRadiiKm: p.triaxialRadiiKm, triaxialSource: p.triaxialSource });
     else if (radii && !(radii[0] === radii[1] && radii[1] === radii[2])) Object.assign(b, { triaxialRadiiKm: radii, triaxialSource: SRC.iau2015 });
@@ -1071,6 +1098,7 @@ async function main() {
     if (b.gmKm3S2 && c.kind !== 'spacecraft') {
       b.massKg = +(b.gmKm3S2 / G_KM3_KG_S2).toPrecision(5);
       if (b.radiusKm) b.densityGCm3 = +((b.massKg / ((4 / 3) * Math.PI * (b.radiusKm * 1e5) ** 3)) * 1000).toFixed(3);
+      if (p.densityNote) b.densityNote = p.densityNote;
     }
 
     // Albedo
@@ -1199,11 +1227,21 @@ async function main() {
     b.assets = {
       texture: tex ? `textures/${c.id}.jpg` : null,
       textureInfo: tex
-        ? { width: tex.width, height: tex.height, channels: tex.bands, imagedFraction: tex.imagedFraction, fillSrgb: tex.fill, product: tm.title, download: tm.download, sourcePage: tm.page ?? undefined, credit: tm.credit, licence: 'Public domain or no use constraints (NASA/USGS); see staging/phase2/assets.md', colourNote: tm.colour }
+        ? { width: tex.width, height: tex.height, channels: tex.bands, bytes: tex.bytes, imagedFraction: tex.imagedFraction, fillSrgb: tex.fill, product: tm.title, download: tm.download, downloadEntry: tm.downloadEntry, sourcePage: tm.page ?? undefined, credit: tm.credit, licence: 'Public domain or no use constraints (NASA/USGS); see staging/phase2/assets.md', colourNote: tm.colour }
         : null,
       textureNote: tex ? undefined : c.kind === 'spacecraft' ? undefined : 'No surface map exists (or none with a licence that allows redistribution). Shade with the body colour.',
       model: shape ? `models/${c.id}.bin` : null,
-      modelInfo: shape ? { triangles: shape.triangles, vertices: shape.vertices, equalVolumeRadiusKm: +shape.equalVolumeRadiusKm.toFixed(4), deviationKm: shape.deviationKm } : null,
+      modelInfo: shape
+        ? {
+            triangles: shape.triangles,
+            vertices: shape.vertices,
+            equalVolumeRadiusKm: +shape.equalVolumeRadiusKm.toFixed(4),
+            deviationKm: shape.deviationKm,
+            sourceUnion: shape.sourceUnion
+              ? { ...shape.sourceUnion, note: 'The source model is separate overlapping lobe meshes; they were joined with a boolean union before simplification, so the file is one closed surface and its volume counts the overlap once.' }
+              : undefined,
+          }
+        : null,
       rings: ['haumea', 'quaoar'].includes(c.id) ? `rings.json#${c.id}` : null,
     };
     // Tidy: drop undefined keys.

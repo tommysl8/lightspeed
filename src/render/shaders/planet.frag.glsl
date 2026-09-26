@@ -18,6 +18,8 @@ uniform float uLonOffset;    // texture longitude offset (fraction of a turn)
 uniform float uFillBlack;    // fill unimaged (black) map regions procedurally (Pluto)
 uniform float uAmbient;
 uniform float uFlat;         // plain colour, no procedural noise (spacecraft parts)
+uniform vec3 uMapTint;       // multiplies the map (a greyscale map tinted with the body's hue)
+uniform float uMapGrey;      // the map is one channel of sRGB values (decoded here)
 
 // Saturn's rings casting a shadow on the planet
 uniform float uRingShadow;
@@ -40,6 +42,12 @@ float noise(vec2 p) {
   return mix(mix(hash(i), hash(i + vec2(1, 0)), f.x), mix(hash(i + vec2(0, 1)), hash(i + vec2(1, 1)), f.x), f.y);
 }
 
+// sRGB transfer function to linear (three.js decodes sRGB textures in hardware, but has no
+// single-channel sRGB format).
+vec3 srgbDecode(vec3 c) {
+  return mix(c / 12.92, pow((c + 0.055) / 1.055, vec3(2.4)), step(vec3(0.04045), c));
+}
+
 vec3 proceduralSurface(vec2 uv) {
   float lat = (uv.y - 0.5) * PI;
   if (uBanded > 0.5) {
@@ -60,7 +68,8 @@ void main() {
   vec2 uv = vec2(fract(vUv.x + uLonOffset), vUv.y);
   vec3 albedo = uFlat > 0.5 ? uBaseColor : proceduralSurface(uv);
   if (uHasMap > 0.5) {
-    vec3 tex = texture2D(uMap, uv).rgb;
+    vec4 texel = texture2D(uMap, uv);
+    vec3 tex = (uMapGrey > 0.5 ? srgbDecode(texel.rrr) : texel.rgb) * uMapTint;
     if (uFillBlack > 0.5) {
       float lum = dot(tex, vec3(0.2126, 0.7152, 0.0722));
       albedo = mix(albedo, tex, smoothstep(0.004, 0.03, lum));

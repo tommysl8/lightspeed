@@ -1,12 +1,13 @@
 {
  "format": "lightspeed-bodies",
  "version": 1,
- "generated": "2026-09-25",
+ "generated": "2026-09-26",
  "conventions": {
   "units": "km, kg, km³/s², degrees, hours, days; dates ISO 8601 (UTC for events)",
   "time": "Rotation models take TDB days since J2000.0 (JD 2451545.0 TDB); T = days / 36525",
   "rotation": "IAU: pole right ascension and declination in the ICRF, prime meridian W measured eastwards from the node of the body equator on the ICRF equator. Body-fixed → ICRF = Rz(α₀ + 90°) · Rx(90° − δ₀) · Rz(W). Evaluate with staging/phase2/src/rotation.ts.",
-  "radius": "radiusKm is the radius of the sphere of equal volume; triaxialRadiiKm = [a, b, c] along body-fixed x, y, z where known",
+  "radius": "radiusKm is a mean radius; radiusType says which kind: volume-equivalent (sphere of equal volume, from a shape model or ellipsoid), area-equivalent (disc of equal projected area, from occultations or thermal emission), mean (JPL SSD or mission mean radius), placeholder (order of magnitude only) or size-scale (spacecraft: half the largest dimension). triaxialRadiiKm = [a, b, c] along body-fixed x, y, z where known",
+  "kind": "moon | dwarf-planet (the five IAU dwarf planets; Pluto is not in this file) | asteroid | tno (trans-Neptunian object; dwarfPlanetCandidate marks the large ones the IAU has not classified) | comet | interstellar | spacecraft. The same kinds as public/data/tracks.json",
   "colour": "colour: sRGB display tint (hue from measured colour indices or imagery; lightness from geometric albedo: linear luminance 0.1 + 0.6·p, capped at 0.7). colourHue: the same hue at full brightness, for tinting greyscale maps."
  },
  "phaseAngles": {
@@ -412,6 +413,7 @@
    "naifId": 401,
    "radiusKm": 11.08,
    "radiusSigmaKm": 0.04,
+   "radiusType": "mean",
    "radiusSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25)",
    "triaxialRadiiKm": [
     13,
@@ -507,6 +509,7 @@
      "width": 1024,
      "height": 512,
      "channels": 1,
+     "bytes": 95248,
      "imagedFraction": 0.9997,
      "fillSrgb": [
       141
@@ -540,6 +543,7 @@
    "naifId": 402,
    "radiusKm": 6.2,
    "radiusSigmaKm": 0.24,
+   "radiusType": "mean",
    "radiusSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25)",
    "triaxialRadiiKm": [
     7.8,
@@ -652,12 +656,13 @@
      "width": 1024,
      "height": 512,
      "channels": 1,
+     "bytes": 41803,
      "imagedFraction": 1,
      "fillSrgb": [
       156
      ],
      "product": "Deimos Global Mosaic (Viking Orbiter), P. Stooke 2001",
-     "download": "https://planetarymaps.usgs.gov/cgi-bin/mapserv?map=/maps/mars/deimos_simp_cyl.map&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&LAYERS=VIKING&SRS=EPSG:4326&BBOX=-180,-90,180,90&WIDTH=2048&HEIGHT=1024&FORMAT=image/png",
+     "download": "https://planetarymaps.usgs.gov/cgi-bin/mapserv?map=/maps/mars/deimos_simp_cyl.map&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&LAYERS=VIKING&STYLES=&SRS=EPSG:4326&BBOX=-180,-90,180,90&WIDTH=2048&HEIGHT=1024&FORMAT=image/png",
      "sourcePage": "https://planetarymaps.usgs.gov/cgi-bin/mapserv?map=/maps/mars/deimos_simp_cyl.map&request=GetCapabilities&service=WMS",
      "credit": "NASA/JPL (Viking Orbiter images); map by Philip Stooke (University of Western Ontario) with C. Jongkind and M. Arntz, control by P. Thomas (Cornell); served by USGS Astrogeology",
      "licence": "Public domain or no use constraints (NASA/USGS); see staging/phase2/assets.md",
@@ -686,6 +691,7 @@
    "naifId": 501,
    "radiusKm": 1821.49,
    "radiusSigmaKm": 0.5,
+   "radiusType": "mean",
    "radiusSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25)",
    "triaxialRadiiKm": [
     1829.4,
@@ -781,6 +787,7 @@
      "width": 2048,
      "height": 1024,
      "channels": 3,
+     "bytes": 228607,
      "imagedFraction": 1,
      "fillSrgb": [
       159,
@@ -807,6 +814,7 @@
    "naifId": 502,
    "radiusKm": 1560.8,
    "radiusSigmaKm": 0.3,
+   "radiusType": "mean",
    "radiusSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25)",
    "triaxialRadiiKm": [
     1562.6,
@@ -910,6 +918,7 @@
      "width": 2048,
      "height": 1024,
      "channels": 1,
+     "bytes": 340904,
      "imagedFraction": 0.9951,
      "fillSrgb": [
       149
@@ -934,6 +943,7 @@
    "naifId": 503,
    "radiusKm": 2631.2,
    "radiusSigmaKm": 1.7,
+   "radiusType": "mean",
    "radiusSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25)",
    "gmKm3S2": 9887.83275,
    "gmSigmaKm3S2": 0.00247,
@@ -1028,6 +1038,7 @@
      "width": 2048,
      "height": 1024,
      "channels": 3,
+     "bytes": 285036,
      "imagedFraction": 0.9959,
      "fillSrgb": [
       117,
@@ -1053,6 +1064,7 @@
    "naifId": 504,
    "radiusKm": 2410.3,
    "radiusSigmaKm": 1.5,
+   "radiusType": "mean",
    "radiusSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25)",
    "gmKm3S2": 7179.2834,
    "gmSigmaKm3S2": 0.00324,
@@ -1153,6 +1165,7 @@
      "width": 2048,
      "height": 1024,
      "channels": 1,
+     "bytes": 263587,
      "imagedFraction": 0.9914,
      "fillSrgb": [
       59
@@ -1177,6 +1190,7 @@
    "naifId": 601,
    "radiusKm": 198.2,
    "radiusSigmaKm": 0.4,
+   "radiusType": "mean",
    "radiusSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25)",
    "triaxialRadiiKm": [
     207.8,
@@ -1283,12 +1297,14 @@
      "width": 1024,
      "height": 512,
      "channels": 1,
+     "bytes": 125481,
      "imagedFraction": 1,
      "fillSrgb": [
       113
      ],
      "product": "Mimas Cassini ISS Global Mosaic (DLR, 30 June 2017), 216 m/pixel",
-     "download": "https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/Mimas/Cassini_DLR_Mimas.zip (entry Cassini_DLR/MI_170630_DLR_basemap.tif)",
+     "download": "https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/Mimas/Cassini_DLR_Mimas.zip",
+     "downloadEntry": "Cassini_DLR/MI_170630_DLR_basemap.tif",
      "credit": "NASA/JPL-Caltech/Space Science Institute/DLR (mosaic by T. Roatsch, DLR); hosted by USGS Astrogeology",
      "licence": "Public domain or no use constraints (NASA/USGS); see staging/phase2/assets.md",
      "colourNote": "Greyscale (Cassini ISS clear filter)."
@@ -1306,6 +1322,7 @@
    "naifId": 602,
    "radiusKm": 252.1,
    "radiusSigmaKm": 0.2,
+   "radiusType": "mean",
    "radiusSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25)",
    "triaxialRadiiKm": [
     256.6,
@@ -1381,6 +1398,7 @@
      "width": 1024,
      "height": 512,
      "channels": 1,
+     "bytes": 135971,
      "imagedFraction": 0.9995,
      "fillSrgb": [
       103
@@ -1404,6 +1422,7 @@
    "naifId": 603,
    "radiusKm": 531.1,
    "radiusSigmaKm": 0.6,
+   "radiusType": "mean",
    "radiusSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25)",
    "triaxialRadiiKm": [
     538.4,
@@ -1510,6 +1529,7 @@
      "width": 2048,
      "height": 1024,
      "channels": 1,
+     "bytes": 507747,
      "imagedFraction": 0.9995,
      "fillSrgb": [
       119
@@ -1533,6 +1553,7 @@
    "naifId": 604,
    "radiusKm": 561.4,
    "radiusSigmaKm": 0.4,
+   "radiusType": "mean",
    "radiusSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25)",
    "triaxialRadiiKm": [
     563.4,
@@ -1608,6 +1629,7 @@
      "width": 2048,
      "height": 1024,
      "channels": 1,
+     "bytes": 576541,
      "imagedFraction": 0.9982,
      "fillSrgb": [
       125
@@ -1631,6 +1653,7 @@
    "naifId": 605,
    "radiusKm": 763.5,
    "radiusSigmaKm": 0.6,
+   "radiusType": "mean",
    "radiusSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25)",
    "triaxialRadiiKm": [
     765,
@@ -1737,6 +1760,7 @@
      "width": 2048,
      "height": 1024,
      "channels": 1,
+     "bytes": 366811,
      "imagedFraction": 1,
      "fillSrgb": [
       109
@@ -1760,6 +1784,7 @@
    "naifId": 606,
    "radiusKm": 2574.76,
    "radiusSigmaKm": 0.02,
+   "radiusType": "mean",
    "radiusSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25)",
    "triaxialRadiiKm": [
     2575.15,
@@ -1865,6 +1890,7 @@
      "width": 2048,
      "height": 1024,
      "channels": 1,
+     "bytes": 215467,
      "imagedFraction": 0.9997,
      "fillSrgb": [
       125
@@ -1888,6 +1914,7 @@
    "naifId": 607,
    "radiusKm": 135,
    "radiusSigmaKm": 4,
+   "radiusType": "mean",
    "radiusSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25)",
    "triaxialRadiiKm": [
     180.1,
@@ -1960,6 +1987,7 @@
    "naifId": 608,
    "radiusKm": 734.3,
    "radiusSigmaKm": 2.8,
+   "radiusType": "mean",
    "radiusSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25)",
    "triaxialRadiiKm": [
     745.7,
@@ -2035,6 +2063,7 @@
      "width": 2048,
      "height": 1024,
      "channels": 1,
+     "bytes": 430535,
      "imagedFraction": 1,
      "fillSrgb": [
       113
@@ -2059,6 +2088,7 @@
    "naifId": 705,
    "radiusKm": 235.8,
    "radiusSigmaKm": 0.7,
+   "radiusType": "mean",
    "radiusSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25)",
    "triaxialRadiiKm": [
     240.4,
@@ -2195,7 +2225,8 @@
      "width": 1024,
      "height": 512,
      "channels": 1,
-     "imagedFraction": 0.3927,
+     "bytes": 36045,
+     "imagedFraction": 0.3783,
      "fillSrgb": [
       128
      ],
@@ -2219,6 +2250,7 @@
    "naifId": 701,
    "radiusKm": 578.9,
    "radiusSigmaKm": 0.6,
+   "radiusType": "mean",
    "radiusSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25)",
    "triaxialRadiiKm": [
     581.1,
@@ -2340,9 +2372,10 @@
      "width": 1024,
      "height": 512,
      "channels": 1,
-     "imagedFraction": 0.337,
+     "bytes": 22955,
+     "imagedFraction": 0.3255,
      "fillSrgb": [
-      130
+      131
      ],
      "product": "Ariel Voyager 2 global map (NASA 3D Resources)",
      "download": "https://raw.githubusercontent.com/nasa/NASA-3D-Resources/master/Images%20and%20Textures/Uranus%20-%20Ariel/Uranus%20-%20Ariel.tif",
@@ -2364,6 +2397,7 @@
    "naifId": 702,
    "radiusKm": 584.7,
    "radiusSigmaKm": 2.8,
+   "radiusType": "mean",
    "radiusSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25)",
    "gmKm3S2": 85.1,
    "gmSigmaKm3S2": 1.9,
@@ -2373,6 +2407,7 @@
    "geometricAlbedo": 0.21,
    "geometricAlbedoSigma": 0.02,
    "albedoSource": "Veverka, Brown & Bell 1991, in Uranus (Bergstralh et al., eds.), 528, as tabulated by JPL Solar System Dynamics, Planetary Satellite Physical Parameters (2015-02-19 edition, archived 2021-01-26), https://web.archive.org/web/2021/https://ssd.jpl.nasa.gov/?sat_phys_par",
+   "albedoNote": "This is the geometric albedo (brightness at zero phase angle relative to a flat white disc). NASA’s Umbriel page says it reflects 16% of the light that strikes it, a different measure of reflectivity, so the two numbers are not directly comparable.",
    "orbit": {
     "aKm": 265986,
     "e": 0.004,
@@ -2467,7 +2502,7 @@
     "source": "https://science.nasa.gov/uranus/moons/umbriel/"
    },
    "facts": [
-    "Umbriel is the darkest of Uranus’s large moons, reflecting only 16% of the light that falls on it.",
+    "Umbriel is the darkest of Uranus’s large moons, with a surface about as dark as the highlands of Earth’s Moon.",
     "Its surface is old and heavily cratered, showing few signs of the geological activity seen on Ariel and Titania.",
     "William Lassell found Umbriel on the same night as Ariel, 24 October 1851."
    ],
@@ -2482,9 +2517,10 @@
      "width": 1024,
      "height": 512,
      "channels": 1,
-     "imagedFraction": 0.3684,
+     "bytes": 16009,
+     "imagedFraction": 0.3463,
      "fillSrgb": [
-      147
+      150
      ],
      "product": "Umbriel Voyager 2 global map (NASA 3D Resources)",
      "download": "https://raw.githubusercontent.com/nasa/NASA-3D-Resources/master/Images%20and%20Textures/Uranus%20-%20Umbriel/Uranus%20-%20Umbriel.tif",
@@ -2506,6 +2542,7 @@
    "naifId": 703,
    "radiusKm": 788.9,
    "radiusSigmaKm": 1.8,
+   "radiusType": "mean",
    "radiusSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25)",
    "gmKm3S2": 226.9,
    "gmSigmaKm3S2": 4.1,
@@ -2627,9 +2664,10 @@
      "width": 1024,
      "height": 512,
      "channels": 1,
-     "imagedFraction": 0.318,
+     "bytes": 28422,
+     "imagedFraction": 0.3011,
      "fillSrgb": [
-      160
+      162
      ],
      "product": "Titania Voyager 2 global map (NASA 3D Resources)",
      "download": "https://raw.githubusercontent.com/nasa/NASA-3D-Resources/master/Images%20and%20Textures/Uranus%20-%20Titania/Uranus%20-%20Titania.tif",
@@ -2651,6 +2689,7 @@
    "naifId": 704,
    "radiusKm": 761.4,
    "radiusSigmaKm": 2.6,
+   "radiusType": "mean",
    "radiusSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25)",
    "gmKm3S2": 205.3,
    "gmSigmaKm3S2": 5.8,
@@ -2775,9 +2814,10 @@
      "width": 1024,
      "height": 512,
      "channels": 1,
-     "imagedFraction": 0.3381,
+     "bytes": 26510,
+     "imagedFraction": 0.3248,
      "fillSrgb": [
-      123
+      126
      ],
      "product": "Oberon Voyager 2 global map (NASA 3D Resources)",
      "download": "https://raw.githubusercontent.com/nasa/NASA-3D-Resources/master/Images%20and%20Textures/Uranus%20-%20Oberon/Uranus%20-%20Oberon.tif",
@@ -2799,6 +2839,7 @@
    "naifId": 801,
    "radiusKm": 1352.6,
    "radiusSigmaKm": 2.4,
+   "radiusType": "mean",
    "radiusSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25)",
    "gmKm3S2": 1428.49546,
    "gmSigmaKm3S2": 0.61603,
@@ -2926,6 +2967,7 @@
      "width": 2048,
      "height": 1024,
      "channels": 3,
+     "bytes": 161271,
      "imagedFraction": 0.6694,
      "fillSrgb": [
       149,
@@ -2952,6 +2994,7 @@
    "naifId": 808,
    "radiusKm": 208,
    "radiusSigmaKm": 8,
+   "radiusType": "mean",
    "radiusSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25)",
    "triaxialRadiiKm": [
     218,
@@ -3105,6 +3148,7 @@
    "naifId": 802,
    "radiusKm": 170,
    "radiusSigmaKm": 25,
+   "radiusType": "mean",
    "radiusSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25)",
    "geometricAlbedo": 0.155,
    "albedoSource": "Thomas, Veverka & Helfenstein 1991, JGR 96, 19253, as tabulated by JPL Solar System Dynamics, Planetary Satellite Physical Parameters (2015-02-19 edition, archived 2021-01-26), https://web.archive.org/web/2021/https://ssd.jpl.nasa.gov/?sat_phys_par",
@@ -3157,6 +3201,7 @@
    "naifId": 901,
    "radiusKm": 606,
    "radiusSigmaKm": 0.5,
+   "radiusType": "mean",
    "radiusSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25)",
    "gmKm3S2": 106.1,
    "gmSigmaKm3S2": 0.3,
@@ -3226,6 +3271,7 @@
      "width": 2048,
      "height": 1024,
      "channels": 1,
+     "bytes": 193288,
      "imagedFraction": 0.74,
      "fillSrgb": [
       131
@@ -3249,6 +3295,7 @@
    "naifId": 902,
    "radiusKm": 18,
    "radiusSigmaKm": 1,
+   "radiusType": "mean",
    "radiusSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25)",
    "triaxialRadiiKm": [
     25,
@@ -3339,6 +3386,7 @@
    "naifId": 903,
    "radiusKm": 18.5,
    "radiusSigmaKm": 1,
+   "radiusType": "mean",
    "radiusSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25)",
    "triaxialRadiiKm": [
     32.5,
@@ -3428,6 +3476,7 @@
    "naifId": 2000001,
    "radiusKm": 469.7,
    "radiusSigmaKm": 0.1,
+   "radiusType": "mean",
    "radiusSource": "Park et al. 2016, Nature 537, 515 (mean diameter 939.4 ± 0.2 km), via JPL Small-Body Database, https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html (API retrieved 2026-09-25)",
    "triaxialRadiiKm": [
     482.2,
@@ -3495,6 +3544,7 @@
      "width": 2048,
      "height": 1024,
      "channels": 1,
+     "bytes": 493796,
      "imagedFraction": 0.9963,
      "fillSrgb": [
       131
@@ -3513,11 +3563,12 @@
   {
    "id": "vesta",
    "name": "Vesta",
-   "kind": "dwarf-planet",
-   "kindNote": "Vesta is officially an asteroid (a minor planet), not an IAU dwarf planet. It sits in this list because it is a differentiated protoplanet with its own surface map and shape model.",
+   "kind": "asteroid",
+   "kindNote": "Vesta is an asteroid (a minor planet), not a dwarf planet: a differentiated protoplanet, the second most massive body in the asteroid belt.",
    "naifId": 2000004,
    "radiusKm": 261.385,
    "radiusSigmaKm": 0.05,
+   "radiusType": "mean",
    "radiusSource": "Park et al. 2025, Nature Astronomy, https://doi.org/10.1038/s41550-025-02533-7 (mean diameter 522.77 km), via JPL Small-Body Database, https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html (API retrieved 2026-09-25)",
    "triaxialRadiiKm": [
     284.62,
@@ -3586,6 +3637,7 @@
      "width": 1024,
      "height": 512,
      "channels": 1,
+     "bytes": 83174,
      "imagedFraction": 1,
      "fillSrgb": [
       82
@@ -3618,6 +3670,7 @@
    "kind": "dwarf-planet",
    "radiusKm": 1163,
    "radiusSigmaKm": 6,
+   "radiusType": "mean",
    "radiusSource": "Sicardy et al. 2011, Nature 478, 493, https://doi.org/10.1038/nature10550 (occultation, diameter 2326 ± 12 km)",
    "gmKm3S2": 1098.99,
    "gmSource": "Holler et al. 2021, Icarus 355, 114130, https://doi.org/10.1016/j.icarus.2020.114130 (mass 1.6466 ± 0.0085 × 10²² kg, from Dysnomia)",
@@ -3667,6 +3720,7 @@
    "kind": "dwarf-planet",
    "radiusKm": 797.5,
    "radiusSigmaKm": 5.5,
+   "radiusType": "volume-equivalent",
    "radiusSource": "Ortiz et al. 2017, \"The size, shape, density and ring of the dwarf planet Haumea from a stellar occultation\", Nature 550, 219, https://doi.org/10.1038/nature24051 (volume-equivalent diameter 1,595 ± 11 km)",
    "triaxialRadiiKm": [
     1161,
@@ -3725,12 +3779,12 @@
     "source": "https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/?sstr=136108"
    },
    "facts": [
-    "Haumea spins once every 3.9 hours, one of the fastest rotations of any large body, and has been stretched into an ellipsoid about twice as long as it is wide.",
+    "Haumea spins once every 3.9 hours, one of the fastest rotations of any large body. The spin has stretched it into an ellipsoid whose longest axis, about 2,320 km, is more than twice its shortest, about 1,030 km.",
     "A stellar occultation in January 2017 revealed a ring about 70 km wide, 2,287 km from its centre: the first ring found around a body beyond Neptune.",
     "Two moons, Hiʻiaka and Namaka, orbit Haumea. A large impact long ago may have set it spinning and created them."
    ],
    "factSources": [
-    "https://science.nasa.gov/dwarf-planets/haumea/",
+    "https://doi.org/10.1038/nature24051",
     "https://doi.org/10.1038/nature24051",
     "https://science.nasa.gov/dwarf-planets/haumea/"
    ],
@@ -3757,15 +3811,16 @@
    "id": "makemake",
    "name": "Makemake",
    "kind": "dwarf-planet",
-   "radiusKm": 715,
-   "radiusSigmaKm": 15,
-   "radiusSource": "Ortiz et al. 2012, Nature 491, 566, https://doi.org/10.1038/nature11597 (occultation: 1430 ± 9 × 1502 ± 45 km; mean radius rounded)",
+   "radiusKm": 733,
+   "radiusSigmaKm": 12,
+   "radiusType": "area-equivalent",
+   "radiusSource": "Ortiz et al. 2012, Nature 491, 566, https://doi.org/10.1038/nature11597 (occultation ellipse 1,430 ± 9 × 1,502 ± 45 km; 733 km is the mean of the two projected semi-axes, 715 and 751 km, and also the radius of a disc of the same area). The volume-equivalent radius depends on the unknown pole orientation: an oblate spheroid with these axes would give 739 km",
    "triaxialRadiiKm": [
     751,
     751,
     715
    ],
-   "triaxialSource": "Ortiz et al. 2012 (oblate fit 1502 × 1430 km; the true shape is not known)",
+   "triaxialSource": "Ortiz et al. 2012 (illustrative oblate fit to the 1,502 × 1,430 km occultation ellipse; the true shape is not known)",
    "geometricAlbedo": 0.77,
    "geometricAlbedoSigma": 0.03,
    "albedoSource": "Ortiz et al. 2012",
@@ -3806,10 +3861,12 @@
   {
    "id": "gonggong",
    "name": "Gonggong",
-   "kind": "dwarf-planet",
-   "kindNote": "Not yet recognised as a dwarf planet by the IAU; widely considered one because of its size.",
+   "kind": "tno",
+   "dwarfPlanetCandidate": true,
+   "kindNote": "The IAU recognises five dwarf planets (Ceres, Pluto, Eris, Haumea, Makemake); this large trans-Neptunian object is widely considered a candidate but has not been classified as one.",
    "radiusKm": 615,
    "radiusSigmaKm": 25,
+   "radiusType": "area-equivalent",
    "radiusSource": "Kiss et al. 2019, Icarus 334, 3, https://doi.org/10.1016/j.icarus.2019.03.013 (diameter 1230 ± 50 km)",
    "gmKm3S2": 116.8,
    "gmSource": "Kiss et al. 2019 (system mass 1.75 ± 0.07 × 10²¹ kg, from Xiangliu)",
@@ -3855,10 +3912,12 @@
   {
    "id": "quaoar",
    "name": "Quaoar",
-   "kind": "dwarf-planet",
-   "kindNote": "Not yet recognised as a dwarf planet by the IAU; widely considered one because of its size.",
+   "kind": "tno",
+   "dwarfPlanetCandidate": true,
+   "kindNote": "The IAU recognises five dwarf planets (Ceres, Pluto, Eris, Haumea, Makemake); this large trans-Neptunian object is widely considered a candidate but has not been classified as one.",
    "radiusKm": 543,
    "radiusSigmaKm": 2,
+   "radiusType": "area-equivalent",
    "radiusSource": "Pereira et al. 2023, A&A 673, L4, https://doi.org/10.1051/0004-6361/202346365 (area-equivalent radius 543 ± 2 km from the August 2022 occultation; Braga-Ribas et al. 2013 found 555 ± 2.5 km)",
    "gmKm3S2": 80.0916,
    "gmSource": "Morgado et al. 2023, Nature 614, 239, https://doi.org/10.1038/s41586-022-05629-6 (adopted mass 1.2 × 10²¹ kg)",
@@ -3904,10 +3963,12 @@
   {
    "id": "sedna",
    "name": "Sedna",
-   "kind": "dwarf-planet",
-   "kindNote": "Not recognised as a dwarf planet by the IAU; its size and likely round shape make it a candidate.",
+   "kind": "tno",
+   "dwarfPlanetCandidate": true,
+   "kindNote": "The IAU recognises five dwarf planets (Ceres, Pluto, Eris, Haumea, Makemake); this large trans-Neptunian object is widely considered a candidate but has not been classified as one. Strictly it is a detached object, far beyond the Kuiper Belt for its whole orbit.",
    "radiusKm": 497.5,
    "radiusSigmaKm": 40,
+   "radiusType": "area-equivalent",
    "radiusSource": "Pál et al. 2012, A&A 541, L6, https://doi.org/10.1051/0004-6361/201218874 (diameter 995 ± 80 km)",
    "geometricAlbedo": 0.32,
    "geometricAlbedoSigma": 0.06,
@@ -3949,10 +4010,12 @@
   {
    "id": "orcus",
    "name": "Orcus",
-   "kind": "dwarf-planet",
-   "kindNote": "Not yet recognised as a dwarf planet by the IAU; widely considered one because of its size.",
+   "kind": "tno",
+   "dwarfPlanetCandidate": true,
+   "kindNote": "The IAU recognises five dwarf planets (Ceres, Pluto, Eris, Haumea, Makemake); this large trans-Neptunian object is widely considered a candidate but has not been classified as one.",
    "radiusKm": 455,
    "radiusSigmaKm": 22,
+   "radiusType": "area-equivalent",
    "radiusSource": "Brown & Butler 2017, AJ 154, 19, https://doi.org/10.3847/1538-3881/aa6346 (ALMA: diameter 910 +50/−40 km)",
    "gmKm3S2": 42.1816,
    "gmSource": "Brown et al. 2010, AJ 139, 2700, https://doi.org/10.1088/0004-6256/139/6/2700 (Orcus–Vanth system mass 6.32 ± 0.05 × 10²⁰ kg). This is the system mass: it includes Vanth",
@@ -3997,10 +4060,11 @@
   {
    "id": "arrokoth",
    "name": "Arrokoth",
-   "kind": "dwarf-planet",
-   "kindNote": "Arrokoth is a small cold classical Kuiper Belt object, not a dwarf planet. It shares this category for convenience; the app may label it \"Kuiper Belt object\".",
-   "radiusKm": 9.948,
-   "radiusSource": "Porter et al. 2024, Arrokoth shape model v01, PDS SBN urn:nasa:pds:nh_derived:arrokoth_shapemodel_porter2024 (pole and prime meridian from the product label) (volume-equivalent diameter 19.896 km)",
+   "kind": "tno",
+   "kindNote": "A small cold classical Kuiper Belt object (a contact binary about 36 km long), not a dwarf planet.",
+   "radiusKm": 9.947,
+   "radiusType": "volume-equivalent",
+   "radiusSource": "Porter et al. 2024, Arrokoth shape model v01, PDS SBN urn:nasa:pds:nh_derived:arrokoth_shapemodel_porter2024 (pole and prime meridian from the product label). The model is two lobe meshes that overlap slightly at the neck; Porter et al. quote an equal-volume diameter of 19.896 km, which adds the two lobes (17.349 and 13.845 km) and so counts the 1.8 km³ overlap twice. The union of the two meshes is 4,122.0 km³, a sphere of radius 9.947 km (computed for this file; see public/models/arrokoth.bin)",
    "dimensionsKm": [
     34.546,
     19.838,
@@ -4062,13 +4126,27 @@
     "model": "models/arrokoth.bin",
     "modelInfo": {
      "triangles": 4000,
-     "vertices": 2004,
-     "equalVolumeRadiusKm": 9.9438,
+     "vertices": 2002,
+     "equalVolumeRadiusKm": 9.9424,
      "deviationKm": {
-      "rms": 0.0084,
-      "max": 0.0314,
-      "samples": 3414,
+      "rms": 0.0083,
+      "max": 0.032,
+      "samples": 3402,
       "measure": "distance from source-model vertices to the simplified surface"
+     },
+     "sourceUnion": {
+      "shells": 2,
+      "shellVolumesKm3": [
+       1389.526,
+       2734.283
+      ],
+      "sumOfShellsKm3": 4123.809,
+      "unionKm3": 4122.003,
+      "overlapKm3": 1.805,
+      "unionEqualVolumeRadiusKm": 9.9466,
+      "sumEqualVolumeRadiusKm": 9.948,
+      "genus": 0,
+      "note": "The source model is separate overlapping lobe meshes; they were joined with a boolean union before simplification, so the file is one closed surface and its volume counts the overlap once."
      }
     },
     "rings": null
@@ -4080,6 +4158,7 @@
    "kind": "comet",
    "naifId": 1000036,
    "radiusKm": 4.6,
+   "radiusType": "volume-equivalent",
    "radiusSource": "Volume-equivalent radius of P. Stooke’s Giotto/Vega shape model (4.58 km; public/models/halley.bin). SBDB lists an 11 km effective diameter (Lamy et al. 2004, in Comets II), a projected-area measure rather than a volume one",
    "triaxialRadiiKm": [
     8,
@@ -4144,6 +4223,7 @@
    "name": "2P/Encke",
    "kind": "comet",
    "radiusKm": 2.4,
+   "radiusType": "area-equivalent",
    "radiusSource": "Lamy et al. 2004, in Comets II, 223 (effective diameter 4.8 km), via JPL Small-Body Database, https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html (API retrieved 2026-09-25)",
    "geometricAlbedo": 0.046,
    "geometricAlbedoSigma": 0.023,
@@ -4189,6 +4269,7 @@
    "kind": "comet",
    "naifId": 1000012,
    "radiusKm": 1.649,
+   "radiusType": "volume-equivalent",
    "radiusSource": "Jorda et al. 2016, Icarus 277, 257, https://doi.org/10.1016/j.icarus.2016.05.002 (volume 18.8 ± 0.3 km³); our 24k-plate SHAP5 model gives 1.647 km",
    "triaxialRadiiKm": [
     2.4,
@@ -4202,11 +4283,12 @@
     1.8
    ],
    "dimensionsSource": "Sierks et al. 2015, Science 347, aaa1044 (large lobe 4.1 × 3.3 × 1.8 km; small lobe 2.6 × 2.3 × 1.8 km)",
-   "gmKm3S2": 6.622e-7,
+   "gmKm3S2": 6.66229e-7,
    "gmSigmaKm3S2": 2e-10,
-   "gmSource": "Pätzold et al. 2016, Nature 530, 63, https://doi.org/10.1038/nature16535 (mass 9.982 ± 0.003 × 10¹² kg), via JPL Small-Body Database, https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html (API retrieved 2026-09-25)",
-   "massKg": 9921600000000,
-   "densityGCm3": 0.528,
+   "gmSource": "Pätzold et al. 2016, Nature 530, 63, https://doi.org/10.1038/nature16535 (mass 9.982 ± 0.003 × 10¹² kg; GM = G·M). The Small-Body Database lists GM = 662.2 × 10⁻⁹ km³/s², which does not match that mass (it would be 9.922 × 10¹² kg), so it is not used",
+   "massKg": 9982000000000,
+   "densityGCm3": 0.531,
+   "densityNote": "Pätzold et al. 2016 give 0.533 ± 0.006 g/cm³ with a 18.7 km³ volume; the value here uses radiusKm (18.8 km³, Jorda et al. 2016).",
    "geometricAlbedo": 0.062,
    "albedoSource": "Fornasier et al. 2015, A&A 583, A30, https://doi.org/10.1051/0004-6361/201525901 (6.2% at 535 nm)",
    "rotation": {
@@ -4281,6 +4363,7 @@
    "kind": "comet",
    "radiusKm": 30,
    "radiusSigmaKm": 10,
+   "radiusType": "area-equivalent",
    "radiusSource": "Fernández 2002, EM&P 89, 3 (diameter 60 ± 20 km), via JPL Small-Body Database, https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html (API retrieved 2026-09-25)",
    "geometricAlbedo": 0.04,
    "geometricAlbedoSigma": 0.03,
@@ -4303,7 +4386,7 @@
    "facts": [
     "Hale–Bopp stayed visible to the naked eye for about 18 months in 1996 and 1997, a record.",
     "Its nucleus is unusually large, roughly 60 km across.",
-    "It takes about 2,500 years to go round the Sun, so it will not be back until the 4400s."
+    "It takes about 2,530 years to go round the Sun, so it will not be back until around the year 4530."
    ],
    "factSources": [
     "https://science.nasa.gov/solar-system/comets/c-1995-o1-hale-bopp/",
@@ -4324,6 +4407,7 @@
    "name": "1I/ʻOumuamua",
    "kind": "interstellar",
    "radiusKm": 0.07,
+   "radiusType": "placeholder",
    "radiusSource": "Order of magnitude only. Spitzer non-detection limits the spherical-equivalent diameter to under ~440 m (albedo 0.1; Trilling et al. 2018, AJ 156, 261, https://doi.org/10.3847/1538-3881/aae88f); a 115 × 111 × 19 m disc (Mashchenko 2019, MNRAS 489, 3003) or a ~230 × 35 m cigar (Meech et al. 2017, for albedo 0.04) fit the light curve",
    "shapeNote": "Never resolved. Shape inferred from the light curve: brightness varied by a factor of ~10, so the long-to-short axis ratio is large (≳6:1). Whether it is a cigar or a pancake is not known.",
    "geometricAlbedo": null,
@@ -4375,6 +4459,7 @@
    "name": "2I/Borisov",
    "kind": "interstellar",
    "radiusKm": 0.4,
+   "radiusType": "placeholder",
    "radiusSource": "Jewitt et al. 2020, ApJL 888, L23, https://doi.org/10.3847/2041-8213/ab621b (nucleus radius 0.2 < r < 0.5 km)",
    "geometricAlbedo": null,
    "albedoSource": "unknown (0.04 assumed in size estimates)",
@@ -4424,6 +4509,7 @@
    "name": "3I/ATLAS",
    "kind": "interstellar",
    "radiusKm": 1.5,
+   "radiusType": "placeholder",
    "radiusSource": "NASA 3I/ATLAS page: Hubble limits the nucleus diameter to between 0.44 and 5.6 km (as of 20 August 2025); the value here is only a mid-range placeholder",
    "geometricAlbedo": null,
    "albedoSource": "unknown",
@@ -4470,10 +4556,55 @@
    }
   },
   {
+   "id": "voyager1",
+   "name": "Voyager 1",
+   "kind": "spacecraft",
+   "radiusKm": 0.00183,
+   "radiusType": "size-scale",
+   "sizeNote": "High-gain antenna 3.66 m across; magnetometer boom 13 m long.",
+   "massKg": 721.9,
+   "massSource": "https://science.nasa.gov/mission/voyager/voyager-1/",
+   "rotation": {
+    "model": "attitude-controlled",
+    "note": "Three-axis stabilised; the app should point the high-gain antenna (or Webb’s sunshield / Parker’s heat shield) sensibly rather than model attitude."
+   },
+   "colour": "#f2f2f2",
+   "colourHue": "#f2f2f2",
+   "colourSource": "Representative of the spacecraft’s appearance in NASA photographs (thermal blankets, white or gold surfaces).",
+   "facts": [
+    "Voyager 1 has been the most distant human-made object since 17 February 1998, when it overtook Pioneer 10 at 69.4 au from the Sun.",
+    "On 25 August 2012 it became the first spacecraft to leave the heliosphere, the bubble of solar wind around the Sun, and begin measuring interstellar space.",
+    "On 18 November 2026 Voyager 1 is due to reach one light-day from Earth, about 25.9 billion km: no human-made object has been that far."
+   ],
+   "factSources": [
+    "https://science.nasa.gov/mission/voyager/voyager-1/",
+    "https://science.nasa.gov/mission/voyager/voyager-1/",
+    "https://science.nasa.gov/mission/voyager/where-are-voyager-1-and-voyager-2-now/"
+   ],
+   "spacecraft": {
+    "launch": "1977-09-05T12:56:01Z",
+    "launchVehicle": "Titan IIIE-Centaur",
+    "launchSite": "Cape Canaveral, Florida (Launch Complex 41)",
+    "mission": "Flybys of Jupiter (closest approach 5 March 1979) and Saturn (12 November 1980, with a close pass of Titan); since 1 January 1990 the Voyager Interstellar Mission.",
+    "status": "Operating in interstellar space (since 25 August 2012). Instruments on: magnetometer, plasma wave subsystem. Off: low-energy charged particles (17 Apr 2026), cosmic ray subsystem (25 Feb 2025) and all others.",
+    "statusAsOf": "2026-04-17",
+    "statusSource": "https://science.nasa.gov/mission/voyager/where-are-voyager-1-and-voyager-2-now/",
+    "statusCaveat": "From NASA’s instrument-status table (updated 17 April 2026; page updated 20 August 2026). The Voyager 1 mission page still lists four working instruments, as of 2024."
+   },
+   "assets": {
+    "texture": null,
+    "textureInfo": null,
+    "model": null,
+    "modelInfo": null,
+    "rings": null
+   }
+  },
+  {
    "id": "voyager2",
    "name": "Voyager 2",
    "kind": "spacecraft",
    "radiusKm": 0.00183,
+   "radiusType": "size-scale",
    "sizeNote": "High-gain antenna 3.66 m across; magnetometer boom 13 m long.",
    "massKg": 721.9,
    "massSource": "https://science.nasa.gov/mission/voyager/voyager-2/",
@@ -4516,6 +4647,7 @@
    "name": "New Horizons",
    "kind": "spacecraft",
    "radiusKm": 0.00135,
+   "radiusType": "size-scale",
    "sizeNote": "Body about 0.7 × 2.1 × 2.7 m, with a 2.1 m high-gain dish; radius here is half the largest dimension.",
    "massKg": 478,
    "massSource": "https://science.nasa.gov/mission/new-horizons/",
@@ -4559,6 +4691,7 @@
    "name": "Pioneer 10",
    "kind": "spacecraft",
    "radiusKm": 0.00137,
+   "radiusType": "size-scale",
    "sizeNote": "High-gain antenna 2.74 m across.",
    "massKg": 258,
    "massSource": "https://science.nasa.gov/mission/pioneer-10/",
@@ -4602,6 +4735,7 @@
    "name": "Parker Solar Probe",
    "kind": "spacecraft",
    "radiusKm": 0.00115,
+   "radiusType": "size-scale",
    "sizeNote": "Heat shield 2.3 m across and 11.4 cm thick; radius here is half the shield diameter.",
    "massKg": 685,
    "massSource": "https://science.nasa.gov/mission/parker-solar-probe/",
@@ -4644,6 +4778,7 @@
    "name": "James Webb Space Telescope",
    "kind": "spacecraft",
    "radiusKm": 0.0106,
+   "radiusType": "size-scale",
    "sizeNote": "Sunshield about 21.2 × 14.2 m; primary mirror 6.5 m. Radius here is half the sunshield length.",
    "massKg": 6200,
    "massSource": "https://webb.nasa.gov/content/about/faqs/facts.html (total payload mass approx. 6,200 kg including consumables and launch adaptor)",

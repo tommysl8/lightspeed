@@ -4,7 +4,7 @@
  * and the warning band shown while the fictional warp is engaged.
  */
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
-import { BODIES } from '../../physics/constants';
+import { bodyName } from '../../sim/bodies';
 import { explainerById } from '../../content/explainers';
 import { qty } from '../../lib/sci';
 import { relView } from '../../render/relativisticView';
@@ -39,6 +39,7 @@ function ViewInfo() {
   const show = useUI((s) => s.showOverlays);
   if (!show) return null;
   const f = sim.bodies[focus];
+  if (!f) return null;
   const r = Number.isFinite(f.distCamera) ? qty(f.distCamera, 'length', 4) : { v: '—', u: '' };
   const label = mode === 'orbit' ? 'ORBIT' : mode === 'transition' ? 'SLEW' : mode === 'free' ? 'FREE' : 'TRANSIT';
   return (
@@ -47,7 +48,7 @@ function ViewInfo() {
         <span className="inline-block w-11">VIEW</span>
         <span className="text-fg-2">
           {label}
-          {mode !== 'free' && mode !== 'travel' && ` · ${BODIES[focus].name.toUpperCase()}`}
+          {mode !== 'free' && mode !== 'travel' && ` · ${bodyName(focus).toUpperCase()}`}
         </span>
       </div>
       {mode !== 'travel' && (

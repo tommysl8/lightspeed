@@ -6,7 +6,7 @@
 import { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Quaternion, Vector3, Vector4, type PerspectiveCamera } from 'three';
-import { BODIES, BODY_ORDER, type BodyId } from '../../physics/constants';
+import { bodyName, type BodyId } from '../../sim/bodies';
 import { fixed, sig } from '../../lib/sci';
 import { scaleBarLength } from './scaleBar';
 import { relView } from '../../render/relativisticView';
@@ -65,7 +65,13 @@ function scaleBody(): BodyId {
   if (ui.controlMode === 'orbit' || ui.controlMode === 'transition') return ui.focus;
   if (ui.selected) return ui.selected;
   let best: BodyId = 'sun';
-  for (const id of BODY_ORDER) if (sim.bodies[id].distCamera < sim.bodies[best].distCamera) best = id;
+  let bestD = Infinity;
+  for (const b of sim.bodyList) {
+    if (b.present && b.distCamera < bestD) {
+      bestD = b.distCamera;
+      best = b.id;
+    }
+  }
   return best;
 }
 
@@ -104,13 +110,13 @@ export function OverlaySync() {
     // Scale bar at the reference body's distance (meaningless in the aberrated view)
     if (els.scaleBar && els.scaleText) {
       const id = scaleBody();
-      const d = sim.bodies[id].distCamera;
+      const d = sim.bodies[id]?.distCamera ?? NaN;
       const kmPerPx = (2 * d * Math.tan((cam.fov * Math.PI) / 360)) / Math.max(1, sim.viewport.height);
       if (relView.active || !Number.isFinite(kmPerPx) || kmPerPx <= 0) {
         setScale(els.scaleBar as HTMLElement, els.scaleText, '0px', relView.active ? 'no single scale at this speed' : '');
       } else {
         const s = scaleBarLength(kmPerPx);
-        setScale(els.scaleBar as HTMLElement, els.scaleText, `${s.px.toFixed(1)}px`, `${s.label}  at ${BODIES[id].name}`);
+        setScale(els.scaleBar as HTMLElement, els.scaleText, `${s.px.toFixed(1)}px`, `${s.label}  at ${bodyName(id)}`);
       }
     }
 

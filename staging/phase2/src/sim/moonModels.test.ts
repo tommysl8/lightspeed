@@ -64,6 +64,19 @@ describe('moons.json catalogue', () => {
     }
   });
 
+  it('states an out-of-sample RMS and a bound with margin over every error seen', () => {
+    for (const id of IDS) {
+      const A = moons[id].accuracy;
+      expect(A.validation.points, id).toBeGreaterThan(19000);
+      expect(A.rmsKm, id).toBe(A.validation.rmsKm);
+      expect(A.maxKm, id).toBeGreaterThanOrEqual(Math.max(A.fitMaxKm, A.denseMaxKm, A.checkpointMaxKm, A.validation.maxKm) - 0.01);
+      expect(A.boundKm, id).toBeGreaterThanOrEqual(1.25 * A.maxKm - 1e-9);
+      expect(A.boundKm, id).toBeLessThanOrEqual(A.targetKm);
+      // The in-sample RMS can only flatter the fit; out of sample it is never much better.
+      expect(A.rmsKm, id).toBeGreaterThan(0.9 * A.fitRmsKm);
+    }
+  });
+
   it('covers at least 1981-01-01 .. 2199-12-29 TDB as the precise window', () => {
     for (const id of IDS) {
       const w = moons[id].window;

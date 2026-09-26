@@ -1,11 +1,10 @@
 import { useEffect } from 'react';
-import { BODY_ORDER, type BodyId } from '../physics/constants';
 import { controller, isTyping } from '../controls/cameraController';
 import { resetToNow, togglePause } from '../sim/clock';
 import { stepRate } from '../sim/travel';
 import { useUI } from '../state/ui';
 import { recordManual } from '../lab/logger';
-import { BODY_KEYS, goToBody } from './navigation';
+import { bodyForKey, goToBody } from './navigation';
 import { openPlanner } from './tripActions';
 import { openSearch, toggleLab } from './onboarding';
 import { closeDoc, docRoute, openLearn } from '../state/route';
@@ -13,9 +12,6 @@ import { closeDoc, docRoute, openLearn } from '../state/route';
 /** Controls that Space activates, or that use the arrow keys, when focused from the keyboard. */
 const OWN_KEYS = 'button, a[href], summary, [role="radio"], [role="tab"], [role="slider"], [role="separator"], [tabindex]';
 
-const KEY_TO_BODY = new Map<string, BodyId>(
-  BODY_ORDER.filter((id) => BODY_KEYS[id]).map((id) => [BODY_KEYS[id]!.toLowerCase(), id]),
-);
 
 export function useShortcuts() {
   useEffect(() => {
@@ -114,7 +110,8 @@ export function useShortcuts() {
         return;
       }
 
-      const body = KEY_TO_BODY.get(k);
+      // Body keys come from the registry: 0–9, M and V for the built-in bodies.
+      const body = bodyForKey(k);
       if (body) {
         if (ui.tripActive) ui.select(body);
         else goToBody(body);

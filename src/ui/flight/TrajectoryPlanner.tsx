@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
-import { BODIES, BODY_ORDER, C_KM_S, PARKER_PEAK_KM_S, type BodyId } from '../../physics/constants';
+import { C_KM_S, PARKER_PEAK_KM_S } from '../../physics/constants';
+import { bodyName } from '../../sim/bodies';
 import { betaToSlider, sliderToBeta } from '../../physics/speedScale';
 import { gamma } from '../../physics/relativity';
 import { photonRocketMassRatio } from '../../physics/rocket';
@@ -11,6 +12,7 @@ import { startTrip } from '../tripActions';
 import { readMore } from '../explainerActions';
 import { Dialog, Field, NumberInput, Seg, Sym } from '../kit';
 import { SpacetimeDiagram } from '../instruments/SpacetimeDiagram';
+import { DestinationPicker } from './DestinationPicker';
 import { useModal } from '../useModal';
 import { rich } from '../rich';
 
@@ -143,19 +145,7 @@ function Planner() {
           <div className="min-w-0 space-y-3">
             <div className="flex flex-wrap items-end gap-3">
               <Field label="Destination" htmlFor="planner-dest">
-                <select
-                  id="planner-dest"
-                  data-autofocus
-                  className="fld w-[180px]"
-                  value={dest}
-                  onChange={(e) => useUI.setState({ plannerDest: e.target.value as BodyId })}
-                >
-                  {BODY_ORDER.map((id) => (
-                    <option key={id} value={id}>
-                      {BODIES[id].name}
-                    </option>
-                  ))}
-                </select>
+                <DestinationPicker inputId="planner-dest" value={dest} onChange={(id) => useUI.setState({ plannerDest: id })} />
               </Field>
               <div className="pb-1 text-[11px] leading-snug text-fg-3">
                 Departure: current position.
@@ -295,7 +285,7 @@ function Planner() {
                 )}
               </div>
             </div>
-            {plan === null && <p className="text-[12px] text-accent">Unreachable at this speed: {BODIES[dest].name} recedes faster than the ship can close.</p>}
+            {plan === null && <p className="text-[12px] text-accent">Unreachable at this speed: {bodyName(dest)} recedes faster than the ship can close.</p>}
             {error && <p className="text-[12px] text-accent">{error}</p>}
           </div>
 

@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { deferredStorage } from '../lib/persistStorage';
-import type { BodyId } from '../physics/constants';
+import type { BodyId } from '../sim/bodies';
 import type { SizeMode } from '../sim/sim';
 import type { ExplainerId } from '../content/explainers';
 import type { ExperimentId } from '../lab/notebook';

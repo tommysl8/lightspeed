@@ -7,7 +7,7 @@ pitch: A Danish astronomer bet that a moon of Jupiter would show up ten minutes 
 updated: 2026-09-25
 ---
 
-On the evening of 9 November 1676, an observer at the Paris Observatory watched Io, the innermost large moon of Jupiter, slide out of Jupiter's shadow at 5 hours, 35 minutes and 45 seconds. The tables built from that August's observations said it should have appeared ten minutes earlier.[^romer1677] Nobody had miscounted. Two months before, a 32-year-old Dane named Ole Rømer had told the Académie royale des sciences to expect exactly this.
+On the evening of 9 November 1676, an observer at the Paris Observatory watched Io, the innermost large moon of Jupiter, slide out of Jupiter's shadow at 5 hours, 35 minutes and 45 seconds. The tables built from that August's observations said it should have appeared ten minutes earlier.[^romer1677] Nobody had miscounted. Two months before, a 31-year-old Dane named Ole Rømer had told the Académie royale des sciences to expect exactly this.[^lindahall]
 
 His explanation was short, and to most of the room it was outrageous. Io had been on time. Its light had not. In August, Earth had been on the same side of the Sun as Jupiter and fairly close to it; by November it had swung away, and the light from Io's reappearance needed extra minutes to cross the extra distance. Light, Rømer said, takes time to get anywhere.
 
@@ -17,7 +17,7 @@ Accept that and the sky becomes a record of the past. The Moon you see is about 
 
 For about two thousand years the smart money said light does not travel at all. Aristotle held that light is not something that moves at all. Empedocles, in the fifth century BCE, was one of the few who thought it must take time to arrive. In the 11th century CE Ibn al-Haytham argued that light moves very fast and slows down in denser materials, but Kepler and Descartes, the heavyweights of the early 1600s, both held that it arrives instantly.[^opn2009]
 
-Descartes was not shy about it. In a letter dated 22 August 1634 he told his friend Isaac Beeckman that if anyone showed light takes time, he would admit he knew nothing at all in philosophy.[^descartes1634] Beeckman had proposed a test: at night, wave a torch in front of a mirror a quarter of a mile away and see whether the reflection lags behind your hand. It was the right question with a hopeless instrument. A quarter of a mile there and back is about 800 m, which light covers in under three millionths of a second. No eye can see that.
+Descartes was not shy about it. In a letter dated 22 August 1634 he told his friend Isaac Beeckman that if anyone showed light takes time, he would admit he knew nothing at all in philosophy.[^descartes1634] Beeckman had proposed a test: at night, wave a torch in front of a mirror a quarter of a mile away and see whether the reflection lags behind your hand. It was the right question with a hopeless instrument. Whichever mile Beeckman had in mind, a quarter of one there and back is at most a few kilometres, which light covers in about a hundred-thousandth of a second or less. No eye can see that.
 
 Descartes answered with an argument from the sky. If light were slow enough for Beeckman's torch to catch it, he calculated, it would need at least an hour to cross to the Moon and back, and the eclipsed Moon would then appear out of line with the Sun and Earth. It never does, so light must be instant.[^descartes1634] Christiaan Huygens later spotted the gap: if light took ten seconds to reach the Moon, the misalignment would be under six arcminutes, too small to notice during an eclipse.[^huygens1690] Eclipses proved only that light is fast.
 
@@ -27,7 +27,7 @@ Galileo had tried the direct approach with two lanterns. You uncover yours, your
 
 The Paris Observatory in the 1670s was in the map business. To find your longitude you need the time at a reference place, such as Paris, at the moment you check local time where you stand. Jupiter's moons offered a clock in the sky that anyone with a telescope could read, as Galileo had suggested soon after he discovered them.[^bobis2008] Io is the best hand on that clock. It circles Jupiter every 42½ hours and passes through Jupiter's shadow on nearly every lap, so its eclipses come thick and fast.[^romer1677]
 
-In 1671 the French astronomer Jean Picard travelled to the island of Hven, where Tycho Brahe's observatory had stood, to pin down its longitude. A young assistant from the University of Copenhagen went with him: Rømer. The two timed eclipses of Io there while Giovanni Domenico Cassini, the director of the new Paris Observatory, timed the same events in Paris. Picard was impressed enough to bring the 28-year-old Rømer back to Paris in 1672.[^opn2009]
+In 1671 the French astronomer Jean Picard travelled to the island of Hven, where Tycho Brahe's observatory had stood, to pin down its longitude. A young assistant from the University of Copenhagen went with him: Rømer. The two timed eclipses of Io there while Giovanni Domenico Cassini, who ran the new Paris Observatory, timed the same events in Paris. Picard was impressed enough to bring Rømer, then in his late twenties, back to Paris in 1672.[^opn2009][^nbi]
 
 The trouble was that the tables drifted. Io's eclipses came early during one part of the year and late during another, by up to about ten minutes either way.[^lindahall] The first person to write down the right explanation was, awkwardly, the man who later rejected it. On 22 August 1676 Cassini announced that the emergence of Io due on 16 November would come about ten minutes later than calculated, and the surviving version of his text blames light, which it says needs ten or eleven minutes to cover the distance from the Sun to Earth.[^bobis2008]
 
@@ -51,7 +51,7 @@ Rømer's distance was the width of Earth's orbit, two astronomical units (au). W
 
 The famous prediction checks out too. A modern ephemeris puts Jupiter about 4.3 au from Earth in mid-August 1676 and about 5.5 au away on 9 November.[^horizons] The extra 1.2 au, at 499 s per au, is 600 s: ten minutes.
 
-Rømer himself never divided a distance by his 22 minutes. The historians Laurence Bobis and James Lequeux suggest he and Cassini thought the speed too enormous to be worth stating, and the size of Earth's orbit was shaky anyway: Huygens put the Sun about 12,000 Earth diameters away, roughly 153 million km, while Newton later used 70 million miles, roughly 113 million km.[^bobis2008][^huygens1690][^newton1704] The first person to turn the delay into a speed was Huygens, in his *Treatise on Light*, written in 1678 and published in 1690.[^bobis2008] Using his own estimate of the orbit he got about 16⅔ Earth diameters per second, more than 600,000 times the speed of sound, which is a little over 210,000 km/s in modern units. The exact figure mattered less to him than the principle. Fast is not the same as instant, because there is "all the difference between a finite thing and an infinite".[^huygens1690]
+Rømer himself never divided a distance by his 22 minutes. Laurence Bobis and James Lequeux of the Paris Observatory suggest he and Cassini thought the speed too enormous to be worth stating, and the size of Earth's orbit was shaky anyway: Huygens put the Sun about 12,000 Earth diameters away, roughly 153 million km, while Newton later used 70 million miles, roughly 113 million km.[^bobis2008][^huygens1690][^newton1704] The first person to turn the delay into a speed was Huygens, in his *Treatise on Light*, written in 1678 and published in 1690.[^bobis2008] Rounding the orbit down to 22,000 Earth diameters to be safe, he got about 16⅔ Earth diameters per second, more than 600,000 times the speed of sound, which is a little over 210,000 km/s in modern units (about 230,000 km/s with his own preferred figure of 24,000).[^huygens1690][^bobis2008] The exact figure mattered less to him than the principle. Fast is not the same as instant, because there is "all the difference between a finite thing and an infinite".[^huygens1690]
 
 The idea spread slowly. Newton's *Opticks* of 1704 credits Rømer and puts the Sun-to-Earth time at seven or eight minutes, closer to the truth than the 11 implied by Rømer's figure.[^newton1704] John Flamsteed, England's first Astronomer Royal, adopted it after Rømer visited in 1679; Robert Hooke stayed unconvinced, and Cassini never came round.[^opn2009][^bobis2008] Rømer went home in 1681 and ended up as mayor and chief of police of Copenhagen. Nearly all his observations burned in the city's great fire of 1728.[^nbi]
 
@@ -111,7 +111,7 @@ With $d = 8{,}633$ m, $N = 720$ and $f = 12.6$ per second, the gap-to-tooth time
 
 ### Foucault's spinning mirror
 
-Léon Foucault, Fizeau's old schoolmate and now his rival, found a way to use a far shorter path. Light bounces off a mirror spinning hundreds of times a second, runs to a fixed mirror and back, and returns to find the spinning mirror has turned slightly, so the returning beam comes off at a tiny, measurable angle. In April 1850 Foucault used this to show that light travels more slowly in water than in air, beating Fizeau (working with the instrument maker Louis Breguet) by about seven weeks. The two fell out over it.[^obspm][^samueli]
+Léon Foucault, Fizeau's old schoolmate and now his rival, found a way to use a far shorter path. Light bounces off a mirror spinning hundreds of times a second, runs to a fixed mirror and back, and returns to find the spinning mirror has turned slightly, so the returning beam comes off at a tiny, measurable angle. In April 1850 Foucault used this to show that light travels more slowly in water than in air, beating Fizeau (working with the instrument maker Louis Breguet) by six or seven weeks. The two fell out over it.[^obspm][^samueli]
 
 ::: note Slower in water
 Newton's particle theory of light predicted that light should speed up in water; the wave theory predicted it should slow down. Foucault's result, slower, counted heavily for waves.[^obspm] Water's refractive index of about 1.33 puts light's speed there near 225,000 km/s.[^samueli] Everywhere else in this article, *the speed of light* means its speed in a vacuum.
@@ -123,11 +123,11 @@ Le Verrier cared because of the Sun. Astronomers already had the light time from
 
 ## Michelson's long obsession
 
-Albert Michelson was a young instructor at the US Naval Academy in Annapolis when he began improving Foucault's method in 1877.[^aps2024] Foucault's image had shifted by less than a millimetre. Michelson stretched the light path to about 2,000 feet (600 m), spun his mirror at 256 turns per second, and got a shift more than a hundred times bigger.[^kleppner2007][^aps2024] He dated his report 4 July 1879 and gave the speed as 299,940 km/s, give or take 50, within 0.05% of the modern value.[^kleppner2007] In 1907 he became the first American to win a Nobel Prize in the sciences.[^aps2024]
+Albert Michelson was a young instructor at the US Naval Academy in Annapolis when he began improving Foucault's method in 1877.[^aps2024] Foucault's image had shifted by less than a millimetre. Michelson stretched the light path to about 2,000 feet (600 m), spun his mirror at about 257 turns per second, and got a shift more than a hundred times bigger.[^michelson1880][^aps2024] His runs in the summer of 1879 gave the speed as 299,940 km/s, give or take about 50, within 0.05% of the modern value.[^michelson1880][^aps2024] In 1907 he became the first American to win a Nobel Prize in the sciences.[^aps2024]
 
 He spent the rest of his life on the number. In 1926 he sent light 35 km from Mount Wilson, above Pasadena, to a mirror on Lookout Mountain on Mount San Antonio and back again, using an eight-sided spinning mirror.[^michelson1927] The trick was to spin it at 528 turns per second, so that during the round trip the mirror turned exactly one-eighth of a turn and the next face stood exactly where the last one had been. Then $V = 16DN$, with $D$ the one-way distance and $N$ the turns per second: $16 \times 35.425\ \text{km} \times 528 = 299{,}270$ km/s, before small corrections for the exact mirror angle. The final result, corrected to vacuum and averaged over five different mirrors, was 299,796 km/s, 4 km/s above today's value.[^michelson1927]
 
-Then came a wrong turn. For his last experiment Michelson ran light back and forth through a mile-long (1.6 km) steel pipe, pumped down to a partial vacuum, on the Irvine Ranch in southern California. He died on 9 May 1931 before it was finished. His colleagues Francis Pease and Fred Pearson published 2,885.5 determinations in 1935, averaging 299,774 km/s: 18 km/s too low.[^michelson1935][^otherhand] The accepted value in the following years sat low too. When Louis Essen at Britain's National Physical Laboratory measured 299,792 km/s in 1946 with a microwave cavity, 16 km/s above the accepted figure, he was not believed for several years. His number won only once it was shown to make radar ranging more accurate.[^essen2010]
+Then came a wrong turn. For his last experiment Michelson ran light back and forth through a mile-long (1.6 km) steel pipe, pumped down to a partial vacuum, on the Irvine Ranch in southern California. He died on 9 May 1931 before it was finished. His colleagues Francis Pease and Fred Pearson published 2,885.5 determinations in 1935, averaging 299,774 km/s: 18 km/s too low.[^michelson1935][^otherhand] The accepted value in the following years sat low too. When Louis Essen at Britain's National Physical Laboratory published a microwave-cavity value of 299,792 km/s in 1947, 16 km/s above the accepted figure, he was not believed for several years. His number won only once it was shown to make radar ranging more accurate.[^essen2010]
 
 ## Echoes: radar and mirrors on the Moon
 
@@ -197,10 +197,10 @@ Nearly every precise measurement in this article timed a round trip: Fizeau, Fou
 - **1862:** Foucault's spinning mirror: 298,000 km/s.
 - **1879:** Michelson at Annapolis: 299,940 km/s.
 - **1926:** Michelson at Mount Wilson: 299,796 km/s.
-- **1946:** Essen's microwave cavity: 299,792 km/s.
+- **1947:** Essen's microwave cavity: 299,792 km/s.
 - **1972:** Evenson's laser: 299,792,456.2 m/s, good to about 1 m/s.
 - **1983:** The metre is redefined, and c becomes exactly 299,792,458 m/s.
-- **2026:** Voyager 1 reaches one light-day from Earth on 18 November.
+- **2026:** Voyager 1 is due to reach one light-day from Earth on 18 November.
 :::
 
 ## Living with the delay
@@ -246,7 +246,7 @@ Every body is now drawn where it was when the light reaching Earth left it. Near
 Voyager 1, launched in 1977, is the most distant spacecraft. On 25 September 2026 its radio signals take 23 hours 51 minutes to reach us.[^horizons] At 10:16 UTC on Wednesday 18 November 2026 (2:16 a.m. in California, where the mission is run) it will be 25.9 billion km from Earth: one light-day.[^lightday] A command sent on a Monday morning will get its answer on Wednesday morning. To save its dwindling power, engineers switched off the cosmic ray instrument in February 2025 and the low-energy particle instrument in April 2026; the magnetometer and plasma wave instrument still run.[^voyagerstatus] The spacecraft moves about 17 km/s away from the Sun, adding roughly half a light-hour to the delay every year.[^horizons]
 
 ::: note Which moment counts as one light-day?
-NASA's time uses the distance between Earth and Voyager 1 at a single instant. The signal arriving at that instant left the spacecraft almost a day earlier, when it was about 1.5 million km closer to the Sun. Signals that have actually spent a full 24 hours in flight start arriving roughly 16 hours later, around 02:15 UTC on 19 November, according to JPL's Horizons ephemeris.[^horizons]
+NASA's time uses the distance between Earth and Voyager 1 at a single instant. The signal arriving at that instant left the spacecraft almost a day earlier, when it was about 1.5 million km closer to the Sun. Signals that have actually spent a full 24 hours in flight start arriving roughly 16 hours later, around 02:18 UTC on 19 November, according to JPL's Horizons ephemeris.[^horizons]
 :::
 
 ::: see-it go:voyager1
@@ -262,7 +262,7 @@ The camera travels to one of the most distant galaxies known. The light we see f
 :::
 
 ::: myth Most of the stars you see at night are already dead.
-Most naked-eye stars are within about a thousand light-years, and stars live for millions to billions of years, so the chance that any given one has died while its light was on the way is tiny. The plausible exception is a star close to the end of its life, such as Eta Carinae, about 7,500 light-years away.[^plait2013]
+Most naked-eye stars are within about a thousand light-years, and stars live for millions to billions of years, so the chance that any given one has died while its light was on the way is tiny. The plausible exception is a star close to the end of its life, such as Eta Carinae, less than 10,000 light-years away.[^plait2013]
 :::
 
 ### A race 130 million years long
@@ -277,7 +277,7 @@ On 17 August 2017 the LIGO and Virgo detectors caught gravitational waves from t
 
 ### Talking by laser
 
-NASA's Deep Space Optical Communications experiment flew on the Psyche spacecraft, launched on 13 October 2023 towards the asteroid belt. It achieved first light on 14 November 2023 from nearly 16 million km, when its photons took about 50 seconds to reach Earth.[^dsoc2023] On 11 December 2023 it sent a 15-second video of a JPL employee's cat, Taters, chasing a laser dot; the signal took 101 seconds to arrive, at 267 megabits per second.[^taters] On 3 December 2024 it set a distance record for laser communication at 494 million km, and it finished on 2 September 2025 after 65 passes and 13.6 terabits of data.[^dsoc2025] At that record distance, each bit still took 27 minutes to arrive. Lasers carry far more data per second than radio, but they are no faster.
+NASA's Deep Space Optical Communications experiment flew on the Psyche spacecraft, launched on 13 October 2023 towards the asteroid belt.[^psyche] It achieved first light on 14 November 2023 from nearly 16 million km, when its photons took about 50 seconds to reach Earth.[^dsoc2023] On 11 December 2023 it sent a 15-second video of a JPL employee's cat, Taters, chasing a laser dot; the signal took 101 seconds to arrive, at 267 megabits per second.[^taters] On 3 December 2024 it set a distance record for laser communication at 494 million km, and it finished on 2 September 2025 after 65 passes and 13.6 terabits of data.[^dsoc2025][^dsocmission] At that record distance, each bit still took 27 minutes to arrive. Lasers carry far more data per second than radio, but they are no faster.
 
 **Status:** DSOC is complete. On 7 July 2025 ESA made Europe's first deep-space laser link with Psyche, from two mountaintop observatories in Greece at a distance of 265 million km.[^esa2025] Artemis II, launched on 1 April 2026, carried a laser terminal around the Moon that was built to send data home at up to 260 megabits per second, enough for live 4K video.[^o2o][^sciam2026] Routine laser links from Mars do not yet have a firm date.
 
@@ -311,7 +311,7 @@ ESA adopted the LISA gravitational-wave observatory on 25 January 2024: three sp
 - G. H. Pettengill et al., "A radar investigation of Venus", *Astronomical Journal* 67, 181 (1962). https://doi.org/10.1086/108692
 - J. Faller et al., "Laser beam directed at the lunar retro-reflector array: observations of the first returns", *Science* 166, 99-102 (1969). https://doi.org/10.1126/science.166.3901.99
 - K. M. Evenson et al., "Speed of light from direct frequency and wavelength measurements of the methane-stabilized laser", *Physical Review Letters* 29, 1346-1349 (1972). https://doi.org/10.1103/PhysRevLett.29.1346
-- L. Bobis and J. Lequeux, "Cassini, Rømer and the velocity of light", *Journal of Astronomical History and Heritage* 11, 97-105 (2008). https://doi.org/10.3724/SP.J.1440-2807.2008.02.02 (open access)
+- L. Bobis and J. Lequeux, "Cassini, Rømer and the velocity of light", *Journal of Astronomical History and Heritage* 11, 97-105 (2008). https://doi.org/10.3724/SP.J.1440-2807.2008.02.02 (open access; free PDF at https://articles.adsabs.harvard.edu/pdf/2008JAHH...11...97B)
 - T. W. Murphy, "Lunar laser ranging: the millimeter challenge", *Reports on Progress in Physics* 76, 076901 (2013). https://doi.org/10.1088/0034-4885/76/7/076901 (open access at https://arxiv.org/abs/1309.6294)
 - B. P. Abbott et al., "Gravitational waves and gamma-rays from a binary neutron star merger: GW170817 and GRB 170817A", *Astrophysical Journal Letters* 848, L13 (2017). https://doi.org/10.3847/2041-8213/aa920c (open access)
 - N. Dimarcq et al., "Roadmap towards the redefinition of the second", *Metrologia* 61, 012001 (2024). https://doi.org/10.1088/1681-7575/ad17d2 (open access)
@@ -334,7 +334,7 @@ ESA adopted the LISA gravitational-wave observatory on 25 January 2024: three sp
 - [Measuring the speed of light the old fashioned way: Replicating the Fizeau Apparatus](https://www.youtube.com/watch?v=YMO9uUsjXaI), AlphaPhoenix, 21:43. A Fizeau wheel built from posterboard, a Dremel and a spool of reflective tape, and it works.
 - [A laser pointer at 2 billion fps makes the speed of light look... kinda weird](https://www.youtube.com/watch?v=o4TdHrMi6do), AlphaPhoenix, 29:21. A homemade camera fast enough to watch a pulse of light cross a room, and a strange quirk in what the footage shows.
 - [Why Astronauts left a reflector on the Moon! (ft. MinutePhysics) - Smarter Every Day 73](https://www.youtube.com/watch?v=dsRsap2_RAc), SmarterEveryDay, 5:58. Corner reflectors in your hands, and why they make lunar laser ranging possible.
-- [Shooting Lasers at the Moon: Hal Walker and the Lunar Retroreflector](https://www.youtube.com/watch?v=WbOBbZ6A51k), Smithsonian National Air and Space Museum, 27:35. Hal Walker, who managed the laser team at Lick Observatory in 1969, tells the story first-hand.
+- [Shooting Lasers at the Moon: Hal Walker and the Lunar Retroreflector - What's New in Aerospace](https://www.youtube.com/watch?v=WbOBbZ6A51k), Smithsonian National Air and Space Museum, 27:35. Hal Walker, field operations manager for the laser team at Lick Observatory in 1969, tells the story first-hand.
 - [Challenging Einstein: Lunar Laser Ranging as an Absolute Test - Tom Murphy](https://www.youtube.com/watch?v=61DvxcWOs5s), Institute for Advanced Study, 55:26. The leader of the APOLLO project on millimetre ranging and what it tests; for readers who want the full technical picture.
 - [From Taters to Terabits: NASA Wraps Up Deep Space Laser Test](https://www.youtube.com/watch?v=PDLSM97vmKw), NASA Jet Propulsion Laboratory, 4:47. The team's own summary of the laser link to Psyche, cat included.
 - [How optical clocks are redefining time and physics](https://www.youtube.com/watch?v=Yr2Qo-PYJWw), New Scientist, 5:10. Inside Britain's National Physical Laboratory, where the clocks that may redefine the second are built.
@@ -349,7 +349,7 @@ ESA adopted the LISA gravitational-wave observatory on 25 January 2024: three sp
 - NIST, the CODATA entry for the speed of light (note the word "exact"): https://physics.nist.gov/cgi-bin/cuu/Value?c
 - Observatoire de Paris, "c à Paris", an exhibition on measuring the speed of light in Paris, in French: http://expositions.obspm.fr/lumiere2005/
 - Patricia Daukantas, "Ole Rømer and the Speed of Light", *Optics & Photonics News* (July 2009): https://www.optica-opn.org/home/articles/volume_20/issue_7/features/ole_r%C3%B8mer_and_the_speed_of_light/
-- Tom Murphy, "APOLLO: the basics", on how lunar laser ranging works: https://tmurphy.physics.ucsd.edu/apollo/basics.html
+- Tom Murphy, "The Basics of Lunar Ranging", from the APOLLO project, on how lunar laser ranging works: https://tmurphy.physics.ucsd.edu/apollo/basics.html
 - University of Maryland, the Next Generation Lunar Retroreflector project: https://www.physics.umd.edu/nglr/
 
 [^romer1677]: O. Rømer, "A demonstration concerning the motion of light, communicated from Paris, in the Journal des Sçavans, and here made English", Philosophical Transactions of the Royal Society 12, 893-894 (1677). https://doi.org/10.1098/rstl.1677.0024
@@ -359,7 +359,7 @@ ESA adopted the LISA gravitational-wave observatory on 25 January 2024: three sp
 [^galileo1638]: G. Galilei, Dialogues Concerning Two New Sciences (1638), translated by H. Crew and A. de Salvio (Macmillan, 1914), First Day, pp. 43-44. https://oll.libertyfund.org/titles/galilei-dialogues-concerning-two-new-sciences
 [^bobis2008]: L. Bobis and J. Lequeux, "Cassini, Rømer and the velocity of light", Journal of Astronomical History and Heritage 11, 97-105 (2008). https://doi.org/10.3724/SP.J.1440-2807.2008.02.02
 [^lindahall]: W. B. Ashworth Jr., "Scientist of the Day: Ole Rømer", Linda Hall Library (25 September 2018). https://www.lindahall.org/about/news/scientist-of-the-day/ole-romer/
-[^newton1704]: I. Newton, Opticks, Book II, Part III, Proposition XI (fourth edition, 1730). https://www.gutenberg.org/ebooks/33504
+[^newton1704]: I. Newton, Opticks, Book II, Part III, Proposition XI, and Book III, Query 21 (fourth edition, 1730). https://www.gutenberg.org/ebooks/33504
 [^nbi]: Niels Bohr Institute, University of Copenhagen, "Ole Rømer in Copenhagen". https://nbi.ku.dk/english/www/roemer/roemer/koebenhavn/
 [^dsbbradley]: "James Bradley", Complete Dictionary of Scientific Biography (Charles Scribner's Sons, 2008), via Encyclopedia.com. https://www.encyclopedia.com/people/science-and-technology/astronomy-biographies/james-bradley
 [^bradley1729]: J. Bradley, "A letter from the Reverend Mr. James Bradley ... to Dr. Edmond Halley ... giving an account of a new discovered motion of the fix'd stars", Philosophical Transactions 35, 637-661 (1729). https://doi.org/10.1098/rstl.1727.0064
@@ -369,7 +369,7 @@ ESA adopted the LISA gravitational-wave observatory on 25 January 2024: three sp
 [^samueli]: J.-J. Samueli, "Foucault and measuring the speed of light in water and in air", BibNum (2009; English translation 2014). http://www.bibnum.education.fr/sites/default/files/37-foucault-analysis.pdf
 [^obspm]: Observatoire de Paris, "Les mesures de vitesse de la lumière, 3: Le miroir tournant" and "L'expérience de Foucault", exhibition c à Paris (2005). http://expositions.obspm.fr/lumiere2005/images/dossierpedago/pedagopage4.pdf
 [^aps2024]: K. Redmond, "The site where Albert Michelson measured the speed of light 145 years ago", APS News (May 2024). https://www.aps.org/apsnews/2024/05/michelson-speed-light-145-years
-[^kleppner2007]: D. Kleppner, "Master Michelson's measurement", Physics Today 60 (8), 8-9 (2007). https://doi.org/10.1063/1.2774115
+[^michelson1880]: A. A. Michelson, "Experimental determination of the velocity of light, made at the U.S. Naval Academy, Annapolis" (Nautical Almanac Office, Washington, 1880), text at Project Gutenberg. https://www.gutenberg.org/ebooks/11753
 [^michelson1927]: A. A. Michelson, "Measurement of the velocity of light between Mount Wilson and Mount San Antonio", Astrophysical Journal 65, 1 (1927). https://doi.org/10.1086/143021
 [^michelson1935]: A. A. Michelson, F. G. Pease and F. Pearson, "Measurement of the velocity of light in a partial vacuum", Astrophysical Journal 82, 26-61 (1935). https://doi.org/10.1086/143655
 [^otherhand]: "Historic speed of light measurements in Southern California", otherhand.org. https://otherhand.org/home-page/physics/historical-speed-of-light-measurements-in-southern-california/
@@ -381,7 +381,7 @@ ESA adopted the LISA gravitational-wave observatory on 25 January 2024: three sp
 [^ucsc2019]: UC Santa Cruz News, "Lick Observatory commemorates Apollo 11 experiment on 50th anniversary" (July 2019). https://news.ucsc.edu/2019/07/lunar-laser-ranging/
 [^faller1969]: J. Faller, I. Winer, W. Carrion, T. S. Johnson, P. Spadin, L. Robinson et al., "Laser beam directed at the lunar retro-reflector array: observations of the first returns", Science 166, 99-102 (1969). https://doi.org/10.1126/science.166.3901.99
 [^murphy2013]: T. W. Murphy, "Lunar laser ranging: the millimeter challenge", Reports on Progress in Physics 76, 076901 (2013). https://doi.org/10.1088/0034-4885/76/7/076901
-[^apollobasics]: T. Murphy, "APOLLO: the basics", University of California San Diego. https://tmurphy.physics.ucsd.edu/apollo/basics.html
+[^apollobasics]: T. Murphy, "The basics of lunar ranging", APOLLO project, University of California San Diego. https://tmurphy.physics.ucsd.edu/apollo/basics.html
 [^murphy2011]: T. W. Murphy et al., "Laser ranging to the lost Lunokhod 1 reflector", Icarus 211, 1103-1108 (2011). https://doi.org/10.1016/j.icarus.2010.11.010
 [^shapiro1964]: I. I. Shapiro, "Fourth test of general relativity", Physical Review Letters 13, 789-791 (1964). https://doi.org/10.1103/PhysRevLett.13.789
 [^shapiro1968]: I. I. Shapiro, G. H. Pettengill, M. E. Ash, M. L. Stone, W. B. Smith, R. P. Ingalls et al., "Fourth test of general relativity: preliminary results", Physical Review Letters 20, 1265-1269 (1968). https://doi.org/10.1103/PhysRevLett.20.1265
@@ -389,10 +389,10 @@ ESA adopted the LISA gravitational-wave observatory on 25 January 2024: three sp
 [^cgpm1960]: BIPM, Resolution 6 of the 11th CGPM (1960), "Definition of the metre". https://www.bipm.org/en/committees/cg/cgpm/11-1960/resolution-6
 [^evenson1972]: K. M. Evenson, J. S. Wells, F. R. Petersen, B. L. Danielson, G. W. Day, R. L. Barger et al., "Speed of light from direct frequency and wavelength measurements of the methane-stabilized laser", Physical Review Letters 29, 1346-1349 (1972). https://doi.org/10.1103/PhysRevLett.29.1346
 [^cgpm1983]: BIPM, Resolution 1 of the 17th CGPM (1983), "Definition of the metre". https://www.bipm.org/en/committees/cg/cgpm/17-1983/resolution-1
-[^hopper]: C. Marshall, "Pioneering computer scientist Grace Hopper shows us how to visualize a nanosecond (1983)", Open Culture (May 2019). https://www.openculture.com/2019/05/pioneering-computer-scientist-grace-hopper-shows-us-how-to-visualize-a-nanosecond-1983.html
+[^hopper]: J. Jones, "Pioneering computer scientist Grace Hopper shows us how to visualize a nanosecond (1983)", Open Culture (7 May 2019). https://www.openculture.com/2019/05/pioneering-computer-scientist-grace-hopper-shows-us-how-to-visualize-a-nanosecond-1983.html
 [^bipmmetre]: BIPM, "SI base unit: metre". https://www.bipm.org/en/si-base-units/metre
 [^iauunits]: International Astronomical Union, "Measuring the Universe: the IAU and astronomical units". https://iauarchive.eso.org/public/themes/measuring/
-[^einstein1905]: A. Einstein, "Zur Elektrodynamik bewegter Körper", Annalen der Physik 17, 891-921 (1905). https://doi.org/10.1002/andp.19053221004
+[^einstein1905]: A. Einstein, "Zur Elektrodynamik bewegter Körper", Annalen der Physik 17 (322 in the publisher's numbering), 891-921 (1905). https://doi.org/10.1002/andp.19053221004
 [^nssdc]: NASA Space Science Data Coordinated Archive, "Planetary Fact Sheets" (distances from Earth, orbital speeds and radii). https://nssdc.gsfc.nasa.gov/planetary/factsheet/
 [^horizons]: NASA JPL Solar System Dynamics, Horizons ephemeris system, queried 25 September 2026 for Voyager 1, Voyager 2, Mars, and Jupiter in 1676. https://ssd.jpl.nasa.gov/horizons/
 [^eso1629]: ESO, "Planet found in habitable zone around nearest star", press release eso1629 (August 2016). https://www.eso.org/public/news/eso1629/
@@ -407,9 +407,11 @@ ESA adopted the LISA gravitational-wave observatory on 25 January 2024: three sp
 [^dsoc2023]: NASA JPL, "NASA's Deep Space Optical Comm Demo Sends, Receives First Data" (16 November 2023). https://www.jpl.nasa.gov/news/nasas-deep-space-optical-comm-demo-sends-receives-first-data/
 [^taters]: NASA JPL, "NASA's Tech Demo Streams First Video From Deep Space via Laser" (December 2023). https://www.jpl.nasa.gov/news/nasas-tech-demo-streams-first-video-from-deep-space-via-laser/
 [^dsoc2025]: NASA JPL, "NASA's Deep Space Communications Demo Exceeds Project Expectations" (18 September 2025). https://www.jpl.nasa.gov/news/nasas-deep-space-communications-demo-exceeds-project-expectations/
+[^dsocmission]: NASA JPL, "Deep Space Optical Communications (DSOC)" mission page. https://www.jpl.nasa.gov/missions/deep-space-optical-communications-dsoc/
+[^psyche]: NASA Science, "Psyche" mission page. https://science.nasa.gov/mission/psyche/
 [^esa2025]: ESA, "Europe's first deep-space optical communication link" (July 2025). https://www.esa.int/Enabling_Support/Operations/Europe_s_first_deep-space_optical_communication_link
 [^o2o]: MIT News, "Lincoln Laboratory laser communications terminal launches on historic Artemis II moon mission" (2 April 2026). https://news.mit.edu/2026/lincoln-laboratory-laser-communications-terminal-launches-artemis-ii-0402
-[^sciam2026]: Scientific American, "NASA's Artemis II laser communications system is beaming 4K video from the moon" (April 2026). https://www.scientificamerican.com/article/nasas-artemis-ii-laser-communications-system-is-beaming-4k-video-from-the/
+[^sciam2026]: A. Bluestein, "NASA's Artemis II laser communications system is beaming 4K video from the moon", Scientific American (5 April 2026). https://www.scientificamerican.com/article/nasas-artemis-ii-laser-communications-system-is-beaming-4k-video-from-the/
 [^cgpm2026]: BIPM, 28th meeting of the CGPM (13-15 October 2026), meeting page and Draft Resolutions B and D (version 5, July 2026). https://www.bipm.org/en/cgpm-2026/documents
 [^dimarcq2024]: N. Dimarcq, M. Gertsvolf, G. Mileti, S. Bize, C. W. Oates, E. Peik et al., "Roadmap towards the redefinition of the second", Metrologia 61, 012001 (2024). https://doi.org/10.1088/1681-7575/ad17d2
 [^nglr]: University of Maryland Department of Physics, "NGLR: Next Generation Lunar Retroreflector" (status report, October 2025). https://www.physics.umd.edu/nglr/

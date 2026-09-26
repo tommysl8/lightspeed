@@ -9,7 +9,7 @@ updated: 2026-09-25
 
 On the morning of 23 September 1846 a letter from Paris reached Johann Gottfried Galle, an assistant at the Berlin Observatory. It came from Urbain Le Verrier, to whom Galle had sent a paper a year and a half earlier without a reply, and after a paragraph of overdue thanks it got to the point. Look at a certain spot on the ecliptic, Le Verrier wrote, and you should find an unknown planet with a disc a little over 3 arcseconds wide.[^krajnovic2021] That day was the 55th birthday of the observatory's director, Johann Franz Encke, who had a party to go to. He let Galle have the big Fraunhofer refractor for the night, and a student named Heinrich d'Arrest overheard and asked to come along.[^krajnovic2021]
 
-For about an hour they swept the area for a disc and found nothing they could be sure of. Then d'Arrest remembered a new star chart among Encke's papers, Hora XXI, part of a Berlin series meant to show every star down to about the ninth or tenth magnitude, printed only the year before.[^krajnovic2021][^aiplogo] Galle stayed at the eyepiece calling out stars while d'Arrest sat at a desk checking each one against the chart. Some time after ten o'clock Galle described a star of the eighth magnitude and d'Arrest could not find it. By his own account he shouted "that star is not on the map!"[^krajnovic2021]
+For about an hour they swept the area for a disc and found nothing they could be sure of. Then d'Arrest remembered a new star chart among Encke's papers, Hora XXI, part of a Berlin series meant to show every star down to about the ninth or tenth magnitude, printed only the year before.[^krajnovic2021][^aiplogo] Galle stayed at the eyepiece calling out stars while d'Arrest sat at a desk checking each one against the chart. Some time after ten o'clock Galle described a star of the eighth magnitude and d'Arrest could not find it. By his own account he exclaimed "that star is not on the map!"[^krajnovic2021]
 
 The next night it had moved. It was a planet, about a degree from the place Le Verrier had named, and he had found it without a telescope. He had worked backwards from the way Uranus was drifting off course, with pen, paper, Newton's law of gravity and a year of calculation.
 
@@ -63,11 +63,11 @@ Go $\sqrt{2}$ times faster than the orbital speed and you never come back. That 
 
 ## The comet that kept its appointment
 
-Halley turned the new theory on comets. The comets of 1531, 1607 and 1682 had almost the same orbit, so he concluded they were one object returning every 76 years or so. The gaps were not quite equal, which he put down to Jupiter and Saturn, and he expected the next return about the end of 1758 or the start of 1759.[^hughes1987] He died in January 1742, sixteen years too early to find out.[^mactutorhalley]
+Halley turned the new theory on comets. The comets of 1531, 1607 and 1682 had almost the same orbit, so he concluded they were one object returning every 76 years or so. The gaps were not quite equal, which he put down to Jupiter's pull, and he expected the next return about the end of 1758 or the start of 1759.[^hughes1987][^mactutorhalley] He died in January 1742, almost seventeen years too early to find out.[^mactutorhalley]
 
 Working out the planets' pull in detail fell to the French. In June 1757 the astronomer Jérôme Lalande asked the mathematician Alexis Clairaut for a method, and Clairaut produced one that needed a vast amount of arithmetic: the pulls of Jupiter and Saturn on the comet, degree by degree along its path, over 150 years. Lalande did the sums with Nicole-Reine Lepaute. "During six months we calculated from morning to night, sometimes even at meals," he recalled.[^mactutorlepaute] On 14 November 1758 Clairaut told the Paris Academy the comet would pass closest to the Sun in mid-April 1759, give or take a month.[^mactutorclairaut][^hughes1987] When he published the method in 1760 he left Lepaute's name off the list of helpers. Lalande did not.[^mactutorlepaute]
 
-In Paris the young Charles Messier hunted for months along a track worked out by his employer, Joseph-Nicolas Delisle, which was wrong. Along the way he logged a fuzzy patch in Taurus that never moved. It became M1, the first entry in his catalogue of things that are not comets, now called the Crab Nebula.[^seds] On Christmas night 1758 a German amateur astronomer, Johann Georg Palitzsch, found Halley's comet. Messier picked it up on 21 January 1759, but Delisle would not let him announce it until 1 April.[^seds]
+In Paris the young Charles Messier hunted for months along a track worked out by his employer, Joseph-Nicolas Delisle, which was wrong. Along the way, while following a different comet in 1758, he logged a fuzzy patch in Taurus that never moved. It became M1, the first entry in his catalogue of things that are not comets, now called the Crab Nebula.[^seds] On Christmas night 1758 a German amateur astronomer, Johann Georg Palitzsch, found Halley's comet. Messier picked it up on 21 January 1759, but Delisle would not let him announce it until 1 April.[^seds]
 
 The comet passed perihelion on 13 March 1759, a month before Clairaut's date and inside his margin.[^hughes1987][^horizons] It was the first comet ever to return on a predicted schedule.[^hughes1987] For the 1910 return the calculation was 2.7 days out, a gap that led astronomers to realise the comet's own jets of gas push it around. With the jets built in, the prediction for 1986 was out by about five hours.[^hughes1987]
 
@@ -81,7 +81,7 @@ It had been recorded for nearly two thousand years before him; the earliest iden
 
 ## A planet nobody ordered
 
-William Herschel was a professional musician in Bath, organist at the Octagon Chapel, who built telescopes at home with his sister Caroline.[^herschelmuseum] Between ten and eleven on the evening of Tuesday 13 March 1781, sweeping the stars near H Geminorum for a project on stellar distances, he noticed one that looked bigger than the rest. Stars stay points of light however much you magnify them; planets and comets swell. He raised the magnification from 227 to 460 and then 932, the object grew each time, and he "suspected it to be a comet".[^herschel1781] He reported it as one to the Royal Society in April. (The project it interrupted is part of [How far are the stars?](#/learn/how-far-are-the-stars).)
+William Herschel was a professional musician in Bath, organist at the Octagon Chapel, who built telescopes at home with his sister Caroline.[^herschelmuseum] Between ten and eleven on the evening of Tuesday 13 March 1781, sweeping the stars near H Geminorum for a project on stellar distances, he noticed one that looked bigger than the rest and "suspected it to be a comet". Stars stay points of light however much you magnify them; planets and comets swell. He raised the magnification from 227 to 460 and then 932, and the object grew each time.[^herschel1781] He reported it as one to the Royal Society in April. (The project it interrupted is part of [How far are the stars?](#/learn/how-far-are-the-stars).)
 
 Anders Lexell worked out the orbit: nearly circular and about twice as far from the Sun as Saturn, the orbit of a planet.[^mactutorlexell] Herschel wanted to call it Georgium Sidus, George's Star, after King George III; the name that stuck, Uranus, was suggested by the Berlin astronomer Johann Bode.[^nasauranus] At 19.2 au, it doubled the size of the known Solar System overnight.[^nssdcuranus] [How big is the Solar System?](#/learn/how-big-is-the-solar-system) puts that in scale. Lexell noticed something else, too: even in the first observations, Uranus seemed to be pulled by something farther out.[^mactutorlexell]
 
@@ -91,7 +91,7 @@ The camera glides to Uranus. Its orbit takes 84 years, so astronomers had watche
 
 ## Uranus goes off script
 
-In 1821 Alexis Bouvard, director of the Paris Observatory, published new tables for Uranus. He could not fit the old sightings and the new ones to one orbit, even allowing for Jupiter and Saturn, and left it to the future to decide whether the old observations were at fault or "some foreign and unperceived cause" was acting on the planet.[^mactutorneptune] Within a few years Uranus was drifting from the new tables too. The suspects were an unseen planet farther out, or a flaw in Newton's law at great distances. George Airy, England's Astronomer Royal, leaned towards the flaw.[^mactutorneptune]
+In 1821 Alexis Bouvard of the Paris Observatory published new tables for Uranus. He could not fit the old sightings and the new ones to one orbit, even allowing for Jupiter and Saturn, and left it to the future to decide whether the old observations were at fault or "some foreign and unperceived cause" was acting on the planet.[^mactutorneptune] Within a few years Uranus was drifting from the new tables too. The suspects were an unseen planet farther out, or a flaw in Newton's law at great distances. George Airy, England's Astronomer Royal, leaned towards the flaw.[^mactutorneptune]
 
 ### Weighing a planet nobody has seen
 
@@ -112,7 +112,7 @@ The letter to Galle opened with thanks for his paper on old observations made by
 | Orbital period | 217.4 years | 164.8 years |
 | Eccentricity | 0.108 | 0.009 |
 | Mass | 1/9,300 of the Sun | 1/19,400 of the Sun |
-| Distance from the Sun in September 1846 | 33.06 au | 30.01 au |
+| Distance from the Sun, late 1846 | 33.06 au | 30.01 au |
 | Position | 326° 32′ on 1 January 1847 | about 1° further on |
 
 Le Verrier's figures from his letter to Galle; Neptune's from NASA and JPL.[^krajnovic2021][^jplelements][^nssdcneptune][^horizons]
@@ -121,12 +121,12 @@ Le Verrier's figures from his letter to Galle; Neptune's from NASA and JPL.[^kra
 On 24 September the new object had shifted against the stars in the direction Le Verrier's orbit predicted, and Galle and Encke measured its disc at 2.7 to 2.9 arcseconds. On 25 September Galle wrote to Paris: "The planet whose position you had indicated really exists".[^krajnovic2021]
 
 ::: myth Neptune turned up exactly where the maths said, proving the calculated orbit right.
-The position was good, just over a degree off (1° 03′), though it is often misquoted as less than a degree.[^krajnovic2021] The orbit was not: Le Verrier's planet was too far out and about twice too heavy, and Adams's was too far out as well. Both predicted orbits ran close to the real Neptune around 1840 to 1850, the years that mattered, and far from it at other times.[^mactutorneptune]
+The position was good, just over a degree off (1° 03′), though Le Verrier himself, thanking Galle, called it less than a degree.[^krajnovic2021] The orbit was not: Le Verrier's planet was too far out and about twice too heavy, and Adams's was too far out as well. Both predicted orbits ran close to the real Neptune around 1840 to 1850, the years that mattered, and far from it at other times.[^mactutorneptune]
 :::
 
 An orbit that is right over the stretch you have data for is as much as the data can tell you. Adams, for one, simply assumed the planet was twice as far from the Sun as Uranus and solved for everything else.[^mactutorneptune]
 
-The row that followed was bitter. Once the news reached England, John Herschel, William's son, made public that Adams had reached a similar answer the year before, and Adams presented his calculations to the Royal Astronomical Society that November.[^adams1846][^mactutorneptune] The British story became that Adams had got there first and Airy had sat on it. Then the Royal Greenwich Observatory's Neptune file, missing for decades, turned up in Chile in 1999. The historian Nicholas Kollerstrom concluded from it that Adams's predicted positions had wandered over as much as 20 degrees, and that the British had searched for six weeks without success while Berlin took half an hour.[^bbc2003][^kollerstrom] Historians still argue about how much credit Adams deserves.
+The row that followed was bitter. Once the news reached England, John Herschel, William's son, made public that Adams had reached a similar answer the year before, and Adams presented his calculations to the Royal Astronomical Society that November.[^adams1846][^mactutorneptune] The British story became that Adams had got there first and Airy had sat on it. Then the Royal Greenwich Observatory's Neptune file, missing for decades, turned up in Chile in 1999. The historian Nicholas Kollerstrom concluded from it that Adams's predicted positions had wandered over as much as 20 degrees, and that the British had searched for six weeks without success while Berlin, once it had the right chart, needed under half an hour.[^bbc2003][^kollerstrom][^mactutorneptune] Historians still argue about how much credit Adams deserves.
 
 Neptune had been seen long before. Galileo drew it as a star near Jupiter on 28 December 1612 and again in January 1613, and even noted it shifting against a neighbouring star.[^kowal1980][^mactutorneptune]
 
@@ -157,7 +157,7 @@ The combination $GM/c^2$ is the Sun's gravity expressed as a length, 1,477 m. Fo
 The modern value of the unexplained advance is 43 arcseconds per century.[^will2014] No extra planet, no ring of dust: the 43 arcseconds were the first measured crack in Newton's gravity. Einstein's theory also changes how clocks tick near massive bodies, which [Time dilation is real](#/learn/time-dilation) follows up.
 
 ::: see-it go:mercury
-The camera flies to Mercury. Its orbit turns by about a tenth of an arcsecond each 88-day lap, and it took more than a century of transit timings to catch it.
+The camera flies to Mercury. Einstein's share of its orbit's turning is about a tenth of an arcsecond each 88-day lap, and it took more than a century of transit timings to catch it.
 :::
 
 ## Poincaré's expensive mistake
@@ -166,7 +166,7 @@ Two bodies under Newton's law follow Kepler's ellipses exactly. Add a third and 
 
 Henri Poincaré did not solve it, but his entry on the three-body problem was so rich that he won anyway. In July 1889, while the memoir was being prepared for the journal *Acta Mathematica*, the editor Edvard Phragmén asked about some passages he found obscure. Answering him, Poincaré found a serious error elsewhere in the paper. Printed copies had already gone out to leading mathematicians and had to be recalled, and Poincaré agreed to pay for the scrapped print run: just over 3,500 crowns, about 1,000 more than the prize.[^barrowgreen1994]
 
-The corrected memoir of 1890 is regarded as the birth of chaos theory.[^mactutorpoincare] Poincaré had found that some orbits near an unstable path fold back and cross each other endlessly, so two starting points almost on top of each other can end up in completely different places. In 1908 he put it plainly: "it may happen that small differences in the initial conditions produce very great ones in the final phenomena".[^poincare1908] Then, he added, prediction becomes impossible.
+The corrected memoir of 1890 is regarded as the birth of chaos theory.[^mactutorpoincare][^barrowgreen1994] Poincaré had found that some orbits near an unstable path fold back and cross each other endlessly, so two starting points almost on top of each other can end up in completely different places. In 1908 he put it plainly: "it may happen that small differences in the initial conditions produce very great ones in the final phenomena".[^poincare1908] Then, he added, prediction becomes impossible.
 
 ## How far ahead can we see?
 
@@ -210,7 +210,7 @@ Chaos shows up in spin too. Saturn's moon Hyperion, a porous, heavily cratered l
 
 Throw a tennis ball at the front of an oncoming train and it bounces off faster than it arrived, having picked up some of the train's speed.[^nasaprimer] A spacecraft passing close behind a planet does the same through gravity. Relative to the planet, it leaves as fast as it came, in a new direction. Relative to the Sun, it has taken on some of the planet's orbital motion, and the planet slows by a matching, unmeasurably small amount.
 
-Mariner 10 was the first spacecraft to use one planet's gravity to reach another, swinging past Venus in 1974 on its way to Mercury.[^nasamariner10] Voyager 2 used an arrangement of Jupiter, Saturn, Uranus and Neptune that comes round about every 175 years, and its launch gave it only enough energy to reach Jupiter.[^nasagrandtour][^nasaprimer] According to JPL's ephemeris, at the end of June 1979 it was coasting at 9.9 km/s relative to the Sun, well below the 18.3 km/s needed to escape from that distance. By 20 July, past Jupiter, it was doing 20.9 km/s and had left the Sun's grip for good. Saturn took it from 15.6 to 21.1 km/s in 1981, and Uranus from 17.9 to 19.8 km/s in 1986.[^horizons] In exchange Jupiter's speed changed by the spacecraft's 722 kg times 11 km/s divided by Jupiter's mass, about $4 \times 10^{-21}$ m/s.[^nssdcvoyager2] In a trillion years that would leave Jupiter 13 cm behind schedule.
+Mariner 10 was the first spacecraft to use one planet's gravity to reach another, swinging past Venus in 1974 on its way to Mercury.[^nasamariner10] Voyager 2 used an arrangement of Jupiter, Saturn, Uranus and Neptune that comes round about every 175 years, and its launch gave it only enough energy to reach Jupiter.[^nasagrandtour][^nasaprimer] According to JPL's ephemeris, at the end of June 1979 it was coasting at 9.9 km/s relative to the Sun, well below the 18.3 km/s needed to escape from that distance. By 20 July, past Jupiter, it was doing 20.9 km/s and had left the Sun's grip for good. Saturn took it from 15.6 to about 20.4 km/s in 1981, and Uranus from 17.9 to 19.7 km/s in 1986, measured a month after each flyby.[^horizons] In exchange Jupiter's speed changed by the spacecraft's 722 kg times 11 km/s divided by Jupiter's mass, about $4 \times 10^{-21}$ m/s.[^nssdcvoyager2] In a trillion years that would leave Jupiter 13 cm behind schedule.
 
 ::: myth Gravity assists give spacecraft energy for free.
 The energy comes from the planet. The spacecraft's gain is the planet's loss, shared between a spacecraft of a few hundred kilograms and a planet of around $10^{27}$ kg, so the planet's change is far too small to notice.[^nasaprimer]
@@ -230,7 +230,7 @@ The new case rests on bodies far beyond Neptune. Sedna, found in 2003, never com
 
 Not everyone accepts the clustering. Telescopes find distant objects mainly where and when they look, and a 2021 study that allowed for the pointing records of three surveys found 14 of these objects consistent with orbits pointing in random directions.[^napier2021] Others see clustering but a different planet: a study first posted in 2024 by Amir Siraj, Christopher Chyba and Scott Tremaine prefers one of about 4.4 Earth masses at 290 au.[^siraj2025] In 2025 an international team reported 2023 KQ14, nicknamed Ammonite, whose orbit points the wrong way to belong to the cluster; if a distant planet exists, they argue, it is probably around 500 au out.[^chen2025]
 
-The searches have come up empty so far. Pan-STARRS, combined with two other surveys, rules out 78% of the Batygin and Brown predictions down to magnitude 21.5, and most of what remains is fainter or lies where the Milky Way crosses the planets' path, in crowded star fields where a faint mover is easy to miss.[^brown2024] As of September 2026 nobody has reported seeing it. [The edges of the Solar System](#/learn/edges-of-the-solar-system) covers the region where it would live.
+The searches have come up empty so far. Pan-STARRS rules out a Planet Nine down to magnitude 21.5, and together with two other surveys it excludes 78% of the orbits Brown and Batygin predicted in 2021. Much of what remains is fainter than magnitude 21, near where the Milky Way crosses the planets' path, in crowded star fields where a faint mover is easy to miss.[^brown2024] As of September 2026 nobody has reported seeing it. [The edges of the Solar System](#/learn/edges-of-the-solar-system) covers the region where it would live.
 
 ::: see-it go:sedna
 The camera flies to Sedna, one of the distant objects whose orbits started the argument. It takes more than ten thousand years to go round once.
@@ -252,9 +252,9 @@ BepiColombo dropped its cruise module on 3 September 2026. It is due to enter or
 
 ### Apophis passes Earth, 13 April 2029
 
-The asteroid Apophis will pass about 32,000 km above Earth's surface on 13 April 2029, closer than geostationary satellites. NASA's OSIRIS-APEX spacecraft, which flew past Earth on 23 September 2025, is on its way to watch how Earth's gravity changes the asteroid's orbit and spin.[^nasaapophis][^nasaapex] The date, the distance and the fact that it will miss were all calculated years ahead.
+The asteroid Apophis will pass about 32,000 km above Earth's surface on 13 April 2029, closer than geostationary satellites. NASA's OSIRIS-APEX spacecraft, which flew past Earth on 23 September 2025, is on its way to study how the close pass changes the asteroid, arriving in June 2029, about two months after the flyby.[^nasaapophis][^nasaapex] The date, the distance and the fact that it will miss were all calculated years ahead.
 
-**Status:** flyby date fixed by orbital mechanics; OSIRIS-APEX due to arrive in 2029.
+**Status:** flyby date fixed by orbital mechanics; OSIRIS-APEX due to arrive in June 2029.
 
 ### Halley comes back, 28 July 2061
 
@@ -279,7 +279,7 @@ Whether Planet Nine exists, and what lined up the distant orbits if anything did
 - W. Herschel, "Account of a comet", *Philosophical Transactions of the Royal Society* 71, 492-501 (1781). https://doi.org/10.1098/rstl.1781.0056
 - J. C. Adams, "An explanation of the observed irregularities in the motion of Uranus, on the hypothesis of disturbance caused by a more distant planet", *Monthly Notices of the Royal Astronomical Society* 7, 149-152 (1846). https://doi.org/10.1093/mnras/7.9.149
 - U. Le Verrier, "Lettre de M. Le Verrier à M. Faye sur la théorie de Mercure et sur le mouvement du périhélie de cette planète", *Comptes rendus de l'Académie des sciences* 49, 379-383 (1859), in French. Free at https://archive.org/details/comptesrendusheb49acad
-- H. Poincaré, "Sur le problème des trois corps et les équations de la dynamique", *Acta Mathematica* 13, 1-270 (1890), in French. https://doi.org/10.1007/BF02392506
+- H. Poincaré, "Sur le problème des trois corps et les équations de la dynamique", *Acta Mathematica* 13, 1-270 (1890), in French. https://doi.org/10.1007/BF02392506 (the introduction; each chapter has its own DOI)
 - W. W. Campbell, "The Crocker eclipse expedition of 1908 from the Lick Observatory", *Publications of the Astronomical Society of the Pacific* 20, 63 (1908). https://doi.org/10.1086/121793
 - D. W. Hughes, "The history of Halley's comet", *Philosophical Transactions of the Royal Society A* 323, 349-367 (1987). https://doi.org/10.1098/rsta.1987.0091
 - J. Barrow-Green, "Oscar II's prize competition and the error in Poincaré's memoir on the three body problem", *Archive for History of Exact Sciences* 48, 107-131 (1994). https://doi.org/10.1007/BF00374436
@@ -291,7 +291,8 @@ Whether Planet Nine exists, and what lined up the distant orbits if anything did
 - K. Batygin and M. E. Brown, "Evidence for a distant giant planet in the Solar System", *Astronomical Journal* 151, 22 (2016). https://doi.org/10.3847/0004-6256/151/2/22 (open access at https://arxiv.org/abs/1601.05438)
 - K. Batygin, F. C. Adams, M. E. Brown and J. C. Becker, "The Planet Nine hypothesis", *Physics Reports* 805, 1-53 (2019). https://doi.org/10.1016/j.physrep.2019.01.009 (open access at https://arxiv.org/abs/1902.10103)
 - K. J. Napier et al., "No evidence for orbital clustering in the extreme trans-Neptunian objects", *Planetary Science Journal* 2, 59 (2021). https://doi.org/10.3847/PSJ/abe53e (open access)
-- Y.-T. Chen et al., "Discovery and dynamics of a Sedna-like object with a perihelion of 66 au", *Nature Astronomy* (2025). https://doi.org/10.1038/s41550-025-02595-7 (open access at https://arxiv.org/abs/2508.02162)
+- Y.-T. Chen et al., "Discovery and dynamics of a Sedna-like object with a perihelion of 66 au", *Nature Astronomy* 9, 1309-1316 (2025). https://doi.org/10.1038/s41550-025-02595-7 (open access at https://arxiv.org/abs/2508.02162)
+- M. E. Brown, M. J. Holman and K. Batygin, "A Pan-STARRS1 search for Planet Nine", *Astronomical Journal* 167, 146 (2024), the survey that ruled out much of Planet Nine's predicted path. https://doi.org/10.3847/1538-3881/ad24e9 (open access)
 
 ### Books
 
@@ -312,15 +313,15 @@ Whether Planet Nine exists, and what lined up the distant orbits if anything did
 
 - [Feynman's Lost Lecture (ft. 3Blue1Brown)](https://www.youtube.com/watch?v=xdIjYBtnvZU), minutephysics, 21:43. Richard Feynman's proof that inverse-square gravity gives ellipses, done with geometry instead of calculus.
 - [Space Flight: The Application of Orbital Mechanics](https://www.youtube.com/watch?v=Am7EwmxBAW8), NASA STI Program, 36:04. A 1989 NASA primer on orbits for physics students; old-fashioned and clear.
-- [Episode 5 - Urbain Le Verrier](https://www.youtube.com/watch?v=cypN_4NUD3w), École polytechnique, 4:27. A short portrait of the man who found Neptune on paper and went on to build France's weather network.
+- [Episode 5 - Urbain Le Verrier](https://www.youtube.com/watch?v=cypN_4NUD3w), Ecole polytechnique, 4:27. A short portrait of the man who found Neptune on paper and went on to build France's weather network.
 - [Chaos: The Science of the Butterfly Effect](https://www.youtube.com/watch?v=fDek6cYijxI), Veritasium, 12:51. Why a system with exact laws can still be impossible to predict, with good animations.
-- [Evidence of a Ninth Planet](https://www.youtube.com/watch?v=6poHQ2h00ZA), Caltech, 2:58. Batygin and Brown explaining their idea on the day it was announced.
+- [Evidence of a Ninth Planet](https://www.youtube.com/watch?v=6poHQ2h00ZA), caltech, 2:58. Batygin and Brown explaining their idea on the day it was announced.
 - [Lecture 3.20: Planet Nine](https://www.youtube.com/watch?v=v-ktWBtt7sc), Mike Brown, 20:35. The case for Planet Nine from one of its proposers, taken from his free online course.
-- [The Search for Planet 9](https://www.youtube.com/watch?v=MptrypvBTag), TEDx Talks (Renu Malhotra, TEDxPortland), 14:52. A planetary scientist who works on the outer Solar System walks through the evidence for a general audience.
+- [The Search for Planet 9 \| Dr. Renu Malhotra \| TEDxPortland](https://www.youtube.com/watch?v=MptrypvBTag), TEDx Talks, 14:52. A planetary scientist who works on the outer Solar System walks through the evidence for a general audience.
 - [Planet X Discovered?? + Challenge Winners!](https://www.youtube.com/watch?v=xGfv3Oay_pY), PBS Space Time, 8:37. A careful look at the 2016 claim soon after it came out.
 - [Millions of New Asteroids - How The Vera Rubin Telescope Changes Everything](https://www.youtube.com/watch?v=5TUQRJLfNzs), Scott Manley, 20:58. What Rubin's survey will do for asteroids, comets and the outer Solar System.
-- [Planet Nine from Outer Space](https://www.youtube.com/watch?v=Zw5MDh_wpnI), Caltech Astro, 1:49:43. Mike Brown's full public lecture, for anyone who wants every detail.
-- [BepiColombo's Mercury arrival begins (Official ESA broadcast)](https://www.youtube.com/watch?v=oC7lQngNG3o), European Space Agency, 2:25:40. The live broadcast of the September 2026 module separation, with the mission team explaining the arrival.
+- [Planet Nine from Outer Space - Mike Brown - 03/15/2019](https://www.youtube.com/watch?v=Zw5MDh_wpnI), Caltech Astro, 1:49:43. Mike Brown's full public lecture, for anyone who wants every detail.
+- [BepiColombo’s Mercury arrival begins (Official ESA broadcast)](https://www.youtube.com/watch?v=oC7lQngNG3o), European Space Agency, ESA, 2:25:40. The live broadcast of the September 2026 module separation, with the mission team explaining the arrival.
 
 ### Online
 
@@ -368,7 +369,7 @@ Whether Planet Nine exists, and what lined up the distant orbits if anything did
 [^kowal1980]: C. T. Kowal and S. Drake, "Galileo's observations of Neptune", Nature 287, 311-313 (1980). https://doi.org/10.1038/287311a0
 [^leverrier1859]: U. Le Verrier, "Lettre de M. Le Verrier à M. Faye sur la théorie de Mercure et sur le mouvement du périhélie de cette planète", Comptes rendus hebdomadaires des séances de l'Académie des sciences 49, 379-383 (1859). https://archive.org/details/comptesrendusheb49acad
 [^campbell1908]: W. W. Campbell, "The Crocker eclipse expedition of 1908 from the Lick Observatory, University of California", Publications of the Astronomical Society of the Pacific 20, 63 (1908). https://doi.org/10.1086/121793
-[^einstein1915]: A. Einstein, "Erklärung der Perihelbewegung des Merkur aus der allgemeinen Relativitätstheorie", Sitzungsberichte der Königlich Preußischen Akademie der Wissenschaften (Berlin), 831-839 (1915); English translation in The Collected Papers of Albert Einstein, Vol. 6, Doc. 24 (Princeton University Press). https://einsteinpapers.press.princeton.edu/
+[^einstein1915]: A. Einstein, "Erklärung der Perihelbewegung des Merkur aus der allgemeinen Relativitätstheorie", Sitzungsberichte der Königlich Preußischen Akademie der Wissenschaften (Berlin), 831-839 (1915); reprinted in Albert Einstein: Akademie-Vorträge (Wiley-VCH, 2005), pp. 78-87, https://doi.org/10.1002/3527608958.ch4 ; English translation by Brian Doyle in The Collected Papers of Albert Einstein, Vol. 6 (English translation supplement), Doc. 24, pp. 112-116 (Princeton University Press), archived copy: https://web.archive.org/web/20150907051046/http://einsteinpapers.press.princeton.edu/vol6-trans/124
 [^will2014]: C. M. Will, "The confrontation between general relativity and experiment", Living Reviews in Relativity 17, 4 (2014), section 4.2. https://doi.org/10.12942/lrr-2014-4
 [^barrowgreen1994]: J. Barrow-Green, "Oscar II's prize competition and the error in Poincaré's memoir on the three body problem", Archive for History of Exact Sciences 48, 107-131 (1994). https://doi.org/10.1007/BF00374436
 [^mactutorpoincare]: J. J. O'Connor and E. F. Robertson, "Henri Poincaré", MacTutor History of Mathematics, University of St Andrews. https://mathshistory.st-andrews.ac.uk/Biographies/Poincare/
@@ -396,9 +397,9 @@ Whether Planet Nine exists, and what lined up the distant orbits if anything did
 [^batygin2016]: K. Batygin and M. E. Brown, "Evidence for a distant giant planet in the Solar System", Astronomical Journal 151, 22 (2016). https://doi.org/10.3847/0004-6256/151/2/22
 [^brown2021]: M. E. Brown and K. Batygin, "The orbit of Planet Nine", Astronomical Journal 162, 219 (2021). https://doi.org/10.3847/1538-3881/ac2056
 [^napier2021]: K. J. Napier et al., "No evidence for orbital clustering in the extreme trans-Neptunian objects", Planetary Science Journal 2, 59 (2021). https://doi.org/10.3847/PSJ/abe53e
-[^siraj2025]: A. Siraj, C. F. Chyba and S. Tremaine, "Orbit of a possible Planet X" (2024-2025), arXiv:2410.18170. https://arxiv.org/abs/2410.18170
-[^chen2025]: Y.-T. Chen et al., "Discovery and dynamics of a Sedna-like object with a perihelion of 66 au", Nature Astronomy (2025). https://doi.org/10.1038/s41550-025-02595-7
-[^brown2024]: M. E. Brown, M. J. Holman and K. Batygin, "A Pan-STARRS1 search for Planet Nine" (2024), arXiv:2401.17977. https://arxiv.org/abs/2401.17977
+[^siraj2025]: A. Siraj, C. F. Chyba and S. Tremaine, "Orbit of a possible Planet X", Astrophysical Journal 978, 139 (2025); first posted as arXiv:2410.18170 (2024). https://doi.org/10.3847/1538-4357/ad98f6 (open access at https://arxiv.org/abs/2410.18170)
+[^chen2025]: Y.-T. Chen et al., "Discovery and dynamics of a Sedna-like object with a perihelion of 66 au", Nature Astronomy 9, 1309-1316 (2025). https://doi.org/10.1038/s41550-025-02595-7
+[^brown2024]: M. E. Brown, M. J. Holman and K. Batygin, "A Pan-STARRS1 search for Planet Nine", Astronomical Journal 167, 146 (2024); arXiv:2401.17977. https://doi.org/10.3847/1538-3881/ad24e9 (open access at https://arxiv.org/abs/2401.17977)
 [^rubinfirstlook]: NSF-DOE Vera C. Rubin Observatory, "Rubin Observatory First Look" (23 June 2025). https://rubinobservatory.org/gallery/image-releases/rubin-first-look
 [^rubinlsst]: NSF-DOE Vera C. Rubin Observatory, "The Legacy Survey of Space and Time (LSST)" (updated 22 July 2026). https://rubinobservatory.org/for-scientists/rubin-101/the-legacy-survey-of-space-and-time-lsst
 [^rubinnumbers]: NSF-DOE Vera C. Rubin Observatory, "Key numbers" (updated 20 May 2026). https://rubinobservatory.org/for-scientists/rubin-101/key-numbers
@@ -408,5 +409,5 @@ Whether Planet Nine exists, and what lined up the distant orbits if anything did
 [^nasaapophis]: NASA Science, "Apophis". https://science.nasa.gov/solar-system/asteroids/apophis/
 [^nasaapex]: NASA Science, "OSIRIS-APEX". https://science.nasa.gov/mission/osiris-apex/
 [^jplelements]: NASA JPL Solar System Dynamics, "Approximate positions of the planets" (Keplerian elements: Jupiter a = 5.203 au; Neptune a = 30.070 au, e = 0.0086). https://ssd.jpl.nasa.gov/planets/approx_pos.html
-[^nasaio]: NASA Science, "Io". https://science.nasa.gov/jupiter/moons/io/
-[^nssdcsatsat]: NASA Space Science Data Coordinated Archive, "Saturnian Satellite Fact Sheet" (Hyperion 180 × 133 × 103 km in radius; orbital periods of Titan and Hyperion). https://nssdc.gsfc.nasa.gov/planetary/factsheet/saturniansatfact.html
+[^nasaio]: NASA Science, "Io". https://science.nasa.gov/jupiter/jupiter-moons/io/
+[^nssdcsatsat]: NASA Space Science Data Coordinated Archive, "Saturnian Satellite Fact Sheet" (Hyperion 180 × 133 × 103 km in radius; orbital periods of Titan and Hyperion; NASA's Hyperion page quotes a larger 410 × 260 × 220 km). https://nssdc.gsfc.nasa.gov/planetary/factsheet/saturniansatfact.html

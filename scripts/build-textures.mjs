@@ -232,7 +232,12 @@ export const MAPS = [
       // Umbriel, Hamlet and Othello on Oberon): 0° E at the image centre, east to the right.
       centerLonEast: 0,
       nullMax: 15,
+      // Which dark pixels are "not imaged": only those joined to the unimaged north (plus dark
+      // terminator speckle and the dark rim within bandPx of it). Dark pixels enclosed by imaged
+      // terrain are real (Hamlet's dark floor on Oberon) and are kept. See cleanEdgeMask().
+      edgeCleanup: { bandPx: 8, interiorPx: 20, darkPercentile: 2, minIslandPx: 200 },
     },
+    featherPx: 3,
     title: `${id[0].toUpperCase()}${id.slice(1)} Voyager 2 global map (NASA 3D Resources)`,
     page: `https://github.com/nasa/NASA-3D-Resources/tree/master/Images%20and%20Textures/Uranus%20-%20${id[0].toUpperCase()}${id.slice(1)}`,
     credit: 'NASA/JPL (Voyager 2 images, USGS-controlled mosaic); distributed by NASA 3D Resources',
@@ -241,13 +246,23 @@ export const MAPS = [
   })),
 ];
 
-/** The URL each map is read from (for credits and checks). */
+/** WMS GetMap request for a map (the server requires STYLES, even when empty). */
+function wmsUrl(s, w = s.fetchSize[0], h = s.fetchSize[1]) {
+  return `${s.url}&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&LAYERS=${s.layer}&STYLES=&SRS=EPSG:4326&BBOX=-180,-90,180,90&WIDTH=${w}&HEIGHT=${h}&FORMAT=image/png`;
+}
+
+/** The URL each map is read from (for credits and checks): always a plain, working URL. */
 export function downloadUrl(map) {
   const s = map.src;
   if (s.kind === 'usgs-tiff') return `${USGS}/${s.product}.tif`;
-  if (s.kind === 'zip-tiff') return `${s.url} (entry ${s.entry})`;
-  if (s.kind === 'wms') return `${s.url}&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&LAYERS=${s.layer}&SRS=EPSG:4326&BBOX=-180,-90,180,90&WIDTH=${s.fetchSize[0]}&HEIGHT=${s.fetchSize[1]}&FORMAT=image/png`;
+  if (s.kind === 'zip-tiff') return s.url;
+  if (s.kind === 'wms') return wmsUrl(s);
   return s.url;
+}
+
+/** For maps inside an archive: the entry that holds the image (else undefined). */
+export function downloadEntry(map) {
+  return map.src.kind === 'zip-tiff' ? map.src.entry : undefined;
 }
 
 // ─── Small utilities ────────────────────────────────────────────────────────────────────────
@@ -459,7 +474,7 @@ async function openWms(sharp, spec) {
   const [w, h] = spec.fetchSize;
   const mapName = new URL(spec.url).searchParams.get('map').split('/').pop().replace('.map', '');
   const file = join(RAW, `wms_${mapName}_${spec.layer}_${w}x${h}.png`);
-  const url = `${spec.url}&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&LAYERS=${spec.layer}&STYLES=&SRS=EPSG:4326&BBOX=-180,-90,180,90&WIDTH=${w}&HEIGHT=${h}&FORMAT=image/png`;
+  const url = wmsUrl(spec, w, h);
   const r = await decodeToRaster(sharp, await cachedGet(url, file));
   return inMemorySource(r, 0, r.W / 2);
 }
@@ -468,7 +483,147 @@ async function openUrlTiff(sharp, spec, id) {
   const r = await decodeToRaster(sharp, await cachedGet(spec.url, join(RAW, `${id}_nasa3d.tif`)));
   // These maps were made from JPEG-era sources: near-black speckle along the terminator is
   // treated as unimaged too.
-  return { ...inMemorySource(r, spec.centerLonEast, r.W / 2), nullMax: spec.nullMax ?? 0 };
+  const src = { ...inMemorySource(r, spec.centerLonEast, r.W / 2), nullMax: spec.nullMax ?? 0 };
+  if (spec.edgeCleanup) {
+    const m = cleanEdgeMask(r, src.nullMax, spec.edgeCleanup);
+    src.valid = m.valid;
+    console.log(`  edge mask: ${(100 * m.unimaged).toFixed(1)}% unimaged; dark threshold ${m.threshold}; ${m.keptDark} enclosed dark pixels kept as terrain`);
+  }
+  return src;
+}
+
+/**
+ * Validity mask for maps whose unimaged area is stored as near-black (the NASA 3D Resources
+ * Uranian moons). A plain threshold (value <= nullMax) also removes genuinely dark terrain, such
+ * as the dark floor of Hamlet crater on Oberon, and keeps the dark rim and speckle that
+ * JPEG-era processing left along the edge of the imaged area. Instead:
+ *   1. the unimaged region is the set of near-black pixels connected (4-neighbour, wrapping in
+ *      longitude) to the top row, which Voyager 2 never saw;
+ *   2. within bandPx of it, near-black pixels and pixels darker than the darkPercentile-th
+ *      percentile of the interior (farther than interiorPx) count as unimaged too: the rim;
+ *   3. imaged islands smaller than minIslandPx left inside the unimaged region are dropped.
+ * Near-black pixels enclosed by imaged terrain stay valid.
+ */
+function cleanEdgeMask(r, nullMax, { bandPx, interiorPx, darkPercentile, minIslandPx }) {
+  const { W, H, planes } = r;
+  const N = W * H;
+  const val = new Uint8Array(N);
+  for (let i = 0; i < N; i++) {
+    let v = 0;
+    for (const p of planes) v = Math.max(v, p[i]);
+    val[i] = v;
+  }
+  const cand = new Uint8Array(N);
+  for (let i = 0; i < N; i++) cand[i] = val[i] <= nullMax ? 1 : 0;
+  const queue = new Int32Array(N);
+  const neighbours4 = (i, fn) => {
+    const y = (i / W) | 0;
+    const x = i - y * W;
+    fn(y * W + ((x + 1) % W));
+    fn(y * W + ((x + W - 1) % W));
+    if (y > 0) fn(i - W);
+    if (y < H - 1) fn(i + W);
+  };
+  // 1. Unimaged region: near-black pixels joined to the top row.
+  const bad = new Uint8Array(N);
+  let qh = 0;
+  let qt = 0;
+  for (let x = 0; x < W; x++) if (cand[x]) (bad[x] = 1), (queue[qt++] = x);
+  while (qh < qt) {
+    const i = queue[qh++];
+    neighbours4(i, (j) => {
+      if (cand[j] && !bad[j]) (bad[j] = 1), (queue[qt++] = j);
+    });
+  }
+  // 2. Distance (8-neighbour steps, wrapping in longitude) from the unimaged region.
+  const BIG = 1 << 30;
+  const dist = new Int32Array(N).fill(BIG);
+  qh = 0;
+  qt = 0;
+  for (let i = 0; i < N; i++) if (bad[i]) (dist[i] = 0), (queue[qt++] = i);
+  while (qh < qt) {
+    const i = queue[qh++];
+    const d = dist[i] + 1;
+    if (d > interiorPx + 1) continue;
+    const y = (i / W) | 0;
+    const x = i - y * W;
+    for (let dy = -1; dy <= 1; dy++) {
+      const yy = y + dy;
+      if (yy < 0 || yy >= H) continue;
+      for (let dx = -1; dx <= 1; dx++) {
+        const j = yy * W + ((x + dx + W) % W);
+        if (dist[j] > d) (dist[j] = d), (queue[qt++] = j);
+      }
+    }
+  }
+  const hist = new Float64Array(256);
+  let count = 0;
+  for (let i = 0; i < N; i++) if (dist[i] > interiorPx && !cand[i]) (hist[val[i]]++, count++);
+  let threshold = 0;
+  for (let acc = 0; threshold < 255 && acc + hist[threshold] < (darkPercentile / 100) * count; threshold++) acc += hist[threshold];
+  for (let i = 0; i < N; i++) if (dist[i] <= bandPx && (cand[i] || val[i] < threshold)) bad[i] = 1;
+  // 3. Small imaged islands left in the unimaged region.
+  const label = new Int32Array(N).fill(-1);
+  for (let s = 0; s < N; s++) {
+    if (bad[s] || label[s] >= 0) continue;
+    qh = 0;
+    qt = 0;
+    queue[qt++] = s;
+    label[s] = s;
+    while (qh < qt) {
+      const i = queue[qh++];
+      neighbours4(i, (j) => {
+        if (!bad[j] && label[j] < 0) (label[j] = s), (queue[qt++] = j);
+      });
+    }
+    if (qt < minIslandPx) for (let k = 0; k < qt; k++) bad[queue[k]] = 1;
+  }
+  const valid = new Uint8Array(N);
+  let unimaged = 0;
+  let keptDark = 0;
+  for (let i = 0; i < N; i++) {
+    valid[i] = bad[i] ? 0 : 1;
+    unimaged += bad[i];
+    if (!bad[i] && cand[i]) keptDark++;
+  }
+  return { valid, unimaged: unimaged / N, threshold, keptDark };
+}
+
+/**
+ * Soften the edge of the imaged area over about featherPx output texels: coverage is multiplied
+ * by a smoothstep of the distance (8-neighbour steps, wrapping in longitude) from the nearest
+ * unimaged texel, so the map fades into the neutral fill instead of ending in a hard line.
+ */
+function featherCoverage(data, channels, Wo, Ho, featherPx) {
+  const N = Wo * Ho;
+  const c = channels - 1;
+  const BIG = 1 << 30;
+  const dist = new Int32Array(N).fill(BIG);
+  const queue = new Int32Array(N);
+  let qh = 0;
+  let qt = 0;
+  for (let i = 0; i < N; i++) if (data[i * channels + c] < 128) (dist[i] = 0), (queue[qt++] = i);
+  while (qh < qt) {
+    const i = queue[qh++];
+    const d = dist[i] + 1;
+    if (d > featherPx + 1) continue;
+    const y = (i / Wo) | 0;
+    const x = i - y * Wo;
+    for (let dy = -1; dy <= 1; dy++) {
+      const yy = y + dy;
+      if (yy < 0 || yy >= Ho) continue;
+      for (let dx = -1; dx <= 1; dx++) {
+        const j = yy * Wo + ((x + dx + Wo) % Wo);
+        if (dist[j] > d) (dist[j] = d), (queue[qt++] = j);
+      }
+    }
+  }
+  const out = Buffer.from(data);
+  for (let i = 0; i < N; i++) {
+    const u = Math.min(1, dist[i] / (featherPx + 1));
+    out[i * channels + c] = Math.round(data[i * channels + c] * u * u * (3 - 2 * u));
+  }
+  return out;
 }
 
 // ─── Reduction: area-average the source onto the output grid ───────────────────────────────
@@ -506,7 +661,8 @@ async function reduce(src, Wo, Ho, rowsPerBand) {
     const pw = new Float64Array(W + 1);
     for (let c = 0; c < W; c++) {
       let valid = 0;
-      for (let b = 0; b < bands; b++) if (rowsData[b][c] > nullMax) valid = 1;
+      if (src.valid) valid = src.valid[r * W + c];
+      else for (let b = 0; b < bands; b++) if (rowsData[b][c] > nullMax) valid = 1;
       pw[c + 1] = pw[c] + valid;
       for (let b = 0; b < bands; b++) pv[b][c + 1] = pv[b][c] + valid * rowsData[b][c];
     }
@@ -585,7 +741,8 @@ function fillAndFlatten(data, channels, Wo, Ho) {
 
 async function build(sharp, map) {
   const [Wo, Ho] = map.size;
-  const cache = join(RAW, `${map.id}.reduced.${Wo}x${Ho}.png`);
+  // Maps with the edge mask get their own cache name, so older reductions are never reused.
+  const cache = join(RAW, `${map.id}.reduced.${map.src.edgeCleanup ? 'edgemask1.' : ''}${Wo}x${Ho}.png`);
   let data;
   let channels;
   if (existsSync(cache)) {
@@ -607,6 +764,7 @@ async function build(sharp, map) {
     ({ data, channels } = packReduced(red, Wo, Ho));
     await sharp(data, { raw: { width: Wo, height: Ho, channels } }).png({ compressionLevel: 9 }).toFile(cache);
   }
+  if (map.featherPx) data = featherCoverage(data, channels, Wo, Ho, map.featherPx);
   let { pixels, bands, fill, meanLinear, imagedFraction } = fillAndFlatten(data, channels, Wo, Ho);
   // Some decoders hand a greyscale source back as three equal channels: store those as grey.
   if (bands === 3) {
@@ -622,9 +780,13 @@ async function build(sharp, map) {
     }
   }
   const file = join(OUT, `${map.id}.jpg`);
-  await sharp(pixels, { raw: { width: Wo, height: Ho, channels: bands } })
-    .jpeg({ quality: JPEG_QUALITY, mozjpeg: true, chromaSubsampling: '4:2:0' })
-    .toFile(file);
+  // Greyscale maps are written as true single-channel JPEGs ('b-w'); without it sharp writes
+  // three identical channels.
+  let img = sharp(pixels, { raw: { width: Wo, height: Ho, channels: bands } });
+  if (bands === 1) img = img.toColourspace('b-w');
+  await img.jpeg({ quality: JPEG_QUALITY, mozjpeg: true, chromaSubsampling: '4:2:0' }).toFile(file);
+  const written = await sharp(file).metadata();
+  if (written.channels !== bands) throw new Error(`${file}: wrote ${written.channels} channels, expected ${bands}`);
   const bytes = statSync(file).size;
   return { id: map.id, file: `public/textures/${map.id}.jpg`, width: Wo, height: Ho, bands, bytes, fill, meanLinear, imagedFraction: +imagedFraction.toFixed(4) };
 }

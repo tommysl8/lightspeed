@@ -1,8 +1,9 @@
 /**
- * Where you are, as a breadcrumb for the footer: "Solar System › Earth › Moon". Later updates
+ * Where you are, as a breadcrumb for the footer: "Solar System › Saturn › Titan". Built from
+ * the body registry's parents, so every body later data registers gets its trail. Later updates
  * add levels above (the Milky Way, the Local Group) as the universe in Lightspeed grows.
  */
-import { BODIES, type BodyId } from '../physics/constants';
+import { bodyName, lineage, rootOf, type BodyId } from '../sim/bodies';
 import type { ControlMode } from '../state/ui';
 
 export interface Crumb {
@@ -11,21 +12,11 @@ export interface Crumb {
   to?: 'solar-system' | BodyId;
 }
 
-/** Bodies outside the Solar System, and the region they are in. */
-const OUTSIDE: Partial<Record<BodyId, string>> = {
-  proxima: 'Solar neighbourhood',
-};
-
+/** The region a body is in: the Solar System (a link), or beyond it. */
 function region(id: BodyId): Crumb {
-  const outside = OUTSIDE[id];
-  return outside ? { label: outside } : { label: 'Solar System', to: 'solar-system' };
-}
-
-/** A body and the bodies it orbits, outermost first: Earth, Moon. */
-function lineage(id: BodyId): BodyId[] {
-  const out: BodyId[] = [];
-  for (let b: BodyId | undefined = id; b; b = BODIES[b].parent) out.unshift(b);
-  return out;
+  const root = rootOf(id);
+  if (!root || root.id === 'sun') return { label: 'Solar System', to: 'solar-system' };
+  return { label: 'Solar neighbourhood' };
 }
 
 /**
@@ -33,7 +24,9 @@ function lineage(id: BodyId): BodyId[] {
  * surroundings in free flight; the destination in flight.
  */
 export function locationPath(mode: ControlMode, focus: BodyId, dest: BodyId | null = null): Crumb[] {
-  if (mode === 'travel' && dest) return [region(dest), { label: `Flying to ${BODIES[dest].name}` }];
+  if (mode === 'travel' && dest) return [region(dest), { label: `Flying to ${bodyName(dest)}` }];
   if (mode === 'free') return [region(focus), { label: 'Free flight' }];
-  return [region(focus), ...lineage(focus).map((id): Crumb => ({ label: BODIES[id].name, to: id }))];
+  // The Sun heads its own region's trail only when it is the target ("Solar System › Sun").
+  const chain = lineage(focus).filter((r, i, all) => !(r.id === 'sun' && i < all.length - 1));
+  return [region(focus), ...chain.map((r): Crumb => ({ label: r.name, to: r.id }))];
 }

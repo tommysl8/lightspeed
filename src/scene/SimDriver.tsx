@@ -68,8 +68,8 @@ export function SimDriver() {
     }
 
     // Bodies that do not exist at this date (Voyager 1 before 1980) cannot stay targeted.
-    if (!sim.bodies[ui.focus].present && controller.mode !== 'travel') controller.goTo('earth');
-    if (ui.selected && !sim.bodies[ui.selected].present) ui.select(null);
+    if (!sim.bodies[ui.focus]?.present && controller.mode !== 'travel') controller.goTo('earth');
+    if (ui.selected && !sim.bodies[ui.selected]?.present) ui.select(null);
     labFrame();
     updatePulses();
 

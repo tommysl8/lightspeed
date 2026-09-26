@@ -251,8 +251,9 @@ position (epoch J1991.25) is carried to J2000 along the star's own 3D motion (it
 velocity); wherever AT-HYG's position differs from that by more than 0.1″ the corrected position is used. That
 applies to **4,493 stars**, 539 of which were at the Hipparcos epoch (the build log lists all brighter than V = 3.5).
 Before choosing this rule it was checked against Gaia DR3 positions carried to J2000 for 2,480 of the affected stars
-(G > 6, RUWE < 1.4): the Hipparcos-based positions agree with Gaia to 0.022″ (median; 90% within 0.09″ for the
-J1991.25 group and 0.37″ for the others), the AT-HYG positions to 0.05–0.8″ (median) with a 90th percentile of 2–4″.
+(G > 6, RUWE < 1.4): the Hipparcos-based positions agree with Gaia to 0.02″ (median; 90% within 0.09″ for the
+J1991.25 group and within 0.37–0.44″ for the others), the AT-HYG positions to 0.05–0.8″
+(median by group) with 90th percentiles of 0.7–4″.
 
 **ξ Ursae Majoris (Alula Australis, a vertex of the Ursa Major figure).** AT-HYG gave A and B the same position
 (Tycho-2's photocentre of the pair) and A the Gliese distance 10.42 pc while B had 8.73 pc; A also had no velocity and
@@ -607,3 +608,22 @@ Inputs in `data-raw/` (sha256):
 
 The build takes about 80 s and is deterministic. `build-stars3d.mjs` reads `d3celestial_constellations.json` for constellation
 names; `build-constellations.mjs` must run after it because star indices depend on the sort order.
+
+---
+
+## 10. Changes after the independent verification (25 September 2026)
+
+A check against SIMBAD, VizieR and the cited papers confirmed the file layouts, the ecliptic rotation, the distances
+and velocities, the visual orbits against the Sixth Orbit Catalog and every other constellation vertex, and found
+the following, all fixed here (details in the sections named):
+
+1. **Epoch of positions (§4.1).** Stars from the Tycho-2 supplement carried their Hipparcos J1991.25 positions
+   (Arcturus 19.9″ off, Altair 5.8″, Pollux 5.5″, Vega 3.1″), and some HYG-derived positions were off by several
+   arcseconds. 4,493 positions are now the Hipparcos new reduction carried to J2000; bright stars agree with
+   SIMBAD's J2000 positions to 0.054″ (median). New cached input: `data-raw/hip2_pos.csv.gz`.
+2. **Zero velocities (§4.5).** 454 stars had no velocity because AT-HYG gives their proper motion no source; 21
+   remain (309 filled from Hipparcos, 3 from Gaia DR3, 120 keep AT-HYG's value). Castor now moves.
+3. **ξ UMa A (§4.1).** Was 1.7 pc behind its companion, at the same sky position, without a velocity or HIP number.
+4. **Canes Venatici (§3.5).** The figure now ends on Cor Caroli (α² CVn), not its faint companion α¹ CVn.
+5. **Licence (§8).** The files cannot be released under CC BY-SA 4.0 alone because they contain Gaia-derived
+   values (CC BY-NC 3.0 IGO); the CREDITS row now says non-commercial use, with both credits.

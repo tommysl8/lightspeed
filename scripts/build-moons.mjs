@@ -321,6 +321,64 @@ async function loadCheckpoints(b) {
   };
 }
 
+/**
+ * Independent validation grid: positions every 6007 minutes (4.17 d) over the precise window,
+ * starting 0.3137 d after its start, so no epoch falls on a fitted sample (those are whole minutes
+ * from the window start). About 19,000 epochs per body; never used by the fit. Its RMS is the
+ * out-of-sample RMS reported as accuracy.rmsKm.
+ */
+const VALID_STEP_MIN = 6007;
+const VALID_OFFSET_D = 0.3137;
+async function loadValidation(b) {
+  const end = Math.min(WIN1, HZ_CORE_END[b.c] ?? WIN1);
+  return vectorsRange(b.hz, b.c, WIN0 + VALID_OFFSET_D, end, VALID_STEP_MIN, 1);
+}
+
+/** Round up to two significant figures. */
+function ceil2(x) {
+  if (!(x > 0)) return x;
+  const e = 10 ** (Math.floor(Math.log10(x)) - 1);
+  return Number((Math.ceil(x / e - 1e-9) * e).toPrecision(2));
+}
+
+/**
+ * Out-of-sample statistics on the validation grid, and the final accuracy block:
+ *   rmsKm      RMS on the validation grid (out of sample)
+ *   fitRmsKm   RMS on the fitted grid (in sample; lower, because the fit sees those epochs)
+ *   maxKm      largest error seen on any set (fitted grid, dense window, checkpoints, validation)
+ *   boundKm    stated bound: 1.25 × maxKm rounded up to two figures. Not a proof, a margin over
+ *              the largest of 60,000–230,000 comparisons per body.
+ */
+function applyValidation(model, v) {
+  let mx = 0;
+  let rs = 0;
+  let at = 0;
+  for (let i = 0; i < v.t.length; i++) {
+    const t = v.t[i] - JD2000;
+    const p = evalMoon(model, t);
+    const e = Math.hypot(p[0] - v.cols[0][i], p[1] - v.cols[1][i], p[2] - v.cols[2][i]);
+    rs += e * e;
+    if (e > mx) (mx = e), (at = t);
+  }
+  const r2 = (x) => Math.round(x * 100) / 100;
+  const A = model.accuracy;
+  const fitRms = A.fitRmsKm ?? A.rmsKm;
+  const maxKm = r2(Math.max(A.fitMaxKm, A.denseMaxKm, A.checkpointMaxKm, mx));
+  model.accuracy = {
+    maxKm,
+    boundKm: ceil2(1.25 * maxKm),
+    rmsKm: r2(Math.sqrt(rs / v.t.length)),
+    fitRmsKm: fitRms,
+    fitMaxKm: A.fitMaxKm,
+    denseMaxKm: A.denseMaxKm,
+    checkpointMaxKm: A.checkpointMaxKm,
+    validation: { points: v.t.length, stepMinutes: VALID_STEP_MIN, startTdb: r2(v.t[0] - JD2000), maxKm: r2(mx), maxAtTdb: Math.round(at * 100) / 100, rmsKm: r2(Math.sqrt(rs / v.t.length)) },
+    targetKm: A.targetKm,
+    illustrativeOutsideKm: A.illustrativeOutsideKm,
+  };
+  return model.accuracy;
+}
+
 /** Positions only, every 3001 minutes over the window: the Galilean check of astronomy-engine. */
 async function loadGalileanCheck(b) {
   return vectorsRange(b.hz, b.c, WIN0, WIN1, 3001, 1);
@@ -1254,7 +1312,7 @@ async function fitBody(b, log) {
   const r2 = (x) => Math.round(x * 100) / 100;
   model.accuracy = {
     maxKm: r2(Math.max(sFit.max, sDense.max, sCk.max)),
-    rmsKm: r2(sFit.rms),
+    fitRmsKm: r2(sFit.rms),
     fitMaxKm: r2(sFit.max),
     denseMaxKm: r2(sDense.max),
     checkpointMaxKm: r2(sCk.max),
@@ -1264,7 +1322,7 @@ async function fitBody(b, log) {
   const nTerms = model.l.t.length + model.l.m.length + model.a.m.length + model.z.m.length + model.s.m.length + model.xy.length + model.zz.length + 2;
   model.source = `JPL Horizons ${b.eph}, ${b.hz} relative to @${b.c}; ${nTerms} periodic terms`;
   log(
-    `${b.id.padEnd(9)} max ${model.accuracy.maxKm.toFixed(1).padStart(7)} km (fit ${sFit.max.toFixed(1)}, dense ${sDense.max.toFixed(1)}, checkpoints ${sCk.max.toFixed(1)}), rms ${sFit.rms.toFixed(1)}, target ${target.toFixed(0)}; ${nTerms} terms, ${JSON.stringify(model).length} B, ${((Date.now() - T0) / 1000).toFixed(0)} s`,
+    `${b.id.padEnd(9)} max ${model.accuracy.maxKm.toFixed(1).padStart(7)} km (fit ${sFit.max.toFixed(1)}, dense ${sDense.max.toFixed(1)}, checkpoints ${sCk.max.toFixed(1)}), in-sample rms ${sFit.rms.toFixed(1)}, target ${target.toFixed(0)}; ${nTerms} terms, ${JSON.stringify(model).length} B, ${((Date.now() - T0) / 1000).toFixed(0)} s`,
   );
   return { model, checkpoints: { horizons: { target: b.hz, centre: b.c }, inside: ck.inside, outside: ck.outside } };
 }
@@ -1308,12 +1366,28 @@ async function main() {
   const jobs = jobsArg >= 0 ? Number(args[jobsArg + 1]) : Math.max(1, availableParallelism() - 1);
   const todo = BODIES.filter((b) => !only || only.includes(b.id));
 
+  // --validate-only: re-measure the shipped models on the validation grid, without refitting.
+  if (args.includes('--validate-only')) {
+    const catalog = JSON.parse(readFileSync(OUT_JSON, 'utf8'));
+    console.log('body         max km  bound km  rms km (out of sample)  fit rms km  validation max km  points');
+    for (const m of catalog.moons) {
+      const b = BODIES.find((x) => x.id === m.id);
+      if (!todo.includes(b)) continue;
+      const A = applyValidation(m, await loadValidation(b));
+      console.log(`${m.id.padEnd(10)} ${A.maxKm.toFixed(2).padStart(8)} ${String(A.boundKm).padStart(9)} ${A.rmsKm.toFixed(2).padStart(23)} ${A.fitRmsKm.toFixed(2).padStart(11)} ${A.validation.maxKm.toFixed(2).padStart(18)} ${String(A.validation.points).padStart(7)}`);
+    }
+    writeFileSync(OUT_JSON, JSON.stringify(catalog));
+    console.log(`\nUpdated the accuracy blocks in ${OUT_JSON}`);
+    return;
+  }
+
   // 1. Make sure everything is cached (sequential requests), before any worker starts.
   console.log('Checking the Horizons cache ...');
   for (const b of todo) {
     await loadFull(b);
     await loadDense(b);
     await loadCheckpoints(b);
+    await loadValidation(b);
     if (b.planet === 'jupiter') await loadGalileanCheck(b);
   }
 
@@ -1340,6 +1414,7 @@ async function main() {
   if (only && existsSync(OUT_JSON)) for (const m of JSON.parse(readFileSync(OUT_JSON, 'utf8')).moons) previous[m.id] = m;
   const moons = BODIES.map((b) => results[b.id]?.model ?? previous[b.id]).filter(Boolean);
   for (const m of moons) m.orbit = orbitSummary(m, BODIES.find((b) => b.id === m.id));
+  for (const b of todo) applyValidation(results[b.id].model, await loadValidation(b));
   const galilean = await galileanReport();
   const catalog = {
     format: 'lightspeed-moons/1',
@@ -1366,10 +1441,10 @@ async function main() {
 
   const size = readFileSync(OUT_JSON).length;
   console.log(`\nWrote ${OUT_JSON} (${(size / 1024).toFixed(1)} KB) and ${OUT_FIXTURES}`);
-  console.log('\nbody       max km   target km  checkpoints km  rms km');
+  console.log('\nbody       max km  bound km  target km  checkpoints km  rms km (out of sample)  fit rms km');
   for (const m of moons) {
     const A = m.accuracy;
-    console.log(`${m.id.padEnd(10)} ${A.maxKm.toFixed(1).padStart(7)} ${A.targetKm.toFixed(0).padStart(10)} ${A.checkpointMaxKm.toFixed(1).padStart(14)} ${A.rmsKm.toFixed(1).padStart(7)}`);
+    console.log(`${m.id.padEnd(10)} ${A.maxKm.toFixed(1).padStart(7)} ${String(A.boundKm).padStart(9)} ${A.targetKm.toFixed(0).padStart(10)} ${A.checkpointMaxKm.toFixed(1).padStart(14)} ${A.rmsKm.toFixed(1).padStart(23)} ${A.fitRmsKm.toFixed(1).padStart(11)}`);
   }
   if (galilean) {
     console.log('\nastronomy-engine JupiterMoons() vs Horizons, 1981-2199:');

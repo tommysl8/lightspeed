@@ -21,7 +21,7 @@
  */
 import { Vector3 } from 'three';
 import type { AstroTime } from 'astronomy-engine';
-import { BODIES, C_KM_S, G0_KM_S2, type BodyId } from '../physics/constants';
+import { C_KM_S, G0_KM_S2 } from '../physics/constants';
 import { solveInterceptReach } from '../physics/intercept';
 import { gamma } from '../physics/relativity';
 import {
@@ -35,7 +35,7 @@ import {
 } from '../physics/rocket';
 import { framingDistance } from '../controls/framing';
 import { formatDurationShort, msFromAstroTime } from '../lib/time';
-import { bodyAvailability, bodyPositionAt } from './ephemeris';
+import { bodyAvailability, bodyName, bodyPositionAt, type BodyId } from './bodies';
 import { sim } from './sim';
 import { advanceTime, stepWarp } from './clock';
 
@@ -326,7 +326,8 @@ export function updateTrip(): boolean {
       at: performance.now(),
     };
     travel.trip = null;
-    sim.ship.vel.copy(sim.bodies[t.dest].vel);
+    const dest = sim.bodies[t.dest];
+    if (dest) sim.ship.vel.copy(dest.vel);
     return true;
   }
   sim.ship.vel.copy(t.dir).multiplyScalar(s.beta * C_KM_S);
@@ -409,4 +410,4 @@ export function tripPace(t: Trip, warp: number = sim.warp): TripPace {
   };
 }
 
-export const describeDest = (id: BodyId): string => BODIES[id].name;
+export const describeDest = (id: BodyId): string => bodyName(id);

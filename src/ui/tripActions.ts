@@ -1,5 +1,5 @@
 /** Glue between the trip model, the camera and the UI. */
-import type { BodyId } from '../physics/constants';
+import type { BodyId } from '../sim/bodies';
 import { controller } from '../controls/cameraController';
 import { sim } from '../sim/sim';
 import { abortTrip, launch, planTrip, travel, type Drive } from '../sim/travel';
@@ -52,7 +52,10 @@ export function stopTrip(): void {
 /** Called by the simulation driver on the frame the ship arrives. */
 export function onArrival(dest: BodyId): void {
   sim.camera.pos.copy(travel.shipPos);
+  // The destination may have left the registry during the flight: the camera then orbits the
+  // nearest body, and nothing is selected.
+  const there = !!sim.bodies[dest]?.present;
   controller.finishTravel(dest);
   endJourney();
-  useUI.setState({ tripActive: false, selected: dest });
+  useUI.setState({ tripActive: false, selected: there ? dest : null });
 }

@@ -70,3 +70,23 @@ describe('light-pulse detectors', () => {
     }
   });
 });
+
+describe('which bodies carry detectors', () => {
+  it('planets, dwarf planets, spacecraft and the large moons, unless a record says otherwise', async () => {
+    const { hasDetector } = await import('./pulses');
+    const { getBody } = await import('./bodies');
+    const r = (kind: string, radiusKm: number, detector?: boolean) =>
+      ({ id: 'x', name: 'X', kind, parent: 'sun', physical: { radiusKm, colour: '#fff' }, provider: null, detector }) as never;
+    for (const id of ['sun', 'mercury', 'earth', 'moon', 'pluto', 'voyager1', 'proxima']) expect(hasDetector(getBody(id)!), id).toBe(true);
+    expect(hasDetector(r('moon', 1821))).toBe(true); // Io
+    expect(hasDetector(r('moon', 198))).toBe(false); // Mimas
+    expect(hasDetector(r('moon', 198, true))).toBe(true);
+    expect(hasDetector(r('dwarf-planet', 470))).toBe(true); // Ceres
+    expect(hasDetector(r('spacecraft', 0.0013))).toBe(true);
+    expect(hasDetector(r('comet', 2))).toBe(false);
+    expect(hasDetector(r('asteroid', 260))).toBe(false);
+    expect(hasDetector(r('interstellar', 0.1))).toBe(false);
+    expect(hasDetector(r('planet', 6000, false))).toBe(false);
+    expect(hasDetector(getBody('pluto-barycentre')!)).toBe(false);
+  });
+});

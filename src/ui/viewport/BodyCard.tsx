@@ -3,7 +3,8 @@
  * the things to do with it: go there, fly there, read about it, or open its full data sheet
  * in the instrument panel.
  */
-import { BODIES, C_KM_S } from '../../physics/constants';
+import { C_KM_S } from '../../physics/constants';
+import { getBody } from '../../sim/bodies';
 import { fixed, qty, sig } from '../../lib/sci';
 import { sim } from '../../sim/sim';
 import { useUI } from '../../state/ui';
@@ -29,8 +30,9 @@ export function BodyCard() {
   const readable = useHasArticle(slug);
   useTicker(3, !!id && show);
   if (!id || !show) return null;
-  const d = BODIES[id];
+  const d = getBody(id);
   const b = sim.bodies[id];
+  if (!d || !b) return null;
   const r = qty(b.distTrue, 'length', 4);
   const lt = qty(b.distTrue / C_KM_S, 'time', 3);
   const geo = targetReading(id);
@@ -42,6 +44,11 @@ export function BodyCard() {
         <div className="min-w-0 flex-1">
           <div className="font-serif text-[18px] font-medium leading-tight text-fg">{d.name}</div>
           <div className="mt-0.5 text-[11px] text-fg-3">{bodyKindText(id)}</div>
+          {(b.regime === 'illustrative' || b.regime === 'extrapolated') && (
+            <div className="mt-0.5 text-[11px] text-hazard" title={d.provider.label}>
+              {b.regime === 'illustrative' ? 'Position illustrative at this date' : 'Position extrapolated beyond its data'}
+            </div>
+          )}
         </div>
         <button className="btn btn-q btn-sq -mr-1.5 -mt-1 !h-6 !w-6" onClick={() => useUI.setState({ bodyCard: false })} aria-label="Close card">
           <CloseIcon />
@@ -61,7 +68,7 @@ export function BodyCard() {
         )}
       </div>
       <div className="border-t border-line px-3.5 pb-2.5 pt-2">
-        {d.facts.map((f) => (
+        {(d.facts ?? []).map((f) => (
           <p key={f} className="mb-1.5 font-serif text-[12.5px] leading-snug text-fg-2 last:mb-0">
             {f}
           </p>

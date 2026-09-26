@@ -7,11 +7,11 @@ pitch: In 1927 a Belgian priest measured the expansion of the universe. In 1931 
 updated: 2026-09-25
 ---
 
-On 4 February 1917 Albert Einstein, in wartime Berlin, wrote to his friend Paul Ehrenfest in Leiden. He had just done something in gravitation theory, he said, that exposed him "a bit to the danger of being committed to a madhouse".[^oraif2017] Four days later he read the paper to the Prussian Academy of Sciences. It took his general theory of relativity, barely a year old, and applied it to the whole universe at once.[^oraif2017]
+On 4 February 1917 Albert Einstein, in wartime Berlin, wrote to his friend Paul Ehrenfest in Leiden. He had just done something in gravitation theory, he said, that exposed him "a bit to the danger of being committed to a madhouse".[^oraif2017] Four days later he read the paper to the Prussian Academy of Sciences. It applied his general theory of relativity, barely a year old, to the whole universe at once.[^oraif2017]
 
 Everyone knew what the universe was like. Stars drift about, but on the whole nothing goes anywhere, and Einstein built that into his calculation as an assumption.[^oraif2018] His equations would not cooperate. A universe full of matter pulls on itself and cannot simply hang there, so he added one extra term: a constant, written with the Greek letter lambda, Λ, that pushes gently outwards over enormous distances and holds everything in balance.[^oraif2018]
 
-He dropped it fourteen years later, and in 1998 it came back. In between, a Russian meteorologist and a Belgian priest worked out that the universe ought to be expanding, astronomers in California found that it is, and two radio astronomers at a telephone company's laboratory in New Jersey picked up the leftover heat of its hot beginning in an antenna that pigeons had been nesting in.
+He dropped it fourteen years later, and in 1998 it came back. In between, a Russian meteorologist and a Belgian priest worked out that the universe ought to be expanding, astronomers in California found that it is, and two radio astronomers at a telephone company's laboratory in New Jersey picked up the leftover heat of its hot beginning in an antenna that pigeons had been roosting in.
 
 ## A universe that would not stand still
 
@@ -25,7 +25,7 @@ Friedmann did not live to see anyone take it seriously. In July 1925 he rode a b
 
 ## The priest who measured it first
 
-On the night of 17 September 1912, at the Lowell Observatory in Flagstaff, Arizona, Vesto Slipher photographed the spectrum of the Andromeda Nebula. Its dark lines were shifted towards the blue: it was coming towards us at about 300 km/s, so fast that some astronomers refused to believe it.[^aipexp] By 1917 he had measured 25 spiral nebulae, and 21 of them were moving away.[^luminet2013] How far away they were stayed unknown until Edwin Hubble found Cepheid stars in them in the mid-1920s; [Island universes](#/learn/island-universes) tells that story.
+On the night of 17 September 1912, at the Lowell Observatory in Flagstaff, Arizona, Vesto Slipher photographed the spectrum of the Andromeda Nebula. Its dark lines were shifted towards the blue, and further exposures that December showed it coming towards us at about 300 km/s, so fast that some astronomers refused to believe it.[^aipexp] By 1917 he had measured 25 spiral nebulae, and 21 of them were moving away.[^luminet2013] How far away they were stayed unknown until Edwin Hubble found Cepheid stars in them in the mid-1920s; [Island universes](#/learn/island-universes) tells that story.
 
 Georges Lemaître was ordained a Catholic priest in 1923 and spent the next two years studying with Arthur Eddington in Cambridge and then at Harvard and MIT.[^luminet2013] Back in Belgium in 1927 he published a paper in the *Annales de la Société scientifique de Bruxelles* whose title gave away the plot: "A homogeneous universe of constant mass and increasing radius accounting for the radial velocity of extra-galactic nebulae".[^luminet2013]
 
@@ -43,11 +43,11 @@ Lemaître derived the expansion from general relativity and measured its rate in
 
 ## Hubble, Humason and a straight line
 
-In September 1928 the International Astronomical Union met in Leiden, and Hubble talked cosmology with de Sitter. Back at Mount Wilson in California he asked his observing assistant, Milton Humason, to find out whether fainter, presumably more distant, galaxies had larger redshifts.[^vdb2011][^aipexp] Humason measured the velocities; Hubble worked out the distances.[^aipexp]
+In July 1928 the International Astronomical Union met in Leiden, and Hubble talked cosmology with de Sitter.[^iau1928][^aipexp] Back at Mount Wilson in California he asked his observing assistant, Milton Humason, to find out whether fainter, presumably more distant, galaxies had larger redshifts.[^vdb2011][^aipexp] Humason measured new velocities; Hubble worked out the distances.[^aipexp]
 
-Hubble's six-page paper appeared in the *Proceedings of the National Academy of Sciences* on 15 March 1929. For 24 galaxies with individual distances he got 465 ± 50 km/s per megaparsec, and grouping them gave 513 ± 60. Only in the last paragraph did he mention theory, and then only to say the relation might be the effect de Sitter's model predicted.[^hubble1929][^luminet2013] Two years later Hubble and Humason added 40 new velocities, out to a cluster of galaxies in Leo receding at 19,600 km/s, and the straight line held.[^hh1931][^vdb2011] Humason's companion paper chose its words with care: it was about "apparent" velocity shifts.[^vdb2011]
+Hubble's six-page paper appeared in the *Proceedings of the National Academy of Sciences* on 15 March 1929. Most of its velocities were still Slipher's, and Slipher went uncredited.[^luminet2013] For 24 galaxies with individual distances he got 465 ± 50 km/s per megaparsec, and grouping them gave 513 ± 60. Only in the last paragraph did he mention theory, and then only to say the relation might be the effect de Sitter's model predicted.[^hubble1929][^luminet2013] Two years later Hubble and Humason added 40 new velocities, out to a cluster of galaxies in Leo receding at 19,600 km/s, and the straight line held.[^hh1931][^vdb2011] Humason's companion paper chose its words with care, calling them *apparent* velocity shifts.[^vdb2011]
 
-Einstein visited California early in 1931. In April he published a short paper that threw Λ out. His static universe was unstable, and Hubble's results showed it was not static anyway: "On these grounds alone, I am no longer inclined to ascribe a physical meaning to my former solution."[^oraif2018] In 1932 he and de Sitter proposed the simplest expanding universe of all, flat and without Λ.[^eds1932]
+Einstein visited California early in 1931, and in April he threw Λ out. Hubble had shown the universe was not static, and Einstein now accepted that his solution was unstable too: "On these grounds alone, I am no longer inclined to ascribe a physical meaning to my former solution."[^oraif2018] In 1932 he and de Sitter proposed the simplest expanding universe of all, flat and without Λ.[^eds1932]
 
 ### Redshift is stretching
 
@@ -57,9 +57,9 @@ $$1 + z = \frac{\lambda_{\text{seen}}}{\lambda_{\text{sent}}}$$
 
 In words: one plus the redshift equals the wavelength we see divided by the wavelength the galaxy sent out.
 
-The Coma Cluster of galaxies recedes at 6,933 km/s.[^simbad] Hydrogen glows at 656.3 nm; from Coma the same line arrives at 671.5 nm. Then $1 + z = 671.5 \div 656.3 = 1.0231$, so $z = 0.0231$. For small redshifts the speed is close to $z$ times the speed of light: $0.0231 \times 299{,}792 = 6{,}930$ km/s.
+Hydrogen glows at 656.3 nm; from the Coma Cluster of galaxies the same line arrives at 671.66 nm.[^simbad] Then $1 + z = 671.66 \div 656.3 = 1.0234$, so $z = 0.0234$. For small redshifts the speed is close to $z$ times the speed of light: $0.0234 \times 299{,}792 = 7{,}015$ km/s, so Coma is receding at about 7,000 km/s.
 
-Lemaître's picture gives $1 + z$ a second meaning: it is the number of times the universe has stretched while the light was on its way. For JADES-GS-z14-0, one of the most distant galaxies known, the ALMA radio telescopes pinned the redshift at 14.18, so the universe has grown 15.18 times since that light set out.[^carniani2025] Ultraviolet light the galaxy gave out at 121.6 nm now arrives in the infrared at 1,845 nm, which is why it took the James Webb Space Telescope to find it. Treating a shift that large as an ordinary Doppler shift gives wrong answers, and measurements of distant supernovae rule that reading out by 23 standard deviations.[^davis2004]
+Lemaître's picture gives $1 + z$ a second meaning: it is the number of times the universe has stretched while the light was on its way. For JADES-GS-z14-0, one of the most distant galaxies known, the ALMA radio telescopes pinned the redshift at 14.18, so the universe has grown 15.18 times since that light set out.[^carniani2025] Ultraviolet light the galaxy gave out at 121.6 nm now arrives in the infrared at 1,846 nm, which is why it took the James Webb Space Telescope to find it. Treating a shift that large as an ordinary Doppler shift gives wrong answers, and measurements of distant supernovae rule that reading out by 23 standard deviations.[^davis2004]
 
 ::: see-it go:jades-gs-z14-0
 The camera glides to JADES-GS-z14-0 and shows its card. Every wavelength of the light that reaches you from it has been stretched 15.18 times on the way.
@@ -71,7 +71,7 @@ $$v = H_0\, d$$
 
 In words: a galaxy's speed away from us equals the Hubble constant times its distance.
 
-The Planck satellite's value of $H_0$ is 67.4 km/s per megaparsec.[^planck2018] The Virgo Cluster, the nearest big cluster of galaxies, is 16.5 Mpc away, or 53.8 million light-years.[^mei2007] The law predicts $67.4 \times 16.5 = 1{,}112$ km/s, and the cluster's measured speed is about 1,140 km/s.[^simbad] The mismatch is real motion: galaxies also swing about under each other's gravity at hundreds of kilometres per second, which is why the 1927 and 1929 data, none of it more than about 3 Mpc away, scattered so badly.[^luminet2013] Closer in, gravity wins outright. The expansion would carry Andromeda, 2.5 million light-years away, off at 52 km/s; instead it is falling towards the Milky Way at 109 km/s.[^nasam31][^vdmarel2012]
+The Planck satellite's value of $H_0$ is 67.4 km/s per megaparsec.[^planck2018] The Virgo Cluster, the nearest big cluster of galaxies, is 16.5 Mpc away, or 53.8 million light-years.[^mei2007] The law predicts $67.4 \times 16.5 = 1{,}112$ km/s, and the cluster's measured speed is about 1,140 km/s.[^simbad] The two agree to within the uncertainty in the distance, but galaxies also swing about under each other's gravity at hundreds of kilometres per second, which is why the 1927 and 1929 data, all from comparatively nearby galaxies, scattered so badly.[^mei2007][^luminet2013] Closer in, gravity wins outright. The expansion would carry Andromeda, 2.5 million light-years away, off at 52 km/s; instead it is falling towards the Milky Way at 109 km/s.[^nasam31][^vdmarel2012]
 
 ::: see-it fly:virgo-cluster
 A 1 g flight to the Virgo Cluster. Watch the two clocks: a few decades pass on board while tens of millions of years pass at home, and all the while the space between Earth and the cluster grows.
@@ -87,7 +87,7 @@ In words: the Hubble time is one divided by the Hubble constant.
 
 The units need care. $H_0$ is 67.4 km/s per megaparsec, and a megaparsec is $3.086 \times 10^{19}$ km, so $1/H_0 = 3.086 \times 10^{19} \div 67.4 = 4.58 \times 10^{17}$ s. A year is $3.156 \times 10^{7}$ s, so the Hubble time is 14.5 billion years. With Hubble's 500 km/s per megaparsec the same sum gives 1.96 billion years, and in the Einstein–de Sitter universe, which slows down as it goes, the age is two-thirds of that: 1.3 billion years.[^oraif2018]
 
-That was a disaster. Geologists dating rocks by their radioactivity already had the Earth older than that.[^aipdouble] The rescue came in the 1950s, when Walter Baade showed that there are two kinds of Cepheid star and Hubble had calibrated his distances with the wrong kind. Distances to galaxies doubled, and by the end of the decade Allan Sandage had $H_0$ down to 75 ± 25.[^aipdouble][^oraif2018] Today the Planck satellite gives the age of the universe as 13.787 ± 0.020 billion years.[^planck2018] That is close to the Hubble time but not equal to it, because the expansion has not run at a steady rate. It slowed for most of history and, with Planck's numbers, has been speeding up for about the last six billion years.
+That was a disaster. Geologists dating rocks by their radioactivity already had the Earth older than that.[^aipdouble] The rescue came in the 1950s, when Walter Baade showed that there are two kinds of Cepheid star and Hubble had calibrated his distances with the wrong kind. Distances to galaxies doubled, and by the end of the decade Allan Sandage had $H_0$ down to 75 ± 25.[^aipdouble][^oraif2018] Today the Planck satellite gives the age of the universe as 13.797 ± 0.023 billion years.[^planck2018] That is close to the Hubble time but not equal, because the expansion has not run steadily: it slowed for most of history and, with Planck's numbers, has been speeding up for about the last six billion years.
 
 ::: numbers The expansion rate, measured
 | Who | When | $H_0$ (km/s per Mpc) |
@@ -135,7 +135,7 @@ Building every element by adding neutrons one at a time did not work, because no
 
 ### Three minutes of cooking
 
-In its first second the universe was hotter than ten billion degrees, a soup of protons, neutrons, electrons, neutrinos and light in which protons and neutrons kept turning into each other. Neutrons are slightly heavier, so they were always a little outnumbered. As the universe cooled, the swapping became too slow to keep up, and the ratio froze at about one neutron for every six protons. Free neutrons decay, with an average lifetime of 879 seconds, so by the time it was cool enough for nuclei to survive, below about a billion degrees, the ratio had fallen to about one in seven. Almost every remaining neutron was then locked into helium-4, and by about three minutes the recipe was fixed, in gas about as dense as air.[^pdg2024]
+In its first second the universe was hotter than ten billion degrees, a soup of protons, neutrons, electrons, neutrinos and light in which protons and neutrons kept turning into each other. Neutrons are slightly heavier, so they were always a little outnumbered. As the universe cooled, the swapping became too slow to keep up, and the ratio froze at about one neutron for every six protons. Free neutrons decay, with an average lifetime of about 878 seconds,[^pdgn] so by the time it was cool enough for nuclei to survive, below about a billion degrees, the ratio had fallen to about one in seven. Almost every remaining neutron was then locked into helium-4, and by about three minutes the recipe was fixed, in gas about as dense as air.[^pdg2024]
 
 That fixes the helium share by counting. Each helium nucleus uses two neutrons, so the fraction of all the mass that ends up as helium is
 
@@ -149,7 +149,7 @@ The calculations said something else too. The light that filled the early univer
 
 ## Big Bang or steady state
 
-In 1948 three friends from wartime radar work in Britain, Hermann Bondi, Thomas Gold and Fred Hoyle, proposed a different universe. It expands, but it looks the same at every place and at every time: as galaxies move apart, new matter appears in the gaps and new galaxies form from it. Bondi and Gold published in June, Hoyle in October.[^bondigold1948][^hoyle1948] The rate of creation needed was tiny, by Hoyle's reckoning about one atom a year in a volume the size of St Paul's Cathedral.[^kragh2013] Hoyle liked to say the idea came after the three of them saw a ghost film that ended where it began, a story not every historian believes.[^aipbigbang] Einstein had sketched a similar model in early 1931 and dropped it after finding a mistake.[^oraif2014]
+In 1948 three friends from wartime radar work in Britain, Hermann Bondi, Thomas Gold and Fred Hoyle, proposed a different universe. It expands, but it looks the same at every place and at every time: as galaxies move apart, new matter appears in the gaps and new galaxies form from it. Bondi and Gold's paper appeared first, Hoyle's a few months later.[^bondigold1948][^hoyle1948] The rate of creation needed was tiny, by Hoyle's reckoning about one atom a year in a volume the size of St Paul's Cathedral.[^kragh2013] Hoyle liked to say the idea came after the three of them saw a ghost film that ended where it began, a story not every historian believes.[^aipbigbang] Einstein had sketched a similar model, probably in early 1931, and seems to have dropped it after finding a mistake.[^oraif2014]
 
 It had real attractions: no beginning to explain, and no age problem. On 28 March 1949 Hoyle gave a twenty-minute talk on the BBC's Third Programme. Describing the rival theories, he said they assumed "all the matter of the universe was created in one big bang at a particular time in the remote past".[^kragh2013] He thought the idea unscientific and said so. The name stuck.
 
@@ -157,7 +157,7 @@ It had real attractions: no beginning to explain, and no age problem. On 28 Marc
 Hoyle said he was reaching for vivid pictures on radio and did not mean it as an insult, and there is no record that Gamow, Lemaître or anyone else took offence at the time. The often-told BBC debate in which Hoyle sneered at Gamow never happened.[^kragh2013]
 :::
 
-Nobody has improved on the name. In 1993 the magazine *Sky & Telescope* ran a competition to replace it; 13,099 entries came in from 41 countries, and the judges, Carl Sagan among them, picked none.[^kragh2013]
+Nobody has improved on the name. In 1993 *Sky & Telescope* ran a competition to replace it; 13,099 entries came in from 41 countries, and the judges, Carl Sagan among them, picked none.[^kragh2013]
 
 The steady state predicted a universe that looks the same at every epoch. In the early 1960s counts of distant radio sources and the discovery of quasars suggested it did not: the universe had changed.[^kragh2013] Then came a noise in New Jersey.
 
@@ -191,7 +191,7 @@ The formula has been checked far back in time. In 2022 astronomers found water v
 
 ## A perfect curve
 
-COBE, NASA's Cosmic Background Explorer, was proposed in 1974 and designed to fly on the Space Shuttle. After Challenger was lost in January 1986 it was redesigned for a Delta rocket, and it launched from Vandenberg in California on 18 November 1989. Alpher and Herman came to watch.[^mather2006]
+COBE, NASA's Cosmic Background Explorer, was proposed in 1974 to fly on a Delta rocket and later designed around the Space Shuttle. After Challenger was lost in January 1986 it was redesigned for a Delta again, and it launched from Vandenberg in California on 18 November 1989. Alpher and Herman came to watch.[^mather2006]
 
 In January 1990 John Mather showed COBE's first spectrum at the American Astronomical Society meeting outside Washington. The measurements sat on the blackbody curve, and an audience of more than a thousand rose in a standing ovation.[^mather2006] The final analysis gave a blackbody at 2.725 K, with the measurements straying from the curve by only 50 parts per million of its peak, on average.[^mather2006]
 
@@ -200,14 +200,14 @@ Another of COBE's instruments looked for tiny differences in temperature between
 NASA's WMAP mapped the ripples in finer detail from 2001 to 2010, and ESA's Planck, launched on 14 May 2009, mapped them in nine frequency bands until 2013.[^wmap][^planck2018i] Planck's final 2018 results fitted a standard model with just six numbers to over a billion map pixels.[^planck2018i] The map also shows the Sun moving at 370 km/s relative to the background, which makes the sky slightly warmer ahead of us and cooler behind.[^planck2018i]
 
 ::: see-it cmb-map
-The cosmic microwave background with the contrast turned up enormously. The blotches differ from the average by about one part in 100,000.
+The cosmic microwave background, contrast turned up enormously. The blotches differ from the average by about one part in 100,000.
 :::
 
 ::: numbers The universe according to Planck (2018)
 | Quantity | Value |
 |---|---|
 | Expansion rate $H_0$ | 67.4 ± 0.5 km/s per Mpc |
-| Age | 13.787 ± 0.020 billion years |
+| Age | 13.797 ± 0.023 billion years |
 | Temperature of the background today | 2.7255 K |
 | Redshift when the background was released | about 1,090 |
 | Ordinary matter (atoms) | 4.9% |
@@ -224,7 +224,7 @@ By the 1990s most astronomers assumed the expansion was slowing down, since grav
 
 In 1998 both teams got the same shock. The distant supernovae were too faint. The High-z team's 16 distant supernovae were on average 10 to 15% further away than they should have been in a thinly filled universe without Λ.[^riess1998] Brightness falls as one over distance squared, so 10% further means $1/1.10^2 = 0.83$ of the expected brightness and 15% further means $1/1.15^2 = 0.76$: about a fifth dimmer. Perlmutter's team, with 42 supernovae, found the same.[^perlmutter1999] The expansion is not slowing down. It is speeding up. The result surprised even the discoverers; in 2011 half the Nobel Prize went to Perlmutter and half to Schmidt and Riess.[^nobel2011]
 
-Whatever does the pushing is called dark energy. The simplest version is Einstein's Λ: an energy that belongs to empty space itself, the same in every cubic metre, so that as space grows there is more of it. With Planck's numbers it makes up 68.5% of everything today.[^planck2018] Nobody knows what it is. When Yakov Zel'dovich estimated the energy of empty space from quantum theory in 1968, he got an answer some forty orders of magnitude too big, a mismatch now called the cosmological constant problem.[^oraif2018]
+Whatever does the pushing is called dark energy. The simplest version is Einstein's Λ: an energy that belongs to empty space itself, the same in every cubic metre, so that as space grows there is more of it. With Planck's numbers it makes up 68.5% of everything today.[^planck2018] Nobody knows what it is. When Yakov Zel'dovich estimated the energy of empty space from quantum theory in 1968, he got an answer more than forty orders of magnitude too big, a mismatch now called the cosmological constant problem.[^oraif2018]
 
 ::: myth Einstein called the cosmological constant his "biggest blunder".
 The phrase comes from George Gamow, who said Einstein told him so. Nothing Einstein wrote says it, and historians disagree about how far Gamow's memory can be trusted.[^oraif2018]
@@ -236,7 +236,7 @@ The phrase comes from George Gamow, who said Einstein told him so. Nothing Einst
 
 There are two ways to get $H_0$. One starts from the early universe: take the Planck map, assume the standard model, and work out how fast a universe like that should be expanding today. That gives 67.4 ± 0.5 km/s per Mpc.[^planck2018] Adding maps from the South Pole Telescope and the Atacama Cosmology Telescope gives 67.19 ± 0.38.[^camphuis2026]
 
-The other is a ladder of distances ([How far are the stars?](#/learn/how-far-are-the-stars) has its bottom rungs). Parallax fixes the distances of Cepheid stars in the Milky Way, Cepheids give the distances of nearby galaxies that have hosted Type Ia supernovae, and those supernovae calibrate the ones far out. In 2022 the SH0ES team, led by Riess, used Cepheids in the host galaxies of 42 supernovae to get 73.04 ± 1.04, five standard deviations from Planck.[^riess2022] In 2025 a large group of experts pooling every good local method got 73.50 ± 0.81.[^h0dn2026] Wendy Freedman's Chicago–Carnegie team, using the brightest red giant stars instead of Cepheids, gets 70.4 with an uncertainty of about 2, between the two camps.[^freedman2025]
+The other is a ladder of distances ([How far are the stars?](#/learn/how-far-are-the-stars) has the bottom rungs). Parallax fixes the distances of Cepheid stars in the Milky Way, Cepheids give the distances of nearby galaxies that have hosted Type Ia supernovae, and those supernovae calibrate the ones far out. In 2022 the SH0ES team, led by Riess, used Cepheids in the host galaxies of 42 supernovae to get 73.04 ± 1.04, five standard deviations from Planck.[^riess2022] In 2025 a large group of experts pooling every good local method got 73.50 ± 0.81.[^h0dn2026] Wendy Freedman's Chicago–Carnegie team, using the brightest red giant stars instead of Cepheids, gets 70.4 with an uncertainty of about 2, between the two camps.[^freedman2025]
 
 The gap is 8 or 9%, and it shows up close to home. Twelve Type Ia supernovae have gone off in the Coma Cluster, and the local ladder puts it 98.5 ± 2.2 Mpc away. Calibrated to Planck's expansion rate instead, DESI's survey of Coma's galaxies would put it at 111.8 Mpc.[^scolnic2025]
 
@@ -250,12 +250,12 @@ Either one side has a hidden error or the standard model is missing something, p
 
 In the hot plasma before the background radiation was released, pressure waves rippled outwards from every denser clump, the way sound travels through air. When the plasma turned into neutral gas the waves froze, leaving a slight preference for lumps of matter to sit 147 Mpc apart, about 480 million light-years.[^planck2018] Galaxies later formed along that pattern, called baryon acoustic oscillations. It is a ruler of known length printed across the sky, and how big it looks at different redshifts shows how the universe expanded.[^desi2025]
 
-The Dark Energy Spectroscopic Instrument, DESI, measures it with 5,000 robot-positioned optical fibres on the 4-metre Mayall telescope at Kitt Peak in Arizona, each catching the spectrum of a different galaxy. Its first results came out on 4 April 2024.[^desi2024] Its three-year results, released on 19 March 2025 and based on more than 14 million galaxies and quasars, fitted the standard model on their own. Combined with the background radiation and supernovae, though, they preferred dark energy that is getting weaker with time, by 2.8 to 4.2 standard deviations depending on which supernovae were used.[^desidr2] Physicists want five before they call something a discovery; a three-sigma result turns up by chance about 0.3% of the time, and plenty of them have faded. "The simplest explanation for what we see is shifting," said Will Percival, one of DESI's two spokespeople.[^desi2025]
+The Dark Energy Spectroscopic Instrument, DESI, measures it with 5,000 robot-positioned optical fibres on the 4-metre Mayall telescope at Kitt Peak in Arizona, each catching the spectrum of a different galaxy. Its first results came out on 4 April 2024.[^desi2024] Its three-year results, released on 19 March 2025 and based on more than 14 million galaxies and quasars, fitted the standard model on their own. Combined with the background radiation and supernovae, though, they preferred dark energy that is getting weaker with time, by 2.8 to 4.2 standard deviations depending on which supernovae were used.[^desidr2] Physicists want five before claiming a discovery; a three-sigma result turns up by chance about 0.3% of the time, and plenty have faded. "We're guided by Occam's razor, and the simplest explanation for what we see is shifting," said Will Percival, one of DESI's two co-spokespeople.[^desi2025]
 
 In July 2026 DESI's new analysis of hydrogen gas in front of distant quasars came out closer to a constant Λ, and the team wrote that the hints might fade away.[^desi2026b] The full five-year survey, finished ahead of schedule in April 2026 with more than 47 million galaxies and quasars, should settle much of it.[^desi2026a]
 
 ::: see-it cosmic-web
-Real galaxies from redshift surveys, in three dimensions. The filaments and empty voids grew from the ripples in the background radiation, and the sound-wave ruler is hidden in their spacing.
+Real galaxies from redshift surveys, in three dimensions. The filaments and voids grew from the ripples in the background radiation, and the sound-wave ruler hides in their spacing.
 :::
 
 ::: timeline The expanding universe
@@ -271,7 +271,7 @@ Real galaxies from redshift surveys, in three dimensions. The filaments and empt
 - **1990:** COBE shows a perfect blackbody spectrum.
 - **1998:** Supernovae show the expansion is speeding up.
 - **2018:** Planck's final results; the IAU vote.
-- **2025:** DESI hints that dark energy is weakening.
+- **2025:** DESI strengthens hints that dark energy is weakening.
 - **2026:** Rubin starts its survey; Roman launches.
 :::
 
@@ -283,7 +283,7 @@ Real galaxies from redshift surveys, in three dimensions. The filaments and empt
 
 ### Euclid
 
-**Status:** in space since 1 July 2023, mapping galaxies in three dimensions across a third of the sky over six years. A quick release in March 2025 already held 26 million galaxies, and ESA said then that the first cosmology data would come out in October 2026; treat that date as provisional until it happens.[^euclid2025]
+**Status:** in space since 1 July 2023, mapping galaxies in three dimensions across a third of the sky over six years. A quick release in March 2025 already held 26 million galaxies.[^euclid2025] ESA had promised the first cosmology data for October 2026, but in June 2026 it split the release in two: images, catalogues and spectra covering about 1,900 square degrees in November 2026, and the complete release, with the products needed for cosmology, in mid-2027. The first cosmology results are now expected in 2027; treat both dates as provisional until they happen.[^euclid2025][^euclid2026]
 
 ### Rubin Observatory
 
@@ -291,7 +291,7 @@ Real galaxies from redshift surveys, in three dimensions. The filaments and empt
 
 ### The Nancy Grace Roman Space Telescope
 
-**Status:** launched on a Falcon Heavy from Florida on 30 August 2026 and now being commissioned; NASA expects science to begin by early 2027.[^roman2026] Dark energy is one of its three main science areas.[^romanmission]
+**Status:** launched on a Falcon Heavy from Florida on 30 August 2026 and now being commissioned; NASA expects its first science images by early 2027.[^roman2026] Dark energy is one of its three main science areas.[^romanmission]
 
 ### Gaia's fourth data release
 
@@ -299,7 +299,7 @@ Real galaxies from redshift surveys, in three dimensions. The filaments and empt
 
 ### The background radiation, again
 
-**Status:** mixed. The Simons Observatory in Chile's Atacama Desert took its first image with its 6-metre Large Aperture Telescope in February 2025 and works alongside three smaller telescopes.[^so2025] CMB-S4, the planned next-generation American project, is over: on 9 July 2025 the Department of Energy and the National Science Foundation said they could no longer support it.[^cmbs4] Japan's LiteBIRD satellite would map the polarization of the background over the whole sky, looking for traces of cosmic inflation, a proposed burst of extremely fast expansion at the very start. It entered its preparation phase in June 2026 and aims to launch in Japan's fiscal year 2036, a date far enough off to move.[^litebird] NASA's SPHEREx, launched on 11 March 2025, is surveying more than 450 million galaxies across the sky to study the universe's origins.[^spherex]
+**Status:** mixed. The Simons Observatory in Chile's Atacama Desert took its first image with its 6-metre Large Aperture Telescope in February 2025 and works alongside three smaller telescopes.[^so2025] CMB-S4, the planned next-generation American project, is over: on 9 July 2025 the Department of Energy and the National Science Foundation said they could no longer support it.[^cmbs4] Japan's LiteBIRD satellite would map the polarization of the background over the whole sky, looking for traces of cosmic inflation, a proposed burst of extremely fast expansion at the very start. In June 2026 it passed a mission definition review that clears it to move into its preparation phase, and it aims to launch in Japan's fiscal year 2036, a date far enough off to move.[^litebird] NASA's SPHEREx, launched on 11 March 2025, is surveying more than 450 million galaxies across the sky to study the universe's origins.[^spherex]
 
 ### Open questions
 
@@ -372,14 +372,15 @@ The biggest is what dark energy is, and whether it is truly constant, as Einstei
 [^livio2011]: M. Livio, "Mystery of the missing text solved", Nature 479, 171-173 (2011). https://doi.org/10.1038/479171a
 [^vdb2011]: S. van den Bergh, "Discovery of the expansion of the universe", Journal of the Royal Astronomical Society of Canada 105, 197 (2011). https://arxiv.org/abs/1108.0709
 [^iau2018]: International Astronomical Union, "IAU members vote to recommend renaming the Hubble law as the Hubble–Lemaître law", press release iau1812 (29 October 2018): 4,060 of 11,072 members voted, 78% in favour. https://web.archive.org/web/2019/https://www.iau.org/news/pressreleases/detail/iau1812/
+[^iau1928]: F. J. M. Stratton (ed.), Transactions of the International Astronomical Union, Vol. III: Third General Assembly held at Leiden, July 5 to July 13, 1928 (Cambridge University Press, 1929). (Van den Bergh 2011 gives September by mistake.)
 [^hubble1929]: E. Hubble, "A relation between distance and radial velocity among extra-galactic nebulae", Proceedings of the National Academy of Sciences 15, 168-173 (1929). https://doi.org/10.1073/pnas.15.3.168
 [^hh1931]: E. Hubble and M. L. Humason, "The velocity-distance relation among extra-galactic nebulae", Astrophysical Journal 74, 43 (1931). https://doi.org/10.1086/143323
 [^eds1932]: A. Einstein and W. de Sitter, "On the relation between the expansion and the mean density of the universe", Proceedings of the National Academy of Sciences 18, 213-214 (1932). https://doi.org/10.1073/pnas.18.3.213
-[^simbad]: SIMBAD astronomical database (CDS, Strasbourg), radial velocities of ACO 1656 (Coma Cluster, 6,933 km/s) and NAME Virgo Cluster (1,137 km/s). https://simbad.cds.unistra.fr/simbad/
+[^simbad]: SIMBAD astronomical database (CDS, Strasbourg): ACO 1656 (Coma Cluster), redshift 0.0234 (from Rines et al. 2016; SIMBAD also lists this as a radial velocity of 6,933 km/s, converted with the relativistic Doppler formula), and NAME Virgo Cluster, radial velocity 1,137 km/s. Other catalogues give Coma redshifts between about 0.023 and 0.024. https://simbad.cds.unistra.fr/simbad/
 [^carniani2025]: S. Carniani et al., "The eventful life of a luminous galaxy at z = 14: metal enrichment, feedback, and low gas fraction?", Astronomy & Astrophysics 696, A87 (2025): redshift 14.1796 ± 0.0007. https://doi.org/10.1051/0004-6361/202452451
 [^davis2004]: T. M. Davis and C. H. Lineweaver, "Expanding confusion: common misconceptions of cosmological horizons and the superluminal expansion of the universe", Publications of the Astronomical Society of Australia 21, 97-109 (2004). https://doi.org/10.1071/AS03040
-[^planck2018]: Planck Collaboration, "Planck 2018 results. VI. Cosmological parameters", Astronomy & Astrophysics 641, A6 (2020). Distances, ages and shares in this article are calculated from its parameters (H0 = 67.4, Ωm = 0.315, flat). https://doi.org/10.1051/0004-6361/201833910
-[^mei2007]: S. Mei et al., "The ACS Virgo Cluster Survey. XIII. SBF distance catalog and the three-dimensional structure of the Virgo Cluster", Astrophysical Journal 655, 144-162 (2007). https://doi.org/10.1086/509598
+[^planck2018]: Planck Collaboration, "Planck 2018 results. VI. Cosmological parameters", Astronomy & Astrophysics 641, A6 (2020). H0 = 67.36 ± 0.54 and age 13.797 ± 0.023 billion years from Planck alone (TT,TE,EE+lowE+lensing); adding galaxy BAO data gives 67.66 ± 0.42 and 13.787 ± 0.020. Distances, ages and shares in this article are calculated from its parameters (H0 = 67.4, Ωm = 0.315, flat). https://doi.org/10.1051/0004-6361/201833910
+[^mei2007]: S. Mei et al., "The ACS Virgo Cluster Survey. XIII. SBF distance catalog and the three-dimensional structure of the Virgo Cluster", Astrophysical Journal 655, 144-162 (2007): mean distance 16.5 ± 0.1 (random) ± 1.1 (systematic) Mpc. https://doi.org/10.1086/509598
 [^nasam31]: NASA Science, "Messier 31 (The Andromeda Galaxy)", Hubble Messier catalogue. https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-31/
 [^vdmarel2012]: R. P. van der Marel et al., "The M31 velocity vector. II. Radial orbit toward the Milky Way and implied Local Group mass", Astrophysical Journal 753, 8 (2012). https://doi.org/10.1088/0004-637X/753/1/8
 [^aipdouble]: Center for History of Physics, American Institute of Physics, "Why Hubble's distances later had to be doubled". https://history.aip.org/exhibits/cosmology/ideas/hubble-distance-double.htm
@@ -392,6 +393,7 @@ The biggest is what dark energy is, and whether it is truly constant, as Einstei
 [^abg1948]: R. A. Alpher, H. Bethe and G. Gamow, "The origin of chemical elements", Physical Review 73, 803-804 (1948), published 1 April 1948. https://doi.org/10.1103/PhysRev.73.803
 [^aipgamow]: Center for History of Physics, American Institute of Physics, "A Gamow joke". https://history.aip.org/exhibits/cosmology/ideas/gamow-joke.htm
 [^pdg2024]: B. D. Fields, P. Molaro and S. Sarkar, "Big-Bang nucleosynthesis", in S. Navas et al. (Particle Data Group), Physical Review D 110, 030001 (2024). https://pdg.lbl.gov/2024/reviews/rpp2024-rev-bbang-nucleosynthesis.pdf
+[^pdgn]: S. Navas et al. (Particle Data Group), Physical Review D 110, 030001 (2024), neutron listing: mean life 878.4 ± 0.5 s. https://pdg.lbl.gov/2024/listings/rpp2024-list-n.pdf
 [^penzias1978]: A. A. Penzias, "The origin of elements", Nobel lecture, 8 December 1978. https://www.nobelprize.org/uploads/2018/06/penzias-lecture.pdf
 [^ah1948]: R. A. Alpher and R. Herman, "Evolution of the universe", Nature 162, 774-775 (1948). https://doi.org/10.1038/162774b0
 [^wilson1978]: R. W. Wilson, "The cosmic microwave background radiation", Nobel lecture, 8 December 1978. https://www.nobelprize.org/uploads/2018/06/wilson-lecture-1.pdf
@@ -421,11 +423,12 @@ The biggest is what dark energy is, and whether it is truly constant, as Einstei
 [^desi2026b]: DESI Collaboration, news item on the DR2 Lyman-alpha key paper (30 July 2026). https://www.desi.lbl.gov/2026/07/30/new-desi-dr2-lyman-alpha-results-shed-light-on-dark-energy/
 [^desi2026a]: Lawrence Berkeley National Laboratory, "DESI completes planned 3D map of the universe and continues exploring" (15 April 2026). https://newscenter.lbl.gov/2026/04/15/desi-completes-planned-3d-map-of-the-universe-and-continues-exploring/
 [^euclid2025]: ESA, "Euclid opens data treasure trove, offers glimpse of deep fields" (19 March 2025). https://www.esa.int/Science_Exploration/Space_Science/Euclid/Euclid_opens_data_treasure_trove_offers_glimpse_of_deep_fields
+[^euclid2026]: ESA Euclid science pages, "Euclid Data Release DR1: update" (15 June 2026), https://www.cosmos.esa.int/web/euclid/dr1-timeline ; and Euclid Consortium blog, "Euclid starts seeing darkness" (5 June 2026), on the first cosmology results "coming out in 2027", https://www.euclid-ec.org/euclid-starts-seeing-darkness/
 [^rubin2026]: NSF NOIRLab, "Action! NSF–DOE Vera C. Rubin Observatory begins capturing the greatest cosmic movie ever made", release noirlab2616 (30 June 2026). https://noirlab.edu/public/news/noirlab2616/
-[^roman2026]: NASA, Roman Space Telescope blog: "NASA concludes Roman Space Telescope launch coverage" (30 August 2026) and later posts. https://science.nasa.gov/blogs/roman/
+[^roman2026]: NASA, Roman Space Telescope blog: "NASA concludes Roman Space Telescope launch coverage" (30 August 2026) and "NASA activates Roman's primary instrument, checks out coronagraph" (15 September 2026), which says the mission "remains on track to release Roman's first science images by early 2027". https://science.nasa.gov/blogs/roman/
 [^romanmission]: NASA Science, "Nancy Grace Roman Space Telescope" mission page. https://science.nasa.gov/mission/roman-space-telescope/
 [^gaiadr4]: ESA, Gaia data release scenario. https://www.cosmos.esa.int/web/gaia/release
 [^so2025]: Simons Foundation, "Simons Observatory Large Aperture Telescope achieves first light milestone" (17 March 2025). https://www.simonsfoundation.org/2025/03/17/simons-observatory-large-aperture-telescope-achieves-first-light-milestone/
 [^cmbs4]: CMB-S4 Project, statement on the DOE and NSF decision of 9 July 2025. https://cmb-s4.org/
-[^litebird]: ISAS/JAXA, "LiteBIRD". https://www.isas.jaxa.jp/en/missions/spacecraft/future/litebird.html
+[^litebird]: ISAS/JAXA, "LiteBIRD" (Mission Definition Review #2 held 26 June 2026; "aiming for a launch in JFY2036"). https://www.isas.jaxa.jp/en/missions/spacecraft/future/litebird.html
 [^spherex]: NASA Science, "SPHEREx" mission page. https://science.nasa.gov/mission/spherex/

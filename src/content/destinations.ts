@@ -1,16 +1,17 @@
 /**
  * Destinations: everything "Where to?" can find and the Bodies list can show.
  *
- * The list is built from providers. Today there is one, the bodies in physics/constants.ts;
- * later updates add moons, dwarf planets, stars and galaxies with registerDestinations, and
- * they appear in search and in the Bodies list without either knowing about them.
+ * The list is built from providers. The first is the body registry (sim/bodies): every
+ * registered body is a destination, so the moons, dwarf planets, comets, spacecraft and stars
+ * that later data registers appear in search and in the Bodies list by themselves. Places that
+ * are not bodies can be added with registerDestinations.
  *
  * Matching is fuzzy and forgiving: prefixes and whole words first, then letters in order
  * ("jptr"), then one slip of the keyboard ("satrun").
  */
-import { BODIES, BODY_ORDER, type BodyId, type BodyKind } from '../physics/constants';
+import { bodyRecords, getBody, kindText, registryVersion, subscribeRegistry, type BodyId, type BodyRecord } from '../sim/bodies';
 import { sim } from '../sim/sim';
-import { goToBody, BODY_KEYS } from '../ui/navigation';
+import { goToBody } from '../ui/navigation';
 
 // ─── The registry ───────────────────────────────────────────────────────────────────────
 
@@ -19,8 +20,11 @@ export const DESTINATION_GROUPS = [
   { id: 'sun-planets', title: 'Sun and planets' },
   { id: 'dwarf-planets', title: 'Dwarf planets' },
   { id: 'moons', title: 'Moons' },
+  { id: 'small-bodies', title: 'Asteroids, comets and interstellar objects' },
   { id: 'spacecraft', title: 'Spacecraft' },
   { id: 'stars', title: 'Stars' },
+  { id: 'exoplanets', title: 'Exoplanets' },
+  { id: 'deep-sky', title: 'Clusters and nebulae' },
   { id: 'galaxies', title: 'Galaxies' },
 ] as const;
 
@@ -39,6 +43,8 @@ export interface Destination {
   group: DestinationGroup;
   /** The body the camera and the flight planner use (destinations that are not bodies have none yet). */
   body?: BodyId;
+  /** The destination it orbits, for nesting in lists (Jupiter for Io). */
+  parent?: string;
   /** The single key that goes there ("6"), if any. */
   key?: string;
   /** Distance from the camera now, km (NaN when not known). */
@@ -111,65 +117,116 @@ export function groupedDestinations(list: readonly Destination[] = allDestinatio
   return DESTINATION_GROUPS.map((g) => ({ id: g.id, title: g.title, items: list.filter((d) => d.group === g.id) })).filter((g) => g.items.length > 0);
 }
 
-// ─── The bodies of physics/constants.ts ─────────────────────────────────────────────────
+/** Groups whose members are listed under what they orbit when that is listed too (moons under their planet). */
+const NESTED_GROUPS: ReadonlySet<DestinationGroup> = new Set(['moons', 'exoplanets']);
 
-const BODY_ALIASES: Partial<Record<BodyId, string[]>> = {
-  sun: ['Sol', 'our star'],
-  venus: ['morning star', 'evening star'],
-  earth: ['home', 'Terra'],
-  moon: ['Luna'],
-  mars: ['red planet'],
-  jupiter: ['Jove'],
-  pluto: ['134340'],
-  voyager1: ['Voyager', 'V1'],
-  proxima: ['Alpha Centauri C', 'nearest star', 'Proxima Cen'],
-};
+export interface NestedItem {
+  destination: Destination;
+  /** 0 for the top level, 1 for a moon under its planet, and so on. */
+  depth: number;
+  /** How many listed destinations sit directly under this one. */
+  children: number;
+}
 
-const KIND_TEXT: Record<BodyKind, string> = {
-  star: 'Star',
-  planet: 'Planet',
-  'dwarf-planet': 'Dwarf planet',
-  moon: 'Moon',
-  spacecraft: 'Spacecraft',
-};
+/**
+ * The Bodies list: grouped by kind, and within that by what each body orbits: Jupiter's moons
+ * right under Jupiter, Charon under Pluto. Moons whose planet is not listed keep a group of
+ * their own. Empty groups are left out.
+ */
+export function nestedDestinations(list: readonly Destination[] = allDestinations()): { id: DestinationGroup; title: string; items: NestedItem[] }[] {
+  const byId = new Map(list.map((d) => [d.id, d]));
+  const nests = (d: Destination) => NESTED_GROUPS.has(d.group) && !!d.parent && d.parent !== d.id && byId.has(d.parent);
+  const under = new Map<string, Destination[]>();
+  for (const d of list) {
+    if (!nests(d)) continue;
+    const arr = under.get(d.parent!) ?? [];
+    arr.push(d);
+    under.set(d.parent!, arr);
+  }
+  const placed = new Set<string>();
+  const add = (d: Destination, depth: number, out: NestedItem[]) => {
+    if (placed.has(d.id)) return;
+    placed.add(d.id);
+    const kids = under.get(d.id) ?? [];
+    out.push({ destination: d, depth, children: kids.length });
+    for (const k of kids) add(k, depth + 1, out);
+  };
+  return DESTINATION_GROUPS.map((g) => {
+    const items: NestedItem[] = [];
+    for (const d of list) if (d.group === g.id && !nests(d)) add(d, 0, items);
+    return { id: g.id, title: g.title, items };
+  }).filter((g) => g.items.length > 0);
+}
+
+// ─── The registered bodies ──────────────────────────────────────────────────────────────
 
 /** What a body is, in a word or two: "Planet", "Moon of Earth", "Our star". */
-export function bodyKindText(id: BodyId): string {
-  const b = BODIES[id];
-  if (id === 'sun') return 'Our star';
-  if (b.kind === 'moon' && b.parent) return `Moon of ${BODIES[b.parent].name}`;
-  return KIND_TEXT[b.kind];
+export const bodyKindText = (id: BodyId): string => kindText(id);
+
+/** The Bodies-list group of a registered body. */
+export function bodyGroup(r: BodyRecord): DestinationGroup {
+  switch (r.kind) {
+    case 'star':
+      return r.id === 'sun' ? 'sun-planets' : 'stars';
+    case 'planet':
+      return 'sun-planets';
+    case 'dwarf-planet':
+      return 'dwarf-planets';
+    case 'moon':
+      return 'moons';
+    case 'asteroid':
+    case 'comet':
+    case 'interstellar':
+      return 'small-bodies';
+    case 'spacecraft':
+      return 'spacecraft';
+    case 'exoplanet':
+      return 'exoplanets';
+    case 'cluster':
+    case 'nebula':
+      return 'deep-sky';
+    case 'galaxy':
+      return 'galaxies';
+    default:
+      return 'stars';
+  }
 }
 
-function bodyGroup(id: BodyId): DestinationGroup {
-  const kind = BODIES[id].kind;
-  if (id === 'sun' || kind === 'planet') return 'sun-planets';
-  if (kind === 'dwarf-planet') return 'dwarf-planets';
-  if (kind === 'moon') return 'moons';
-  if (kind === 'spacecraft') return 'spacecraft';
-  return 'stars';
-}
-
-function bodyDestination(id: BodyId): Destination {
-  const b = BODIES[id];
+function bodyDestination(r: BodyRecord): Destination {
+  const id = r.id;
+  const parent = r.parent !== null && getBody(r.parent)?.kind !== 'barycentre' ? r.parent : undefined;
   return {
     id,
-    name: b.name,
-    shortName: id === 'proxima' ? 'Proxima' : undefined,
-    aliases: BODY_ALIASES[id] ?? [],
-    kind: bodyKindText(id),
-    group: bodyGroup(id),
+    name: r.name,
+    shortName: r.shortName,
+    aliases: r.aliases ?? [],
+    kind: kindText(id),
+    group: bodyGroup(r),
     body: id,
-    key: BODY_KEYS[id],
-    distanceKm: () => sim.bodies[id].distTrue,
+    parent,
+    key: r.key,
+    distanceKm: () => sim.bodies[id]?.distTrue ?? NaN,
     // Voyager 1 before its 1980 Saturn flyby, say: not modelled at the date shown.
-    unavailable: () => (sim.bodies[id].present ? null : `${b.name} is not there at the date shown`),
+    unavailable: () => (sim.bodies[id]?.present ? null : `${r.name} is not there at the date shown`),
     go: () => goToBody(id),
   };
 }
 
-const BODY_DESTINATIONS: readonly Destination[] = BODY_ORDER.map(bodyDestination);
-registerDestinations(() => BODY_DESTINATIONS);
+/** Every registered body that is a destination, rebuilt when the registry changes. */
+const fromRegistry = { version: -1, list: [] as readonly Destination[] };
+function bodyDestinations(): readonly Destination[] {
+  const v = registryVersion();
+  if (fromRegistry.version !== v) {
+    fromRegistry.list = bodyRecords()
+      .filter((r) => r.destination !== false)
+      .map(bodyDestination);
+    fromRegistry.version = v;
+  }
+  return fromRegistry.list;
+}
+
+registerDestinations(bodyDestinations);
+subscribeRegistry(destinationsChanged);
 
 // ─── Matching ───────────────────────────────────────────────────────────────────────────
 
