@@ -24,8 +24,10 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc -b",
-    "data:stars": "node scripts/build-stars.mjs",
-    "data:belts": "node scripts/build-belts.mjs"
+    "data:stars": "node scripts/build-stars3d.mjs && node scripts/build-constellations.mjs && node scripts/build-stars3d-bright.mjs",
+    "data:belts": "node scripts/build-belts.mjs",
+    "data:exoplanets": "node scripts/build-exoplanets.mjs",
+    "data:exoplanets-featured": "node scripts/build-exoplanets-featured.mjs"
   },
   "dependencies": {
     "@fontsource-variable/ibm-plex-sans": "^5.3.0",

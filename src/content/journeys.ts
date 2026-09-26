@@ -52,6 +52,12 @@ export const JOURNEYS: Journey[] = [
     scene: 'fly:proxima',
   }),
   journey({
+    id: 'trappist',
+    title: 'Seven worlds of TRAPPIST-1',
+    sub: 'A 1 g flight of 40 light-years, then its seven planets going round',
+    scene: 'trappist-1-worlds',
+  }),
+  journey({
     id: 'year',
     title: 'A year in half a minute',
     sub: 'The planets from above, a million times faster than real',
@@ -59,4 +65,18 @@ export const JOURNEYS: Journey[] = [
     clock: '1 s here = 11.6 days',
   }),
   journey({ id: 'moon', title: 'Watch the Moon go round', sub: 'A month over Earth, 100,000× faster than real', scene: 'moon-month', clock: '1 s here = 28 hours' }),
+  journey({
+    id: 'neptune',
+    title: 'Ride Voyager 2 past Neptune',
+    sub: 'The 1989 flyby, then Triton: five hours in about a minute',
+    scene: 'voyager2-neptune',
+    clock: '25 August 1989 · 1 s here = 5 min',
+  }),
+  journey({
+    id: 'halley',
+    title: 'Halley comes back',
+    sub: 'Its 2061 return to the Sun, tails streaming away from it',
+    scene: 'halley-2061',
+    clock: 'July 2061 · 1 s here = 2.8 hours',
+  }),
 ];

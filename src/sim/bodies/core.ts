@@ -121,6 +121,33 @@ const ARTICLES: Partial<Record<CoreBodyId, string>> = {
 
 const FACT_SHEETS = 'NASA Planetary Fact Sheets (NSSDCA)';
 
+/**
+ * How far to trust each built-in body's position, for the card and the data sheet: the date
+ * policy of ephemerisPolicy.ts in words (the card also flags an illustrative date by itself).
+ */
+const PLANET_POSITION =
+  'Position: VSOP87 via astronomy-engine in 1700–2200, within about an arcminute of JPL’s DE405; JPL’s approximate orbital elements (Standish) in 3000 BCE–3000 CE outside that, good to about half a degree; beyond, illustrative: the orbit is right, the place along it is not.';
+const POSITION_NOTES: Partial<Record<CoreBodyId, string>> = {
+  sun: 'Position: the centre of the app’s frame; every other position is measured from the Sun’s centre.',
+  moon: 'Position: Brown’s lunar theory via astronomy-engine, within about an arcminute in 1700–2200 and less exact further out; beyond 3000 BCE–3000 CE its mean orbit, illustrative.',
+  pluto:
+    'Position: the Pluto–Charon barycentre (astronomy-engine in 1700–2200, JPL’s approximate elements to 3000 BCE–3000 CE, illustrative beyond); Pluto’s own swing about it, about 2,100 km, arrives with the moon data.',
+  voyager1: 'Position: a JPL Horizons state (2026) carried as a two-body orbit about the Solar System’s centre of mass, until its fitted trajectory loads.',
+  proxima: 'Position: its catalogue place (Gaia DR3), without its motion, until the star catalogue loads.',
+};
+
+/** What else is a model in how the built-in bodies are drawn (their maps), one line each. */
+const MODEL_NOTES: Partial<Record<CoreBodyId, string[]>> = {
+  sun: ['Surface: an illustrative map (Solar System Scope), not the Sun as it is today.'],
+  venus: ['Clouds: an illustrative map (Solar System Scope); the real cloud tops race round the planet every four days.'],
+  earth: ['Clouds: one fixed map (Solar System Scope), not today’s weather.'],
+  jupiter: ['Clouds: one fixed map (Solar System Scope); the real bands drift and change.'],
+  saturn: ['Clouds: one fixed map (Solar System Scope); the real bands drift and change.'],
+  uranus: ['Surface: an illustrative map (Solar System Scope) of a nearly featureless planet.'],
+  neptune: ['Surface: an illustrative map (Solar System Scope); its dark storms come and go over a few years.'],
+  pluto: ['Map: New Horizons’ 2015 global mosaic; the southern latitudes it never saw are filled in.'],
+};
+
 function physical(d: BodyData): BodyRecord['physical'] {
   return {
     radiusKm: d.radiusKm,
@@ -154,6 +181,8 @@ function core(id: CoreBodyId, provider: PositionProvider, rotation: RotationSpec
     key: KEYS[id],
     labelRank: LABEL_RANK[id],
     article: ARTICLES[id],
+    positionNote: POSITION_NOTES[id] ?? (d.kind === 'planet' ? PLANET_POSITION : undefined),
+    modelNotes: MODEL_NOTES[id],
     ...extra,
   };
 }

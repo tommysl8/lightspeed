@@ -8,7 +8,7 @@
  *    J2000.0"), kilometres, relative to the body's centre (its parent, or a barycentre).
  *    Velocities are km/s. The world frame is (x, z, −y) of that: see sim/frames.ts.
  *  - Time is an astronomy-engine AstroTime: `time.tt` is TT (≈ TDB to 2 ms) days since J2000,
- *    the argument the staging formats take; `time.ut` gives the civil date that the
+ *    the argument the data formats take (docs/data/); `time.ut` gives the civil date that the
  *    astronomy-engine providers and the date policy (ephemerisPolicy.ts) need.
  */
 import type { AstroTime } from 'astronomy-engine';
@@ -105,8 +105,12 @@ export interface RotationProvider {
 /**
  * A rotation model as data; the registry compiles it into a RotationProvider.
  *  iau          IAU WGCCRE style: pole (α₀, δ₀) and prime meridian W as polynomials, with
- *               periodic terms in the planet system's phase angles (the staging bodies.json format)
+ *               periodic terms in the planet system's phase angles (the bodies.json format, docs/data/assets.md)
  *  spin         a known period about a pole (or ecliptic north when the pole is unknown)
+ *  tumble       a non-principal-axis rotation: the body spins about its own z axis every
+ *               `periodH` while that axis sweeps a cone of half-angle `coneDeg` about a fixed
+ *               direction (the angular momentum) every `precessionH`. For tumblers with no
+ *               predictive model (Hyperion, Halley): illustrative, and labelled so
  *  synchronous  tidally locked: the prime meridian faces the parent, the pole is the orbit normal
  *  provider     anything else (the built-in bodies use astronomy-engine's rotation models)
  *  none         no rotation (identity)
@@ -114,6 +118,7 @@ export interface RotationProvider {
 export type RotationSpec =
   | IauRotationSpec
   | { model: 'spin'; periodH: number; poleRaDeg?: number; poleDecDeg?: number; w0Deg?: number }
+  | { model: 'tumble'; periodH: number; precessionH: number; coneDeg: number; poleRaDeg?: number; poleDecDeg?: number }
   | { model: 'synchronous' }
   | { model: 'provider'; provider: RotationProvider }
   | { model: 'none' };
@@ -142,6 +147,10 @@ export interface IauRotationSpec {
 export interface BodyPhysical {
   /** Volumetric mean radius (the sphere of equal volume), km. */
   radiusKm: number;
+  /** The radius's 1σ uncertainty, km, where the source gives one (the data sheet rounds to it). */
+  radiusSigmaKm?: number;
+  /** A radius that is only a rough size (an interstellar object's nucleus): the data sheet says so. */
+  radiusRough?: boolean;
   /** Equatorial and polar radii, km (the 1-bar level for giant planets). */
   equatorialRadiusKm?: number;
   polarRadiusKm?: number;
@@ -193,7 +202,27 @@ export type RingSpec =
       /** Ring-plane pole in ICRF (RA, Dec in degrees); the body's own equator when absent. */
       pole?: { raDeg: number; decDeg: number };
       shadow?: boolean;
+      /** Clumps confined in longitude within one ring (Neptune's Adams arcs), turning with the ring. */
+      arcs?: RingArcs;
     };
+
+/**
+ * Arcs: denser stretches of one ring that stay bunched in longitude. They are drawn between
+ * `innerKm` and `outerKm`, over the longitude spans given (degrees, measured in the direction of
+ * orbital motion from an origin that turns at `meanMotionDegPerDay`, starting at `phaseDeg` at
+ * J2000). Longitudes are in the ring plane, from the ascending node of that plane on the ICRF
+ * equator.
+ */
+export interface RingArcs {
+  innerKm: number;
+  outerKm: number;
+  opacity: number;
+  colour: string;
+  /** At most eight [from, to] spans, degrees. */
+  spans: readonly (readonly [number, number])[];
+  meanMotionDegPerDay: number;
+  phaseDeg: number;
+}
 
 export interface BodyVisual {
   /**
@@ -208,8 +237,14 @@ export interface BodyVisual {
   map?: string;
   night?: string;
   clouds?: string;
-  /** Multiply a greyscale map by this colour (the staging colourHue). */
+  /** Multiply a greyscale map by this colour (bodies.json colourHue). */
   mapTint?: string;
+  /**
+   * How much of the map shows, 0–1 (default 1): the rest is the body's flat colour. Titan's map
+   * is its surface seen at 938 nm through a haze that hides it in visible light, so it is shown
+   * faintly under the haze colour.
+   */
+  mapMix?: number;
   /**
    * Colour components of the map file (bodies.json textureInfo.channels). 1, a greyscale map, is
    * uploaded as a single channel (a quarter of the memory) and decoded from sRGB in the shader.
@@ -226,14 +261,63 @@ export interface BodyVisual {
   /** Triangle mesh (LSM1 format, km, body-fixed axes): a path from public/ ("models/phobos.bin"). */
   shape?: string;
   rings?: RingSpec;
+  /**
+   * Spacecraft: which model, and which way it faces.
+   *  probe  a Voyager-like probe (dish, bus, booms), its dish towards Earth (the default)
+   *  jwst   a sunshield with the telescope above it, the sunshield towards the Sun
+   *  parker a heat shield on a small bus, the shield towards the Sun
+   */
+  craft?: 'probe' | 'jwst' | 'parker';
+  /** A comet: draw its coma and its dust and ion tails (scene/CometTails.tsx). */
+  tails?: boolean;
+  /**
+   * A plain sphere in the body's colour, with no procedural surface: a body no image shows (the
+   * planets of other stars).
+   */
+  flat?: boolean;
+}
+
+/** Who found a natural body, and when (for the card). */
+export interface BodyDiscovery {
+  by: string;
+  /** ISO date, or as much of it as is known ("1705", "2005-06"). */
+  date: string;
+  place?: string;
+  note?: string;
+  /** URL. */
+  source?: string;
+}
+
+/** A spacecraft's launch and status (for the card). */
+export interface BodyMission {
+  /** ISO date-time (UTC). */
+  launch: string;
+  vehicle?: string;
+  site?: string;
+  /** What it did, in a sentence. */
+  summary?: string;
+  status?: string;
+  /** ISO date the status was true on. */
+  statusAsOf?: string;
+  /** URL. */
+  statusSource?: string;
 }
 
 /** An orbit line for the body, drawn relative to its parent (or its barycentre). */
 export interface OrbitLineSpec {
   /** GM of the two-body orbit, km³/s² (default: parent's GM plus the body's). */
   muKm3S2?: number;
-  /** A hyperbolic path is drawn back to this date only (Voyager 1: its Saturn flyby). */
-  trailFromMs?: number;
+  /**
+   * A hyperbolic path is drawn back to this date only (Voyager 1: its Saturn flyby), or to the
+   * latest of these dates before the one shown (a spacecraft's flybys: the conic it is on has
+   * held only since its last one).
+   */
+  trailFromMs?: number | readonly number[];
+  /**
+   * Draw the line only while the body is selected, in focus or flown to, as for asteroids and
+   * comets (spacecraft, the dwarf planet candidates: lines that would clutter the view).
+   */
+  onDemand?: boolean;
 }
 
 export interface BodyRecord {
@@ -261,8 +345,24 @@ export interface BodyRecord {
   facts?: readonly string[];
   /** Sources of the facts (URLs), in the same order. */
   factSources?: readonly string[];
+  /** Short names of those sources ("Akeson et al. 2021"), for links that all go to one site (doi.org). */
+  factSourceLabels?: readonly string[];
   /** Where the numbers come from, one line for the data sheet. */
   dataSource?: string;
+  /** Who found it and when (natural bodies). */
+  discovery?: BodyDiscovery;
+  /** Launch and status (spacecraft). */
+  mission?: BodyMission;
+  /**
+   * How far to trust the position, one line for the card and the data sheet: "Position: fitted
+   * to JPL Horizons, within ~40 km in 1981–2199; the mean orbit (illustrative) outside".
+   */
+  positionNote?: string;
+  /**
+   * The other models and approximations in how the body is shown, one short line each, for the
+   * card: "No surface map exists: shown in its measured colour", "Rotation illustrative: …".
+   */
+  modelNotes?: readonly string[];
   provider: PositionProvider;
   /** Single key that goes there ("6"). */
   key?: string;
@@ -284,6 +384,110 @@ export interface BodyRecord {
   detector?: boolean;
   /** Listed in "Where to?" and the Bodies list (default true). */
   destination?: boolean;
+  /**
+   * Registered on demand and released again (a catalogue star found in search or approached, a
+   * planet host from the exoplanet archive): listed apart in the Bodies list, and left out of the
+   * ephemeris table unless it is the target.
+   */
+  onDemand?: boolean;
   /** Learn article that tells its story. */
   article?: string;
+  /** A star's catalogue and physical data, for the card and the data sheet (sim/stars). */
+  star?: StarInfo;
+  /**
+   * The star whose light the body reflects, when it is not the Sun (a planet of another star):
+   * it lights the mesh and sets the point of light's magnitude.
+   */
+  litBy?: BodyId;
+  /** A planet of another star: its catalogue data and how each number was found (sim/exoplanets). */
+  exoplanet?: ExoplanetInfo;
+}
+
+/**
+ * What the card and the data sheet say about a star (sim/stars/records.ts). Every number says
+ * where it comes from: a paper's measurement, or an estimate from the catalogue.
+ */
+export interface StarInfo {
+  /** Index in stars3d.bin.gz. Its point in the star field is hidden while the body is registered (the body draws it). */
+  catalogueIndex?: number;
+  /** As printed in the catalogue or the paper ("A1 V", "M5.5 Ve"). */
+  spectralType?: string;
+  /** Effective temperature, K, and whether a paper measured it or it is the catalogue's colour temperature. */
+  teffK: number;
+  teffSource: 'literature' | 'colour' | 'unknown';
+  /** Luminosity, L☉: a paper's, or estimated from M_V with Flower's bolometric correction. */
+  luminosityLsun?: number;
+  luminositySource?: 'literature' | 'estimated';
+  /** Radius, R☉ (the mean for a flattened star): a paper's, or from L and T by Stefan–Boltzmann. */
+  radiusRsun?: number;
+  radiusSource?: 'literature' | 'estimated';
+  /** Equatorial and polar radii, R☉, of a fast rotator. */
+  equatorialRadiusRsun?: number;
+  polarRadiusRsun?: number;
+  massMsun?: number;
+  /** A mass given only as a range, M☉. */
+  massRangeMsun?: readonly [number, number];
+  /** Absolute visual magnitude M_V (no extinction correction). */
+  absMagV: number;
+  /** Apparent V from the Sun at J2000. */
+  vFromSun: number;
+  /** Distance from the Sun at J2000 in the catalogue, pc. */
+  distancePc: number;
+  /** How the distance was measured, and how precise it is, in words. */
+  distanceSource: string;
+  distancePrecision: string;
+  /** A different distance a paper prefers, pc, with its source (Betelgeuse, Deneb, Polaris). */
+  altDistancePc?: number;
+  altDistanceNote?: string;
+  /** Catalogue designations, most prominent first ("α CMa", "9 CMa", "HIP 32349"). */
+  designations?: readonly string[];
+  /** The IAU constellation it is in. */
+  constellation?: string;
+  /** References of the physical values, as citations. */
+  refs?: readonly string[];
+}
+
+/**
+ * What the card and the data sheet say about a planet of another star (sim/exoplanets). Every
+ * number says whether it was measured, estimated or assumed.
+ */
+export interface ExoplanetInfo {
+  /** The archive's status, or the featured file's for candidates it does not list. */
+  status: 'confirmed' | 'candidate' | 'disputed' | 'refuted';
+  /** Why it is a candidate or disputed, in a sentence. */
+  statusNote?: string;
+  /** The star it orbits (or "Kepler-16 A and B"), as named in the card. */
+  hostName: string;
+  /** Its name in the NASA Exoplanet Archive, when that differs from the name shown. */
+  archiveName?: string;
+  /** Orbital period, days; semi-major axis, au; eccentricity; inclination, degrees (90: edge-on). */
+  periodD: number;
+  smaAu: number;
+  ecc: number;
+  inclDeg: number;
+  /** Radius, Earth radii (6,378.1 km), and how it is known. */
+  radiusEarth: number;
+  radiusSource: 'measured' | 'estimated' | 'placeholder';
+  /** Mass, Earth masses: a true mass, a minimum (m sin i), or a model's estimate. */
+  massEarth?: number;
+  massKind?: 'true' | 'minimum' | 'estimated';
+  /**
+   * Its temperature, K: the equilibrium temperature (the warmth of its star's light alone),
+   * published or computed here from the star (no albedo, heat spread all round); or, for a young
+   * giant photographed directly ('own-heat'), the temperature of its own glow measured from its
+   * spectrum, far above what its star alone would give.
+   */
+  teqK?: number;
+  teqSource?: 'published' | 'computed' | 'own-heat';
+  /** How it was found: the method, the year, the facility and the paper. */
+  method: string;
+  year?: number;
+  facility?: string;
+  reference?: string;
+  transits?: boolean;
+  circumbinary?: boolean;
+  /** How each orbital element was obtained, one short phrase each ("Node: assumed"). */
+  provenance: readonly string[];
+  /** The rule that chose its illustrative colour. */
+  colourRule: string;
 }

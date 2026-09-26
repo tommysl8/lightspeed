@@ -98,6 +98,38 @@ function spinRotation(periodH: number, poleRaDeg = ECLIPTIC_POLE_RA, poleDecDeg 
   };
 }
 
+const MESH_X = new Vector3(1, 0, 0);
+const MESH_Y = new Vector3(0, 1, 0);
+const qCone = new Quaternion();
+const qSpin = new Quaternion();
+
+/**
+ * A non-principal-axis rotation, drawn as the simplest such motion: the body turns about its own
+ * z axis (mesh +Y) every `periodH` while that axis sweeps a cone of half-angle `coneDeg` about
+ * the pole (the angular momentum) every `precessionH`. As Euler angles about the pole: φ (the
+ * precession), θ (the cone), ψ (the spin). Illustrative: for the tumblers this is used for, no
+ * model predicts the orientation at a date.
+ */
+function tumbleRotation(periodH: number, precessionH: number, coneDeg: number, poleRaDeg = ECLIPTIC_POLE_RA, poleDecDeg = ECLIPTIC_POLE_DEC): RotationProvider {
+  const spin = 360 / (periodH / 24);
+  const prec = 360 / (precessionH / 24);
+  const pSpin = Math.abs(periodH / 24);
+  const pPrec = Math.abs(precessionH / 24);
+  const cone = coneDeg * DEG;
+  return {
+    orientationAt(time: AstroTime, out: Quaternion) {
+      const phi = ((time.tt % pPrec) * prec) % 360;
+      const psi = ((time.tt % pSpin) * spin) % 360;
+      // The pole frame turned by φ, then tilted by θ about its node (mesh +X) and spun by ψ
+      // about the body's own axis (mesh +Y), each in the frame before.
+      orientationFromPole(poleRaDeg * DEG, poleDecDeg * DEG, phi * DEG, out);
+      qCone.setFromAxisAngle(MESH_X, cone);
+      qSpin.setFromAxisAngle(MESH_Y, psi * DEG);
+      return out.multiply(qCone).multiply(qSpin);
+    },
+  };
+}
+
 const sx = new Vector3();
 const sy = new Vector3();
 const sz = new Vector3();
@@ -136,6 +168,10 @@ export function compileRotation(spec: RotationSpec | undefined): RotationProvide
     case 'spin':
       if (!(spec.periodH !== 0 && Number.isFinite(spec.periodH))) throw new Error('rotation: spin needs a finite, non-zero periodH');
       return spinRotation(spec.periodH, spec.poleRaDeg, spec.poleDecDeg, spec.w0Deg);
+    case 'tumble':
+      if (!(spec.periodH !== 0 && Number.isFinite(spec.periodH) && spec.precessionH !== 0 && Number.isFinite(spec.precessionH)))
+        throw new Error('rotation: tumble needs finite, non-zero periodH and precessionH');
+      return tumbleRotation(spec.periodH, spec.precessionH, spec.coneDeg, spec.poleRaDeg, spec.poleDecDeg);
     case 'iau':
       return iauRotation(spec);
   }

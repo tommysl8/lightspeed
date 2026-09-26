@@ -1,4 +1,4 @@
-// Builds staging/exoplanets/featured.json: hand-built exoplanet systems with the best published
+// Builds public/data/exoplanets-featured.json.gz: hand-built exoplanet systems with the best published
 // orbital solutions, every value cited, unknown angles marked "assumed" with the assumption stated.
 //
 // Inputs (data-raw/, not committed; never re-downloaded once cached):
@@ -12,21 +12,22 @@
 //       (MIT licence). Columns: planet (1-7 = b-h), epoch, mean time (BJD_TDB - 2450000), sigma (d).
 //   shaw2025_kepler90gh_table6.txt     Shaw et al. 2025 Table 6, transcribed (see the file header).
 //
-// Output: staging/exoplanets/featured.json. Conventions: see staging/exoplanets/exoplanets.md and
-// staging/exoplanets/src/orbit.ts. The orbit math here mirrors src/kepler.ts and src/orbit.ts; the
-// tests in staging/exoplanets/src/featured.test.ts check that the two agree.
+// Output: public/data/exoplanets-featured.json.gz (minified JSON, gzipped; the app loads it,
+// src/sim/exoplanets/load.ts). Conventions: see docs/data/exoplanets.md and
+// src/sim/exoplanets/orbit.ts. The orbit math here mirrors src/sim/exoplanets/kepler.ts and orbit.ts;
+// the tests in src/sim/exoplanets/featured.test.ts check that the two agree.
 
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
-import { gunzipSync } from 'node:zlib';
+import { gunzipSync, gzipSync } from 'node:zlib';
 import { POSITION_SOURCES, hostPositionJ2000, loadHostAstrometry } from './exoplanet-host-astrometry.mjs';
 
-const OUT = 'staging/exoplanets/featured.json';
+const OUT = 'public/data/exoplanets-featured.json.gz';
 /** Stated epoch for every phase: 2026-01-01 00:00 TDB. */
 const EPOCH_JD = 2_461_041.5;
 const EPOCH_ISO = '2026-01-01T00:00:00 TDB';
 
 // ---------------------------------------------------------------------------------------------
-// Math (mirrors staging/exoplanets/src)
+// Math (mirrors src/sim/exoplanets)
 
 const DEG = Math.PI / 180;
 const TAU = 2 * Math.PI;
@@ -1173,8 +1174,8 @@ const out = {
   systems,
 };
 
-mkdirSync('staging/exoplanets', { recursive: true });
-writeFileSync(OUT, JSON.stringify(out, null, 1) + '\n');
+mkdirSync('public/data', { recursive: true });
+writeFileSync(OUT, gzipSync(Buffer.from(JSON.stringify(out)), { level: 9 }));
 const nPl = systems.reduce((s, x) => s + x.planets.length, 0);
 console.log(`${OUT}: ${systems.length} systems, ${nPl} planets`);
 for (const s of systems) for (const p of s.planets) console.log(`  ${p.name.padEnd(28)} ${p.status.padEnd(9)} P=${p.orbit.periodDays} tp=${p.orbit.tPeriJd} M@epoch=${p.atEpoch.meanAnomalyDeg} sigma=${p.atEpoch.phaseSigmaDays ?? '-'}`);

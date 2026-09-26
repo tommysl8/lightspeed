@@ -7,8 +7,9 @@
 **Try it in your browser: [lightspeed-explorer.vercel.app](https://lightspeed-explorer.vercel.app)**
 
 Every planet sits where it really is today, every distance is to scale, and light takes real time to cross
-them: 8 minutes 19 seconds from the Sun to Earth, 5.5 hours to Pluto, almost a full day to Voyager 1. Fly between
-the planets at nearly the speed of light and the sky crowds ahead of you, colours shift, and your clock falls
+them: 8 minutes 19 seconds from the Sun to Earth, 5.5 hours to Pluto, almost a full day to Voyager 1. Beyond the
+planets are 329,770 real stars, each at its own distance, and the planets found around them, and you can go to any
+of them. Fly at nearly the speed of light and the sky crowds ahead of you, colours shift, and your clock falls
 behind Earth's, exactly as special relativity says. The numbers are always a click away, Learn tells the science
 behind it, and for students there is a lab with five guided experiments.
 
@@ -24,12 +25,14 @@ the **journeys**. Everything else is one click away:
 
 - **Where to?** (header, `/` or `Ctrl+K`): find any place by name, with how far away it is, how old its light is and
   what a 1 g flight there would take for you and at home. Enter goes there; Shift+Enter plans the flight.
-- **Journeys** (header): seven set pieces, one click each. Race a pulse of sunlight to Earth, ride to Saturn at
-  0.9c, see the sky at 0.999c on a split screen, catch up with Voyager 1, push to Proxima Centauri at 1 g, watch a
-  year pass in half a minute, or a month over Earth. Flights leave from Earth, play in about a minute of ship
-  time, and each journey says what to look for.
-- **Body cards**: click a planet and a card says what it is, how far away it is, how old its light is, and three
-  things worth knowing, with buttons to go there, fly there at 1 g, read about it and open its data sheet.
+- **Journeys** (header): ten set pieces, one click each. Race a pulse of sunlight to Earth, ride to Saturn at
+  0.9c, see the sky at 0.999c on a split screen, catch up with Voyager 1, push to Proxima Centauri at 1 g, fly to
+  the seven worlds of TRAPPIST-1, watch a year pass in half a minute or a month over Earth, ride Voyager 2 past
+  Neptune in 1989, or see Halley's Comet come back in 2061. Flights leave from Earth, play in about a minute of ship time, and each journey says what to look
+  for.
+- **Body cards**: click a body and a card says what it is, how far away it is, how old its light is, three things
+  worth knowing (with their sources), who found it or when it was launched, and how far to trust its position and
+  what else is a model, with buttons to go there, fly there at 1 g, read about it and open its data sheet.
 - **Learn** (header, `E`): long reads on the science behind the view at `#/learn`, with their sources.
 - **View** (header): display layers, optics, the **instrument panel** (`I`, every number several times a second)
   and **physics hints** (off by default), the guide, the keys and About.
@@ -63,11 +66,37 @@ procedure that ticks itself off, a data table filled by the instruments, and a l
 - **True scale, floating origin.** Positions are float64 kilometres. The camera never leaves the origin, and orbit
   lines are computed on the GPU relative to each body, so they stay exact from 1 m to 50 AU and beyond. A
   logarithmic depth buffer covers metres to light-years.
-- **Real sky and real bodies.** Positions of the Sun, the 8 planets, Pluto and the Moon come from Astronomy
-  Engine, which also supplies the IAU rotation models, so Earth's day side is correct for the current moment. The
-  scene also has Saturn's rings (with shadows both ways), ~8,900 naked-eye stars from the HYG catalogue coloured
-  by temperature, ~32,000 real asteroids, Jupiter Trojans and Kuiper-belt objects from JPL, Voyager 1 (from JPL
-  Horizons, dish pointed at Earth) and Proxima Centauri.
+- **Real sky and real bodies.** Positions of the Sun, the 8 planets, the Pluto–Charon barycentre and the Moon come
+  from Astronomy Engine, which also supplies the IAU rotation models, so Earth's day side is correct for the current
+  moment. The scene also has Saturn's rings (with shadows both ways), ~32,000 real asteroids, Jupiter Trojans and
+  Kuiper-belt objects from JPL, and the stars.
+- **The stars in 3D.** 329,770 stars (every star to V ≈ 10, and every catalogued star within 100 light-years) from
+  AT-HYG v4.0 with Gaia DR3 distances and velocities, each at its own distance, moving in a straight line with its
+  measured space velocity (good for about a million years either side of 2000; the stars are held still beyond), as
+  bright as it looks from wherever the camera is and coloured by temperature. From Earth the sky is the familiar
+  one, to the eye's limit of magnitude 6.5; fly away and the 88 constellation figures come apart. Alpha Centauri
+  (with Proxima), Sirius, Procyon, 61 Cygni and Capella orbit on their published orbits about barycentres that move
+  with the systems; of the 37 named stars and members of those systems, 36 have sizes and 32 temperatures from their
+papers (the cards label the others as estimates or colour temperatures); any star within a third of a light-year
+  becomes a sphere you can orbit. Search finds any star by name or catalogue number (Betelgeuse, α Ori, HIP 27989).
+- **The complete Solar System.** 25 moons (the Galilean four included) and Pluto about its barycentre follow orbit
+  models fitted to JPL Horizons over 1981–2199, within 0.6 km (Pluto) to 1,500 km (Nereid, on its long, eccentric
+  orbit); each card gives the figure.
+  Ceres, Vesta, the dwarf planets and large trans-Neptunian objects, Arrokoth, four comets (with dust and ion tails
+  from a simple physical model), the three interstellar visitors, and Voyager 1 and 2, New Horizons, Pioneer 10,
+  Parker Solar Probe and JWST follow Chebyshev fits to JPL Horizons (spacecraft within 25 km, and under a km near
+  their flybys). Moons are textured with USGS and NASA mosaics and turn by the IAU rotation models; eight
+  irregular bodies, 67P and Arrokoth among them, use real shape models, and Nix, Hydra and Haumea their measured
+  ellipsoids; Jupiter, Uranus, Neptune, Haumea and Quaoar
+  have their rings. Where the data end or no model exists (a rotation, a surface map, a ring plane), the card says so.
+- **Planets of other stars.** All 6,372 confirmed planets of the NASA Exoplanet Archive can be found by name (K2-18 b,
+  51 Pegasi b) and visited: each goes round its star on a Kepler orbit, timed so that, seen from the Sun, transiting
+  planets cross their stars at the published times. Eleven systems are built from their papers: TRAPPIST-1's seven planets, Proxima b
+  and d, Barnard's Star, 51 Pegasi b, HR 8799's four giants on their measured orbit plane, Kepler-90, TOI-700,
+  Kepler-16's two suns, ε Eridani b, the τ Ceti candidates and the candidate around α Centauri A. Nobody has seen
+  their surfaces, so their colours are illustrative, chosen by a stated rule from size and temperature; where an
+  orbit's orientation or a planet's place along it is not measured, the card says it is assumed. Stars with known
+  planets carry a small ring once you are among the stars.
 - **Two size modes.** *True scale* shows specks, as reality does (planets still shine at their real apparent
   magnitude). *Enlarged* draws bodies at least a few pixels across while keeping every distance true.
 - **Travel.** Enter β exactly, or use a logit-scaled fader (0.00001c to 0.99999c) and presets (Voyager 1, Parker
@@ -122,7 +151,7 @@ No configuration is needed.
 | `R` | Record a reading (Experiments 3 and 4; not in free flight) |
 | `/` or `Ctrl+K` | Where to? (search) |
 | `E`, `I`, `K` | Learn, instrument panel, the lab |
-| `T`, `O`, `L`, `B`, `U`, `J` | True scale ↔ enlarged, orbits, labels, small bodies, readouts over the view, ecliptic grid |
+| `T`, `O`, `L`, `B`, `U`, `J`, `Y` | True scale ↔ enlarged, orbits, labels, small bodies, readouts over the view, ecliptic grid, constellations |
 | `?` | Keyboard and mouse on one sheet |
 
 Single-key shortcuts can be switched off under View › Single-key shortcuts. Panels, menus, dialogs and the guide work from
@@ -165,12 +194,14 @@ tone mapping:
   - Planets and other rendered surfaces use an approximate spectral model for Doppler colour: sunlight times a
     smooth reflectance. Stars are exact blackbodies.
   - Constant-speed trips boost and stop instantly.
-  - Stars are drawn from the Sun's viewpoint, without parallax, except Proxima Centauri.
+  - Stars move in straight lines (the Galaxy's pull is left out: good for about a million years); interstellar dust
+    is not modelled, so distant stars look slightly too bright when approached; sizes of stars without a measured
+    radius are estimated from their brightness and colour; most double stars are one point.
   - Planets are lit without 1/r² dimming, as if your eyes adapt.
   - Trips ignore gravity.
-- **Voyager 1** is propagated as a two-body hyperbola around the Solar System's total mass from a JPL Horizons
-  barycentric state (2026-01-01). It matches Horizons to ~7 parts per million ten years either side. Around
-  18 November 2026 it becomes one light-day from Earth.
+- **Voyager 1** follows its JPL Horizons trajectory from launch to 2099 (a Chebyshev fit, within 25 km), then a
+  two-body hyperbola around the Solar System's total mass. Around 18 November 2026 it becomes one light-day from
+  Earth.
 
 ## Data and credits
 
@@ -179,39 +210,82 @@ tone mapping:
 | Planet, Moon, Pluto positions and rotation | [Astronomy Engine](https://github.com/cosinekitty/astronomy) (Don Cross) | MIT |
 | Physical data | [NASA Planetary Fact Sheets](https://nssdc.gsfc.nasa.gov/planetary/factsheet/) | US Government work |
 | Voyager 1 state vectors | [JPL Horizons](https://ssd.jpl.nasa.gov/horizons/) | NASA/JPL-Caltech |
+| Moon orbit models (`public/data/moons.json`) | Fitted to [JPL Horizons](https://ssd.jpl.nasa.gov/horizons/) satellite ephemerides (MAR099, JUP365, SAT441, URA182/URA184, NEP097/NEP105, PLU060) and the [JPL satellite mean elements](https://ssd.jpl.nasa.gov/sats/elem/) | NASA/JPL-Caltech |
+| Trajectories of dwarf planets, comets, interstellar objects and spacecraft (`public/data/tracks.bin`, `tracks.json`) | Fitted to [JPL Horizons](https://ssd.jpl.nasa.gov/horizons/) (spacecraft ephemerides from NASA/JPL, NASA/JHUAPL/SwRI and NASA/GSFC) | NASA/JPL-Caltech |
+| Physical data, rotation models, facts and rings (`public/data/bodies.json`, `rings.json`) | JPL Solar System Dynamics and Small-Body Database; IAU WGCCRE 2015 rotation models (Archinal et al. 2018) via NAIF `pck00011.tpc`; PDS Small Bodies Node and Rings Node; NASA and ESA mission pages; the papers cited in each file | US Government works and published values |
+| Moon, Ceres and Vesta maps (`public/textures/{io,europa,ganymede,callisto,enceladus,tethys,dione,rhea,iapetus,titan,triton,charon,ceres,vesta,phobos,mimas,deimos}.jpg`) | Global mosaics from [USGS Astrogeology](https://astrogeology.usgs.gov/) (Voyager, Galileo, Cassini, New Horizons, Dawn and Viking data: NASA/JPL-Caltech, SSI, DLR, JHUAPL/SwRI, UCLA/MPS/IDA, LPI; Mimas by T. Roatsch, DLR; Triton by P. Schenk; Phobos and Deimos by P. Stooke) | Public domain / no use constraints |
+| Uranian moon maps (`public/textures/{miranda,ariel,umbriel,titania,oberon}.jpg`) | Voyager 2 maps from [NASA 3D Resources](https://github.com/nasa/NASA-3D-Resources) | NASA, free and without copyright |
+| Shape models (`public/models/{phobos,deimos,hyperion,proteus,halley,arrokoth,vesta}.bin`) | Gaskell (Phobos), Thomas (Deimos, Hyperion) and Stooke (Proteus, Halley) models from the PDS Small Bodies Node; Porter et al. 2024 (Arrokoth); DLR Dawn terrain model (Vesta, via USGS Astrogeology) | NASA PDS, public; Vesta public domain |
+| Ellipsoids of Nix, Hydra and Haumea (`public/models/{nix,hydra,haumea}.bin`) | Generated from the triaxial sizes of Weaver et al. 2016 and Ortiz et al. 2017 | Generated; MIT with the source code |
+| Comet 67P shape (`public/models/churyumov-gerasimenko.bin`) | SHAP5 model by R. Gaskell, L. Jorda et al. (ESA/Rosetta/MPS for OSIRIS Team) | **[CC BY-SA 3.0 IGO](https://creativecommons.org/licenses/by-sa/3.0/igo/)**; this derived file is CC BY-SA 3.0 IGO too |
 | Asteroids, Trojans, TNOs (`public/data/belts.bin`) | [JPL Small-Body Database](https://ssd-api.jpl.nasa.gov/doc/sbdb_query.html) | NASA/JPL-Caltech |
-| Stars (`public/data/stars.bin`, `star-names.json`) | [HYG Database v4.4](https://codeberg.org/astronexus/hyg) (David Nash) | **[CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)**; these derived files are CC BY-SA 4.0 too |
+| Stars (`public/data/stars3d.bin.gz`, `stars3d-bright.bin.gz`, `stars3d-extra.bin.gz`, `star-names.json.gz`) | [AT-HYG v4.0](https://codeberg.org/astronexus/athyg) (David Nash) with [Gaia DR3](https://www.cosmos.esa.int/gaia) distances and radial velocities (ESA/Gaia/DPAC), Hipparcos photometry and parallaxes (ESA 1997; van Leeuwen 2007), [HYG v4.4](https://codeberg.org/astronexus/hyg) variable-star names and the [IAU star names](https://www.iau.org/public/themes/naming_stars/) | **Non-commercial use only**: AT-HYG is [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), the Gaia-derived values [CC BY-NC 3.0 IGO](https://www.cosmos.esa.int/web/gaia-users/license); both apply (see `CREDITS.md`) |
+| Constellation figures (`public/data/constellations.json`) | [d3-celestial](https://github.com/ofrohn/d3-celestial) (Olaf Frohn), after the IAU / Sky & Telescope charts | [BSD 3-Clause](https://github.com/ofrohn/d3-celestial/blob/master/LICENSE) |
+| Star systems and named stars (`src/sim/stars/systems.json`) | Orbits and stellar parameters from the papers cited in the file (Akeson et al. 2021, Kervella et al. 2017, Bond et al. 2015 and 2017, Shakht et al. 2017, Torres et al. 2015 and others) and Gaia DR3 | Published values, each with its reference |
+| Exoplanets (`public/data/exoplanets.json.gz`) | [NASA Exoplanet Archive](https://exoplanetarchive.ipac.caltech.edu/), Planetary Systems Composite Parameters (doi:[10.26133/NEA13](https://doi.org/10.26133/NEA13); Christiansen et al. 2025), retrieved 25 September 2026: "This research has made use of the NASA Exoplanet Archive, which is operated by the California Institute of Technology, under contract with the National Aeronautics and Space Administration under the Exoplanet Exploration Program." Host positions at J2000 from Gaia DR3 (ESA/Gaia/DPAC) and the Hipparcos new reduction | NASA/Caltech-IPAC data, freely available with that acknowledgement; **non-commercial use only** because of the Gaia-derived positions ([CC BY-NC 3.0 IGO](https://www.cosmos.esa.int/web/gaia-users/license)) |
+| Eleven featured planetary systems (`public/data/exoplanets-featured.json.gz`) | Orbital solutions from the papers cited in the file (Agol et al. 2021, Suárez Mascareño et al. 2025, Basant et al. 2025, Cont et al. 2026, Wang et al. 2018, Cabrera et al. 2014, Shaw et al. 2025, Pass et al. 2026, Doyle et al. 2011, Thompson et al. 2025, Feng et al. 2017, Beichman et al. 2025 and others), plus NASA Exoplanet Archive values; sizes from masses by Chen & Kipping (2017) | Published values, each with its reference; host positions from Gaia DR3 (non-commercial, with credit) |
 | Planet, Sun and ring textures | [Solar System Scope](https://www.solarsystemscope.com/textures/) (INOVE) | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
 | Pluto map | [NASA/JHUAPL/SwRI](https://www.nasa.gov/image-article/pluto-global-color-map/) (New Horizons) | NASA media, public domain |
-| Proxima Centauri | Gaia DR3 (distance), Boyajian et al. 2012 (radius), Ségransan et al. 2003 (temperature) | — |
+| Proxima Centauri (before the star catalogue loads) | Gaia DR3 (distance), Boyajian et al. 2012 (radius), Ségransan et al. 2003 (temperature) | — |
+| Star sizes estimated from brightness | Bolometric corrections of Flower (1996) as corrected by Torres (2010); M_V of the Sun from Willmer (2018) | — |
 | Colour science | CIE 1931 fit by Wyman, Sloan & Shirley (2013); B−V→T by Ballesteros (2012) | — |
+| Milky Way background (`public/textures/milkyway-bg.jpg`, `milkyway-bg-2k.jpg`, `milkyway-bg.json`) | [NASA/Goddard Space Flight Center Scientific Visualization Studio](https://svs.gsfc.nasa.gov/4851), Deep Star Maps 2020 (Gaia DR2: ESA/Gaia/DPAC) | Public domain (NASA SVS), with that credit |
+| Milky Way model (`public/data/galaxy-particles.bin.gz`) | Generated from published parameters (GRAVITY Collaboration 2022, Bland-Hawthorn & Gerhard 2016, Reid et al. 2019 and others; see `CREDITS.md`) | Part of this project (MIT) |
+| Star clusters (`public/data/clusters.json.gz`) | Open clusters: [Hunt & Reffert 2023, 2024](https://doi.org/10.1051/0004-6361/202348662) (Gaia DR3). Globular clusters: Vasiliev & Baumgardt 2021, Baumgardt & Vasiliev 2021, and the [Harris catalogue](https://physics.mcmaster.ca/~harris/mwgc.dat) (2010 edition) | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/); the Harris catalogue free of charge, with a reference to its website |
+| Nebula images (`public/images/nebulae/*.jpg`, 45) | ESA/Hubble, ESA/Webb, ESO and NSF NOIRLab; each image's credit line is in `CREDITS.md`. Modified: resized, black level subtracted, edges faded (three cropped) | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
+| Galaxies of the cosmic web (`public/data/cosmic-web.bin.gz`) | [Cosmicflows-4](https://doi.org/10.3847/1538-4357/ac94d8) (Tully et al. 2023) via CDS/VizieR, with the [2MASS Extended Source Catalog](https://irsa.ipac.caltech.edu/Missions/2mass.html) (UMass/IPAC-Caltech, NASA, NSF) | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), with the 2MASS acknowledgement |
+| Nearby galaxies (`public/data/local-galaxies.json.gz`) | [Local Volume Database](https://github.com/apace7/local_volume_database) v1.1.1 (Pace 2025), with the papers cited per row | [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/); added values quoted with citation |
+| Cosmic microwave background (`public/textures/cmb.png`, `cmb-data.png`) | [WMAP 9-year ILC map](https://lambda.gsfc.nasa.gov/product/wmap/dr5/ilc_map_get.html), NASA / WMAP Science Team | NASA data, public domain |
 | Typefaces | IBM Plex Sans (IBM), JetBrains Mono (JetBrains), Source Serif 4 (Adobe) | SIL OFL 1.1 |
+
+The Milky Way, cluster, nebula, galaxy and CMB files are on the site ahead of the update that will show them.
 
 Libraries: three.js, React Three Fiber and postprocessing (pmndrs), zustand, KaTeX, Tailwind CSS, Vite, Vitest.
 
 ### Regenerating the data files
 
 ```bash
-# Star catalogue: download hyg_v44.csv.gz from https://codeberg.org/astronexus/hyg into data-raw/
+# Stars (docs/data/stars.md): downloads its inputs into data-raw/ with --fetch, then builds the star files,
+# the constellation figures and the naked-eye subset
+node scripts/build-stars3d.mjs --fetch
 npm run data:stars
 # Minor bodies: queries the JPL SBDB API (cached in data-raw/)
 npm run data:belts
+# Exoplanets (docs/data/exoplanets.md): from the NASA Exoplanet Archive table in data-raw/ (the download command is in
+# the script's header; --fetch downloads the Gaia DR3 host astrometry once), then the eleven featured systems
+node scripts/build-exoplanets.mjs --fetch
+npm run data:exoplanets-featured
+# Moons and tracks: fitted to JPL Horizons (responses cached in data-raw/; docs/data/moons.md, tracks.md)
+node scripts/build-moons.mjs
+node scripts/build-tracks.mjs
+# Maps, shapes and body data (docs/data/assets.md): needs sharp and manifold-3d in a tools folder
+LIGHTSPEED_TOOLS=<tools folder> node scripts/build-shapes.mjs
+LIGHTSPEED_TOOLS=<tools folder> node scripts/build-textures.mjs
+node scripts/build-bodies.mjs
 ```
+
+How the Solar System data and the stars were made, and how accurate they are, is written up in `docs/data/`; how bodies are
+added to the app is in `docs/bodies.md`.
 
 ## Project layout
 
 ```
 src/physics/   pure, unit-tested physics (constants, relativity, light time, Kepler, rocket, colour)
 src/sim/       simulation core: clock, chronometers, ephemeris, Voyager, trips, light pulses, light delay
+src/sim/bodies/ the body registry: every body's record, position provider, rotation, and the per-frame pass
+src/sim/solarSystem/ the moons, dwarf planets, comets, interstellar objects and spacecraft, from their data files
+src/sim/stars/ the 3D star catalogue, star systems, star names and constellations (decoded in a worker)
+src/sim/exoplanets/ planets of other stars: the archive's catalogue, eleven featured systems, Kepler orbits on the sky
 src/lab/       the lab: experiment protocols and analysis, lab text, data loggers, notebook, instrument readings
 src/lib/       number formatting (significant figures, SI grouping, units) and least-squares statistics
 src/render/    shaders, materials, the relativistic scene pass, post-processing, adaptive quality
-src/scene/     React Three Fiber scene components (bodies, stars, belts, orbits, glints)
+src/scene/     React Three Fiber scene components (bodies, stars, constellations, belts, orbits, glints)
 src/controls/  camera: orbit, free flight, smooth zoom-and-pan flights
 src/ui/        interface: header and footer, body card, journeys, panels, instruments, plots, planner, recorder
 src/ui/docs/   the guide and About pages, and their figures
 src/content/   journeys, physics sections, author and version details
 scripts/       data builders
+docs/          how bodies are added (bodies.md); how the Solar System data were made (data/)
 ```
 
 ## Author
@@ -241,5 +315,8 @@ The About page in the app gives the same citation with the address of the site i
 
 ## Licence
 
-Code: [MIT](LICENSE), © 2026 Tommy Liu. The star data files are CC BY-SA 4.0, the Solar System Scope textures are
-CC BY 4.0 and the Pluto map is NASA public domain, as listed above and in [CREDITS.md](CREDITS.md).
+Code: [MIT](LICENSE), © 2026 Tommy Liu. The star catalogue, maps, shape models and other data keep their own
+licences, listed above and in [CREDITS.md](CREDITS.md). In particular, the star and exoplanet files are for
+**non-commercial use only**, because of their Gaia DR3 values (CC BY-NC 3.0 IGO; the star files are also CC BY-SA
+4.0); the 67P shape model is CC BY-SA 3.0 IGO; the Solar System Scope textures and the nebula images are CC BY 4.0;
+the Pluto map is NASA public domain.

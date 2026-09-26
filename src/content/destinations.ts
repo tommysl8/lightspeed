@@ -9,18 +9,21 @@
  * Matching is fuzzy and forgiving: prefixes and whole words first, then letters in order
  * ("jptr"), then one slip of the keyboard ("satrun").
  */
-import { bodyRecords, getBody, kindText, registryVersion, subscribeRegistry, type BodyId, type BodyRecord } from '../sim/bodies';
+import { bodyRecords, childrenOf, getBody, isPlaced, kindText, registryVersion, subscribeRegistry, type BodyId, type BodyRecord } from '../sim/bodies';
+import { PARSEC_KM } from '../physics/constants';
 import { sim } from '../sim/sim';
-import { goToBody } from '../ui/navigation';
+import { goToBody, goToPlanetarySystem, goToStarSystem } from '../ui/navigation';
 
 // ─── The registry ───────────────────────────────────────────────────────────────────────
 
 /** How the Bodies list groups destinations, in the order it shows them. */
 export const DESTINATION_GROUPS = [
   { id: 'sun-planets', title: 'Sun and planets' },
-  { id: 'dwarf-planets', title: 'Dwarf planets' },
+  { id: 'dwarf-planets', title: 'Dwarf planets and candidates' },
   { id: 'moons', title: 'Moons' },
-  { id: 'small-bodies', title: 'Asteroids, comets and interstellar objects' },
+  { id: 'small-bodies', title: 'Asteroids and Kuiper belt objects' },
+  { id: 'comets', title: 'Comets' },
+  { id: 'interstellar', title: 'Interstellar visitors' },
   { id: 'spacecraft', title: 'Spacecraft' },
   { id: 'stars', title: 'Stars' },
   { id: 'exoplanets', title: 'Exoplanets' },
@@ -43,8 +46,10 @@ export interface Destination {
   group: DestinationGroup;
   /** The body the camera and the flight planner use (destinations that are not bodies have none yet). */
   body?: BodyId;
-  /** The destination it orbits, for nesting in lists (Jupiter for Io). */
+  /** The destination it orbits, for nesting in lists (Jupiter for Io; a star system for its stars). */
   parent?: string;
+  /** A sub-heading within its group (the Stars: "Within 16 light-years", "Stars with planets" …). */
+  section?: string;
   /** The single key that goes there ("6"), if any. */
   key?: string;
   /** Distance from the camera now, km (NaN when not known). */
@@ -53,6 +58,11 @@ export interface Destination {
   unavailable: () => string | null;
   /** Take the camera there (a camera move, not a journey). */
   go: () => void;
+  /**
+   * Register the body `body` names, if it is not yet (a catalogue star found by name): called
+   * before Go, Fly and planning a flight there.
+   */
+  prepare?: () => void;
 }
 
 export type DestinationProvider = () => readonly Destination[];
@@ -117,8 +127,14 @@ export function groupedDestinations(list: readonly Destination[] = allDestinatio
   return DESTINATION_GROUPS.map((g) => ({ id: g.id, title: g.title, items: list.filter((d) => d.group === g.id) })).filter((g) => g.items.length > 0);
 }
 
-/** Groups whose members are listed under what they orbit when that is listed too (moons under their planet). */
-const NESTED_GROUPS: ReadonlySet<DestinationGroup> = new Set(['moons', 'exoplanets']);
+/**
+ * Groups whose members are listed under what they orbit when that is listed too: moons under
+ * their planet, planets under their star, the stars of a system under the system.
+ */
+const NESTED_GROUPS: ReadonlySet<DestinationGroup> = new Set(['moons', 'exoplanets', 'stars']);
+
+/** Sub-headings of the Stars, in order (starSection). */
+export const STAR_SECTIONS = ['Within 16 light-years', 'Stars with planets', 'Bright stars', 'Found in search or nearby'] as const;
 
 export interface NestedItem {
   destination: Destination;
@@ -126,6 +142,8 @@ export interface NestedItem {
   depth: number;
   /** How many listed destinations sit directly under this one. */
   children: number;
+  /** A sub-heading starts here (the first top-level item of each section). */
+  heading?: string;
 }
 
 /**
@@ -151,9 +169,21 @@ export function nestedDestinations(list: readonly Destination[] = allDestination
     out.push({ destination: d, depth, children: kids.length });
     for (const k of kids) add(k, depth + 1, out);
   };
+  const sectionRank = (d: Destination) => (d.section ? (STAR_SECTIONS as readonly string[]).indexOf(d.section) : -1);
   return DESTINATION_GROUPS.map((g) => {
     const items: NestedItem[] = [];
-    for (const d of list) if (d.group === g.id && !nests(d)) add(d, 0, items);
+    // Top-level members, by section (stable: each section keeps the providers' order).
+    const top = list.filter((d) => d.group === g.id && !nests(d));
+    if (top.some((d) => d.section)) top.sort((a, b) => sectionRank(a) - sectionRank(b));
+    let section: string | undefined;
+    for (const d of top) {
+      const at = items.length;
+      add(d, 0, items);
+      if (items.length > at && d.section && d.section !== section) {
+        items[at].heading = d.section;
+        section = d.section;
+      }
+    }
     return { id: g.id, title: g.title, items };
   }).filter((g) => g.items.length > 0);
 }
@@ -175,9 +205,11 @@ export function bodyGroup(r: BodyRecord): DestinationGroup {
     case 'moon':
       return 'moons';
     case 'asteroid':
-    case 'comet':
-    case 'interstellar':
       return 'small-bodies';
+    case 'comet':
+      return 'comets';
+    case 'interstellar':
+      return 'interstellar';
     case 'spacecraft':
       return 'spacecraft';
     case 'exoplanet':
@@ -192,9 +224,69 @@ export function bodyGroup(r: BodyRecord): DestinationGroup {
   }
 }
 
+/** The outermost barycentre above a body: its star system (Alpha Centauri for Alpha Centauri B). */
+function systemRoot(id: BodyId | null): BodyRecord | undefined {
+  let s: BodyRecord | undefined;
+  for (let r = id ? getBody(id) : undefined; r?.kind === 'barycentre'; r = r.parent ? getBody(r.parent) : undefined) s = r;
+  return s;
+}
+
+/**
+ * Where a body is listed: under what it orbits; a star of a system under the system's row; a
+ * planet placed on its star's barycentre (it orbits the pair) under the system too.
+ */
+function listParent(r: BodyRecord): string | undefined {
+  if (r.parent === null) return undefined;
+  const p = getBody(r.parent);
+  if (p?.kind === 'barycentre') return systemRoot(r.parent)?.id;
+  if (r.centre && r.centre !== r.parent && p?.parent === r.centre) return systemRoot(r.centre)?.id ?? r.parent;
+  return r.parent;
+}
+
+/** The distance from the Sun of a star, pc (its catalogue's, or where it is). */
+function starDistancePc(r: BodyRecord): number {
+  if (r.star) return r.star.distancePc;
+  const b = sim.bodies[r.id];
+  return b && isPlaced(r.id) ? b.pos.length() / PARSEC_KM : Infinity;
+}
+
+/** The Stars' sub-heading of a star, or of a system from its brightest star. */
+function starSection(r: BodyRecord, members: readonly BodyRecord[] = [r]): string {
+  if (r.onDemand) return STAR_SECTIONS[3];
+  if (starDistancePc(r) < 5) return STAR_SECTIONS[0];
+  if (members.some((m) => childrenOf(m.id).some((c) => c.kind === 'exoplanet'))) return STAR_SECTIONS[1];
+  return STAR_SECTIONS[2];
+}
+
+/** The brightest star of a system (its primary): the least absolute magnitude. */
+function primaryOf(stars: readonly BodyRecord[]): BodyRecord {
+  return stars.reduce((a, b) => ((b.star?.absMagV ?? 99) < (a.star?.absMagV ?? 99) ? b : a));
+}
+
+/**
+ * A star system (Alpha Centauri, Sirius, Kepler-16) as a row of its own, its stars listed under
+ * it. Going there frames its brightest star with the star it pairs with.
+ */
+function systemDestination(root: BodyRecord, stars: readonly BodyRecord[]): Destination {
+  const primary = primaryOf(stars);
+  const p = bodyDestination(primary);
+  return {
+    id: root.id,
+    name: root.name,
+    aliases: root.aliases ?? [],
+    kind: `System of ${stars.length} stars`,
+    group: 'stars',
+    section: starSection(primary, stars),
+    body: primary.id,
+    distanceKm: p.distanceKm,
+    unavailable: p.unavailable,
+    go: () => goToStarSystem(primary.id),
+  };
+}
+
 function bodyDestination(r: BodyRecord): Destination {
   const id = r.id;
-  const parent = r.parent !== null && getBody(r.parent)?.kind !== 'barycentre' ? r.parent : undefined;
+  const parent = listParent(r);
   return {
     id,
     name: r.name,
@@ -202,13 +294,17 @@ function bodyDestination(r: BodyRecord): Destination {
     aliases: r.aliases ?? [],
     kind: kindText(id),
     group: bodyGroup(r),
+    section: r.kind === 'star' && id !== 'sun' && !parent ? starSection(r) : undefined,
     body: id,
     parent,
     key: r.key,
-    distanceKm: () => sim.bodies[id]?.distTrue ?? NaN,
-    // Voyager 1 before its 1980 Saturn flyby, say: not modelled at the date shown.
+    // Measured now, not read from the last frame (distTrue): a body registered a moment ago
+    // (a star chosen in search) has no frame yet. Not known until it has been placed at all.
+    distanceKm: () => (isPlaced(id) && sim.bodies[id] ? sim.bodies[id].pos.distanceTo(sim.camera.pos) : NaN),
+    // A spacecraft before its launch, say: not there at the date shown.
     unavailable: () => (sim.bodies[id]?.present ? null : `${r.name} is not there at the date shown`),
-    go: () => goToBody(id),
+    // A planet of another star: its star's system, with the planet selected.
+    go: () => (r.kind === 'exoplanet' ? goToPlanetarySystem(id) : goToBody(id)),
   };
 }
 
@@ -217,9 +313,21 @@ const fromRegistry = { version: -1, list: [] as readonly Destination[] };
 function bodyDestinations(): readonly Destination[] {
   const v = registryVersion();
   if (fromRegistry.version !== v) {
-    fromRegistry.list = bodyRecords()
+    const list = bodyRecords()
       .filter((r) => r.destination !== false)
       .map(bodyDestination);
+    // A row for each star system, ahead of its stars.
+    const systems = new Map<BodyRecord, BodyRecord[]>();
+    for (const r of bodyRecords()) {
+      const root = r.kind === 'star' && r.parent ? systemRoot(r.parent) : undefined;
+      if (root) systems.set(root, [...(systems.get(root) ?? []), r]);
+    }
+    for (const [root, stars] of systems) {
+      const d = systemDestination(root, stars);
+      const at = list.findIndex((x) => stars.some((s) => s.id === x.id));
+      list.splice(at < 0 ? list.length : at, 0, d);
+    }
+    fromRegistry.list = list;
     fromRegistry.version = v;
   }
   return fromRegistry.list;
@@ -230,15 +338,40 @@ subscribeRegistry(destinationsChanged);
 
 // ─── Matching ───────────────────────────────────────────────────────────────────────────
 
-/** Lower case, accents and apostrophes gone, anything else that is not a letter or digit a single space. */
-export function normalise(s: string): string {
+/**
+ * Letters and digits with their case, accents and apostrophes gone, anything else a single
+ * space, and a leading "the" dropped ("the red planet", "The Moon").
+ */
+function tidy(s: string): string {
   return s
     .normalize('NFD')
     .replace(/\p{M}+/gu, '')
-    .toLowerCase()
     .replace(/[’'ʻ‘`]/g, '')
-    .replace(/[^a-z0-9]+/g, ' ')
-    .trim();
+    .replace(/[^A-Za-z0-9]+/g, ' ')
+    .trim()
+    .replace(/^the (?=\S)/i, '');
+}
+
+/** Lower case, accents and apostrophes gone, anything else that is not a letter or digit a single space; no leading "the". */
+export const normalise = (s: string): string => tidy(s).toLowerCase();
+
+/**
+ * Whether the query's letters have the case of the name's where it can mean something: every
+ * letter but the first of a word (people rarely type capitals), so a lone letter counts.
+ * Planets take lower-case letters and stars of a system capitals: "kepler-16 b" is the
+ * planet, "Kepler-16 B" the second star.
+ */
+export function sameCase(query: string, name: string): boolean {
+  const a = tidy(query);
+  const b = tidy(name);
+  if (a.length !== b.length || a.toLowerCase() !== b.toLowerCase()) return false;
+  for (let i = 0; i < a.length; i++) {
+    const wordStart = i === 0 || a[i - 1] === ' ';
+    const lone = wordStart && (i + 1 === a.length || a[i + 1] === ' ');
+    if (wordStart && !lone) continue;
+    if (a[i] !== b[i]) return false;
+  }
+  return true;
 }
 
 /** Restricted Damerau–Levenshtein distance (a swap of neighbours counts as one slip). */
@@ -295,7 +428,8 @@ export function matchScore(q: string, t: string): number {
   if (w >= 0) return 800 - Math.min(99, w);
   const i = t.indexOf(q);
   if (i >= 0) return 700 - Math.min(99, i);
-  if (q.length >= 3) {
+  // Letters in order, starting at the start of a word ("jptr" in "jupiter", not "orion" in "new horizons").
+  if (q.length >= 3 && (t.startsWith(q[0]) || t.includes(` ${q[0]}`))) {
     const s = subsequenceScore(q, t);
     if (s > 0) return 300 + s;
   }
@@ -320,15 +454,23 @@ export interface DestinationMatch {
   score: number;
 }
 
+/** A whole-name match typed in the name's own case beats any other ("kepler-16 b", the planet, over the star Kepler-16 B). */
+const SAME_CASE_BONUS = 15;
+
 /** The destinations matching a query, best first (names count a little more than aliases). */
 export function searchDestinations(query: string, list: readonly Destination[] = allDestinations(), limit = 30): DestinationMatch[] {
   const q = normalise(query);
   if (!q) return [];
   const out: DestinationMatch[] = [];
+  const scoreOf = (text: string, penalty: number): number => {
+    const s = matchScore(q, normalise(text));
+    if (s <= 0) return 0;
+    return s - penalty + (s === 1000 && sameCase(query, text) ? SAME_CASE_BONUS : 0);
+  };
   for (const d of list) {
-    let score = matchScore(q, normalise(d.name));
-    if (d.shortName) score = Math.max(score, matchScore(q, normalise(d.shortName)) - 1);
-    for (const a of d.aliases) score = Math.max(score, matchScore(q, normalise(a)) - 10);
+    let score = scoreOf(d.name, 0);
+    if (d.shortName) score = Math.max(score, scoreOf(d.shortName, 1));
+    for (const a of d.aliases) score = Math.max(score, scoreOf(a, 10));
     if (score > 0) out.push({ destination: d, score });
   }
   // Stable: equal scores keep the registry's order (Sun outwards).

@@ -19,6 +19,7 @@ import {
 } from 'three';
 import { blackbodyLut, blackbodyRgb } from '../physics/blackbody';
 import { SATURN_RING_INNER_KM, SATURN_RING_OUTER_KM, SUN_TEFF_K } from '../physics/constants';
+import { STAR_MAG_LIMIT } from '../sim/stars/visibility';
 
 import blackbodyGlsl from './shaders/blackbody.glsl?raw';
 import relativityGlsl from './shaders/relativity.glsl?raw';
@@ -26,6 +27,8 @@ import cmbVert from './shaders/cmb.vert.glsl?raw';
 import psfGlsl from './shaders/psf.glsl?raw';
 import pointFrag from './shaders/point.frag.glsl?raw';
 import starsVert from './shaders/stars.vert.glsl?raw';
+import constellationVert from './shaders/constellation.vert.glsl?raw';
+import hostRingVert from './shaders/hostRing.vert.glsl?raw';
 import glintsVert from './shaders/glints.vert.glsl?raw';
 import beltsVert from './shaders/belts.vert.glsl?raw';
 import beltsFrag from './shaders/belts.frag.glsl?raw';
@@ -36,6 +39,8 @@ import planetFrag from './shaders/planet.frag.glsl?raw';
 import sunFrag from './shaders/sun.frag.glsl?raw';
 import ringVert from './shaders/ring.vert.glsl?raw';
 import ringFrag from './shaders/ring.frag.glsl?raw';
+import tailVert from './shaders/tail.vert.glsl?raw';
+import tailFrag from './shaders/tail.frag.glsl?raw';
 
 // Register custom chunks so shaders can `#include <lightspeed_…>`.
 const chunks = ShaderChunk as unknown as Record<string, string>;
@@ -120,11 +125,32 @@ export const cmbPointUniforms = {
   uCmbPointFade: { value: 0 },
 };
 
+/**
+ * The eye's limit: stars fainter than this fade out (over ± 0.5 mag). The old sky of 8,920 stars
+ * stopped at V = 6.5; the 3D catalogue reaches V = 10 from the Sun, and keeps the same look.
+ * Defined with the star catalogue, whose near-Sun draw counts depend on it (sim/stars/visibility.ts).
+ */
+export { STAR_MAG_LIMIT };
+
 /** Point-spread-function uniforms shared by stars and glints. */
 export const psfUniforms = {
   uPixelRatio: { value: 1 },
   uMagZero: { value: 0 },
   uStarGain: { value: 1.6 },
+  uMagLimit: { value: STAR_MAG_LIMIT },
+};
+
+/**
+ * Where the camera is among the stars, written each frame (scene/Starfield.tsx) and shared by the
+ * star field and the constellation figures: the camera in parsecs from the Sun (J2000 ecliptic)
+ * as hi + lo floats, the years since J2000 the stars have moved (held to ±1 Myr), and whether
+ * each star is drawn where it is seen (light-time) or where it is.
+ */
+export const starUniforms = {
+  uCamHi: { value: new Vector3() },
+  uCamLo: { value: new Vector3() },
+  uYears: { value: 0 },
+  uRetarded: { value: 0 },
 };
 
 function initBlackbodyUniforms(): void {
@@ -151,13 +177,84 @@ export function createCmbPointMaterial(): ShaderMaterial {
 
 export function createStarMaterial(): ShaderMaterial {
   return new ShaderMaterial({
-    uniforms: shared(),
+    uniforms: { ...shared(), ...starUniforms },
     vertexShader: starsVert,
     fragmentShader: pointFrag,
     blending: AdditiveBlending,
     depthTest: false,
     depthWrite: false,
     transparent: false, // stays in the opaque pass so it draws before (under) everything else
+  });
+}
+
+const CONSTELLATION_FRAG = /* glsl */ `
+#include <logdepthbuf_pars_fragment>
+uniform vec3 uColor;
+uniform float uOpacity;
+uniform float uGap;
+varying float vAlpha;
+varying float vGap;
+void main() {
+  #include <logdepthbuf_fragment>
+  // A small gap round each star, so the lines join the stars without running into them.
+  float a = vAlpha * smoothstep(uGap, 1.8 * uGap, vGap);
+  if (a <= 0.0) discard;
+  gl_FragColor = vec4(uColor * (uOpacity * a), 1.0);
+}
+`;
+
+/** Constellation figures between the 3D stars (scene/Constellations.tsx): faint lines, added under everything. */
+export function createConstellationMaterial(): ShaderMaterial {
+  initBlackbodyUniforms();
+  return new ShaderMaterial({
+    // uGap: the gap round each star, radians (scene/Constellations.tsx sets it from the pixel scale).
+    uniforms: { ...relativityUniforms, ...starUniforms, uColor: { value: new Color('#6f8cc4') }, uOpacity: { value: 0 }, uGap: { value: 0 } },
+    vertexShader: constellationVert,
+    fragmentShader: CONSTELLATION_FRAG,
+    blending: AdditiveBlending,
+    depthTest: false,
+    depthWrite: false,
+    transparent: false, // with the stars, before (under) everything else
+  });
+}
+
+const HOST_RING_FRAG = /* glsl */ `
+#include <logdepthbuf_pars_fragment>
+uniform vec3 uColor;
+uniform float uOpacity;
+varying float vAlpha;
+void main() {
+  #include <logdepthbuf_fragment>
+  // A thin ring, antialiased: radius 0.72 to 0.9 of the point's half-width.
+  float r = length(gl_PointCoord - 0.5) * 2.0;
+  float w = fwidth(r);
+  float ring = smoothstep(0.72 - w, 0.72 + w, r) * (1.0 - smoothstep(0.9 - w, 0.9 + w, r));
+  float a = ring * vAlpha * uOpacity;
+  if (a <= 0.002) discard;
+  gl_FragColor = vec4(uColor * a, 1.0);
+}
+`;
+
+/** Rings around the stars with known planets (scene/PlanetHosts.tsx), added over the stars and under the bodies. */
+export function createHostRingMaterial(): ShaderMaterial {
+  initBlackbodyUniforms();
+  return new ShaderMaterial({
+    uniforms: {
+      ...relativityUniforms,
+      ...starUniforms,
+      uPixelRatio: psfUniforms.uPixelRatio,
+      uColor: { value: new Color('#7fd0b8') },
+      uOpacity: { value: 0 },
+      uNearPc: { value: 20 },
+      uFarPc: { value: 40 },
+      uSizePx: { value: 15 },
+    },
+    vertexShader: hostRingVert,
+    fragmentShader: HOST_RING_FRAG,
+    blending: AdditiveBlending,
+    depthTest: false,
+    depthWrite: false,
+    transparent: false, // with the stars, before (under) the bodies
   });
 }
 
@@ -245,6 +342,10 @@ export interface PlanetMaterialOptions {
   ambient?: number;
   /** Multiplies the surface map (to tint a greyscale map with the body's hue). */
   mapTint?: Color;
+  /** How much of the map shows over the flat base colour, 0–1 (default 1). */
+  mapMix?: number;
+  /** Colour of the light that falls on it (default: sunlight). */
+  lightColor?: Color;
 }
 
 export function createPlanetMaterial(o: PlanetMaterialOptions): ShaderMaterial {
@@ -260,7 +361,7 @@ export function createPlanetMaterial(o: PlanetMaterialOptions): ShaderMaterial {
       uBanded: { value: o.banded ? 1 : 0 },
       uSunRel: { value: new Vector3() },
       uSunIntensity: { value: 1.6 },
-      uSunColor: { value: SUN_COLOR },
+      uSunColor: { value: o.lightColor ?? SUN_COLOR },
       uAtmoColor: { value: o.atmoColor ?? new Color(0, 0, 0) },
       uAtmoStrength: { value: o.atmoStrength ?? 0 },
       uLonOffset: { value: o.lonOffset ?? 0 },
@@ -270,6 +371,7 @@ export function createPlanetMaterial(o: PlanetMaterialOptions): ShaderMaterial {
       uMapTint: { value: o.mapTint ?? new Color(1, 1, 1) },
       // The map is a single-channel greyscale texture holding sRGB values (textures.ts).
       uMapGrey: { value: 0 },
+      uMapMix: { value: o.mapMix ?? 1 },
       uRingShadow: { value: 0 },
       uRingMap: { value: null },
       uRingNormalW: { value: new Vector3(0, 1, 0) },
@@ -309,6 +411,13 @@ export function createRingMaterial(): ShaderMaterial {
       uSunColor: { value: SUN_COLOR },
       uInner: { value: SATURN_RING_INNER_KM },
       uOuter: { value: SATURN_RING_OUTER_KM },
+      uArcCount: { value: 0 },
+      uArcSpans: { value: Array.from({ length: 8 }, () => new Vector2()) },
+      uArcOrigin: { value: 0 },
+      uArcInner: { value: 0 },
+      uArcOuter: { value: 0 },
+      uArcOpacity: { value: 0 },
+      uArcColor: { value: new Color(1, 1, 1) },
     },
     vertexShader: ringVert,
     fragmentShader: ringFrag,
@@ -316,5 +425,19 @@ export function createRingMaterial(): ShaderMaterial {
     transparent: true,
     depthWrite: false,
     blending: NormalBlending,
+  });
+}
+
+/** Comet comae and tails: vertex colours added to the scene (scene/CometTails.tsx). */
+export function createTailMaterial(): ShaderMaterial {
+  return new ShaderMaterial({
+    uniforms: { uGain: { value: 1 } },
+    vertexShader: tailVert,
+    fragmentShader: tailFrag,
+    blending: AdditiveBlending,
+    depthTest: true,
+    depthWrite: false,
+    transparent: true,
+    side: DoubleSide,
   });
 }

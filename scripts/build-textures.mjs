@@ -1,7 +1,7 @@
 // Builds public/textures/<id>.jpg: equirectangular surface maps of moons, dwarf planets and
 // asteroids, made only from mosaics whose licence allows redistribution (USGS Astrogeology and
 // NASA products, all public domain). Sources, credits and conventions are listed in MAPS below
-// and in staging/phase2/assets.md.
+// and in docs/data/assets.md.
 //
 // Output convention, identical for every map:
 //   simple cylindrical (equirectangular) projection, planetocentric latitude +90° in the top row
@@ -27,7 +27,7 @@
 //   npm install --prefix ../lightspeed-tools sharp
 //   LIGHTSPEED_TOOLS=../lightspeed-tools node scripts/build-textures.mjs [id ...]
 // Registration was verified by overlaying IAU feature positions from the USGS Gazetteer on every output
-// (staging/phase2/src/physical/__fixtures__/check-texture-registration.py).
+// (scripts/check-texture-registration.py).
 
 import { createRequire } from 'node:module';
 import { existsSync, mkdirSync, readFileSync, writeFileSync, statSync } from 'node:fs';

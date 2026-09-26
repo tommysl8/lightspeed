@@ -16,6 +16,19 @@ import { psfUniforms } from '../render/materials';
 import { updateRelativisticView } from '../render/relativisticView';
 import { onArrival } from '../ui/tripActions';
 import { pickBody } from './picking';
+import { updateNearbyStars } from '../sim/stars';
+import { updateExoplanets } from '../sim/exoplanets';
+import { isWithin } from '../sim/bodies';
+
+/**
+ * A star registered on demand stays while it (or a planet of it) is looked at, selected or flown
+ * to; so does a host registered from the exoplanet archive.
+ */
+function keepStar(id: string): boolean {
+  const ui = useUI.getState();
+  const holds = (x: string | null | undefined) => !!x && (x === id || isWithin(x, id));
+  return holds(ui.focus) || holds(ui.selected) || holds(ui.plannerDest) || holds(travel.trip?.dest);
+}
 
 /**
  * Runs first every frame: advance the clock, update the ephemeris and any trip, move the
@@ -78,6 +91,10 @@ export function SimDriver() {
     camera.position.set(0, 0, 0);
     camera.quaternion.copy(sim.camera.quat);
     camera.updateMatrixWorld();
+    // Stars the camera comes close to become bodies (drawn from float64); those left behind go.
+    updateNearbyStars(keepStar);
+    // The exoplanet archive loads once it is wanted; hosts registered from it go when left behind.
+    updateExoplanets(keepStar, ui.focus);
     // The observer's rapidity, exact at any γ (from the trip model while flying)
     updateShipKinematics();
 

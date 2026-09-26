@@ -10,6 +10,7 @@ attribute vec3 aColor;
 attribute float aFade;
 attribute float aRadius;
 attribute float aTemp;
+attribute float aLimit; // 1 for stars: they fade out at the eye's limit, like the star field
 
 varying vec3 vColor;
 varying float vPeak;
@@ -28,7 +29,7 @@ void main() {
   float sigma, peak, size;
   psfFromMagnitude(mag, sigma, peak, size);
   vColor = aColor * shifted / max(rest.rgb, vec3(1e-3));
-  vPeak = peak * aFade;
+  vPeak = peak * aFade * (aLimit > 0.5 ? limitFade(mag) : 1.0);
   vSigma = sigma;
   vSize = size;
   // Sit just in front of the body's surface so the body cannot occlude its own glint.

@@ -3,7 +3,9 @@
  * the arrow keys choose, Enter takes the camera there, Shift+Enter plans a 1 g flight.
  *
  * Results come from the destinations registry (content/destinations.ts), so what later
- * updates add (moons, stars, galaxies) turns up here by itself. Each shows how far away it is
+ * updates add (moons, stars, galaxies) turns up here by itself, and from the names of the
+ * catalogue's 330,000 stars (content/starDestinations.ts: "Betelgeuse", "α Ori", "HIP 70890"),
+ * loaded when the palette first opens. Each shows how far away it is
  * and how old its light is; the highlighted one also shows what a 1 g flight there would cost
  * on both clocks. Planning a trip is not free (planTrip solves an intercept against the
  * ephemeris), so that is worked out for the highlighted row only, a moment after it settles.
@@ -18,14 +20,16 @@ import {
   type Destination,
 } from '../../content/destinations';
 import { JOURNEYS } from '../../content/journeys';
+import { starDestinations, withStars } from '../../content/starDestinations';
+import { exoplanetDestinations } from '../../content/exoplanetDestinations';
+import { loadStarExtra, loadStarNames, starData, starsVersion, subscribeStars } from '../../sim/stars';
+import { catalogueStatus, exoplanetsVersion, loadExoplanetCatalogue, subscribeExoplanets } from '../../sim/exoplanets';
 import { qty } from '../../lib/sci';
 import { formatDurationShort } from '../../lib/time';
-import { sim } from '../../sim/sim';
-import { planTrip } from '../../sim/travel';
 import { useUI } from '../../state/ui';
 import { openJourneys } from '../onboarding';
 import { planOneG } from '../tripActions';
-import { tripCostText } from '../flight/tripText';
+import { dropRetries, oneGCost, type Cost } from './searchCost';
 import { CloseIcon, Kbd } from '../kit';
 import { Icon } from '../icons';
 import { rich } from '../rich';
@@ -34,34 +38,21 @@ import { useTicker } from '../useTicker';
 
 const IN_FLIGHT = 'In flight: arrive or abort first';
 
-/** A 1 g flight from where the camera is: its cost in words, or why there is none. */
-interface Cost {
-  ok: boolean;
-  text: string;
-}
-
-function oneGCost(d: Destination): Cost {
-  if (!d.body) return { ok: false, text: 'Flights there come in a later update' };
-  const why = d.unavailable();
-  if (why) return { ok: false, text: why };
-  const plan = planTrip(d.body, 0, sim.camera.pos.clone(), sim.astroTime, 'rocket');
-  if (!plan) return { ok: false, text: 'Out of reach at 1 g from here' };
-  if (plan.distance <= 0) return { ok: false, text: 'You are here' };
-  return { ok: true, text: tripCostText(plan) };
-}
-
 /**
  * Trip costs, worked out lazily and kept while the palette is open (the planets hardly move
  * in that time). `want` lists the rows whose cost is needed; one is computed per frame, so
- * opening the palette never stalls a frame with six intercept solutions at once.
+ * opening the palette never stalls a frame with six intercept solutions at once. A cost that
+ * could not be worked out because data were still loading is worked out again whenever
+ * `dataVersion` changes (the star catalogue, the names or the exoplanet archive arriving).
  */
-function useCosts(want: readonly Destination[], active: boolean): ReadonlyMap<string, Cost> {
+function useCosts(want: readonly Destination[], active: boolean, dataVersion: string): ReadonlyMap<string, Cost> {
   const cache = useRef(new Map<string, Cost>());
   const [, setVersion] = useState(0);
   const key = want.map((d) => d.id).join(' ');
   useEffect(() => {
     if (!active) return;
     let raf = 0;
+    dropRetries(cache.current);
     const todo = want.filter((d) => !cache.current.has(d.id));
     if (!todo.length) return;
     // A short pause first, so arrowing through the list does not plan every row passed.
@@ -82,7 +73,7 @@ function useCosts(want: readonly Destination[], active: boolean): ReadonlyMap<st
       cancelAnimationFrame(raf);
     };
     // `key` stands for `want`.
-  }, [key, active]);
+  }, [key, active, dataVersion]);
   return cache.current;
 }
 
@@ -196,10 +187,29 @@ function Palette() {
   const listId = useId();
   const optionId = (i: number) => `${listId}-o${i}`;
 
-  // Destinations can arrive while the palette is open (a later update's moons, loaded on demand).
+  // Destinations can arrive while the palette is open (a later update's moons, loaded on demand),
+  // and so can the star names, which load when the palette first opens.
   const registry = useSyncExternalStore(subscribeDestinations, destinationsVersion);
+  const stars = useSyncExternalStore(subscribeStars, starsVersion);
+  const planets = useSyncExternalStore(subscribeExoplanets, exoplanetsVersion);
+  const [namesFailed, setNamesFailed] = useState(false);
+  useEffect(() => {
+    void loadStarNames().then((t) => setNamesFailed(!t));
+    void loadStarExtra();
+    void loadExoplanetCatalogue();
+  }, []);
   const featured = useMemo(() => featuredDestinations(), [registry]);
-  const results = useMemo(() => searchDestinations(query).map((m) => m.destination), [query, registry]);
+  const results = useMemo(
+    () =>
+      withStars(
+        withStars(
+          searchDestinations(query).map((m) => m.destination),
+          exoplanetDestinations(query),
+        ),
+        starDestinations(query),
+      ),
+    [query, registry, stars, planets],
+  );
   const browsing = query.trim() === '';
   const list = browsing ? featured : results;
   const cur = list.length ? Math.min(index, list.length - 1) : -1;
@@ -207,7 +217,10 @@ function Palette() {
 
   // Featured rows all show their cost; search results only the highlighted one.
   const want = flying ? [] : browsing ? featured : activeDest ? [activeDest] : [];
-  const costs = useCosts(want, !flying);
+  const costs = useCosts(want, !flying, `${registry} ${stars} ${planets}`);
+  // Until the star names (and the exoplanet archive) are in, finding nothing proves nothing.
+  const namesLoading = !starData.names && !namesFailed;
+  const archiveLoading = catalogueStatus() === 'loading' || catalogueStatus() === 'idle';
 
   useEffect(() => setIndex(0), [query]);
   // Keep the highlighted row in view.
@@ -222,6 +235,7 @@ function Palette() {
   };
   const fly = (d: Destination) => {
     if (flying || !d.body || d.unavailable()) return;
+    d.prepare?.();
     close();
     planOneG(d.body);
   };
@@ -270,7 +284,7 @@ function Palette() {
           <input
             data-autofocus
             className="h-9 min-w-0 flex-1 bg-transparent font-serif text-[17px] text-fg outline-none placeholder:text-fg-3"
-            placeholder="Where to? A planet, the Moon, Voyager 1…"
+            placeholder="Where to? A planet, a star, Voyager 1…"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={onKey}
@@ -293,13 +307,15 @@ function Palette() {
             featured.length ? (
               <Section title="Featured">{rows(featured, true)}</Section>
             ) : (
-              <p className="px-4 py-5 text-[12.5px] text-fg-2">Type the name of a planet, a moon or a spacecraft.</p>
+              <p className="px-4 py-5 text-[12.5px] text-fg-2">Type the name of a planet, a moon, a spacecraft or a star.</p>
             )
           ) : results.length ? (
             rows(results, false)
           ) : (
             <p className="px-4 py-5 text-[12.5px] text-fg-2 [overflow-wrap:anywhere]">
-              Nothing called “{query.trim()}” yet. More moons, stars and galaxies arrive in later updates.
+              {namesLoading || archiveLoading
+                ? `Nothing called “${query.trim()}” so far: the names of the ${namesLoading ? (archiveLoading ? 'stars and their planets' : 'stars') : 'planets of other stars'} are still loading…`
+                : `Nothing called “${query.trim()}”. Stars are found by name or number too (Betelgeuse, α Ori, HIP 27989), and planets of other stars by name (K2-18 b).`}
             </p>
           )}
         </div>

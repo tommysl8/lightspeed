@@ -20,6 +20,10 @@ import {
   specOf,
 } from './scenes';
 import { JOURNEYS } from './journeys';
+import { registerSolarSystem, type BodiesFile, type RingsFile } from '../sim/solarSystem';
+import { indexMoonCatalog, type MoonCatalog } from '../sim/moonModels';
+import { parseTracks, type TracksIndex } from '../sim/tracks';
+import { readBytes, readJson } from '../test/files';
 
 beforeAll(() => {
   // A fixed date, so the flights' reachability does not depend on when the tests run.
@@ -44,7 +48,8 @@ describe('parseScene', () => {
   it('accepts every target the articles use, even those not in the app yet', () => {
     for (const t of KNOWN_TARGETS) expect(parseScene(`go:${t}`)).not.toBeNull();
     expect(KNOWN_TARGETS).toContain('jades-gs-z14-0');
-    expect(KNOWN_TARGETS).toHaveLength(106);
+    expect(KNOWN_TARGETS).toHaveLength(109);
+    expect(KNOWN_TARGETS).toEqual(expect.arrayContaining(['trappist-1', 'hr-8799', '51-pegasi', 'kepler-90', 'toi-700', 'kepler-16']));
   });
 
   it('rejects anything else', () => {
@@ -143,12 +148,26 @@ describe('notes and flights', () => {
 });
 
 describe('journeys', () => {
+  it('wait for the Solar System data when they need it', () => {
+    expect(sceneStatus('voyager2-neptune')).toMatchObject({ ok: false, reason: 'Loading the Solar System data…', label: 'Ride Voyager 2 past Neptune' });
+    expect(sceneStatus('halley-2061').ok).toBe(false);
+  });
+
   it('are scene specs that run today, with what to look for', () => {
-    expect(JOURNEYS.map((j) => j.id)).toEqual(['sunlight', 'saturn', 'split', 'voyager', 'proxima', 'year', 'moon']);
+    registerSolarSystem({
+      bodies: readJson<BodiesFile>('public/data/bodies.json'),
+      rings: readJson<RingsFile>('public/data/rings.json'),
+      moons: indexMoonCatalog(readJson<MoonCatalog>('public/data/moons.json')),
+      tracks: parseTracks(readJson<TracksIndex>('public/data/tracks.json'), readBytes('public/data/tracks.bin')),
+    });
+    updateEphemeris();
+    expect(JOURNEYS.map((j) => j.id)).toEqual(['sunlight', 'saturn', 'split', 'voyager', 'proxima', 'trappist', 'year', 'moon', 'neptune', 'halley']);
     for (const j of JOURNEYS) {
       expect(parseScene(j.scene), j.id).not.toBeNull();
-      expect(sceneStatus(j.scene).ok, j.id).toBe(true);
       expect(j.look.length, j.id).toBeGreaterThan(40);
+      // TRAPPIST-1 needs the stars and the planetary systems (sim/exoplanets/exoplanets.test.ts runs it).
+      if (j.id === 'trappist') expect(sceneStatus(j.scene).reason).toBe('Loading the star catalogue…');
+      else expect(sceneStatus(j.scene).ok, j.id).toBe(true);
     }
   });
 

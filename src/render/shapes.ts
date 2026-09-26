@@ -1,6 +1,6 @@
 /**
- * Shape models of irregular bodies: triangle meshes in the "LSM1" format of the phase-2 data
- * (staging/phase2/assets.md §3), loaded lazily and cached.
+ * Shape models of irregular bodies: triangle meshes in the "LSM1" format of the Solar System data
+ * (docs/data/assets.md §3), loaded lazily and cached.
  *
  * LSM1, little-endian: "LSM1", u32 version 1, u32 vertex count V, u32 triangle count T, u32
  * bytes per index (2 or 4), f32 largest vertex distance (km), f32 equal-volume radius (km),

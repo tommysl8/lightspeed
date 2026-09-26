@@ -1,5 +1,5 @@
 // Builds public/models/<id>.bin: compact triangle meshes of irregular bodies, in kilometres, in
-// each body's own body-fixed frame (see FRAMES below and staging/phase2/assets.md).
+// each body's own body-fixed frame (see FRAMES below and docs/data/assets.md).
 //
 // Sources (all cached in data-raw/d3/shapes/ on first run; delete a file to fetch it again):
 //   phobos      R. Gaskell, Phobos Q=64 vertex–facet model (Viking + Phobos 2 images), PDS SBN

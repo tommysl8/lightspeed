@@ -30,6 +30,11 @@ describe('normalise', () => {
     expect(normalise('ʻOumuamua')).toBe('oumuamua');
     expect(normalise('Comet 67P/Churyumov–Gerasimenko')).toBe('comet 67p churyumov gerasimenko');
     expect(normalise('Barnard’s Star')).toBe('barnards star');
+    // A leading "the" is dropped, so "the red planet" is the nickname and "the Moon" the Moon.
+    expect(normalise('the red planet')).toBe('red planet');
+    expect(normalise('The Moon')).toBe('moon');
+    expect(normalise('the')).toBe('the');
+    expect(normalise('Theia')).toBe('theia');
   });
 });
 
@@ -65,6 +70,10 @@ describe('matchScore', () => {
     expect(matchScore('', 'saturn')).toBe(0);
     // Two letters are too few for letters-in-order matching.
     expect(matchScore('sn', 'saturn')).toBe(0);
+    // Letters in order must start at the start of a word.
+    expect(matchScore('orion', normalise('New Horizons'))).toBe(0);
+    expect(matchScore('betel', normalise('James Webb Space Telescope'))).toBe(0);
+    expect(matchScore('jptr', 'jupiter')).toBeGreaterThan(0);
   });
 });
 
@@ -109,6 +118,17 @@ describe('searchDestinations', () => {
     expect(top('voyager')).toBe('voyager1');
     expect(top('jptr')).toBe('jupiter');
     expect(top('home')).toBe('earth');
+    expect(top('the red planet')).toBe('mars');
+    expect(top('the moon')).toBe('moon');
+  });
+
+  it('tells a planet from a star of the same name by the case of its letter', () => {
+    const list = [fake('kepler-16-b', 'Kepler-16 B', 'stars'), fake('kepler-16-ab-b', 'Kepler-16 (AB) b', 'exoplanets', ['Kepler-16 b'])];
+    const first = (q: string) => searchDestinations(q, list)[0]?.destination.id;
+    expect(first('kepler-16 b')).toBe('kepler-16-ab-b');
+    expect(first('Kepler-16 b')).toBe('kepler-16-ab-b');
+    expect(first('Kepler-16 B')).toBe('kepler-16-b');
+    expect(first('KEPLER-16 B')).toBe('kepler-16-b');
   });
 
   it('puts a name before an alias that matches as well', () => {

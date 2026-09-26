@@ -203,7 +203,7 @@ function QuickStart() {
           </TryRow>
         </li>
         <li>
-          <b>Take a journey.</b> Press <b>Journeys</b> in the header. Each of the seven is one click, and says what to look for
+          <b>Take a journey.</b> Press <b>Journeys</b> in the header. Each of the ten is one click, and says what to look for
           while it runs. Start with <i>Race sunlight to Earth</i> or <i>Earth to Saturn at 0.9c</i>.
           <TryRow>
             <Try run={openJourneys}>Open the journeys</Try>
@@ -246,7 +246,7 @@ const SCREEN_PARTS: [number, ReactNode, ReactNode][] = [
     </>,
   ],
   [3, <>Where to? <Kbd>/</Kbd></>, <>Find any place by name and go there or fly there (<Ref to="looking">Chapter 4</Ref>).</>],
-  [4, 'Journeys', <>Seven one-click trips and scenes (<Ref to="flying">Chapter 6</Ref>).</>],
+  [4, 'Journeys', <>Ten one-click trips and scenes (<Ref to="flying">Chapter 6</Ref>).</>],
   [5, <>Learn <Kbd>E</Kbd></>, <>Long reads on the science behind the view (<Ref to="seeing">Chapter 7</Ref>).</>],
   [6, <>Lab <Kbd>K</Kbd></>, <>For students: five guided experiments, in a panel on the left (<Ref to="lab">Chapter 9</Ref>).</>],
   [
@@ -263,7 +263,7 @@ const SCREEN_PARTS: [number, ReactNode, ReactNode][] = [
   [
     10,
     'Where you are',
-    'Where the camera is, as a trail: Solar System › Earth › Moon. Click a level to go there. Bodies lists everything you can visit, by kind.',
+    'Where the camera is, as a trail: Solar neighbourhood › Solar System › Earth › Moon. Click a level to go there. Bodies lists everything you can visit, by kind.',
   ],
   [11, <>Keys <Kbd>?</Kbd></>, 'The keyboard and mouse on one sheet. On wide screens the status beside it says what the camera is doing.'],
   [12, <>Instrument panel <Kbd>I</Kbd></>, <>Every number, live: speed, clocks, the target, optics and light-time (<Ref to="readings">Chapter 8</Ref>).</>],
@@ -377,7 +377,9 @@ function Looking() {
         <b>Where to?</b> in the header (or <Kbd>/</Kbd>, or <Kbd>Ctrl</Kbd>+<Kbd>K</Kbd>) finds any place by name. It forgives
         part of a name (<i>prox</i>), a nickname (<i>Luna</i>, <i>the red planet</i>) and a slip of the keyboard (
         <i>Satrun</i>). Each result gives what it is, how far away it is and how long its light takes to reach you; the
-        highlighted one also shows what a flight there at 1 g would take for you and at home. Choose with the arrow keys.{' '}
+        highlighted one also shows what a flight there at 1 g would take for you and at home. A planet of another star has a
+        small letter and a star of a system a capital, as astronomers write them: <i>Kepler-16 b</i> is the planet,{' '}
+        <i>Kepler-16 B</i> the second star. Choose with the arrow keys.{' '}
         <Kbd>Enter</Kbd> (or <b>Go</b>) takes the camera there; <Kbd>Shift</Kbd>+<Kbd>Enter</Kbd> (or <b>Fly</b>) opens the
         flight planner set to that 1 g flight. Before you type, it offers {featuredNames()}, with what a 1 g flight to each
         would take, and the journeys.
@@ -397,8 +399,36 @@ function Looking() {
       <p>
         To take the camera somewhere directly, double-click the body, click it in <b>Bodies</b> at the bottom of the screen, or
         press its key: <Kbd>0</Kbd> for the Sun, <Kbd>1</Kbd> to <Kbd>9</Kbd> for Mercury to Pluto, <Kbd>M</Kbd> for the Moon
-        and <Kbd>V</Kbd> for Voyager 1. Proxima Centauri, 4.2 light-years away, is under <b>Bodies › Stars</b>. The trail beside
-        <b> Bodies</b> says where the camera is; click <b>Solar System</b> in it to see the whole system at once.
+        and <Kbd>V</Kbd> for Voyager 1. In <b>Bodies</b> the moons sit under their planets (the ▸ beside a planet opens its
+        moons), followed by the dwarf planets, asteroids and Kuiper belt objects, comets, interstellar visitors, spacecraft and
+        stars. Under <b>Bodies › Stars</b> the named stars are sorted into those within 16 light-years, those with planets and
+        the bright ones, and a star system (Alpha Centauri, Sirius) has a row of its own with its stars and planets under it;
+        stars you found in search come last. <b>Where to?</b> finds any of the 330,000 stars in the sky by name or catalogue
+        number (Vega, α Lyrae, HIP 91262). The trail beside <b>Bodies</b> says where the camera is (Solar neighbourhood › Solar
+        System › Saturn › Titan; a star farther than 100 light-years is in the Milky Way); click a level to see it all at once:{' '}
+        <b>Solar neighbourhood</b> steps back 26 light-years from the Sun, among the nearest stars.
+      </p>
+      <p>
+        The stars are where they really are, in three dimensions: each at its measured distance (mostly from ESA’s Gaia
+        mission), moving with its measured velocity, as bright and as coloured as it looks from where you are. From Earth they
+        make the familiar sky; fly among them and the constellations come apart. Come within a third of a light-year of a star
+        and it becomes a body you can orbit, a glowing disc at its measured (or estimated) size. The sky shows stars down to
+        magnitude 6.5, as the eye would; the catalogue goes to 10, so fainter stars appear as you approach them.
+      </p>
+      <p>
+        Many stars have planets. <b>Where to?</b> finds any of the 6,372 confirmed planets of NASA’s Exoplanet Archive by name
+        (<i>K2-18 b</i>, <i>51 Pegasi b</i>) and takes you to its star, which joins the view with its planets even when it is
+        too faint for the star catalogue. Eleven systems are built from their papers, among them TRAPPIST-1’s seven planets and
+        HR 8799’s four giants on their measured orbits. Each planet goes round on a fixed Kepler orbit, timed so that from the
+        Sun transits happen at their published times. Nobody has seen the surface of any of them, so their colours are
+        illustrative, and the card says so, along with what else is assumed (often the orbit’s orientation on the sky). Once
+        you are among the stars, a small ring marks each star of the catalogue with known planets, within 130 light-years (
+        <b>View › Planet hosts</b>).
+      </p>
+      <p>
+        Each body’s card says how far to trust what you see: where its position comes from and how accurate it is at the
+        date shown, and what else is a model, such as a rotation no one can predict or a surface never mapped. Its facts
+        link to their sources.
       </p>
       <Note title="The camera is not a spaceship">
         Camera moves ignore physics: the camera glides to its target in a few seconds (never more than six), whatever the
@@ -424,6 +454,14 @@ function Looking() {
           [<>Labels <Kbd>L</Kbd></>, 'Names, and the range and light-time of the selected body.'],
           [<>Small bodies <Kbd>B</Kbd></>, '31,930 asteroids, Trojans and trans-Neptunian objects from the JPL Small-Body Database.'],
           [<>Ecliptic grid <Kbd>J</Kbd></>, 'Lines of ecliptic longitude and latitude every 15°, labelled, with an axis triad in the corner.'],
+          [
+            <>Constellations <Kbd>Y</Kbd></>,
+            'The 88 constellation figures and their names, drawn between the real stars, so they come apart as you fly away. They show by themselves once you are among the stars (0.65 light-years or more from the Sun); Y turns them on or off for good.',
+          ],
+          [
+            'Planet hosts',
+            'A small ring around each star of the catalogue with known planets, within 130 light-years (40 parsecs) of you. Like the constellations, they show by themselves once you are among the stars.',
+          ],
           [<>Readouts over the view <Kbd>U</Kbd></>, <>The camera readout and scale bar; in flight also the reticle and the apex markers (<Ref to="readings">Chapter 8</Ref>).</>],
           ['Light-time correction', 'Draw each body where it was when the light now reaching you left it.'],
         ]}
@@ -509,7 +547,7 @@ function Time() {
         or just a year: <i>1969</i>, <i>500 BCE</i>. Between 1700 and 2200 it also offers the next oppositions of Mars, Jupiter
         and Saturn, when each stands opposite the Sun in Earth’s sky and is near its closest. Press <b>Go to date</b> (or{' '}
         <Kbd>Enter</Kbd>): every body moves at once, both clocks on the instrument panel restart from zero and any light
-        pulse still in flight is discarded. Voyager 1 appears after its 1980 Saturn flyby.
+        pulse still in flight is discarded. Spacecraft appear from their launch (Voyager 1 from 5 September 1977).
       </p>
       <KeyTable
         head={['Dates', 'Planet positions']}
@@ -570,7 +608,7 @@ function Flying() {
     >
       <H3>Journeys</H3>
       <p>
-        <b>Journeys</b> in the header lists seven set pieces. Each is one click: the camera is placed, the clock is set, and a
+        <b>Journeys</b> in the header lists ten set pieces. Each is one click: the camera is placed, the clock is set, and a
         line says what to look for. Flights leave from Earth and show their predicted times, by Earth’s clocks and by yours,
         before you go.
       </p>
@@ -773,7 +811,7 @@ function Readings() {
               ['D', 'Relativistic optics', 'Whether the relativistic view is active; the Doppler factor ahead, abeam and astern; the angle within which the forward half of the sky appears; the colour temperature of the Sun if it lay dead ahead; the reticle’s spectrometer reading.'],
               ['E', 'Light-time', 'How old your view of Earth is, how long a signal to Earth would take, and how long ago the sunlight reaching you left the Sun.'],
               ['F', 'Spacetime diagram', 'In flight only: your worldline, with ticks of ship time and your current line of simultaneity.'],
-              ['G', 'Ephemeris', 'Every body’s distance from the Sun and from you, and its light-time. Click a row to select the body.'],
+              ['G', 'Ephemeris', 'The distance from the Sun and from you, and the light-time, of the Sun, the planets, Pluto, the Moon, Voyager 1, the stars of the named systems, the moons of the system in view, and the target. Click a row to select the body.'],
               ['H', 'Strip-chart recorder', 'The last 30 seconds of β, γ, the Doppler factor ahead, the clock rate, or range.'],
             ] as const
           ).map(([k, name, text]) => (
@@ -1084,7 +1122,7 @@ const GLOSSARY: [ReactNode, ReactNode][] = [
   ['Epoch', 'The instant being simulated: the date on the chip in the header.'],
   ['Frame, S and S′', 'S is the rest frame of the Sun; S′ is the frame moving with the observer.'],
   [<><i>γ</i> (gamma), Lorentz factor</>, <>1/√(1 − <i>β</i><sup className="sup">2</sup>): the factor by which moving clocks run slow and moving lengths contract.</>],
-  ['Journey', 'One of the seven set pieces under Journeys: a flight from Earth, or a scene with the clock set, with a line on what to look for.'],
+  ['Journey', 'One of the ten set pieces under Journeys: a flight from Earth, or a scene with the clock set, with a line on what to look for.'],
   ['Light-time', 'How long light takes to cover a given distance.'],
   ['Light-year (ly)', <>The distance light travels in a Julian year, 9.46 × 10<sup className="sup">12</sup> km.</>],
   ['Opposition', 'The time when a planet stands opposite the Sun in Earth’s sky, near its closest to Earth.'],

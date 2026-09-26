@@ -22,6 +22,9 @@ import { Check, Kbd, Menu, MenuHeading, Seg } from '../kit';
 import { useTicker } from '../useTicker';
 import { openJourneys, openSearch, toggleLab } from '../onboarding';
 import { Icon } from '../icons';
+import { constellationsShown, toggleConstellations } from '../constellations';
+import { planetHostsShown, togglePlanetHosts } from '../planetHosts';
+import { starMotionNote } from '../../sim/stars/motion';
 import { Wordmark } from '../Logo';
 
 export function OpticsSeg() {
@@ -137,7 +140,7 @@ function DateSetter() {
       {inRange && <p className="mt-1 text-[11px] leading-snug text-fg-2">{qualityNote(ms)}</p>}
       <OppositionPresets onPick={(t) => setText(isoText(t))} />
       <p className="mt-2 text-[11px] leading-snug text-fg-3">
-        Every body moves to where it was (or will be) at once. Voyager 1 appears after its 1980 Saturn flyby. Both clocks on
+        Every body moves to where it was (or will be) at once; spacecraft appear from their launch. Both clocks on
         the instrument panel restart from zero, and any light pulse in flight is dropped.
       </p>
       <div className="mt-2 flex items-center justify-end gap-1.5">
@@ -178,7 +181,8 @@ function DateChip() {
   const distant = isDistantYear(civilFromMs(ms).year);
   const date = formatSimDate(ms, 'date');
   const time = distant ? '' : formatSimDate(ms, 'time');
-  const title = `${formatSimDate(ms, 'long')}${present ? ', now' : ''}. ${qualityNote(ms)} Click to change the date.`;
+  const starNote = starMotionNote(ms);
+  const title = `${formatSimDate(ms, 'long')}${present ? ', now' : ''}. ${qualityNote(ms)}${starNote ? ` ${starNote}` : ''} Click to change the date.`;
   return (
     <Menu
       tour="epoch"
@@ -212,6 +216,8 @@ function ViewMenu() {
       showBelts: u.showBelts,
       showOverlays: u.showOverlays,
       showGrid: u.showGrid,
+      constellations: u.constellations,
+      planetHosts: u.planetHosts,
       retarded: u.retarded,
       showFps: u.showFps,
       shortcuts: u.shortcuts,
@@ -254,6 +260,29 @@ function ViewMenu() {
           </Check>
           <Check checked={s.showGrid} onChange={() => t('showGrid')} kbd="J">
             Ecliptic grid
+          </Check>
+          <Check
+            checked={constellationsShown(s.constellations, sim.camera.pos.length())}
+            onChange={toggleConstellations}
+            kbd="Y"
+            hint={
+              s.constellations === 'auto'
+                ? 'The 88 figures, drawn between the real stars. On by themselves once you are among the stars'
+                : 'The 88 figures, drawn between the real stars: fly away and they come apart'
+            }
+          >
+            Constellations
+          </Check>
+          <Check
+            checked={planetHostsShown(s.planetHosts, sim.camera.pos.length())}
+            onChange={togglePlanetHosts}
+            hint={
+              s.planetHosts === 'auto'
+                ? 'A ring around each star with known planets, within 40 parsecs. On by themselves once you are among the stars'
+                : 'A ring around each star with known planets, within 40 parsecs'
+            }
+          >
+            Planet hosts
           </Check>
           <Check checked={s.showOverlays} onChange={() => t('showOverlays')} kbd="U" hint="Scale bar and camera readout; in flight the reticle and apex markers">
             Readouts over the view
@@ -362,7 +391,7 @@ export function Header() {
           className="btn btn-q"
           data-tour="journeys"
           onClick={openJourneys}
-          title="Journeys: seven one-click trips and scenes, each with what to look for"
+          title="Journeys: ten one-click trips and scenes, each with what to look for"
           aria-label="Journeys"
         >
           <Icon name="compass" size={14} className="text-accent" />

@@ -7,7 +7,7 @@ import { PLUTO_BARYCENTRE, fixedStarProvider, keplerProvider, registerBodies, un
 import { entryOf, evalEntries } from '../sim/bodies/registry';
 import { updateEphemeris } from '../sim/ephemeris';
 import { setSimTime, sim } from '../sim/sim';
-import { conicFromState, makeConic, orbitMu, orbitSource, segmentsFor, systemGm, viewDistance, visVivaA, type OrbitSource } from './orbitLines';
+import { conicFromState, makeConic, orbitMu, orbitSource, segmentsFor, systemGm, trailStart, viewDistance, visVivaA, type OrbitSource } from './orbitLines';
 
 const CORE = new Set(evalEntries().map((e) => e.id));
 const src = (): OrbitSource => ({ rel: null as never, centre: null, view: null });
@@ -156,5 +156,18 @@ describe('orbit line helpers', () => {
     expect(segmentsFor(200)).toBe(256);
     expect(segmentsFor(1000)).toBe(512);
     expect(segmentsFor(1e6)).toBe(1024);
+  });
+});
+
+describe('trailStart', () => {
+  it('starts a hyperbola at its date, or at the last of its flybys before the date shown', () => {
+    expect(trailStart(undefined, 0)).toBeUndefined();
+    expect(trailStart(false, 0)).toBeUndefined();
+    expect(trailStart({ trailFromMs: 42 }, 0)).toBe(42);
+    const flybys = { trailFromMs: [300, 100, 200] };
+    expect(trailStart(flybys, 50)).toBeUndefined();
+    expect(trailStart(flybys, 150)).toBe(100);
+    expect(trailStart(flybys, 200)).toBe(200);
+    expect(trailStart(flybys, 1e9)).toBe(300);
   });
 });

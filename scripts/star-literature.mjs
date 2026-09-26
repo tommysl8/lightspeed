@@ -2,7 +2,7 @@
 // parameters (radius, temperature, luminosity, mass) of the named stars people are most likely to visit.
 //
 // Every number here is copied from the cited paper or catalogue (table numbers given), or is marked as derived and
-// says how. Nothing is tuned by hand. The build script turns these into staging/stars/systems.json.
+// says how. Nothing is tuned by hand. The build script turns these into src/sim/stars/systems.json.
 //
 // Conventions
 //   - Angles in degrees, parallaxes and angular sizes in milliarcseconds (mas), proper motions in mas/yr with the
@@ -351,7 +351,7 @@ export const STARS = [
     id: 'sirius-b', name: 'Sirius B', athygId: 586689, spectralType: 'DA2 (white dwarf)',
     massMsun: 1.018, massErr: 0.011, radiusRsun: 0.008098, radiusErr: 0.000046, luminosityLsun: 0.02448, luminosityErr: 0.00033, teffK: 25369, teffErr: 46, vMag: 8.44,
     refs: { all: 'bond2017', vMag: 'athyg' },
-    notes: 'Radius is about 0.84 Earth radii. V = 8.44 is the AT-HYG (Gliese) value.',
+    notes: 'Radius is about 0.88 Earth radii (5,630 km). V = 8.44 is the AT-HYG (Gliese) value.',
   },
 
   // Procyon

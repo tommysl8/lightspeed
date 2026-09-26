@@ -24,6 +24,16 @@ export interface UIState {
   showOverlays: boolean;
   /** Ecliptic coordinate grid on the sky. */
   showGrid: boolean;
+  /**
+   * Constellation figures and names between the 3D stars: on, off, or 'auto', shown only from
+   * interstellar distances (the camera more than 0.2 pc from the Sun; ui/constellations.ts).
+   */
+  constellations: 'auto' | 'on' | 'off';
+  /**
+   * Rings around the stars with known planets: on, off, or 'auto', shown only from interstellar
+   * distances, as the constellations are (ui/planetHosts.ts).
+   */
+  planetHosts: 'auto' | 'on' | 'off';
   /** First-visit welcome screen. */
   welcomeOpen: boolean;
   /** Guided tour: index of the step shown, or null. */
@@ -179,6 +189,8 @@ export const savedPrefs = (s: UIState) => ({
   showBelts: s.showBelts,
   showOverlays: s.showOverlays,
   showGrid: s.showGrid,
+  constellations: s.constellations,
+  planetHosts: s.planetHosts,
   showFps: s.showFps,
   // Not leftOpen: the lab opens only when asked for, never on a reload.
   rightOpen: s.rightOpen,
@@ -214,6 +226,8 @@ export const useUI = create<UIState>()(
       showBelts: true,
       showOverlays: true,
       showGrid: false,
+      constellations: 'auto',
+      planetHosts: 'auto',
       welcomeOpen: !welcomed(),
       tourStep: null,
       journeysOpen: false,

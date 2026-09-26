@@ -87,7 +87,7 @@ function WelcomeCard() {
               Name a planet, the Moon, Voyager 1 or the nearest star, and go there.
             </Choice>
             <Choice n="03" icon="compass" title="Take a journey" onClick={() => close(openJourneys)}>
-              Seven one-click trips, from a pulse of sunlight to Proxima Centauri at 1 g.
+              Ten one-click trips, from a pulse of sunlight to Proxima Centauri at 1 g.
             </Choice>
           </div>
         </div>

@@ -2,20 +2,26 @@
  * Body labels: a fixed pool of DOM elements, handed each frame to the most important bodies on
  * screen, however many bodies are registered. Importance: the selected body, a body whose
  * detector just fired, the body in focus and its system, then each body's rank (by kind and
- * size, or its record's labelRank), with bodies large on screen a little ahead. Labels fade
- * when their body is big enough to recognise and give way to more important labels they would
- * overlap. Positions are written straight into the DOM, never through React state (60 fps).
+ * size, or its record's labelRank; stars by how bright they look from the camera), with bodies
+ * large on screen a little ahead. A star too faint to see gets no label unless it is selected,
+ * in focus or in the system in focus, and the stars of a pair too close to tell apart share one
+ * (labelPairs.ts). Labels fade when their body is big enough to recognise and give way to more
+ * important labels they would overlap. Positions are written straight into the DOM, never
+ * through React state (60 fps).
  */
 import { useEffect, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { C_KM_S } from '../physics/constants';
 import { qty } from '../lib/sci';
-import { isWithin, registryVersion, systemOf, type BodyId } from '../sim/bodies';
+import { isWithin, registryVersion, systemOf, type BodyId, type BodyRecord } from '../sim/bodies';
 import { bodyEntries, type Entry } from '../sim/bodies/registry';
 import { useUI } from '../state/ui';
 import { controller } from '../controls/cameraController';
 import { onDetection } from '../sim/pulses';
 import { labelRank, labelScore } from './labelRank';
+import { unresolvedPairs, type PairLabels } from './labelPairs';
+import { solarSystemHidden } from '../sim/derived';
+import { starLabelRank, STAR_MAG_LIMIT } from '../sim/stars';
 
 /** Label elements in the pool: the most that can show at once. */
 export const LABEL_POOL = 40;
@@ -30,6 +36,8 @@ interface Slot {
   freeFor: number;
   /** Restore the opacity transition next frame (it is cut when a slot changes body). */
   cut: boolean;
+  /** The text shown. */
+  text: string;
 }
 
 const slots: Slot[] = [];
@@ -49,6 +57,21 @@ interface Candidate {
   e: Entry;
   score: number;
 }
+
+/** A label's text: the name, or its short form when the name is long ("67P" for Comet 67P/Churyumov–Gerasimenko). */
+export const labelText = (r: BodyRecord): string => (r.shortName && r.name.length > 18 ? r.shortName : r.name);
+
+/** The Sun's label once the Solar System has shrunk to its point of light: a star among stars, and home. */
+export const SUN_FROM_AFAR = 'Sun (home)';
+
+/** Unresolved pairs this frame: the one label they share. */
+const pairs: PairLabels = { hide: new Set(), text: new Map() };
+
+/** What a body's label says now (the Sun is "Sun (home)" from afar; an unresolved pair its system's name). */
+const labelNow = (e: Entry, far: boolean): string => (far && e.id === 'sun' ? SUN_FROM_AFAR : (pairs.text.get(e.id) ?? labelText(e.record)));
+
+/** A star fainter than this (the eye's limit, and the half magnitude over which the star field fades it out) gets no label of its own. */
+const LABEL_MAG_LIMIT = STAR_MAG_LIMIT + 0.5;
 
 const ranks = { version: -1, map: new Map<BodyId, number>() };
 function rankOf(e: Entry): number {
@@ -82,10 +105,12 @@ export function LabelSync() {
     const now = performance.now();
     if (focusSystem.current.focus !== focus) focusSystem.current = { focus, system: systemOf(focus)?.id ?? '' };
     const system = focusSystem.current.system;
+    const far = solarSystemHidden();
 
     // 1. Candidates on screen, scored (lower first).
     cand.length = 0;
     const list = bodyEntries();
+    unresolvedPairs(list, pairs);
     for (let i = 0; i < list.length; i++) {
       const e = list[i];
       const b = e.state;
@@ -94,7 +119,11 @@ export function LabelSync() {
       const flashing = hit !== undefined && now - hit < FLASH_MS;
       if (!showLabels && !flashing) continue;
       const tier = e.id === selected ? 0 : flashing ? 1 : e.id === focus ? 2 : system && system !== 'sun' && isWithin(e.id, system) ? 3 : 4;
-      const score = labelScore(tier, rankOf(e), b.radiusPx);
+      const star = e.record.kind === 'star' && e.id !== 'sun';
+      // A star nobody could see from here, or one that shares its pair's label, is left unlabelled.
+      if (star && tier >= 3 && (b.magnitude > LABEL_MAG_LIMIT || pairs.hide.has(e.id))) continue;
+      // Stars rank by how bright they look from the camera, not from the Sun.
+      const score = labelScore(tier, star ? starLabelRank(b.magnitude) : rankOf(e), b.radiusPx);
       let c = pool[cand.length];
       if (!c) pool.push((c = { e, score }));
       c.e = e;
@@ -116,7 +145,7 @@ export function LabelSync() {
         // Fade when close (the body itself is then obvious).
         opacity = 1 - smoothstep(26, 70, b.radiusPx);
         if (e.id === selected && b.radiusPx < 40) opacity = Math.max(opacity, 0.35);
-        const w = 12 + e.record.name.length * 7.2;
+        const w = 12 + labelNow(e, far).length * 7.2;
         const overlaps = placed.some((p) => Math.abs(p.y - b.screen.y) < 16 && b.screen.x < p.x + p.w && b.screen.x + w > p.x);
         if (overlaps && e.id !== selected) opacity = 0;
         if (opacity > 0.05) placed.push({ x: b.screen.x, y: b.screen.y, w });
@@ -151,9 +180,14 @@ export function LabelSync() {
           s.cut = true;
         }
         s.id = id;
-        s.name.firstChild!.nodeValue = c.e.record.name;
+        s.text = '';
         s.el.setAttribute('aria-label', `Select ${c.e.record.name}`);
         s.sub.textContent = '';
+      }
+      const text = labelNow(c.e, far);
+      if (s.text !== text) {
+        s.text = text;
+        s.name.firstChild!.nodeValue = text;
       }
       const b = c.e.state;
       const marker = 1 - smoothstep(3, 9, b.radiusPx);
@@ -206,7 +240,7 @@ export function LabelsLayer() {
       sub.style.display = 'none';
       name.appendChild(sub);
       el.append(marker, name);
-      const slot: Slot = { el, name, sub, id: null, freeFor: 1e9, cut: false };
+      const slot: Slot = { el, name, sub, id: null, freeFor: 1e9, cut: false, text: '' };
       el.addEventListener('click', (e) => {
         e.stopPropagation();
         if (slot.id) useUI.getState().select(slot.id);

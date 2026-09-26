@@ -1,7 +1,7 @@
 /**
  * Ring textures for the ring shader: a radial strip, u = 0 at the inner edge of the system and
  * u = 1 at the outer edge, colour in RGB and opacity in alpha. Saturn has a photographic strip;
- * the other ring systems (phase-2 rings.json: Jupiter, Uranus, Neptune, Haumea, Quaoar) are
+ * the other ring systems (public/data/rings.json: Jupiter, Uranus, Neptune, Haumea, Quaoar) are
  * lists of bands, drawn here into a strip, with narrow rings kept visible as partial texels.
  */
 import { Color, DataTexture, LinearFilter, RGBAFormat, SRGBColorSpace, UnsignedByteType } from 'three';

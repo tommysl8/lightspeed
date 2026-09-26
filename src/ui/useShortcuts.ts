@@ -8,6 +8,7 @@ import { bodyForKey, goToBody } from './navigation';
 import { openPlanner } from './tripActions';
 import { openSearch, toggleLab } from './onboarding';
 import { closeDoc, docRoute, openLearn } from '../state/route';
+import { toggleConstellations } from './constellations';
 
 /** Controls that Space activates, or that use the arrow keys, when focused from the keyboard. */
 const OWN_KEYS = 'button, a[href], summary, [role="radio"], [role="tab"], [role="slider"], [role="separator"], [tabindex]';
@@ -138,6 +139,9 @@ export function useShortcuts() {
           break;
         case 'j':
           ui.toggle('showGrid');
+          break;
+        case 'y':
+          toggleConstellations();
           break;
         case 'k':
           toggleLab();

@@ -56,6 +56,29 @@ function project(v: Vector3, camera: PerspectiveCamera, out: ScreenPoint): void 
 }
 
 /**
+ * Where a direction or point shows on screen (CSS px), from a camera-relative world vector: its
+ * aberrated direction in the relativistic view (and whichever half of a split view it lands in),
+ * as for bodies. For labels of things that are not bodies (the constellation names).
+ */
+export function screenOf(rel: Vector3, camera: PerspectiveCamera, out: ScreenPoint): ScreenPoint {
+  inv.copy(sim.camera.quat).invert();
+  project(rel, camera, out);
+  if (!relView.active) return out;
+  const splitPx = relView.split ? relView.splitX * sim.viewport.width : -Infinity;
+  if (relView.split && out.x < splitPx) return out;
+  const d = rel.length();
+  if (!(d > 0)) return out;
+  dRest.x = rel.x / d;
+  dRest.y = rel.y / d;
+  dRest.z = rel.z / d;
+  aberrateToShipRapidity(dRest, relView.velDir, relView.phi, dShip);
+  ab.set(dShip.x * d, dShip.y * d, dShip.z * d);
+  project(ab, camera, out);
+  if (relView.split && out.x < splitPx) out.onScreen = false;
+  return out;
+}
+
+/**
  * `focus` and `selected` keep their labels when the Solar System has shrunk to a point (so you
  * still know what you are orbiting); every other label is hidden then.
  */
@@ -140,8 +163,8 @@ export function updateDerived(camera: PerspectiveCamera, focus?: BodyId, selecte
       b.magnitude = 99;
       b.screen.onScreen = false;
       b.screen.inFront = false;
-    } else if (far && b.id !== focus && b.id !== selected) {
-      // Merged into one point with everything else: no label.
+    } else if (far && b.id !== focus && b.id !== selected && b.id !== 'sun' && list[i].root.id === 'sun') {
+      // A Solar System body merged into one point with the Sun: no label (the Sun keeps its own).
       b.screen.onScreen = false;
     }
   }
@@ -185,17 +208,22 @@ function setMagnitude(rec: BodyRecord, b: MagnitudeTarget): void {
   }
   const p = rec.physical.geometricAlbedo ?? 0.3;
   const R = rec.physical.radiusKm;
-  const r = b.apparentPos.length();
+  // The star whose light it reflects: the Sun, or its own star (a planet of another star).
+  const star = rec.litBy ? entryOf(rec.litBy) : undefined;
+  const starLum = star?.record.physical.luminous;
+  const toSun = star && starLum ? rel.copy(star.state.apparentPos).sub(b.apparentPos) : rel.copy(b.apparentPos).negate();
+  const r = toSun.length();
   if (r === 0 || distCameraKm <= R) {
     b.magnitude = -30;
     return;
   }
-  const toSun = rel.copy(b.apparentPos).negate();
   const toCam = view.copy(sim.camera.pos).sub(b.apparentPos);
   const cosA = toSun.dot(toCam) / (toSun.length() * toCam.length());
   const alpha = Math.acos(Math.max(-1, Math.min(1, cosA)));
   // Lambert-sphere phase function Φ(α), normalised to 1 at full phase.
   const phase = (Math.sin(alpha) + (Math.PI - alpha) * Math.cos(alpha)) / Math.PI;
-  const flux = p * (R / distCameraKm) ** 2 * Math.max(phase, 1e-6) * (AU_KM / r) ** 2;
-  b.magnitude = SUN_VMAG_AT_1AU - 2.5 * Math.log10(flux);
+  // The star as seen from the body (V), dimmed by the fraction of its light the body sends to the camera.
+  const reflected = p * (R / distCameraKm) ** 2 * Math.max(phase, 1e-6);
+  const starAtBody = starLum ? starLum.vmag + 5 * Math.log10(r / starLum.atKm) : SUN_VMAG_AT_1AU + 5 * Math.log10(r / AU_KM);
+  b.magnitude = starAtBody - 2.5 * Math.log10(reflected);
 }

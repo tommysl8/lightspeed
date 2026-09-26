@@ -6,6 +6,7 @@
  */
 import { Vector3 } from 'three';
 import { GM_SUN_KM3_S2 } from '../physics/constants';
+import type { OrbitLineSpec } from '../sim/bodies';
 import type { Entry } from '../sim/bodies/registry';
 
 export interface OrbitSource {
@@ -177,4 +178,13 @@ export function conicFromState(r: Vector3, v: Vector3, mu: number, out: Conic): 
   out.meanMotion = Math.sqrt(mu / Math.abs(a) ** 3);
   out.hyperbolic = hyperbolic;
   return out;
+}
+
+/** The date a hyperbolic line starts from: the record's, or the latest of its dates before `nowMs`. */
+export function trailStart(spec: OrbitLineSpec | false | undefined, nowMs: number): number | undefined {
+  const from = spec ? spec.trailFromMs : undefined;
+  if (from === undefined || typeof from === 'number') return from;
+  let best: number | undefined;
+  for (const t of from) if (t <= nowMs && (best === undefined || t > best)) best = t;
+  return best;
 }

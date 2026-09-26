@@ -13,7 +13,7 @@ export const KEY_GROUPS: KeyGroup[] = [
     rows: [
       ['Drag', 'Orbit the target; look around in flight'],
       ['Scroll', 'Move in and out (Shift: faster); throttle in free flight'],
-      ['Click a planet', 'Select it: its card'],
+      ['Click a body', 'Select it: its card'],
       ['Double-click', 'Take the camera there'],
     ],
   },
@@ -43,6 +43,7 @@ export const KEY_GROUPS: KeyGroup[] = [
       [<Kbd key="t">T</Kbd>, 'True size or enlarged bodies'],
       [<><Kbd>O</Kbd> <Kbd>L</Kbd> <Kbd>B</Kbd></>, 'Orbits, labels, small bodies'],
       [<Kbd key="j">J</Kbd>, 'Ecliptic grid'],
+      [<Kbd key="y">Y</Kbd>, 'Constellations'],
       [<Kbd key="u">U</Kbd>, 'Readouts over the view'],
       [<Kbd key="z">Z</Kbd>, 'Relativistic or classical sky'],
       [<Kbd key="x">X</Kbd>, 'Split screen'],

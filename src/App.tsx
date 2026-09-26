@@ -2,15 +2,19 @@ import { lazy, Suspense, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { SimDriver } from './scene/SimDriver';
 import { Starfield } from './scene/Starfield';
+import { Constellations } from './scene/Constellations';
+import { PlanetHosts } from './scene/PlanetHosts';
 import { Bodies } from './scene/Bodies';
 import { Orbits } from './scene/Orbits';
 import { Belts } from './scene/Belts';
+import { CometTails } from './scene/CometTails';
 import { Glints } from './scene/Glints';
 import { LightPulses } from './scene/LightPulses';
 import { EclipticGrid } from './scene/EclipticGrid';
 import { RenderPipeline } from './render/RenderPipeline';
 import { AdaptiveQuality } from './render/AdaptiveQuality';
 import { LabelSync, LabelsLayer } from './ui/Labels';
+import { ConstellationNameSync, ConstellationNamesLayer } from './ui/ConstellationNames';
 import { Header } from './ui/layout/Header';
 import { Footer } from './ui/layout/Footer';
 import { ManualDock } from './ui/manual/ManualDock';
@@ -85,17 +89,22 @@ export default function App() {
         >
           <SimDriver />
           <Starfield />
+          <Constellations />
+          <PlanetHosts />
           <EclipticGrid />
           <Bodies />
           <Orbits />
+          <CometTails />
           <Belts />
           <Glints />
           <LightPulses />
           <LabelSync />
+          <ConstellationNameSync />
           <OverlaySync />
           <AdaptiveQuality />
           <RenderPipeline />
         </Canvas>
+        <ConstellationNamesLayer />
         <LabelsLayer />
         <ViewportInstruments />
         <ViewportChrome />

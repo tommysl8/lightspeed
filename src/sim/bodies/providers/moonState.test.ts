@@ -1,10 +1,11 @@
 /**
- * The fitted moons' position-and-velocity evaluator against the staging evaluator (positions to
+ * The fitted moons' position-and-velocity evaluator against the models' own evaluator (positions to
  * the bit) and against a fourth-order numerical derivative of itself (velocities), inside the
  * precise window, in the fade beyond it and far outside it.
  */
 import { describe, expect, it } from 'vitest';
 import data from '../../../../public/data/moons.json';
+import { evalMoon, type MoonModel } from '../../moonModels';
 import { moonState, type FittedMoonModel } from './moonState';
 
 interface Catalogue {
@@ -14,14 +15,6 @@ interface Catalogue {
 
 const catalogue = data as unknown as Catalogue;
 
-type EvalMoon = (m: unknown, t: number, out: number[]) => number[];
-/** The staging evaluator, or its copy once moved into src/sim, whichever is there. */
-const evaluators = import.meta.glob<{ evalMoon: EvalMoon }>(['../../../../staging/phase2/src/sim/moonModels.ts', '../../moonModels.ts']);
-
-async function stagingEvalMoon(): Promise<EvalMoon | null> {
-  const load = Object.values(evaluators)[0];
-  return load ? (await load()).evalMoon : null;
-}
 
 const pos = (m: FittedMoonModel, t: number): [number, number, number] => {
   const p: [number, number, number] = [0, 0, 0];
@@ -44,13 +37,11 @@ describe('fitted moon states', () => {
     expect(catalogue.moons.length).toBeGreaterThanOrEqual(25);
   });
 
-  it('give exactly the staging evaluator’s positions', async () => {
-    const evalMoon = await stagingEvalMoon();
-    if (!evalMoon) return; // neither is there: the velocity tests below still hold
+  it('give exactly the evaluator’s positions', () => {
     let checked = 0;
     for (const m of catalogue.moons) {
       for (const t of [9765.5, m.window[0] + 10, m.window[1] - 10, m.window[1] + 0.3 * m.taper, m.window[0] - 2 * m.taper, 3.6e8]) {
-        const want = evalMoon(m, t, [0, 0, 0]);
+        const want = evalMoon(m as unknown as MoonModel, t, [0, 0, 0]);
         const got = pos(m, t);
         expect(got, `${m.id} at ${t}`).toEqual(want);
         checked++;

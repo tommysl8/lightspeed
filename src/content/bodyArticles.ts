@@ -3,7 +3,7 @@
  * sense: a body that is merely mentioned in passing gets no "Read" button. Each body's record
  * names its article (sim/bodies); kinds with an article of their own fall back to it.
  */
-import { bodyRecords, getBody, type BodyId, type BodyKind } from '../sim/bodies';
+import { bodyRecords, childrenOf, getBody, type BodyId, type BodyKind } from '../sim/bodies';
 
 /** Articles for whole kinds of body, for records that do not name one. */
 const KIND_ARTICLES: Partial<Record<BodyKind, string>> = {
@@ -22,9 +22,14 @@ export const BODY_ARTICLES: Readonly<Record<BodyId, string>> = new Proxy({} as R
   },
 });
 
-/** The article slug for a body (every moon: the article on moons), or undefined. */
+/**
+ * The article slug for a body (every moon: the article on moons; any star with known planets:
+ * the article on planets of other stars), or undefined.
+ */
 export function articleForBody(id: BodyId): string | undefined {
   const r = getBody(id);
   if (!r) return undefined;
-  return r.article ?? KIND_ARTICLES[r.kind];
+  if (r.article ?? KIND_ARTICLES[r.kind]) return r.article ?? KIND_ARTICLES[r.kind];
+  if (r.kind === 'star' && childrenOf(id).some((c) => c.kind === 'exoplanet')) return KIND_ARTICLES.exoplanet;
+  return undefined;
 }

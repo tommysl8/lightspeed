@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { parseLsm1, shapeGeometry } from './shapes';
 
-/** An LSM1 file (staging/phase2/assets.md §3) for an octahedron of radius r. */
+/** An LSM1 file (docs/data/assets.md §3) for an octahedron of radius r. */
 function octahedron(r: number): ArrayBuffer {
   const v = [
     [r, 0, 0],

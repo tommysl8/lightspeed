@@ -8,20 +8,25 @@ registerCoreBodies();
 
 export type {
   Availability,
+  BodyDiscovery,
   BodyId,
   BodyKind,
+  BodyMission,
   BodyPhysical,
   BodyRecord,
   BodyVisual,
+  ExoplanetInfo,
   IauRotationSpec,
   OrbitLineSpec,
   PhaseAngleSystem,
   PositionProvider,
   Regime,
   RelativeState,
+  RingArcs,
   RingSpec,
   RotationProvider,
   RotationSpec,
+  StarInfo,
   Vec3Like,
 } from './types';
 export {
@@ -33,6 +38,7 @@ export {
   displayRadiusKm,
   getBody,
   isBody,
+  isPlaced,
   isWithin,
   kindName,
   kindText,

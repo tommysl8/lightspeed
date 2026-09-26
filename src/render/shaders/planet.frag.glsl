@@ -20,6 +20,7 @@ uniform float uAmbient;
 uniform float uFlat;         // plain colour, no procedural noise (spacecraft parts)
 uniform vec3 uMapTint;       // multiplies the map (a greyscale map tinted with the body's hue)
 uniform float uMapGrey;      // the map is one channel of sRGB values (decoded here)
+uniform float uMapMix;       // how much of the map shows over the flat base colour (Titan under its haze)
 
 // Saturn's rings casting a shadow on the planet
 uniform float uRingShadow;
@@ -74,7 +75,7 @@ void main() {
       float lum = dot(tex, vec3(0.2126, 0.7152, 0.0722));
       albedo = mix(albedo, tex, smoothstep(0.004, 0.03, lum));
     } else {
-      albedo = tex;
+      albedo = mix(uBaseColor, tex, uMapMix);
     }
   }
 

@@ -6,6 +6,13 @@
 uniform float uPixelRatio;
 uniform float uMagZero;
 uniform float uStarGain;
+// The faintest stars shown, like the eye's limit: stars fade out over uMagLimit ± 0.5 (the
+// catalogue reaches V = 10; the sky from Earth keeps the naked-eye look it has always had).
+uniform float uMagLimit;
+
+float limitFade(float mag) {
+  return 1.0 - smoothstep(uMagLimit - 0.5, uMagLimit + 0.5, mag);
+}
 
 const float PSF_PEAK_MAX = 24.0;
 const float PSF_CUTOFF = 0.0015;

@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useSyncExternalStore } from 'react';
+import { useEffect, useMemo, useRef, useSyncExternalStore } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { BufferAttribute, BufferGeometry, Color, DynamicDrawUsage } from 'three';
+import { BufferAttribute, BufferGeometry, Color, DynamicDrawUsage, type Object3D } from 'three';
 import { blackbodyRgb } from '../physics/blackbody';
 import { SUN_TEFF_K } from '../physics/constants';
 import { registryVersion, subscribeRegistry } from '../sim/bodies';
@@ -37,12 +37,14 @@ export function Glints() {
     g.setAttribute('aRadius', dyn(new Float32Array(n), 1));
     const color = new Float32Array(n * 3);
     const temp = new Float32Array(n).fill(SUN_TEFF_K); // reflected sunlight has the Sun's spectrum
+    const limit = new Float32Array(n);
     const sun = blackbodyRgb(SUN_TEFF_K);
     list.forEach((e, i) => {
       const lum = e.record.physical.luminous;
       if (lum) {
-        // A star: its own blackbody spectrum.
+        // A star: its own blackbody spectrum, and the star field's limiting magnitude.
         temp[i] = lum.teffK;
+        limit[i] = 1;
         color.set(blackbodyRgb(lum.teffK), i * 3);
         return;
       }
@@ -52,15 +54,24 @@ export function Glints() {
     });
     g.setAttribute('aColor', new BufferAttribute(color, 3));
     g.setAttribute('aTemp', new BufferAttribute(temp, 1));
+    g.setAttribute('aLimit', new BufferAttribute(limit, 1));
+    // The registry this geometry was built from: its slots are that registry's bodies, in its order.
+    g.userData.registry = registryVersion();
     return g;
     // Rebuilt when bodies are registered or removed.
   }, [version]);
   useEffect(() => () => geometry.dispose(), [geometry]);
 
+  const points = useRef<Object3D | null>(null);
   useFrame(({ gl }) => {
     const list = bodyEntries();
     const pos = geometry.attributes.position as BufferAttribute;
-    if (pos.count !== list.length) return; // the registry changed: a new geometry is on its way
+    // The registry changed since the geometry was built (even if the count did not: a star
+    // released and another registered in one tick, a record replaced): its colours and slots are
+    // another list's. Draw nothing for the frame until the new geometry is in.
+    const current = geometry.userData.registry === registryVersion() && pos.count === list.length;
+    if (points.current) points.current.visible = current;
+    if (!current) return;
     const mag = geometry.attributes.aMag as BufferAttribute;
     const fade = geometry.attributes.aFade as BufferAttribute;
     const rad = geometry.attributes.aRadius as BufferAttribute;
@@ -96,7 +107,10 @@ export function Glints() {
       material={material}
       frustumCulled={false}
       renderOrder={20}
-      ref={(o) => o?.layers.set(POINTS_LAYER)}
+      ref={(o) => {
+        points.current = o;
+        o?.layers.set(POINTS_LAYER);
+      }}
     />
   );
 }

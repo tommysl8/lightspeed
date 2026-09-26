@@ -30,7 +30,9 @@ export function DestinationPicker({ value, onChange, inputId }: { value: BodyId;
       let first = true;
       for (const it of g.items) {
         if (!it.destination.body) continue;
-        out.push({ d: it.destination, depth: it.depth, heading: first ? g.title : undefined });
+        // The group's title, then the Stars' sub-headings ("Stars · Within 16 light-years").
+        const heading = first ? (it.heading ? `${g.title} · ${it.heading}` : g.title) : it.heading ? `${g.title} · ${it.heading}` : undefined;
+        out.push({ d: it.destination, depth: it.depth, heading });
         first = false;
       }
     }

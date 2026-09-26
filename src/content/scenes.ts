@@ -17,20 +17,23 @@
  */
 import { SearchRelativeLongitude, Body } from 'astronomy-engine';
 import { Vector3 } from 'three';
-import { AU_KM, C_KM_S } from '../physics/constants';
-import { bodyName, isBody, type BodyId } from '../sim/bodies';
+import { AU_KM, C_KM_S, LIGHT_YEAR_KM, PARSEC_KM } from '../physics/constants';
+import { bodyName, bodyPositionAt, childrenOf, displayRadiusKm, getBody, isBody, type BodyId } from '../sim/bodies';
 import { controller } from '../controls/cameraController';
-import { framingDistance } from '../controls/framing';
+import { framingDistance, systemFramingDistance } from '../controls/framing';
 import { setEpoch, setPaused, setWarp } from '../sim/clock';
 import { updateEphemeris } from '../sim/ephemeris';
 import { PRECISE_END_MS, PRECISE_START_MS } from '../sim/ephemerisPolicy';
 import { sim } from '../sim/sim';
+import { solarSystemStatus } from '../sim/solarSystem';
+import { starStatus } from '../sim/stars/load';
+import { featuredStatus } from '../sim/exoplanets/load';
 import { planTrip, type Drive, type TripPlan } from '../sim/travel';
 import { astroTimeAt, daysInMonth, formatSimDate, msFromAstroTime, msFromCivil } from '../lib/time';
 import { useUI } from '../state/ui';
 import { emitLightPulse } from '../lab/logger';
-import { goToBody } from '../ui/navigation';
-import { startTrip } from '../ui/tripActions';
+import { goToBody, goToSystem } from '../ui/navigation';
+import { afterArrival, startTrip } from '../ui/tripActions';
 import { formatIsoDate } from './learn/catalogue';
 
 // ─── Targets ────────────────────────────────────────────────────────────────────────────
@@ -117,6 +120,9 @@ const TARGET_NAMES = {
   arcturus: 'Arcturus',
   'hr-8799': 'HR 8799',
   '51-pegasi': '51 Pegasi',
+  'kepler-90': 'Kepler-90',
+  'toi-700': 'TOI-700',
+  'kepler-16': 'Kepler-16',
   'sgr-a-star': 'Sagittarius A*',
   s2: 'S2',
   'orion-nebula': 'Orion Nebula',
@@ -204,6 +210,9 @@ export const NAMED_SCENES = [
   'cmb-map',
   'cmb-glow',
   'edge-of-reach',
+  'voyager2-neptune',
+  'halley-2061',
+  'trappist-1-worlds',
 ] as const;
 export type NamedSceneId = (typeof NAMED_SCENES)[number];
 
@@ -302,6 +311,9 @@ const PENDING_LABELS: Record<NamedSceneId, string> = {
   'cmb-map': 'The cosmic microwave background',
   'cmb-glow': 'The Big Bang’s glow, seen at speed',
   'edge-of-reach': 'The edge of reach',
+  'voyager2-neptune': 'Ride Voyager 2 past Neptune',
+  'halley-2061': 'Halley comes back',
+  'trappist-1-worlds': 'Seven worlds of TRAPPIST-1',
 };
 
 /** Define (or replace) a named scene. Later updates use this for the scenes not built yet. */
@@ -320,6 +332,37 @@ export interface SceneStatus {
 }
 
 export const LATER = 'Coming in a later update';
+const LOADING = 'Loading the Solar System data…';
+const LOADING_STARS = 'Loading the star catalogue…';
+
+/** The targets that are stars (and star systems): they resolve once the star catalogue is in (sim/stars). */
+const STAR_TARGETS: ReadonlySet<string> = new Set([
+  'alpha-centauri-a',
+  'alpha-centauri-b',
+  'barnards-star',
+  'sirius',
+  'vega',
+  'betelgeuse',
+  'rigel',
+  'polaris',
+  '61-cygni',
+  'trappist-1',
+  'tau-ceti',
+  'epsilon-eridani',
+  'wolf-359',
+  'altair',
+  'aldebaran',
+  'antares',
+  'deneb',
+  'arcturus',
+  'hr-8799',
+  '51-pegasi',
+]);
+/** Hosts of the featured exoplanet systems that the star catalogue lacks: they arrive with the planets (sim/exoplanets). */
+const EXOPLANET_TARGETS: ReadonlySet<string> = new Set(['kepler-90', 'toi-700', 'kepler-16']);
+const LOADING_EXOPLANETS = 'Loading the planetary systems…';
+/** Whether the featured planetary systems are still on their way. */
+const exoplanetsPending = () => featuredStatus() === 'idle' || featuredStatus() === 'loading';
 const BUSY = 'A flight is under way: finish it or abort it first';
 
 function labelOf(s: Scene): string {
@@ -359,7 +402,13 @@ function blocker(s: Scene): string | null {
   // What is not in the app yet comes first: that answer does not depend on the moment.
   const def = s.kind === 'named' ? NAMED.get(s.name) : undefined;
   const ref = s.kind === 'go' || s.kind === 'fly' || s.kind === 'sky-from' ? resolveTarget(s.target) : null;
-  if (s.kind === 'named' ? !def : s.kind !== 'date' && !ref) return LATER;
+  if (s.kind === 'named' ? !def : s.kind !== 'date' && !ref) {
+    // A Solar System target whose data are still on their way.
+    if (s.kind !== 'named' && s.kind !== 'date' && STAR_TARGETS.has(s.target) && starStatus() === 'loading') return LOADING_STARS;
+    if (s.kind !== 'named' && s.kind !== 'date' && EXOPLANET_TARGETS.has(s.target) && exoplanetsPending()) return LOADING_EXOPLANETS;
+    if (s.kind !== 'named' && s.kind !== 'date' && isKnownTarget(s.target) && solarSystemStatus() === 'loading') return LOADING;
+    return LATER;
+  }
   if (useUI.getState().tripActive) return BUSY;
   switch (s.kind) {
     case 'named':
@@ -390,6 +439,8 @@ const FLIGHT_NOTES: Record<string, string> = {
     'The stars gather ahead of you and turn blue. Your clock runs at less than half the rate of the clock at home. Drag to look around; Astern shows the Sun reddened.',
   'fly:voyager1?beta=0.99':
     'Voyager 1 is almost a light-day from Earth. At 0.99c the trip takes about a day by Earth’s clocks and under four hours by yours. Look astern: the Sun has become a faint red star.',
+  'fly:trappist-1':
+    'TRAPPIST-1 is 40 light-years away. A steady push of one Earth gravity gets you there in about 7.3 years of your time while 42 years pass on Earth. Skip to arrival when you have seen enough.',
   'fly:proxima':
     'A steady push of one Earth gravity takes you to the nearest star in 3.5 years of your time while 5.9 years pass on Earth. Each second here is three weeks on board; Skip to arrival when you have seen enough.',
 };
@@ -417,6 +468,7 @@ export function sceneNote(spec: string): string | null {
       return `The date is now ${formatIsoDate(s.date)}. Press N to come back to today.`;
     case 'sky-from': {
       const ref = resolveTarget(s.target);
+      if (ref && isStar(ref.id)) return starSkyNote(ref);
       return `Beyond ${targetName(s.target)}, looking back towards ${ref?.id === 'sun' ? 'Earth' : 'the Sun'}. Drag to look around.`;
     }
     case 'fly': {
@@ -504,11 +556,49 @@ function scene(note: string, setUp: () => void): boolean {
 function go(ref: TargetRef): boolean {
   if (!ready()) return false;
   useUI.setState({ journeyNote: null, journeysOpen: false });
-  goToBody(ref.id);
+  // A star with known planets: the whole planetary system, orbits and names shown.
+  if (hasPlanets(ref.id)) {
+    useUI.setState({ showOrbits: true, showLabels: true });
+    goToSystem(ref.id);
+  } else goToBody(ref.id);
   return true;
 }
 
+/** A star (other than the Sun) with planets registered about it. */
+const hasPlanets = (id: BodyId): boolean => id !== 'sun' && getBody(id)?.kind === 'star' && childrenOf(id).some((c) => c.kind === 'exoplanet');
+
+/** A star other than the Sun: its sky is seen from beside it, looking back at the Sun. */
+const isStar = (id: BodyId): boolean => id !== 'sun' && getBody(id)?.kind === 'star';
+
+/** What the Sun looks like from a star: its distance and magnitude. */
+function starSkyNote(ref: TargetRef): string {
+  const d = sim.bodies[ref.id]?.pos.length() ?? 0;
+  if (!(d > 0)) return `At ${ref.name}, looking back at the Sun. Drag to look around.`;
+  const ly = d / LIGHT_YEAR_KM;
+  const vSun = 4.81 + 5 * Math.log10(d / PARSEC_KM / 10);
+  const lyText = ly < 100 ? ly.toFixed(ly < 10 ? 2 : 1) : Math.round(ly).toLocaleString('en-GB');
+  const seen = vSun < 6 ? `the star in the middle, at magnitude ${vSun.toFixed(1)}` : `too faint to see without a telescope (magnitude ${vSun.toFixed(1)}), in the middle of the view`;
+  return `At ${ref.name}, ${lyText} light-years out, looking back: the Sun is ${seen}. The constellations are those seen from here. Drag to look around.`;
+}
+
+/**
+ * The sky from a star: the camera beside it, on the side facing the Sun (the star just behind
+ * you, out of the view), looking back at the Sun. The constellation figures show there by
+ * themselves ('auto' draws them beyond 0.2 pc, and every star is farther than that); the scene
+ * leaves the saved setting alone, so someone who turned them off keeps them off.
+ */
+function skyFromStar(ref: TargetRef, note: string): boolean {
+  return scene(note, () => {
+    const at = sim.bodies[ref.id]!.pos;
+    const rec = getBody(ref.id)!;
+    const beside = Math.max(100 * displayRadiusKm(rec), AU_KM);
+    useUI.setState({ showLabels: true, selected: ref.id });
+    controller.goTo('sun', { distance: Math.max(at.length() - beside, 0.5 * at.length()), direction: at.clone().normalize() });
+  });
+}
+
 function skyFrom(ref: TargetRef, note: string): boolean {
+  if (isStar(ref.id)) return skyFromStar(ref, note);
   return scene(note, () => {
     const at = sim.bodies[ref.id]!.pos;
     const home = ref.id === 'sun' ? sim.bodies.earth.pos : sim.bodies.sun.pos;
@@ -653,7 +743,7 @@ defineScene('mars-opposition', {
 
 defineScene('jupiter-moons', {
   label: 'Jupiter’s moons',
-  note: 'Jupiter from above, with time running 10,000 times faster than real: a day passes in under 9 seconds. Space pauses; N comes back to today.',
+  note: 'Io, Europa, Ganymede and Callisto circle Jupiter, seen from above with time running 10,000 times faster than real: Io laps it every 15 seconds. Their orbits are fitted to JPL Horizons; the moons are drawn enlarged (T for true size). Space pauses; N comes back to today.',
   run: (note) =>
     scene(note, () => {
       useUI.setState({ sizeMode: 'visible', showOrbits: true, showLabels: true, selected: 'jupiter' });
@@ -663,4 +753,114 @@ defineScene('jupiter-moons', {
       controller.goTo('jupiter', { distance: 5e6, direction: ABOVE });
       afterSlew('jupiter', () => setWarp(10_000));
     }),
+});
+
+// ─── Scenes with the Solar System data (sim/solarSystem) ────────────────────────────────
+
+/** Why a scene that needs these bodies cannot run yet (their data load after start-up). */
+const needs = (...ids: string[]) => () => (ids.every((id) => isBody(id)) ? null : LOADING);
+
+/** Voyager 2's closest approach to Neptune: 1989-08-25 03:56:36 TDB (JPL Horizons), 03:55:40 UTC. */
+const V2_NEPTUNE_MS = msFromCivil(1989, 8, 25, 3, 55, 40);
+/** Its closest approach to Triton, about 39,800 km, five hours later (09:11 UTC). */
+const V2_TRITON_MS = msFromCivil(1989, 8, 25, 9, 11);
+
+defineScene('voyager2-neptune', {
+  label: 'Ride Voyager 2 past Neptune',
+  note: 'Voyager 2 skims 4,950 km above Neptune’s clouds, the closest pass of its whole journey, then crosses Triton’s orbit about five hours later. Here a second is five minutes, so the flyby plays in about a minute. Its path is JPL’s mission-design trajectory for the flyby.',
+  unavailable: needs('voyager2', 'triton'),
+  run: (note) => {
+    if (!ready() || !setEpoch(V2_NEPTUNE_MS - 20 * 60_000)) return false;
+    updateEphemeris();
+    if (!sim.bodies.voyager2?.present) return false;
+    setWarp(1);
+    setPaused(true);
+    useUI.setState({ journeyNote: note, journeysOpen: false, sizeMode: 'true', showLabels: true, showOrbits: true, selected: 'voyager2' });
+    // Just behind the craft, looking half-way between where Neptune is at closest approach and
+    // where Triton is at its own, five hours later (44° apart): both pass through the view.
+    const ca = astroTimeAt(V2_NEPTUNE_MS);
+    const tca = astroTimeAt(V2_TRITON_MS);
+    const toNeptune = bodyPositionAt('neptune', ca).sub(bodyPositionAt('voyager2', ca)).normalize();
+    const toTriton = bodyPositionAt('triton', tca).sub(bodyPositionAt('voyager2', tca)).normalize();
+    const dir = toNeptune.add(toTriton).negate().normalize();
+    controller.goTo('voyager2', { distance: 0.06, direction: dir });
+    afterSlew('voyager2', () => {
+      setWarp(300);
+      setPaused(false);
+    });
+    return true;
+  },
+});
+
+/** Halley's perihelion: 2061-07-28 17:17 TDB (JPL Horizons, solution JPL#75). */
+const HALLEY_2061_MS = msFromCivil(2061, 7, 28, 17, 16);
+
+defineScene('halley-2061', {
+  label: 'Halley comes back',
+  note: 'Halley’s Comet rounds the Sun on 28 July 2061, 0.59 au out. Its dust tail curves back along its orbit; the fainter blue ion tail points straight down the solar wind. The tails come from a simple physical model; a day passes in under 9 seconds.',
+  unavailable: needs('halley'),
+  run: (note) => {
+    if (!ready() || !setEpoch(HALLEY_2061_MS - 6 * 86_400_000)) return false;
+    updateEphemeris();
+    const h = sim.bodies.halley;
+    if (!h?.present) return false;
+    setWarp(1);
+    setPaused(true);
+    useUI.setState({ journeyNote: note, journeysOpen: false, sizeMode: 'visible', showLabels: true, showOrbits: true, selected: 'halley' });
+    // From above the orbit and a little sunward, so both tails are seen side on.
+    const r = h.pos.clone().normalize();
+    const n = r.clone().cross(h.vel).normalize();
+    const dir = n.addScaledVector(r, -0.35).normalize();
+    controller.goTo('halley', { distance: 8e7, direction: dir });
+    afterSlew('halley', () => {
+      setWarp(10_000);
+      setPaused(false);
+    });
+    return true;
+  },
+});
+
+// ─── Planets of other stars (sim/exoplanets) ────────────────────────────────────────────
+
+const TRAPPIST_FLIGHT: Flight = { dest: 'trappist-1', drive: 'rocket', beta: 0 };
+
+/** What to look for once the ship has arrived at TRAPPIST-1. */
+export const SEVEN_WORLDS_NOTE =
+  'The seven planets of TRAPPIST-1, seen from above their orbits with time running 20,000 times faster than real: b laps the star every 6.5 seconds, h every 81. All seven would fit inside Mercury’s orbit. They are drawn at true size, so they are points; the colours are illustrative.';
+
+/**
+ * The view over a planetary system: from above the orbits (the normal of `planet`'s orbit),
+ * tilted a little towards the Sun, at the distance that frames the outermost orbit.
+ */
+function frameSystem(host: BodyId, planet: BodyId): { distance: number; direction: Vector3 } {
+  const h = sim.bodies[host].pos;
+  const p = sim.bodies[planet];
+  const normal = p.pos.clone().sub(h).cross(p.vel.clone().sub(sim.bodies[host].vel));
+  if (!(normal.lengthSq() > 0)) normal.copy(ABOVE);
+  normal.normalize();
+  const toSun = h.clone().negate().normalize();
+  return { distance: systemFramingDistance(host), direction: normal.multiplyScalar(0.85).addScaledVector(toSun, 0.5).normalize() };
+}
+
+defineScene('trappist-1-worlds', {
+  label: 'Seven worlds of TRAPPIST-1',
+  note: FLIGHT_NOTES['fly:trappist-1'],
+  flight: TRAPPIST_FLIGHT,
+  unavailable: () => {
+    if (!isBody('trappist-1')) return starStatus() === 'failed' ? LATER : LOADING_STARS;
+    if (!isBody('trappist-1-h')) return exoplanetsPending() ? LOADING_EXOPLANETS : LATER;
+    return flightBlocker(TRAPPIST_FLIGHT, 'TRAPPIST-1');
+  },
+  run: (note) => {
+    if (!fly(TRAPPIST_FLIGHT, note)) return false;
+    afterArrival(() => {
+      if (!isBody('trappist-1-h')) return;
+      useUI.setState({ journeyNote: SEVEN_WORLDS_NOTE, showOrbits: true, showLabels: true, selected: 'trappist-1-e' });
+      setWarp(1);
+      setPaused(false);
+      controller.goTo('trappist-1', frameSystem('trappist-1', 'trappist-1-h'));
+      afterSlew('trappist-1', () => setWarp(20_000));
+    });
+    return true;
+  },
 });

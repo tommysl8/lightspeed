@@ -43,7 +43,7 @@ const STEPS: Step[] = [
     title: 'Journeys',
     body: (
       <>
-        Seven set pieces, one click each: race a pulse of sunlight to Earth, ride to Saturn at 0.9<i>c</i>, or push to Proxima
+        Ten set pieces, one click each: race a pulse of sunlight to Earth, ride to Saturn at 0.9<i>c</i>, or push to Proxima
         Centauri at 1 g. Each says what to look for.
       </>
     ),

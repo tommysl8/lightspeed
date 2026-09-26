@@ -17,7 +17,8 @@
  *
  * The cube map costs about 2 ms of GPU a frame on an integrated GPU (mostly its half-float
  * mipmaps), so it is only redrawn while something is in it: in interstellar flight, where no
- * body is wider than a pixel, it is cleared once and left alone. After the relativistic view has
+ * body is wider than a pixel, it is cleared once and left alone, and the remap pass is skipped
+ * while the CMB is not drawn per pixel either (remapAddsNothing). After the relativistic view has
  * been off for half a minute its memory (about 88 MiB at 1024 px a face) is given back.
  */
 import {
@@ -67,6 +68,13 @@ export function anyVisibleOn(o: Object3D, mask: number): boolean {
   for (let i = 0; i < kids.length; i++) if (anyVisibleOn(kids[i], mask)) return true;
   return false;
 }
+
+/**
+ * Whether the remap pass would leave the picture as it is: nothing in the cube map (alpha 0
+ * everywhere, so the premultiplied "over" adds nothing) and the CMB not drawn per pixel (its
+ * gain is 0 while it is too faint to show, and once a point source draws it).
+ */
+export const remapAddsNothing = (cubeHasContent: boolean, cmbGain: number): boolean => !cubeHasContent && !(cmbGain > 0);
 
 /** Layer for point sources drawn analytically in the ship frame (stars, glints, belts). */
 export const POINTS_LAYER = 1;
@@ -234,7 +242,16 @@ export class LightspeedScenePass extends Pass {
     renderer.render(scene, camera);
     camera.layers.enableAll();
 
-    // 3. Remapped scene composited on top.
+    // 3. Remapped scene composited on top. With nothing in the cube (interstellar flight) and the
+    // CMB not drawn per pixel, the pass would add nothing: skip it (about 1.5 ms on an integrated
+    // GPU, and a resolve of the multisampled buffer).
+    const cmb = relView.cmb;
+    const cmbGain = cmb.visible ? cmb.resolved : 0;
+    if (remapAddsNothing(content, cmbGain)) {
+      if (relView.split) this.setScissor(renderer, target, 0, 0, w, h, false);
+      renderer.autoClear = autoClear;
+      return;
+    }
     const u = this.remap.uniforms;
     u.uEPhi.value = relView.k;
     u.uEmPhi.value = Math.exp(-relView.phi);
@@ -243,12 +260,11 @@ export class LightspeedScenePass extends Pass {
     const pixelAngle = (2 * Math.tan((camera.fov * Math.PI) / 360)) / Math.max(1, h);
     const texelAngle = Math.PI / 2 / this.faceSize;
     u.uLnPixelOverTexel.value = Math.log(pixelAngle / texelAngle);
-    const cmb = relView.cmb;
     u.uCmbDir.value.set(cmb.motion.dir.x, cmb.motion.dir.y, cmb.motion.dir.z);
     u.uCmbEPhi.value = Math.exp(cmb.motion.phi);
     u.uCmbEmPhi.value = Math.exp(-cmb.motion.phi);
     u.uLnTCmb.value = Math.log(cmb.temperature);
-    u.uCmbGain.value = cmb.visible ? cmb.resolved : 0;
+    u.uCmbGain.value = cmbGain;
     renderer.render(this.quadScene, this.quadCamera);
 
     if (relView.split) this.setScissor(renderer, target, 0, 0, w, h, false);

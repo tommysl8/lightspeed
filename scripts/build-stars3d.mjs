@@ -2,10 +2,10 @@
 //
 //   public/data/stars3d.bin.gz     ~330,000 stars: position, space velocity, absolute magnitude, temperature, flags
 //   public/data/star-names.json.gz names and catalogue numbers for search, spectral types
-//   staging/stars/systems.json     Alpha Centauri, Sirius, Procyon, 61 Cygni and Capella as orbiting systems, plus
+//   src/sim/stars/systems.json     Alpha Centauri, Sirius, Procyon, 61 Cygni and Capella as orbiting systems, plus
 //                                  radii, temperatures, luminosities and masses of ~40 named stars
 //
-// The byte layout, frames, units and methods are documented in staging/stars/stars.md. Run from the repo root:
+// The byte layout, frames, units and methods are documented in docs/data/stars.md. Run from the repo root:
 //
 //   node scripts/build-stars3d.mjs            build from the cached downloads in data-raw/
 //   node scripts/build-stars3d.mjs --fetch    first download any missing input (never re-downloads a cached file)
@@ -34,7 +34,9 @@ import { SYSTEMS, STARS, REFS, SUN } from './star-literature.mjs';
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const RAW = join(ROOT, 'data-raw');
 const OUT_DATA = join(ROOT, 'public', 'data');
-const OUT_STAGING = join(ROOT, 'staging', 'stars');
+// systems.json is read by the app (src/sim/stars); the build log and the photometric calibration are documentation.
+const OUT_SYSTEMS = join(ROOT, 'src', 'sim', 'stars');
+const OUT_DOCS = join(ROOT, 'docs', 'data');
 
 // ---------------------------------------------------------------------------------------------------------------
 // Constants
@@ -1110,7 +1112,8 @@ async function main() {
   const extra = pack('LSX1', extraSections, [0, 0, 0]);
 
   mkdirSync(OUT_DATA, { recursive: true });
-  mkdirSync(OUT_STAGING, { recursive: true });
+  mkdirSync(OUT_SYSTEMS, { recursive: true });
+  mkdirSync(OUT_DOCS, { recursive: true });
   const gz = gzipSync(buf, { level: 9, memLevel: 9, strategy: zc.Z_DEFAULT_STRATEGY });
   writeFileSync(join(OUT_DATA, 'stars3d.bin.gz'), gz);
   const gzx = gzipSync(extra, { level: 9, memLevel: 9 });
@@ -1134,12 +1137,12 @@ async function main() {
   // --- systems.json (with catalogue indices) ---
   const indexByLit = new Map(stars.filter((s) => s.lit).map((s) => [s.lit.id, s.index]));
   for (const s of systemsOut.json.stars) s.catalogueIndex = indexByLit.get(s.id) ?? null;
-  writeFileSync(join(OUT_STAGING, 'systems.json'), JSON.stringify(systemsOut.json, null, 2) + '\n');
+  writeFileSync(join(OUT_SYSTEMS, 'systems.json'), JSON.stringify(systemsOut.json, null, 2) + '\n');
   note(`systems.json: ${systemsOut.json.systems.length} systems, ${systemsOut.json.stars.length} stars`);
 
-  writeFileSync(join(OUT_STAGING, 'build-log.txt'), log.join('\n') + '\n');
+  writeFileSync(join(OUT_DOCS, 'stars-build-log.txt'), log.join('\n') + '\n');
   writeFileSync(
-    join(OUT_STAGING, 'tycho-calibration.json'),
+    join(OUT_DOCS, 'stars-tycho-calibration.json'),
     JSON.stringify(
       {
         note: 'Median Johnson B-V and V-VT per 0.1-mag bin of Tycho-2 BT-VT, from Hipparcos stars with ground-based Johnson photometry (single stars only). x = median BT-VT of the bin, y = median B-V (or V-VT), n = stars, mad = median absolute deviation of B-V.',
@@ -1671,7 +1674,7 @@ function buildNames({ stars, iauNames, hygById, spectList, note }) {
     version: 1,
     catalogue: 'stars3d.bin.gz',
     count: stars.length,
-    note: 'Indices refer to stars3d.bin.gz (0-based, brightest first). See staging/stars/stars.md.',
+    note: 'Indices refer to stars3d.bin.gz (0-based, brightest first). See docs/data/stars.md.',
     constellations: CONSTELLATIONS.map((c) => [c.abbr, c.name, c.genitive]),
     spectralTypes: spectList,
     proper: proper.sort((a, b) => a[0] - b[0]),

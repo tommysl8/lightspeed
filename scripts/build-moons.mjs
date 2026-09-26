@@ -7,8 +7,8 @@
 //   node scripts/build-moons.mjs --jobs 3        number of worker threads (default: cores - 1)
 //
 // Outputs
-//   public/data/moons.json                                     the models (format: staging/phase2/moons.md)
-//   staging/phase2/src/sim/__fixtures__/moon-checkpoints.json  independent Horizons checkpoints for tests
+//   public/data/moons.json                                     the models (format: docs/data/moons.md)
+//   src/sim/__fixtures__/moon-checkpoints.json                 independent Horizons checkpoints for tests
 //
 // Source: JPL Horizons API (https://ssd.jpl.nasa.gov/api/horizons.api), geometric state vectors of
 // each moon relative to its centre in the ecliptic J2000 frame, TDB. Satellite ephemerides behind
@@ -19,7 +19,7 @@
 // Raw responses are cached (gzipped, one file per request) in data-raw/moons/ and never fetched
 // twice; requests are sequential and paced. Delete a cache file to refetch it.
 //
-// Method (details in staging/phase2/moons.md): the Horizons states are turned into equinoctial
+// Method (details in docs/data/moons.md): the Horizons states are turned into equinoctial
 // elements (a, λ, k + ih = e·e^{iϖ}, q + ip = sin(i/2)·e^{iΩ}) in a per-moon reference plane, using
 // an effective GM chosen so that the planet's oblateness does not show up as a spurious
 // orbital-frequency term. Each element series is then modelled as a polynomial plus quasi-periodic
@@ -42,7 +42,7 @@ import { availableParallelism } from 'node:os';
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const RAW = join(ROOT, 'data-raw', 'moons');
 const OUT_JSON = join(ROOT, 'public', 'data', 'moons.json');
-const OUT_FIXTURES = join(ROOT, 'staging', 'phase2', 'src', 'sim', '__fixtures__', 'moon-checkpoints.json');
+const OUT_FIXTURES = join(ROOT, 'src', 'sim', '__fixtures__', 'moon-checkpoints.json');
 const API = 'https://ssd.jpl.nasa.gov/api/horizons.api';
 
 const TAU = 2 * Math.PI;
@@ -1016,7 +1016,7 @@ function fitFree(tau, yr, yi, deg, tscale, h, stride) {
 }
 
 // ---------------------------------------------------------------------------------------------
-// Evaluator (mirror of staging/phase2/src/sim/moonModels.ts)
+// Evaluator (mirror of src/sim/moonModels.ts)
 // ---------------------------------------------------------------------------------------------
 
 function taperAt(model, t) {
@@ -1418,7 +1418,7 @@ async function main() {
   const galilean = await galileanReport();
   const catalog = {
     format: 'lightspeed-moons/1',
-    description: 'Fitted orbit models for planetary moons: position relative to the centre body. See staging/phase2/moons.md.',
+    description: 'Fitted orbit models for planetary moons: position relative to the centre body. See docs/data/moons.md.',
     frame: 'Ecliptic and mean equinox of J2000 (ICRF axes; IAU 1976 obliquity 84381.448"), km',
     time: 'TDB days since J2000.0 (JD 2451545.0 TDB)',
     preciseWindow: 'Each model is precise inside its `window`: 1981-01-01 to 2200-01-01 TDB (to 2199-12-30 for Neptune and 2199-12-29 for the Pluto system, where the Horizons ephemerides end). Outside it the model fades to the mean precessing orbit (illustrative).',

@@ -13,7 +13,9 @@
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { useFrame } from '@react-three/fiber';
 import {
+  BoxGeometry,
   BufferGeometry,
+  CircleGeometry,
   Color,
   CylinderGeometry,
   type DataTexture,
@@ -24,6 +26,8 @@ import {
   type Mesh,
   Quaternion,
   type ShaderMaterial,
+  Shape,
+  ShapeGeometry,
   SphereGeometry,
   Vector2,
   Vector3,
@@ -41,10 +45,11 @@ import {
   systemOf,
   type BodyId,
   type BodyRecord,
+  type RingArcs,
   type RingSpec,
 } from '../sim/bodies';
 import { bodyEntries } from '../sim/bodies/registry';
-import { raDecToWorld } from '../sim/frames';
+import { eqjToWorld, raDecToWorld } from '../sim/frames';
 import { sim } from '../sim/sim';
 import { useUI } from '../state/ui';
 import { createOrbitMaterial, createPlanetMaterial, createRingMaterial, createSunMaterial, SUN_CENTRE_RADIANCE } from '../render/materials';
@@ -77,6 +82,17 @@ const qInv = new Quaternion();
 function sunRelative(out: Vector3): Vector3 {
   const s = sim.bodies.sun;
   return s ? out.copy(s.apparentPos).sub(sim.camera.pos) : out.set(0, 0, 0).sub(sim.camera.pos);
+}
+
+/** The position of the star that lights a body (its record's `litBy`, else the Sun), relative to the camera. */
+function lightRelative(rec: BodyRecord, out: Vector3): Vector3 {
+  const s = rec.litBy ? sim.bodies[rec.litBy] : undefined;
+  return s ? out.copy(s.apparentPos).sub(sim.camera.pos) : sunRelative(out);
+}
+
+/** The colour of a star's light (luminance 1, as the Sun's), from its temperature. */
+function lightColour(id: BodyId): Color {
+  return new Color(...blackbodyRgb(getBody(id)?.physical.luminous?.teffK ?? SUN_TEFF_K));
 }
 
 /**
@@ -150,6 +166,12 @@ export function Planet({ id }: { id: BodyId }) {
         lonOffset: vis.lonOffset,
         fillBlack: vis.fillBlack,
         mapTint: vis.mapTint ? new Color(vis.mapTint) : undefined,
+        mapMix: vis.mapMix,
+        // A shape model with no map: its own relief shades it (procedural noise would pinch at its
+        // poles); a body no image shows (a planet of another star) is its plain colour.
+        flat: vis.flat || (!vis.map && !!vis.shape),
+        // Lit by its own star, in that star's colour (the Sun's otherwise).
+        lightColor: rec.litBy ? lightColour(rec.litBy) : undefined,
       }),
     [rec],
   );
@@ -190,7 +212,7 @@ export function Planet({ id }: { id: BodyId }) {
     if (shape.current) m.scale.setScalar(k);
     else if (p.triaxialRadiiKm) m.scale.set(p.triaxialRadiiKm[0] * k, p.triaxialRadiiKm[2] * k, p.triaxialRadiiKm[1] * k);
     else m.scale.set(eq * k, (p.polarRadiusKm ?? eq) * k, eq * k);
-    sunRelative(material.uniforms.uSunRel.value);
+    lightRelative(rec, material.uniforms.uSunRel.value);
 
     if (!requested.current && wantsTextures(id)) {
       requested.current = true;
@@ -238,9 +260,32 @@ function ringGeometry(inner: number, outer: number, segments: number): BufferGeo
   return g;
 }
 
+const ICRF_NORTH = eqjToWorld(0, 0, 1);
+const arcNode = new Vector3();
+const arcQ = new Quaternion();
+const arcRot = new Quaternion();
+
 /**
- * A ring system: Saturn's photographic strip, or bands (rings.json) drawn into a strip. The
- * ring plane is the body's equator unless the spec gives a pole. The rings can shade the body.
+ * Where the arcs' longitude origin is, in the ring mesh's own frame (the shader measures
+ * longitudes there). The origin turns about the ring's pole at the arcs' mean motion from the
+ * ascending node of the ring plane on the ICRF equator, which does not turn with the planet.
+ */
+function placeArcs(arcs: RingArcs, normal: Vector3, ring: Mesh, bodyQuat: Quaternion, u: ShaderMaterial['uniforms']): void {
+  arcNode.crossVectors(ICRF_NORTH, normal);
+  if (arcNode.lengthSq() < 1e-12) arcNode.set(1, 0, 0);
+  arcNode.normalize();
+  const deg = arcs.phaseDeg + ((sim.astroTime.tt * arcs.meanMotionDegPerDay) % 360);
+  arcNode.applyQuaternion(arcRot.setFromAxisAngle(normal, (deg * Math.PI) / 180));
+  // World → mesh: the body's orientation, then the ring's own within it.
+  arcQ.copy(bodyQuat).multiply(ring.quaternion).invert();
+  arcNode.applyQuaternion(arcQ);
+  u.uArcOrigin.value = Math.atan2(-arcNode.z, arcNode.x);
+}
+
+/**
+ * A ring system: Saturn's photographic strip, or bands (rings.json) drawn into a strip, with
+ * Neptune's arcs on top. The ring plane is the body's equator unless the spec gives a pole. The
+ * rings can shade the body.
  */
 function Rings({ id, spec, planetMaterial }: { id: BodyId; spec: RingSpec; planetMaterial: ShaderMaterial }) {
   const mesh = useRef<Mesh>(null!);
@@ -263,6 +308,17 @@ function Rings({ id, spec, planetMaterial }: { id: BodyId; spec: RingSpec; plane
   const requested = useRef(false);
   const hold = useHeldTextures();
   const eq = displayRadiusKm(getBody(id)!);
+  const arcs = spec.kind === 'bands' ? spec.arcs : undefined;
+  useEffect(() => {
+    const u = material.uniforms;
+    u.uArcCount.value = arcs ? Math.min(8, arcs.spans.length) : 0;
+    if (!arcs) return;
+    arcs.spans.slice(0, 8).forEach(([a, b], i) => u.uArcSpans.value[i].set((a * Math.PI) / 180, (b * Math.PI) / 180));
+    u.uArcInner.value = arcs.innerKm;
+    u.uArcOuter.value = arcs.outerKm;
+    u.uArcOpacity.value = arcs.opacity;
+    u.uArcColor.value.set(arcs.colour);
+  }, [arcs, material]);
 
   useFrame(() => {
     const b = sim.bodies[id];
@@ -286,6 +342,7 @@ function Rings({ id, spec, planetMaterial }: { id: BodyId; spec: RingSpec; plane
     u.uPlanetRadius.value = b.displayRadius;
     u.uInner.value = inner;
     u.uOuter.value = outer;
+    if (arcs) placeArcs(arcs, normal, mesh.current, b.apparentQuat, u);
 
     // Ring shadow on the body (radii in displayed units).
     const shadow = spec.shadow === true;
@@ -385,74 +442,153 @@ export function StarBody({ id }: { id: BodyId }) {
 /** Radius of the probe model as built (Voyager's, km): it is scaled from this to each spacecraft's radius. */
 export const PROBE_MODEL_RADIUS_KM = 0.00185;
 
+/** Radius of each craft model as built (km): it is scaled from this to the spacecraft's radius. */
+const CRAFT_RADIUS_KM = { probe: PROBE_MODEL_RADIUS_KM, jwst: 0.0106, parker: 0.00115 } as const;
+
+type Craft = keyof typeof CRAFT_RADIUS_KM;
+
+const flatMaterial = (hex: string, side = false) => {
+  const m = createPlanetMaterial({ baseColor: new Color(hex), flat: true, ambient: 0.02 });
+  if (side) m.side = DoubleSide;
+  return m;
+};
+
+/** A flat polygon in the model's XZ plane (normal +Y), from (x, z) corners in km. */
+function flatPolygon(points: [number, number][]): BufferGeometry {
+  const shape = new Shape(points.map(([x, z]) => new Vector2(x, -z)));
+  const g = new ShapeGeometry(shape);
+  g.rotateX(-Math.PI / 2);
+  return g;
+}
+
+interface CraftPart {
+  geometry: BufferGeometry;
+  material: ShaderMaterial;
+  position?: [number, number, number];
+  rotation?: [number, number, number];
+  scale?: [number, number, number];
+}
+
 /**
- * A space probe at true size (metres, in km units), modelled on Voyager: the 3.7 m high-gain
- * antenna (always pointed at Earth), the ten-sided bus, the RTG and science booms, and the 13 m
- * magnetometer boom. Scaled to the body's radius. Simplified geometry.
+ * The parts of each model, at true size in km, +Y the axis that is pointed:
+ *  probe  Voyager: the 3.7 m high-gain antenna (at Earth), the ten-sided bus, the RTG and
+ *         science booms, and the 13 m magnetometer boom
+ *  jwst   Webb: the 21.2 × 14.2 m sunshield (at the Sun), the bus and solar array on the sunny
+ *         side, and the 6.5 m gold primary mirror on the cold side, facing across the shield
+ *  parker Parker Solar Probe: the 2.3 m heat shield (at the Sun), the bus and the solar arrays
+ *         tucked in its shadow
+ */
+function craftParts(craft: Craft): CraftPart[] {
+  if (craft === 'jwst') {
+    const shield = flatPolygon([
+      [0, 0.0106],
+      [0.0071, 0.0042],
+      [0.0071, -0.0042],
+      [0, -0.0106],
+      [-0.0071, -0.0042],
+      [-0.0071, 0.0042],
+    ]);
+    const box = new BoxGeometry(1, 1, 1);
+    const mirror = new CircleGeometry(0.00325, 6);
+    const strut = new CylinderGeometry(0.00003, 0.00003, 1, 5);
+    const gold = flatMaterial('#d9b44a', true);
+    const shieldMat = flatMaterial('#c7b9d6', true);
+    const grey = flatMaterial('#8d8a86');
+    const panel = flatMaterial('#2c3550', true);
+    return [
+      // Five layers, drawn as two: the one facing the Sun and the one facing the telescope.
+      { geometry: shield, material: shieldMat, position: [0, 0.0004, 0] },
+      { geometry: shield, material: shieldMat, position: [0, 0, 0] },
+      { geometry: box, material: grey, position: [0, 0.0011, 0], scale: [0.0022, 0.0012, 0.0022] },
+      { geometry: box, material: panel, position: [0, 0.0017, 0.0035], scale: [0.0025, 0.00004, 0.0052] },
+      // The telescope: primary mirror standing on the cold side, its secondary on struts.
+      { geometry: mirror, material: gold, position: [0, -0.0042, -0.0012], rotation: [0.1, 0, Math.PI / 6] },
+      { geometry: strut, material: grey, position: [0, -0.0045, 0.0022], rotation: [Math.PI / 2 + 0.25, 0, 0], scale: [1, 0.0072, 1] },
+      { geometry: new CircleGeometry(0.00037, 16), material: gold, position: [0, -0.0053, 0.0056], rotation: [Math.PI, 0, 0] },
+    ];
+  }
+  if (craft === 'parker') {
+    const white = flatMaterial('#f2f2f2');
+    const grey = flatMaterial('#9a9a9a');
+    const panel = flatMaterial('#2c3550', true);
+    return [
+      { geometry: new CylinderGeometry(0.00115, 0.00115, 0.000114, 48), material: white, position: [0, 0.0008, 0] },
+      { geometry: new CylinderGeometry(0.0005, 0.0005, 0.001, 6), material: grey, position: [0, -0.0001, 0] },
+      { geometry: new BoxGeometry(1, 1, 1), material: panel, position: [0.0009, -0.0002, 0], rotation: [0, 0, -0.35], scale: [0.0007, 0.00003, 0.0006] },
+      { geometry: new BoxGeometry(1, 1, 1), material: panel, position: [-0.0009, -0.0002, 0], rotation: [0, 0, 0.35], scale: [0.0007, 0.00003, 0.0006] },
+      { geometry: new CylinderGeometry(0.00003, 0.00003, 0.0014, 5), material: grey, position: [0, -0.0012, 0] },
+    ];
+  }
+  const dish = new LatheGeometry(
+    Array.from({ length: 12 }, (_, i) => {
+      const r = (i / 11) * 0.00183;
+      return new Vector2(r, (r * r) / (4 * 0.0012));
+    }),
+    48,
+  );
+  const dishMat = flatMaterial('#e9e6df', true);
+  const bus = new CylinderGeometry(0.00089, 0.00089, 0.00047, 10);
+  const busMat = flatMaterial('#9b8f7a');
+  const boom = new CylinderGeometry(0.00004, 0.00004, 1, 6);
+  const boomMat = flatMaterial('#b9b4aa');
+  const rtg = new CylinderGeometry(0.0002, 0.0002, 0.0005, 12);
+  const rtgMat = flatMaterial('#5f5a52');
+  return [
+    { geometry: dish, material: dishMat },
+    { geometry: bus, material: busMat, position: [0, -0.0003, 0] },
+    // RTG boom with three generators
+    { geometry: boom, material: boomMat, position: [-0.0019, -0.0004, 0], rotation: [0, 0, Math.PI / 2], scale: [1, 0.0026, 1] },
+    ...[0.0012, 0.0019, 0.0026].map((x): CraftPart => ({ geometry: rtg, material: rtgMat, position: [-x - 0.0006, -0.0004, 0], rotation: [0, 0, Math.PI / 2] })),
+    // Science boom
+    { geometry: boom, material: boomMat, position: [0.00165, -0.0004, 0], rotation: [0, 0, Math.PI / 2], scale: [1, 0.0023, 1] },
+    { geometry: bus, material: busMat, position: [0.0029, -0.0004, 0], scale: [0.35, 1.2, 0.35] },
+    // Magnetometer boom, 13 m
+    { geometry: boom, material: boomMat, position: [0, -0.0004, 0.0066], rotation: [Math.PI / 2, 0, 0], scale: [0.6, 0.013, 0.6] },
+  ];
+}
+
+/**
+ * A spacecraft at true size (metres, in km units), scaled to the body's radius: Voyager's shape
+ * for the probes, with the high-gain antenna always pointed at Earth; Webb and Parker Solar Probe
+ * with their shields towards the Sun. Their attitudes are not modelled beyond that (the card
+ * says so). Simplified geometry.
  */
 export function Spacecraft({ id }: { id: BodyId }) {
   const group = useRef<Group>(null!);
-  const parts = useMemo(() => {
-    const m = (hex: string) => createPlanetMaterial({ baseColor: new Color(hex), flat: true, ambient: 0.02 });
-    const dish = new LatheGeometry(
-      Array.from({ length: 12 }, (_, i) => {
-        const r = (i / 11) * 0.00183;
-        return new Vector2(r, (r * r) / (4 * 0.0012));
-      }),
-      48,
-    );
-    const dishMat = m('#e9e6df');
-    dishMat.side = DoubleSide;
-    return {
-      dish,
-      dishMat,
-      bus: new CylinderGeometry(0.00089, 0.00089, 0.00047, 10),
-      busMat: m('#9b8f7a'),
-      boom: new CylinderGeometry(0.00004, 0.00004, 1, 6),
-      boomMat: m('#b9b4aa'),
-      rtg: new CylinderGeometry(0.0002, 0.0002, 0.0005, 12),
-      rtgMat: m('#5f5a52'),
-    };
-  }, []);
+  const craft: Craft = getBody(id)?.visual?.craft ?? 'probe';
+  const parts = useMemo(() => craftParts(craft), [craft]);
+  const materials = useMemo(() => [...new Set(parts.map((p) => p.material))], [parts]);
   useEffect(
     () => () => {
-      for (const x of Object.values(parts)) x.dispose();
+      for (const g of new Set(parts.map((p) => p.geometry))) g.dispose();
+      for (const m of materials) m.dispose();
     },
-    [parts],
+    [parts, materials],
   );
 
   useFrame(() => {
     const b = sim.bodies[id];
-    const earth = sim.bodies.earth;
+    // The dish points at Earth; Webb's sunshield and Parker's heat shield at the Sun.
+    const target = craft === 'probe' ? sim.bodies.earth : sim.bodies.sun;
     if (!b) return;
     const g = group.current;
     g.visible = b.present && b.radiusPx >= MESH_MIN_PX;
     if (!g.visible) return;
     g.position.copy(b.apparentPos).sub(sim.camera.pos);
-    // Point the antenna (+Y) at Earth.
-    if (earth) {
-      tmp.copy(earth.pos).sub(b.apparentPos).normalize();
+    if (target) {
+      tmp.copy(target.pos).sub(b.apparentPos).normalize();
       g.quaternion.setFromUnitVectors(tmp2.set(0, 1, 0), tmp);
     }
-    // The model is built at Voyager's size: scale it to this craft's (displayed) radius.
-    g.scale.setScalar(b.displayRadius / PROBE_MODEL_RADIUS_KM);
-    for (const mat of [parts.dishMat, parts.busMat, parts.boomMat, parts.rtgMat]) sunRelative(mat.uniforms.uSunRel.value);
+    // The model is built at its craft's size: scale it to this craft's (displayed) radius.
+    g.scale.setScalar(b.displayRadius / CRAFT_RADIUS_KM[craft]);
+    for (const mat of materials) sunRelative(mat.uniforms.uSunRel.value);
   });
 
   return (
     <group ref={group} visible={false}>
-      <mesh geometry={parts.dish} material={parts.dishMat} />
-      <mesh geometry={parts.bus} material={parts.busMat} position={[0, -0.0003, 0]} />
-      {/* RTG boom with three generators */}
-      <mesh geometry={parts.boom} material={parts.boomMat} position={[-0.0019, -0.0004, 0]} rotation={[0, 0, Math.PI / 2]} scale={[1, 0.0026, 1]} />
-      {[0.0012, 0.0019, 0.0026].map((x) => (
-        <mesh key={x} geometry={parts.rtg} material={parts.rtgMat} position={[-x - 0.0006, -0.0004, 0]} rotation={[0, 0, Math.PI / 2]} />
+      {parts.map((p, i) => (
+        <mesh key={i} geometry={p.geometry} material={p.material} position={p.position} rotation={p.rotation} scale={p.scale} />
       ))}
-      {/* Science boom */}
-      <mesh geometry={parts.boom} material={parts.boomMat} position={[0.00165, -0.0004, 0]} rotation={[0, 0, Math.PI / 2]} scale={[1, 0.0023, 1]} />
-      <mesh geometry={parts.bus} material={parts.busMat} position={[0.0029, -0.0004, 0]} scale={[0.35, 1.2, 0.35]} />
-      {/* Magnetometer boom, 13 m */}
-      <mesh geometry={parts.boom} material={parts.boomMat} position={[0, -0.0004, 0.0066]} rotation={[Math.PI / 2, 0, 0]} scale={[0.6, 0.013, 0.6]} />
     </group>
   );
 }

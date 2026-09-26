@@ -4,7 +4,7 @@
 // Source: NASA Exoplanet Archive, operated by the California Institute of Technology under contract
 //   with NASA under the Exoplanet Exploration Program. Table DOI 10.26133/NEA13; archive paper
 //   Christiansen et al. 2025, PSJ 6, 186 (doi:10.3847/PSJ/ade3c2). The archive's data are freely
-//   available; it asks users to acknowledge it (see staging/exoplanets/exoplanets.md for the text).
+//   available; it asks users to acknowledge it (see docs/data/exoplanets.md §9 for the text).
 //
 // Input : data-raw/nea_pscomppars_2026-09-25.csv.gz (not committed). Downloaded once with
 //   curl -G https://exoplanetarchive.ipac.caltech.edu/TAP/sync \
@@ -13,7 +13,7 @@
 //   Host positions are rebuilt at epoch J2000.0 from Gaia DR3 or Hipparcos (scripts/exoplanet-host-astrometry.mjs);
 //   run once with --fetch to download data-raw/gaia_dr3_exoplanet_hosts_2026-09-25.csv.gz (never re-downloaded).
 // Output: public/data/exoplanets.json.gz (gzip of a compact, column-oriented JSON; format below)
-//         staging/exoplanets/build-stats.json (counts quoted in exoplanets.md)
+//         docs/data/exoplanets-build-stats.json (counts quoted in docs/data/exoplanets.md)
 //
 // Format (all arrays in a table have the same length; null = not in the archive):
 // {
@@ -23,7 +23,7 @@
 //   planets: { name, host, letter, period, sma, ecc, incl, impact, omega, node, tperi, tperiSys, tconj, tconjSys,
 //              radius, mass, massKind, teq, method, year, facility, flags }
 // }
-// Units and meanings are written into the file (`units`) and documented in exoplanets.md.
+// Units and meanings are written into the file (`units`) and documented in docs/data/exoplanets.md.
 
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { gunzipSync, gzipSync } from 'node:zlib';
@@ -34,7 +34,7 @@ const FETCH = process.argv.includes('--fetch');
 const INPUT = ARGS[0] ?? 'data-raw/nea_pscomppars_2026-09-25.csv.gz';
 const RETRIEVED = (INPUT.match(/(\d{4}-\d{2}-\d{2})/) ?? [])[1] ?? 'unknown';
 const OUT = 'public/data/exoplanets.json.gz';
-const STATS = 'staging/exoplanets/build-stats.json';
+const STATS = 'docs/data/exoplanets-build-stats.json';
 const ATHYG = 'data-raw/athyg_40_reduced_m10.csv.gz'; // optional, only for match statistics (not shipped)
 
 // ---------------------------------------------------------------------------------------------
@@ -481,7 +481,7 @@ const json = JSON.stringify(out);
 const gz = gzipSync(Buffer.from(json), { level: 9 });
 mkdirSync('public/data', { recursive: true });
 writeFileSync(OUT, gz);
-mkdirSync('staging/exoplanets', { recursive: true });
+mkdirSync('docs/data', { recursive: true });
 writeFileSync(
   STATS,
   JSON.stringify({ input: INPUT, retrieved: RETRIEVED, rawBytes: json.length, gzipBytes: gz.length, counts, positions: posStats, starMatch }, null, 2) + '\n',

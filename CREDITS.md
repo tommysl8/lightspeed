@@ -5,21 +5,162 @@ not the author's work; they keep their own licences, which also apply to any cop
 
 | Files | Source | Licence |
 | --- | --- | --- |
-| `public/data/stars.bin`, `public/data/star-names.json` | Derived from the [HYG Database v4.4](https://codeberg.org/astronexus/hyg) by David Nash (astronexus) | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). These derived files are released under the same licence. |
+| `public/data/stars3d.bin.gz`, `public/data/stars3d-bright.bin.gz`, `public/data/stars3d-extra.bin.gz`, `public/data/star-names.json.gz` | Derived from [AT-HYG v4.0](https://codeberg.org/astronexus/athyg) by David Nash (astronexus), with distances and radial velocities from [Gaia DR3](https://www.cosmos.esa.int/gaia) (ESA/Gaia/DPAC), photometry and parallaxes from the Hipparcos Catalogue (ESA 1997) and its new reduction (van Leeuwen 2007) via [VizieR](https://vizier.cds.unistra.fr/), variable-star names from [HYG v4.4](https://codeberg.org/astronexus/hyg), and the [IAU list of star names](https://www.iau.org/public/themes/naming_stars/). `stars3d-bright.bin.gz` is the first 9,959 stars of `stars3d.bin.gz` | Non-commercial use only. The AT-HYG content is [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) (credit David Nash / astronexus; share alike); the Gaia DR3-derived values are [CC BY-NC 3.0 IGO](https://www.cosmos.esa.int/web/gaia-users/license) (credit ESA/Gaia/DPAC; non-commercial). Both sets of terms apply to these files, so they may be shared and adapted only non-commercially, with both credits, under the same terms. |
+| `public/data/constellations.json` | Constellation figures and names from [d3-celestial](https://github.com/ofrohn/d3-celestial) by Olaf Frohn (after the IAU / Sky & Telescope charts), linked to the stars above | [BSD 3-Clause](https://github.com/ofrohn/d3-celestial/blob/master/LICENSE), Copyright (c) 2015, Olaf Frohn (notice below) |
+| `src/sim/stars/systems.json` (star systems and named-star parameters) | Compiled for Lightspeed from the papers cited in the file (orbits: Akeson et al. 2021, Bond et al. 2015 and 2017, Shakht et al. 2017, Torres et al. 2015; Proxima: Kervella et al. 2017 and Gaia DR3) | Values from the literature, each with its reference; the Proxima state uses Gaia DR3 (ESA/Gaia/DPAC, CC BY-NC 3.0 IGO) |
+| `public/data/exoplanets.json.gz` | [NASA Exoplanet Archive](https://exoplanetarchive.ipac.caltech.edu/), Planetary Systems Composite Parameters (doi:[10.26133/NEA13](https://doi.org/10.26133/NEA13); Christiansen et al. 2025, doi:[10.3847/PSJ/ade3c2](https://doi.org/10.3847/PSJ/ade3c2)), retrieved 25 September 2026. Host positions and distances largely from the TESS Input Catalog v8 and ESA Gaia (via the archive) | NASA/Caltech-IPAC data, freely available; acknowledgement: "This research has made use of the NASA Exoplanet Archive, which is operated by the California Institute of Technology, under contract with the National Aeronautics and Space Administration under the Exoplanet Exploration Program." Host positions at J2000 from [Gaia DR3](https://www.cosmos.esa.int/gaia) (ESA/Gaia/DPAC) and the Hipparcos new reduction (van Leeuwen 2007, via VizieR): the Gaia-derived values are [CC BY-NC 3.0 IGO](https://www.cosmos.esa.int/web/gaia-users/license), so the file is for **non-commercial use**, with the Gaia credit. |
+| `public/data/exoplanets-featured.json.gz` (built by `scripts/build-exoplanets-featured.mjs`) | Orbital solutions from the papers listed in the file's `refs` (Agol et al. 2021; Suárez Mascareño et al. 2025; Basant et al. 2025; Cont et al. 2026; Wang et al. 2018; Cabrera et al. 2014; Shaw et al. 2025; Pass et al. 2026; Doyle et al. 2011; Thompson et al. 2025; Feng et al. 2017; Beichman et al. 2025; Akeson et al. 2021; and others), plus NASA Exoplanet Archive values | Facts from the literature, cited per value; our fits and file under the project's MIT licence, except the host positions, which come from Gaia DR3 (ESA/Gaia/DPAC, [CC BY-NC 3.0 IGO](https://www.cosmos.esa.int/web/gaia-users/license): non-commercial, with credit) or the Hipparcos new reduction |
 | `public/textures/2k_*.jpg`, `public/textures/2k_*.png` | [Solar System Scope](https://www.solarsystemscope.com/textures/) (INOVE) | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
 | `public/textures/pluto_nh_color.jpg` | [NASA/JHUAPL/SwRI](https://www.nasa.gov/image-article/pluto-global-color-map/), New Horizons global colour map | NASA media, public domain |
 | `public/data/belts.bin` | Orbital elements from the [JPL Small-Body Database](https://ssd-api.jpl.nasa.gov/doc/sbdb_query.html) | NASA/JPL-Caltech |
+| `public/data/moons.json` | Orbit models fitted to [JPL Horizons](https://ssd.jpl.nasa.gov/horizons/) satellite ephemerides (MAR099, JUP365, SAT441, URA182/URA184, NEP097/NEP105, PLU060) and the [JPL satellite mean elements](https://ssd.jpl.nasa.gov/sats/elem/) | NASA/JPL-Caltech |
+| `public/data/tracks.bin`, `public/data/tracks.json` | Trajectories fitted to [JPL Horizons](https://ssd.jpl.nasa.gov/horizons/) (spacecraft ephemerides from NASA/JPL, NASA/JHUAPL/SwRI and NASA/GSFC) | NASA/JPL-Caltech |
+| `public/data/bodies.json`, `public/data/rings.json` | Compiled from [JPL Solar System Dynamics](https://ssd.jpl.nasa.gov/) (satellite physical parameters and mean elements, the Small-Body Database, Horizons), the IAU WGCCRE 2015 rotation models (Archinal et al. 2018) as encoded in NAIF `pck00011.tpc`, the PDS Small Bodies Node colour compilations, the PDS Rings Node, NASA and ESA mission pages and the papers cited in each entry; facts written for Lightspeed | Data: US Government works and published values; text: MIT with the source code |
+| `public/textures/{io,europa,ganymede,callisto,enceladus,tethys,dione,rhea,iapetus,titan,triton,charon,ceres,vesta,phobos}.jpg` | Global mosaics from [USGS Astrogeology](https://astrogeology.usgs.gov/) (Voyager, Galileo, Cassini, New Horizons, Dawn and Viking data: NASA/JPL-Caltech, SSI, DLR, JHUAPL/SwRI, UCLA/MPS/IDA, LPI; Triton by P. Schenk; Phobos by P. Stooke), downsampled | Public domain / no use constraints (US Government and NASA mission data) |
+| `public/textures/mimas.jpg` | Cassini ISS global mosaic of Mimas by T. Roatsch (DLR), 2017, distributed by USGS Astrogeology | NASA/JPL-Caltech/SSI/DLR; no use constraints |
+| `public/textures/deimos.jpg` | Deimos Viking global map by Philip Stooke (University of Western Ontario), with C. Jongkind and M. Arntz, control by P. Thomas (Cornell), via the USGS planetary WMS | NASA Viking data; credit P. Stooke |
+| `public/textures/{miranda,ariel,umbriel,titania,oberon}.jpg` | Voyager 2 maps from [NASA 3D Resources](https://github.com/nasa/NASA-3D-Resources), downsampled; unimaged northern hemispheres filled with a neutral tone | NASA, free and without copyright |
+| `public/models/phobos.bin` | Decimated from R. Gaskell's Phobos shape model (PDS Small Bodies Node) | NASA PDS, public |
+| `public/models/{deimos,hyperion}.bin` | Decimated from P. Thomas's shape models (PDS Small Bodies Node) | NASA PDS, public |
+| `public/models/{proteus,halley}.bin` | Decimated from P. Stooke's shape models (PDS Small Bodies Node) | NASA PDS, public |
+| `public/models/vesta.bin` | Built from the DLR Dawn HAMO global DTM (NASA/JPL-Caltech/UCLA/MPS/DLR/IDA, via USGS Astrogeology) | Public domain / no use constraints |
+| `public/models/arrokoth.bin` | Union of the two lobes of the New Horizons Arrokoth shape model v01, S. Porter et al. 2024 (NASA/JHUAPL/SwRI, PDS Small Bodies Node), decimated | NASA PDS, public |
+| `public/models/churyumov-gerasimenko.bin` | Decimated from the SHAP5 shape model of comet 67P by R. Gaskell, L. Jorda et al. (ESA/Rosetta/MPS for OSIRIS Team MPS/UPD/LAM/IAA/SSO/INTA/UPM/DASP/IDA; ESA PSA and NASA PDS, RO-C-MULTI-5-67P-SHAPE-V2.0) | [CC BY-SA 3.0 IGO](https://creativecommons.org/licenses/by-sa/3.0/igo/). This derived file is released under the same licence. |
+| `public/models/{nix,hydra,haumea}.bin` | Triaxial ellipsoids from Weaver et al. 2016 (Science 351, aae0030) and Ortiz et al. 2017 (Nature 550, 219) | Generated; MIT with the source code |
+| `public/textures/milkyway-bg.jpg`, `public/textures/milkyway-bg-2k.jpg`, `public/textures/milkyway-bg.json` | [NASA/Goddard Space Flight Center Scientific Visualization Studio](https://svs.gsfc.nasa.gov/4851), Deep Star Maps 2020 (Milky Way background layer), re-encoded. Gaia DR2: ESA/Gaia/DPAC. | Public domain (NASA SVS); credit as shown |
+| `public/data/galaxy-particles.bin.gz` | Generated by `scripts/build-galaxy.mjs` from a parametric model of the Milky Way whose parameters come from GRAVITY Collaboration (2022), Bennett & Bovy (2019), Bland-Hawthorn & Gerhard (2016), Reid et al. (2019), Wegg & Gerhard (2013), Wegg, Gerhard & Portail (2015), Drimmel & Spergel (2001) and Chen et al. (2019); see `staging/galaxy/model.json` | Part of this project (MIT) |
+| `public/data/clusters.json.gz` (open clusters) | [Hunt & Reffert 2023](https://doi.org/10.1051/0004-6361/202346285), [2024](https://doi.org/10.1051/0004-6361/202348662), based on ESA Gaia DR3 | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
+| `public/data/clusters.json.gz` (globular clusters) | [Vasiliev & Baumgardt 2021](https://doi.org/10.1093/mnras/stab1475), [Baumgardt & Vasiliev 2021](https://arxiv.org/abs/2105.09526), and the [Harris catalogue, 2010 edition](https://physics.mcmaster.ca/~harris/mwgc.dat) (Harris 1996, AJ 112, 1487) | CC BY 4.0 (first two); the Harris catalogue is supplied free of charge, and copies must refer to [its website](https://physics.mcmaster.ca/~harris/mwgc.dat) and charge no fee |
+| `public/images/nebulae/*.jpg` (45 images) | ESA/Hubble, ESA/Webb, ESO and NSF NOIRLab; the full credit line of each image is in [Nebula images](#nebula-images) below. Modified for Lightspeed: resized, black level subtracted, edges faded (three also cropped) | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
+| `public/data/cosmic-web.bin.gz` | Derived from [Cosmicflows-4](https://doi.org/10.3847/1538-4357/ac94d8) (Tully et al. 2023, ApJ 944, 94) via CDS/VizieR, with Ks magnitudes, axis ratios and position angles from the [2MASS Extended Source Catalog](https://irsa.ipac.caltech.edu/Missions/2mass.html) (UMass/IPAC-Caltech, NASA, NSF) | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) (Cosmicflows-4); 2MASS data products with the 2MASS acknowledgement below. This derived file is released under CC BY 4.0. |
+| `public/data/local-galaxies.json.gz` | Derived from the [Local Volume Database](https://github.com/apace7/local_volume_database) v1.1.1 ([Pace 2025, The Open Journal of Astrophysics 8, 142](https://doi.org/10.33232/001c.144859)), every value with its original reference, plus published distances and disc angles of M31, M33 and the Magellanic Clouds cited in each row and RC3 sizes | [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) (Local Volume Database); the added values are facts quoted with citation |
+| `public/textures/cmb.png`, `public/textures/cmb-data.png` | [WMAP 9-year ILC map](https://lambda.gsfc.nasa.gov/product/wmap/dr5/ilc_map_get.html), NASA / WMAP Science Team, colour map after Moreland (2009) | NASA data, public domain |
+
+The Milky Way, cluster, nebula, galaxy and CMB files above are on the site ahead of the update that will show them.
 
 Other sources used by the code, but not redistributed as files:
 
 - Planet, Moon and Pluto positions and rotation: [Astronomy Engine](https://github.com/cosinekitty/astronomy) by Don
   Cross (MIT), installed from npm.
 - Voyager 1 state vectors: [JPL Horizons](https://ssd.jpl.nasa.gov/horizons/), NASA/JPL-Caltech.
+- Rotation models of the moons and small bodies: the IAU WGCCRE 2015 report (Archinal et al. 2018, Celest. Mech.
+  Dyn. Astr. 130:22) as encoded in NAIF's `pck00011.tpc`; Haumea's from Ortiz et al. 2017, Arrokoth's from Porter
+  et al. 2024.
+- Sizes, masses, albedos and colours: JPL Solar System Dynamics satellite physical parameters and mean elements,
+  the JPL Small-Body Database, the PDS Small Bodies Node colour compilations (Neese 2014, 2020), the PDS Rings Node
+  ring tables, and the papers listed in `public/data/bodies.json` and `public/data/rings.json`.
+- Comet tails: the syndyne dust-tail model of Finson and Probstein (1968) and the solar-wind aberration of ion tails
+  (Biermann 1951), in simplified form (`src/render/cometTail.ts`).
 - Physical data: [NASA Planetary Fact Sheets](https://nssdc.gsfc.nasa.gov/planetary/factsheet/), US Government work.
-- Proxima Centauri: Gaia DR3 (distance), Boyajian et al. 2012 (radius), Ségransan et al. 2003 (temperature).
+- Proxima Centauri before the star catalogue has loaded: Gaia DR3 (distance), Boyajian et al. 2012 (radius),
+  Ségransan et al. 2003 (temperature).
+- Stars: the Gaia DR3 parallax zero-point of Lindegren et al. (2021) and the radial-velocity corrections of Katz et
+  al. (2023) and Blomme et al. (2023), used in building the catalogue; the Sixth Catalog of Orbits of Visual Binary
+  Stars (USNO/GSU) for checks; Pecaut & Mamajek (2013) for colours of spectral types; the bolometric corrections of
+  Flower (1996) as corrected by Torres (2010), for the luminosities and sizes the app estimates; M_V of the Sun from
+  Willmer (2018). The facts on the named stars cite their papers (DOIs in `src/sim/stars/facts.ts`).
+- Gaia: this work has made use of data from the European Space Agency (ESA) mission Gaia
+  (https://www.cosmos.esa.int/gaia), processed by the Gaia Data Processing and Analysis Consortium (DPAC,
+  https://www.cosmos.esa.int/web/gaia/dpac/consortium). Funding for the DPAC has been provided by national
+  institutions, in particular the institutions participating in the Gaia Multilateral Agreement.
+- Exoplanet orbits: Keplerian model with conventions and tests in `src/sim/exoplanets`; the mass-radius estimates use
+  Chen & Kipping 2017 (ApJ 834, 17). The illustrative colours of the planets follow a stated rule
+  (`src/sim/exoplanets/appearance.ts`): for giants, the cloud classes of Sudarsky, Burrows & Pinto (2000, ApJ 538,
+  885). How the files were made is written up in `docs/data/exoplanets.md`.
 - Colour science: the CIE 1931 fit by Wyman, Sloan and Shirley (2013); B−V to temperature by Ballesteros (2012).
 - Typefaces: IBM Plex Sans (IBM), JetBrains Mono (JetBrains) and Source Serif 4 (Adobe), under the SIL Open Font
   Licence 1.1, installed from npm.
+- 2MASS: "This publication makes use of data products from the Two Micron All Sky Survey, which is a joint project of
+  the University of Massachusetts and the Infrared Processing and Analysis Center/California Institute of Technology,
+  funded by the National Aeronautics and Space Administration and the National Science Foundation."
+- Galaxy distances: Cosmicflows-4, Tully, R. B. et al. 2023, ApJ 944, 94 (CC BY 4.0). Nearby galaxies: this work has
+  made use of the Local Volume Database (https://github.com/apace7/local_volume_database; Pace 2025, The Open Journal
+  of Astrophysics 8, 142). CMB map: NASA / WMAP Science Team.
 
-The scripts that build the data files are in `scripts/` (`npm run data:stars`, `npm run data:belts`). The raw
-downloads they read are not redistributed.
+The scripts that build the data files are in `scripts/` (`npm run data:stars` for the star files, written up in
+`docs/data/stars.md`, `npm run data:belts`, `npm run data:exoplanets` and `npm run data:exoplanets-featured` for
+the exoplanet files, written up in `docs/data/exoplanets.md`, and
+`build-moons.mjs`, `build-tracks.mjs`, `build-shapes.mjs`, `build-textures.mjs` and `build-bodies.mjs` for the
+Solar System data, written up in `docs/data/`). The raw downloads they read are not redistributed. The
+build-time tools `sharp` and `manifold-3d` (both Apache-2.0) are used by the map and shape scripts but not shipped.
+
+## Nebula images
+
+Each image in `public/images/nebulae/` is licensed [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) by the
+organisation and people named in its credit line, which is reproduced here unaltered, with a link to its archive
+page. Every one was modified for Lightspeed: downloaded from that page, cropped where noted, resized so the longer
+side is at most 512 px (Lanczos), the 2nd-percentile black level subtracted per channel, the outer 8% of each side
+faded to black, and saved as an sRGB JPEG (quality 90), for additive blending.
+
+| File | Object | Credit | Original | Modified |
+| --- | --- | --- | --- | --- |
+| `orion-nebula.jpg` | Orion Nebula | ESO/G. Beccari | [eso1723a](https://www.eso.org/public/images/eso1723a/) | resized, black level subtracted, edges faded |
+| `horsehead.jpg` | Horsehead Nebula | ESO | [eso0202a](https://www.eso.org/public/images/eso0202a/) | resized, black level subtracted, edges faded |
+| `flame-nebula.jpg` | Flame Nebula | ESO/J. Emerson/VISTA. Acknowledgment: Cambridge Astronomical Survey Unit | [eso0949a](https://www.eso.org/public/images/eso0949a/) | resized, black level subtracted, edges faded |
+| `m78.jpg` | M78 | ESO/Igor Chekalin | [eso1105a](https://www.eso.org/public/images/eso1105a/) | resized, black level subtracted, edges faded |
+| `rosette-nebula.jpg` | Rosette Nebula | CTIO/NOIRLab/DOE/NSF/AURA Image Processing: T.A. Rector (University of Alaska Anchorage/NSF NOIRLab), D. de Martin & M. Zamani (NSF NOIRLab) | [noirlab2424a](https://noirlab.edu/public/images/noirlab2424a/) | resized, black level subtracted, edges faded |
+| `ngc-2264.jpg` | NGC 2264: Cone Nebula and Christmas Tree Cluster | ESO | [eso0848a](https://www.eso.org/public/images/eso0848a/) | resized, black level subtracted, edges faded |
+| `cone-nebula.jpg` | Cone Nebula | ESO | [eso2215a](https://www.eso.org/public/images/eso2215a/) | resized, black level subtracted, edges faded |
+| `eagle-nebula.jpg` | Eagle Nebula | ESO | [eso0926a](https://www.eso.org/public/images/eso0926a/) | resized, black level subtracted, edges faded |
+| `pillars-of-creation.jpg` | Pillars of Creation | NASA, ESA/Hubble and the Hubble Heritage Team | [heic1501a](https://esahubble.org/images/heic1501a/) | resized, black level subtracted, edges faded |
+| `lagoon-nebula.jpg` | Lagoon Nebula | ESO/VPHAS+ team | [eso1403a](https://www.eso.org/public/images/eso1403a/) | resized, black level subtracted, edges faded |
+| `trifid-nebula.jpg` | Trifid Nebula | ESO | [eso0930a](https://www.eso.org/public/images/eso0930a/) | resized, black level subtracted, edges faded |
+| `omega-nebula.jpg` | Omega Nebula | ESO/INAF-VST/OmegaCAM. Acknowledgement: OmegaCen/Astro-WISE/Kapteyn Institute | [eso1119a](https://www.eso.org/public/images/eso1119a/) | resized, black level subtracted, edges faded |
+| `carina-nebula.jpg` | Carina Nebula | ESO. Acknowledgement: VPHAS+ Consortium/Cambridge Astronomical Survey Unit | [eso1250a](https://www.eso.org/public/images/eso1250a/) | resized, black level subtracted, edges faded |
+| `cosmic-cliffs.jpg` | Cosmic Cliffs (NGC 3324) | NASA, ESA, CSA, and STScI | [weic2205a](https://esawebb.org/images/weic2205a/) | resized, black level subtracted, edges faded |
+| `eta-carinae.jpg` | Homunculus Nebula around Eta Carinae | Jon Morse (University of Colorado), and NASA/ESA | [opo9623a](https://esahubble.org/images/opo9623a/) | resized, black level subtracted, edges faded |
+| `cats-paw-nebula.jpg` | Cat's Paw Nebula | ESO | [eso1003a](https://www.eso.org/public/images/eso1003a/) | resized, black level subtracted, edges faded |
+| `lobster-nebula.jpg` | Lobster Nebula | ESO | [eso1705a](https://www.eso.org/public/images/eso1705a/) | cropped, resized, black level subtracted, edges faded |
+| `ngc-3603.jpg` | NGC 3603 | ESO | [eso1005a](https://www.eso.org/public/images/eso1005a/) | resized, black level subtracted, edges faded |
+| `westerlund-2.jpg` | Westerlund 2 and Gum 29 | NASA, ESA, the Hubble Heritage Team (STScI/AURA), A. Nota (ESA/STScI), and the Westerlund 2 Science Team. The original observations of Westerlund 2 were obtained by the science team: Antonella Nota (ESA/STScI), Elena Sabbi (STScI), Eva Grebel and Peter Zeidler (Astronomisches Rechen-Institut Heidelberg), Monica Tosi (INAF, Osservatorio Astronomico di Bologna), Alceste Bonanos (National Observatory of Athens, Astronomical Institute), Carol Christian (STScI/AURA) and Selma de Mink (University of Amsterdam). Follow-up observations were made by the Hubble Heritage team: Zoltan Levay (STScI), Max Mutchler, Jennifer Mack, Lisa Frattare, Shelly Meyett, Mario Livio, Carol Christian (STScI/AURA), and Keith Noll (NASA/GSFC). | [heic1509a](https://esahubble.org/images/heic1509a/) | resized, black level subtracted, edges faded |
+| `running-chicken-nebula.jpg` | Running Chicken Nebula | ESO/VPHAS+ team. Acknowledgement: CASU | [eso2320a](https://www.eso.org/public/images/eso2320a/) | cropped, resized, black level subtracted, edges faded |
+| `north-america-nebula.jpg` | North America and Pelican Nebulae | KPNO/NOIRLab/NSF/AURA/Adam Block | [noao-n7000mosblock](https://noirlab.edu/public/images/noao-n7000mosblock/) | resized, black level subtracted, edges faded |
+| `bubble-nebula.jpg` | Bubble Nebula | NASA, ESA, Hubble Heritage Team | [heic1608a](https://esahubble.org/images/heic1608a/) | resized, black level subtracted, edges faded |
+| `thors-helmet.jpg` | Thor's Helmet | ESO/B. Bailleul | [eso1238a](https://www.eso.org/public/images/eso1238a/) | resized, black level subtracted, edges faded |
+| `seagull-nebula.jpg` | Seagull Nebula | ESO/VPHAS+ team/N.J. Wright (Keele University) | [eso1913a](https://www.eso.org/public/images/eso1913a/) | resized, black level subtracted, edges faded |
+| `prawn-nebula.jpg` | Prawn Nebula | ESO. Acknowledgement: Martin Pugh | [eso1340a](https://www.eso.org/public/images/eso1340a/) | resized, black level subtracted, edges faded |
+| `crescent-nebula.jpg` | Crescent Nebula | T.A. Rector (NRAO/AUI/NSF and NOIRLab/NSF/AURA) | [noao-04494](https://noirlab.edu/public/images/noao-04494/) | resized, black level subtracted, edges faded |
+| `iris-nebula.jpg` | Iris Nebula | T.A. Rector/University of Alaska Anchorage, H. Schweiker/WIYN and NOIRLab/NSF/AURA | [noao-ngc7023](https://noirlab.edu/public/images/noao-ngc7023/) | resized, black level subtracted, edges faded |
+| `pleiades-nebulosity.jpg` | Pleiades reflection nebula | NOIRLab/NSF/AURA/T.A. Rector (University of Alaska Anchorage), R. Cool (University of Arizona) and WIYN | [noao-m45](https://noirlab.edu/public/images/noao-m45/) | resized, black level subtracted, edges faded |
+| `tarantula-nebula.jpg` | Tarantula Nebula | ESO/R. Fosbury (ST-ECF) | [eso0650a](https://www.eso.org/public/images/eso0650a/) | cropped, resized, black level subtracted, edges faded |
+| `ngc-346.jpg` | NGC 346 | NASA, ESA, CSA, STScI, A. Pagan (STScI) | [weic2301a](https://esawebb.org/images/weic2301a/) | resized, black level subtracted, edges faded |
+| `sn-1987a.jpg` | SN 1987A | NASA, ESA, and R. Kirshner (Harvard-Smithsonian Center for Astrophysics and Gordon and Betty Moore Foundation) and P. Challis (Harvard-Smithsonian Center for Astrophysics) | [heic1704a](https://esahubble.org/images/heic1704a/) | resized, black level subtracted, edges faded |
+| `ring-nebula.jpg` | Ring Nebula | NASA, ESA, and C. Robert O’Dell (Vanderbilt University). | [heic1310a](https://esahubble.org/images/heic1310a/) | resized, black level subtracted, edges faded |
+| `helix-nebula.jpg` | Helix Nebula | ESO | [eso0907a](https://www.eso.org/public/images/eso0907a/) | resized, black level subtracted, edges faded |
+| `dumbbell-nebula.jpg` | Dumbbell Nebula | ESO/I. Appenzeller, W. Seifert, O. Stahl, M. Zamani | [eso9846a](https://www.eso.org/public/images/eso9846a/) | resized, black level subtracted, edges faded |
+| `cats-eye-nebula.jpg` | Cat's Eye Nebula | ESA, NASA, HEIC and The Hubble Heritage Team (STScI/AURA) | [heic0414a](https://esahubble.org/images/heic0414a/) | resized, black level subtracted, edges faded |
+| `butterfly-nebula.jpg` | Butterfly Nebula | NASA, ESA and the Hubble SM4 ERO Team | [heic0910h](https://esahubble.org/images/heic0910h/) | resized, black level subtracted, edges faded |
+| `southern-ring-nebula.jpg` | Southern Ring Nebula | NASA, ESA, CSA, STScI, and the Webb ERO Production Team | [weic2207b](https://esawebb.org/images/weic2207b/) | resized, black level subtracted, edges faded |
+| `hourglass-nebula.jpg` | Hourglass Nebula | Raghvendra Sahai and John Trauger (JPL), the WFPC2 science team, and NASA/ESA | [opo9607a](https://esahubble.org/images/opo9607a/) | resized, black level subtracted, edges faded |
+| `saturn-nebula.jpg` | Saturn Nebula | ESO/J. Walsh | [eso1731a](https://www.eso.org/public/images/eso1731a/) | resized, black level subtracted, edges faded |
+| `spirograph-nebula.jpg` | Spirograph Nebula | NASA/ESA and The Hubble Heritage Team (STScI/AURA) | [opo0028a](https://esahubble.org/images/opo0028a/) | resized, black level subtracted, edges faded |
+| `egg-nebula.jpg` | Egg Nebula | ESA/Hubble & NASA, B. Balick (University of Washington) | [heic2604a](https://esahubble.org/images/heic2604a/) | resized, black level subtracted, edges faded |
+| `crab-nebula.jpg` | Crab Nebula | NASA, ESA and Allison Loll/Jeff Hester (Arizona State University). Acknowledgement: Davide De Martin (ESA/Hubble) | [heic0515a](https://esahubble.org/images/heic0515a/) | resized, black level subtracted, edges faded |
+| `cygnus-loop.jpg` | Cygnus Loop (Veil Nebula) | T.A. Rector (University of Alaska Anchorage) and WIYN/NOIRLab/NSF/AURA | [noao1209a](https://noirlab.edu/public/images/noao1209a/) | resized, black level subtracted, edges faded |
+| `cassiopeia-a.jpg` | Cassiopeia A | NASA, ESA, and the Hubble Heritage (STScI/AURA)-ESA/Hubble Collaboration. Acknowledgement: Robert A. Fesen (Dartmouth College, USA) and James Long (ESA/Hubble) | [heic0609a](https://esahubble.org/images/heic0609a/) | resized, black level subtracted, edges faded |
+| `pencil-nebula.jpg` | Pencil Nebula | ESO | [eso1236a](https://www.eso.org/public/images/eso1236a/) | resized, black level subtracted, edges faded |
+
+## d3-celestial licence
+
+The constellation figures in `public/data/constellations.json` come from d3-celestial, whose licence asks for this
+notice:
+
+> Copyright (c) 2015, Olaf Frohn. All rights reserved.
+>
+> Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
+> following conditions are met:
+>
+> 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following
+>    disclaimer.
+> 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the
+>    following disclaimer in the documentation and/or other materials provided with the distribution.
+> 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote
+>    products derived from this software without specific prior written permission.
+>
+> THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+> INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+> DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+> SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+> SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+> WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+> OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.

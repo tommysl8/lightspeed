@@ -34,7 +34,7 @@ import { bodyEntries, entryOf, type Entry } from '../sim/bodies/registry';
 import { sim } from '../sim/sim';
 import { travel } from '../sim/travel';
 import { useUI } from '../state/ui';
-import { conicFromState, makeConic, orbitMu, orbitSource, segmentsFor, viewDistance, visVivaA, type Conic, type OrbitSource } from './orbitLines';
+import { conicFromState, makeConic, orbitMu, orbitSource, segmentsFor, trailStart, viewDistance, visVivaA, type Conic, type OrbitSource } from './orbitLines';
 
 const SEGMENTS = 1024;
 /** A line mounts once its orbit is this wide on screen (px)… */
@@ -47,7 +47,12 @@ export const MAX_LINES = 48;
 /** A mounted line keeps its place against a newcomer up to this much larger (no flicker at the cut). */
 const INCUMBENT_BONUS = 1.25;
 /** Kinds whose lines are drawn only when the viewer is looking at that body. */
-const ON_DEMAND: ReadonlySet<BodyKind> = new Set<BodyKind>(['asteroid', 'comet', 'interstellar']);
+/**
+ * Kinds whose lines are drawn only when looked at. Stars too: a star's orbit about its system's
+ * centre of mass is drawn while that system is in focus (or the star is selected, in focus or
+ * flown to), not as an arc across the sky from elsewhere (Proxima's 2° orbit seen from Earth).
+ */
+const ON_DEMAND: ReadonlySet<BodyKind> = new Set<BodyKind>(['asteroid', 'comet', 'interstellar', 'star']);
 /**
  * Below this opacity nothing of a line survives the fragment shader (alpha < 0.003 is
  * discarded, and the brightest part of a line, its trail, has alpha 0.62 × opacity): don't draw it.
@@ -82,12 +87,22 @@ function smoothstep(a: number, b: number, x: number) {
   return t * t * (3 - 2 * t);
 }
 
-/** Whether a body gets an orbit line at all (not stars, barycentres, or records that say no). */
+/**
+ * Whether a body gets an orbit line at all: not barycentres, records that say no, galaxies,
+ * clusters or nebulae, and stars only when their record asks for one (a star in a binary).
+ */
 function hasOrbitLine(e: Entry): boolean {
   const r = e.record;
   if (r.orbitLine === false || e.isNode || !e.parent) return false;
-  return r.kind !== 'star' && r.kind !== 'galaxy' && r.kind !== 'cluster' && r.kind !== 'nebula';
+  if (r.kind === 'star') return r.orbitLine !== undefined;
+  return r.kind !== 'galaxy' && r.kind !== 'cluster' && r.kind !== 'nebula';
 }
+
+/**
+ * Lines of the Solar System are hidden once it has shrunk below a pixel (and float32 could not
+ * place them); those of other star systems follow their own size on screen.
+ */
+const lostInTheDistance = (e: Entry): boolean => e.root.id === 'sun' && solarSystemHidden();
 
 function hideLine(material: ShaderMaterial, mesh: Mesh | null): void {
   material.uniforms.uOpacity.value = 0;
@@ -125,7 +140,7 @@ function OrbitLine({ id }: { id: BodyId }) {
     const b = e?.state;
     const u = material.uniforms;
     // From beyond the Solar System's pixel there is nothing to draw (and nothing to compute).
-    if (!e || !b || !b.present || solarSystemHidden()) return hideLine(material, mesh.current);
+    if (!e || !b || !b.present || lostInTheDistance(e)) return hideLine(material, mesh.current);
     const src = orbitSource(e, scratch.src);
     const mu = orbitMu(e, src);
     const r = src.rel.rel.pos;
@@ -155,14 +170,14 @@ function OrbitLine({ id }: { id: BodyId }) {
     u.uHyperbolic.value = o.hyperbolic ? 1 : 0;
     u.uClosed.value = o.hyperbolic ? 0 : 1;
     if (o.hyperbolic) {
-      // Trail back to where the path starts (Voyager 1: its Saturn flyby in 1980), after which
-      // it has coasted on this hyperbola.
-      const from = e.record.orbitLine ? e.record.orbitLine.trailFromMs : undefined;
+      // Trail back to where the path starts (a spacecraft's last flyby: Voyager 1's of Saturn in
+      // 1980), after which it has coasted on this hyperbola.
+      const from = trailStart(e.record.orbitLine, sim.timeMs);
       if (from !== undefined) {
         const dt = (from - sim.timeMs) / 1000;
         const H0 = solveKeplerHyperbolic(o.meanAnomaly + o.meanMotion * dt, o.e);
         u.uSpanMin.value = Math.min(0, H0 - o.anomaly);
-      }
+      } else u.uSpanMin.value = -Math.PI;
     }
     // Fewer segments for a line that is small on screen (the samples cluster at the body anyway).
     const n = segmentsFor(sizePx);
@@ -244,9 +259,8 @@ export function Orbits() {
       st.small.delete(id);
       changed = true;
     };
-    // Nothing to draw: lines hidden, the Solar System a speck, or the relativistic view (not
-    // split), which leaves guides out.
-    if (!show || solarSystemHidden() || (relView.active && !relView.split)) {
+    // Nothing to draw: lines hidden, or the relativistic view (not split), which leaves guides out.
+    if (!show || (relView.active && !relView.split)) {
       if (st.set.size) {
         st.set.clear();
         st.small.clear();
@@ -256,6 +270,9 @@ export function Orbits() {
     }
     const ui = useUI.getState();
     const focusGroup = entryOf(ui.focus)?.group;
+    // The star system in focus (its barycentre), whose stars' orbits are drawn.
+    const focusRoot = entryOf(ui.focus)?.root;
+    const focusSystem = focusRoot?.isNode ? focusRoot : undefined;
     const tripDest = travel.trip?.dest;
     const ppr = pixelsPerRadian();
     const list = bodyEntries();
@@ -266,19 +283,25 @@ export function Orbits() {
       if (!hasOrbitLine(e)) continue;
       const id = e.id;
       const has = st.set.has(id);
+      if (lostInTheDistance(e)) {
+        if (has) drop(id);
+        continue;
+      }
       // What the viewer is looking at: the planets (and anything with a key), the system in
       // focus, the selection and the flight's destination.
       const kind = e.record.kind;
+      // Lines drawn only when looked at: asteroids, comets, interstellar objects, and records that say so.
+      const onDemand = ON_DEMAND.has(kind) || (e.record.orbitLine !== undefined && e.record.orbitLine !== false && e.record.orbitLine.onDemand === true);
       const tier =
         id === ui.selected || id === ui.focus || id === tripDest
           ? 2
           : (focusGroup !== undefined && e.group === focusGroup && focusGroup.id !== 'sun') ||
-              kind === 'planet' ||
-              kind === 'dwarf-planet' ||
+              (focusSystem !== undefined && kind === 'star' && e.root === focusSystem) ||
+              (!onDemand && (kind === 'planet' || kind === 'dwarf-planet')) ||
               !!e.record.key
             ? 1
             : 0;
-      if (tier === 0 && ON_DEMAND.has(kind)) {
+      if (tier === 0 && onDemand) {
         if (has) drop(id);
         continue;
       }

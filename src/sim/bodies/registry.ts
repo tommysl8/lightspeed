@@ -33,6 +33,8 @@ export interface Entry {
   placed: Entry[];
   /** Head of the body's light-time group: the ancestor just below a root (a planet for its moons). */
   group: Entry;
+  /** The root of its parent tree: the Sun for the Solar System, a star or a star system's barycentre beyond it. */
+  root: Entry;
   displayIndex: number;
   evalIndex: number;
   /** Walk stamp of the last per-frame evaluation (world.ts). */
@@ -88,6 +90,7 @@ function makeEntry(record: BodyRecord, state: BodyState = makeBody(record.id)): 
     children: [],
     placed: [],
     group: null as unknown as Entry,
+    root: null as unknown as Entry,
     displayIndex: -1,
     evalIndex: -1,
     stamp: -1,
@@ -275,6 +278,9 @@ function rebuild(): void {
   for (const e of registration) {
     (e.parent ? e.parent.children : roots).push(e);
     if (e.centre) e.centre.placed.push(e);
+    let r = e;
+    while (r.parent) r = r.parent;
+    e.root = r;
   }
 
   // Display order: depth first, parents before children.
@@ -333,6 +339,12 @@ function rebuild(): void {
 
 /** Whether `id` is a registered body (not a barycentre). */
 export const isBody = (id: BodyId | null | undefined): id is BodyId => !!id && entries.has(id) && !entries.get(id)!.isNode;
+
+/**
+ * Whether a body has been placed since it was registered: a new body sits at the origin until
+ * the next pass over the bodies (updateWorld), so its distance means nothing before then.
+ */
+export const isPlaced = (id: BodyId): boolean => (entries.get(id)?.stamp ?? -1) >= 0;
 
 /** The record of a body or barycentre, or undefined. */
 export const getBody = (id: BodyId): BodyRecord | undefined => entries.get(id)?.record;

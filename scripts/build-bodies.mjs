@@ -1,4 +1,4 @@
-// Builds staging/phase2/bodies.json: physical data, rotation models, colours, discovery notes,
+// Builds public/data/bodies.json: physical data, rotation models, colours, discovery notes,
 // facts and asset references for the moons, dwarf planets, comets, interstellar objects and
 // spacecraft added in phase 2.
 //
@@ -23,7 +23,7 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const RAW = join(ROOT, 'data-raw', 'd3');
-const OUT = join(ROOT, 'staging', 'phase2', 'bodies.json');
+const OUT = join(ROOT, 'public', 'data', 'bodies.json');
 
 /** Newtonian constant of gravitation, km³ kg⁻¹ s⁻². [CODATA 2018: 6.67430(15) × 10⁻¹¹ m³ kg⁻¹ s⁻²] */
 const G_KM3_KG_S2 = 6.6743e-20;
@@ -1048,7 +1048,7 @@ async function main() {
       conventions: {
         units: 'km, kg, km³/s², degrees, hours, days; dates ISO 8601 (UTC for events)',
         time: 'Rotation models take TDB days since J2000.0 (JD 2451545.0 TDB); T = days / 36525',
-        rotation: 'IAU: pole right ascension and declination in the ICRF, prime meridian W measured eastwards from the node of the body equator on the ICRF equator. Body-fixed → ICRF = Rz(α₀ + 90°) · Rx(90° − δ₀) · Rz(W). Evaluate with staging/phase2/src/rotation.ts.',
+        rotation: 'IAU: pole right ascension and declination in the ICRF, prime meridian W measured eastwards from the node of the body equator on the ICRF equator. Body-fixed → ICRF = Rz(α₀ + 90°) · Rx(90° − δ₀) · Rz(W). Evaluated by src/sim/bodies/rotation.ts (compiled from these records by src/sim/solarSystem/records.ts).',
         radius: 'radiusKm is a mean radius; radiusType says which kind: volume-equivalent (sphere of equal volume, from a shape model or ellipsoid), area-equivalent (disc of equal projected area, from occultations or thermal emission), mean (JPL SSD or mission mean radius), placeholder (order of magnitude only) or size-scale (spacecraft: half the largest dimension). triaxialRadiiKm = [a, b, c] along body-fixed x, y, z where known',
         kind: 'moon | dwarf-planet (the five IAU dwarf planets; Pluto is not in this file) | asteroid | tno (trans-Neptunian object; dwarfPlanetCandidate marks the large ones the IAU has not classified) | comet | interstellar | spacecraft. The same kinds as public/data/tracks.json',
         colour: 'colour: sRGB display tint (hue from measured colour indices or imagery; lightness from geometric albedo: linear luminance 0.1 + 0.6·p, capped at 0.7). colourHue: the same hue at full brightness, for tinting greyscale maps.',
@@ -1227,7 +1227,7 @@ async function main() {
     b.assets = {
       texture: tex ? `textures/${c.id}.jpg` : null,
       textureInfo: tex
-        ? { width: tex.width, height: tex.height, channels: tex.bands, bytes: tex.bytes, imagedFraction: tex.imagedFraction, fillSrgb: tex.fill, product: tm.title, download: tm.download, downloadEntry: tm.downloadEntry, sourcePage: tm.page ?? undefined, credit: tm.credit, licence: 'Public domain or no use constraints (NASA/USGS); see staging/phase2/assets.md', colourNote: tm.colour }
+        ? { width: tex.width, height: tex.height, channels: tex.bands, bytes: tex.bytes, imagedFraction: tex.imagedFraction, fillSrgb: tex.fill, product: tm.title, download: tm.download, downloadEntry: tm.downloadEntry, sourcePage: tm.page ?? undefined, credit: tm.credit, licence: 'Public domain or no use constraints (NASA/USGS); see docs/data/assets.md', colourNote: tm.colour }
         : null,
       textureNote: tex ? undefined : c.kind === 'spacecraft' ? undefined : 'No surface map exists (or none with a licence that allows redistribution). Shade with the body colour.',
       model: shape ? `models/${c.id}.bin` : null,

@@ -3,7 +3,7 @@
  * you are in the middle (a breadcrumb, and the Bodies list), and on wide screens what the
  * camera is doing, with the keys sheet at the right.
  */
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import { nestedDestinations, type NestedItem } from '../../content/destinations';
 import { bodyName, systemOf } from '../../sim/bodies';
 import { sci, superscript } from '../../lib/sci';
@@ -13,7 +13,7 @@ import { quality } from '../../render/quality';
 import { WARP_STEPS, resetToNow, setPaused, warpLabel } from '../../sim/clock';
 import { SHIP_RATE_MIN, stepRate, travel, tripPace } from '../../sim/travel';
 import { useUI } from '../../state/ui';
-import { frameSolarSystem, goToBody, goToSystem } from '../navigation';
+import { frameNeighbourhood, frameSolarSystem, goToBody, goToSystem } from '../navigation';
 import { locationPath } from '../location';
 import { Kbd, Menu } from '../kit';
 import { Icon } from '../icons';
@@ -103,12 +103,14 @@ function Transport() {
   );
 }
 
-/** Parents with at most this many moons listed show them without being opened. */
-const OPEN_UP_TO = 2;
+/** Parents with at most this many moons listed show them without being opened (Earth's Moon). */
+const OPEN_UP_TO = 1;
 
 /**
- * Every body you can visit, grouped by kind, moons under their planet, in a list that opens
- * upwards. A planet with many moons shows them when opened (and always for the system you are in).
+ * Every body you can visit, grouped by kind, moons under their planet, planets under their star
+ * and the stars of a system under the system, in a list that opens upwards; the Stars under
+ * sub-headings (nearest, with planets, bright, found). What orbits a body is folded under it
+ * until opened, except in the system you are in (and Earth's one Moon).
  */
 function BodiesMenu() {
   const tripActive = useUI((s) => s.tripActive);
@@ -160,40 +162,43 @@ function BodiesMenu() {
               const why = d.unavailable();
               const folded = it.children > 0 && !isOpen(it);
               return (
-                <div key={d.id} className="flex h-7 w-full items-center hover:bg-hover">
-                  <button
-                    className={`flex h-full min-w-0 flex-1 items-center gap-2 pr-1 text-left text-[12.5px] disabled:opacity-40 ${
-                      selected === d.body ? 'text-accent' : 'text-fg'
-                    }`}
-                    style={{ paddingLeft: `${10 + 14 * it.depth}px` }}
-                    disabled={!!why || (tripActive && !d.body)}
-                    title={why ?? (tripActive ? `Select ${d.name}` : `Go to ${d.name}${d.key ? ` (${d.key})` : ''}`)}
-                    onClick={() => {
-                      close();
-                      if (tripActive) {
-                        if (d.body) useUI.getState().select(d.body);
-                      } else d.go();
-                    }}
-                  >
-                    {it.depth > 0 && (
-                      <span className="text-fg-4" aria-hidden>
-                        ·
-                      </span>
-                    )}
-                    <span className="min-w-0 flex-1 truncate">{d.name}</span>
-                    {d.key && <Kbd>{d.key}</Kbd>}
-                  </button>
-                  {it.children > OPEN_UP_TO && d.id !== here && (
+                <Fragment key={d.id}>
+                  {it.heading && <div className="px-2.5 pb-0.5 pt-1 text-[10.5px] text-fg-3">{it.heading}</div>}
+                  <div className="flex h-7 w-full items-center hover:bg-hover">
                     <button
-                      className="mono h-full shrink-0 px-2 text-[10.5px] text-fg-3 hover:text-fg"
-                      aria-expanded={!folded}
-                      title={folded ? `Show the ${it.children} moons of ${d.name}` : `Hide the moons of ${d.name}`}
-                      onClick={() => toggle(d.id)}
+                      className={`flex h-full min-w-0 flex-1 items-center gap-2 pr-1 text-left text-[12.5px] disabled:opacity-40 ${
+                        selected === d.body ? 'text-accent' : 'text-fg'
+                      }`}
+                      style={{ paddingLeft: `${10 + 14 * it.depth}px` }}
+                      disabled={!!why || (tripActive && !d.body)}
+                      title={why ?? (tripActive ? `Select ${d.name}` : `Go to ${d.name}${d.key ? ` (${d.key})` : ''}`)}
+                      onClick={() => {
+                        close();
+                        if (tripActive) {
+                          if (d.body) useUI.getState().select(d.body);
+                        } else d.go();
+                      }}
                     >
-                      {it.children} {folded ? '▸' : '▾'}
+                      {it.depth > 0 && (
+                        <span className="text-fg-4" aria-hidden>
+                          ·
+                        </span>
+                      )}
+                      <span className="min-w-0 flex-1 truncate">{d.name}</span>
+                      {d.key && <Kbd>{d.key}</Kbd>}
                     </button>
-                  )}
-                </div>
+                    {it.children > OPEN_UP_TO && d.id !== here && (
+                      <button
+                        className="mono h-full shrink-0 px-2 text-[10.5px] text-fg-3 hover:text-fg"
+                        aria-expanded={!folded}
+                        title={folded ? `Show the ${it.children} ${g.id === 'stars' ? 'bodies' : 'moons'} under ${d.name}` : `Hide what is under ${d.name}`}
+                        onClick={() => toggle(d.id)}
+                      >
+                        {it.children} {folded ? '▸' : '▾'}
+                      </button>
+                    )}
+                  </div>
+                </Fragment>
               );
             })}
           </div>
@@ -215,7 +220,16 @@ function Location() {
         {path.map((c, i) => {
           const last = i === path.length - 1;
           // A level above the target frames its whole system (Saturn with the orbits of its moons).
-          const go = () => (c.to === 'solar-system' ? frameSolarSystem() : last ? goToBody(c.to!) : goToSystem(c.to!));
+          const go = () =>
+            c.to === 'solar-neighbourhood' ? frameNeighbourhood() : c.to === 'solar-system' ? frameSolarSystem() : last ? goToBody(c.to!) : goToSystem(c.to!);
+          const title =
+            c.to === 'solar-neighbourhood'
+              ? 'See the stars around the Sun'
+              : c.to === 'solar-system'
+                ? 'See the whole Solar System'
+                : last
+                  ? `Go to ${bodyName(c.to!)}`
+                  : `See ${bodyName(c.to!)} and what orbits it`;
           return (
             <li key={`${i}-${c.label}`} className={`flex min-w-0 items-center ${last ? '' : 'shrink-0'}`}>
               {i > 0 && (
@@ -228,7 +242,7 @@ function Location() {
                   className={`btn btn-q btn-sm min-w-0 !px-1.5 ${last ? '!text-fg' : ''}`}
                   aria-current={last ? 'location' : undefined}
                   onClick={go}
-                  title={c.to === 'solar-system' ? 'See the whole Solar System' : last ? `Go to ${bodyName(c.to!)}` : `See ${bodyName(c.to!)} and what orbits it`}
+                  title={title}
                 >
                   <span className="truncate">{c.label}</span>
                 </button>
@@ -280,8 +294,8 @@ function Status() {
       <div className={`mono flex shrink-0 items-center gap-3 whitespace-nowrap text-[12px] tracking-[0.06em] ${hide}`}>
         <span>{text}</span>
         {showFps && (
-          <span className="text-fg-3" title="Frames per second · device pixel ratio · relativistic cube-map face size">
-            {quality.fps.toFixed(0)} fps · {quality.dpr.toFixed(2)}× · {quality.cubeFace}²
+          <span className="text-fg-3" title="Frames per second · device pixel ratio · multisampling · relativistic cube-map face size">
+            {quality.fps.toFixed(0)} fps · {quality.dpr.toFixed(2)}× · {quality.msaa ? `MSAA ${quality.msaa}×` : 'no MSAA'} · {quality.cubeFace}²
           </span>
         )}
       </div>

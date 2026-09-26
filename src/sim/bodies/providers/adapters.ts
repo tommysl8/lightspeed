@@ -2,14 +2,14 @@
  * Adapters that plug data formats into the registry, and astronomy-engine's Galilean moons.
  *
  *  - jupiterMoonProvider: astronomy-engine's JupiterMoons() (Lieske's E5 theory), relative to
- *    Jupiter. Ready, but unused: the fitted models of the moons data (staging/phase2/moons.md)
- *    are ten to thirty times closer to JPL, and should replace it.
+ *    Jupiter. Unused: the fitted models of the moons data (docs/data/moons.md), ten to thirty
+ *    times closer to JPL, place the Galilean moons (sim/solarSystem).
  *  - relativeOrbitProvider: any evaluator of a body's position relative to its centre as a
  *    function of TDB days (the fitted moon models: moonState for position and velocity in one
  *    pass, see moonState.ts, and moonRegime).
  *  - trackProvider: any trajectory whose samples are relative to a named centre that changes
  *    from piece to piece, with optional blends between two centres (the Chebyshev tracks of
- *    staging/phase2/tracks.md: Tracks.evalTrack and evalState return exactly this shape).
+ *    docs/data/tracks.md: Tracks.sample returns exactly this shape, without allocating).
  *
  * The adapters are small interfaces, not the formats: the data modules stay where they are and
  * are wrapped in a line or two (see docs/bodies.md).

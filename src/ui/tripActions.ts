@@ -22,10 +22,19 @@ export function planOneG(dest: BodyId): void {
   openPlanner(dest);
 }
 
+/** What a journey does once its flight arrives (set after starting the trip; dropped if it is aborted). */
+let arrivalStep: ((dest: BodyId) => void) | null = null;
+
+/** Run `fn` when the trip under way arrives (not if it is stopped first, or another replaces it). */
+export function afterArrival(fn: (dest: BodyId) => void): void {
+  arrivalStep = fn;
+}
+
 /** Plan and launch a trip from the current camera position. Returns false if unreachable. */
 export function startTrip(dest: BodyId, beta: number, drive?: Drive): boolean {
   const plan = planTrip(dest, beta, sim.camera.pos.clone(), sim.astroTime, drive);
   if (!plan || plan.distance <= 0) return false;
+  arrivalStep = null;
   launch(plan);
   chronoLaunch();
   controller.startTravel(travel.trip!.dir);
@@ -41,6 +50,7 @@ function endJourney(): void {
 
 /** Stop mid-course: the ship halts (instantly, idealised) and the camera orbits the nearest body. */
 export function stopTrip(): void {
+  arrivalStep = null;
   abortTrip();
   chronoTripEnd();
   sim.camera.pos.copy(travel.shipPos);
@@ -58,4 +68,7 @@ export function onArrival(dest: BodyId): void {
   controller.finishTravel(dest);
   endJourney();
   useUI.setState({ tripActive: false, selected: there ? dest : null });
+  const step = arrivalStep;
+  arrivalStep = null;
+  if (there) step?.(dest);
 }

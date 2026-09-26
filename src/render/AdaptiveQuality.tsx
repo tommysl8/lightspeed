@@ -1,16 +1,16 @@
 import { useEffect, useRef } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
-import { gpuRendererName, isIntegratedGpu, quality } from './quality';
+import { gpuRendererName, isIntegratedGpu, quality, stepDown, stepUp } from './quality';
 import { relView } from './relativisticView';
 import { textures, TEXTURE_BUDGET_INTEGRATED_BYTES } from './textures';
 
-const CUBE_SIZES = [512, 768, 1024];
-
 /**
  * Keeps the frame rate near 60 fps on ordinary laptops. It measures a 1 s average; after two
- * slow seconds it steps the pixel ratio down (then the cube-map size while the relativistic
- * view is active). After five fast seconds it steps back up. On an integrated GPU the cube map
- * starts at 768 px a face and the texture budget is smaller (its memory is the computer's).
+ * slow seconds it steps quality down (multisampling, the pixel ratio, then the cube-map size
+ * while the relativistic view is active: quality.ts stepDown). After five fast seconds it steps
+ * back up (not multisampling). On an integrated GPU the cube map starts at 768 px a face, the
+ * texture budget is smaller (its memory is the computer's) and a screen of pixel ratio 2 starts
+ * without multisampling.
  */
 export function AdaptiveQuality() {
   const setDpr = useThree((s) => s.setDpr);
@@ -29,6 +29,11 @@ export function AdaptiveQuality() {
     if (quality.integrated) {
       quality.cubeFace = Math.min(quality.cubeFace, 768);
       textures.budget = Math.min(textures.budget, TEXTURE_BUDGET_INTEGRATED_BYTES);
+      // At a pixel ratio of 2 the multisampled buffer costs an integrated GPU more than the rest
+      // of the frame (Intel Xe, 1936 × 1384: 9.8 ms a frame with it, 3.9 ms without) and about
+      // 130 MB of the computer's memory (four samples of colour and depth), while edges are
+      // already fine at that density.
+      if (quality.maxDpr >= 2) quality.msaa = 0;
     }
   }, [gl]);
 
@@ -54,22 +59,10 @@ export function AdaptiveQuality() {
 
     if (a.slow >= 2) {
       a.slow = 0;
-      const ci = CUBE_SIZES.indexOf(quality.cubeFace);
-      if (quality.dpr > 1) {
-        quality.dpr = Math.max(1, quality.dpr - 0.25);
-        setDpr(quality.dpr);
-      } else if (relView.active && ci > 0) {
-        quality.cubeFace = CUBE_SIZES[ci - 1];
-      }
+      if (stepDown(quality, relView.active) === 'dpr') setDpr(quality.dpr);
     } else if (a.fast >= 5) {
       a.fast = 0;
-      const ci = CUBE_SIZES.indexOf(quality.cubeFace);
-      if (relView.active && ci < CUBE_SIZES.length - 1) {
-        quality.cubeFace = CUBE_SIZES[ci + 1];
-      } else if (quality.dpr < quality.maxDpr) {
-        quality.dpr = Math.min(quality.maxDpr, quality.dpr + 0.25);
-        setDpr(quality.dpr);
-      }
+      if (stepUp(quality, relView.active) === 'dpr') setDpr(quality.dpr);
     }
   });
 

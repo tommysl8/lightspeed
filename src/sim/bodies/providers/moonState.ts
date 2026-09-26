@@ -1,12 +1,12 @@
 /**
  * Position and velocity of a fitted moon model (public/data/moons.json, format
- * lightspeed-moons/1; staging/phase2/moons.md) in one pass: the relativeOrbitProvider `state`
- * for the phase-2 moons.
+ * lightspeed-moons/1; docs/data/moons.md) in one pass: the relativeOrbitProvider `state`
+ * for the fitted moons.
  *
- * The position is the staging evaluator's (moonModels.ts evalMoon), operation for operation, so
+ * The position is the evaluator's (sim/moonModels.ts evalMoon), operation for operation, so
  * it is the same to the last bit; the velocity is its exact time derivative, carried through
  * every series term, the generalised Kepler equation and the fade outside the precise window.
- * The staging evaluator's own velocity is a central difference: two more evaluations of every
+ * That evaluator's own velocity is a central difference: two more evaluations of every
  * series, every frame, for every moon (Nereid has 600 terms). This does it with the sines and
  * cosines the position needs anyway.
  *
@@ -41,7 +41,7 @@ const csum = { re: 0, im: 0, dre: 0, dim: 0 };
 
 /**
  * Σ A cos a + B sin a over the terms, a = ντ + kΛ, and its time derivative (a' = ν + kΛ').
- * The sum is accumulated exactly as the staging realSum does.
+ * The sum is accumulated exactly as moonModels.ts realSum does.
  */
 function realSum(terms: readonly Term[], tau: number, Lambda: number, dLambda: number): void {
   let s = 0;
@@ -59,7 +59,7 @@ function realSum(terms: readonly Term[], tau: number, Lambda: number, dLambda: n
   sum.d = d;
 }
 
-/** Σ (A + iB) e^{ia} and its time derivative, as the staging cplxSum (before its weight). */
+/** Σ (A + iB) e^{ia} and its time derivative, as moonModels.ts cplxSum (before its weight). */
 function cplxSum(terms: readonly Term[], tau: number, Lambda: number, dLambda: number): void {
   let re = 0;
   let im = 0;
@@ -91,10 +91,10 @@ const eld = { a: 0, lambda: 0, k: 0, h: 0, q: 0, p: 0, w: 0, Lambda: 0 };
 const zz = [0, 0];
 const zzd = [0, 0];
 
-/** Equinoctial elements at t and their rates (staging moonElements, with secularOnly false). */
+/** Equinoctial elements at t and their rates (moonModels.ts moonElements, with secularOnly false). */
 function elements(m: FittedMoonModel, t: number): void {
   const tau = t - m.epoch;
-  // The fade outside the window (staging taperAt) and its rate.
+  // The fade outside the window (moonModels.ts taperAt) and its rate.
   const w0 = m.window[0];
   const w1 = m.window[1];
   const L = m.taper;
@@ -211,7 +211,7 @@ function elements(m: FittedMoonModel, t: number): void {
 const r = [0, 0, 0];
 const rd = [0, 0, 0];
 
-/** Position in the fit frame from the elements (staging keplerPosition), and its rate. */
+/** Position in the fit frame from the elements (moonModels.ts keplerPosition), and its rate. */
 function kepler(): void {
   const { a, lambda, k, h, q, p } = el;
   let F = lambda;

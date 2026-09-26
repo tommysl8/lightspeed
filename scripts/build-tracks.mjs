@@ -12,7 +12,7 @@
 // Frame: ecliptic and mean equinox of J2000 (Horizons REF_PLANE=ECLIPTIC, REF_SYSTEM=ICRF,
 // obliquity 84381.448"). Time: TDB days since J2000.0 (JD 2451545.0 TDB). Units: km.
 // The binary layout, the index format and the method are documented in
-// staging/phase2/tracks.md.
+// docs/data/tracks.md.
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
@@ -25,7 +25,7 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const RAW = join(ROOT, 'data-raw', 'tracks');
 const OUT_BIN = join(ROOT, 'public', 'data', 'tracks.bin');
 const OUT_JSON = join(ROOT, 'public', 'data', 'tracks.json');
-const FIXTURE = join(ROOT, 'staging', 'phase2', 'src', 'sim', '__fixtures__', 'track-checkpoints.json');
+const FIXTURE = join(ROOT, 'src', 'sim', '__fixtures__', 'track-checkpoints.json');
 
 const J2000_JD = 2451545.0;
 const DAY_S = 86400;

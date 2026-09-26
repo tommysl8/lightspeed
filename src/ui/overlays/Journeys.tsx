@@ -2,8 +2,10 @@
  * The journeys: one-click trips and scenes, each with what to look for. Flights are
  * predicted live (they leave from Earth, and the planets move).
  */
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useSyncExternalStore } from 'react';
 import { JOURNEYS, predictFlight, type Journey } from '../../content/journeys';
+import { sceneStatus } from '../../content/scenes';
+import { registryVersion, subscribeRegistry } from '../../sim/bodies';
 import { qty } from '../../lib/sci';
 import { useUI } from '../../state/ui';
 import { CloseIcon } from '../kit';
@@ -22,7 +24,8 @@ function usePredictions(open: boolean): Record<string, string> {
         if (!j.flight) continue;
         const p = predictFlight(j.flight);
         if (!p) {
-          out[j.id] = 'not reachable today';
+          // Its destination may still be loading (a star, a planetary system).
+          out[j.id] = sceneStatus(j.scene).reason ?? 'not reachable today';
           continue;
         }
         const t = qty(p.earthTime, 'time', 3);
@@ -39,19 +42,23 @@ function usePredictions(open: boolean): Record<string, string> {
 }
 
 function Row({ j, n, pred, disabled }: { j: Journey; n: number; pred?: string; disabled: boolean }) {
+  // Scenes that need data still on its way (the spacecraft, the comets) wait for it. (Flights
+  // say whether they can go in their prediction.)
+  const why = disabled || j.flight ? null : (sceneStatus(j.scene).reason ?? null);
   return (
     <li className="border-b border-line last:border-b-0">
       <button
         className="group flex w-full items-start gap-3 px-4 py-2.5 text-left transition-colors hover:bg-hover disabled:opacity-50 disabled:hover:bg-transparent"
         onClick={() => j.run()}
-        disabled={disabled}
+        disabled={disabled || !!why}
+        title={why ?? undefined}
         data-autofocus={n === 1 || undefined}
       >
         <span className="mono mt-[3px] w-5 shrink-0 text-[11px] text-accent">{String(n).padStart(2, '0')}</span>
         <span className="min-w-0 flex-1">
           <span className="block font-serif text-[15.5px] leading-snug text-fg group-hover:text-white">{j.title}</span>
           <span className="mt-0.5 block text-[12px] leading-snug text-fg-2">{j.sub}</span>
-          <span className="mono mt-1 block text-[10.5px] text-fg-3">{j.flight ? rich(pred ?? '…') : j.clock}</span>
+          <span className="mono mt-1 block text-[10.5px] text-fg-3">{why ?? (j.flight ? rich(pred ?? '…') : j.clock)}</span>
         </span>
         <span className="btn btn-sm mt-1 shrink-0 group-hover:border-accent group-hover:text-fg" aria-hidden>
           {j.flight ? 'Fly' : 'Show'}
@@ -67,6 +74,7 @@ function Card() {
   const close = () => useUI.setState({ journeysOpen: false });
   const ref = useModal<HTMLDivElement>(close);
   const pred = usePredictions(true);
+  useSyncExternalStore(subscribeRegistry, registryVersion);
   return (
     <div
       className="fixed inset-0 z-50 grid grid-cols-[minmax(0,1fr)] place-items-center overflow-y-auto bg-black/50 p-4"
@@ -83,7 +91,7 @@ function Card() {
           </button>
         </div>
         <p className="border-b border-line px-5 py-2.5 text-[12px] leading-snug text-fg-2">
-          Seven set pieces, one click each. Flights leave from Earth and play in about a minute, paced by the clock on board;
+          Ten set pieces, one click each. Flights leave from Earth and play in about a minute, paced by the clock on board;
           the panel along the bottom shows both clocks and can skip to arrival.
         </p>
         {tripActive && (
