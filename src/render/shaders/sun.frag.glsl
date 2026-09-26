@@ -4,7 +4,8 @@
 uniform sampler2D uMap;
 uniform float uHasMap;
 uniform vec3 uSunColor;   // 5772 K blackbody colour (luminance 1)
-uniform float uIntensity;
+uniform float uIntensity; // radiance at the disc's centre
+uniform vec3 uLimbU;      // limb-darkening coefficient per channel (materials.ts)
 
 varying vec2 vUv;
 varying vec3 vNormalW;
@@ -18,8 +19,7 @@ void main() {
   // Limb darkening, I(mu)/I(1) = 1 - u (1 - mu), with u depending on wavelength: about 0.8 in
   // blue down to 0.5 in red (approximating Neckel & Labs 1994). That is also why the limb looks
   // redder.
-  vec3 u = vec3(0.52, 0.64, 0.8);
-  vec3 limb = 1.0 - u * (1.0 - mu);
+  vec3 limb = 1.0 - uLimbU * (1.0 - mu);
   float gran = 1.0;
   if (uHasMap > 0.5) {
     // Granulation contrast relative to the map's mean (its smallest mip level).

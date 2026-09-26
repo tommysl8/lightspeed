@@ -136,6 +136,107 @@ export function aberrateToRest(dirShip: Vec3, velDir: Vec3, beta: number): Vec3 
   return rotateInPlane(dirShip, velDir, cosRestFromShip(dot(dirShip, velDir), beta));
 }
 
+// ─── Rapidity forms: exact at any γ ──────────────────────────────────────────────────────
+//
+// Near c, β itself is the wrong variable: β = tanh φ rounds to 1 in float64 above γ ≈ 10⁸
+// (in float32 above γ ≈ 3000), and 1 − β cos θ cancels catastrophically long before that. The
+// forms below take the rapidity φ = artanh β and half-angles instead, and never subtract
+// nearly equal numbers:
+//   aberration   tan(θ′/2) = e^−φ tan(θ/2)
+//   Doppler      D = γ(1 + β cos θ)  = e^φ cos²(θ/2) + e^−φ sin²(θ/2)      (rest-frame angle θ)
+//                1/D = γ(1 − β cos θ′) = e^−φ cos²(θ′/2) + e^φ sin²(θ′/2)   (ship-frame angle θ′)
+// Half-angles come from chords of unit vectors, |d − v| = 2 sin(θ/2) and |d + v| = 2 cos(θ/2),
+// which stay accurate right up to the apex and the antapex. The shaders mirror these.
+
+/** Rapidity of a speed in km/s (Infinity at or above c). */
+export function rapidityFromSpeed(kmPerS: number): number {
+  const b = Math.abs(kmPerS) / C_KM_S;
+  return b >= 1 ? Infinity : Math.atanh(b);
+}
+
+/** ln(eᵃ + eᵇ) without overflow or underflow. */
+export function logAddExp(a: number, b: number): number {
+  const m = Math.max(a, b);
+  if (m === -Infinity) return -Infinity;
+  return m + Math.log1p(Math.exp(Math.min(a, b) - m));
+}
+
+// Results of halfAngles (module scratch: these run per body per frame, so no allocation).
+let hs2 = 0;
+let hc2 = 1;
+
+/** Sets hs2 = sin²(θ/2) and hc2 = cos²(θ/2) of the angle between unit vectors, from chords. */
+function halfAngles(d: Vec3, v: Vec3): void {
+  const ax = d.x - v.x;
+  const ay = d.y - v.y;
+  const az = d.z - v.z;
+  const bx = d.x + v.x;
+  const by = d.y + v.y;
+  const bz = d.z + v.z;
+  const s2 = ax * ax + ay * ay + az * az;
+  const c2 = bx * bx + by * by + bz * bz;
+  const n = s2 + c2; // 4 for exact unit vectors; dividing removes rounding in their lengths
+  hs2 = s2 / n;
+  hc2 = c2 / n;
+}
+
+/** ln D for light arriving from rest-frame direction `dRest` (unit), ship moving along `velDir` with rapidity φ. */
+export function lnDopplerFromRestDir(dRest: Vec3, velDir: Vec3, phi: number): number {
+  if (phi === 0) return 0;
+  halfAngles(dRest, velDir);
+  return logAddExp(phi + Math.log(hc2), -phi + Math.log(hs2));
+}
+
+/** ln D for light seen from ship-frame direction `dShip` (unit). */
+export function lnDopplerFromShipDir(dShip: Vec3, velDir: Vec3, phi: number): number {
+  if (phi === 0) return 0;
+  halfAngles(dShip, velDir);
+  return -logAddExp(-phi + Math.log(hc2), phi + Math.log(hs2));
+}
+
+/**
+ * Rotate unit vector `dir` about `axis` to half-angle-tangent ratio `k`: the result keeps
+ * dir's azimuth about the axis and has tan(new/2) = k · tan(old/2).
+ */
+function scaleHalfAngle(dir: Vec3, axis: Vec3, k: number, out: Vec3): Vec3 {
+  halfAngles(dir, axis);
+  const theta = 2 * Math.atan2(k * Math.sqrt(hs2), Math.sqrt(hc2));
+  const c = dot(dir, axis);
+  let px = dir.x - c * axis.x;
+  let py = dir.y - c * axis.y;
+  let pz = dir.z - c * axis.z;
+  // Project a second time: within 10⁻⁹ rad of the axis the first pass leaves an along-axis residue
+  // of ~10⁻⁷ relative to the tiny perpendicular part, which the rescaling below would magnify.
+  const r = px * axis.x + py * axis.y + pz * axis.z;
+  px -= r * axis.x;
+  py -= r * axis.y;
+  pz -= r * axis.z;
+  const pl = Math.hypot(px, py, pz);
+  const cs = Math.cos(theta);
+  if (pl < 1e-300) {
+    const sign = c >= 0 ? 1 : -1;
+    out.x = axis.x * sign;
+    out.y = axis.y * sign;
+    out.z = axis.z * sign;
+    return out;
+  }
+  const sn = Math.sin(theta) / pl;
+  out.x = cs * axis.x + sn * px;
+  out.y = cs * axis.y + sn * py;
+  out.z = cs * axis.z + sn * pz;
+  return out;
+}
+
+/** aberrateToShip in rapidity form: exact at any γ. Writes into `out` when given. */
+export function aberrateToShipRapidity(dirRest: Vec3, velDir: Vec3, phi: number, out: Vec3 = { x: 0, y: 0, z: 0 }): Vec3 {
+  return scaleHalfAngle(dirRest, velDir, Math.exp(-phi), out);
+}
+
+/** aberrateToRest in rapidity form: exact at any γ. Writes into `out` when given. */
+export function aberrateToRestRapidity(dirShip: Vec3, velDir: Vec3, phi: number, out: Vec3 = { x: 0, y: 0, z: 0 }): Vec3 {
+  return scaleHalfAngle(dirShip, velDir, Math.exp(phi), out);
+}
+
 /**
  * Keep the component of `dir` perpendicular to `axis` (its azimuth) but set the polar
  * angle so that cos(angle to axis) = newCos.

@@ -11,7 +11,10 @@ function Sheet() {
   const close = () => useUI.setState({ keysOpen: false });
   const ref = useModal<HTMLDivElement>(close);
   return (
-    <div className="fixed inset-0 z-50 grid grid-cols-[minmax(0,1fr)] place-items-center overflow-y-auto bg-black/50 p-4">
+    <div
+      className="fixed inset-0 z-50 grid grid-cols-[minmax(0,1fr)] place-items-center overflow-y-auto bg-black/50 p-4"
+      onPointerDown={(e) => e.target === e.currentTarget && close()}
+    >
       <div ref={ref} role="dialog" aria-modal="true" aria-labelledby="keys-title" className="panel-float appear w-[760px] max-w-full">
         <div className="flex items-center gap-3 border-b border-line-2 py-2.5 pl-5 pr-2.5">
           <Icon name="keyboard" size={14} className="text-fg-2" />

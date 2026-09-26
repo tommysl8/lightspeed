@@ -9,7 +9,8 @@
  */
 import type { ReactNode } from 'react';
 import { Vector3 } from 'three';
-import { AU_KM, type BodyId } from '../physics/constants';
+import { AU_KM } from '../physics/constants';
+import type { BodyId } from '../sim/bodies';
 import { controller } from '../controls/cameraController';
 import { setPaused, setWarp } from '../sim/clock';
 import { sim } from '../sim/sim';
@@ -104,7 +105,7 @@ const E1: ManualEntry = {
   ),
   apparatus: [
     'Pulse emitter, fired from any body’s current position or from the observer.',
-    'Photodetectors on all thirteen bodies. Each time-stamps the arrival in S coordinate time; the crossing is solved to 0.1 µs.',
+    'Photodetectors on the Sun, the planets, the dwarf planets, the large moons, the spacecraft and Proxima Centauri. Each time-stamps the arrival in S coordinate time; the crossing is solved to 0.1 µs.',
     'Ephemeris rangefinder: distance from the emission point to the detector at arrival.',
     <>
       Simulation clock with rate control, 10<sup>0</sup> to 10<sup>6</sup>.
@@ -208,7 +209,7 @@ const E2: ManualEntry = {
     </>
   ),
   apparatus: [
-    'Trajectory planner with the constant-speed drive (straight line in S, aimed at where the target will be on arrival).',
+    'Flight planner with the constant-speed drive (straight line in S, aimed at where the target will be on arrival).',
     <>
       Ship chronometer (proper time <M t="\tau" />) and the coordinate clocks of S (<M t="\Delta t" />).
     </>,
@@ -224,7 +225,7 @@ const E2: ManualEntry = {
     {
       text: (
         <>
-          Open the trajectory planner (<kbd className="kbd">G</kbd>) and choose a distant destination. Proxima Centauri gives trips
+          Open the flight planner (<kbd className="kbd">G</kbd>) and choose a distant destination. Proxima Centauri gives trips
           of years; Neptune gives hours.
         </>
       ),

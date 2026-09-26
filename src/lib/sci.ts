@@ -138,6 +138,18 @@ export function sig(x: number, digits = 4, opts: SigOptions = {}): string {
 }
 
 /**
+ * How many significant digits a stored value has: those of its shortest decimal form, with
+ * floating-point noise past twelve digits dropped (0.0718 → 3, 1.5 → 2, 398 600.4418 → 10,
+ * 1500 → 2). For values read from a data file, whose digits are all the precision there is:
+ * sig(x, 6) would pad 1.5 to "1.500 00", claiming figures nobody measured.
+ */
+export function storedDigits(x: number): number {
+  if (!Number.isFinite(x) || x === 0) return 1;
+  const digits = Math.abs(x).toPrecision(12).split('e')[0].replace('.', '').replace(/^0+/, '').replace(/0+$/, '');
+  return Math.max(1, digits.length);
+}
+
+/**
  * A speed ratio β = v/c shown with enough digits to be honest: 0.5000, 0.990 00, 0.999 990 0.
  * Keeps three significant digits of (1 − β) near c.
  */

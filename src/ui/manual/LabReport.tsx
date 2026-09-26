@@ -14,6 +14,7 @@ import { Plot } from '../plot/Plot';
 import { rich } from '../rich';
 import { useModal } from '../useModal';
 import { LogoMark } from '../Logo';
+import { formatSimDate } from '../../lib/time';
 
 function Section({ n, title, children }: { n: number; title: string; children: ReactNode }) {
   return (
@@ -27,8 +28,7 @@ function Section({ n, title, children }: { n: number; title: string; children: R
 }
 
 function fmtDate(ms: number) {
-  const d = new Date(ms);
-  return Number.isNaN(d.getTime()) ? '—' : d.toISOString().replace('T', ' ').slice(0, 16) + ' UTC';
+  return Number.isFinite(ms) ? `${formatSimDate(ms, 'datetime')} UTC` : '—';
 }
 
 export default function LabReport({ exp }: { exp: ExperimentId }) {

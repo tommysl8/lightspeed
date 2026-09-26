@@ -109,8 +109,16 @@ export const VOYAGER1_LAUNCH_UTC = '1977-09-05T12:56:00Z';
 export const VOYAGER1_SATURN_FLYBY_UTC = '1980-11-12T23:46:00Z';
 
 // ─── Solar System bodies ─────────────────────────────────────────────────────────────────
+//
+// The data of the thirteen bodies built into the app. The app does not read this table
+// directly: sim/bodies/core.ts registers these bodies with the body registry, which is where
+// every body (these and all that later data adds) is looked up.
 
-export type BodyId =
+/** A body id: any string the registry knows (sim/bodies). */
+export type BodyId = string;
+
+/** The ids of the built-in bodies. */
+export type CoreBodyId =
   | 'sun'
   | 'mercury'
   | 'venus'
@@ -128,11 +136,11 @@ export type BodyId =
 export type BodyKind = 'star' | 'planet' | 'dwarf-planet' | 'moon' | 'spacecraft';
 
 export interface BodyData {
-  id: BodyId;
+  id: CoreBodyId;
   name: string;
   kind: BodyKind;
   /** Body this one orbits, if not the Sun. */
-  parent?: BodyId;
+  parent?: CoreBodyId;
   /** Volumetric mean radius, km. */
   radiusKm: number;
   /** Equatorial radius, km (1-bar level for the giant planets). */
@@ -162,7 +170,8 @@ export interface BodyData {
 /** Volumetric mean radius of Earth, km — handy for comparisons. [NASA] */
 export const EARTH_RADIUS_KM = 6371.0;
 
-export const BODIES: Record<BodyId, BodyData> = {
+/** The built-in bodies' data (read through the registry: sim/bodies). */
+export const BODIES: Readonly<Record<CoreBodyId, BodyData>> = {
   // [IAU 2015 B3] radius, GM; [NASA Sun Fact Sheet] rotation (Carrington sidereal period, 25.38 d)
   sun: {
     id: 'sun',
@@ -437,8 +446,8 @@ export const BODIES: Record<BodyId, BodyData> = {
  */
 export const GM_SOLAR_SYSTEM_KM3_S2 = Object.values(BODIES).reduce((sum, b) => sum + (b.gmKm3S2 ?? 0), 0);
 
-/** Order used by keyboard shortcuts and the body bar. */
-export const BODY_ORDER: BodyId[] = [
+/** The built-in bodies, in the order they are registered (the registry's order starts with these). */
+export const BODY_ORDER: readonly CoreBodyId[] = [
   'sun',
   'mercury',
   'venus',

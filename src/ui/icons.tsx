@@ -21,7 +21,12 @@ type Name =
   | 'external'
   | 'mail'
   | 'copy'
-  | 'check';
+  | 'check'
+  | 'search'
+  | 'sliders'
+  | 'chevron-left'
+  | 'chevron-right'
+  | 'gauge';
 
 const PATHS: Record<Name, ReactNode> = {
   'dock-left': (
@@ -109,6 +114,30 @@ const PATHS: Record<Name, ReactNode> = {
     </>
   ),
   check: <path d="M2 6.3l2.6 2.6L10 3.5" />,
+  // A magnifying glass
+  search: (
+    <>
+      <circle cx="5.2" cy="5.2" r="3.7" />
+      <path d="M8 8l2.6 2.6" />
+    </>
+  ),
+  // Two faders: display options
+  sliders: (
+    <>
+      <path d="M1.5 3.5h1.2M5.3 3.5h5.2M1.5 8.5h5.2M9.3 8.5h1.2" />
+      <circle cx="4" cy="3.5" r="1.3" />
+      <circle cx="8" cy="8.5" r="1.3" />
+    </>
+  ),
+  'chevron-left': <path d="M7.5 2.5L4 6l3.5 3.5" />,
+  'chevron-right': <path d="M4.5 2.5L8 6l-3.5 3.5" />,
+  // A dial with its needle: the instrument panel
+  gauge: (
+    <>
+      <path d="M1.8 9.2a4.8 4.8 0 1 1 8.4 0" />
+      <path d="M6 7.2l2.3-2.6" />
+    </>
+  ),
 };
 
 export function Icon({ name, size = 12, className = '' }: { name: Name; size?: number; className?: string }) {

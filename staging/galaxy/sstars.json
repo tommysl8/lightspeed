@@ -1,0 +1,200 @@
+{
+ "schema": "lightspeed.sstars/1",
+ "title": "Stars orbiting Sgr A* (the four GRAVITY 2022 orbits)",
+ "blackHole": {
+  "name": "Sgr A*",
+  "mass": {
+   "value": 4297000.0,
+   "unc": 12000.0,
+   "uncSys": 40000.0,
+   "unit": "M_sun",
+   "ref": "GRAVITY2022"
+  },
+  "distance": {
+   "value": 8277,
+   "unc": 9,
+   "uncSys": 30,
+   "unit": "pc",
+   "ref": "GRAVITY2022"
+  },
+  "icrs": {
+   "raDeg": 266.4168370833,
+   "decDeg": -29.0078105556,
+   "ref": "ReidBrunthaler2004",
+   "note": "17h45m40.0409s, -29d00m28.118s (J2000)"
+  },
+  "schwarzschildRadius": {
+   "value": 0.0848,
+   "unit": "au",
+   "note": "2GM/c^2 for 4.297e6 M_sun"
+  }
+ },
+ "frame": {
+  "name": "sky frame at Sgr A*",
+  "axes": "x = east (Delta RA cos Dec, positive towards increasing RA), y = north (Delta Dec), z = along the line of sight AWAY from the observer. Right-handed as seen from Earth with east to the left. Radial velocity = dz/dt (positive = receding).",
+  "angles": "Classical visual-orbit convention used by the GRAVITY and MPE groups: i = inclination (0 = face-on, prograde = counterclockwise on the sky; i > 90 deg = clockwise), Omega = position angle of the ascending node measured from north through east, omega = argument of pericentre from the ascending node, where the ascending node is the node at which the star moves away from us (z increasing).",
+  "position": "x = r [cos(omega+nu) sin(Omega) + sin(omega+nu) cos(Omega) cos(i)], y = r [cos(omega+nu) cos(Omega) - sin(omega+nu) sin(Omega) cos(i)], z = r sin(omega+nu) sin(i)",
+  "check": "With these conventions S2 recedes at up to +4000 km/s just before its May 2018 pericentre and approaches at about -1900 km/s a few months later, as observed (GRAVITY Collaboration 2018, Fig. 2), and its apocentre lies about 0.18 arcsec north of Sgr A*.",
+  "lengthScale": "Semi-major axes are angles. a[au] = a[arcsec] x R0[pc] (1 arcsec at 1 pc = 1 au by definition of the parsec), using the R0 of the fit the elements come from (field 'potential').",
+  "time": "Epochs are decimal Julian years at the observer, t = 2000.0 + (JD_TT - 2451545.0) / 365.25. The constant ~27,000-year light travel time from Sgr A* is not removed; the differential Roemer delay across the orbit (up to about 8 days for S2) is ignored."
+ },
+ "precession": {
+  "formula": "Schwarzschild (1PN) periapsis advance per orbit: delta_omega = 6 pi G M / (c^2 a (1 - e^2)) = 12.2 arcmin for S2 with the GRAVITY 2022 elements.",
+  "measuredForS2": [
+   {
+    "fSP": 1.1,
+    "unc": 0.19,
+    "ref": "GRAVITY2020",
+    "note": "f_SP = 1 is general relativity, 0 is Newton"
+   },
+   {
+    "fSP": 0.997,
+    "unc": 0.144,
+    "ref": "GRAVITY2022",
+    "note": "Four-star fit (S2, S29, S38, S55)"
+   }
+  ],
+  "evaluatorModel": "The advance accrues in proportion to the swept true anomaly (the 1PN orbit r = p / (1 + e cos(phi/(1+delta))) to first order), so for S2 almost all of it happens within months of pericentre. omega(t) = omega_osc + f_SP delta_omega (Phi(t) - Phi(t_osc)) / (2 pi), with Phi the cumulative true anomaly and t_osc the epoch at which the published elements are osculating."
+ },
+ "potentials": {
+  "GRAVITY2022": {
+   "R0pc": 8277,
+   "mass": 4297000.0,
+   "note": "Four-star fit including the Schwarzschild term. Elements osculating near apocentre: 2010.35 (S2), 1977 (S29), 2000 (S38), 2012 (S55)."
+  }
+ },
+ "stars": [
+  {
+   "id": "S2",
+   "altNames": [
+    "S0-2"
+   ],
+   "ref": "GRAVITY2022",
+   "potential": "GRAVITY2022",
+   "tOsc": 2010.35,
+   "a": 0.12495,
+   "e": 0.88441,
+   "i": 134.7,
+   "Omega": 228.19,
+   "omega": 66.25,
+   "tPeri": 2018.3789,
+   "P": null,
+   "unc": {
+    "a": 4e-05,
+    "e": 6e-05,
+    "i": 0.03,
+    "Omega": 0.03,
+    "omega": 0.03,
+    "tPeri": 0.0001
+   },
+   "mK": 14.1,
+   "spectralType": "B0-2.5 V (early)",
+   "note": "The star that proved the black hole. Pericentre 19 May 2018 at 120 au and about 7,700 km/s (2.6% of the speed of light); gravitational redshift (2018) and Schwarzschild precession (2020) measured on this orbit."
+  },
+  {
+   "id": "S29",
+   "ref": "GRAVITY2022",
+   "potential": "GRAVITY2022",
+   "tOsc": 1977.0,
+   "a": 0.3975,
+   "e": 0.9693,
+   "i": 144.37,
+   "Omega": 7.0,
+   "omega": 205.79,
+   "tPeri": 2021.4104,
+   "P": null,
+   "unc": {
+    "a": 0.0016,
+    "e": 0.0001,
+    "i": 0.07,
+    "Omega": 0.33,
+    "omega": 0.33,
+    "tPeri": 0.0002
+   },
+   "mK": 17.6,
+   "spectralType": "early",
+   "note": "Deeply plunging orbit: pericentre in 2021.41 at about 100 au with about 8,740 km/s (GRAVITY 2022)."
+  },
+  {
+   "id": "S38",
+   "ref": "GRAVITY2022",
+   "potential": "GRAVITY2022",
+   "tOsc": 2000.0,
+   "a": 0.14254,
+   "e": 0.8145,
+   "i": 166.65,
+   "Omega": 109.45,
+   "omega": 27.17,
+   "tPeri": 2022.7044,
+   "P": null,
+   "unc": {
+    "a": 4e-05,
+    "e": 0.0002,
+    "i": 0.4,
+    "Omega": 1.0,
+    "omega": 1.02,
+    "tPeri": 0.008
+   },
+   "mK": 18.3,
+   "spectralType": "late",
+   "note": "Nearly face-on orbit."
+  },
+  {
+   "id": "S55",
+   "altNames": [
+    "S0-102"
+   ],
+   "ref": "GRAVITY2022",
+   "potential": "GRAVITY2022",
+   "tOsc": 2012.0,
+   "a": 0.1044,
+   "e": 0.7267,
+   "i": 158.52,
+   "Omega": 314.94,
+   "omega": 322.78,
+   "tPeri": 2021.694,
+   "P": null,
+   "unc": {
+    "a": 5e-05,
+    "e": 0.0002,
+    "i": 0.22,
+    "Omega": 1.14,
+    "omega": 1.13,
+    "tPeri": 0.0083
+   },
+   "mK": 17.2,
+   "spectralType": "unknown",
+   "note": "Shortest known period, about 12.2 years (Meyer et al. 2012 named it S0-102)."
+  }
+ ],
+ "references": {
+  "GRAVITY2022": {
+   "cite": "GRAVITY Collaboration (Abuter R. et al.) 2022, A&A 657, L12, Table 1 ('this paper' four-star fit)",
+   "doi": "10.1051/0004-6361/202142465",
+   "licence": "CC BY 4.0"
+  },
+  "GRAVITY2020": {
+   "cite": "GRAVITY Collaboration (Abuter R. et al.) 2020, A&A 636, L5",
+   "doi": "10.1051/0004-6361/202037813"
+  },
+  "GRAVITY2018": {
+   "cite": "GRAVITY Collaboration (Abuter R. et al.) 2018, A&A 615, L15: Detection of the gravitational redshift in the orbit of the star S2 near the Galactic centre massive black hole",
+   "doi": "10.1051/0004-6361/201833718"
+  },
+  "ReidBrunthaler2004": {
+   "cite": "Reid M.J., Brunthaler A. 2004, ApJ 616, 872",
+   "doi": "10.1086/424960"
+  },
+  "Meyer2012": {
+   "cite": "Meyer L. et al. 2012, Science 338, 84: The Shortest-Known-Period Star Orbiting Our Galaxy's Supermassive Black Hole",
+   "doi": "10.1126/science.1225506"
+  }
+ },
+ "furtherReading": [
+  {
+   "cite": "Gillessen S. et al. 2017, ApJ 837, 30: An Update on Monitoring Stellar Orbits in the Galactic Center, Tables 1 and 3: orbits of 40 S-stars",
+   "doi": "10.3847/1538-4357/aa5c41",
+   "note": "Not included: the article (2017) is AAS copyright (published before the AAS journals became open access) and no licence for reusing its table of orbits could be confirmed. 16 of its orbits (S1, S4, S6, S8, S9, S12, S13, S14, S17, S18, S21, S24, S31, S175, S67, S96) were in an earlier version of this file and were removed."
+  }
+ ]
+}

@@ -7,13 +7,17 @@ import { surfaceOnce } from './explainerActions';
 /**
  * Suggest the relevant reference section the first time something happens: leaving Earth's
  * neighbourhood, crossing 0.1c / 0.5c / 0.9c / 0.99c, approaching c, switching size mode, or
- * engaging the fictional warp.
+ * engaging the fictional warp. Only with physics notes turned on (the `hints` preference).
  */
 export function useExplainerTriggers() {
   useEffect(() => {
     let lastSize = useUI.getState().sizeMode;
     const id = window.setInterval(() => {
       const ui = useUI.getState();
+      if (!ui.hints) {
+        lastSize = ui.sizeMode;
+        return;
+      }
       if (ui.noteTopic) return; // one suggestion at a time
       const trip = travel.trip;
       if (trip?.warp) return surfaceOnce('ftl');

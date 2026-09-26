@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { AU_KM, JULIAN_YEAR_S, LIGHT_YEAR_KM } from '../physics/constants';
-import { exponentOf, fixed, fmtBeta, fmtGamma, fmtPM, groupDigits, julianDate, pickUnit, qty, sci, sig, superscript } from './sci';
+import { exponentOf, fixed, fmtBeta, fmtGamma, fmtPM, groupDigits, julianDate, pickUnit, qty, sci, sig, storedDigits, superscript } from './sci';
 
 const NB = '\u00a0';
 
@@ -93,5 +93,21 @@ describe('value ± uncertainty', () => {
   it('shows negligible σ separately', () => {
     expect(fmtPM(299792.458, 1e-4)).toBe(`299${NB}792.46 ± 1.0 × 10⁻⁴`);
     expect(fmtPM(0.5, 5.9e-17)).toBe(`0.500${NB}000${NB}000 (σ ≈ 0)`);
+  });
+});
+
+describe('storedDigits', () => {
+  it('counts the digits a stored value has, not the padding or the float noise', () => {
+    expect(storedDigits(0.0718)).toBe(3);
+    expect(storedDigits(497.5)).toBe(4);
+    expect(storedDigits(1.5)).toBe(2);
+    expect(storedDigits(1500)).toBe(2);
+    expect(storedDigits(-12.5)).toBe(3);
+    expect(storedDigits(398_600.4418)).toBe(10);
+    // A value carried through a unit conversion keeps its digits.
+    expect(storedDigits((0.0718 * AU_KM) / AU_KM)).toBe(3);
+    expect(storedDigits(Math.PI)).toBe(12);
+    expect(sig(0.0718, Math.min(6, storedDigits(0.0718)))).toBe('0.0718');
+    expect(sig(398_600.4418, Math.min(6, storedDigits(398_600.4418)))).toBe('398' + NB + '600');
   });
 });

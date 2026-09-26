@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { MakeTime } from 'astronomy-engine';
 import { C_KM_S, type BodyId } from '../physics/constants';
+import { astroTimeAt } from '../lib/time';
 import { bodyPositionAt, updateEphemeris } from './ephemeris';
 import { clearPulses, emitPulse, onDetection, updatePulses, type Detection } from './pulses';
 import { sim } from './sim';
@@ -9,17 +10,18 @@ const T0 = Date.UTC(2026, 8, 24, 0, 0, 0);
 
 function setTime(ms: number) {
   sim.timeMs = ms;
-  sim.astroTime = MakeTime(new Date(ms));
+  // A day count, not a Date: the fastest warp carries the clock past what Date can hold.
+  sim.astroTime = astroTimeAt(ms);
   updateEphemeris();
 }
 
-/** Run a pulse from Earth for `duration` s in steps of `step` s; return the detections. */
-function run(step: number, duration: number): Map<BodyId, Detection> {
+/** Run a pulse from Earth (or another source) for `duration` s in steps of `step` s; return the detections. */
+function run(step: number, duration: number, source: BodyId = 'earth'): Map<BodyId, Detection> {
   clearPulses();
   setTime(T0);
   const hits = new Map<BodyId, Detection>();
   const off = onDetection((_, d) => hits.set(d.body, d));
-  emitPulse('earth');
+  emitPulse(source);
   for (let t = step; t <= duration + 1e-9; t += step) {
     setTime(T0 + t * 1000);
     updatePulses();
@@ -49,11 +51,42 @@ describe('light-pulse detectors', () => {
     expect(hits.get('sun')!.dt).toBeLessThan(510);
   });
 
+  it('stays exact at the fastest warp: one frame of 5 million years', () => {
+    const step = 1e16 / 60;
+    const fine = run(10, 2 * 3600, 'sun');
+    const coarse = run(step, step, 'sun');
+    for (const id of ['mercury', 'earth', 'mars', 'jupiter'] as BodyId[]) {
+      expect(coarse.get(id)!.dt, id).toBeCloseTo(fine.get(id)!.dt, 5);
+    }
+    // Everything hears it within the frame, Proxima Centauri after 4.25 years.
+    expect(coarse.get('proxima')!.dt / (365.25 * 86_400)).toBeCloseTo(4.2465, 3);
+  });
+
   it('gives the same times however coarse the frame steps (time warp)', () => {
     const fine = run(10, 2 * 3600);
     const coarse = run(1800, 2 * 3600);
     for (const id of ['sun', 'venus', 'mars', 'jupiter'] as BodyId[]) {
       expect(coarse.get(id)!.dt, id).toBeCloseTo(fine.get(id)!.dt, 5);
     }
+  });
+});
+
+describe('which bodies carry detectors', () => {
+  it('planets, dwarf planets, spacecraft and the large moons, unless a record says otherwise', async () => {
+    const { hasDetector } = await import('./pulses');
+    const { getBody } = await import('./bodies');
+    const r = (kind: string, radiusKm: number, detector?: boolean) =>
+      ({ id: 'x', name: 'X', kind, parent: 'sun', physical: { radiusKm, colour: '#fff' }, provider: null, detector }) as never;
+    for (const id of ['sun', 'mercury', 'earth', 'moon', 'pluto', 'voyager1', 'proxima']) expect(hasDetector(getBody(id)!), id).toBe(true);
+    expect(hasDetector(r('moon', 1821))).toBe(true); // Io
+    expect(hasDetector(r('moon', 198))).toBe(false); // Mimas
+    expect(hasDetector(r('moon', 198, true))).toBe(true);
+    expect(hasDetector(r('dwarf-planet', 470))).toBe(true); // Ceres
+    expect(hasDetector(r('spacecraft', 0.0013))).toBe(true);
+    expect(hasDetector(r('comet', 2))).toBe(false);
+    expect(hasDetector(r('asteroid', 260))).toBe(false);
+    expect(hasDetector(r('interstellar', 0.1))).toBe(false);
+    expect(hasDetector(r('planet', 6000, false))).toBe(false);
+    expect(hasDetector(getBody('pluto-barycentre')!)).toBe(false);
   });
 });

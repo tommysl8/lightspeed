@@ -11,6 +11,7 @@ import { fixed, fmtBeta, fmtPM, pickUnit, sig, unitBySym, type Dim, type Unit } 
 import { linearFit, mean, proportionalFit, sem, type LinearFit } from '../lib/stats';
 import type { PlotAxis, PlotSeries } from '../ui/plot/Plot';
 import { num, type DataRow, type ExperimentId } from './notebook';
+import { formatSimDate } from '../lib/time';
 
 export interface Column {
   key: string;
@@ -691,7 +692,7 @@ export function toCsv(p: Protocol, rows: DataRow[], meta: string[] = []): string
     header.map(csvCell).join(','),
   ];
   for (const r of rows) {
-    const out: (string | number)[] = [r.n, new Date(r.simMs).toISOString()];
+    const out: (string | number)[] = [r.n, formatSimDate(r.simMs, 'iso')];
     for (const c of cols) {
       out.push(cell(c, r));
       if (!c.derived && !c.text && rows.some((x) => x.s?.[c.key])) out.push(r.s?.[c.key] ?? '');

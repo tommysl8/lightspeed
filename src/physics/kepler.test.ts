@@ -95,6 +95,22 @@ describe('two-body propagation', () => {
     expect(Math.abs((e1 - e0) / e0)).toBeLessThan(1e-9);
   });
 
+  it('propagates a hyperbola over any span, forwards and backwards (Voyager 1 to ±10¹³ years)', () => {
+    const r0 = { x: VOYAGER1_STATE.r[0], y: VOYAGER1_STATE.r[1], z: VOYAGER1_STATE.r[2] };
+    const v0 = { x: VOYAGER1_STATE.v[0], y: VOYAGER1_STATE.v[1], z: VOYAGER1_STATE.v[2] };
+    const m = GM_SOLAR_SYSTEM_KM3_S2;
+    const energy = (v0.x ** 2 + v0.y ** 2 + v0.z ** 2) / 2 - m / length(r0);
+    const vInf = Math.sqrt(2 * energy);
+    const yr = 365.25 * DAY_S;
+    for (const years of [1e3, 1e6, 1e9, 1e13, -30, -1e6, -1e13]) {
+      const { r, v } = propagateTwoBody(r0, v0, years * yr, m);
+      const e1 = (v.x ** 2 + v.y ** 2 + v.z ** 2) / 2 - m / length(r);
+      expect(Math.abs((e1 - energy) / energy), `${years} yr`).toBeLessThan(1e-6);
+      // Far out it coasts at v∞.
+      if (Math.abs(years) >= 1e6) expect(length(r) / (vInf * Math.abs(years) * yr)).toBeCloseTo(1, 3);
+    }
+  });
+
   it('reproduces JPL Horizons positions of Voyager 1 ten years either side of the reference epoch', () => {
     const r0 = { x: VOYAGER1_STATE.r[0], y: VOYAGER1_STATE.r[1], z: VOYAGER1_STATE.r[2] };
     const v0 = { x: VOYAGER1_STATE.v[0], y: VOYAGER1_STATE.v[1], z: VOYAGER1_STATE.v[2] };

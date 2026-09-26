@@ -6,7 +6,8 @@ import { memo, useEffect, useMemo, useRef, useState, type ReactNode } from 'reac
 import { useShallow } from 'zustand/react/shallow';
 import { EXPLAINERS, explainerById, type ExplainerId } from '../../content/explainers';
 import { REFERENCE } from '../../content/reference';
-import { BODIES, BODY_ORDER, type BodyId } from '../../physics/constants';
+import { bodyName, bodyRecords, kindName, rootOf, type BodyId, type BodyKind } from '../../sim/bodies';
+import { hasDetector } from '../../sim/pulses';
 import { fixed, fmtBeta, sig } from '../../lib/sci';
 import { MANUAL, type StepCtx } from '../../lab/manual';
 import { PROTOCOLS, PROTOCOL_LIST, cellText, columnUnits, sigmaText, toCsv, type Protocol, type ResultLine } from '../../lab/protocols';
@@ -24,6 +25,7 @@ import { Plot } from '../plot/Plot';
 import { Eq } from '../TeX';
 import { useTicker } from '../useTicker';
 import { rich } from '../rich';
+import { formatSimDate } from '../../lib/time';
 
 // ─── Utilities ───────────────────────────────────────────────────────────────────────────
 
@@ -319,7 +321,7 @@ function LiveReading({ exp }: { exp: ExperimentId }) {
   const r = sel ? targetReading(sel) : null;
   return (
     <div className="mono text-[11px] text-fg-2">
-      <span className="text-fg-3">Goniometer{sel ? ` (${BODIES[sel].name})` : ''}: </span>
+      <span className="text-fg-3">Goniometer{sel ? ` (${bodyName(sel)})` : ''}: </span>
       {!sel ? (
         <span className="text-fg-3">select a target</span>
       ) : r && r.beta >= 1e-6 ? (
@@ -333,6 +335,24 @@ function LiveReading({ exp }: { exp: ExperimentId }) {
   );
 }
 
+/**
+ * Bodies a pulse can be fired from: those of the Solar System that carry a detector (the stars
+ * beyond are too far for the experiment), by kind.
+ */
+function emitterGroups(): { kind: BodyKind; ids: BodyId[] }[] {
+  const out: { kind: BodyKind; ids: BodyId[] }[] = [];
+  for (const r of bodyRecords()) {
+    if (rootOf(r.id)?.id !== 'sun' || !(r.id === 'sun' || hasDetector(r))) continue;
+    const kind: BodyKind = r.kind === 'star' ? 'planet' : r.kind;
+    let g = out.find((x) => x.kind === kind);
+    if (!g) out.push((g = { kind, ids: [] }));
+    g.ids.push(r.id);
+  }
+  return out;
+}
+
+const EMITTER_GROUP: Partial<Record<BodyKind, string>> = { planet: 'Sun and planets', moon: 'Moons', 'dwarf-planet': 'Dwarf planets', spacecraft: 'Spacecraft' };
+
 /** Pulse emitter (Experiment 1): fire from a body's current position or from the observer. */
 function Emitter() {
   const [source, setSource] = useState<BodyId | 'observer'>('earth');
@@ -345,10 +365,14 @@ function Emitter() {
         onChange={(e) => setSource(e.target.value as BodyId | 'observer')}
         aria-label="Emit from"
       >
-        {BODY_ORDER.filter((id) => id !== 'proxima').map((id) => (
-          <option key={id} value={id}>
-            {BODIES[id].name}
-          </option>
+        {emitterGroups().map((g) => (
+          <optgroup key={g.kind} label={EMITTER_GROUP[g.kind] ?? kindName(g.kind)}>
+            {g.ids.map((id) => (
+              <option key={id} value={id}>
+                {bodyName(id)}
+              </option>
+            ))}
+          </optgroup>
         ))}
         <option value="observer">Observer (current position)</option>
       </select>
@@ -652,7 +676,7 @@ function NotebookTab() {
   const { rows, noise, setNoise, clear } = useNotebook(useShallow((s) => ({ rows: s.rows, noise: s.noise, setNoise: s.setNoise, clear: s.clear })));
   const events = useLabEvents();
   const exportLog = () => {
-    const lines = events.map((e) => `${new Date(e.simMs).toISOString()}  ${e.kind.padEnd(4)}  ${e.text}`);
+    const lines = events.map((e) => `${formatSimDate(e.simMs, 'iso')}  ${e.kind.padEnd(4)}  ${e.text}`);
     download(
       `lightspeed-event-log-${new Date().toISOString().slice(0, 10)}.txt`,
       ['# Lightspeed event log (simulation time, UTC)', ...lines].join('\n') + '\n',

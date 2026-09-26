@@ -3,16 +3,20 @@
  * sheet, relativistic optics, light-time, a spacetime diagram of the current trip, an
  * ephemeris table and a strip-chart recorder. Everything polls the simulation at 8 Hz.
  */
-import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { BODIES, BODY_ORDER, C_KM_S, SUN_TEFF_K, type BodyId } from '../../physics/constants';
+import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
+import { C_KM_S, SUN_TEFF_K } from '../../physics/constants';
+import { bodyName, getBody, kindText, type BodyId, type BodyRecord, type Regime } from '../../sim/bodies';
 import { gamma } from '../../physics/relativity';
-import { fixed, fmtBeta, fmtGamma, qty, sci, sig } from '../../lib/sci';
+import { fixed, fmtBeta, fmtGamma, pickUnit, qty, sci, sig, storedDigits } from '../../lib/sci';
+import { radiusReading, stored } from '../dataSheet';
+import { ephemerisRows } from './ephemerisRows';
 import { controller } from '../../controls/cameraController';
 import { relView, REL_THRESHOLD_BETA } from '../../render/relativisticView';
 import { chrono, chronoTau, zeroChrono } from '../../sim/chronometer';
 import { earthLight } from '../../sim/lightDelay';
 import { sim } from '../../sim/sim';
-import { shipStateAt, travel, tripElapsed } from '../../sim/travel';
+import { lagAtTau, travel, tripElapsed, tripShipTime } from '../../sim/travel';
+import { formatSimDate } from '../../lib/time';
 import { useUI, type ScopeChannel } from '../../state/ui';
 import { angularDiameterDeg, eclipticLonLat, observerBeta, rangeRate, reticleReading, targetReading } from '../../lab/measure';
 import { emitLightPulse } from '../../lab/logger';
@@ -23,20 +27,31 @@ import { Plot } from '../plot/Plot';
 import { useTicker } from '../useTicker';
 import { SpacetimeDiagram } from './SpacetimeDiagram';
 import { rich } from '../rich';
+import { starData, starLabels, loadStarNames, loadStarExtra, starsVersion, subscribeStars } from '../../sim/stars';
+import type { ExoplanetInfo, StarInfo } from '../../sim/bodies';
+import { massText, methodWords, radiusText, temperatureWords } from '../exoplanetText';
 
-const KIND: Record<string, string> = {
-  star: 'Star',
-  planet: 'Planet',
-  'dwarf-planet': 'Dwarf planet',
-  moon: 'Natural satellite of Earth',
-  spacecraft: 'Spacecraft',
+/** What the target is, for the data sheet ("Natural satellite of Earth"). */
+function kindLine(r: BodyRecord): string {
+  if (r.kind === 'moon' && r.parent) return `Natural satellite of ${bodyName(r.parent)}`;
+  if (r.id === 'sun') return 'Star';
+  return kindText(r.id);
+}
+
+const REGIME_TEXT: Record<Regime, string> = {
+  precise: 'precise',
+  approximate: 'approximate',
+  illustrative: 'illustrative',
+  extrapolated: 'extrapolated',
+  unknown: 'not modelled',
 };
 
 /** Newtonian constant of gravitation, km³ kg⁻¹ s⁻². [CODATA 2018: 6.674 30 × 10⁻¹¹ m³ kg⁻¹ s⁻²] */
 const G_KM3 = 6.6743e-20;
 
-const Q = ({ x, dim, d = 5 }: { x: number; dim: 'time' | 'length'; d?: number }) => {
-  const q = qty(x, dim, d);
+/** A quantity in its natural unit; `stored`: a value read from a data file, shown with no more digits than it has. */
+const Q = ({ x, dim, d = 5, stored = false }: { x: number; dim: 'time' | 'length'; d?: number; stored?: boolean }) => {
+  const q = qty(x, dim, stored ? Math.min(d, storedDigits(x / pickUnit(dim, x).factor)) : d);
   return (
     <>
       {rich(q.v)} <span className="text-fg-3">{q.u}</span>
@@ -103,9 +118,10 @@ function Clocks() {
   const zero = () => {
     const tr = travel.trip;
     const el = tr ? tripElapsed(tr) : 0;
-    zeroChrono(el, tr ? shipStateAt(tr, el).tau : 0);
+    const tau = tr ? tripShipTime(tr) : 0;
+    zeroChrono(el, tau, tr ? lagAtTau(tr, tau) : 0);
   };
-  const since = new Date(chrono.zeroMs);
+  const since = chrono.zeroMs;
   return (
     <Sec
       id="clk"
@@ -126,7 +142,7 @@ function Clocks() {
       />
       <Ro l={<>Mean rate <Sym>τ</Sym>/<Sym>t</Sym></>} v={valid && t > 0 ? oneMinus(1 - lag / t) : '—'} />
       <div className="mono px-2.5 pb-1 pt-0.5 text-[10px] text-fg-3">
-        zeroed {Number.isNaN(since.getTime()) ? '—' : since.toISOString().replace('T', ' ').slice(0, 19)} UTC
+        zeroed {formatSimDate(since, 'datetime')} UTC
         {!valid && <span className="text-hazard"> · τ invalid after superluminal transfer</span>}
       </div>
     </Sec>
@@ -135,9 +151,99 @@ function Clocks() {
 
 // ─── C · Target ──────────────────────────────────────────────────────────────────────────
 
+const PLANET_STATUS: Record<ExoplanetInfo['status'], string> = {
+  confirmed: 'confirmed',
+  candidate: 'candidate',
+  disputed: 'disputed',
+  refuted: 'refuted',
+};
+
+/** A planet of another star's rows of the data sheet: its numbers, and how each was found. */
+function ExoplanetRows({ x }: { x: ExoplanetInfo }) {
+  const massWord = x.massKind === 'minimum' ? 'Minimum mass (m sin i)' : x.massKind === 'estimated' ? 'Mass (estimate)' : 'Mass';
+  return (
+    <>
+      <div className="cap px-2.5 pb-0.5 pt-2">Planet</div>
+      <Ro l="Status" v={PLANET_STATUS[x.status]} tone={x.status === 'confirmed' ? undefined : 'hazard'} title={x.statusNote} />
+      <Ro l="Orbits" v={x.hostName} />
+      {x.archiveName && <Ro l="Archive name" v={x.archiveName} />}
+      <Ro l="Eccentricity" v={fixed(x.ecc, 3)} />
+      <Ro l="Inclination to the sky" v={fixed(x.inclDeg, 2)} u="°" title="90° is edge-on, seen from the Sun" />
+      {x.radiusSource !== 'placeholder' && (
+        <Ro l={`Radius${x.radiusSource === 'estimated' ? ' (estimate)' : ''}`} v={radiusText(x.radiusEarth)} title={x.radiusSource === 'estimated' ? 'From its mass by a mass–radius relation' : 'Measured'} />
+      )}
+      {x.massEarth !== undefined && <Ro l={massWord} v={massText(x.massEarth)} />}
+      {x.teqK !== undefined && <Ro l={temperatureWords(x).label} v={sig(x.teqK, 3, { group: false })} u="K" title={temperatureWords(x).title} />}
+      {x.method && <Ro l="Found by" v={methodWords(x.method)} />}
+      {x.year !== undefined && <Ro l="Year" v={String(x.year)} />}
+      {x.facility && <Ro l="Facility" v={x.facility} />}
+      {x.reference && <Ro l="Discovery paper" v={x.reference} />}
+      <p className="mono px-2.5 pt-1 text-[10px] leading-snug text-fg-3">{x.provenance.join(' · ')}</p>
+      <p className="px-2.5 pt-1 text-[10px] leading-snug text-fg-3">Colour (illustrative): {x.colourRule}.</p>
+    </>
+  );
+}
+
+/** A star's rows of the data sheet: what it is and how each number was found. */
+function StarRows({ star }: { star: StarInfo }) {
+  useSyncExternalStore(subscribeStars, starsVersion);
+  const i = star.catalogueIndex;
+  useEffect(() => {
+    if (i === undefined) return;
+    void loadStarNames();
+    void loadStarExtra();
+  }, [i]);
+  const names = starData.names;
+  const extra = starData.extra;
+  const labels = i !== undefined && names ? starLabels(names, i) : (star.designations ?? []);
+  const constellation = star.constellation ?? (i !== undefined && names && extra?.constellation[i] ? names.constellations[extra.constellation[i] - 1]?.[1] : undefined);
+  const est = (e: boolean) => (e ? ' (estimate)' : '');
+  // An estimate to three figures with "≈"; a paper's value as the paper gives it.
+  const approx = (x: number, e: boolean) => (e ? `≈ ${sig(x, 3, { sciAbove: 7 })}` : stored(x, 4));
+  return (
+    <>
+      <div className="cap px-2.5 pb-0.5 pt-2">Star</div>
+      {star.spectralType && <Ro l="Spectral type" v={star.spectralType} />}
+      {star.teffSource !== 'unknown' && (
+        <Ro
+          l={star.teffSource === 'colour' ? 'Colour temperature' : 'Effective temperature'}
+          v={stored(star.teffK, 5)}
+          u="K"
+          title={star.teffSource === 'colour' ? 'From its B−V colour (Ballesteros 2012): too cool for the hottest stars' : 'Measured (see the references)'}
+        />
+      )}
+      {star.luminosityLsun !== undefined && (
+        <Ro l={`Luminosity${est(star.luminositySource === 'estimated')}`} v={approx(star.luminosityLsun, star.luminositySource === 'estimated')} u="L☉" title={star.luminositySource === 'estimated' ? 'From M_V with the bolometric correction of Flower (1996) as corrected by Torres (2010)' : 'Measured'} />
+      )}
+      {star.equatorialRadiusRsun !== undefined ? (
+        <>
+          <Ro l="Equatorial radius" v={stored(star.equatorialRadiusRsun, 4)} u="R☉" />
+          <Ro l="Polar radius" v={stored(star.polarRadiusRsun ?? star.equatorialRadiusRsun, 4)} u="R☉" />
+        </>
+      ) : (
+        star.radiusRsun !== undefined && (
+          <Ro l={`Radius${est(star.radiusSource === 'estimated')}`} v={approx(star.radiusRsun, star.radiusSource === 'estimated')} u="R☉" title={star.radiusSource === 'estimated' ? 'From its luminosity and temperature (Stefan–Boltzmann)' : 'Measured'} />
+        )
+      )}
+      {star.massMsun !== undefined && <Ro l="Mass" v={stored(star.massMsun, 4)} u="M☉" />}
+      {star.massRangeMsun && <Ro l="Mass" v={`${star.massRangeMsun[0]}–${star.massRangeMsun[1]}`} u="M☉" />}
+      <Ro l={<>Absolute magnitude <Sym>M</Sym><sub>V</sub></>} v={fixed(star.absMagV, 2)} title="No correction for interstellar dust" />
+      <Ro l="V seen from the Sun" v={fixed(star.vFromSun, 2)} />
+      <Ro l="Distance from the Sun" v={sig(star.distancePc, 5)} u="pc" title={`${star.distanceSource}; ${star.distancePrecision}`} />
+      <Ro l="Distance measured by" v={star.distanceSource} />
+      <Ro l="Distance precision" v={star.distancePrecision} tone={/poor|upper/.test(star.distancePrecision + star.distanceSource) ? 'hazard' : undefined} />
+      {star.altDistancePc !== undefined && <Ro l="Distance in the paper" v={sig(star.altDistancePc, 4)} u="pc" title={star.altDistanceNote} />}
+      {constellation && <Ro l="Constellation" v={constellation} />}
+      {labels.length > 0 && <p className="mono px-2.5 pt-1 text-[10px] leading-snug text-fg-3">{labels.join(' · ')}</p>}
+      {star.refs && star.refs.length > 0 && <p className="mono px-2.5 pt-1 text-[9.5px] leading-snug text-fg-3">{star.refs.join('; ')}</p>}
+    </>
+  );
+}
+
 function Target() {
   const id = useUI((s) => s.selected);
   const tripActive = useUI((s) => s.tripActive);
+  const labUsed = useUI((s) => s.labUsed);
   if (!id) {
     return (
       <Sec id="tgt" idx="C" title="Target">
@@ -148,11 +254,15 @@ function Target() {
       </Sec>
     );
   }
-  const d = BODIES[id];
+  const r = getBody(id);
   const b = sim.bodies[id];
+  if (!r || !b) return null;
+  const d = r.physical;
   const ang = angle(angularDiameterDeg(id));
   const geo = targetReading(id);
-  const massKg = d.gmKm3S2 ? d.gmKm3S2 / G_KM3 : NaN;
+  const massKg = d.massKg ?? (d.gmKm3S2 ? d.gmKm3S2 / G_KM3 : NaN);
+  const radius = radiusReading(r, d.triaxialRadiiKm ? 'Mean radius' : 'Radius');
+  const notes = [r.positionNote, ...(r.modelNotes ?? [])].filter((n): n is string => !!n);
   return (
     <Sec
       id="tgt"
@@ -165,14 +275,26 @@ function Target() {
       }
     >
       <div className="flex items-baseline justify-between gap-2 px-2.5 pb-1 pt-0.5">
-        <span className="font-serif text-[16px] text-fg">{d.name}</span>
-        <span className="text-[11px] text-fg-3">{KIND[d.kind]}</span>
+        <span className="font-serif text-[16px] text-fg">{r.name}</span>
+        <span className="text-[11px] text-fg-3">{kindLine(r)}</span>
       </div>
       <Ro l="Range" v={<Q x={b.distTrue} dim="length" d={7} />} tone="data" />
       <Ro l="Light-time" v={<Q x={b.distTrue / C_KM_S} dim="time" d={6} />} />
       <Ro l="Range rate" v={sig(rangeRate(id), 4)} u="km/s" title="Positive: receding" />
       <Ro l="Angular diameter" v={ang.v} u={ang.u} />
-      {b.magnitude < 40 && <Ro l="Apparent magnitude V" v={fixed(b.magnitude, 1)} title="Reflected sunlight (Lambert sphere with the body's geometric albedo)" />}
+      {b.magnitude < 40 && (
+        <Ro
+          l="Apparent magnitude V"
+          v={fixed(b.magnitude, 1)}
+          title={
+            d.luminous
+              ? 'Its own light: M_V + 5 log10(d / 10 pc), no interstellar dust'
+              : r.litBy
+                ? `Reflected light of ${bodyName(r.litBy)} (Lambert sphere with the body's assumed albedo)`
+                : "Reflected sunlight (Lambert sphere with the body's geometric albedo)"
+          }
+        />
+      )}
       {id !== 'sun' && <Ro l={<>Heliocentric <Sym>r</Sym></>} v={<Q x={b.distSun} dim="length" d={6} />} />}
       {geo && geo.beta >= 1e-6 && (
         <>
@@ -181,32 +303,50 @@ function Target() {
           <Ro l={<>Doppler factor <Sym>D</Sym></>} v={sig(geo.D, 5)} tone="data" />
         </>
       )}
+      {r.star && <StarRows star={r.star} />}
+      {r.exoplanet && <ExoplanetRows x={r.exoplanet} />}
       <div className="cap px-2.5 pb-0.5 pt-2">Physical data</div>
+      {/* Each value to the precision it has (ui/dataSheet.ts): no padded figures. */}
       {d.equatorialRadiusKm ? (
         <>
-          <Ro l="Equatorial radius" v={sig(d.equatorialRadiusKm, 6)} u="km" />
-          <Ro l="Polar radius" v={sig(d.polarRadiusKm ?? d.equatorialRadiusKm, 6)} u="km" />
+          <Ro l="Equatorial radius" v={stored(d.equatorialRadiusKm)} u="km" />
+          <Ro l="Polar radius" v={stored(d.polarRadiusKm ?? d.equatorialRadiusKm)} u="km" />
         </>
       ) : (
-        <Ro l="Radius" v={id === 'voyager1' ? '1.85' : sig(d.radiusKm, 6)} u={id === 'voyager1' ? 'm (antenna)' : 'km'} />
+        d.triaxialRadiiKm && <Ro l="Radii a × b × c" v={d.triaxialRadiiKm.map((x) => stored(x, 4)).join(' × ')} u="km" />
       )}
-      {d.gmKm3S2 && <Ro l={<><Sym>GM</Sym></>} v={sci(d.gmKm3S2, 6)} u="km³/s²" />}
-      {Number.isFinite(massKg) && <Ro l={<>Mass <Sym>GM</Sym>/<Sym>G</Sym></>} v={sci(massKg, 4)} u="kg" />}
+      {!d.equatorialRadiusKm && <Ro l={radius.l} v={radius.v} u={radius.u} title={radius.title} />}
+      {/* A star's or an exoplanet's mass is in its own rows above, with how it was found; GM from it would add false figures. */}
+      {d.gmKm3S2 && !r.star && !r.exoplanet && <Ro l={<><Sym>GM</Sym></>} v={sci(d.gmKm3S2, Math.min(6, storedDigits(d.gmKm3S2)))} u="km³/s²" />}
+      {Number.isFinite(massKg) && !r.star && !r.exoplanet && <Ro l={<>Mass <Sym>GM</Sym>/<Sym>G</Sym></>} v={sci(massKg, Math.min(4, storedDigits(massKg)))} u="kg" />}
       {d.siderealRotationH !== undefined && (
-        <Ro l="Sidereal rotation" v={sig(Math.abs(d.siderealRotationH), 5)} u={d.siderealRotationH < 0 ? 'h retro.' : 'h'} />
+        <Ro l="Sidereal rotation" v={stored(Math.abs(d.siderealRotationH), 5)} u={d.siderealRotationH < 0 ? 'h retro.' : 'h'} />
       )}
-      {d.orbitalPeriodD !== undefined && <Ro l="Orbital period" v={sig(d.orbitalPeriodD, 6)} u="d" />}
-      {d.semiMajorAxisKm !== undefined && <Ro l="Semi-major axis" v={<Q x={d.semiMajorAxisKm} dim="length" d={6} />} />}
+      {d.orbitalPeriodD !== undefined && <Ro l="Orbital period" v={stored(d.orbitalPeriodD)} u="d" />}
+      {d.semiMajorAxisKm !== undefined && <Ro l="Semi-major axis" v={<Q x={d.semiMajorAxisKm} dim="length" d={6} stored />} />}
       {d.obliquityDeg !== undefined && <Ro l="Obliquity" v={fixed(d.obliquityDeg, 2)} u="°" />}
-      {d.geometricAlbedo !== undefined && <Ro l="Geometric albedo" v={fixed(d.geometricAlbedo, 3)} />}
+      {d.geometricAlbedo !== undefined && (
+        <Ro
+          l={r.exoplanet ? 'Geometric albedo (assumed)' : 'Geometric albedo'}
+          v={r.exoplanet ? `≈ ${stored(d.geometricAlbedo, 2)}` : stored(d.geometricAlbedo, 3)}
+          title={r.exoplanet ? 'From its colour rule: nothing has measured it' : undefined}
+        />
+      )}
+      {b.regime !== 'precise' && <Ro l="Position model" v={REGIME_TEXT[b.regime]} title={r.provider.label} />}
       <div className="px-2.5 pb-1 pt-1.5">
-        {d.facts.map((f) => (
+        {(r.facts ?? []).map((f) => (
           <p key={f} className="mb-1.5 font-serif text-[12.5px] leading-snug text-fg-2 last:mb-0">
             {f}
           </p>
         ))}
+        {/* How far to trust the position, and what else is a model (a tumble, a missing map, an assumed ring plane). */}
+        {notes.map((n, k) => (
+          <p key={n} className={`${k === 0 ? 'mt-2' : 'mt-1'} text-[10.5px] leading-snug text-fg-3`}>
+            {n}
+          </p>
+        ))}
         <p className="mono mt-2 text-[9.5px] text-fg-3">
-          {id === 'voyager1' ? 'Trajectory: JPL Horizons' : id === 'proxima' ? 'Gaia DR3; Boyajian et al. 2012' : 'NASA Planetary Fact Sheets (NSSDCA)'}
+          {r.dataSource ?? r.provider.label ?? ''}
         </p>
       </div>
       <div className="flex flex-wrap gap-1 px-2.5 pb-2 pt-1">
@@ -216,7 +356,7 @@ function Target() {
         <button className="btn" disabled={tripActive} onClick={() => openPlanner(id)} title="Plan a trip at a chosen speed (G)">
           Plan trajectory…
         </button>
-        <button className="btn" onClick={() => emitLightPulse(id)} title="Emit a light pulse from this body’s current position (Experiment 1)">
+        <button className="btn" onClick={() => emitLightPulse(id)} title={`Emit a light pulse from this body’s current position${labUsed ? ' (Experiment 1)' : ''}`}>
           Emit pulse
         </button>
       </div>
@@ -293,7 +433,7 @@ function LightTime() {
       />
       <Ro l="Signal to Earth" v={far ? <Q x={earthLight.messageTime} dim="time" d={5} /> : '< 1 s'} title="Advanced light-time: a signal sent now reaches Earth after this long" />
       <Ro l="Sunlight here left the Sun" v={<Q x={sim.camera.pos.length() / C_KM_S} dim="time" d={5} />} u="ago" />
-      {sel && sel !== 'earth' && <Ro l={`Light-time to ${BODIES[sel].name}`} v={<Q x={sim.bodies[sel].distTrue / C_KM_S} dim="time" d={5} />} />}
+      {sel && sel !== 'earth' && sim.bodies[sel] && <Ro l={`Light-time to ${bodyName(sel)}`} v={<Q x={sim.bodies[sel].distTrue / C_KM_S} dim="time" d={5} />} />}
       <div className="pt-1">
         <Check
           checked={retarded}
@@ -336,6 +476,7 @@ function Ephemeris() {
 
 function EphemerisTable() {
   const selected = useUI((s) => s.selected);
+  const focus = useUI((s) => s.focus);
   const tripActive = useUI((s) => s.tripActive);
   return (
       <table className="tbl">
@@ -350,7 +491,7 @@ function EphemerisTable() {
           </tr>
         </thead>
         <tbody>
-          {BODY_ORDER.map((id: BodyId) => {
+          {ephemerisRows(focus, selected).map((id: BodyId) => {
             const b = sim.bodies[id];
             const rng = qty(b.distTrue, 'length', 4);
             const lt = qty(b.distTrue / C_KM_S, 'time', 3);
@@ -361,7 +502,7 @@ function EphemerisTable() {
                 onClick={() => useUI.getState().select(id)}
                 onDoubleClick={() => !tripActive && goToBody(id)}
               >
-                <td className="!font-sans">{BODIES[id].name}</td>
+                <td className="!font-sans">{bodyName(id)}</td>
                 <td>{id === 'sun' ? '0' : sig(b.distSun / 149_597_870.7, 5)}</td>
                 <td>
                   {rich(rng.v)} <span className="text-fg-3">{rng.u}</span>
@@ -389,7 +530,7 @@ const CHANNELS: Record<ScopeChannel, { label: string; q: string; unit?: string; 
     q: 'r',
     unit: 'km',
     log: true,
-    read: () => sim.bodies[useUI.getState().selected ?? useUI.getState().focus].distTrue,
+    read: () => sim.bodies[useUI.getState().selected ?? useUI.getState().focus]?.distTrue ?? NaN,
   },
 };
 const SPAN_S = 30;
@@ -450,11 +591,11 @@ export function InstrumentsDock(): ReactNode {
   useTicker(8);
   const width = useUI((s) => s.rightWidth);
   return (
-    <aside className="dock dock-r relative" aria-label="Instruments" style={{ width }}>
+    <aside className="dock dock-r relative" aria-label="Instrument panel" style={{ width }}>
       <DockResizer side="right" width={width} initial={312} min={260} max={520} onChange={(w) => useUI.setState({ rightWidth: w })} />
       <div className="titlebar !h-[30px]">
-        <span className="cap !text-fg-2">Instruments</span>
-        <button className="btn btn-q btn-sq ml-auto !h-5 !w-5" onClick={() => useUI.setState({ rightOpen: false })} aria-label="Close instruments">
+        <span className="cap !text-fg-2">Instrument panel</span>
+        <button className="btn btn-q btn-sq ml-auto !h-5 !w-5" onClick={() => useUI.setState({ rightOpen: false })} aria-label="Close the instrument panel">
           <CloseIcon />
         </button>
       </div>

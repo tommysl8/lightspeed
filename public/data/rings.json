@@ -1,0 +1,138 @@
+{
+ "format": "lightspeed-rings",
+ "version": 1,
+ "generated": "2026-09-25",
+ "conventions": {
+  "geometry": "Each ring is a circle (or a slightly eccentric ellipse) in the plane given by its system's 'plane'. Radii are distances from the parent's centre in km. radiusKm is the ring's middle; innerKm/outerKm are given for broad rings. widthKm is the radial width.",
+  "plane": "'parent-equator' means the parent planet's equatorial plane: use the planet's IAU pole (astronomy-engine RotationAxis). Otherwise poleRaDeg/poleDecDeg give the ring pole in the ICRF.",
+  "opticalDepth": "Normal optical depth τ: a ring viewed face-on blocks a fraction 1 − e^(−τ) of the light behind it. Where only an 'apparent' (line-of-sight) value was measured, the field says so.",
+  "albedo": "Particle albedo where known (for the dark rings of Uranus and Neptune, about 0.015). Rendering hint only.",
+  "colour": "sRGB display tint; see colourNote for how well known it is.",
+  "precision": "Radii of the narrow Uranian rings are known to ~1 km (occultations); the faint dusty rings have fuzzy edges and their values are nominal. Nothing here changes with time except the Adams arcs, which drift and fade (see notes)."
+ },
+ "systems": [
+  {
+   "parent": "jupiter",
+   "plane": "parent-equator",
+   "summary": "Jupiter's rings are faint dust, made by meteoroid impacts on the small inner moons (Burns et al. 1999). Voyager 1 found them in 1979.",
+   "sources": [
+    "PDS Rings Node, Jupiter vital statistics, https://pds-rings.seti.org/jupiter/jupiter_tables.html",
+    "NASA NSSDCA Jupiter Rings Fact Sheet, https://nssdc.gsfc.nasa.gov/planetary/factsheet/jupringfact.html",
+    "Burns et al. 1999, Science 284, 1146, https://doi.org/10.1126/science.284.5417.1146",
+    "Throop et al. 2004, Icarus 172, 59, https://doi.org/10.1016/j.icarus.2003.12.020 (colour: the main ring is red)"
+   ],
+   "rings": [
+    { "name": "Halo", "innerKm": 89400, "outerKm": 123000, "thicknessKm": 10000, "opticalDepth": 3e-6, "colour": "#9c8a7a", "colourNote": "faint reddish-brown dust; approximate", "note": "Toroidal; densest in a core less than 1,000 km thick." },
+    { "name": "Main ring", "innerKm": 123000, "outerKm": 128940, "thicknessKm": 100, "opticalDepth": 5e-6, "albedo": 0.015, "colour": "#a07e66", "colourNote": "reddish (Throop et al. 2004); approximate", "note": "Metis and Adrastea orbit near its outer edge. Thickness is an upper limit." },
+    { "name": "Amalthea gossamer ring", "innerKm": 128940, "outerKm": 181350, "thicknessKm": 2600, "opticalDepth": 1e-7, "colour": "#8c8078", "colourNote": "approximate", "note": "Inner gossamer ring, bounded by Amalthea's orbit." },
+    { "name": "Thebe gossamer ring", "innerKm": 128940, "outerKm": 221900, "thicknessKm": 8800, "opticalDepth": 1e-7, "colour": "#8c8078", "colourNote": "approximate", "note": "Outer gossamer ring, bounded by Thebe's orbit; overlaps the Amalthea ring." },
+    { "name": "Thebe extension", "innerKm": 221900, "outerKm": 280000, "thicknessKm": 8800, "opticalDepth": 1e-8, "colour": "#8c8078", "colourNote": "approximate", "note": "Very faint outward extension of the Thebe ring." }
+   ]
+  },
+  {
+   "parent": "uranus",
+   "plane": "parent-equator",
+   "summary": "Thirteen known rings. Nine narrow, dense rings (6, 5, 4, alpha, beta, eta, gamma, delta, epsilon) were found by stellar occultation in 1977; Voyager 2 added lambda and zeta (1986); Hubble found the faint outer nu and mu rings (2003–2005). The narrow rings are as dark as charcoal.",
+   "sources": [
+    "PDS Rings Node, Uranus ring table, https://pds-rings.seti.org/uranus/uranus_rings_table.html (from Nicholson et al. 2018, in Planetary Ring Systems, Cambridge UP; Showalter & Lissauer 2006)",
+    "NASA NSSDCA Uranian Rings Fact Sheet, https://nssdc.gsfc.nasa.gov/planetary/factsheet/uranringfact.html (albedo)",
+    "Showalter & Lissauer 2006, Science 311, 973, https://doi.org/10.1126/science.1122882 (nu and mu rings)",
+    "de Pater, Hammel, Gibbard & Showalter 2006, Science 312, 92, https://doi.org/10.1126/science.1125110 (mu ring blue, nu ring red)"
+   ],
+   "rings": [
+    { "name": "Zeta (1986U2R)", "radiusKm": 39600, "widthKm": 3500, "opticalDepth": 0.0045, "colour": "#6e6e6e", "colourNote": "dusty; colour poorly known", "note": "Innermost; broad and diffuse. Fainter extensions reach in to ~26,800 km." },
+    { "name": "6", "radiusKm": 41838, "widthKm": 1.53, "eccentricity": 0.00102, "inclinationDeg": 0.0607, "opticalDepth": 0.3, "albedo": 0.015, "colour": "#3a3a3a", "colourNote": "very dark, neutral grey" },
+    { "name": "5", "radiusKm": 42234, "widthKm": 2.28, "eccentricity": 0.0019, "inclinationDeg": 0.0559, "opticalDepth": 0.5, "albedo": 0.015, "colour": "#3a3a3a", "colourNote": "very dark, neutral grey" },
+    { "name": "4", "radiusKm": 42571, "widthKm": 2.33, "eccentricity": 0.00106, "inclinationDeg": 0.032, "opticalDepth": 0.3, "albedo": 0.015, "colour": "#3a3a3a", "colourNote": "very dark, neutral grey" },
+    { "name": "Alpha", "radiusKm": 44718, "widthKm": 8.46, "eccentricity": 0.00076, "inclinationDeg": 0.015, "opticalDepth": 0.4, "albedo": 0.015, "colour": "#3a3a3a", "colourNote": "very dark, neutral grey", "note": "Width varies with longitude (about 4–10 km)." },
+    { "name": "Beta", "radiusKm": 45661, "widthKm": 9.49, "eccentricity": 0.000442, "inclinationDeg": 0.005, "opticalDepth": 0.3, "albedo": 0.015, "colour": "#3a3a3a", "colourNote": "very dark, neutral grey", "note": "Width varies with longitude (about 5–11 km)." },
+    { "name": "Eta", "radiusKm": 47176, "widthKm": 1.6, "opticalDepth": 0.4, "albedo": 0.015, "colour": "#3a3a3a", "colourNote": "very dark, neutral grey", "note": "Has a broad, faint outer component about 40 km wide." },
+    { "name": "Gamma", "radiusKm": 47627, "widthKm": 2.15, "eccentricity": 0.001092, "inclinationDeg": 0, "opticalDepth": 0.3, "albedo": 0.015, "colour": "#3a3a3a", "colourNote": "very dark, neutral grey", "note": "Outer edge shepherded by Ophelia." },
+    { "name": "Delta", "radiusKm": 48300, "widthKm": 4.6, "inclinationDeg": 0.001, "opticalDepth": 0.5, "albedo": 0.015, "colour": "#3a3a3a", "colourNote": "very dark, neutral grey", "note": "Inner edge shepherded by Cordelia." },
+    { "name": "Lambda (1986U1R)", "radiusKm": 50024, "widthKm": 2.3, "eccentricity": 0, "inclinationDeg": 0, "opticalDepth": 0.1, "colour": "#4a4a4a", "colourNote": "dark; colour poorly known", "note": "Found by Voyager 2; contains clumps." },
+    { "name": "Epsilon", "radiusKm": 51149, "widthKm": 58.1, "eccentricity": 0.00794, "inclinationDeg": 0, "opticalDepth": 1.4, "opticalDepthRange": [0.5, 2.3], "albedo": 0.018, "colour": "#3c3c3c", "colourNote": "very dark, neutral grey", "note": "The brightest and widest narrow ring. Its width runs from about 20 km at periapsis to about 96 km at apoapsis (the 58.1 km here is the mean). Shepherded by Cordelia and Ophelia." },
+    { "name": "Nu (R/2003 U 2)", "radiusKm": 67300, "widthKm": 3800, "opticalDepth": 5.6e-6, "colour": "#8a6a5a", "colourNote": "red (de Pater et al. 2006)", "note": "Very faint dust ring between the orbits of Portia and Rosalind." },
+    { "name": "Mu (R/2003 U 1)", "radiusKm": 97700, "widthKm": 17000, "opticalDepth": 8.5e-6, "colour": "#6f8fb8", "colourNote": "blue, like Saturn's E ring (de Pater et al. 2006): probably fine ice from the moon Mab", "note": "Very faint; brightest at the orbit of Mab." }
+   ]
+  },
+  {
+   "parent": "neptune",
+   "plane": "parent-equator",
+   "summary": "Five main rings, named after astronomers linked to Neptune's discovery. The outermost, Adams, holds bright clumps ('arcs') that stay bunched instead of spreading around the ring. All are dark and dusty.",
+   "sources": [
+    "PDS Rings Node, Neptune vital statistics, https://pds-rings.seti.org/neptune/neptune_tables.html",
+    "NASA NSSDCA Neptunian Rings Fact Sheet, https://nssdc.gsfc.nasa.gov/planetary/factsheet/nepringfact.html (arcs, albedo)",
+    "de Pater et al. 2005, Icarus 174, 263, https://doi.org/10.1016/j.icarus.2004.10.020 (arcs changing; Liberté fading)",
+    "de Pater et al. 2018, in Planetary Ring Systems (Cambridge UP), ch. 5 'The rings of Neptune' (Courage and Liberté faded to invisibility by the 2010s)"
+   ],
+   "rings": [
+    { "name": "Galle (1989N3R)", "radiusKm": 42000, "widthKm": 2000, "opticalDepth": 1e-4, "albedo": 0.015, "colour": "#4a4644", "colourNote": "dark; colour poorly known", "note": "Faint and broad." },
+    { "name": "Le Verrier (1989N2R)", "radiusKm": 53200, "widthKm": 100, "opticalDepth": 0.01, "albedo": 0.015, "colour": "#4a4644", "colourNote": "dark; colour poorly known", "note": "Narrow; width is an upper limit." },
+    { "name": "Lassell", "innerKm": 53200, "outerKm": 57200, "radiusKm": 55200, "widthKm": 4000, "opticalDepth": 1e-4, "albedo": 0.015, "colour": "#4a4644", "colourNote": "dark; colour poorly known", "note": "Faint sheet extending outward from Le Verrier." },
+    { "name": "Arago", "radiusKm": 57200, "widthKm": 100, "colour": "#4a4644", "colourNote": "dark; colour poorly known", "note": "A brightening at Lassell's outer edge; optical depth not measured separately (use ~1e-4). Width nominal." },
+    { "name": "Unnamed ring (Galatea)", "radiusKm": 61953, "widthKm": 100, "colour": "#4a4644", "colourNote": "dark", "note": "Faint dust in the orbit of Galatea. Width and optical depth not measured; nominal values." },
+    {
+     "name": "Adams (1989N1R)",
+     "radiusKm": 62933,
+     "widthKm": 15,
+     "opticalDepth": 0.01,
+     "opticalDepthRange": [0.01, 0.1],
+     "albedo": 0.015,
+     "colour": "#4a4644",
+     "colourNote": "dark; colour poorly known",
+     "note": "Narrow ring shaped by Galatea (42:43 corotation resonance). Holds the arcs below.",
+     "arcs": {
+      "note": "Arc lengths and spacing as seen by Voyager 2 in 1989 (approximate). Longitudes are relative to the trailing edge of Fraternité, increasing in the direction of orbital motion; the absolute phase of the arcs is not modelled here. The arcs move with the ring's mean motion (about 820.1°/day) and have evolved: by the 2010s Courage and Liberté had faded away and Égalité had weakened.",
+      "meanMotionDegPerDay": 820.1194,
+      "meanMotionSource": "Dumas et al. 1999, Nature 400, 733, https://doi.org/10.1038/23414",
+      "opticalDepth": 0.12,
+      "list": [
+       { "name": "Fraternité", "fromDeg": 0, "toDeg": 10 },
+       { "name": "Égalité 1", "fromDeg": 14, "toDeg": 16 },
+       { "name": "Égalité 2", "fromDeg": 16.5, "toDeg": 17.5 },
+       { "name": "Liberté", "fromDeg": 29, "toDeg": 33 },
+       { "name": "Courage", "fromDeg": 37, "toDeg": 38 }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "parent": "haumea",
+   "plane": { "poleRaDeg": 285.1, "poleDecDeg": -10.6, "source": "Ortiz et al. 2017, ring pole solution 1 (coincides with Hiʻiaka's orbital pole and Haumea's equator)" },
+   "summary": "A narrow, dense ring found during a stellar occultation on 21 January 2017: the first ring around a trans-Neptunian object. It lies near the 3:1 resonance with Haumea's 3.9-hour spin.",
+   "sources": [
+    "Ortiz et al. 2017, Nature 550, 219, https://doi.org/10.1038/nature24051"
+   ],
+   "rings": [
+    { "name": "Haumea ring", "radiusKm": 2287, "radiusRangeKm": [2242, 2362], "widthKm": 70, "opticalDepthApparent": 0.5, "colour": "#9a9a9a", "colourNote": "colour unknown; neutral placeholder", "note": "Radius 2,287 (+75/−45) km; width and apparent opacity from a square-well fit to the occultation. It reflects about 5% as much light as Haumea at most." }
+   ]
+  },
+  {
+   "parent": "quaoar",
+   "plane": { "poleRaDeg": null, "poleDecDeg": null, "note": "The rings lie in Quaoar's equatorial plane, the same plane as its moon Weywot's orbit (Pereira et al. 2023), but no pole has been adopted here. Choose an orientation and label it as illustrative." },
+   "summary": "Two rings, both far outside the Roche limit, where a ring was expected to clump into a moon. Q1R sits at the 1/3 spin–orbit resonance with Quaoar and the 6/1 mean-motion resonance with Weywot.",
+   "sources": [
+    "Morgado et al. 2023, Nature 614, 239, https://doi.org/10.1038/s41586-022-05629-6",
+    "Pereira et al. 2023, A&A 673, L4, https://doi.org/10.1051/0004-6361/202346365"
+   ],
+   "rings": [
+    { "name": "Q1R", "radiusKm": 4057, "radiusSigmaKm": 6, "widthKm": 5, "widthNote": "Very uneven: a dense core with FWHM ~5 km (normal optical depth ~0.4) inside a Lorentzian profile ~60 km wide; elsewhere in longitude the ring is ~300 km wide and tenuous (apparent opacity down to ~0.004).", "opticalDepth": 0.4, "colour": "#9a9a9a", "colourNote": "colour unknown; neutral placeholder" },
+    { "name": "Q2R", "radiusKm": 2520, "radiusSigmaKm": 20, "widthKm": 10, "opticalDepth": 0.004, "colour": "#9a9a9a", "colourNote": "colour unknown; neutral placeholder", "note": "Found in the August 2022 occultation; assumed circular and coplanar with Q1R." }
+   ]
+  },
+  {
+   "parent": "chariklo",
+   "parentNote": "(10199) Chariklo is a centaur, not one of the app's bodies. Included for completeness: it was the first small body found to have rings.",
+   "plane": { "poleRaDeg": 151.3, "poleDecDeg": 41.48, "source": "Duffard et al. 2014, A&A 568, A79, https://doi.org/10.1051/0004-6361/201424208 (pole solution that fits the long-term photometry)" },
+   "summary": "Two narrow, dense rings found by stellar occultation on 3 June 2013 (Braga-Ribas et al. 2014).",
+   "sources": [
+    "Braga-Ribas et al. 2014, Nature 508, 72, https://doi.org/10.1038/nature13155"
+   ],
+   "rings": [
+    { "name": "2013C1R", "radiusKm": 391, "widthKm": 7, "opticalDepth": 0.4, "colour": "#9a9a9a", "colourNote": "partly water ice; neutral placeholder" },
+    { "name": "2013C2R", "radiusKm": 405, "widthKm": 3, "opticalDepth": 0.06, "colour": "#9a9a9a", "colourNote": "neutral placeholder" }
+   ]
+  }
+ ]
+}

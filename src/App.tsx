@@ -2,15 +2,19 @@ import { lazy, Suspense, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { SimDriver } from './scene/SimDriver';
 import { Starfield } from './scene/Starfield';
+import { Constellations } from './scene/Constellations';
+import { PlanetHosts } from './scene/PlanetHosts';
 import { Bodies } from './scene/Bodies';
 import { Orbits } from './scene/Orbits';
 import { Belts } from './scene/Belts';
+import { CometTails } from './scene/CometTails';
 import { Glints } from './scene/Glints';
 import { LightPulses } from './scene/LightPulses';
 import { EclipticGrid } from './scene/EclipticGrid';
 import { RenderPipeline } from './render/RenderPipeline';
 import { AdaptiveQuality } from './render/AdaptiveQuality';
 import { LabelSync, LabelsLayer } from './ui/Labels';
+import { ConstellationNameSync, ConstellationNamesLayer } from './ui/ConstellationNames';
 import { Header } from './ui/layout/Header';
 import { Footer } from './ui/layout/Footer';
 import { ManualDock } from './ui/manual/ManualDock';
@@ -23,6 +27,7 @@ import { Welcome } from './ui/overlays/Welcome';
 import { Tour } from './ui/overlays/Tour';
 import { Journeys } from './ui/overlays/Journeys';
 import { KeysSheet } from './ui/overlays/KeysSheet';
+import { Search } from './ui/overlays/Search';
 import { useShortcuts } from './ui/useShortcuts';
 import { useExplainerTriggers } from './ui/useExplainerTriggers';
 import { useUI } from './state/ui';
@@ -76,22 +81,30 @@ export default function App() {
             powerPreference: 'high-performance',
             stencil: false,
           }}
-          camera={{ fov: 50, near: 0.001, far: 1e15, position: [0, 0, 0] }}
+          // Near 1 m, far 10²⁵ km (beyond the observable universe). The logarithmic depth buffer
+          // spreads its 24 bits over log2(10²⁵) = 83 octaves of distance: a relative depth
+          // resolution of 3.4 × 10⁻⁶ (34 m at 10,000 km, 3,400 km at a billion km).
+          camera={{ fov: 50, near: 0.001, far: 1e25, position: [0, 0, 0] }}
           className="!absolute inset-0"
         >
           <SimDriver />
           <Starfield />
+          <Constellations />
+          <PlanetHosts />
           <EclipticGrid />
           <Bodies />
           <Orbits />
+          <CometTails />
           <Belts />
           <Glints />
           <LightPulses />
           <LabelSync />
+          <ConstellationNameSync />
           <OverlaySync />
           <AdaptiveQuality />
           <RenderPipeline />
         </Canvas>
+        <ConstellationNamesLayer />
         <LabelsLayer />
         <ViewportInstruments />
         <ViewportChrome />
@@ -103,6 +116,7 @@ export default function App() {
       <Welcome />
       <Tour />
       <Journeys />
+      <Search />
       <KeysSheet />
       {reportFor && (
         <Suspense fallback={null}>

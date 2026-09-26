@@ -36,7 +36,7 @@ export function Try({ run, children }: { run: () => void; children: ReactNode })
       }}
     >
       <span className="doc-try-k">Try it</span>
-      {children}
+      <span className="doc-try-t">{children}</span>
       <Icon name="arrow-right" size={11} />
     </button>
   );

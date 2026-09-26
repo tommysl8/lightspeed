@@ -71,3 +71,32 @@ describe('pulse arrival', () => {
     expect(t).toBeCloseTo(100 + 5e5 / C_KM_S, 5);
   });
 });
+
+describe('pulse arrival, cheaply', () => {
+  it('takes a handful of ephemeris calls, not thirty, for a moving receiver', () => {
+    // A moon on a circular orbit 1.2 million km from the origin, crossed within a 60 s frame.
+    let calls = 0;
+    const R = 1.2e6;
+    const w = (2 * Math.PI) / (16 * 86_400);
+    const at = (t: number) => (calls++, { x: R * Math.cos(w * t), y: R * Math.sin(w * t), z: 3e4 });
+    const t = pulseArrival(at, { x: 0, y: 0, z: 0 }, 0, 0, 60, 1e-7);
+    const d = Math.hypot(R, 3e4);
+    expect(t).toBeCloseTo(d / C_KM_S, 7);
+    expect(calls).toBeLessThanOrEqual(6);
+  });
+
+  it('holds its accuracy over a frame of millions of years', () => {
+    // Mercury-like: a circle about the origin, so the front reaches it at R/c whenever it is.
+    let calls = 0;
+    const R = 5.8e7;
+    const w = (2 * Math.PI) / (88 * 86_400);
+    const t = pulseArrival((s) => (calls++, { x: R * Math.cos(w * s), y: R * Math.sin(w * s), z: 0 }), { x: 0, y: 0, z: 0 }, 0, 0, 1.6e14, 1e-7);
+    expect(t).toBeCloseTo(R / C_KM_S, 6);
+    expect(calls).toBeLessThanOrEqual(8);
+  });
+
+  it('answers at the ends of the bracket when the front is already there, or not yet', () => {
+    expect(pulseArrival(() => ({ x: 0, y: 0, z: 0 }), { x: 0, y: 0, z: 0 }, 0, 5, 10)).toBe(5);
+    expect(pulseArrival(() => ({ x: 1e12, y: 0, z: 0 }), { x: 0, y: 0, z: 0 }, 0, 0, 10)).toBe(10);
+  });
+});

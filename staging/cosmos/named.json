@@ -1,0 +1,1096 @@
+{
+  "format": "lightspeed-named-extragalactic",
+  "version": 1,
+  "generated": "2026-09-25",
+  "description": "Named galaxies, clusters and redshift-record galaxies used by the Learn articles. Values carry their sources; derived quantities (positions, CMB-frame redshifts, cosmological distances and times, disc axes) are computed by scripts/build-local-galaxies.mjs.",
+  "frames": {
+    "positions": "heliocentric, J2000 ecliptic axes (x to the March equinox, z to the ecliptic north pole)",
+    "eqToEcl": "v_ecl = R_x(+eps) v_icrs with eps = 84381.448 arcsec",
+    "appWorld": "world = (x_ecl, z_ecl, -y_ecl)",
+    "radec": "ICRS (J2000), degrees",
+    "positionsUnit": "Mpc",
+    "disc": "axesEcl: unit vectors in the ecliptic frame. major = in-plane major axis (toward the receding end when known); minor = in-plane minor axis toward the side at PA+90 deg; normal = disc normal on the observer side; spin = angular-momentum direction (null if the rotation sense is unknown). If nearSideAssumed is true the plane could also be its mirror image in the sky plane."
+  },
+  "cosmology": {
+    "model": "flat Lambda-CDM, Planck 2018 (TT,TE,EE+lowE+lensing+BAO)",
+    "H0": 67.66,
+    "OmegaM": 0.3111,
+    "OmegaR": 0.0000789331,
+    "OmegaL": 0.68882107,
+    "TcmbK": 2.7255,
+    "Neff": 3.046,
+    "ageGyr": 13.7867,
+    "ref": "Planck Collaboration 2020, A&A 641, A6"
+  },
+  "cmbDipole": {
+    "speedKmS": 369.82,
+    "l": 264.021,
+    "b": 48.253,
+    "ref": "Planck Collaboration 2020, A&A 641, A1",
+    "zCmbFormula": "1 + z_cmb = (1 + z_helio) * gamma * (1 + beta cos theta)"
+  },
+  "redshiftRecord": {
+    "asOf": "2026-09-25",
+    "id": "mom-z14",
+    "z": 14.44,
+    "previous": {
+      "id": "jades-gs-z14-0",
+      "z": 14.1796
+    }
+  },
+  "objects": [
+    {
+      "id": "andromeda",
+      "name": "Andromeda Galaxy",
+      "aliases": [
+        "M31",
+        "NGC 224",
+        "UGC 454",
+        "PGC 2557"
+      ],
+      "kind": "galaxy",
+      "ra": 10.68470833,
+      "dec": 41.26875,
+      "positionRef": "SIMBAD; position from 2MASS (Skrutskie et al. 2006, AJ 131, 1163)",
+      "galactic": {
+        "l": 121.1743,
+        "b": -21.5733
+      },
+      "ecliptic": {
+        "lon": 27.8491,
+        "lat": 33.3486
+      },
+      "morphology": {
+        "type": "SA(s)b",
+        "class": "spiral",
+        "ref": "RC3 (de Vaucouleurs et al. 1991)"
+      },
+      "vHelio": {
+        "value": -300,
+        "err": 4,
+        "ref": "McConnachie 2012, AJ 144, 4"
+      },
+      "distance": {
+        "mpc": 0.761,
+        "errMpc": 0.011,
+        "dmod": 24.407,
+        "dmodErr": 0.032,
+        "method": "Cepheid period-luminosity relations in the near-infrared (HST)",
+        "ref": "Li, Riess et al. 2021, ApJ 920, 84 (arXiv:2107.08029)"
+      },
+      "positionEclMpc": [
+        0.562069,
+        0.296962,
+        0.418346
+      ],
+      "positionBasis": "measured distance (bound to the Local Group: no expansion correction)",
+      "disc": {
+        "inclination": 77.7,
+        "recedingPA": 37.7,
+        "nearSidePA": 307.7,
+        "ref": "Corbelli et al. 2010, A&A 511, A89: i = 77.7, PA = 37.7 deg (HI, R = 10-13 kpc); the north-east half recedes, the west half is the near side",
+        "note": "The HI disc is warped: Chemin, Carignan & Foster 2009 (ApJ 705, 1395) find a mean i = 74.3 +/- 1.1 deg and PA = 37.7 +/- 0.9 deg for R = 6-27 kpc.",
+        "axesEcl": {
+          "major": [
+            -0.626216,
+            0.699121,
+            0.345084
+          ],
+          "minor": [
+            0.774826,
+            0.508901,
+            0.375054
+          ],
+          "normal": [
+            0.086595,
+            0.502245,
+            -0.860379
+          ],
+          "spin": [
+            0.086595,
+            0.502245,
+            -0.860379
+          ]
+        },
+        "normalGalactic": {
+          "l": 240.857,
+          "b": -30.202
+        },
+        "spinGalactic": {
+          "l": 240.857,
+          "b": -30.202
+        },
+        "nearSideAssumed": false
+      },
+      "size": {
+        "d25Arcmin": 190.546,
+        "axisRatio": 0.324,
+        "pa": 35,
+        "bT": 4.36,
+        "aG": 0.33,
+        "ref": "RC3 (de Vaucouleurs et al. 1991), VizieR VII/155; D25 is the B = 25 mag/arcsec^2 isophotal diameter",
+        "r25Kpc": 21.096,
+        "absMagB": -20.377
+      },
+      "cosmicWeb": {
+        "index": 12,
+        "groupPgc": 2557
+      }
+    },
+    {
+      "id": "triangulum",
+      "name": "Triangulum Galaxy",
+      "aliases": [
+        "M33",
+        "NGC 598",
+        "UGC 1117",
+        "PGC 5818"
+      ],
+      "kind": "galaxy",
+      "ra": 23.46206906,
+      "dec": 30.66017511,
+      "positionRef": "SIMBAD; position from Gaia (2020yCat.1350....0G)",
+      "galactic": {
+        "l": 133.6102,
+        "b": -31.3307
+      },
+      "ecliptic": {
+        "lon": 33.2357,
+        "lat": 19.3679
+      },
+      "morphology": {
+        "type": "SA(s)cd",
+        "class": "spiral",
+        "ref": "RC3 (de Vaucouleurs et al. 1991)"
+      },
+      "vHelio": {
+        "value": -179.2,
+        "err": 1.7,
+        "ref": "McConnachie 2012, AJ 144, 4"
+      },
+      "distance": {
+        "dmod": 24.622,
+        "dmodErr": 0.03,
+        "method": "Cepheid period-luminosity relation (HST, PHATTER)",
+        "ref": "Breuval et al. 2023, ApJ 951, 118 (arXiv:2304.00037)",
+        "mpc": 0.840234
+      },
+      "positionEclMpc": [
+        0.663019,
+        0.434458,
+        0.278649
+      ],
+      "positionBasis": "measured distance (bound to the Local Group: no expansion correction)",
+      "disc": {
+        "inclination": 52,
+        "recedingPA": 202,
+        "nearSidePA": null,
+        "ref": "Kam et al. 2017, AJ 154, 41: optical i = 52 +/- 3 deg and major-axis PA = 22.5 +/- 1 deg (Warner, Wright & Baldwin 1973); inner HI disc kinematic PA = 202 deg (the southern half recedes)",
+        "note": "The near side is not established in these sources, so the plane is ambiguous up to a mirror image in the sky plane. The outer HI disc is warped (PA ~ 165 deg).",
+        "axesEcl": {
+          "major": [
+            0.582869,
+            -0.459822,
+            -0.669946
+          ],
+          "minor": [
+            -0.502424,
+            -0.851929,
+            0.147606
+          ],
+          "normal": [
+            -0.638619,
+            0.250562,
+            -0.727588
+          ],
+          "spin": null
+        },
+        "normalGalactic": {
+          "l": 261.575,
+          "b": 11.087
+        },
+        "spinGalactic": null,
+        "nearSideAssumed": true
+      },
+      "size": {
+        "d25Arcmin": 70.795,
+        "axisRatio": 0.589,
+        "pa": 23,
+        "bT": 6.27,
+        "aG": 0.19,
+        "ref": "RC3 (de Vaucouleurs et al. 1991), VizieR VII/155; D25 is the B = 25 mag/arcsec^2 isophotal diameter",
+        "r25Kpc": 8.652,
+        "absMagB": -18.542
+      },
+      "cosmicWeb": {
+        "index": 27,
+        "groupPgc": 2557
+      }
+    },
+    {
+      "id": "lmc",
+      "name": "Large Magellanic Cloud",
+      "aliases": [
+        "LMC",
+        "Nubecula Major",
+        "PGC 17223"
+      ],
+      "kind": "galaxy",
+      "ra": 80.89416667,
+      "dec": -69.75611111,
+      "positionRef": "SIMBAD (2003A&A...412...45P)",
+      "galactic": {
+        "l": 280.4652,
+        "b": -32.8884
+      },
+      "ecliptic": {
+        "lon": 312.5086,
+        "lat": -85.3515
+      },
+      "morphology": {
+        "type": "SB(s)m",
+        "class": "magellanic-spiral",
+        "ref": "RC3 (de Vaucouleurs et al. 1991)"
+      },
+      "vHelio": {
+        "value": 262.2,
+        "err": 3.4,
+        "ref": "McConnachie 2012, AJ 144, 4"
+      },
+      "distance": {
+        "mpc": 0.04959,
+        "errMpc": 0.00055,
+        "dmod": 18.477,
+        "dmodErr": 0.026,
+        "method": "Late-type detached eclipsing binaries (49.59 +/- 0.09 stat +/- 0.54 sys kpc)",
+        "ref": "Pietrzynski et al. 2019, Nature 567, 200 (arXiv:1903.08096)"
+      },
+      "positionEclMpc": [
+        0.002716,
+        -0.002963,
+        -0.049427
+      ],
+      "positionBasis": "measured distance (bound to the Local Group: no expansion correction)",
+      "disc": {
+        "inclination": 34,
+        "majorAxisPA": 139.1,
+        "nearSidePA": 49.1,
+        "rotationOnSky": "clockwise",
+        "ref": "van der Marel & Kallivayalil 2014, ApJ 781, 121: i = 34.0 +/- 7.0 deg, line of nodes 139.1 +/- 4.1 deg (proper motions + old-star velocities); near side at PA = line of nodes - 90 deg; the disc rotates clockwise on the sky",
+        "note": "Published viewing angles depend on the tracer: i = 26-40 deg and line of nodes 130-155 deg.",
+        "axesEcl": {
+          "major": [
+            -0.758721,
+            -0.651411,
+            -0.00264
+          ],
+          "minor": [
+            0.568758,
+            -0.660466,
+            -0.490202
+          ],
+          "normal": [
+            0.31758,
+            -0.373428,
+            0.871605
+          ],
+          "spin": [
+            -0.31758,
+            0.373428,
+            -0.871605
+          ]
+        },
+        "normalGalactic": {
+          "l": 74.155,
+          "b": 9.085
+        },
+        "spinGalactic": {
+          "l": 254.155,
+          "b": -9.085
+        },
+        "nearSideAssumed": false
+      },
+      "size": {
+        "d25Arcmin": 645.654,
+        "axisRatio": 0.851,
+        "pa": 170,
+        "bT": 0.91,
+        "aG": 0.27,
+        "ref": "RC3 (de Vaucouleurs et al. 1991), VizieR VII/155; D25 is the B = 25 mag/arcsec^2 isophotal diameter",
+        "r25Kpc": 4.671,
+        "absMagB": -17.837
+      },
+      "cosmicWeb": {
+        "index": 0,
+        "groupPgc": 17223
+      }
+    },
+    {
+      "id": "smc",
+      "name": "Small Magellanic Cloud",
+      "aliases": [
+        "SMC",
+        "Nubecula Minor",
+        "NGC 292",
+        "PGC 3085"
+      ],
+      "kind": "galaxy",
+      "ra": 13.15833333,
+      "dec": -72.80027778,
+      "positionRef": "SIMBAD (2003A&A...412...45P)",
+      "galactic": {
+        "l": 302.8084,
+        "b": -44.3277
+      },
+      "ecliptic": {
+        "lon": 312.1394,
+        "lat": -64.5857
+      },
+      "morphology": {
+        "type": "SB(s)m pec",
+        "class": "magellanic-irregular",
+        "ref": "RC3 (de Vaucouleurs et al. 1991)"
+      },
+      "vHelio": {
+        "value": 145.6,
+        "err": 0.6,
+        "ref": "McConnachie 2012, AJ 144, 4"
+      },
+      "distance": {
+        "mpc": 0.06244,
+        "errMpc": 0.00093,
+        "dmod": 18.977,
+        "dmodErr": 0.032,
+        "method": "Late-type detached eclipsing binaries (62.44 +/- 0.47 stat +/- 0.81 sys kpc)",
+        "ref": "Graczyk et al. 2020, ApJ 904, 13 (arXiv:2010.08754)"
+      },
+      "positionEclMpc": [
+        0.017979,
+        -0.01987,
+        -0.056398
+      ],
+      "positionBasis": "measured distance (bound to the Local Group: no expansion correction)",
+      "disc": {
+        "inclination": 51,
+        "recedingPA": 66,
+        "nearSidePA": null,
+        "ref": "Di Teodoro et al. 2019, MNRAS 483, 392: HI kinematic model, i = 51 deg, PA of the receding line of nodes = 66 deg",
+        "note": "Applies to the gas only. The older stars form a spheroid or ellipsoid stretched along the line of sight, with the north-eastern end of the bar nearer to us than the south-western end (Di Teodoro et al. 2019 and references there); whether the HI is a rotating disc is debated.",
+        "axesEcl": {
+          "major": [
+            0.170384,
+            0.945149,
+            -0.278681
+          ],
+          "minor": [
+            -0.816823,
+            0.293661,
+            0.496551
+          ],
+          "normal": [
+            0.551152,
+            0.143029,
+            0.822055
+          ],
+          "spin": null
+        },
+        "normalGalactic": {
+          "l": 104.614,
+          "b": -3.99
+        },
+        "spinGalactic": null,
+        "nearSideAssumed": true
+      },
+      "size": {
+        "d25Arcmin": 316.228,
+        "axisRatio": 0.589,
+        "pa": 45,
+        "bT": 2.7,
+        "aG": 0.18,
+        "ref": "RC3 (de Vaucouleurs et al. 1991), VizieR VII/155; D25 is the B = 25 mag/arcsec^2 isophotal diameter",
+        "r25Kpc": 2.874,
+        "absMagB": -16.457
+      },
+      "cosmicWeb": {
+        "index": 1,
+        "groupPgc": 3085
+      }
+    },
+    {
+      "id": "m81",
+      "name": "Bode's Galaxy",
+      "aliases": [
+        "M81",
+        "NGC 3031",
+        "UGC 5318",
+        "PGC 28630"
+      ],
+      "kind": "galaxy",
+      "ra": 148.8882194,
+      "dec": 69.06529514,
+      "positionRef": "SIMBAD; position from Gaia (2020yCat.1350....0G)",
+      "galactic": {
+        "l": 142.0918,
+        "b": 40.9001
+      },
+      "ecliptic": {
+        "lon": 119.4903,
+        "lat": 51.5802
+      },
+      "morphology": {
+        "type": "SA(s)ab",
+        "class": "spiral",
+        "ref": "RC3 (de Vaucouleurs et al. 1991)"
+      },
+      "vHelio": {
+        "value": -39.8,
+        "ref": "de Blok et al. 2008, AJ 136, 2648 (THINGS HI systemic velocity)"
+      },
+      "zCmb": 0.000142,
+      "distance": {
+        "dmod": 27.797,
+        "dmodErr": 0.116,
+        "method": "Cosmicflows-4 group distance (TRGB, Cepheids and other methods in the M81 group)",
+        "ref": "Tully et al. 2023, ApJ 944, 94 (group 1PGC 28630)",
+        "mpc": 3.625768
+      },
+      "positionEclMpc": [
+        -1.108999,
+        1.960924,
+        2.84031
+      ],
+      "positionBasis": "measured distance / (1 + z_cmb)",
+      "disc": {
+        "inclination": 59,
+        "recedingPA": 330.2,
+        "nearSidePA": null,
+        "ref": "de Blok et al. 2008, AJ 136, 2648 (THINGS tilted-ring fit: i = 59.0 deg, PA of the receding half = 330.2 deg)",
+        "note": "The near side is not given in this source; the plane is ambiguous up to a mirror image in the sky plane.",
+        "axesEcl": {
+          "major": [
+            0.950695,
+            0.129485,
+            0.281803
+          ],
+          "minor": [
+            0.235959,
+            -0.891673,
+            -0.38632
+          ],
+          "normal": [
+            0.201254,
+            0.433766,
+            -0.878262
+          ],
+          "spin": null
+        },
+        "normalGalactic": {
+          "l": 243.151,
+          "b": -37.691
+        },
+        "spinGalactic": null,
+        "nearSideAssumed": true
+      },
+      "size": {
+        "d25Arcmin": 26.915,
+        "axisRatio": 0.525,
+        "pa": 157,
+        "bT": 7.89,
+        "aG": 0.16,
+        "ref": "RC3 (de Vaucouleurs et al. 1991), VizieR VII/155; D25 is the B = 25 mag/arcsec^2 isophotal diameter",
+        "r25Kpc": 14.194,
+        "absMagB": -20.067
+      }
+    },
+    {
+      "id": "m87",
+      "name": "Messier 87 (Virgo A)",
+      "aliases": [
+        "M87",
+        "NGC 4486",
+        "Virgo A",
+        "UGC 7654",
+        "PGC 41361"
+      ],
+      "kind": "galaxy",
+      "ra": 187.70593077,
+      "dec": 12.39112325,
+      "positionRef": "SIMBAD (2020A&A...644A.159C)",
+      "galactic": {
+        "l": 283.7777,
+        "b": 74.4912
+      },
+      "ecliptic": {
+        "lon": 182.0593,
+        "lat": 14.4167
+      },
+      "morphology": {
+        "type": "E+0-1 pec (cD)",
+        "class": "elliptical",
+        "ref": "RC3 (de Vaucouleurs et al. 1991)"
+      },
+      "zHelio": {
+        "value": 0.004283,
+        "err": 0.000017,
+        "ref": "NED preferred redshift (1284 +- 5 km/s): Cappellari et al. 2011, MNRAS 413, 813 (ATLAS3D)"
+      },
+      "zCmb": 0.005382,
+      "distance": {
+        "mpc": 16.8,
+        "errMpc": [
+          0.8,
+          0.7
+        ],
+        "method": "Average of stellar-population distances (SBF and others) adopted by the EHT",
+        "ref": "Event Horizon Telescope Collaboration 2019, ApJL 875, L6 (arXiv:1906.11243)",
+        "dmod": 31.1265
+      },
+      "positionEclMpc": [
+        -16.173426,
+        -0.581538,
+        4.160338
+      ],
+      "positionBasis": "measured distance / (1 + z_cmb)",
+      "size": {
+        "d25Arcmin": 8.318,
+        "axisRatio": 0.794,
+        "pa": null,
+        "bT": 9.59,
+        "aG": 0.1,
+        "ref": "RC3 (de Vaucouleurs et al. 1991), VizieR VII/155; D25 is the B = 25 mag/arcsec^2 isophotal diameter",
+        "r25Kpc": 20.324,
+        "absMagB": -21.637
+      },
+      "cosmicWeb": {
+        "index": 854,
+        "groupPgc": 41220
+      }
+    },
+    {
+      "id": "centaurus-a",
+      "name": "Centaurus A",
+      "aliases": [
+        "NGC 5128",
+        "Cen A",
+        "PGC 46957"
+      ],
+      "kind": "galaxy",
+      "ra": 201.36506338,
+      "dec": -43.01911251,
+      "positionRef": "SIMBAD (2020A&A...644A.159C)",
+      "galactic": {
+        "l": 309.5159,
+        "b": 19.4173
+      },
+      "ecliptic": {
+        "lon": 217.1433,
+        "lat": -31.3319
+      },
+      "morphology": {
+        "type": "S0 pec",
+        "class": "lenticular-peculiar",
+        "ref": "RC3 (de Vaucouleurs et al. 1991); an elliptical-like body crossed by a warped dust disc, with radio jets and lobes"
+      },
+      "zHelio": {
+        "value": 0.0018246,
+        "err": 0.0000167,
+        "ref": "NED preferred redshift (547 +- 5 km/s), from Baer-Way et al. 2024, ApJ 964, 172"
+      },
+      "zCmb": 0.002676,
+      "distance": {
+        "dmod": 27.804,
+        "dmodErr": 0.038,
+        "method": "Cosmicflows-4 (TRGB, SBF and other methods combined)",
+        "ref": "Tully et al. 2023, ApJ 944, 94",
+        "mpc": 3.637475
+      },
+      "positionEclMpc": [
+        -2.470081,
+        -1.871047,
+        -1.88642
+      ],
+      "positionBasis": "measured distance / (1 + z_cmb)",
+      "size": {
+        "d25Arcmin": 25.704,
+        "axisRatio": 0.776,
+        "pa": 35,
+        "bT": 7.84,
+        "aG": 0.52,
+        "ref": "RC3 (de Vaucouleurs et al. 1991), VizieR VII/155; D25 is the B = 25 mag/arcsec^2 isophotal diameter",
+        "r25Kpc": 13.599,
+        "absMagB": -20.484
+      },
+      "cosmicWeb": {
+        "index": 154,
+        "groupPgc": 46957
+      }
+    },
+    {
+      "id": "sombrero",
+      "name": "Sombrero Galaxy",
+      "aliases": [
+        "M104",
+        "NGC 4594",
+        "PGC 42407"
+      ],
+      "kind": "galaxy",
+      "ra": 189.99763275,
+      "dec": -11.62305449,
+      "positionRef": "SIMBAD (2020A&A...644A.159C)",
+      "galactic": {
+        "l": 298.4606,
+        "b": 51.1493
+      },
+      "ecliptic": {
+        "lon": 193.7565,
+        "lat": -6.7309
+      },
+      "morphology": {
+        "type": "SA(s)a sp",
+        "class": "spiral",
+        "ref": "RC3 (de Vaucouleurs et al. 1991)"
+      },
+      "vHelio": {
+        "value": 1095,
+        "ref": "SIMBAD; Kourkchi et al. 2020, ApJ 902, 145"
+      },
+      "zCmb": 0.004799,
+      "distance": {
+        "mpc": 9.55,
+        "errMpc": 0.34,
+        "dmod": 29.9,
+        "dmodErr": 0.08,
+        "method": "Tip of the red giant branch (HST); 9.55 +/- 0.13 stat +/- 0.31 sys Mpc",
+        "ref": "McQuinn, Skillman, Dolphin et al. 2016, AJ 152, 144 (arXiv:1610.03857)"
+      },
+      "positionEclMpc": [
+        -9.168129,
+        -2.244524,
+        -1.113971
+      ],
+      "positionBasis": "measured distance / (1 + z_cmb)",
+      "disc": {
+        "inclination": 84,
+        "majorAxisPA": 90,
+        "nearSidePA": null,
+        "approximate": true,
+        "ref": "Major-axis PA = 90 deg from RC3. Jardel et al. 2011 (ApJ 739, 21) describe the disc as inclined \"very close to 90 deg\"; the 84 deg adopted here is an approximate value that keeps the dust ring visible as in images",
+        "note": "Inclination is approximate (modelling choice); the near side is not set from a source.",
+        "axesEcl": {
+          "major": [
+            0.173607,
+            -0.90355,
+            0.391737
+          ],
+          "minor": [
+            0.980076,
+            0.197491,
+            0.021173
+          ],
+          "normal": [
+            -0.096495,
+            0.380256,
+            0.919834
+          ],
+          "spin": null
+        },
+        "normalGalactic": {
+          "l": 123.265,
+          "b": 32.744
+        },
+        "spinGalactic": null,
+        "nearSideAssumed": true
+      },
+      "size": {
+        "d25Arcmin": 8.71,
+        "axisRatio": 0.407,
+        "pa": 90,
+        "bT": 8.98,
+        "aG": 0.13,
+        "ref": "RC3 (de Vaucouleurs et al. 1991), VizieR VII/155; D25 is the B = 25 mag/arcsec^2 isophotal diameter",
+        "r25Kpc": 12.098,
+        "absMagB": -21.05
+      },
+      "cosmicWeb": {
+        "index": 585,
+        "groupPgc": 42407
+      }
+    },
+    {
+      "id": "whirlpool",
+      "name": "Whirlpool Galaxy",
+      "aliases": [
+        "M51",
+        "M51a",
+        "NGC 5194",
+        "UGC 8493",
+        "PGC 47404"
+      ],
+      "kind": "galaxy",
+      "ra": 202.469575,
+      "dec": 47.19525833,
+      "positionRef": "SIMBAD (2006AJ....131.1163S)",
+      "galactic": {
+        "l": 104.8516,
+        "b": 68.5607
+      },
+      "ecliptic": {
+        "lon": 175.1239,
+        "lat": 50.9354
+      },
+      "morphology": {
+        "type": "SA(s)bc pec",
+        "class": "spiral",
+        "ref": "RC3 (de Vaucouleurs et al. 1991)"
+      },
+      "vHelio": {
+        "value": 472,
+        "ref": "Systemic velocity adopted by Colombo et al. 2014, ApJ 784, 4"
+      },
+      "zCmb": 0.002152,
+      "distance": {
+        "mpc": 8.58,
+        "errMpc": 0.1,
+        "method": "Tip of the red giant branch (HST)",
+        "ref": "McQuinn, Skillman, Dolphin et al. 2016, ApJ 826, 21 (arXiv:1606.04120)",
+        "dmod": 29.6674
+      },
+      "positionEclMpc": [
+        -5.37595,
+        0.458625,
+        6.647511
+      ],
+      "positionBasis": "measured distance / (1 + z_cmb)",
+      "disc": {
+        "inclination": 22,
+        "majorAxisPA": 173,
+        "nearSidePA": null,
+        "ref": "Colombo et al. 2014, ApJ 784, 4 (PAWS): PA = 173 +/- 3 deg, i = 22 +/- 5 deg",
+        "note": "The near side is not given in this source; the plane is ambiguous up to a mirror image in the sky plane. Colombo et al. model the arms as trailing, S-shaped on the sky. Interacting with NGC 5195 (M51b) to the north.",
+        "axesEcl": {
+          "major": [
+            -0.626344,
+            -0.626949,
+            -0.46328
+          ],
+          "minor": [
+            -0.193108,
+            0.700556,
+            -0.686972
+          ],
+          "normal": [
+            0.75525,
+            -0.340818,
+            -0.559858
+          ],
+          "spin": null
+        },
+        "normalGalactic": {
+          "l": 348.455,
+          "b": -68.99
+        },
+        "spinGalactic": null,
+        "nearSideAssumed": true
+      },
+      "size": {
+        "d25Arcmin": 11.22,
+        "axisRatio": 0.617,
+        "pa": 163,
+        "bT": 8.96,
+        "aG": 0,
+        "ref": "RC3 (de Vaucouleurs et al. 1991), VizieR VII/155; D25 is the B = 25 mag/arcsec^2 isophotal diameter",
+        "r25Kpc": 14.002,
+        "absMagB": -20.707
+      },
+      "cosmicWeb": {
+        "index": 336,
+        "groupPgc": 47404
+      }
+    },
+    {
+      "id": "virgo-cluster",
+      "name": "Virgo Cluster",
+      "aliases": [
+        "Virgo I",
+        "Cosmicflows-4 group 1PGC 41220"
+      ],
+      "kind": "cluster",
+      "ra": 187.6991,
+      "dec": 12.3852,
+      "positionRef": "SIMBAD \"NAME Virgo Cluster\" (2022A&A...661A..38P); essentially the position of M87",
+      "galactic": {
+        "l": 283.7606,
+        "b": 74.4835
+      },
+      "ecliptic": {
+        "lon": 182.0555,
+        "lat": 14.4086
+      },
+      "morphology": {
+        "type": "cluster (irregular, several sub-clusters)",
+        "class": "cluster",
+        "ref": "Binggeli, Tammann & Sandage 1987, AJ 94, 251"
+      },
+      "vHelio": {
+        "value": 1257,
+        "ref": "Cosmicflows-4 group 1PGC 41220, mean heliocentric velocity (Tully et al. 2023, ApJ 944, 94, table 4)"
+      },
+      "zCmb": 0.005292,
+      "distance": {
+        "mpc": 16.5,
+        "errMpc": 1.1,
+        "method": "Surface brightness fluctuations of 79 early-type members (16.5 +/- 0.1 random +/- 1.1 systematic Mpc)",
+        "ref": "Mei et al. 2007, ApJ 655, 144 (ACS Virgo Cluster Survey XIII)",
+        "dmod": 31.0874
+      },
+      "positionEclMpc": [
+        -15.886654,
+        -0.570171,
+        4.084158
+      ],
+      "positionBasis": "measured distance / (1 + z_cmb)",
+      "cosmicWeb": {
+        "groupPgc": 41220,
+        "members": {
+          "first": 748,
+          "count": 164
+        }
+      }
+    },
+    {
+      "id": "coma-cluster",
+      "name": "Coma Cluster",
+      "aliases": [
+        "Abell 1656",
+        "Cosmicflows-4 group 1PGC 44715"
+      ],
+      "kind": "cluster",
+      "ra": 194.93502,
+      "dec": 27.91246,
+      "positionRef": "SIMBAD \"ACO 1656\" (2020ApJS..246....2A)",
+      "galactic": {
+        "l": 56.4851,
+        "b": 87.9993
+      },
+      "ecliptic": {
+        "lon": 181.5256,
+        "lat": 31.3379
+      },
+      "morphology": {
+        "type": "rich cluster, Bautz-Morgan II",
+        "class": "cluster",
+        "ref": "Abell 1958"
+      },
+      "zHelio": {
+        "value": 0.0234,
+        "ref": "SIMBAD; Rines et al. 2016, ApJ 819, 63"
+      },
+      "zCmb": 0.024316,
+      "distance": {
+        "mpc": 98.5,
+        "errMpc": 2.2,
+        "method": "12 type Ia supernovae calibrated on the HST (Cepheid) distance ladder",
+        "ref": "Scolnic, Riess et al. 2025, ApJL 979, L9 (arXiv:2409.14546)",
+        "note": "The same data calibrated to the Planck Lambda-CDM value H0 = 67.4 give 111.8 +/- 1.8 Mpc: the Hubble tension, measured on one cluster.",
+        "dmod": 34.9672
+      },
+      "cosmology": {
+        "comovingDistanceMpc": 107.127,
+        "luminosityDistanceMpc": 109.731,
+        "angularDiameterDistanceMpc": 104.584,
+        "lookbackTimeGyr": 0.3452,
+        "ageAtEmissionGyr": 13.4414,
+        "lightTravelDistanceGly": 0.3452
+      },
+      "positionEclMpc": [
+        -82.104095,
+        -2.18671,
+        50.012144
+      ],
+      "positionBasis": "measured distance / (1 + z_cmb)",
+      "cosmicWeb": {
+        "groupPgc": 44715,
+        "members": {
+          "first": 10892,
+          "count": 263
+        }
+      }
+    },
+    {
+      "id": "bullet-cluster",
+      "name": "Bullet Cluster",
+      "aliases": [
+        "1E 0657-56",
+        "1E 0657-558",
+        "ClG 0657-56"
+      ],
+      "kind": "cluster",
+      "ra": 104.612,
+      "dec": -55.9725,
+      "positionRef": "SIMBAD \"ClG 0657-56\" (2022A&A...661A..38P)",
+      "galactic": {
+        "l": 266.0482,
+        "b": -21.2645
+      },
+      "ecliptic": {
+        "lon": 130.1844,
+        "lat": -77.3625
+      },
+      "morphology": {
+        "type": "merging cluster pair",
+        "class": "cluster",
+        "ref": "Clowe et al. 2006, ApJ 648, L109"
+      },
+      "zHelio": {
+        "value": 0.296,
+        "ref": "Clowe et al. 2006, ApJ 648, L109"
+      },
+      "zCmb": 0.29656,
+      "cosmology": {
+        "comovingDistanceMpc": 1219.677,
+        "luminosityDistanceMpc": 1581.384,
+        "angularDiameterDistanceMpc": 940.702,
+        "lookbackTimeGyr": 3.4956,
+        "ageAtEmissionGyr": 10.2911,
+        "lightTravelDistanceGly": 3.4956
+      },
+      "positionEclMpc": [
+        -172.180697,
+        203.860924,
+        -1190.128781
+      ],
+      "positionBasis": "comoving distance from z_cmb (Planck 2018 flat Lambda-CDM)"
+    },
+    {
+      "id": "gn-z11",
+      "name": "GN-z11",
+      "aliases": [
+        "[OBV2016] GN-z11"
+      ],
+      "kind": "high-z-galaxy",
+      "ra": 189.106054,
+      "dec": 62.242049,
+      "positionRef": "SIMBAD (2025MNRAS.542.1952M)",
+      "galactic": {
+        "l": 125.9636,
+        "b": 54.7977
+      },
+      "ecliptic": {
+        "lon": 148.2679,
+        "lat": 57.2692
+      },
+      "morphology": {
+        "type": "compact star-forming galaxy",
+        "class": "high-z",
+        "ref": "Tacchella et al. 2023, ApJ 952, 74"
+      },
+      "zHelio": {
+        "value": 10.603,
+        "ref": "Bunker et al. 2023, A&A 677, A88 (JWST/NIRSpec; arXiv:2302.07256)",
+        "note": "Discovered by Oesch et al. 2016 (ApJ 819, 129) with an HST grism redshift of 11.09."
+      },
+      "zCmb": 10.607648,
+      "cosmology": {
+        "comovingDistanceMpc": 9762.823,
+        "luminosityDistanceMpc": 113323.41,
+        "angularDiameterDistanceMpc": 841.068,
+        "lookbackTimeGyr": 13.3518,
+        "ageAtEmissionGyr": 0.4349,
+        "lightTravelDistanceGly": 13.3518
+      },
+      "positionEclMpc": [
+        -4489.606772,
+        2776.310056,
+        8212.688137
+      ],
+      "positionBasis": "comoving distance from z_cmb (Planck 2018 flat Lambda-CDM)"
+    },
+    {
+      "id": "jades-gs-z14-0",
+      "name": "JADES-GS-z14-0",
+      "aliases": [],
+      "kind": "high-z-galaxy",
+      "ra": 53.082937,
+      "dec": -27.855632,
+      "positionRef": "SIMBAD (2025MNRAS.542.1952M)",
+      "galactic": {
+        "l": 223.646,
+        "b": -54.4739
+      },
+      "ecliptic": {
+        "lon": 41.0635,
+        "lat": -45.2239
+      },
+      "morphology": {
+        "type": "extended, luminous star-forming galaxy",
+        "class": "high-z",
+        "ref": "Carniani et al. 2024, Nature 633, 318"
+      },
+      "zHelio": {
+        "value": 14.1796,
+        "err": 0.0007,
+        "ref": "Carniani et al. 2025, A&A 696, A87 (ALMA [OIII] 88 micron; arXiv:2409.20533). Schouws et al. 2025, ApJ (arXiv:2409.20549) find 14.1793 +/- 0.0007",
+        "note": "Discovered by Carniani et al. 2024, Nature 633, 318 (JWST/NIRSpec prism, z = 14.32 +0.08 -0.20). Record holder from May 2024 until MoM-z14."
+      },
+      "zCmb": 14.173761,
+      "cosmology": {
+        "comovingDistanceMpc": 10346.187,
+        "luminosityDistanceMpc": 156990.574,
+        "angularDiameterDistanceMpc": 681.847,
+        "lookbackTimeGyr": 13.496,
+        "ageAtEmissionGyr": 0.2907,
+        "lightTravelDistanceGly": 13.496
+      },
+      "positionEclMpc": [
+        5494.432553,
+        4786.939387,
+        -7344.386133
+      ],
+      "positionBasis": "comoving distance from z_cmb (Planck 2018 flat Lambda-CDM)"
+    },
+    {
+      "id": "mom-z14",
+      "name": "MoM-z14",
+      "aliases": [],
+      "kind": "high-z-galaxy",
+      "recordHolder": true,
+      "ra": 150.0933255,
+      "dec": 2.2731627,
+      "positionRef": "Naidu et al. 2026, table 1",
+      "galactic": {
+        "l": 236.7281,
+        "b": 42.1396
+      },
+      "ecliptic": {
+        "lon": 151.3684,
+        "lat": -9.3102
+      },
+      "morphology": {
+        "type": "compact, luminous (M_UV = -20.2) star-forming galaxy",
+        "class": "high-z",
+        "ref": "Naidu et al. 2026"
+      },
+      "zHelio": {
+        "value": 14.44,
+        "err": 0.02,
+        "ref": "Naidu, Oesch et al. 2026, The Open Journal of Astrophysics 9, doi:10.33232/001c.156033 (arXiv:2505.11263): JWST/NIRSpec prism, Lyman break plus rest-UV lines",
+        "note": "Most distant spectroscopically confirmed galaxy known on 2026-09-25 (checked against the literature and news up to that date)."
+      },
+      "zCmb": 14.457903,
+      "cosmology": {
+        "comovingDistanceMpc": 10383.763,
+        "luminosityDistanceMpc": 160511.207,
+        "angularDiameterDistanceMpc": 671.745,
+        "lookbackTimeGyr": 13.504,
+        "ageAtEmissionGyr": 0.2826,
+        "lightTravelDistanceGly": 13.504
+      },
+      "positionEclMpc": [
+        -8993.964267,
+        4910.103322,
+        -1679.888741
+      ],
+      "positionBasis": "comoving distance from z_cmb (Planck 2018 flat Lambda-CDM)"
+    }
+  ]
+}
