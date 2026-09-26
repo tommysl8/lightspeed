@@ -1,12 +1,13 @@
 /**
  * Guided tour: a short sequence of notes, each pinned to one part of the screen, which is
- * picked out by a spotlight. Anchors are elements marked data-tour="…"; a step whose anchor
- * is not on screen (a narrow layout) is shown centred instead.
+ * picked out by a spotlight. Anchors are elements marked data-tour="…" (the header's search,
+ * journeys, date chip, Learn and View menu, the footer's time controls, and the view); a step
+ * whose anchor is not on screen (a narrow layout) is shown centred instead.
  */
 import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 import { useUI } from '../../state/ui';
 import { Kbd } from '../kit';
-import { openJourneys } from '../onboarding';
+import { openSearch } from '../onboarding';
 import { useModal } from '../useModal';
 
 interface Step {
@@ -21,35 +22,21 @@ const STEPS: Step[] = [
     title: 'The Solar System, right now',
     body: (
       <>
-        Every planet is where it really is at this moment, and every distance is true to scale. Drag to look around and scroll to
-        zoom. At this scale the planets are specks, so labels mark where they are.
+        Every planet is where it really is at this moment, and every distance is true to scale. Drag to look around, scroll to
+        zoom, and click a planet for its card. At this scale the planets are specks, so labels mark where they are.
       </>
     ),
   },
   {
-    anchor: 'targets',
-    title: 'Go anywhere',
+    anchor: 'search',
+    title: 'Where to?',
     body: (
       <>
-        Click a name to take the camera there, or press <Kbd>0</Kbd>–<Kbd>9</Kbd> (<Kbd>M</Kbd> is the Moon, <Kbd>V</Kbd> Voyager 1).
-        A card tells you about the body; <b>Fly here</b> on it plans a real flight.
+        Type a name, or part of one: Saturn, the Moon, Voyager 1, the nearest star. <b>Go</b> takes the camera there; <b>Fly</b>{' '}
+        plans a real flight at 1 g and shows how long it takes for you and at home. Press <Kbd>/</Kbd> or <Kbd>Ctrl</Kbd>+<Kbd>K</Kbd>{' '}
+        from anywhere.
       </>
     ),
-  },
-  {
-    anchor: 'time',
-    title: 'Run the clock',
-    body: (
-      <>
-        Pause with <Kbd>Space</Kbd>, or run time up to a million times faster than real time. <b>Now</b> brings you back to the
-        present.
-      </>
-    ),
-  },
-  {
-    anchor: 'epoch',
-    title: 'Pick a date',
-    body: <>The moment being simulated, in UTC. Click it to jump to any date from 1981 to 2199.</>,
   },
   {
     anchor: 'journeys',
@@ -62,36 +49,43 @@ const STEPS: Step[] = [
     ),
   },
   {
-    anchor: 'fly',
-    title: 'Fly anywhere, at any speed',
+    anchor: 'epoch',
+    title: 'Pick a date',
     body: (
       <>
-        Plan a flight to any body at any speed below <i>c</i>. On the way the sky crowds ahead of you, colours shift, and your clock
-        falls behind Earth’s.
+        The date being shown, in UTC. Click it to go to any year from 10,000 BCE to 9999. It turns amber, with a dot, whenever
+        it is not the present.
       </>
     ),
   },
   {
-    anchor: 'physics',
-    title: 'What you are seeing, explained',
+    anchor: 'time',
+    title: 'Run the clock',
     body: (
       <>
-        Ten short sections on the physics: light-travel time, the Lorentz factor, aberration, the Doppler shift and more. The same
-        panel holds a lab with five experiments, for students.
+        Pause with <Kbd>Space</Kbd>; the arrows (or <Kbd>[</Kbd> <Kbd>]</Kbd>) run time slower or faster, from real time up to
+        millions of years a second. <b>Now</b> brings you back to the present. In flight they set the pace of the trip instead.
       </>
     ),
   },
   {
-    anchor: 'instruments',
-    title: 'The numbers',
-    body: <>Live readouts of your speed, two clocks, Doppler factors and light-travel times, and a data sheet for the selected body.</>,
-  },
-  {
-    anchor: 'guide',
-    title: 'Help is always here',
+    anchor: 'learn',
+    title: 'Learn',
     body: (
       <>
-        The guide explains every control and every reading. Press <Kbd>?</Kbd> at any time for the keys.
+        Long reads on the science behind the view: how it was found out, what the physics says and what comes next, with the
+        sources to go further. Press <Kbd>E</Kbd> to open it.
+      </>
+    ),
+  },
+  {
+    anchor: 'view-menu',
+    title: 'Everything else',
+    body: (
+      <>
+        The View menu holds the display layers, the optics, the guide and the keys, and the instrument panel with every number
+        live. Beside it, <b>Lab</b> (on a phone, at the end of Learn) has five guided experiments for students. Both are
+        there for those who want them.
       </>
     ),
   },
@@ -202,10 +196,10 @@ function TourStep({ i }: { i: number }) {
               data-autofocus
               onClick={() => {
                 end();
-                openJourneys();
+                openSearch();
               }}
             >
-              Take a journey
+              Where to?
             </button>
           ) : (
             <button className="btn btn-pri btn-sm" data-autofocus onClick={() => go(1)}>

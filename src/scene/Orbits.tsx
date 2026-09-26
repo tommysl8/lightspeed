@@ -1,10 +1,11 @@
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import {
   Color,
   InstancedBufferAttribute,
   InstancedBufferGeometry,
   Float32BufferAttribute,
+  type Mesh,
   type PerspectiveCamera,
   type ShaderMaterial,
   WebGLCubeRenderTarget,
@@ -14,7 +15,7 @@ import { BODIES, GM_SOLAR_SYSTEM_KM3_S2, GM_SUN_KM3_S2, type BodyId } from '../p
 import { solveKepler, solveKeplerHyperbolic, stateToOrbit, type Orbit } from '../physics/kepler';
 import { createOrbitMaterial } from '../render/materials';
 import { GUIDES_LAYER } from '../render/LightspeedScenePass';
-import { pixelsPerRadian } from '../sim/derived';
+import { pixelsPerRadian, solarSystemHidden } from '../sim/derived';
 import { VOYAGER1_MODEL_START_MS } from '../sim/ephemeris';
 import { sim } from '../sim/sim';
 import { useUI } from '../state/ui';
@@ -69,11 +70,14 @@ function OrbitLine({ id }: { id: BodyId }) {
     const c = new Color(BODIES[id].color).lerp(new Color('#cfd8ea'), 0.55);
     return createOrbitMaterial(c);
   }, [id]);
+  const mesh = useRef<Mesh | null>(null);
 
   useFrame(({ camera, gl }) => {
     const b = sim.bodies[id];
-    if (!b.present) {
+    // From beyond the Solar System's pixel there is nothing to draw (and nothing to compute).
+    if (!b.present || solarSystemHidden()) {
       material.uniforms.uOpacity.value = 0;
+      if (mesh.current) mesh.current.visible = false;
       return;
     }
     const parent = id === 'moon' ? sim.bodies.earth : null;
@@ -117,6 +121,7 @@ function OrbitLine({ id }: { id: BodyId }) {
     const selected = ui.selected === id ? 1.35 : 1;
     const closeUp = ui.controlMode === 'free' ? 0 : smoothstep(40, 220, sim.bodies[ui.focus].radiusPx);
     u.uOpacity.value = smoothstep(4, 40, sizePx) * selected * (1 - 0.85 * closeUp);
+    if (mesh.current) mesh.current.visible = u.uOpacity.value > 0.002;
   });
 
   // Line width is in pixels of whatever is being rendered: the screen, or a relativistic
@@ -140,7 +145,10 @@ function OrbitLine({ id }: { id: BodyId }) {
       frustumCulled={false}
       renderOrder={10}
       onBeforeRender={onBeforeRender}
-      ref={(o) => o?.layers.set(GUIDES_LAYER)}
+      ref={(o) => {
+        mesh.current = o;
+        o?.layers.set(GUIDES_LAYER);
+      }}
     />
   );
 }

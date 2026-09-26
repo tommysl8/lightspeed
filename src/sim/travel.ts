@@ -84,6 +84,8 @@ export interface ArrivalSummary {
   earthTime: number;
   shipTime: number;
   distance: number;
+  /** Simulation time at arrival (ms): the date at home when the ship got there. */
+  endMs: number;
   /** Real-world timestamp (ms) when the summary was created, for auto-dismissal. */
   at: number;
 }
@@ -92,6 +94,11 @@ export interface ArrivalSummary {
 export interface ShipState {
   beta: number;
   gamma: number;
+  /**
+   * Rapidity φ = artanh β from the trip's closed form (NaN for warp). Exact at any γ, where β
+   * has long since rounded to 1: the renderer works from this, not from the velocity.
+   */
+  phi: number;
   /** Ship (proper) time elapsed, s (NaN for warp). */
   tau: number;
   /** Distance covered, km (Sun frame). */
@@ -207,6 +214,8 @@ export function launch(plan: TripPlan): void {
   };
   travel.shipPos.copy(plan.start);
   travel.lastArrival = null;
+  // The trip sets the clock from here on: it no longer shows the present.
+  sim.live = false;
 }
 
 // ─── The trip model: t(τ), τ(t), lag, state ──────────────────────────────────────────────
@@ -244,13 +253,16 @@ export function tripElapsed(t: Trip): number {
 /** Ship time elapsed on the trip so far (NaN for warp). */
 export const tripShipTime = (t: Trip): number => (t.pacing === 'ship' ? t.tau : tauAtEarthTime(t, tripElapsed(t)));
 
+/** Rapidity of a constant-speed cruise (NaN for the fictional warp, which has none). */
+const cruiseRapidity = (t: TripPlan): number => (t.warp ? NaN : Math.atanh(t.beta));
+
 /** Speed, γ, ship time and distance covered at Earth time `elapsed` into the trip. */
 export function shipStateAt(t: TripPlan, elapsed: number): ShipState {
   if (t.rocket) {
     const s = flipAndBurnAtEarthTime(t.rocket, elapsed);
-    return { beta: s.beta, gamma: s.gamma, tau: s.tau, covered: s.d };
+    return { beta: s.beta, gamma: s.gamma, phi: s.phi, tau: s.tau, covered: s.d };
   }
-  return { beta: t.beta, gamma: t.gamma, tau: t.warp ? NaN : elapsed / t.gamma, covered: t.speed * elapsed };
+  return { beta: t.beta, gamma: t.gamma, phi: cruiseRapidity(t), tau: t.warp ? NaN : elapsed / t.gamma, covered: t.speed * elapsed };
 }
 
 /** The same at ship time τ (not for warp). */
@@ -258,9 +270,9 @@ export function shipStateAtTau(t: TripPlan, tau: number): ShipState {
   const tc = Math.min(Math.max(tau, 0), t.shipTime);
   if (t.rocket) {
     const s = flipAndBurnAt(t.rocket, tc);
-    return { beta: s.beta, gamma: s.gamma, tau: tc, covered: s.d };
+    return { beta: s.beta, gamma: s.gamma, phi: s.phi, tau: tc, covered: s.d };
   }
-  return { beta: t.beta, gamma: t.gamma, tau: tc, covered: t.speed * earthTimeAtTau(t, tc) };
+  return { beta: t.beta, gamma: t.gamma, phi: cruiseRapidity(t), tau: tc, covered: t.speed * earthTimeAtTau(t, tc) };
 }
 
 /** The ship's state now: from τ on a ship-paced trip, from the Earth clock otherwise. */
@@ -310,6 +322,7 @@ export function updateTrip(): boolean {
       earthTime: t.earthTime,
       shipTime: t.shipTime,
       distance: t.distance,
+      endMs: t.startMs + 1000 * t.earthTime,
       at: performance.now(),
     };
     travel.trip = null;

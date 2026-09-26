@@ -1,7 +1,7 @@
 {
   "name": "Lightspeed: explore the real Solar System close to the speed of light",
   "short_name": "Lightspeed",
-  "description": "The real Solar System at true scale, a ship that flies close to the speed of light, the physics explained as it happens, and a lab with five experiments for students.",
+  "description": "The real Solar System at true scale, a ship that flies close to the speed of light, long reads on the science behind it, and a lab with five experiments for students.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#050607",

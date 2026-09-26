@@ -10,7 +10,9 @@
  *   2. Draw the point sources (stars, glints, belts). Their shaders apply exact per-point
  *      aberration, Doppler shift and brightness change.
  *   3. Composite the cube map, remapped per pixel by aberration and recoloured by Doppler and
- *      beaming, over them (premultiplied "over").
+ *      beaming, over them (premultiplied "over"), with the cosmic microwave background, seen
+ *      through its own Doppler factor, behind every surface. All of it works from the ship's
+ *      rapidity, so it holds from rest to γ ≈ 10¹⁷ (see shaders/remap.frag.glsl).
  * Split view: the left part of the screen shows the naive render, the right the relativistic one.
  */
 import {
@@ -35,10 +37,12 @@ import {
   type WebGLRenderTarget,
   WebGLCubeRenderTarget,
   Color,
+  Vector3,
 } from 'three';
 import { Pass } from 'postprocessing';
-import { buildDopplerLut, DOPPLER_LUT_LN_MAX, DOPPLER_LUT_LN_MIN } from '../physics/dopplerColor';
-import { relView, setPointUniforms } from './relativisticView';
+import { buildDopplerLut, DOPPLER_LUT_LN_MAX, DOPPLER_LUT_LN_MIN, DOPPLER_LUT_SIZE } from '../physics/dopplerColor';
+import { LN_SUN_SURFACE_RADIANCE, relView, setPointUniforms } from './relativisticView';
+import { blackbodyRange, blackbodyTexture } from './materials';
 import { quality } from './quality';
 import remapVert from './shaders/remap.vert.glsl?raw';
 import remapFrag from './shaders/remap.frag.glsl?raw';
@@ -50,8 +54,6 @@ export const POINTS_LAYER = 1;
  * meaningless. They appear in the classical view and are left out of the relativistic one.
  */
 export const GUIDES_LAYER = 2;
-
-const LUT_SIZE = 1024;
 
 export class LightspeedScenePass extends Pass {
   private readonly world: Scene;
@@ -75,7 +77,7 @@ export class LightspeedScenePass extends Pass {
     this.cubeCam = new CubeCamera(camera.near, camera.far, this.cubeRT);
     for (const c of this.cubeCam.children) c.layers.set(0);
 
-    const lut = new DataTexture(buildDopplerLut(LUT_SIZE), LUT_SIZE, 3, RGBAFormat, FloatType);
+    const lut = new DataTexture(buildDopplerLut(DOPPLER_LUT_SIZE), DOPPLER_LUT_SIZE, 3, RGBAFormat, FloatType);
     lut.minFilter = NearestFilter;
     lut.magFilter = NearestFilter;
     lut.needsUpdate = true;
@@ -84,19 +86,24 @@ export class LightspeedScenePass extends Pass {
       uniforms: {
         uCube: { value: this.cubeRT.texture },
         uDopplerLut: { value: lut },
-        uLnDMin: { value: DOPPLER_LUT_LN_MIN },
-        uLnDMax: { value: DOPPLER_LUT_LN_MAX },
+        uDopplerLutRange: { value: new Vector3(DOPPLER_LUT_LN_MIN, DOPPLER_LUT_LN_MAX, DOPPLER_LUT_SIZE) },
+        uBlackbody: { value: blackbodyTexture() },
+        uBbRange: { value: blackbodyRange() },
         uProjInv: { value: camera.projectionMatrixInverse },
         uCamWorld: { value: camera.matrixWorld },
         uVelDir: { value: relView.velDir },
-        uBeta: { value: 0 },
-        uGamma: { value: 1 },
-        uK: { value: 1 },
-        uPixelAngle: { value: 0.001 },
-        uTexelAngle: { value: Math.PI / 2 / faceSize },
+        uEPhi: { value: 1 },
+        uEmPhi: { value: 1 },
+        uLnPixelOverTexel: { value: 0 },
         uMaxLod: { value: Math.log2(faceSize) },
         uDoppler: { value: 1 },
-        uExposure: { value: 1 },
+        uLnExposure: { value: 0 },
+        uLnSunRadiance: { value: LN_SUN_SURFACE_RADIANCE },
+        uCmbDir: { value: new Vector3(0, 0, -1) },
+        uCmbEPhi: { value: 1 },
+        uCmbEmPhi: { value: 1 },
+        uLnTCmb: { value: 0 },
+        uCmbGain: { value: 0 },
       },
       vertexShader: remapVert,
       fragmentShader: remapFrag,
@@ -132,7 +139,6 @@ export class LightspeedScenePass extends Pass {
     this.faceSize = size;
     const u = this.remap.uniforms;
     u.uCube.value = this.cubeRT.texture;
-    u.uTexelAngle.value = Math.PI / 2 / size;
     u.uMaxLod.value = Math.log2(size);
   }
 
@@ -188,12 +194,19 @@ export class LightspeedScenePass extends Pass {
 
     // 3. Remapped scene composited on top.
     const u = this.remap.uniforms;
-    u.uBeta.value = relView.beta;
-    u.uGamma.value = relView.gamma;
-    u.uK.value = relView.k;
+    u.uEPhi.value = relView.k;
+    u.uEmPhi.value = Math.exp(-relView.phi);
     u.uDoppler.value = relView.doppler ? 1 : 0;
-    u.uExposure.value = relView.exposure;
-    u.uPixelAngle.value = (2 * Math.tan((camera.fov * Math.PI) / 360)) / Math.max(1, h);
+    u.uLnExposure.value = relView.lnExposure;
+    const pixelAngle = (2 * Math.tan((camera.fov * Math.PI) / 360)) / Math.max(1, h);
+    const texelAngle = Math.PI / 2 / this.faceSize;
+    u.uLnPixelOverTexel.value = Math.log(pixelAngle / texelAngle);
+    const cmb = relView.cmb;
+    u.uCmbDir.value.set(cmb.motion.dir.x, cmb.motion.dir.y, cmb.motion.dir.z);
+    u.uCmbEPhi.value = Math.exp(cmb.motion.phi);
+    u.uCmbEmPhi.value = Math.exp(-cmb.motion.phi);
+    u.uLnTCmb.value = Math.log(cmb.temperature);
+    u.uCmbGain.value = cmb.visible ? cmb.resolved : 0;
     renderer.render(this.quadScene, this.quadCamera);
 
     if (relView.split) this.setScissor(renderer, target, 0, 0, w, h, false);

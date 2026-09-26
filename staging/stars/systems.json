@@ -1,0 +1,1664 @@
+{
+  "format": "lightspeed.star-systems",
+  "version": 1,
+  "generatedBy": "scripts/build-stars3d.mjs",
+  "frame": "Positions: parsecs from the Sun, J2000 ecliptic axes (x to the J2000 equinox, z to the ecliptic north pole; ICRS rotated by the IAU 1976 obliquity 84381.448\"). Velocities: km/s, same axes, heliocentric.",
+  "epoch": "J2000.0 (JD 2451545.0 TT). Barycentres move in straight lines; members follow the listed Kepler orbits.",
+  "orbitModel": "Each orbit links two groups of members. Relative position of group 2 about group 1: r = aAu*[(cos E - e) pHat + sqrt(1-e^2) sin E qHat], E - e sin E = 2 pi (JD - tPeriJD) / periodDays. Members of group 1 are displaced by -m2/(m1+m2) r, members of group 2 by +m1/(m1+m2) r (m = total mass of each group). A member position is the system barycentre plus the sum of its displacements over all orbits. pHat, qHat are unit vectors in the J2000 ecliptic frame.",
+  "refs": {
+    "athyg": "AT-HYG v4.0 star catalogue (David Nash, astronexus; https://codeberg.org/astronexus/athyg), CC BY-SA 4.0",
+    "akeson2021": "Akeson R. et al. 2021, AJ 162, 14 — Precision millimeter astrometry of the alpha Centauri AB system (Tables 8, 9)",
+    "kervella2017prox": "Kervella P., Thevenin F., Lovis C. 2017, A&A 598, L7 — Proxima's orbit around alpha Centauri (Tables 1-3, B.1)",
+    "kervella2016": "Kervella P. et al. 2016, A&A 594, A107 — Close stellar conjunctions of alpha Centauri A and B until 2050",
+    "gaiaDr3": "Gaia Collaboration, Vallenari A. et al. 2023, A&A 674, A1 — Gaia Data Release 3 (gaiadr3.gaia_source)",
+    "lindegren2021": "Lindegren L. et al. 2021, A&A 649, A4 — Gaia EDR3 parallax bias versus magnitude, colour and position",
+    "bond2017": "Bond H. E. et al. 2017, ApJ 840, 70 — The Sirius system and its astrophysical puzzles (Tables 4-6; Sects. 5.1, 7)",
+    "bond2015": "Bond H. E. et al. 2015, ApJ 813, 106 — Hubble Space Telescope astrometry of the Procyon system (Tables 8-10; Sect. 6)",
+    "irwin1992": "Irwin A. W. et al. 1992, PASP 104, 489 — Procyon centre-of-mass velocity -4.115 km/s, as adopted by Bond et al. 2015",
+    "vanLeeuwen2007": "van Leeuwen F. 2007, A&A 474, 653 — Validation of the new Hipparcos reduction (VizieR I/311)",
+    "esa1997": "ESA 1997, The Hipparcos and Tycho Catalogues, ESA SP-1200 (VizieR I/239)",
+    "shakht2017": "Shakht N. A., Gorshanov D. L., Vasilkova O. O. 2017, Astrophysics 60, 507 — 61 Cygni AB orbit (as listed in the WDS Sixth Orbit Catalog, grade 4 \"preliminary\")",
+    "orb6": "Sixth Catalog of Orbits of Visual Binary Stars (Hartkopf, Mason, Matson et al.; USNO / GSU), retrieved 2026-09-25",
+    "kervella2008": "Kervella P., Merand A., Pichon B. et al. 2008, A&A 488, 667 — The radii of the nearby K5V and K7V stars 61 Cyg A & B",
+    "soubiran2018": "Soubiran C. et al. 2018, A&A 616, A7 — Gaia DR2 radial velocity standard stars (VizieR J/A+A/616/A7)",
+    "torres2015": "Torres G., Claret A., Pavlovski K. et al. 2015, ApJ 807, 26 — Capella (alpha Aurigae) revisited (Tables 1, 3)",
+    "heiter2015": "Heiter U. et al. 2015, A&A 582, A49 — Gaia FGK benchmark stars: effective temperatures and surface gravities (Tables 4, 7, 10)",
+    "mann2015": "Mann A. W. et al. 2015, ApJ 804, 64 — How to constrain your M dwarf (VizieR J/ApJ/804/64)",
+    "segransan2003": "Segransan D. et al. 2003, A&A 397, L5 — First radius measurements of very low mass stars with the VLTI",
+    "monnier2012": "Monnier J. D. et al. 2012, ApJL 761, L3 — Resolving Vega and the inclination controversy with CHARA/MIRC (Table 2, concordance model)",
+    "monnier2007": "Monnier J. D. et al. 2007, Science 317, 342 — Imaging the surface of Altair (Table 1, beta-free model)",
+    "che2011": "Che X. et al. 2011, ApJ 732, 68 — Colder and hotter: interferometric imaging of beta Cas and alpha Leo (alpha Leo, modified von Zeipel model)",
+    "joyce2020": "Joyce M. et al. 2020, ApJ 902, 63 — New mass and distance estimates for Betelgeuse",
+    "levesque2020": "Levesque E. M., Massey P. 2020, ApJL 891, L37 — Betelgeuse just isn't that cool",
+    "harper2017": "Harper G. M. et al. 2017, AJ 154, 11 — An updated 2017 astrometric solution for Betelgeuse",
+    "ohnaka2013": "Ohnaka K. et al. 2013, A&A 555, A24 — Imaging the dynamical atmosphere of Antares with VLTI/AMBER",
+    "schiller2008": "Schiller F., Przybilla N. 2008, A&A 479, 849 — Quantitative spectroscopy of Deneb",
+    "mamajek2012": "Mamajek E. E. 2012, ApJL 754, L20 — On the age and binarity of Fomalhaut",
+    "ramirez2011": "Ramirez I., Allende Prieto C. 2011, ApJ 743, 135 — Fundamental parameters and chemical composition of Arcturus",
+    "tkachenko2016": "Tkachenko A. et al. 2016, MNRAS 458, 1964 — Stellar modelling of Spica (Table 4 and abstract)",
+    "domiciano2021": "Domiciano de Souza A. et al. 2021, A&A 654, A19 — Refined fundamental parameters of Canopus (Table 4)",
+    "evans2024": "Evans N. R. et al. 2024, ApJ 971, 190 — The orbit and dynamical mass of Polaris: observations with the CHARA Array",
+    "deAlmeida2022": "de Almeida E. S. G. et al. 2022, MNRAS 515, 1 — Combined spectroscopy and intensity interferometry to determine the distances of P Cygni and Rigel",
+    "teixeira2009": "Teixeira T. C. et al. 2009, A&A 494, 237 — Solar-like oscillations in the G8 V star tau Ceti",
+    "ribas2018": "Ribas I. et al. 2018, Nature 563, 365 — A candidate super-Earth planet orbiting near the snow line of Barnard's star",
+    "agol2021": "Agol E. et al. 2021, PSJ 2, 1 — Refining the transit-timing and photometric analysis of TRAPPIST-1 (Table 7)",
+    "costa2006": "Costa E. et al. 2006, AJ 132, 1234 — TRAPPIST-1 (2MASS J23062928-0502285) V = 18.798 +- 0.082, via SIMBAD",
+    "simbadRvTrappist": "Radial velocity -52.003 +- 0.134 km/s as listed by SIMBAD from 2020AJ....160..120J",
+    "boyajian2013": "Boyajian T. S. et al. 2013, ApJ 771, 40 — Stellar diameters and temperatures III (VizieR J/ApJ/771/40, tables 2 and 5)",
+    "baines2012": "Baines E. K. et al. 2012, ApJ 761, 57 — The CHARA Array angular diameter of HR 8799",
+    "iau2015b3": "IAU 2015 Resolution B3 on recommended nominal conversion constants (Prsa A. et al. 2016, AJ 152, 41)"
+  },
+  "systems": [
+    {
+      "id": "alpha-centauri",
+      "name": "Alpha Centauri",
+      "note": "Hierarchical triple. A and B orbit each other every 79.76 yr (Akeson et al. 2021). Proxima orbits the AB pair at about 8,000-13,000 au. Its orbit here is the osculating Kepler orbit computed from present-day astrometry (Gaia DR3 for Proxima, Akeson et al. 2021 for the AB barycentre) and gravitational-redshift-corrected radial velocities (Kervella et al. 2017), the same method as Kervella et al. 2017. With the newer, larger AB parallax the orbit comes out a little smaller than their published one; both are listed.",
+      "members": [
+        "alpha-cen-a",
+        "alpha-cen-b",
+        "proxima"
+      ],
+      "barycentre": {
+        "source": "Astrometry of the barycentre of alpha-cen-a + alpha-cen-b (listed); the system barycentre below also includes Proxima",
+        "astrometry": {
+          "raDeg": 219.85892215,
+          "decDeg": -60.83163195,
+          "epochJyr": 2019.5,
+          "parallaxMas": 750.81,
+          "parallaxErrMas": 0.38,
+          "pmRaMasYr": -3639.95,
+          "pmDecMasYr": 700.4,
+          "rvKms": -22.3182,
+          "rvNote": "Akeson et al. 2021 V0 = -22.3796 km/s + 0.0614 km/s gravitational-redshift correction (Kervella et al. 2017, Sect. 2.3)"
+        },
+        "refs": [
+          "akeson2021",
+          "kervella2017prox"
+        ],
+        "posPc": [
+          -0.496749799324,
+          -0.841921756146,
+          -0.902649693496
+        ],
+        "velKms": [
+          -9.348412289,
+          28.92830603,
+          11.06457144
+        ],
+        "distancePc": 1.3305522,
+        "massMsun": 2.1101
+      },
+      "orbits": [
+        {
+          "id": "alpha-cen-ab",
+          "primary": [
+            "alpha-cen-a"
+          ],
+          "secondary": [
+            "alpha-cen-b"
+          ],
+          "massPrimaryMsun": 1.0788,
+          "massSecondaryMsun": 0.9092,
+          "aAu": 23.29883726,
+          "e": 0.51947,
+          "periodDays": 29133.0705,
+          "tPeriJD": 2435314.751,
+          "pHat": [
+            0.2054547137,
+            0.0483631416,
+            0.9774709035
+          ],
+          "qHat": [
+            0.5912077378,
+            0.7898051611,
+            -0.1633438651
+          ],
+          "eclipticAngles": {
+            "iDeg": 82.3179,
+            "OmegaDeg": 231.90366,
+            "omegaDeg": 99.48696
+          },
+          "source": "published visual orbit",
+          "published": {
+            "kind": "visual-binary (Campbell) elements, relative orbit of the secondary",
+            "periodYr": 79.762,
+            "aArcsec": 17.493,
+            "e": 0.51947,
+            "iDeg": 79.243,
+            "OmegaDeg": 205.073,
+            "omegaDeg": 231.519,
+            "tPeri": {
+              "decimalYear": 1955.564
+            },
+            "parallaxMas": 750.81,
+            "uncertainty": {
+              "periodYr": 0.019,
+              "aArcsec": 0.0096,
+              "e": 0.00015,
+              "iDeg": 0.0089,
+              "OmegaDeg": 0.025,
+              "omegaDeg": 0.027,
+              "tPeriYr": 0.015
+            },
+            "grade": "ORB6 grade 2 (good)",
+            "refs": [
+              "akeson2021"
+            ]
+          }
+        },
+        {
+          "id": "proxima-ab",
+          "primary": [
+            "alpha-cen-a",
+            "alpha-cen-b"
+          ],
+          "secondary": [
+            "proxima"
+          ],
+          "massPrimaryMsun": 1.988,
+          "massSecondaryMsun": 0.1221,
+          "aAu": 8041.725713,
+          "e": 0.50564201,
+          "periodDays": 181330472.1,
+          "tPeriJD": -81596531.4686,
+          "pHat": [
+            -0.3694827986,
+            -0.9102292267,
+            0.1869898832
+          ],
+          "qHat": [
+            0.3764236806,
+            -0.3305910798,
+            -0.8654563829
+          ],
+          "eclipticAngles": {
+            "iDeg": 62.30404,
+            "OmegaDeg": 73.64106,
+            "omegaDeg": 167.80812
+          },
+          "source": "osculating orbit from present-day astrometry",
+          "published": {
+            "kind": "Kervella et al. 2017, Table 3",
+            "ref": "kervella2017prox",
+            "aKau": 8.7,
+            "aErrKau": [
+              -0.4,
+              0.7
+            ],
+            "e": 0.5,
+            "eErr": [
+              -0.09,
+              0.08
+            ],
+            "periodKyr": 547,
+            "periodErrKyr": [
+              -40,
+              66
+            ],
+            "iDeg": 107.6,
+            "OmegaDeg": 126,
+            "omegaDeg": 72.3,
+            "tPeriKyrFromNow": 283,
+            "note": "Computed by Kervella et al. with parallax 747.17 mas for AB (Kervella et al. 2016) and 768.77 mas for Proxima (Benedict et al. 1999).",
+            "secondaryAstrometry": {
+              "raDeg": 217.39232147200883,
+              "decDeg": -62.67607511676666,
+              "epochJyr": 2016,
+              "parallaxMas": 768.0665391873573,
+              "parallaxErrMas": 0.049872905,
+              "pmRaMasYr": -3781.741008265163,
+              "pmDecMasYr": 769.4650146478623,
+              "rvKms": -22.204,
+              "rvNote": "Absolute RV from chromospheric emission lines, corrected for gravitational redshift (Kervella et al. 2017, Sect. 2.3)",
+              "refs": [
+                "gaiaDr3",
+                "kervella2017prox"
+              ]
+            }
+          }
+        }
+      ],
+      "checks": [
+        "Kepler's third law with these a, P and parallax: M1+M2 = 1.9880 M_sun (members' masses sum to 1.9880)",
+        "Proxima relative to the AB barycentre at J2000: separation 12061 au, relative speed 279 m/s, escape speed 557 m/s -> bound; a = 8042 au, e = 0.506, P = 496 kyr, last periastron 230 kyr before J2000, next 266 kyr after (published: a = 8.7 kau, e = 0.50, P = 547 kyr, next periastron in 283 kyr)",
+        "alpha-cen-ab relative orbit: 2025: model 9.19 deg 8.7362\" vs ORB6 9.2 deg 8.737\" (dPA -0.01 deg, dSep -0.0008\"); 2026: model 11.89 deg 9.2927\" vs ORB6 11.9 deg 9.294\" (dPA -0.01 deg, dSep -0.0013\"); 2027: model 14.31 deg 9.7639\" vs ORB6 14.3 deg 9.765\" (dPA 0.01 deg, dSep -0.0011\"); 2028: model 16.52 deg 10.1207\" vs ORB6 16.5 deg 10.121\" (dPA 0.02 deg, dSep -0.0003\"); 2029: model 18.62 deg 10.3285\" vs ORB6 18.6 deg 10.329\" (dPA 0.02 deg, dSep -0.0005\")",
+        "Model vs Hipparcos (1991.25) positions quoted by Akeson et al. 2021: A off by 0.042\", B off by 0.107\"",
+        "Model position of Proxima at J2016.0 differs from Gaia DR3 by 0.0000\" and its distance by 0.0 au"
+      ]
+    },
+    {
+      "id": "sirius",
+      "name": "Sirius",
+      "note": "Sirius A (A1 V) and the white dwarf Sirius B on a 50.13-yr orbit (Bond et al. 2017).",
+      "members": [
+        "sirius-a",
+        "sirius-b"
+      ],
+      "barycentre": {
+        "source": "Astrometry of the barycentre of sirius-a + sirius-b",
+        "astrometry": {
+          "raDeg": 101.28854105,
+          "decDeg": -16.71314306,
+          "epochJyr": 1991.25,
+          "parallaxMas": 378.9,
+          "parallaxErrMas": 1.4,
+          "pmRaMasYr": -546.01,
+          "pmDecMasYr": -1223.07,
+          "rvKms": -8.47,
+          "rvNote": "System velocity -7.70 km/s corrected for the gravitational redshift of Sirius A (Bond et al. 2017, Sect. 5.1)"
+        },
+        "refs": [
+          "vanLeeuwen2007",
+          "bond2017"
+        ],
+        "posPc": [
+          -0.494721155438,
+          1.97223848702,
+          -1.68243933078
+        ],
+        "velKms": [
+          9.148420259,
+          -14.8920115,
+          -6.862349713
+        ],
+        "distancePc": 2.639143,
+        "massMsun": 3.081
+      },
+      "orbits": [
+        {
+          "id": "sirius-ab",
+          "primary": [
+            "sirius-a"
+          ],
+          "secondary": [
+            "sirius-b"
+          ],
+          "massPrimaryMsun": 2.063,
+          "massSecondaryMsun": 1.018,
+          "aAu": 19.78279229,
+          "e": 0.59142,
+          "periodDays": 18309.3981,
+          "tPeriJD": 2449562.2404,
+          "pHat": [
+            0.8076046416,
+            0.2042661317,
+            -0.5532179411
+          ],
+          "qHat": [
+            0.0865443505,
+            -0.968991309,
+            -0.2314431215
+          ],
+          "eclipticAngles": {
+            "iDeg": 143.15302,
+            "OmegaDeg": 256.5939,
+            "omegaDeg": 247.29762
+          },
+          "source": "published visual orbit",
+          "published": {
+            "kind": "visual-binary (Campbell) elements, relative orbit of the secondary",
+            "periodYr": 50.1284,
+            "aArcsec": 7.4957,
+            "e": 0.59142,
+            "iDeg": 136.336,
+            "OmegaDeg": 45.4,
+            "omegaDeg": 149.161,
+            "tPeri": {
+              "decimalYear": 1994.5715
+            },
+            "parallaxMas": 378.9,
+            "uncertainty": {
+              "periodYr": 0.0043,
+              "aArcsec": 0.0025,
+              "e": 0.00037,
+              "iDeg": 0.04,
+              "OmegaDeg": 0.071,
+              "omegaDeg": 0.075,
+              "tPeriYr": 0.0058
+            },
+            "grade": "ORB6 grade 2 (good)",
+            "refs": [
+              "bond2017"
+            ]
+          }
+        }
+      ],
+      "checks": [
+        "Kepler's third law with these a, P and parallax: M1+M2 = 3.0810 M_sun (members' masses sum to 3.0810)",
+        "sirius-ab relative orbit: 2025: model 58.99 deg 11.2564\" vs ORB6 59 deg 11.256\" (dPA -0.01 deg, dSep 0.0004\"); 2026: model 57.13 deg 11.1634\" vs ORB6 57.1 deg 11.163\" (dPA 0.03 deg, dSep 0.0004\"); 2027: model 55.22 deg 11.0322\" vs ORB6 55.2 deg 11.032\" (dPA 0.02 deg, dSep 0.0002\"); 2028: model 53.27 deg 10.8612\" vs ORB6 53.3 deg 10.861\" (dPA -0.03 deg, dSep 0.0002\"); 2029: model 51.24 deg 10.6487\" vs ORB6 51.2 deg 10.648\" (dPA 0.04 deg, dSep 0.0007\")",
+        "Model position of Sirius B at J2016.0 differs from Gaia DR3 (source 2947050466531873024) by 0.519\" (Gaia DR3 flags this source with RUWE 2.4; the orbit's 1-sigma is ~0.01\")",
+        "Model proper motion of Sirius B at J2016.0: (-468.8, -935.7) mas/yr; Gaia DR3 (-461.6 +- 0.3, -914.5 +- 0.3) mas/yr"
+      ]
+    },
+    {
+      "id": "procyon",
+      "name": "Procyon",
+      "note": "Procyon A (F5 IV-V) and the white dwarf Procyon B on a 40.84-yr orbit (Bond et al. 2015).",
+      "members": [
+        "procyon-a",
+        "procyon-b"
+      ],
+      "barycentre": {
+        "source": "Astrometry of the barycentre of procyon-a + procyon-b",
+        "astrometry": {
+          "raDeg": 114.82724202,
+          "decDeg": 5.22750758,
+          "epochJyr": 1991.25,
+          "parallaxMas": 285,
+          "parallaxErrMas": 0.7,
+          "pmRaMasYr": -714.59,
+          "pmDecMasYr": -1036.8,
+          "rvKms": -4.115,
+          "rvNote": "Centre-of-mass velocity of Irwin et al. 1992 as adopted by Bond et al. 2015 (not corrected for gravitational redshift)"
+        },
+        "refs": [
+          "vanLeeuwen2007",
+          "bond2015",
+          "irwin1992"
+        ],
+        "posPc": [
+          -1.4670422444,
+          3.03667862975,
+          -0.96829335974
+        ],
+        "velKms": [
+          11.84831588,
+          -4.505422002,
+          -17.17349305
+        ],
+        "distancePc": 3.5087351,
+        "massMsun": 2.07
+      },
+      "orbits": [
+        {
+          "id": "procyon-ab",
+          "primary": [
+            "procyon-a"
+          ],
+          "secondary": [
+            "procyon-b"
+          ],
+          "massPrimaryMsun": 1.478,
+          "massSecondaryMsun": 0.592,
+          "aAu": 15.11403509,
+          "e": 0.39785,
+          "periodDays": 14916.81,
+          "tPeriJD": 2439884.759,
+          "pHat": [
+            -0.1184349127,
+            0.2374309444,
+            -0.9641575173
+          ],
+          "qHat": [
+            0.897437467,
+            0.441138771,
+            -0.0016054773
+          ],
+          "eclipticAngles": {
+            "iDeg": 105.3863,
+            "OmegaDeg": 26.15128,
+            "omegaDeg": 269.90459
+          },
+          "source": "published visual orbit",
+          "published": {
+            "kind": "visual-binary (Campbell) elements, relative orbit of the secondary",
+            "periodYr": 40.84,
+            "aArcsec": 4.3075,
+            "e": 0.39785,
+            "iDeg": 31.408,
+            "OmegaDeg": 100.683,
+            "omegaDeg": 89.23,
+            "tPeri": {
+              "decimalYear": 1968.076
+            },
+            "parallaxMas": 285,
+            "uncertainty": {
+              "periodYr": 0.022,
+              "aArcsec": 0.0016,
+              "e": 0.00025,
+              "iDeg": 0.05,
+              "OmegaDeg": 0.095,
+              "omegaDeg": 0.11,
+              "tPeriYr": 0.023
+            },
+            "grade": "ORB6 grade 3 (reliable)",
+            "refs": [
+              "bond2015"
+            ]
+          }
+        }
+      ],
+      "checks": [
+        "Kepler's third law with these a, P and parallax: M1+M2 = 2.0700 M_sun (members' masses sum to 2.0700)",
+        "procyon-ab relative orbit: 2025: model 348.70 deg 5.0704\" vs ORB6 348.7 deg 5.07\" (dPA -0.00 deg, dSep 0.0004\"); 2026: model 353.65 deg 5.1008\" vs ORB6 353.7 deg 5.101\" (dPA -0.05 deg, dSep -0.0002\"); 2027: model 358.56 deg 5.1220\" vs ORB6 358.6 deg 5.122\" (dPA -0.04 deg, dSep 0.0000\"); 2028: model 3.43 deg 5.1347\" vs ORB6 3.4 deg 5.135\" (dPA 0.03 deg, dSep -0.0003\"); 2029: model 8.29 deg 5.1394\" vs ORB6 8.3 deg 5.139\" (dPA -0.01 deg, dSep 0.0004\"); 2013.0947: model 269.40 deg 3.3171\" vs HST, Bond et al. 2015 Table 3 269.432 deg 3.316\" (dPA -0.03 deg, dSep 0.0011\"); 2014.7038: model 285.70 deg 3.7952\" vs HST, Bond et al. 2015 Table 3 285.721 deg 3.7966\" (dPA -0.02 deg, dSep -0.0014\")"
+      ]
+    },
+    {
+      "id": "61-cygni",
+      "name": "61 Cygni",
+      "note": "Two K dwarfs about 85 au apart. Only about a third of the orbit has been observed since 1753, so the orbit is preliminary (ORB6 grade 4; period 664 +- 27 yr). Positions near the present are reliable; far from it they are not.",
+      "members": [
+        "61-cyg-a",
+        "61-cyg-b"
+      ],
+      "barycentre": {
+        "source": "Mass-weighted mean of the Gaia DR3 astrometry (J2016.0) of 61 Cyg A and B, masses from Kervella et al. 2008 via Heiter et al. 2015",
+        "refs": [
+          "gaiaDr3",
+          "kervella2008",
+          "heiter2015"
+        ],
+        "gaiaDr3": {
+          "61-cyg-a": {
+            "raDeg": 316.7484792940004,
+            "decDeg": 38.76386244649797,
+            "parallaxMas": 285.99494829578117,
+            "pmRaMasYr": 4164.2086922846665,
+            "pmDecMasYr": 3249.613883848584,
+            "rvKms": -65.97495
+          },
+          "61-cyg-b": {
+            "raDeg": 316.753662752556,
+            "decDeg": 38.75607277205679,
+            "parallaxMas": 286.0053518616485,
+            "pmRaMasYr": 4105.976428209489,
+            "pmDecMasYr": 3155.9416398273515,
+            "rvKms": -64.593544
+          }
+        },
+        "posPc": [
+          1.98615381408,
+          -0.844827258095,
+          2.75217905807
+        ],
+        "velKms": [
+          -14.35191054,
+          98.96979286,
+          -42.32681003
+        ],
+        "distancePc": 3.4975748,
+        "massMsun": 1.3
+      },
+      "orbits": [
+        {
+          "id": "61-cyg-ab",
+          "primary": [
+            "61-cyg-a"
+          ],
+          "secondary": [
+            "61-cyg-b"
+          ],
+          "massPrimaryMsun": 0.69,
+          "massSecondaryMsun": 0.61,
+          "aAu": 85.17487581,
+          "e": 0.457,
+          "periodDays": 242661.1425,
+          "tPeriJD": 2342105.1425,
+          "pHat": [
+            -0.4065086641,
+            0.2307485664,
+            0.8840281699
+          ],
+          "qHat": [
+            -0.3242369992,
+            0.8681682887,
+            -0.3757049252
+          ],
+          "eclipticAngles": {
+            "iDeg": 106.14688,
+            "OmegaDeg": 297.21983,
+            "omegaDeg": 113.02511
+          },
+          "source": "published visual orbit",
+          "published": {
+            "kind": "visual-binary (Campbell) elements, relative orbit of the secondary",
+            "periodYr": 664.37,
+            "aArcsec": 24.36,
+            "e": 0.457,
+            "iDeg": 53.29,
+            "OmegaDeg": 174.88,
+            "omegaDeg": 149.32,
+            "tPeri": {
+              "decimalYear": 1700.37
+            },
+            "parallaxMas": 285.9998,
+            "uncertainty": {
+              "periodYr": 26.84,
+              "aArcsec": 0.47,
+              "e": 0.034,
+              "iDeg": 1.87,
+              "OmegaDeg": 1.8,
+              "omegaDeg": 5.97,
+              "tPeriYr": 12.95
+            },
+            "grade": "ORB6 grade 4 (preliminary)",
+            "refs": [
+              "shakht2017",
+              "orb6"
+            ]
+          }
+        }
+      ],
+      "checks": [
+        "Kepler's third law with these a, P and parallax: M1+M2 = 1.4000 M_sun (members' masses sum to 1.3000)",
+        "61-cyg-ab relative orbit: 2025: model 153.99 deg 32.0398\" vs ORB6 154 deg 32.04\" (dPA -0.01 deg, dSep -0.0002\"); 2026: model 154.15 deg 32.0880\" vs ORB6 154.1 deg 32.088\" (dPA 0.05 deg, dSep 0.0000\"); 2027: model 154.31 deg 32.1355\" vs ORB6 154.3 deg 32.136\" (dPA 0.01 deg, dSep -0.0005\"); 2028: model 154.47 deg 32.1824\" vs ORB6 154.5 deg 32.182\" (dPA -0.03 deg, dSep 0.0004\"); 2029: model 154.63 deg 32.2285\" vs ORB6 154.6 deg 32.229\" (dPA 0.03 deg, dSep -0.0005\")",
+        "61 Cyg B relative to A at J2016.0: orbit 31.576\", 152.59 deg; Gaia DR3 31.593\", 152.58 deg",
+        "Relative velocity B-A at J2016.0: orbit radial 1.48 km/s, tangential 1.81 km/s; Gaia DR3 radial 1.38 km/s, tangential 1.82 km/s"
+      ]
+    },
+    {
+      "id": "capella",
+      "name": "Capella",
+      "note": "Two giant stars 0.74 au apart on a 104-day, almost circular orbit (Torres et al. 2015). The system has a more distant pair of red dwarfs (Capella H and L) that is not modelled here.",
+      "members": [
+        "capella-aa",
+        "capella-ab"
+      ],
+      "barycentre": {
+        "source": "Astrometry of the barycentre of capella-aa + capella-ab",
+        "astrometry": {
+          "raDeg": 79.17206466,
+          "decDeg": 45.99902905,
+          "epochJyr": 1991.25,
+          "parallaxMas": 75.994,
+          "parallaxErrMas": 0.089,
+          "pmRaMasYr": 75.85,
+          "pmDecMasYr": -427.17,
+          "rvKms": 29.9387,
+          "rvNote": "Centre-of-mass velocity gamma (Torres et al. 2015 Table 1), not corrected for gravitational redshift"
+        },
+        "refs": [
+          "vanLeeuwen2007",
+          "torres2015"
+        ],
+        "posPc": [
+          1.71727912198,
+          12.00303203,
+          5.11299902538
+        ],
+        "velKms": [
+          2.8606291,
+          38.03336886,
+          -13.19231672
+        ],
+        "distancePc": 13.159202,
+        "massMsun": 5.0515
+      },
+      "orbits": [
+        {
+          "id": "capella-aab",
+          "primary": [
+            "capella-aa"
+          ],
+          "secondary": [
+            "capella-ab"
+          ],
+          "massPrimaryMsun": 2.5687,
+          "massSecondaryMsun": 2.4828,
+          "aAu": 0.7427165303,
+          "e": 0.00089,
+          "periodDays": 104.02128,
+          "tPeriJD": 2448147.6,
+          "pHat": [
+            0.8779781258,
+            0.2666682983,
+            -0.3975455059
+          ],
+          "qHat": [
+            -0.3240750883,
+            -0.2801084388,
+            -0.9036119741
+          ],
+          "eclipticAngles": {
+            "iDeg": 99.17837,
+            "OmegaDeg": 200.90932,
+            "omegaDeg": 203.74717
+          },
+          "source": "published visual orbit",
+          "published": {
+            "kind": "visual-binary (Campbell) elements, relative orbit of the secondary",
+            "periodYr": 0.28479474332648874,
+            "aArcsec": 0.056442,
+            "e": 0.00089,
+            "iDeg": 137.156,
+            "OmegaDeg": 40.522,
+            "omegaDeg": 162.60000000000002,
+            "tPeri": {
+              "JD": 2448147.6
+            },
+            "parallaxMas": 75.994,
+            "uncertainty": {
+              "periodYr": 4.3805612594113626e-7,
+              "aArcsec": 0.000023,
+              "e": 0.00011,
+              "iDeg": 0.046,
+              "OmegaDeg": 0.039,
+              "omegaDeg": 9,
+              "tPeriDays": 2.6
+            },
+            "grade": "ORB6 grade 1 (definitive)",
+            "refs": [
+              "torres2015"
+            ]
+          }
+        }
+      ],
+      "checks": [
+        "Kepler's third law with these a, P and parallax: M1+M2 = 5.0513 M_sun (members' masses sum to 5.0515)",
+        "capella-aab relative orbit: 2025: model 72.43 deg 0.0508\" vs ORB6 252.4 deg 0.051\" (dPA -179.97 deg, dSep -0.0002\"); 2026: model 248.90 deg 0.0517\" vs ORB6 68.9 deg 0.052\" (dPA -180.00 deg, dSep -0.0003\"); 2027: model 65.39 deg 0.0527\" vs ORB6 245.4 deg 0.053\" (dPA 179.99 deg, dSep -0.0003\"); 2028: model 242.08 deg 0.0534\" vs ORB6 62.1 deg 0.053\" (dPA 179.98 deg, dSep 0.0004\"); 2029: model 58.81 deg 0.0543\" vs ORB6 238.8 deg 0.054\" (dPA -179.99 deg, dSep 0.0003\")",
+        "Orbit semi-major axis 0.74272 au (Torres et al. 2015: 0.74272 +- 0.00069 au). The ORB6 ephemeris is 180 deg from this model: ORB6 lists Torres et al.'s omega of star A (342.6 deg) as the relative-orbit omega, while the relative orbit of B about A has omega_A + 180 deg, which is what reproduces Torres et al.'s radial-velocity curves."
+      ]
+    }
+  ],
+  "stars": [
+    {
+      "id": "sun",
+      "name": "Sun",
+      "altNames": [],
+      "system": null,
+      "catalogueIndex": null,
+      "hip": null,
+      "gaiaDr3": null,
+      "spectralType": "G2 V",
+      "catalogueDistancePc": 0,
+      "massMsun": 1,
+      "radiusRsun": 1,
+      "teffK": 5772,
+      "luminosityLsun": 1,
+      "refs": {
+        "all": "iau2015b3"
+      }
+    },
+    {
+      "id": "alpha-cen-a",
+      "name": "Alpha Centauri A",
+      "altNames": [
+        "Rigil Kentaurus"
+      ],
+      "system": "alpha-centauri",
+      "catalogueIndex": 3,
+      "hip": 71683,
+      "gaiaDr3": null,
+      "spectralType": "G2 V",
+      "catalogueDistancePc": 1.332274,
+      "massMsun": 1.0788,
+      "massErr": 0.0029,
+      "radiusRsun": 1.2175,
+      "radiusErr": 0.0055,
+      "teffK": 5792,
+      "teffErr": 16,
+      "luminosityLsun": 1.5059,
+      "luminosityErr": 0.0019,
+      "vMag": -0.01,
+      "refs": {
+        "mass": "akeson2021",
+        "radius": "akeson2021",
+        "luminosity": "akeson2021",
+        "teff": "heiter2015",
+        "vMag": "esa1997"
+      }
+    },
+    {
+      "id": "alpha-cen-b",
+      "name": "Alpha Centauri B",
+      "altNames": [
+        "Toliman"
+      ],
+      "system": "alpha-centauri",
+      "catalogueIndex": 20,
+      "hip": 71681,
+      "gaiaDr3": "5877748442128924544",
+      "spectralType": "K1 V",
+      "catalogueDistancePc": 1.332418,
+      "massMsun": 0.9092,
+      "massErr": 0.0025,
+      "radiusRsun": 0.8591,
+      "radiusErr": 0.0036,
+      "teffK": 5231,
+      "teffErr": 20,
+      "luminosityLsun": 0.4981,
+      "luminosityErr": 0.0007,
+      "vMag": 1.35,
+      "refs": {
+        "mass": "akeson2021",
+        "radius": "akeson2021",
+        "luminosity": "akeson2021",
+        "teff": "heiter2015",
+        "vMag": "esa1997"
+      }
+    },
+    {
+      "id": "proxima",
+      "name": "Proxima Centauri",
+      "altNames": [
+        "Alpha Centauri C",
+        "V645 Cen",
+        "GJ 551"
+      ],
+      "system": "alpha-centauri",
+      "catalogueIndex": 327819,
+      "hip": 70890,
+      "gaiaDr3": "5853498713190525696",
+      "spectralType": "M5.5 Ve",
+      "catalogueDistancePc": 1.302334,
+      "massMsun": 0.1221,
+      "massErr": 0.0022,
+      "radiusRsun": 0.1542,
+      "radiusErr": 0.0045,
+      "teffK": 3042,
+      "teffErr": 117,
+      "refs": {
+        "mass": "kervella2017prox",
+        "radius": "kervella2017prox",
+        "teff": "segransan2003"
+      },
+      "notes": "Mass and radius are from the Mann et al. (2015) M-dwarf relations as tabulated by Kervella et al. 2017 (Table 1). A flare star."
+    },
+    {
+      "id": "sirius-a",
+      "name": "Sirius A",
+      "altNames": [
+        "Sirius",
+        "Alpha Canis Majoris"
+      ],
+      "system": "sirius",
+      "catalogueIndex": 0,
+      "hip": 32349,
+      "gaiaDr3": null,
+      "spectralType": "A1 V",
+      "catalogueDistancePc": 2.63916,
+      "massMsun": 2.063,
+      "massErr": 0.023,
+      "radiusRsun": 1.7144,
+      "radiusErr": 0.009,
+      "teffK": 9845,
+      "teffErr": 64,
+      "luminosityLsun": 24.74,
+      "luminosityErr": 0.7,
+      "vMag": -1.44,
+      "refs": {
+        "all": "bond2017",
+        "vMag": "esa1997"
+      },
+      "notes": "Radius, luminosity and temperature are the Davis et al. (2011) values rescaled by Bond et al. 2017 to parallax 378.9 mas."
+    },
+    {
+      "id": "sirius-b",
+      "name": "Sirius B",
+      "altNames": [],
+      "system": "sirius",
+      "catalogueIndex": 72930,
+      "hip": null,
+      "gaiaDr3": "2947050466531873024",
+      "spectralType": "DA2 (white dwarf)",
+      "catalogueDistancePc": 2.639108,
+      "massMsun": 1.018,
+      "massErr": 0.011,
+      "radiusRsun": 0.008098,
+      "radiusErr": 0.000046,
+      "teffK": 25369,
+      "teffErr": 46,
+      "luminosityLsun": 0.02448,
+      "luminosityErr": 0.00033,
+      "vMag": 8.44,
+      "refs": {
+        "all": "bond2017",
+        "vMag": "athyg"
+      },
+      "notes": "Radius is about 0.84 Earth radii. V = 8.44 is the AT-HYG (Gliese) value."
+    },
+    {
+      "id": "procyon-a",
+      "name": "Procyon A",
+      "altNames": [
+        "Procyon",
+        "Alpha Canis Minoris"
+      ],
+      "system": "procyon",
+      "catalogueIndex": 6,
+      "hip": 37279,
+      "gaiaDr3": null,
+      "spectralType": "F5 IV-V",
+      "catalogueDistancePc": 3.508742,
+      "massMsun": 1.478,
+      "massErr": 0.012,
+      "teffK": 6554,
+      "teffErr": 84,
+      "angularDiameterMas": 5.39,
+      "angularDiameterErr": 0.03,
+      "fbolWm2": 1.786e-8,
+      "fbolErr": 8.9e-10,
+      "vMag": 0.4,
+      "radiusRsun": 2.033,
+      "radiusErr": 0.011,
+      "luminosityLsun": 6.873,
+      "derived": {
+        "radiusRsun": "theta_LD/2 x 3.509 pc (catalogue distance); error excludes the distance error",
+        "luminosityLsun": "4 pi d^2 F_bol at 3.509 pc",
+        "teffCheckK": 6554
+      },
+      "refs": {
+        "mass": "bond2015",
+        "angularDiameter": "heiter2015",
+        "fbol": "heiter2015",
+        "teff": "heiter2015",
+        "vMag": "esa1997"
+      },
+      "notes": "V = 0.40 is the Hipparcos (ground-based) V of the pair; Procyon B (V = 10.82) adds less than 0.001 mag to it."
+    },
+    {
+      "id": "procyon-b",
+      "name": "Procyon B",
+      "altNames": [],
+      "system": "procyon",
+      "catalogueIndex": 327692,
+      "hip": null,
+      "gaiaDr3": null,
+      "spectralType": "DQZ (white dwarf)",
+      "catalogueDistancePc": 3.508719,
+      "massMsun": 0.592,
+      "massErr": 0.006,
+      "radiusRsun": 0.01232,
+      "radiusErr": 0.00032,
+      "teffK": 7740,
+      "teffErr": 50,
+      "vMag": 10.82,
+      "refs": {
+        "all": "bond2015"
+      }
+    },
+    {
+      "id": "61-cyg-a",
+      "name": "61 Cygni A",
+      "altNames": [],
+      "system": "61-cygni",
+      "catalogueIndex": 2040,
+      "hip": 104214,
+      "gaiaDr3": "1872046609345556480",
+      "spectralType": "K5 V",
+      "catalogueDistancePc": 3.497714,
+      "massMsun": 0.69,
+      "massErr": 0.05,
+      "teffK": 4374,
+      "teffErr": 22,
+      "angularDiameterMas": 1.775,
+      "angularDiameterErr": 0.013,
+      "fbolWm2": 3.844e-10,
+      "fbolErr": 5.1e-12,
+      "radiusRsun": 0.6675,
+      "radiusErr": 0.0049,
+      "luminosityLsun": 0.147,
+      "derived": {
+        "radiusRsun": "theta_LD/2 x 3.498 pc (catalogue distance); error excludes the distance error",
+        "luminosityLsun": "4 pi d^2 F_bol at 3.498 pc",
+        "teffCheckK": 4374
+      },
+      "refs": {
+        "mass": "heiter2015",
+        "angularDiameter": "kervella2008",
+        "fbol": "heiter2015",
+        "teff": "heiter2015",
+        "rv": "gaiaDr3"
+      },
+      "notes": "Mass from CESAM2k evolutionary models (Kervella et al. 2008) as tabulated by Heiter et al. 2015."
+    },
+    {
+      "id": "61-cyg-b",
+      "name": "61 Cygni B",
+      "altNames": [],
+      "system": "61-cygni",
+      "catalogueIndex": 5264,
+      "hip": 104217,
+      "gaiaDr3": "1872046574983497216",
+      "spectralType": "K7 V",
+      "catalogueDistancePc": 3.497418,
+      "massMsun": 0.61,
+      "massErr": 0.05,
+      "teffK": 4044,
+      "teffErr": 32,
+      "angularDiameterMas": 1.581,
+      "angularDiameterErr": 0.022,
+      "fbolWm2": 2.228e-10,
+      "fbolErr": 3.2e-12,
+      "radiusRsun": 0.5945,
+      "radiusErr": 0.0083,
+      "luminosityLsun": 0.08518,
+      "derived": {
+        "radiusRsun": "theta_LD/2 x 3.497 pc (catalogue distance); error excludes the distance error",
+        "luminosityLsun": "4 pi d^2 F_bol at 3.497 pc",
+        "teffCheckK": 4044
+      },
+      "refs": {
+        "mass": "heiter2015",
+        "angularDiameter": "kervella2008",
+        "fbol": "heiter2015",
+        "teff": "heiter2015",
+        "rv": "gaiaDr3"
+      },
+      "notes": "Soubiran et al. 2018 give -64.248 +- 0.089 km/s from ground-based spectra; the Gaia DR3 value is used for both stars so that their difference is on one scale."
+    },
+    {
+      "id": "capella-aa",
+      "name": "Capella Aa",
+      "altNames": [
+        "Capella"
+      ],
+      "system": "capella",
+      "catalogueIndex": 13,
+      "hip": 24608,
+      "gaiaDr3": null,
+      "spectralType": "K0 III",
+      "catalogueDistancePc": 13.1592,
+      "massMsun": 2.5687,
+      "massErr": 0.0074,
+      "radiusRsun": 11.98,
+      "radiusErr": 0.57,
+      "teffK": 4970,
+      "teffErr": 50,
+      "luminosityLsun": 78.7,
+      "luminosityErr": 4.2,
+      "absVMag": 0.296,
+      "refs": {
+        "all": "torres2015"
+      },
+      "notes": "The cooler, more massive giant, near the end of core helium burning (red clump)."
+    },
+    {
+      "id": "capella-ab",
+      "name": "Capella Ab",
+      "altNames": [],
+      "system": "capella",
+      "catalogueIndex": 11,
+      "hip": null,
+      "gaiaDr3": null,
+      "spectralType": "G1 III",
+      "catalogueDistancePc": 13.1592,
+      "massMsun": 2.4828,
+      "massErr": 0.0067,
+      "radiusRsun": 8.83,
+      "radiusErr": 0.33,
+      "teffK": 5730,
+      "teffErr": 60,
+      "luminosityLsun": 72.7,
+      "luminosityErr": 3.6,
+      "absVMag": 0.167,
+      "refs": {
+        "all": "torres2015"
+      },
+      "notes": "The hotter giant, crossing the Hertzsprung gap; rotates in 8.5 days."
+    },
+    {
+      "id": "canopus",
+      "name": "Canopus",
+      "altNames": [],
+      "system": null,
+      "catalogueIndex": 1,
+      "hip": 30438,
+      "gaiaDr3": null,
+      "spectralType": "A9 II",
+      "catalogueDistancePc": 94.78691,
+      "massMsun": 9.81,
+      "massErr": 1.83,
+      "radiusRsun": 73.3,
+      "radiusErr": 5.2,
+      "teffK": 7657,
+      "teffErr": 161,
+      "luminosityLsun": 16634.1,
+      "logLErr": 0.018,
+      "angularDiameterMas": 7.184,
+      "angularDiameterErr": 0.029,
+      "derived": {
+        "radiusCheckRsun": 73.21
+      },
+      "refs": {
+        "all": "domiciano2021"
+      }
+    },
+    {
+      "id": "arcturus",
+      "name": "Arcturus",
+      "altNames": [],
+      "system": null,
+      "catalogueIndex": 2,
+      "hip": 69673,
+      "gaiaDr3": null,
+      "spectralType": "K1.5 III",
+      "catalogueDistancePc": 11.25741,
+      "massMsun": 1.08,
+      "massErr": 0.06,
+      "teffK": 4286,
+      "teffErr": 30,
+      "luminosityLsun": 170,
+      "luminosityErr": 8,
+      "angularDiameterMas": 21.05,
+      "angularDiameterErr": 0.21,
+      "fbolWm2": 4.98e-8,
+      "fbolErr": 1.2948e-9,
+      "radiusRsun": 25.48,
+      "radiusErr": 0.25,
+      "derived": {
+        "radiusRsun": "theta_LD/2 x 11.257 pc (catalogue distance); error excludes the distance error",
+        "luminosityCheckLsun": 197.3,
+        "teffCheckK": 4286
+      },
+      "refs": {
+        "angularDiameter": "heiter2015",
+        "fbol": "heiter2015",
+        "mass": "ramirez2011",
+        "teff": "ramirez2011",
+        "luminosity": "ramirez2011"
+      }
+    },
+    {
+      "id": "vega",
+      "name": "Vega",
+      "altNames": [],
+      "system": null,
+      "catalogueIndex": 4,
+      "hip": 91262,
+      "gaiaDr3": null,
+      "spectralType": "A0 V",
+      "catalogueDistancePc": 7.678601,
+      "massMsun": 2.15,
+      "massErr": 0.12,
+      "radiusRsun": 2.726,
+      "radiusErr": 0.006,
+      "radiusPolarRsun": 2.418,
+      "radiusPolarErr": 0.012,
+      "teffK": 9360,
+      "teffErr": 90,
+      "teffPolarK": 10070,
+      "teffEquatorK": 8910,
+      "luminosityLsun": 47.2,
+      "luminosityErr": 2,
+      "inclinationDeg": 6.2,
+      "refs": {
+        "all": "monnier2012"
+      },
+      "notes": "A fast rotator seen almost pole-on: equator 2.73 R_sun at 8,910 K, poles 2.42 R_sun at 10,070 K. teffK is the surface average."
+    },
+    {
+      "id": "rigel",
+      "name": "Rigel",
+      "altNames": [],
+      "system": null,
+      "catalogueIndex": 5,
+      "hip": 24436,
+      "gaiaDr3": null,
+      "spectralType": "B8 Ia",
+      "catalogueDistancePc": 264.5504,
+      "luminosityLsun": 123000,
+      "refs": {
+        "luminosity": "deAlmeida2022"
+      },
+      "notes": "Blue supergiant. Its luminosity is not well agreed; 123,000 L_sun is the value de Almeida et al. 2022 adopt as consistent with the Hipparcos parallax (3.78 +- 0.34 mas, 265 pc); their intensity interferometry gives 260 +- 20 pc. No radius or temperature is given here because no source was verified for this file; the catalogue colour temperature applies."
+    },
+    {
+      "id": "betelgeuse",
+      "name": "Betelgeuse",
+      "altNames": [],
+      "system": null,
+      "catalogueIndex": 8,
+      "hip": 27989,
+      "gaiaDr3": null,
+      "spectralType": "M1-M2 Ia-ab",
+      "catalogueDistancePc": 152.672,
+      "massMsunRange": [
+        16.5,
+        19
+      ],
+      "radiusRsun": 764,
+      "radiusErrPlus": 116,
+      "radiusErrMinus": 62,
+      "teffK": 3600,
+      "teffErr": 25,
+      "distancePc": 168,
+      "distanceErrPlus": 27,
+      "distanceErrMinus": 15,
+      "refs": {
+        "radius": "joyce2020",
+        "mass": "joyce2020",
+        "distance": "joyce2020",
+        "teff": "levesque2020"
+      },
+      "notes": "Distance is uncertain: Hipparcos 2007 gives 6.55 +- 0.83 mas (153 pc), Harper et al. 2017 combine it with radio positions to get 222 (+48 -34) pc, and Joyce et al. 2020 find 168 (+27 -15) pc from seismic and evolutionary modelling. The radius scales with the adopted distance. The star is a semiregular variable (V = 0.0 to 1.6)."
+    },
+    {
+      "id": "altair",
+      "name": "Altair",
+      "altNames": [],
+      "system": null,
+      "catalogueIndex": 10,
+      "hip": 97649,
+      "gaiaDr3": null,
+      "spectralType": "A7 V",
+      "catalogueDistancePc": 5.129282,
+      "massMsun": 1.791,
+      "radiusRsun": 2.029,
+      "radiusErr": 0.007,
+      "radiusPolarRsun": 1.634,
+      "radiusPolarErr": 0.011,
+      "teffPolarK": 8450,
+      "teffPolarErr": 140,
+      "teffEquatorK": 6860,
+      "teffEquatorErr": 150,
+      "inclinationDeg": 57.2,
+      "refs": {
+        "all": "monnier2007"
+      },
+      "notes": "Spins at 92% of break-up: 24% wider at the equator than pole to pole, and 1,600 K cooler there (gravity darkening). The mass is an assumed input of the model."
+    },
+    {
+      "id": "aldebaran",
+      "name": "Aldebaran",
+      "altNames": [],
+      "system": null,
+      "catalogueIndex": 12,
+      "hip": 21421,
+      "gaiaDr3": null,
+      "spectralType": "K5 III",
+      "catalogueDistancePc": 20.43367,
+      "massMsun": 0.96,
+      "massErr": 0.41,
+      "teffK": 3927,
+      "teffErr": 40,
+      "angularDiameterMas": 20.58,
+      "angularDiameterErr": 0.03,
+      "fbolWm2": 3.357e-8,
+      "fbolErr": 1.35e-9,
+      "radiusRsun": 45.21,
+      "radiusErr": 0.066,
+      "luminosityLsun": 438.1,
+      "derived": {
+        "radiusRsun": "theta_LD/2 x 20.434 pc (catalogue distance); error excludes the distance error",
+        "luminosityLsun": "4 pi d^2 F_bol at 20.434 pc",
+        "teffCheckK": 3927
+      },
+      "refs": {
+        "all": "heiter2015"
+      },
+      "notes": "Mass from evolutionary tracks, uncertain by 43%."
+    },
+    {
+      "id": "antares",
+      "name": "Antares",
+      "altNames": [],
+      "system": null,
+      "catalogueIndex": 15,
+      "hip": 80763,
+      "gaiaDr3": null,
+      "spectralType": "M1.5 Iab",
+      "catalogueDistancePc": 169.7793,
+      "massMsun": 15,
+      "massErr": 5,
+      "teffK": 3660,
+      "teffErr": 120,
+      "luminosityLsun": 75857.8,
+      "logLErr": 0.23,
+      "angularDiameterMas": 37.38,
+      "angularDiameterErr": 0.06,
+      "radiusRsun": 682.3,
+      "radiusErr": 1.1,
+      "derived": {
+        "radiusRsun": "theta_LD/2 x 169.779 pc (catalogue distance); error excludes the distance error"
+      },
+      "refs": {
+        "all": "ohnaka2013"
+      },
+      "notes": "Radius follows from the angular diameter and the Hipparcos 2007 parallax (5.89 +- 1.00 mas), so it carries a 17% distance uncertainty."
+    },
+    {
+      "id": "spica",
+      "name": "Spica",
+      "altNames": [],
+      "system": null,
+      "catalogueIndex": 14,
+      "hip": 65474,
+      "gaiaDr3": null,
+      "spectralType": "B1 III-IV + B2 V",
+      "catalogueDistancePc": 76.56965,
+      "massMsun": 11.43,
+      "massErr": 1.15,
+      "radiusRsun": 7.47,
+      "radiusErr": 0.54,
+      "teffK": 25300,
+      "teffErr": 500,
+      "companion": {
+        "massMsun": 7.21,
+        "massErr": 0.75,
+        "radiusRsun": 3.74,
+        "radiusErr": 0.53,
+        "teffK": 20900,
+        "teffErr": 800,
+        "periodDays": 4.0145
+      },
+      "refs": {
+        "all": "tkachenko2016"
+      },
+      "notes": "A 4-day double-lined binary; the catalogue has one point for both stars. Values are for the primary; the companion is listed separately."
+    },
+    {
+      "id": "pollux",
+      "name": "Pollux",
+      "altNames": [],
+      "system": null,
+      "catalogueIndex": 16,
+      "hip": 37826,
+      "gaiaDr3": null,
+      "spectralType": "K0 III",
+      "catalogueDistancePc": 10.35843,
+      "massMsun": 2.3,
+      "massErr": 0.4,
+      "teffK": 4858,
+      "teffErr": 60,
+      "angularDiameterMas": 7.98,
+      "angularDiameterErr": 0.08,
+      "fbolWm2": 1.182e-8,
+      "fbolErr": 5.319e-10,
+      "radiusRsun": 8.887,
+      "radiusErr": 0.089,
+      "luminosityLsun": 39.64,
+      "derived": {
+        "radiusRsun": "theta_LD/2 x 10.358 pc (catalogue distance); error excludes the distance error",
+        "luminosityLsun": "4 pi d^2 F_bol at 10.358 pc",
+        "teffCheckK": 4858
+      },
+      "refs": {
+        "all": "heiter2015"
+      },
+      "notes": "Hosts the giant planet Pollux b (Thestias)."
+    },
+    {
+      "id": "fomalhaut",
+      "name": "Fomalhaut",
+      "altNames": [],
+      "system": null,
+      "catalogueIndex": 17,
+      "hip": 113368,
+      "gaiaDr3": null,
+      "spectralType": "A3 V",
+      "catalogueDistancePc": 7.703625,
+      "massMsun": 1.92,
+      "massErr": 0.02,
+      "radiusRsun": 1.842,
+      "radiusErr": 0.019,
+      "teffK": 8590,
+      "teffErr": 73,
+      "luminosityLsun": 16.63,
+      "luminosityErr": 0.48,
+      "refs": {
+        "all": "mamajek2012"
+      },
+      "notes": "Surrounded by a dust belt at about 140 au."
+    },
+    {
+      "id": "deneb",
+      "name": "Deneb",
+      "altNames": [],
+      "system": null,
+      "catalogueIndex": 19,
+      "hip": 102098,
+      "gaiaDr3": null,
+      "spectralType": "A2 Ia",
+      "catalogueDistancePc": 432.9004,
+      "massMsun": 19,
+      "massErr": 3,
+      "radiusRsun": 203,
+      "radiusErr": 17,
+      "teffK": 8525,
+      "teffErr": 75,
+      "luminosityLsun": 196000,
+      "luminosityErr": 32000,
+      "distancePc": 802,
+      "distanceErr": 66,
+      "refs": {
+        "all": "schiller2008"
+      },
+      "notes": "Distance is the main uncertainty. Schiller & Przybilla 2008 adopt 802 +- 66 pc from membership of Cyg OB7; the Hipparcos 2007 parallax (2.31 +- 0.32 mas) implies 433 pc, which the catalogue uses. The radius and luminosity listed here belong with 802 pc."
+    },
+    {
+      "id": "regulus",
+      "name": "Regulus",
+      "altNames": [],
+      "system": null,
+      "catalogueIndex": 21,
+      "hip": 49669,
+      "gaiaDr3": null,
+      "spectralType": "B8 IVn",
+      "catalogueDistancePc": 24.31316,
+      "massMsun": 4.15,
+      "massErr": 0.06,
+      "radiusRsun": 4.21,
+      "radiusErrPlus": 0.07,
+      "radiusErrMinus": 0.06,
+      "radiusPolarRsun": 3.22,
+      "teffPolarK": 14520,
+      "teffEquatorK": 11010,
+      "luminosityLsun": 341,
+      "luminosityErrPlus": 27,
+      "luminosityErrMinus": 28,
+      "refs": {
+        "all": "che2011"
+      },
+      "notes": "Spins at 96% of break-up; equatorial radius 4.21, polar radius 3.22 R_sun. Mass from evolutionary tracks."
+    },
+    {
+      "id": "polaris",
+      "name": "Polaris",
+      "altNames": [],
+      "system": null,
+      "catalogueIndex": 47,
+      "hip": 11767,
+      "gaiaDr3": null,
+      "spectralType": "F7 Ib (Cepheid)",
+      "catalogueDistancePc": 132.6258,
+      "massMsun": 5.13,
+      "massErr": 0.28,
+      "radiusRsun": 46.27,
+      "radiusErr": 0.42,
+      "angularDiameterMas": 3.143,
+      "angularDiameterErr": 0.027,
+      "distancePc": 136.9,
+      "distanceErr": 0.34,
+      "derived": {
+        "radiusCheckRsun": 46.26
+      },
+      "refs": {
+        "all": "evans2024"
+      },
+      "notes": "A pulsating Cepheid with a close companion (Polaris Ab, 30-yr orbit). Evans et al. 2024 use the Gaia DR3 parallax of the wide companion Polaris B (136.9 pc); Hipparcos 2007 gives 7.54 +- 0.11 mas (133 pc). No temperature is given here; the catalogue colour temperature applies."
+    },
+    {
+      "id": "tau-ceti",
+      "name": "Tau Ceti",
+      "altNames": [],
+      "system": null,
+      "catalogueIndex": 279,
+      "hip": 8102,
+      "gaiaDr3": "2452378776434477184",
+      "spectralType": "G8 V",
+      "catalogueDistancePc": 3.650019,
+      "massMsun": 0.783,
+      "massErr": 0.012,
+      "teffK": 5414,
+      "teffErr": 21,
+      "angularDiameterMas": 2.015,
+      "angularDiameterErr": 0.011,
+      "fbolWm2": 1.162e-9,
+      "fbolErr": 1.28e-11,
+      "radiusRsun": 0.7908,
+      "radiusErr": 0.0043,
+      "luminosityLsun": 0.4839,
+      "derived": {
+        "radiusRsun": "theta_LD/2 x 3.650 pc (catalogue distance); error excludes the distance error",
+        "luminosityLsun": "4 pi d^2 F_bol at 3.650 pc",
+        "teffCheckK": 5414
+      },
+      "refs": {
+        "angularDiameter": "heiter2015",
+        "fbol": "heiter2015",
+        "teff": "heiter2015",
+        "mass": "teixeira2009"
+      }
+    },
+    {
+      "id": "epsilon-eridani",
+      "name": "Epsilon Eridani",
+      "altNames": [
+        "Ran"
+      ],
+      "system": null,
+      "catalogueIndex": 371,
+      "hip": 16537,
+      "gaiaDr3": "5164707970261890560",
+      "spectralType": "K2 V",
+      "catalogueDistancePc": 3.219221,
+      "massMsun": 0.8,
+      "massErr": 0.06,
+      "teffK": 5076,
+      "teffErr": 30,
+      "angularDiameterMas": 2.126,
+      "angularDiameterErr": 0.014,
+      "fbolWm2": 1e-9,
+      "fbolErr": 2e-11,
+      "radiusRsun": 0.7358,
+      "radiusErr": 0.0048,
+      "luminosityLsun": 0.3239,
+      "derived": {
+        "radiusRsun": "theta_LD/2 x 3.219 pc (catalogue distance); error excludes the distance error",
+        "luminosityLsun": "4 pi d^2 F_bol at 3.219 pc",
+        "teffCheckK": 5076
+      },
+      "refs": {
+        "all": "heiter2015"
+      },
+      "notes": "A young, active star with a dust disc and a giant planet (AEgir)."
+    },
+    {
+      "id": "51-pegasi",
+      "name": "51 Pegasi",
+      "altNames": [
+        "Helvetios"
+      ],
+      "system": null,
+      "catalogueIndex": 2676,
+      "hip": 113357,
+      "gaiaDr3": "2835207319109249920",
+      "spectralType": "G2 IV",
+      "catalogueDistancePc": 15.51839,
+      "angularDiameterMas": 0.685,
+      "angularDiameterErr": 0.011,
+      "fbolWm2": 1.708e-10,
+      "fbolErr": 3e-13,
+      "radiusRsun": 1.143,
+      "radiusErr": 0.018,
+      "luminosityLsun": 1.286,
+      "teffK": 5749,
+      "derived": {
+        "radiusRsun": "theta_LD/2 x 15.518 pc (catalogue distance); error excludes the distance error",
+        "luminosityLsun": "4 pi d^2 F_bol at 15.518 pc",
+        "teffK": "(4 F_bol / (sigma theta_LD^2))^(1/4)"
+      },
+      "refs": {
+        "angularDiameter": "boyajian2013",
+        "fbol": "boyajian2013"
+      },
+      "notes": "First Sun-like star found to host a planet (51 Peg b, Dimidium; Mayor & Queloz 1995). Teff is derived here from the angular diameter and bolometric flux."
+    },
+    {
+      "id": "hr-8799",
+      "name": "HR 8799",
+      "altNames": [],
+      "system": null,
+      "catalogueIndex": 4859,
+      "hip": 114189,
+      "gaiaDr3": "2832463659640297472",
+      "spectralType": "F0 V (lambda Boo)",
+      "catalogueDistancePc": 40.81324,
+      "massMsun": 1.516,
+      "massErrPlus": 0.038,
+      "massErrMinus": 0.024,
+      "radiusRsun": 1.44,
+      "radiusErr": 0.06,
+      "teffK": 7193,
+      "teffErr": 87,
+      "luminosityLsun": 5.05,
+      "luminosityErr": 0.29,
+      "angularDiameterMas": 0.342,
+      "angularDiameterErr": 0.008,
+      "derived": {
+        "radiusCheckRsun": 1.501
+      },
+      "refs": {
+        "all": "baines2012"
+      },
+      "notes": "Host of four directly imaged giant planets. The mass assumes the star is still contracting toward the main sequence (age ~30 Myr)."
+    },
+    {
+      "id": "barnards-star",
+      "name": "Barnard's Star",
+      "altNames": [],
+      "system": null,
+      "catalogueIndex": 225982,
+      "hip": 87937,
+      "gaiaDr3": "4472832130942575872",
+      "spectralType": "M3.5 V",
+      "catalogueDistancePc": 1.82988,
+      "massMsun": 0.163,
+      "massErr": 0.022,
+      "radiusRsun": 0.178,
+      "radiusErr": 0.011,
+      "teffK": 3278,
+      "teffErr": 51,
+      "luminosityLsun": 0.00329,
+      "luminosityErr": 0.00019,
+      "refs": {
+        "all": "ribas2018"
+      },
+      "notes": "Largest proper motion of any star (10.4 arcsec per year). Straight-line motion from its Gaia DR3 astrometry brings it to 1.16 pc from the Sun in about 9,700 years."
+    },
+    {
+      "id": "wolf-359",
+      "name": "Wolf 359",
+      "altNames": [],
+      "system": null,
+      "catalogueIndex": 329173,
+      "hip": null,
+      "gaiaDr3": "3864972938605115520",
+      "spectralType": "M6 V",
+      "catalogueDistancePc": 2.40815,
+      "massMsun": 0.0997,
+      "massErr": 0.01,
+      "radiusRsun": 0.1348,
+      "radiusErr": 0.0058,
+      "teffK": 2818,
+      "teffErr": 60,
+      "refs": {
+        "all": "mann2015"
+      }
+    },
+    {
+      "id": "lalande-21185",
+      "name": "Lalande 21185",
+      "altNames": [],
+      "system": null,
+      "catalogueIndex": 26329,
+      "hip": 54035,
+      "gaiaDr3": "762815470562110464",
+      "spectralType": "M2 V",
+      "catalogueDistancePc": 2.547319,
+      "massMsun": 0.386,
+      "massErr": 0.039,
+      "radiusRsun": 0.389,
+      "radiusErr": 0.013,
+      "teffK": 3563,
+      "teffErr": 60,
+      "refs": {
+        "all": "mann2015"
+      }
+    },
+    {
+      "id": "ross-128",
+      "name": "Ross 128",
+      "altNames": [],
+      "system": null,
+      "catalogueIndex": 327891,
+      "hip": 57548,
+      "gaiaDr3": "3796072592206250624",
+      "spectralType": "M4 V",
+      "catalogueDistancePc": 3.374753,
+      "massMsun": 0.168,
+      "massErr": 0.017,
+      "radiusRsun": 0.1967,
+      "radiusErr": 0.0077,
+      "teffK": 3192,
+      "teffErr": 60,
+      "refs": {
+        "all": "mann2015"
+      }
+    },
+    {
+      "id": "luytens-star",
+      "name": "Luyten's Star",
+      "altNames": [],
+      "system": null,
+      "catalogueIndex": 302995,
+      "hip": 36208,
+      "gaiaDr3": "3139847906307949696",
+      "spectralType": "M3.5 V",
+      "catalogueDistancePc": 3.785294,
+      "massMsun": 0.283,
+      "massErr": 0.028,
+      "radiusRsun": 0.315,
+      "radiusErr": 0.012,
+      "teffK": 3317,
+      "teffErr": 60,
+      "refs": {
+        "all": "mann2015"
+      }
+    },
+    {
+      "id": "gliese-581",
+      "name": "Gliese 581",
+      "altNames": [],
+      "system": null,
+      "catalogueIndex": 327534,
+      "hip": 74995,
+      "gaiaDr3": "6322070093095493504",
+      "spectralType": "M3 V",
+      "catalogueDistancePc": 6.298685,
+      "massMsun": 0.292,
+      "massErr": 0.029,
+      "radiusRsun": 0.311,
+      "radiusErr": 0.012,
+      "teffK": 3395,
+      "teffErr": 60,
+      "refs": {
+        "all": "mann2015"
+      }
+    },
+    {
+      "id": "lacaille-9352",
+      "name": "Lacaille 9352",
+      "altNames": [],
+      "system": null,
+      "catalogueIndex": 22658,
+      "hip": 114046,
+      "gaiaDr3": "6553614253923452800",
+      "spectralType": "M1 V",
+      "catalogueDistancePc": 3.287579,
+      "massMsun": 0.495,
+      "massErr": 0.049,
+      "radiusRsun": 0.468,
+      "radiusErr": 0.022,
+      "teffK": 3688,
+      "teffErr": 86,
+      "refs": {
+        "all": "mann2015"
+      }
+    },
+    {
+      "id": "trappist-1",
+      "name": "TRAPPIST-1",
+      "altNames": [],
+      "system": null,
+      "catalogueIndex": 329762,
+      "hip": null,
+      "gaiaDr3": "2635476908753563008",
+      "spectralType": "M8 V",
+      "catalogueDistancePc": 12.46776,
+      "massMsun": 0.0898,
+      "massErr": 0.0023,
+      "radiusRsun": 0.1192,
+      "radiusErr": 0.0013,
+      "teffK": 2566,
+      "teffErr": 26,
+      "luminosityLsun": 0.000553,
+      "luminosityErr": 0.000019,
+      "refs": {
+        "all": "agol2021"
+      },
+      "notes": "Seven Earth-sized planets. Not in AT-HYG (too faint for Tycho-2); added to the catalogue from Gaia DR3."
+    }
+  ]
+}

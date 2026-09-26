@@ -1,4 +1,5 @@
-import type { BodyId } from '../physics/constants';
+import { Vector3 } from 'three';
+import { AU_KM, type BodyId } from '../physics/constants';
 import { useUI } from '../state/ui';
 import { controller } from '../controls/cameraController';
 import { sim } from '../sim/sim';
@@ -23,4 +24,13 @@ export function goToBody(id: BodyId) {
   if (!sim.bodies[id].present) return;
   useUI.getState().select(id);
   controller.goTo(id);
+}
+
+const OVER_THE_SYSTEM = new Vector3(0.2, 1, 0.35);
+
+/** Frame the whole Solar System out to Pluto, from above the ecliptic (not in flight). */
+export function frameSolarSystem(): void {
+  if (useUI.getState().tripActive) return;
+  useUI.getState().select('sun');
+  controller.goTo('sun', { distance: 60 * AU_KM, direction: OVER_THE_SYSTEM });
 }

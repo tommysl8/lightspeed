@@ -6,9 +6,9 @@
 import { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Quaternion, Vector3, Vector4, type PerspectiveCamera } from 'three';
-import { AU_KM, BODIES, BODY_ORDER, LIGHT_YEAR_KM, type BodyId } from '../../physics/constants';
+import { BODIES, BODY_ORDER, type BodyId } from '../../physics/constants';
 import { fixed, sig } from '../../lib/sci';
-import { niceStep } from '../plot/ticks';
+import { scaleBarLength } from './scaleBar';
 import { relView } from '../../render/relativisticView';
 import { sim } from '../../sim/sim';
 import { useUI } from '../../state/ui';
@@ -59,17 +59,6 @@ function place(el: HTMLElement | SVGElement | undefined, p: { x: number; y: numb
   if (p && visible) (el as HTMLElement).style.transform = `translate3d(${p.x.toFixed(1)}px, ${p.y.toFixed(1)}px, 0)`;
 }
 
-/** Nice scale-bar length for a km-per-pixel scale, in the most readable unit. */
-export function scaleBarLength(kmPerPx: number, targetPx = 110): { px: number; label: string } {
-  const want = kmPerPx * targetPx;
-  const unit =
-    want >= 0.05 * LIGHT_YEAR_KM ? { f: LIGHT_YEAR_KM, s: 'ly' } : want >= 0.02 * AU_KM ? { f: AU_KM, s: 'au' } : want >= 1 ? { f: 1, s: 'km' } : { f: 0.001, s: 'm' };
-  const step = niceStep(want / unit.f, 1);
-  const L = step * unit.f;
-  const n = fixed(step, Math.max(0, -Math.floor(Math.log10(step) + 1e-9)));
-  return { px: L / kmPerPx, label: `${n} ${unit.s}` };
-}
-
 /** Body the scale bar refers to: the orbit target, else the selection, else the nearest. */
 function scaleBody(): BodyId {
   const ui = useUI.getState();
@@ -118,7 +107,7 @@ export function OverlaySync() {
       const d = sim.bodies[id].distCamera;
       const kmPerPx = (2 * d * Math.tan((cam.fov * Math.PI) / 360)) / Math.max(1, sim.viewport.height);
       if (relView.active || !Number.isFinite(kmPerPx) || kmPerPx <= 0) {
-        setScale(els.scaleBar as HTMLElement, els.scaleText, '0px', relView.active ? 'scale undefined in aberrated view' : '');
+        setScale(els.scaleBar as HTMLElement, els.scaleText, '0px', relView.active ? 'no single scale at this speed' : '');
       } else {
         const s = scaleBarLength(kmPerPx);
         setScale(els.scaleBar as HTMLElement, els.scaleText, `${s.px.toFixed(1)}px`, `${s.label}  at ${BODIES[id].name}`);

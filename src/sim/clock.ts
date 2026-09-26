@@ -25,11 +25,13 @@ export const warpLabel = (w: number): string => WARP_LABELS[w] ?? formatRate(w);
 
 export function setWarp(w: number): void {
   sim.warp = w;
+  if (w !== 1) sim.live = false;
   useUI.setState({ warp: w });
 }
 
 export function setPaused(p: boolean): void {
   sim.paused = p;
+  if (p) sim.live = false;
   useUI.setState({ paused: p });
 }
 
@@ -56,6 +58,30 @@ export function resetToNow(): void {
   clearPulses();
   setWarp(1);
   setPaused(false);
+  sim.live = true;
+}
+
+/**
+ * One frame of a live clock: set it to the computer's clock, `nowMs` (ms since 1970), and return
+ * the simulated seconds that passed. However long the gap since the last frame (a tab hidden
+ * for an hour), the clock lands on the present; everything downstream is exact at any step.
+ * It never runs backwards: a jitter of the computer's clock is waited out, and a clock set back
+ * by more than a second is followed the way "Now" does it (chronometers zeroed, pulses dropped).
+ */
+export function followWallClock(nowMs: number): number {
+  if (!Number.isFinite(nowMs)) return 0;
+  if (nowMs < sim.timeMs - 1000) {
+    setSimTime(nowMs);
+    zeroChrono();
+    clearPulses();
+    return 0;
+  }
+  if (!(nowMs > sim.timeMs)) return 0;
+  const seconds = (nowMs - sim.timeMs) / 1000;
+  // (tickClock sets the astronomy time for the frame.)
+  sim.timeMs = nowMs;
+  sim.timeCarryMs = 0;
+  return seconds;
 }
 
 /** Earliest and latest dates the epoch setter accepts: years −9999 to 9999 (10,000 BCE to 9999 CE). */
@@ -77,6 +103,7 @@ export const TIME_MAX_MS = msFromCivil(1e13, 1, 1);
 export function setEpoch(ms: number): boolean {
   if (useUI.getState().tripActive || !Number.isFinite(ms)) return false;
   setSimTime(Math.min(EPOCH_MAX_MS, Math.max(EPOCH_MIN_MS, ms)));
+  sim.live = false;
   zeroChrono();
   clearPulses();
   return true;
@@ -108,5 +135,7 @@ export function advanceClock(seconds: number): number {
 
 /** Jump forward in simulated time (used by "jump to arrival"). */
 export function advanceTime(seconds: number): void {
-  if (seconds > 0) advanceClock(seconds);
+  if (!(seconds > 0)) return;
+  sim.live = false;
+  advanceClock(seconds);
 }

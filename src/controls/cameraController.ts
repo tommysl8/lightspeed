@@ -3,7 +3,10 @@
  * itself stays at the origin (floating origin) and only receives the orientation.
  *
  * Modes
- *  - orbit:      orbit a body. Drag rotates, the wheel zooms on a log scale, motion is damped.
+ *  - orbit:      orbit a body. Drag rotates, the wheel zooms on a log scale (Shift: five times
+ *                faster), motion is damped. Zoom runs from just above the surface out to
+ *                10²⁴ km, 100 billion light-years: continuously from a planet to the scale of
+ *                the observable universe.
  *  - free:       free flight with pointer lock. WASD moves, Space/C go up and down,
  *                Q/E roll, the mouse looks around, and the wheel sets the throttle (0.3 m/s
  *                to 0.99999c on a logit scale). Motion is relative to the last body you
@@ -24,7 +27,10 @@ export { framingDistance };
 
 const UP = new Vector3(0, 1, 0);
 const ZERO = new Vector3();
-const MAX_DIST_KM = 1e12; // ~6,700 au
+/** Farthest orbit distance, km (about 10¹¹ light-years: beyond the observable universe's 4.4 × 10²³ km radius). */
+export const MAX_DIST_KM = 1e24;
+/** Wheel and +/− zoom speed-up with Shift held: 46 e-folds separate a planet from the universe. */
+const FAST_ZOOM = 5;
 const FREE_LOGIT_MIN = -9; // ~0.3 m/s
 const FREE_LOGIT_MAX = 5; // 0.99999c
 
@@ -51,6 +57,11 @@ const qb = new Quaternion();
 export class CameraController {
   mode: ControlMode = 'orbit';
   target: BodyId = 'earth';
+  /**
+   * Counts camera moves (slews, placements, trips, free flight), so whoever started one can
+   * tell whether it is still the latest when it ends.
+   */
+  moves = 0;
 
   // Orbit state (azimuth/elevation of the camera around the target, world Y up).
   private az = 0;
@@ -93,6 +104,7 @@ export class CameraController {
 
   /** Put the camera in orbit around a body, facing its sunlit side. */
   placeAt(id: BodyId, dist = framingDistance(id)): void {
+    this.moves++;
     this.target = id;
     this.frameBody = id;
     const dir = this.niceDirection(id);
@@ -141,6 +153,7 @@ export class CameraController {
     opts: { keepDistance?: boolean; keepDirection?: boolean; distance?: number; direction?: Vector3 } = {},
   ): void {
     if (this.mode === 'travel' || !sim.bodies[id].present) return;
+    this.moves++;
     const eye = sim.camera.pos;
     const B = sim.bodies[id].pos;
     let fromBody: BodyId | null = null;
@@ -184,6 +197,7 @@ export class CameraController {
 
   enterFreeFlight(): void {
     if (this.mode === 'travel') return;
+    this.moves++;
     if (this.mode === 'transition') this.finishTransition();
     this.frameBody = this.target;
     this.frameBodyPrevId = null;
@@ -202,6 +216,7 @@ export class CameraController {
   /** Ride along with a trip: the camera sits on the ship, looking along the course. */
   startTravel(dir: Vector3): void {
     if (document.pointerLockElement) document.exitPointerLock();
+    this.moves++;
     this.tr = null;
     this.travelDir.copy(dir).normalize();
     this.lookYaw = 0;
@@ -277,8 +292,14 @@ export class CameraController {
     if (k.has('ArrowRight')) this.goalAz += rot;
     if (k.has('ArrowUp')) this.goalEl += rot;
     if (k.has('ArrowDown')) this.goalEl -= rot;
-    if (k.has('Equal') || k.has('NumpadAdd')) this.goalLogDist -= 1.6 * dt;
-    if (k.has('Minus') || k.has('NumpadSubtract')) this.goalLogDist += 1.6 * dt;
+    // Shift is fast zoom, except with the + on the main keyboard, which needs Shift to type
+    // at all (Shift+= is +): there it would make "in" five times faster than "out".
+    const shift = k.has('ShiftLeft') || k.has('ShiftRight');
+    const zoomRate = 1.6 * dt;
+    const fast = shift ? FAST_ZOOM : 1;
+    if (k.has('Equal')) this.goalLogDist -= zoomRate;
+    else if (k.has('NumpadAdd')) this.goalLogDist -= zoomRate * fast;
+    if (k.has('Minus') || k.has('NumpadSubtract')) this.goalLogDist += zoomRate * fast;
     this.clampGoals();
 
     const a = 1 - Math.exp(-dt * 10);
@@ -463,12 +484,14 @@ export class CameraController {
 
   private onWheel = (e: WheelEvent): void => {
     e.preventDefault();
-    const delta = e.deltaMode === 1 ? e.deltaY * 33 : e.deltaY;
+    // With Shift held, browsers on Windows and Linux turn a vertical wheel into a horizontal one.
+    const raw = e.shiftKey && e.deltaY === 0 ? e.deltaX : e.deltaY;
+    const delta = e.deltaMode === 1 ? raw * 33 : raw;
     if (this.mode === 'free') {
       this.throttle = Math.min(1, Math.max(0, this.throttle - delta * 0.00035));
       useUI.setState({ throttleBeta: this.throttleBeta });
     } else if (this.mode === 'orbit') {
-      this.goalLogDist += delta * 0.0022;
+      this.goalLogDist += delta * 0.0022 * (e.shiftKey ? FAST_ZOOM : 1);
       this.clampGoals();
     }
   };
@@ -478,6 +501,8 @@ export class CameraController {
   private onKeyDown = (e: KeyboardEvent): void => {
     const ui = useUI.getState();
     if (e.defaultPrevented || isTyping(e) || ui.reportFor || docRoute()) return;
+    // Nor behind a dialog: its arrow keys and +/− are for the dialog.
+    if (ui.welcomeOpen || ui.tourStep !== null || ui.journeysOpen || ui.keysOpen || ui.searchOpen) return;
     this.keys.add(e.code);
     if (this.mode === 'free' && (e.code === 'Space' || e.code.startsWith('Arrow'))) e.preventDefault();
   };

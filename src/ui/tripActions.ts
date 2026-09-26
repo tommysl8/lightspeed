@@ -9,7 +9,17 @@ import { chronoLaunch, chronoTripEnd } from '../sim/chronometer';
 
 export function openPlanner(dest?: BodyId): void {
   const ui = useUI.getState();
-  useUI.setState({ plannerOpen: true, journeysOpen: false, plannerDest: dest ?? ui.selected ?? ui.plannerDest });
+  useUI.setState({ plannerOpen: true, journeysOpen: false, searchOpen: false, plannerDest: dest ?? ui.selected ?? ui.plannerDest });
+}
+
+/**
+ * "Fly here" and "Fly" in search: the planner, set to a 1 g rocket from where you are, so the
+ * trip's two clocks are on screen before you press Ignite. Not in flight.
+ */
+export function planOneG(dest: BodyId): void {
+  if (useUI.getState().tripActive) return;
+  useUI.setState({ plannerDrive: 'rocket' });
+  openPlanner(dest);
 }
 
 /** Plan and launch a trip from the current camera position. Returns false if unreachable. */

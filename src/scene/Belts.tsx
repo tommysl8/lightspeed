@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { BufferAttribute, BufferGeometry } from 'three';
+import { BufferAttribute, BufferGeometry, type Object3D } from 'three';
 import { AU_KM, J2000_JD } from '../physics/constants';
 import { createBeltMaterial } from '../render/materials';
 import { assetUrl } from '../render/textures';
 import { sim } from '../sim/sim';
+import { solarSystemHidden } from '../sim/derived';
 import { shaderDays } from '../lib/time';
 import { useUI } from '../state/ui';
 import { POINTS_LAYER } from '../render/LightspeedScenePass';
@@ -17,7 +18,7 @@ import { POINTS_LAYER } from '../render/LightspeedScenePass';
 export function Belts() {
   const material = useMemo(createBeltMaterial, []);
   const [data, setData] = useState<{ geometry: BufferGeometry; refEpochJd: number } | null>(null);
-  const show = useUI((s) => s.showBelts);
+  const points = useRef<Object3D | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -59,7 +60,12 @@ export function Belts() {
   }, []);
 
   useFrame(({ gl }) => {
-    if (!data) return;
+    if (!data || !points.current) return;
+    // Hidden once the Solar System is below a pixel: the shader's camera-relative positions
+    // would overflow float32 from far enough away.
+    const visible = useUI.getState().showBelts && !solarSystemHidden();
+    points.current.visible = visible;
+    if (!visible) return;
     const u = material.uniforms;
     // Wrapped far from the elements' epoch so float32 keeps resolving the motion (see shaderDays).
     u.uDays.value = shaderDays(sim.astroTime.tt + J2000_JD - data.refEpochJd);
@@ -74,9 +80,11 @@ export function Belts() {
       geometry={data.geometry}
       material={material}
       frustumCulled={false}
-      visible={show}
       renderOrder={2}
-      ref={(o) => o?.layers.set(POINTS_LAYER)}
+      ref={(o) => {
+        points.current = o;
+        o?.layers.set(POINTS_LAYER);
+      }}
     />
   );
 }

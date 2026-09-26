@@ -1,0 +1,668 @@
+/*
+ * Learn: the hub and the articles, in the reading view (DocView), on top of the reading-page
+ * styles in index.css. Loaded with Learn only.
+ */
+
+/* ── The measure ───────────────────────────────────────────────────────────────────────
+ * About 70 characters of Source Serif at 16.5 px to a line: a 560 px column. */
+.doc.learn-article {
+  max-width: 656px;
+}
+
+/* ── Masthead ───────────────────────────────────────────────────────────────────────── */
+.doc .doc-mast-k a {
+  color: inherit;
+  text-decoration: none;
+}
+.doc .doc-mast-k a:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--color-accent);
+}
+.learn-mast h1 {
+  font-size: 40px;
+  line-height: 1.1;
+}
+.doc .learn-mast p {
+  font-size: 18px;
+}
+.learn-meta {
+  font-family: var(--font-mono);
+}
+.doc .learn-meta a {
+  color: var(--color-fg-2);
+  text-decoration-color: var(--color-line-3);
+}
+@media (max-width: 640px) {
+  .doc-mast h1,
+  .learn-mast h1 {
+    font-size: 31px;
+  }
+}
+
+/* ── The text ───────────────────────────────────────────────────────────────────────── */
+.learn-body {
+  padding-top: 30px;
+  /* The size of the reading text, for what is not a paragraph (display maths, boxes). */
+  font-size: 16.5px;
+}
+.learn-body h2 {
+  margin: 60px 0 14px;
+  font-family: var(--font-serif);
+  font-size: 30px;
+  font-weight: 500;
+  line-height: 1.15;
+  color: var(--color-fg);
+}
+.learn-body h4 {
+  margin: 22px 0 6px;
+}
+@media (max-width: 640px) {
+  .learn-body h2 {
+    margin-top: 44px;
+    font-size: 25px;
+  }
+}
+.learn-body blockquote {
+  margin: 18px 0;
+  padding: 2px 0 2px 16px;
+  border-left: 2px solid var(--color-line-3);
+}
+.learn-body blockquote p {
+  color: var(--color-fg-2);
+}
+.learn-body code {
+  padding: 1px 4px;
+  background: var(--color-panel-2);
+  font-family: var(--font-mono);
+  font-size: 0.84em;
+}
+.learn-body hr {
+  margin: 36px 0;
+  border: 0;
+  border-top: 1px solid var(--color-line-2);
+}
+.learn-body img {
+  max-width: 100%;
+  height: auto;
+}
+.doc .learn-body ol {
+  margin: 0 0 16px;
+  padding-left: 1.6em;
+  list-style: decimal;
+}
+.doc .learn-body ol > li {
+  margin: 7px 0;
+  padding-left: 4px;
+}
+.learn-xref-soon {
+  border-bottom: 1px dotted var(--color-fg-4);
+  cursor: help;
+}
+.doc a.learn-url {
+  font-family: var(--font-mono);
+  font-size: 0.8em;
+  color: var(--color-fg-2);
+}
+.doc a.learn-yt::before {
+  content: '';
+  display: inline-block;
+  margin-right: 0.4em;
+  border-top: 0.3em solid transparent;
+  border-bottom: 0.3em solid transparent;
+  border-left: 0.5em solid var(--color-accent);
+  vertical-align: 0.05em;
+}
+
+/* Maths: KaTeX a touch smaller than its default, to sit with the serif; wide formulas scroll. */
+.learn-body .katex {
+  font-size: 1.08em;
+}
+.learn-math {
+  margin: 18px 0 20px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  color: var(--color-fg);
+}
+.learn-math .katex-display {
+  margin: 0;
+  padding: 2px 0;
+}
+.learn-math-error {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  color: var(--color-red);
+}
+
+/* Tables scroll sideways on a phone rather than squeezing the page. */
+.learn-tbl {
+  margin: 12px 0 22px;
+  overflow-x: auto;
+}
+.learn-tbl .doc-tbl {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Footnotes ──────────────────────────────────────────────────────────────────────── */
+.learn-fnref {
+  line-height: 0;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+}
+.doc .learn-fnref a {
+  padding: 0 1px;
+  color: var(--color-accent);
+  text-decoration: none;
+}
+.doc .learn-fnref a:hover {
+  text-decoration: underline;
+}
+.learn-fnsep {
+  line-height: 0;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--color-fg-3);
+}
+.learn-notes {
+  margin-top: 64px;
+  padding-top: 8px;
+  border-top: 1px solid var(--color-line-2);
+}
+.learn-body .learn-notes h2 {
+  margin: 20px 0 12px;
+  font-size: 22px;
+}
+.doc .learn-notes-list {
+  margin: 0;
+  padding-left: 2.4em;
+  list-style: decimal;
+}
+.doc .learn-notes-list > li {
+  margin: 0 0 8px;
+  padding-left: 4px;
+  font-family: var(--font-serif);
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--color-fg-2);
+  overflow-wrap: anywhere;
+}
+.learn-notes-list li::marker {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-fg-3);
+}
+.doc .learn-notes-list p {
+  margin: 0;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+}
+.doc a.learn-fnback {
+  margin-left: 2px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-fg-3);
+  text-decoration: none;
+}
+.doc a.learn-fnback:hover {
+  color: var(--color-accent);
+}
+/* Where a footnote link lands, briefly. */
+.learn-target {
+  outline: none;
+  animation: learn-flash 1.6s ease-out;
+}
+@keyframes learn-flash {
+  from {
+    background: rgba(240, 167, 58, 0.16);
+  }
+  to {
+    background: transparent;
+  }
+}
+
+/* ── Boxes: see it, myth, numbers, timeline, figure ─────────────────────────────────── */
+.learn-seeit,
+.learn-myth,
+.learn-numbers,
+.learn-timeline {
+  margin: 26px 0;
+  border: 1px solid var(--color-line-2);
+  background: var(--color-panel);
+}
+.learn-box-t {
+  margin-bottom: 8px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-fg-3);
+}
+
+.learn-seeit {
+  padding: 12px 16px 12px;
+  border-left: 2px solid var(--color-accent);
+}
+.learn-seeit-act {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+  margin-bottom: 8px;
+}
+.learn-seeit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 30px;
+  padding: 0 12px 0 10px;
+  border: 1px solid rgba(240, 167, 58, 0.5);
+  border-radius: 2px;
+  background: rgba(240, 167, 58, 0.07);
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--color-fg);
+  cursor: pointer;
+}
+.learn-seeit-btn svg {
+  color: var(--color-accent);
+}
+.learn-seeit-btn:hover:not(:disabled) {
+  border-color: var(--color-accent);
+  background: rgba(240, 167, 58, 0.13);
+}
+.learn-seeit-btn:focus-visible {
+  outline: 1px solid var(--color-accent);
+  outline-offset: 2px;
+}
+.learn-seeit-btn:disabled {
+  border-color: var(--color-line-2);
+  background: transparent;
+  color: var(--color-fg-3);
+  cursor: not-allowed;
+}
+.learn-seeit-btn:disabled svg {
+  color: var(--color-fg-4);
+}
+.learn-seeit-what {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-fg-3);
+}
+.doc .learn-note p {
+  margin: 0 0 8px;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--color-fg-2);
+}
+.doc .learn-note p:last-child {
+  margin-bottom: 0;
+}
+.doc .learn-seeit-cap p {
+  margin: 0 0 6px;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--color-fg-2);
+}
+.doc .learn-seeit-cap p:last-child,
+.doc .learn-myth-fact p:last-child,
+.doc .learn-numbers p:last-child {
+  margin-bottom: 0;
+}
+/* A scene that cannot run (yet) keeps its caption but loses the accent. */
+.learn-seeit:has(.learn-seeit-btn:disabled) {
+  border-left-color: var(--color-line-3);
+}
+
+.doc .learn-myth-claim {
+  margin: 0;
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--color-line);
+  font-style: italic;
+  color: var(--color-fg);
+}
+.learn-myth-k {
+  margin-right: 4px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-style: normal;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-fg-3);
+}
+.learn-myth-fact {
+  padding: 11px 16px 12px;
+}
+.doc .learn-myth-fact p {
+  font-size: 15.5px;
+  line-height: 1.6;
+}
+
+.learn-numbers {
+  padding: 13px 16px 12px;
+}
+.learn-numbers .learn-tbl {
+  margin: 4px 0 10px;
+}
+.doc .learn-numbers p {
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--color-fg-2);
+}
+
+.learn-timeline {
+  padding: 13px 16px 6px;
+}
+.doc .learn-timeline ul {
+  margin: 0 0 8px;
+  padding: 0;
+  list-style: none;
+}
+.doc .learn-timeline ul > li {
+  margin: 0;
+  padding: 7px 0 7px calc(5.6em + 14px);
+  border-top: 1px solid var(--color-line);
+  font-size: 15px;
+  line-height: 1.5;
+}
+.doc .learn-timeline ul > li:first-child {
+  border-top: 0;
+}
+.doc .learn-timeline ul > li.learn-tl-item {
+  display: grid;
+  grid-template-columns: 5.6em minmax(0, 1fr);
+  gap: 14px;
+  padding-left: 0;
+}
+.learn-tl-date {
+  padding-top: 2px;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-accent);
+}
+.doc .learn-tl-body p {
+  margin: 0 0 4px;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.learn-fig-body svg {
+  display: block;
+}
+.doc .learn-fig figcaption p {
+  margin: 0 0 6px;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+}
+.learn-fig-caption {
+  margin: 26px 0;
+  padding: 10px 14px;
+  border: 1px dashed var(--color-line-2);
+}
+.learn-fig-caption figcaption {
+  font-family: var(--font-serif);
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: var(--color-fg-2);
+}
+
+/* ── Further reading ────────────────────────────────────────────────────────────────── */
+.learn-refs-icon {
+  flex: none;
+  align-self: center;
+  color: var(--color-accent);
+}
+.doc .learn-refs {
+  margin: 0 0 20px;
+  padding: 0;
+  list-style: none;
+}
+.doc .learn-refs > li {
+  margin: 0;
+  padding: 9px 0;
+  border-top: 1px solid var(--color-line);
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--color-fg-2);
+  overflow-wrap: anywhere;
+}
+.doc .learn-refs > li:first-child {
+  border-top: 0;
+}
+.doc .learn-refs > li p {
+  margin: 0;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+}
+
+/* ── The hub ────────────────────────────────────────────────────────────────────────── */
+.learn-shelf {
+  padding-top: 52px;
+}
+.learn-shelf h2 {
+  font-size: 26px;
+}
+.doc .learn-cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--color-line-2);
+  background: var(--color-line-2);
+}
+/* An odd card out spans the row rather than leaving a hole. */
+.doc .learn-cards > li:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+}
+@media (max-width: 640px) {
+  .doc .learn-cards {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.doc .learn-cards > li {
+  position: relative;
+  display: flex;
+  margin: 0;
+  padding: 0;
+  background: var(--color-panel);
+}
+.doc a.learn-card-link {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px 48px 14px 18px;
+  color: inherit;
+  text-decoration: none;
+}
+.doc a.learn-card-link:hover {
+  background: var(--color-panel-2);
+}
+.doc a.learn-card-link:focus-visible {
+  outline: 1px solid var(--color-accent);
+  outline-offset: -1px;
+}
+.learn-card-t {
+  font-family: var(--font-serif);
+  font-size: 19px;
+  font-weight: 500;
+  line-height: 1.25;
+  color: var(--color-fg);
+}
+.learn-card-p {
+  font-family: var(--font-serif);
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: var(--color-fg-2);
+}
+.learn-card-m {
+  margin-top: auto;
+  padding-top: 4px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-fg-3);
+}
+.learn-card-read {
+  color: var(--color-ok);
+}
+.learn-tick {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: grid;
+  place-content: center;
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--color-line-3);
+  border-radius: 2px;
+  background: transparent;
+  color: transparent;
+  cursor: pointer;
+}
+.learn-tick:hover {
+  border-color: var(--color-fg-3);
+  color: var(--color-fg-3);
+}
+.learn-tick:focus-visible {
+  outline: 1px solid var(--color-accent);
+  outline-offset: 2px;
+}
+.learn-tick[aria-pressed='true'] {
+  border-color: var(--color-ok);
+  color: var(--color-ok);
+}
+.doc .learn-soon {
+  margin: 16px 0 0;
+  padding: 14px 18px;
+  border: 1px dashed var(--color-line-2);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-fg-3);
+}
+
+/* ── After the text ─────────────────────────────────────────────────────────────────── */
+.learn-end {
+  margin-top: 56px;
+  padding-top: 20px;
+  border-top: 1px solid var(--color-line-2);
+}
+.learn-pager {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+@media (max-width: 640px) {
+  .learn-pager {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.doc a.learn-pager-prev,
+.doc a.learn-pager-next {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 12px 14px;
+  border: 1px solid var(--color-line-2);
+  background: var(--color-panel);
+  text-decoration: none;
+}
+.doc a.learn-pager-next {
+  align-items: flex-end;
+  text-align: right;
+}
+.doc a.learn-pager-prev:hover,
+.doc a.learn-pager-next:hover {
+  border-color: var(--color-line-3);
+  background: var(--color-panel-2);
+}
+.learn-pager-k {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-fg-3);
+}
+.learn-pager-t {
+  font-family: var(--font-serif);
+  font-size: 16px;
+  line-height: 1.3;
+  color: var(--color-fg);
+}
+.doc .learn-fix,
+.doc .learn-status {
+  margin: 20px 0 0;
+  font-family: var(--font-sans);
+  font-size: 13.5px;
+  color: var(--color-fg-3);
+}
+
+/* ── Print: the text and its sources, without the buttons ───────────────────────────── */
+@media print {
+  .doc.learn-article {
+    max-width: none !important;
+  }
+  .learn-seeit,
+  .learn-tick,
+  .learn-pager,
+  .learn-fnback {
+    display: none !important;
+  }
+  .learn-myth,
+  .learn-numbers,
+  .learn-timeline,
+  .learn-fig,
+  .learn-cards > li,
+  .learn-tl > li {
+    break-inside: avoid;
+  }
+  .learn-body h2,
+  .learn-body h3 {
+    break-after: avoid;
+  }
+  .learn-math,
+  .learn-tbl {
+    overflow: visible !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .learn-target {
+    animation: none;
+  }
+}
+
+/* ── The lab, at the end of the hub (for students) ─────────────────────────────────── */
+.learn-lab {
+  margin-top: 56px;
+  padding: 14px 18px 16px;
+  border: 1px solid var(--color-line-2);
+  background: var(--color-panel);
+}
+.doc .learn-lab p {
+  margin: 0 0 12px;
+  max-width: 62ch;
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--color-fg-2);
+}
+.doc .learn-lab .learn-lab-t {
+  margin-bottom: 6px;
+  font-size: 19px;
+  font-weight: 500;
+  color: var(--color-fg);
+}

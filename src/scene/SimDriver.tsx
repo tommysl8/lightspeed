@@ -8,6 +8,7 @@ import { earthLight, updateApparentPositions, updateEarthLight } from '../sim/li
 import { sim } from '../sim/sim';
 import { travel } from '../sim/travel';
 import { tickClock, tickTrip } from '../sim/tick';
+import { updateShipKinematics } from '../sim/shipKinematics';
 import { updatePulses } from '../sim/pulses';
 import { labArrival, labFrame } from '../lab/logger';
 import { useUI } from '../state/ui';
@@ -47,9 +48,11 @@ export function SimDriver() {
     const cam = camera as PerspectiveCamera;
     sim.camera.fovDeg = cam.fov;
 
-    // Clock: a real trip plays by ship time and sets the Earth clock from it; otherwise the
-    // clock runs at the time warp.
-    const dtSim = tickClock(dtReal);
+    // Clock: a real trip plays by ship time and sets the Earth clock from it; a clock showing
+    // the present follows the computer's clock (frames are clamped, and stop in a hidden tab or
+    // under a reading page); otherwise the clock runs at the time warp. Scripted stepping
+    // (debugDt) keeps to its own steps.
+    const dtSim = tickClock(dtReal, sim.debugDt > 0 ? undefined : Date.now());
 
     // World
     updateEphemeris();
@@ -75,11 +78,13 @@ export function SimDriver() {
     camera.position.set(0, 0, 0);
     camera.quaternion.copy(sim.camera.quat);
     camera.updateMatrixWorld();
+    // The observer's rapidity, exact at any γ (from the trip model while flying)
+    updateShipKinematics();
 
     // What the camera sees
     updateApparentPositions(ui.retarded);
     updateRelativisticView(ui.relMode, ui.splitX, ui.relDoppler, !!travel.trip?.warp);
-    updateDerived(cam);
+    updateDerived(cam, ui.focus, ui.selected);
     if (sim.frame - earthLight.frame >= 12) updateEarthLight();
     psfUniforms.uPixelRatio.value = gl.getPixelRatio();
     sim.frame++;

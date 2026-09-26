@@ -97,6 +97,13 @@ export const sim = {
   /** Time-warp factor (simulated seconds per real second). */
   warp: 1,
   paused: false,
+  /**
+   * The clock shows the present: true at start-up and after "Now", false once anything takes it
+   * off real time (a pause, another rate, a date, a trip). While live the clock follows the
+   * computer's clock instead of adding up frame times, which the browser clamps or stops (a
+   * hidden tab, a reading page over the view, a slow frame), so it cannot fall behind.
+   */
+  live: true,
   astroTime: astroTimeAt(startMs) as AstroTime,
 
   camera: {
@@ -111,7 +118,20 @@ export const sim = {
   ship: {
     vel: new Vector3(),
     beta: 0,
+    /**
+     * Rapidity φ = artanh(v/c), exact at any γ (set each frame by shipKinematics.ts). On a trip it
+     * comes from the trip's closed form: at γ = 10⁹, |vel| has rounded to c but φ is still exact.
+     * NaN during the fictional faster-than-light warp.
+     */
+    phi: 0,
   },
+
+  /**
+   * Apparent size of the Solar System out to 100 au, px (Infinity from inside it; see derived.ts). Below
+   * a pixel its km-scale layers are hidden: they are invisible, and float32 on the GPU cannot
+   * hold their camera-relative positions anyway (it overflows beyond ~10¹⁹ km).
+   */
+  solarSystemPx: Infinity,
 
   bodies: Object.fromEntries(BODY_ORDER.map((id) => [id, makeBody(id)])) as Record<BodyId, BodyState>,
 

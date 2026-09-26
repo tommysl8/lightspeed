@@ -8,7 +8,7 @@ import { sim } from '../../sim/sim';
 import { planTrip, type Drive, type TripPlan } from '../../sim/travel';
 import { useUI } from '../../state/ui';
 import { startTrip } from '../tripActions';
-import { openExplainer } from '../explainerActions';
+import { readMore } from '../explainerActions';
 import { Dialog, Field, NumberInput, Seg, Sym } from '../kit';
 import { SpacetimeDiagram } from '../instruments/SpacetimeDiagram';
 import { useModal } from '../useModal';
@@ -95,6 +95,8 @@ function Planner() {
   const beta = useUI((s) => s.plannerBeta);
   const drive = useUI((s) => s.plannerDrive);
   const warpFactor = useUI((s) => s.plannerWarpFactor);
+  // The lab's bookkeeping is mentioned only to those who have opened the lab.
+  const labUsed = useUI((s) => s.labUsed);
   const [plan, setPlan] = useState<TripPlan | null | undefined>(undefined);
   const [error, setError] = useState<string | null>(null);
   const warp = drive === 'warp';
@@ -136,7 +138,7 @@ function Planner() {
 
   return (
     <div className="absolute bottom-3 left-1/2 z-30 w-[700px] max-w-[calc(100%-24px)] -translate-x-1/2">
-      <Dialog title="Trajectory planner" onClose={close} tone={warp ? 'hazard' : undefined} className="max-h-[calc(100vh-120px)]" innerRef={ref}>
+      <Dialog title="Flight planner" onClose={close} tone={warp ? 'hazard' : undefined} className="max-h-[calc(100vh-120px)]" innerRef={ref}>
         <div className="scroll grid grid-cols-1 gap-x-5 gap-y-3 p-3 sm:grid-cols-[1fr_250px]">
           <div className="min-w-0 space-y-3">
             <div className="flex flex-wrap items-end gap-3">
@@ -180,7 +182,7 @@ function Planner() {
                 <p>
                   Constant proper acceleration <Sym>a</Sym> = <Sym>g</Sym>₀ = 9.806 65 m/s² (the crew feels Earth gravity).
                   The thrust reverses at the midpoint so the ship arrives at rest. Speed grows as <Sym>β</Sym> = tanh(<Sym>aτ</Sym>/<Sym>c</Sym>)
-                  and never reaches <Sym>c</Sym>. Experiment 5 logs these flights.
+                  and never reaches <Sym>c</Sym>.{labUsed && ' Experiment 5 logs these flights.'}
                 </p>
               </div>
             ) : (
@@ -316,19 +318,19 @@ function Planner() {
           {warp ? (
             <p className="flex-1 text-[11.5px] leading-snug text-fg">
               <b className="text-hazard">Non-physical.</b> Nothing with mass reaches <Sym>c</Sym>; faster-than-light travel would violate causality.{' '}
-              <button className="underline decoration-fg-4 underline-offset-2 hover:text-white" onClick={() => openExplainer('ftl')}>
-                Reference §9
+              <button className="underline decoration-fg-4 underline-offset-2 hover:text-white" onClick={() => void readMore('ftl')}>
+                Why not
               </button>
             </p>
           ) : drive === 'rocket' ? (
             <p className="flex-1 text-[11.5px] leading-snug text-fg-3">
-              Logged by Experiment 5.{' '}
-              <button className="underline decoration-fg-4 underline-offset-2 hover:text-fg" onClick={() => openExplainer('rocket')}>
-                Reference §10
+              {labUsed && 'Logged by Experiment 5. '}
+              <button className="underline decoration-fg-4 underline-offset-2 hover:text-fg" onClick={() => void readMore('rocket')}>
+                How a 1 g rocket works
               </button>
             </p>
           ) : (
-            <p className="flex-1 text-[11.5px] leading-snug text-fg-3">Instant boost and stop (idealised). Logged by Experiment 2 on arrival.</p>
+            <p className="flex-1 text-[11.5px] leading-snug text-fg-3">Instant boost and stop (idealised).{labUsed && ' Logged by Experiment 2 on arrival.'}</p>
           )}
           <button className="btn" onClick={close}>
             Cancel

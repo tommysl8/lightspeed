@@ -23,7 +23,10 @@ export const SECOND_MS = 1000;
 export const DAY_MS = 86_400_000;
 /** Julian year (365.25 days), ms. */
 export const JULIAN_YEAR_MS = 365.25 * DAY_MS;
-/** The J2000.0 epoch, 2000-01-01 12:00 UTC, in ms since 1970 (astronomy-engine's zero of `ut`). */
+/**
+ * 2000-01-01 12:00 UT in ms since 1970: astronomy-engine's zero of `ut`. (The J2000.0 epoch
+ * proper is 12:00 TT, which is 11:58:55.816 UTC; astronomy-engine applies ΔT itself.)
+ */
 export const J2000_MS = 946_728_000_000;
 
 // ─── Calendar (proleptic Gregorian, Hinnant) ─────────────────────────────────────────────
@@ -185,7 +188,13 @@ const SCALES: [number, string][] = [
 
 /** A large count in words: "12,345", "2.54 million", "3.1 trillion". */
 function bigNumber(n: number, digits = 3): string {
-  for (const [k, word] of SCALES) if (n >= k) return `${sigText(n / k, digits)} ${word}`;
+  for (const [k, word] of SCALES) {
+    // The scale is chosen from the value as written, so 999.95 million reads "1 billion", not
+    // "1,000 million". Below a million the count is written in full, so only a count that
+    // rounds to 1,000,000 moves up.
+    const v = Number((n / k).toPrecision(digits));
+    if (k === 1e6 ? Math.round(n) >= k : v >= 1) return `${sigText(v, digits)} ${word}`;
+  }
   return nf(0).format(Math.round(n));
 }
 
@@ -257,12 +266,14 @@ export function formatSimDate(ms: number, style: SimDateStyle = 'datetime'): str
 /**
  * Parse a date typed by a person: "YYYY-MM-DD[ hh:mm[:ss]]". A leading minus is an
  * astronomical year (−1999 is 2000 BCE); a trailing "BCE" or "BC" is a historical one
- * ("2000-03-12 BCE"). Rejects impossible dates such as 2026-02-31. NaN when invalid.
+ * ("2000-03-12 BCE"). Years of up to 14 digits read back, as far as the clock reaches (the
+ * 'input' style writes them in full); callers apply their own range. Rejects impossible
+ * dates such as 2026-02-31. NaN when invalid.
  */
 export function parseSimDate(text: string): number {
   const m = text
     .trim()
-    .match(/^([+-]?)(\d{1,6})-(\d{1,2})-(\d{1,2})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}(?:\.\d+)?))?)?\s*(BCE|BC|CE|AD)?$/i);
+    .match(/^([+-]?)(\d{1,14})-(\d{1,2})-(\d{1,2})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}(?:\.\d+)?))?)?\s*(BCE|BC|CE|AD)?$/i);
   if (!m) return NaN;
   const [, sign, ys, mos, ds, hs = '0', mis = '0', ss = '0', era = ''] = m;
   let year = Number(ys);
@@ -303,14 +314,19 @@ export function formatDuration(seconds: number): string {
   const s = Math.abs(seconds);
   if (s === 0) return '0 s';
   const small = (v: number, unit: string) => `${sign}${v < 10 ? nf(1).format(v) : nf(0).format(v)} ${unit}`;
+  // A value as `small` writes it, so a unit is only used while its written value stays below
+  // the next unit up ("1 s", never "1,000 ms"; "1 min 0 s", never "60 s").
+  const written = (v: number) => (v < 10 ? Math.round(v * 10) / 10 : Math.round(v));
   if (s < 1e-9) return `${sign}${sigText(s * 1e9, 3)} ns`;
-  if (s < 1e-6) return small(s * 1e9, 'ns');
-  if (s < 1e-3) return small(s * 1e6, 'µs');
-  if (s < 1) return small(s * 1e3, 'ms');
-  if (s < MINUTE_S) return small(s, 's');
+  if (written(s * 1e9) < 1000) return small(s * 1e9, 'ns');
+  if (written(s * 1e6) < 1000) return small(s * 1e6, 'µs');
+  if (written(s * 1e3) < 1000) return small(s * 1e3, 'ms');
+  if (written(s) < MINUTE_S) return small(s, 's');
   if (s < HOUR_S) {
-    const m = Math.floor(s / 60);
-    return `${sign}${m} min ${Math.floor(s - m * 60)} s`;
+    // From 59.5 s, which rounds to a whole minute.
+    const t = Math.max(s, MINUTE_S);
+    const m = Math.floor(t / 60);
+    return `${sign}${m} min ${Math.floor(t - m * 60)} s`;
   }
   if (s < DAY_S) {
     const h = Math.floor(s / HOUR_S);
@@ -320,15 +336,30 @@ export function formatDuration(seconds: number): string {
     const d = Math.floor(s / DAY_S);
     return `${sign}${d} day ${Math.floor((s - d * DAY_S) / HOUR_S)} h`;
   }
-  if (s < 60 * DAY_S) return `${sign}${nf(1).format(s / DAY_S)} days`;
-  if (s < YEAR_S) return `${sign}${nf(1).format(s / MONTH_S)} months`;
+  const tenths = (v: number) => Math.round(v * 10) / 10;
+  if (tenths(s / DAY_S) < 60) return `${sign}${nf(1).format(s / DAY_S)} days`;
+  if (tenths(s / MONTH_S) < 12) return `${sign}${nf(1).format(s / MONTH_S)} months`;
   return sign + yearsText(s / YEAR_S, 3);
 }
 
 function yearsText(years: number, digits: number): string {
-  if (years >= 1e6) return `${bigNumber(years, digits)} years`;
+  // Decided on the rounded value: 999,960 years to three figures is "1 million years".
+  const r = Number(years.toPrecision(digits));
+  if (r >= 1e6) return `${bigNumber(r, digits)} years`;
   return plural(sigText(years, digits), 'year', 'years');
 }
+
+/** formatDurationShort's units: size in seconds, the value at which the next unit takes over, names. */
+const SHORT_UNITS: [number, number, string, string][] = [
+  [1e-9, 1000, 'ns', 'ns'],
+  [1e-6, 1000, 'µs', 'µs'],
+  [1e-3, 1000, 'ms', 'ms'],
+  [1, MINUTE_S, 's', 's'],
+  [MINUTE_S, 60, 'min', 'min'],
+  [HOUR_S, 24, 'h', 'h'],
+  [DAY_S, 60, 'day', 'days'],
+  [MONTH_S, 12, 'month', 'months'],
+];
 
 /**
  * A time span in a single unit to `digits` significant figures, for rates and captions:
@@ -341,15 +372,12 @@ export function formatDurationShort(seconds: number, digits = 2): string {
   const sign = seconds < 0 ? '−' : '';
   const s = Math.abs(seconds);
   if (s === 0) return '0 s';
-  const u = (v: number, one: string, many = one) => sign + plural(sigText(v, digits), one, many);
-  if (s < 1e-6) return u(s * 1e9, 'ns');
-  if (s < 1e-3) return u(s * 1e6, 'µs');
-  if (s < 1) return u(s * 1e3, 'ms');
-  if (s < MINUTE_S) return u(s, 's');
-  if (s < HOUR_S) return u(s / MINUTE_S, 'min');
-  if (s < DAY_S) return u(s / HOUR_S, 'h');
-  if (s < 60 * DAY_S) return u(s / DAY_S, 'day', 'days');
-  if (s < YEAR_S) return u(s / MONTH_S, 'month', 'months');
+  // Each unit is used while the value, rounded to `digits`, stays below the next unit up:
+  // 59.97 s is "1 min", not "60 s".
+  for (const [size, limit, one, many] of SHORT_UNITS) {
+    const v = Number((s / size).toPrecision(digits));
+    if (v < limit) return sign + plural(sigText(v, digits), one, many);
+  }
   return sign + yearsText(s / YEAR_S, digits);
 }
 

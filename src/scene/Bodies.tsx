@@ -18,7 +18,7 @@ import { BODIES, PROXIMA_TEFF_K, SATURN_RING_INNER_KM, SATURN_RING_OUTER_KM, typ
 import { blackbodyRgb } from '../physics/blackbody';
 import { sim } from '../sim/sim';
 import { useUI } from '../state/ui';
-import { createPlanetMaterial, createRingMaterial, createSunMaterial } from '../render/materials';
+import { createPlanetMaterial, createRingMaterial, createSunMaterial, SUN_CENTRE_RADIANCE } from '../render/materials';
 import { loadTexture } from '../render/textures';
 import { VISUALS } from './visuals';
 
@@ -172,10 +172,11 @@ export function Sun() {
     mesh.current.quaternion.copy(b.apparentQuat);
     mesh.current.scale.setScalar(b.displayRadius);
     mesh.current.visible = b.radiusPx > 0.35;
-    // Simple auto-exposure: glaring when small, and dimmer up close so limb darkening and
+    // Simple auto-exposure: at its true radiance when small (the disc then averages a 5,772 K
+    // surface, as the stars and the CMB assume), and dimmer up close so limb darkening and
     // granulation show.
     const t = Math.min(1, Math.max(0, (b.radiusPx - 30) / 170));
-    material.uniforms.uIntensity.value = 8 - 4.6 * t * t * (3 - 2 * t);
+    material.uniforms.uIntensity.value = SUN_CENTRE_RADIANCE * (1 - 0.575 * t * t * (3 - 2 * t));
     if (!requested.current && wantsTextures('sun')) {
       requested.current = true;
       loadTexture('2k_sun.jpg').then((t) => {

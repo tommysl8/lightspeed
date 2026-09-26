@@ -16,6 +16,7 @@ import {
   msFromAstroTime,
   msFromCivil,
   parseSimDate,
+  shaderDays,
   yearLabel,
 } from './time';
 
@@ -118,6 +119,20 @@ describe('astronomy-engine time', () => {
   });
 });
 
+describe('day counts for float32 shaders', () => {
+  it('pass through near the epoch and wrap far from it, staying continuous between wraps', () => {
+    expect(shaderDays(12_345.678)).toBe(12_345.678);
+    expect(shaderDays(-2_000_000.5)).toBe(-2_000_000.5);
+    const far = 3.65e14 + 0.25;
+    const w = shaderDays(far);
+    expect(w).toBeGreaterThanOrEqual(0);
+    expect(w).toBeLessThan(2 ** 21);
+    expect(Math.fround(w + 1) - Math.fround(w)).toBeCloseTo(1, 1);
+    expect(shaderDays(far + 1) - w).toBeCloseTo(1, 6);
+    expect(shaderDays(-far)).toBeGreaterThanOrEqual(0);
+  });
+});
+
 describe('dates in words', () => {
   it('writes ordinary dates as ISO-style text', () => {
     expect(formatSimDate(Date.UTC(2026, 8, 25, 14, 3, 27))).toBe('2026-09-25 14:03:27');
@@ -200,5 +215,33 @@ describe('durations in words', () => {
     expect(formatRate(1e14)).toBe('3.2 million years/s');
     expect(formatRate(1e16)).toBe('320 million years/s');
     expect(formatDurationShort(86_400)).toBe('1 day');
+  });
+
+  it('moves to the next unit when rounding reaches it', () => {
+    // Single unit, two figures
+    expect(formatDurationShort(59.97)).toBe('1 min');
+    expect(formatDurationShort(3598)).toBe('1 h');
+    expect(formatDurationShort(86_300)).toBe('1 day');
+    expect(formatDurationShort(59.97 * 86_400)).toBe('2 months');
+    expect(formatDurationShort(0.998 * YEAR_S)).toBe('1 year');
+    expect(formatDurationShort(0.99 * YEAR_S)).toBe('0.99 years');
+    expect(formatDurationShort(0.9996)).toBe('1 s');
+    expect(formatDurationShort(0.9996e-3)).toBe('1 ms');
+    expect(formatDurationShort(999_960 * YEAR_S, 3)).toBe('1 million years');
+    // Mixed units
+    expect(formatDuration(59.7)).toBe('1 min 0 s');
+    expect(formatDuration(0.9996)).toBe('1 s');
+    expect(formatDuration(0.9996e-3)).toBe('1 ms');
+    expect(formatDuration(59.97 * 86_400)).toBe('2 months');
+    expect(formatDuration(0.9998 * YEAR_S)).toBe('1 year');
+    expect(formatDuration(999_960 * YEAR_S)).toBe('1 million years');
+    expect(formatDuration(999.99e9 * YEAR_S)).toBe('1 trillion years');
+  });
+
+  it('keeps big numbers on the right scale after rounding', () => {
+    expect(yearLabel(999_950_000)).toBe('1 billion');
+    expect(yearLabel(999_400_000)).toBe('999 million');
+    expect(yearLabel(999_999)).toBe('999,999');
+    expect(yearLabel(999_999.6)).toBe('1 million');
   });
 });

@@ -14,6 +14,7 @@ Format: claim | value | source | status. Numbers marked "computed" were recomput
 ## Galileo and Newton
 
 - Galileo discussed experiments below decks on a uniformly moving ship (Dialogue, 1632) | 1632 | https://galileoandeinstein.phys.virginia.edu/lectures/spec_rel.html (Fowler, UVA) | verified (year from the Dialogue's standard publication date)
+- Salviati's ship passage (Drake translation): flies, butterflies, a bowl of fish, a bottle emptying drop by drop into a vessel beneath; drops fall into the vessel, butterflies fly indifferently to every side | text | Drake translation as quoted at https://en.wikipedia.org/w/index.php?title=Galileo%27s_ship&action=raw (used only to check the wording) | verified
 - Newton, Principia Scholium: absolute time "flows equably without relation to anything external" | 1687; Motte translation 1729 | https://en.wikisource.org/wiki/The_Mathematical_Principles_of_Natural_Philosophy_(1729)/Definitions | verified
 - Train 30 m/s + ball 20 m/s: relativistic sum falls short of 50 m/s by 3.3e-13 m/s; uv/c^2 = 6.7e-15 | computed | node | verified
 
@@ -129,6 +130,8 @@ Format: claim | value | source | status. Numbers marked "computed" were recomput
 - GW170817 / GRB 170817A: delay +1.74 ± 0.05 s; speed of gravity minus speed of light between -3e-15 and +7e-16 of c; conservative distance 26 Mpc; host NGC 4993 at 42.9 ± 3.2 Mpc (about 140 million ly) | ApJL 848, L13 (2017) | https://arxiv.org/abs/1710.05834 | verified
 - OPERA final paper: December 2011 two-way measurement of 8.3 km fibre (GPS to Master Clock) gave delay 73.2 ns larger than 2006-07; by mid-February 2012 traced to an optical cable not properly connected, reducing light reaching the optical/electrical converter; Master Clock oscillator 0.124 ppm fast | | https://arxiv.org/abs/1109.4897v4 ; JHEP 10 (2012) 093 | verified
 - OPERA final: delta t = (6.5 ± 7.4 stat +8.3 -8.0 sys) ns; (v-c)/c = (2.7 ± 3.1 +3.4 -3.3) x 10^-6 | | arXiv 1109.4897v4 | verified
+- The cable delay led to an underestimate of the neutrino time of flight (neutrinos look early); the oscillator offset overestimated time stamps (pushes the other way, up to 74 ns depending on position in the DAQ cycle); OPERA-LVD horizontal cosmic muons showed a 73.2 ± 9 ns step around August 2008 and its disappearance in December 2011 | | arXiv 1109.4897v4, section 6.1 | verified
+- Sixty Symbols videos feature Tony Padilla and Ed Copeland; the Feb 2012 video was filmed while "at Cern, in Geneva, when the story broke" | | YouTube descriptions of qJ0m13iJw0k and cezltcn9Mv0 | verified
 - ICARUS measured with low-intensity bunched CNGS beam, consistent with c; arXiv v1 15 March 2012 | Phys. Lett. B 713, 17 | https://arxiv.org/abs/1203.3433 | verified
 - 8 June 2012, Kyoto (Neutrino 2012): Bertolucci presented Borexino, ICARUS, LVD, OPERA all consistent with c | | https://www.sciencedaily.com/releases/2012/06/120608152339.htm | verified
 - Ereditato resigned as OPERA spokesperson after 55% of the collaboration backed no confidence (67% needed for formal motion) | 30 March 2012 | https://physicsworld.com/a/spokesperson-for-the-opera-col/ | verified

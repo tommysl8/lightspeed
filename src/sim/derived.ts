@@ -12,13 +12,27 @@ import {
   SUN_VMAG_AT_1AU,
   type BodyId,
 } from '../physics/constants';
-import { aberrateToShip, dopplerFromRestAngle } from '../physics/relativity';
-import { dot } from '../physics/vec';
+import { aberrateToShipRapidity, lnDopplerFromRestDir } from '../physics/relativity';
+import type { Vec3 } from '../physics/vec';
 import { relView } from '../render/relativisticView';
 import { sim, type ScreenPoint } from './sim';
 
 /** Minimum on-screen radius (CSS px) of bodies in "visible" mode. */
 export const VISIBLE_MIN_RADIUS_PX = 4;
+
+/**
+ * Radius of the Solar System for deciding when it has shrunk below a pixel: 100 au, past the
+ * Kuiper belt and Pluto's aphelion (49 au). Voyager 1 (170 au in 2026) is a speck long before.
+ */
+export const SOLAR_SYSTEM_RADIUS_KM = 100 * AU_KM;
+
+/**
+ * True once the whole Solar System spans less than a pixel (about 1.6 light-years away with a
+ * 50° view on a 1,000 px screen). Its km-scale layers (belts, orbits, light pulses, labels) are
+ * then hidden: invisible anyway, and float32 cannot hold their camera-relative positions
+ * beyond ~10¹⁹ km.
+ */
+export const solarSystemHidden = (): boolean => sim.solarSystemPx < 1;
 
 const rel = new Vector3();
 const view = new Vector3();
@@ -32,6 +46,8 @@ export function pixelsPerRadian(): number {
 
 const ab = new Vector3();
 const inv = new Quaternion();
+const dRest: Vec3 = { x: 0, y: 0, z: 0 };
+const dShip: Vec3 = { x: 0, y: 0, z: 0 };
 
 /** Project a camera-relative world vector to CSS-pixel screen coordinates. */
 function project(v: Vector3, camera: PerspectiveCamera, out: ScreenPoint): void {
@@ -51,11 +67,19 @@ function lambertPhase(alpha: number): number {
   return (Math.sin(alpha) + (Math.PI - alpha) * Math.cos(alpha)) / Math.PI;
 }
 
-export function updateDerived(camera: PerspectiveCamera): void {
+/**
+ * `focus` and `selected` keep their labels when the Solar System has shrunk to a point (so you
+ * still know what you are orbiting); every other label is hidden then.
+ */
+export function updateDerived(camera: PerspectiveCamera, focus?: BodyId, selected?: BodyId | null): void {
   const pxPerRad = pixelsPerRadian();
   const minK = VISIBLE_MIN_RADIUS_PX / pxPerRad;
-  const visible = sim.sizeMode === 'visible';
   const { width } = sim.viewport;
+  const dSun = sim.bodies.sun.pos.distanceTo(sim.camera.pos);
+  sim.solarSystemPx = dSun > SOLAR_SYSTEM_RADIUS_KM ? (SOLAR_SYSTEM_RADIUS_KM / dSun) * pxPerRad : Infinity;
+  const far = solarSystemHidden();
+  // Inflating every planet to a visible disc would stack them all on one pixel: not from afar.
+  const visible = sim.sizeMode === 'visible' && !far;
 
   for (const b of Object.values(sim.bodies)) {
     const data = BODIES[b.id];
@@ -75,11 +99,14 @@ export function updateDerived(camera: PerspectiveCamera): void {
       const splitPx = relView.split ? relView.splitX * width : -Infinity;
       const naiveX = b.screen.x;
       if (!(relView.split && naiveX < splitPx)) {
-        const dRest = { x: rel.x / d, y: rel.y / d, z: rel.z / d };
-        const dShip = aberrateToShip(dRest, relView.velDir, relView.beta);
+        // Rapidity forms: exact at any γ (β has rounded to 1 long before γ = 10⁹).
+        dRest.x = rel.x / d;
+        dRest.y = rel.y / d;
+        dRest.z = rel.z / d;
+        aberrateToShipRapidity(dRest, relView.velDir, relView.phi, dShip);
         ab.set(dShip.x * d, dShip.y * d, dShip.z * d);
         project(ab, camera, b.screen);
-        b.dopplerFactor = dopplerFromRestAngle(dot(dRest, relView.velDir), relView.beta);
+        b.dopplerFactor = Math.exp(lnDopplerFromRestDir(dRest, relView.velDir, relView.phi));
         if (relView.split && b.screen.x < splitPx) b.screen.onScreen = false;
       }
     }
@@ -107,6 +134,9 @@ export function updateDerived(camera: PerspectiveCamera): void {
       b.magnitude = 99;
       b.screen.onScreen = false;
       b.screen.inFront = false;
+    } else if (far && b.id !== focus && b.id !== selected) {
+      // Merged into one point with everything else: no label.
+      b.screen.onScreen = false;
     }
   }
 

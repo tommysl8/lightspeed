@@ -27,6 +27,9 @@ One line per fact: claim | value | source | status. "computed" means recomputed 
 - Huygens: 16 2/3 Earth diameters per second, more than 600,000 times the speed of sound; "all the difference between a finite thing and an infinite" | ~212,000 km/s (with his 22,000-diameter figure); ~230,000 km/s per Bobis & Lequeux | Huygens 1690, Gutenberg; Bobis & Lequeux 2008 | verified; conversion computed
 - Huygens' Treatise written 1678, published 1690 | 1678/1690 | Bobis & Lequeux 2008 | verified
 - Rømer's 22 min with modern au gives 226,700 km/s, 24% low; true crossing time of 2 au is 16 min 38 s | 226,663 km/s; 998 s | computed (2 x 149,597,870.7 km / 1,320 s) | verified
+- Jupiter-Earth distance 1676 (Horizons): opposition about 8 July 1676; about 4.3 au mid-August; about 5.5 au on 9 November; 1.2 au x 499 s = 600 s | ~10 min | JPL Horizons API query, 25 Sep 2026 | verified (computed)
+- Bobis & Lequeux suggest Cassini and Rømer gave no speed probably because they thought it inconceivably large | n/a | Bobis & Lequeux 2008 | verified
+- Huygens took the Sun's distance as about 12,000 Earth diameters (~153 million km); Newton's Opticks used about 70,000,000 English miles (~113 million km, from a 12" solar parallax) | n/a | Huygens 1690 (Gutenberg); Newton, Opticks (Gutenberg, Book III query) | verified (primary); km conversions computed
 - Newton, Opticks: light "spends about seven or eight Minutes of an Hour in passing from the Sun to the Earth", crediting Roemer | n/a | Newton, Opticks Book II Part III Prop. XI (4th ed. 1730), https://www.gutenberg.org/ebooks/33504 | verified (primary)
 - Hooke doubted; Flamsteed accepted after Rømer's 1679 visit to England | n/a | Daukantas 2009 | verified (secondary)
 - Rømer returned to Copenhagen 1681; royal mathematician and professor; mayor and police director 1705; nearly all his observations and instruments lost in the Copenhagen fire of 1728 | 1681; 1705; 1728 | Niels Bohr Institute, https://nbi.ku.dk/english/www/roemer/roemer/koebenhavn/ | verified
@@ -123,6 +126,13 @@ One line per fact: claim | value | source | status. "computed" means recomputed 
 - Further next-generation reflectors on future landers | dates not fixed | none found | uncertain
 - LISA adopted 25 Jan 2024; launch planned 2035 on Ariane 6; three spacecraft, arms 2.5 million km exchanging laser beams | 2035 | ESA, https://www.esa.int/Science_Exploration/Space_Science/LISA/Capturing_the_ripples_of_spacetime_LISA_gets_go-ahead | verified; arm light-time 8.3 s computed
 - Voyager end of mission date | unknown | none | uncertain
+- Voyager 2 on pace to reach one light-day in November 2035 | Nov 2035 | NASA Science, "Voyager 1: What Is a Light-Day" | verified
+- Voyager 1 launched 1977 | 1977 | NASA Science, "Voyager 1: What Is a Light-Day" | verified
+- Voyager 1 heliocentric range rate 16.88 km/s (Horizons, 25 Sep 2026) -> about 3.56 au, ~30 light-minutes per year | ~0.5 light-hour/yr | JPL Horizons; computed | verified
+- Routine laser links from Mars have no firm date | n/a | absence of any announced date found | uncertain
+- Shapiro 1968 first results used planetary radar (Mercury and Venus per general knowledge) | 1968 | PRL 20, 1265 metadata only | uncertain for which planets (article says "planetary radar")
+- Jupiter mean orbital speed 13.06 km/s; radius ~70,000 km; moves 26,000-42,000 km during its light-time | n/a | NSSDCA Jupiter fact sheet; computed | verified
+- Royal Society historical Phil Trans articles (Rømer 1677, Bradley 1729) free to read | n/a | page showed "Available" icon, but fetched from a university network | uncertain
 
 ## Videos (checked via YouTube oEmbed and watch page, 25 Sep 2026)
 - dku-cIfXtQE, SciShow Space, "How Jupiter's Moons Showed Us the Speed of Light", 5:54 | verified

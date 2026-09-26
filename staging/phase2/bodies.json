@@ -1,0 +1,4685 @@
+{
+ "format": "lightspeed-bodies",
+ "version": 1,
+ "generated": "2026-09-25",
+ "conventions": {
+  "units": "km, kg, km³/s², degrees, hours, days; dates ISO 8601 (UTC for events)",
+  "time": "Rotation models take TDB days since J2000.0 (JD 2451545.0 TDB); T = days / 36525",
+  "rotation": "IAU: pole right ascension and declination in the ICRF, prime meridian W measured eastwards from the node of the body equator on the ICRF equator. Body-fixed → ICRF = Rz(α₀ + 90°) · Rx(90° − δ₀) · Rz(W). Evaluate with staging/phase2/src/rotation.ts.",
+  "radius": "radiusKm is the radius of the sphere of equal volume; triaxialRadiiKm = [a, b, c] along body-fixed x, y, z where known",
+  "colour": "colour: sRGB display tint (hue from measured colour indices or imagery; lightness from geometric albedo: linear luminance 0.1 + 0.6·p, capped at 0.7). colourHue: the same hue at full brightness, for tinting greyscale maps."
+ },
+ "phaseAngles": {
+  "4": {
+   "degree": 2,
+   "angles": [
+    [
+     190.72646643,
+     15917.10818695,
+     0
+    ],
+    [
+     21.4689247,
+     31834.27934054,
+     0
+    ],
+    [
+     332.86082793,
+     19139.89694742,
+     0
+    ],
+    [
+     394.93256437,
+     38280.79631835,
+     0
+    ],
+    [
+     189.6327156,
+     41215158.1842005,
+     12.711923222
+    ],
+    [
+     121.46893664,
+     660.22803474,
+     0
+    ],
+    [
+     231.05028581,
+     660.9912354,
+     0
+    ],
+    [
+     251.37314025,
+     1320.50145245,
+     0
+    ],
+    [
+     217.98635955,
+     38279.9612555,
+     0
+    ],
+    [
+     196.19729402,
+     19139.83628608,
+     0
+    ],
+    [
+     198.991226,
+     19139.4819985,
+     0
+    ],
+    [
+     226.292679,
+     38280.8511281,
+     0
+    ],
+    [
+     249.663391,
+     57420.7251593,
+     0
+    ],
+    [
+     266.18351,
+     76560.636795,
+     0
+    ],
+    [
+     79.398797,
+     0.5042615,
+     0
+    ],
+    [
+     122.433576,
+     19139.9407476,
+     0
+    ],
+    [
+     43.058401,
+     38280.8753272,
+     0
+    ],
+    [
+     57.663379,
+     57420.7517205,
+     0
+    ],
+    [
+     79.476401,
+     76560.6495004,
+     0
+    ],
+    [
+     166.325722,
+     0.5042615,
+     0
+    ],
+    [
+     129.071773,
+     19140.0328244,
+     0
+    ],
+    [
+     36.352167,
+     38281.0473591,
+     0
+    ],
+    [
+     56.668646,
+     57420.929536,
+     0
+    ],
+    [
+     67.364003,
+     76560.2552215,
+     0
+    ],
+    [
+     104.79268,
+     95700.4387578,
+     0
+    ],
+    [
+     95.391654,
+     0.5042615,
+     0
+    ]
+   ],
+   "units": "degrees; coefficients of T, T² in degrees per Julian century (T = TDB days / 36525)"
+  },
+  "5": {
+   "degree": 1,
+   "angles": [
+    [
+     73.32,
+     91472.9
+    ],
+    [
+     24.62,
+     45137.2
+    ],
+    [
+     283.9,
+     4850.7
+    ],
+    [
+     355.8,
+     1191.3
+    ],
+    [
+     119.9,
+     262.1
+    ],
+    [
+     229.8,
+     64.3
+    ],
+    [
+     352.25,
+     2382.6
+    ],
+    [
+     113.35,
+     6070
+    ],
+    [
+     146.64,
+     182945.8
+    ],
+    [
+     49.24,
+     90274.4
+    ],
+    [
+     99.360714,
+     4850.4046
+    ],
+    [
+     175.895369,
+     1191.9605
+    ],
+    [
+     300.323162,
+     262.5475
+    ],
+    [
+     114.012305,
+     6070.2476
+    ],
+    [
+     49.511251,
+     64.3
+    ]
+   ],
+   "units": "degrees; coefficients of T, T² in degrees per Julian century (T = TDB days / 36525)"
+  },
+  "6": {
+   "degree": 1,
+   "angles": [
+    [
+     353.32,
+     75706.7
+    ],
+    [
+     28.72,
+     75706.7
+    ],
+    [
+     177.4,
+     -36505.5
+    ],
+    [
+     300,
+     -7225.9
+    ],
+    [
+     316.45,
+     506.2
+    ],
+    [
+     345.2,
+     -1016.3
+    ],
+    [
+     706.64,
+     151413.4
+    ],
+    [
+     57.44,
+     151413.4
+    ]
+   ],
+   "units": "degrees; coefficients of T, T² in degrees per Julian century (T = TDB days / 36525)"
+  },
+  "7": {
+   "degree": 1,
+   "angles": [
+    [
+     115.75,
+     54991.87
+    ],
+    [
+     141.69,
+     41887.66
+    ],
+    [
+     135.03,
+     29927.35
+    ],
+    [
+     61.77,
+     25733.59
+    ],
+    [
+     249.32,
+     24471.46
+    ],
+    [
+     43.86,
+     22278.41
+    ],
+    [
+     77.66,
+     20289.42
+    ],
+    [
+     157.36,
+     16652.76
+    ],
+    [
+     101.81,
+     12872.63
+    ],
+    [
+     138.64,
+     8061.81
+    ],
+    [
+     102.23,
+     -2024.22
+    ],
+    [
+     316.41,
+     2863.96
+    ],
+    [
+     304.01,
+     -51.94
+    ],
+    [
+     308.71,
+     -93.17
+    ],
+    [
+     340.82,
+     -75.32
+    ],
+    [
+     259.14,
+     -504.81
+    ],
+    [
+     204.46,
+     -4048.44
+    ],
+    [
+     632.82,
+     5727.92
+    ]
+   ],
+   "units": "degrees; coefficients of T, T² in degrees per Julian century (T = TDB days / 36525)"
+  },
+  "8": {
+   "degree": 1,
+   "angles": [
+    [
+     357.85,
+     52.316
+    ],
+    [
+     323.92,
+     62606.6
+    ],
+    [
+     220.51,
+     55064.2
+    ],
+    [
+     354.27,
+     46564.5
+    ],
+    [
+     75.31,
+     26109.4
+    ],
+    [
+     35.36,
+     14325.4
+    ],
+    [
+     142.61,
+     2824.6
+    ],
+    [
+     177.85,
+     52.316
+    ],
+    [
+     647.84,
+     125213.2
+    ],
+    [
+     355.7,
+     104.632
+    ],
+    [
+     533.55,
+     156.948
+    ],
+    [
+     711.4,
+     209.264
+    ],
+    [
+     889.25,
+     261.58
+    ],
+    [
+     1067.1,
+     313.896
+    ],
+    [
+     1244.95,
+     366.212
+    ],
+    [
+     1422.8,
+     418.528
+    ],
+    [
+     1600.65,
+     470.844
+    ]
+   ],
+   "units": "degrees; coefficients of T, T² in degrees per Julian century (T = TDB days / 36525)"
+  }
+ },
+ "bodies": [
+  {
+   "id": "phobos",
+   "name": "Phobos",
+   "kind": "moon",
+   "parent": "mars",
+   "naifId": 401,
+   "radiusKm": 11.08,
+   "radiusSigmaKm": 0.04,
+   "radiusSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25)",
+   "triaxialRadiiKm": [
+    13,
+    11.4,
+    9.1
+   ],
+   "triaxialSource": "Archinal et al. 2018, \"Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015\", Celest. Mech. Dyn. Astron. 130:22, https://doi.org/10.1007/s10569-017-9805-5 (values as encoded by NAIF in pck00011.tpc, https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/pck00011.tpc)",
+   "gmKm3S2": 0.0007087,
+   "gmSigmaKm3S2": 6e-7,
+   "gmSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25) (ephemeris MAR097)",
+   "massKg": 10618000000000000,
+   "densityGCm3": 1.864,
+   "geometricAlbedo": 0.071,
+   "geometricAlbedoSigma": 0.012,
+   "albedoSource": "Zellner & Capen 1974, Icarus 23, 437, as tabulated by JPL Solar System Dynamics, Planetary Satellite Physical Parameters (2015-02-19 edition, archived 2021-01-26), https://web.archive.org/web/2021/https://ssd.jpl.nasa.gov/?sat_phys_par",
+   "orbit": {
+    "aKm": 9375,
+    "e": 0.015,
+    "iDeg": 1.1,
+    "periodD": 0.3187,
+    "source": "JPL Solar System Dynamics, Planetary Satellite Mean Elements, https://ssd.jpl.nasa.gov/sats/elem/sep.html (retrieved 2026-09-25)"
+   },
+   "rotation": {
+    "model": "iau-2015",
+    "source": "Archinal et al. 2018, \"Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015\", Celest. Mech. Dyn. Astron. 130:22, https://doi.org/10.1007/s10569-017-9805-5 (values as encoded by NAIF in pck00011.tpc, https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/pck00011.tpc)",
+    "frame": "ICRF",
+    "poleRaDeg": [
+     317.67071657,
+     -0.10844326,
+     0
+    ],
+    "poleDecDeg": [
+     52.88627266,
+     -0.06134706,
+     0
+    ],
+    "pmDeg": [
+     35.1877444,
+     1128.84475928,
+     9.536137031212154e-9
+    ],
+    "synchronous": true,
+    "validity": {
+     "fromTdbDays": -6939.5,
+     "toTdbDays": 73049.5,
+     "note": "IAU models are stated to be accurate to about 0.1° near the present (Archinal et al. 2018); outside 1981–2199 they are extrapolations."
+    },
+    "phaseSystem": "4",
+    "raTerms": [
+     -1.78428399,
+     0.02212824,
+     -0.01028251,
+     -0.00475595
+    ],
+    "decTerms": [
+     -1.07516537,
+     0.00668626,
+     -0.0064874,
+     0.00281576
+    ],
+    "pmTerms": [
+     1.42421769,
+     -0.02273783,
+     0.00410711,
+     0.00631964,
+     -1.143
+    ],
+    "periodH": 7.6538425,
+    "sense": "prograde"
+   },
+   "colour": "#696969",
+   "colourHue": "#ffffff",
+   "colourSource": "No disk-integrated colour measurement found in the sources used: neutral grey at the albedo-based lightness. Treat as a placeholder.",
+   "discovery": {
+    "by": "Asaph Hall",
+    "date": "1877-08-17",
+    "place": "US Naval Observatory, Washington DC",
+    "source": "https://science.nasa.gov/mars/moons/phobos/"
+   },
+   "facts": [
+    "Phobos circles Mars three times a day, so close to the surface that from Mars’s polar regions it never rises above the horizon.",
+    "It is creeping inwards by about 1.8 m every century. In roughly 50 million years it will either hit Mars or be torn into a ring.",
+    "Its largest crater, Stickney, is about 9 km across, a third of the moon’s own length. It is named after Chloe Angeline Stickney Hall, the mathematician married to its discoverer."
+   ],
+   "factSources": [
+    "https://science.nasa.gov/mars/moons/phobos/",
+    "https://science.nasa.gov/mars/moons/phobos/",
+    "https://science.nasa.gov/mars/moons/phobos/"
+   ],
+   "assets": {
+    "texture": "textures/phobos.jpg",
+    "textureInfo": {
+     "width": 1024,
+     "height": 512,
+     "channels": 1,
+     "imagedFraction": 0.9997,
+     "fillSrgb": [
+      141
+     ],
+     "product": "Phobos Viking Mosaic 40ppd (DLR controlled), P. Stooke 2011",
+     "download": "https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/Phobos_Viking_Mosaic_40ppd_DLRcontrol.tif",
+     "credit": "NASA/JPL (Viking Orbiter images); mosaic by Philip Stooke (University of Western Ontario), after Simonelli et al. 1993, reprojected to the DLR control network; hosted by USGS Astrogeology",
+     "licence": "Public domain or no use constraints (NASA/USGS); see staging/phase2/assets.md",
+     "colourNote": "Greyscale. (A sharper Mars Express SRC mosaic exists, but HRSC imagery is ESA material; this NASA-data mosaic avoids any licence question.)"
+    },
+    "model": "models/phobos.bin",
+    "modelInfo": {
+     "triangles": 4000,
+     "vertices": 2002,
+     "equalVolumeRadiusKm": 11.1174,
+     "deviationKm": {
+      "rms": 0.011,
+      "max": 0.0718,
+      "samples": 3073,
+      "measure": "distance from source-model vertices to the simplified surface"
+     }
+    },
+    "rings": null
+   }
+  },
+  {
+   "id": "deimos",
+   "name": "Deimos",
+   "kind": "moon",
+   "parent": "mars",
+   "naifId": 402,
+   "radiusKm": 6.2,
+   "radiusSigmaKm": 0.24,
+   "radiusSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25)",
+   "triaxialRadiiKm": [
+    7.8,
+    6,
+    5.1
+   ],
+   "triaxialSource": "Archinal et al. 2018, \"Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015\", Celest. Mech. Dyn. Astron. 130:22, https://doi.org/10.1007/s10569-017-9805-5 (values as encoded by NAIF in pck00011.tpc, https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/pck00011.tpc)",
+   "gmKm3S2": 0.0000962,
+   "gmSigmaKm3S2": 0.0000028,
+   "gmSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25) (ephemeris MAR097)",
+   "massKg": 1441300000000000,
+   "densityGCm3": 1.444,
+   "geometricAlbedo": 0.068,
+   "geometricAlbedoSigma": 0.007,
+   "albedoSource": "Thomas et al. 1996, Icarus 123, 536, as tabulated by JPL Solar System Dynamics, Planetary Satellite Physical Parameters (2015-02-19 edition, archived 2021-01-26), https://web.archive.org/web/2021/https://ssd.jpl.nasa.gov/?sat_phys_par",
+   "orbit": {
+    "aKm": 23457,
+    "e": 0,
+    "iDeg": 1.8,
+    "periodD": 1.2625,
+    "source": "JPL Solar System Dynamics, Planetary Satellite Mean Elements, https://ssd.jpl.nasa.gov/sats/elem/sep.html (retrieved 2026-09-25)"
+   },
+   "rotation": {
+    "model": "iau-2015",
+    "source": "Archinal et al. 2018, \"Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015\", Celest. Mech. Dyn. Astron. 130:22, https://doi.org/10.1007/s10569-017-9805-5 (values as encoded by NAIF in pck00011.tpc, https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/pck00011.tpc)",
+    "frame": "ICRF",
+    "poleRaDeg": [
+     316.65705808,
+     -0.10518014,
+     0
+    ],
+    "poleDecDeg": [
+     53.50992033,
+     -0.05979094,
+     0
+    ],
+    "pmDeg": [
+     79.39932954,
+     285.16188899,
+     0
+    ],
+    "synchronous": true,
+    "validity": {
+     "fromTdbDays": -6939.5,
+     "toTdbDays": 73049.5,
+     "note": "IAU models are stated to be accurate to about 0.1° near the present (Archinal et al. 2018); outside 1981–2199 they are extrapolations."
+    },
+    "phaseSystem": "4",
+    "raTerms": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     3.09217726,
+     0.22980637,
+     0.06418655,
+     0.02533537,
+     0.00778695
+    ],
+    "decTerms": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     1.83936004,
+     0.1432532,
+     0.01911409,
+     -0.0148259,
+     0.0019243
+    ],
+    "pmTerms": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     -2.73954829,
+     -0.39968606,
+     -0.06563259,
+     -0.0291294,
+     0.0169916
+    ],
+    "periodH": 30.298579,
+    "sense": "prograde"
+   },
+   "colour": "#696969",
+   "colourHue": "#ffffff",
+   "colourSource": "No disk-integrated colour measurement found in the sources used: neutral grey at the albedo-based lightness. Treat as a placeholder.",
+   "discovery": {
+    "by": "Asaph Hall",
+    "date": "1877-08-11",
+    "place": "US Naval Observatory, Washington DC",
+    "source": "https://science.nasa.gov/mars/moons/deimos/"
+   },
+   "facts": [
+    "Deimos is only about 12 km across, too small for its gravity to pull it round.",
+    "A blanket of loose dust, perhaps 100 m deep, has partly filled its craters, so it looks much smoother than Phobos.",
+    "Its name means dread. Phobos (fear) and Deimos are named after the sons of Ares, the Greek counterpart of Mars."
+   ],
+   "factSources": [
+    "https://science.nasa.gov/mars/moons/deimos/",
+    "https://science.nasa.gov/mars/moons/deimos/",
+    "https://science.nasa.gov/mars/moons/deimos/"
+   ],
+   "assets": {
+    "texture": "textures/deimos.jpg",
+    "textureInfo": {
+     "width": 1024,
+     "height": 512,
+     "channels": 1,
+     "imagedFraction": 1,
+     "fillSrgb": [
+      156
+     ],
+     "product": "Deimos Global Mosaic (Viking Orbiter), P. Stooke 2001",
+     "download": "https://planetarymaps.usgs.gov/cgi-bin/mapserv?map=/maps/mars/deimos_simp_cyl.map&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&LAYERS=VIKING&SRS=EPSG:4326&BBOX=-180,-90,180,90&WIDTH=2048&HEIGHT=1024&FORMAT=image/png",
+     "sourcePage": "https://planetarymaps.usgs.gov/cgi-bin/mapserv?map=/maps/mars/deimos_simp_cyl.map&request=GetCapabilities&service=WMS",
+     "credit": "NASA/JPL (Viking Orbiter images); map by Philip Stooke (University of Western Ontario) with C. Jongkind and M. Arntz, control by P. Thomas (Cornell); served by USGS Astrogeology",
+     "licence": "Public domain or no use constraints (NASA/USGS); see staging/phase2/assets.md",
+     "colourNote": "Greyscale."
+    },
+    "model": "models/deimos.bin",
+    "modelInfo": {
+     "triangles": 4000,
+     "vertices": 2002,
+     "equalVolumeRadiusKm": 6.2316,
+     "deviationKm": {
+      "rms": 0.0011,
+      "max": 0.0096,
+      "samples": 2522,
+      "measure": "distance from source-model vertices to the simplified surface"
+     }
+    },
+    "rings": null
+   }
+  },
+  {
+   "id": "io",
+   "name": "Io",
+   "kind": "moon",
+   "parent": "jupiter",
+   "naifId": 501,
+   "radiusKm": 1821.49,
+   "radiusSigmaKm": 0.5,
+   "radiusSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25)",
+   "triaxialRadiiKm": [
+    1829.4,
+    1819.4,
+    1815.7
+   ],
+   "triaxialSource": "Archinal et al. 2018, \"Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015\", Celest. Mech. Dyn. Astron. 130:22, https://doi.org/10.1007/s10569-017-9805-5 (values as encoded by NAIF in pck00011.tpc, https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/pck00011.tpc)",
+   "gmKm3S2": 5959.91547,
+   "gmSigmaKm3S2": 0.00135,
+   "gmSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25) (ephemeris JUP365)",
+   "massKg": 8.9296e+22,
+   "densityGCm3": 3.527,
+   "geometricAlbedo": 0.63,
+   "geometricAlbedoSigma": 0.02,
+   "albedoSource": "Simonelli & Veverka 1984, Icarus 59, 406, as tabulated by JPL Solar System Dynamics, Planetary Satellite Physical Parameters (2015-02-19 edition, archived 2021-01-26), https://web.archive.org/web/2021/https://ssd.jpl.nasa.gov/?sat_phys_par",
+   "orbit": {
+    "aKm": 421800,
+    "e": 0.004,
+    "iDeg": 0,
+    "periodD": 1.762732,
+    "source": "JPL Solar System Dynamics, Planetary Satellite Mean Elements, https://ssd.jpl.nasa.gov/sats/elem/sep.html (retrieved 2026-09-25)"
+   },
+   "rotation": {
+    "model": "iau-2015",
+    "source": "Archinal et al. 2018, \"Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015\", Celest. Mech. Dyn. Astron. 130:22, https://doi.org/10.1007/s10569-017-9805-5 (values as encoded by NAIF in pck00011.tpc, https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/pck00011.tpc)",
+    "frame": "ICRF",
+    "poleRaDeg": [
+     268.05,
+     -0.009,
+     0
+    ],
+    "poleDecDeg": [
+     64.5,
+     0.003,
+     0
+    ],
+    "pmDeg": [
+     200.39,
+     203.4889538,
+     0
+    ],
+    "synchronous": true,
+    "validity": {
+     "fromTdbDays": -6939.5,
+     "toTdbDays": 73049.5,
+     "note": "IAU models are stated to be accurate to about 0.1° near the present (Archinal et al. 2018); outside 1981–2199 they are extrapolations."
+    },
+    "phaseSystem": "5",
+    "raTerms": [
+     0,
+     0,
+     0.094,
+     0.024
+    ],
+    "decTerms": [
+     0,
+     0,
+     0.04,
+     0.011
+    ],
+    "pmTerms": [
+     0,
+     0,
+     -0.085,
+     -0.022
+    ],
+    "periodH": 42.459307,
+    "sense": "prograde"
+   },
+   "colour": "#d4b37e",
+   "colourHue": "#ffd999",
+   "colourSource": "Area-weighted mean of the colour surface map (Io Galileo SSI / Voyager Color Merged Global Mosaic 1km); that map is close to natural colour.",
+   "discovery": {
+    "by": "Galileo Galilei",
+    "date": "1610-01-08",
+    "place": "Padua",
+    "note": "Galileo saw it on 7 January but could not separate it from Europa until the next night.",
+    "source": "https://science.nasa.gov/jupiter/jupiter-moons/io/facts/"
+   },
+   "facts": [
+    "Io is the most volcanically active world in the Solar System, with hundreds of volcanoes. Some throw lava fountains tens of kilometres high.",
+    "Europa and Ganymede keep Io’s orbit slightly oval, so Jupiter’s pull flexes its solid surface up and down by as much as 100 m. That tidal kneading is what melts its interior.",
+    "Io is an electric generator: moving through Jupiter’s magnetic field it develops about 400,000 volts and drives a current of some 3 million amperes into the planet."
+   ],
+   "factSources": [
+    "https://science.nasa.gov/jupiter/jupiter-moons/io/facts/",
+    "https://science.nasa.gov/jupiter/jupiter-moons/io/facts/",
+    "https://science.nasa.gov/jupiter/jupiter-moons/io/facts/"
+   ],
+   "assets": {
+    "texture": "textures/io.jpg",
+    "textureInfo": {
+     "width": 2048,
+     "height": 1024,
+     "channels": 3,
+     "imagedFraction": 1,
+     "fillSrgb": [
+      159,
+      134,
+      91
+     ],
+     "product": "Io Galileo SSI / Voyager Color Merged Global Mosaic 1km",
+     "download": "https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/Io_GalileoSSI-Voyager_Global_Mosaic_ClrMerge_1km.tif",
+     "sourcePage": "https://astrogeology.usgs.gov/search/map/io_voyager_galileo_ssi_global_mosaic_1km",
+     "credit": "NASA/JPL-Caltech/USGS Astrogeology Science Center (Galileo SSI and Voyager 1/2 data)",
+     "licence": "Public domain or no use constraints (NASA/USGS); see staging/phase2/assets.md",
+     "colourNote": "Colour from Galileo SSI violet, green and near-infrared (756 nm) images merged onto the 1 km mosaic; close to, but a little more saturated than, natural colour."
+    },
+    "model": null,
+    "modelInfo": null,
+    "rings": null
+   }
+  },
+  {
+   "id": "europa",
+   "name": "Europa",
+   "kind": "moon",
+   "parent": "jupiter",
+   "naifId": 502,
+   "radiusKm": 1560.8,
+   "radiusSigmaKm": 0.3,
+   "radiusSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25)",
+   "triaxialRadiiKm": [
+    1562.6,
+    1560.3,
+    1559.5
+   ],
+   "triaxialSource": "Archinal et al. 2018, \"Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015\", Celest. Mech. Dyn. Astron. 130:22, https://doi.org/10.1007/s10569-017-9805-5 (values as encoded by NAIF in pck00011.tpc, https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/pck00011.tpc)",
+   "gmKm3S2": 3202.7121,
+   "gmSigmaKm3S2": 0.00181,
+   "gmSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25) (ephemeris JUP365)",
+   "massKg": 4.7986e+22,
+   "densityGCm3": 3.013,
+   "geometricAlbedo": 0.67,
+   "geometricAlbedoSigma": 0.03,
+   "albedoSource": "Buratti & Veverka 1983, Icarus 55, 93 (mean of leading and trailing hemispheres), as tabulated by JPL Solar System Dynamics, Planetary Satellite Physical Parameters (2015-02-19 edition, archived 2021-01-26), https://web.archive.org/web/2021/https://ssd.jpl.nasa.gov/?sat_phys_par",
+   "orbit": {
+    "aKm": 671100,
+    "e": 0.009,
+    "iDeg": 0.5,
+    "periodD": 3.525463,
+    "source": "JPL Solar System Dynamics, Planetary Satellite Mean Elements, https://ssd.jpl.nasa.gov/sats/elem/sep.html (retrieved 2026-09-25)"
+   },
+   "rotation": {
+    "model": "iau-2015",
+    "source": "Archinal et al. 2018, \"Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015\", Celest. Mech. Dyn. Astron. 130:22, https://doi.org/10.1007/s10569-017-9805-5 (values as encoded by NAIF in pck00011.tpc, https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/pck00011.tpc)",
+    "frame": "ICRF",
+    "poleRaDeg": [
+     268.08,
+     -0.009,
+     0
+    ],
+    "poleDecDeg": [
+     64.51,
+     0.003,
+     0
+    ],
+    "pmDeg": [
+     36.022,
+     101.3747235,
+     0
+    ],
+    "synchronous": true,
+    "validity": {
+     "fromTdbDays": -6939.5,
+     "toTdbDays": 73049.5,
+     "note": "IAU models are stated to be accurate to about 0.1° near the present (Archinal et al. 2018); outside 1981–2199 they are extrapolations."
+    },
+    "phaseSystem": "5",
+    "raTerms": [
+     0,
+     0,
+     0,
+     1.086,
+     0.06,
+     0.015,
+     0.009
+    ],
+    "decTerms": [
+     0,
+     0,
+     0,
+     0.468,
+     0.026,
+     0.007,
+     0.002
+    ],
+    "pmTerms": [
+     0,
+     0,
+     0,
+     -0.98,
+     -0.054,
+     -0.014,
+     -0.008
+    ],
+    "periodH": 85.228346,
+    "sense": "prograde"
+   },
+   "colour": "#c7baa9",
+   "colourHue": "#ffefda",
+   "colourSource": "B−V 0.87 (Galilean satellite photometry, Morrison & Morrison 1977 in Burns (ed.) Planetary Satellites); red channel extrapolated from the B−V slope; Holmberg, Flynn & Portinari 2006, MNRAS 367, 449: solar (B−V) = 0.642, (V−R) = 0.354, (V−I) = 0.688",
+   "discovery": {
+    "by": "Galileo Galilei",
+    "date": "1610-01-08",
+    "place": "Padua",
+    "source": "https://science.nasa.gov/jupiter/jupiter-moons/europa/europa-facts/"
+   },
+   "facts": [
+    "Under an ice shell probably 15 to 25 km thick lies an ocean 60 to 150 km deep. Europa is a quarter of Earth’s diameter, yet may hold twice as much water as all of Earth’s oceans.",
+    "There are so few craters that its surface is thought to be only 40 to 90 million years old, young by planetary standards.",
+    "NASA’s Europa Clipper, launched on 14 October 2024, is due to reach Jupiter in 2030 and make dozens of close flybys of Europa."
+   ],
+   "factSources": [
+    "https://science.nasa.gov/jupiter/jupiter-moons/europa/europa-facts/",
+    "https://science.nasa.gov/jupiter/jupiter-moons/europa/europa-facts/",
+    "https://science.nasa.gov/mission/europa-clipper/"
+   ],
+   "assets": {
+    "texture": "textures/europa.jpg",
+    "textureInfo": {
+     "width": 2048,
+     "height": 1024,
+     "channels": 1,
+     "imagedFraction": 0.9951,
+     "fillSrgb": [
+      149
+     ],
+     "product": "Europa Voyager - Galileo SSI Global Mosaic 500m",
+     "download": "https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/Europa_Voyager_GalileoSSI_global_mosaic_500m.tif",
+     "sourcePage": "https://astrogeology.usgs.gov/search/map/Europa/Voyager-Galileo/Europa_Voyager_GalileoSSI_global_mosaic_500m",
+     "credit": "NASA/JPL-Caltech/USGS Astrogeology Science Center (Galileo SSI and Voyager data)",
+     "licence": "Public domain or no use constraints (NASA/USGS); see staging/phase2/assets.md",
+     "colourNote": "Greyscale (clear/green-filter albedo). Tint with the body colour if wanted."
+    },
+    "model": null,
+    "modelInfo": null,
+    "rings": null
+   }
+  },
+  {
+   "id": "ganymede",
+   "name": "Ganymede",
+   "kind": "moon",
+   "parent": "jupiter",
+   "naifId": 503,
+   "radiusKm": 2631.2,
+   "radiusSigmaKm": 1.7,
+   "radiusSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25)",
+   "gmKm3S2": 9887.83275,
+   "gmSigmaKm3S2": 0.00247,
+   "gmSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25) (ephemeris JUP365)",
+   "massKg": 1.4815e+23,
+   "densityGCm3": 1.942,
+   "geometricAlbedo": 0.43,
+   "geometricAlbedoSigma": 0.02,
+   "albedoSource": "Morrison & Morrison 1977, in Planetary Satellites (Burns, ed.), 363, as tabulated by JPL Solar System Dynamics, Planetary Satellite Physical Parameters (2015-02-19 edition, archived 2021-01-26), https://web.archive.org/web/2021/https://ssd.jpl.nasa.gov/?sat_phys_par",
+   "orbit": {
+    "aKm": 1070400,
+    "e": 0.001,
+    "iDeg": 0.2,
+    "periodD": 7.155588,
+    "source": "JPL Solar System Dynamics, Planetary Satellite Mean Elements, https://ssd.jpl.nasa.gov/sats/elem/sep.html (retrieved 2026-09-25)"
+   },
+   "rotation": {
+    "model": "iau-2015",
+    "source": "Archinal et al. 2018, \"Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015\", Celest. Mech. Dyn. Astron. 130:22, https://doi.org/10.1007/s10569-017-9805-5 (values as encoded by NAIF in pck00011.tpc, https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/pck00011.tpc)",
+    "frame": "ICRF",
+    "poleRaDeg": [
+     268.2,
+     -0.009,
+     0
+    ],
+    "poleDecDeg": [
+     64.57,
+     0.003,
+     0
+    ],
+    "pmDeg": [
+     44.064,
+     50.3176081,
+     0
+    ],
+    "synchronous": true,
+    "validity": {
+     "fromTdbDays": -6939.5,
+     "toTdbDays": 73049.5,
+     "note": "IAU models are stated to be accurate to about 0.1° near the present (Archinal et al. 2018); outside 1981–2199 they are extrapolations."
+    },
+    "phaseSystem": "5",
+    "raTerms": [
+     0,
+     0,
+     0,
+     -0.037,
+     0.431,
+     0.091
+    ],
+    "decTerms": [
+     0,
+     0,
+     0,
+     -0.016,
+     0.186,
+     0.039
+    ],
+    "pmTerms": [
+     0,
+     0,
+     0,
+     0.033,
+     -0.389,
+     -0.082
+    ],
+    "periodH": 171.70927,
+    "sense": "prograde"
+   },
+   "colour": "#a7a193",
+   "colourHue": "#fff6e2",
+   "colourSource": "Area-weighted mean of the colour surface map (Ganymede Voyager - Galileo SSI Global Color Mosaic 1.4km); that map is enhanced colour, so the hue is somewhat exaggerated.",
+   "discovery": {
+    "by": "Galileo Galilei",
+    "date": "1610-01-07",
+    "place": "Padua",
+    "source": "https://science.nasa.gov/jupiter/jupiter-moons/ganymede/facts/"
+   },
+   "facts": [
+    "Ganymede is the largest moon in the Solar System, bigger than the planet Mercury.",
+    "It is the only moon known to make its own magnetic field, which lights up aurorae around its poles. Hubble watched those aurorae rock back and forth and deduced a salty ocean below the ice.",
+    "ESA’s Juice spacecraft, launched in April 2023, is due to go into orbit around Ganymede in December 2034: the first spacecraft to orbit a moon other than our own."
+   ],
+   "factSources": [
+    "https://science.nasa.gov/jupiter/jupiter-moons/ganymede/facts/",
+    "https://doi.org/10.1002/2014JA020778",
+    "https://www.esa.int/Science_Exploration/Space_Science/Juice"
+   ],
+   "assets": {
+    "texture": "textures/ganymede.jpg",
+    "textureInfo": {
+     "width": 2048,
+     "height": 1024,
+     "channels": 3,
+     "imagedFraction": 0.9959,
+     "fillSrgb": [
+      117,
+      112,
+      101
+     ],
+     "product": "Ganymede Voyager - Galileo SSI Global Color Mosaic 1.4km",
+     "download": "https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/Ganymede_Voyager_GalileoSSI_Global_ClrMosaic_1435m.tif",
+     "credit": "NASA/JPL-Caltech/USGS Astrogeology Science Center (Galileo SSI and Voyager data)",
+     "licence": "Public domain or no use constraints (NASA/USGS); see staging/phase2/assets.md",
+     "colourNote": "Colour from Voyager and Galileo filter images; enhanced relative to natural colour."
+    },
+    "model": null,
+    "modelInfo": null,
+    "rings": null
+   }
+  },
+  {
+   "id": "callisto",
+   "name": "Callisto",
+   "kind": "moon",
+   "parent": "jupiter",
+   "naifId": 504,
+   "radiusKm": 2410.3,
+   "radiusSigmaKm": 1.5,
+   "radiusSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25)",
+   "gmKm3S2": 7179.2834,
+   "gmSigmaKm3S2": 0.00324,
+   "gmSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25) (ephemeris JUP365)",
+   "massKg": 1.0757e+23,
+   "densityGCm3": 1.834,
+   "geometricAlbedo": 0.17,
+   "geometricAlbedoSigma": 0.02,
+   "albedoSource": "Morrison & Morrison 1977, in Planetary Satellites (Burns, ed.), 363, as tabulated by JPL Solar System Dynamics, Planetary Satellite Physical Parameters (2015-02-19 edition, archived 2021-01-26), https://web.archive.org/web/2021/https://ssd.jpl.nasa.gov/?sat_phys_par",
+   "orbit": {
+    "aKm": 1882700,
+    "e": 0.007,
+    "iDeg": 0.3,
+    "periodD": 16.69044,
+    "source": "JPL Solar System Dynamics, Planetary Satellite Mean Elements, https://ssd.jpl.nasa.gov/sats/elem/sep.html (retrieved 2026-09-25)"
+   },
+   "rotation": {
+    "model": "iau-2015",
+    "source": "Archinal et al. 2018, \"Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015\", Celest. Mech. Dyn. Astron. 130:22, https://doi.org/10.1007/s10569-017-9805-5 (values as encoded by NAIF in pck00011.tpc, https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/pck00011.tpc)",
+    "frame": "ICRF",
+    "poleRaDeg": [
+     268.72,
+     -0.009,
+     0
+    ],
+    "poleDecDeg": [
+     64.83,
+     0.003,
+     0
+    ],
+    "pmDeg": [
+     259.51,
+     21.5710715,
+     0
+    ],
+    "synchronous": true,
+    "validity": {
+     "fromTdbDays": -6939.5,
+     "toTdbDays": 73049.5,
+     "note": "IAU models are stated to be accurate to about 0.1° near the present (Archinal et al. 2018); outside 1981–2199 they are extrapolations."
+    },
+    "phaseSystem": "5",
+    "raTerms": [
+     0,
+     0,
+     0,
+     0,
+     -0.068,
+     0.59,
+     0,
+     0.01
+    ],
+    "decTerms": [
+     0,
+     0,
+     0,
+     0,
+     -0.029,
+     0.254,
+     0,
+     -0.004
+    ],
+    "pmTerms": [
+     0,
+     0,
+     0,
+     0,
+     0.061,
+     -0.533,
+     0,
+     -0.009
+    ],
+    "periodH": 400.53643,
+    "sense": "prograde"
+   },
+   "colour": "#837b70",
+   "colourHue": "#fff0dc",
+   "colourSource": "B−V 0.86 (Morrison & Morrison 1977); red channel extrapolated; Holmberg, Flynn & Portinari 2006, MNRAS 367, 449: solar (B−V) = 0.642, (V−R) = 0.354, (V−I) = 0.688",
+   "discovery": {
+    "by": "Galileo Galilei",
+    "date": "1610-01-07",
+    "place": "Padua",
+    "source": "https://science.nasa.gov/jupiter/jupiter-moons/callisto/facts/"
+   },
+   "facts": [
+    "Callisto’s surface is the oldest and most heavily cratered in the Solar System, about 4 billion years old.",
+    "Valhalla, its largest impact scar, is a bright patch ringed by concentric ridges, about 3,000 km across in all.",
+    "Callisto is the third-largest moon in the Solar System, about the same size as the planet Mercury."
+   ],
+   "factSources": [
+    "https://science.nasa.gov/jupiter/jupiter-moons/callisto/facts/",
+    "https://planetarynames.wr.usgs.gov/Feature/6284",
+    "https://science.nasa.gov/jupiter/jupiter-moons/callisto/facts/"
+   ],
+   "assets": {
+    "texture": "textures/callisto.jpg",
+    "textureInfo": {
+     "width": 2048,
+     "height": 1024,
+     "channels": 1,
+     "imagedFraction": 0.9914,
+     "fillSrgb": [
+      59
+     ],
+     "product": "Callisto Voyager - Galileo SSI Global Mosaic 1km",
+     "download": "https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/Callisto_Voyager_GalileoSSI_global_mosaic_1km.tif",
+     "sourcePage": "https://astrogeology.usgs.gov/search/map/callisto_galileo_voyager_global_mosaic_1km",
+     "credit": "NASA/JPL-Caltech/USGS Astrogeology Science Center (Galileo SSI and Voyager data)",
+     "licence": "Public domain or no use constraints (NASA/USGS); see staging/phase2/assets.md",
+     "colourNote": "Greyscale."
+    },
+    "model": null,
+    "modelInfo": null,
+    "rings": null
+   }
+  },
+  {
+   "id": "mimas",
+   "name": "Mimas",
+   "kind": "moon",
+   "parent": "saturn",
+   "naifId": 601,
+   "radiusKm": 198.2,
+   "radiusSigmaKm": 0.4,
+   "radiusSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25)",
+   "triaxialRadiiKm": [
+    207.8,
+    196.7,
+    190.6
+   ],
+   "triaxialSource": "Archinal et al. 2018, \"Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015\", Celest. Mech. Dyn. Astron. 130:22, https://doi.org/10.1007/s10569-017-9805-5 (values as encoded by NAIF in pck00011.tpc, https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/pck00011.tpc)",
+   "gmKm3S2": 2.50349,
+   "gmSigmaKm3S2": 0.00014,
+   "gmSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25) (ephemeris SAT441)",
+   "massKg": 37509000000000000000,
+   "densityGCm3": 1.15,
+   "geometricAlbedo": 0.962,
+   "geometricAlbedoSigma": 0.004,
+   "albedoSource": "Verbiscer et al. 2007, Science 315, 815 (Cassini-era V-band geometric albedos), as tabulated by JPL Solar System Dynamics, Planetary Satellite Physical Parameters (2015-02-19 edition, archived 2021-01-26), https://web.archive.org/web/2021/https://ssd.jpl.nasa.gov/?sat_phys_par",
+   "orbit": {
+    "aKm": 186000,
+    "e": 0.02,
+    "iDeg": 1.6,
+    "periodD": 0.942422,
+    "source": "JPL Solar System Dynamics, Planetary Satellite Mean Elements, https://ssd.jpl.nasa.gov/sats/elem/sep.html (retrieved 2026-09-25)"
+   },
+   "rotation": {
+    "model": "iau-2015",
+    "source": "Archinal et al. 2018, \"Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015\", Celest. Mech. Dyn. Astron. 130:22, https://doi.org/10.1007/s10569-017-9805-5 (values as encoded by NAIF in pck00011.tpc, https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/pck00011.tpc)",
+    "frame": "ICRF",
+    "poleRaDeg": [
+     40.66,
+     -0.036,
+     0
+    ],
+    "poleDecDeg": [
+     83.52,
+     -0.004,
+     0
+    ],
+    "pmDeg": [
+     333.46,
+     381.994555,
+     0
+    ],
+    "synchronous": true,
+    "validity": {
+     "fromTdbDays": -6939.5,
+     "toTdbDays": 73049.5,
+     "note": "IAU models are stated to be accurate to about 0.1° near the present (Archinal et al. 2018); outside 1981–2199 they are extrapolations."
+    },
+    "phaseSystem": "6",
+    "raTerms": [
+     0,
+     0,
+     13.56,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "decTerms": [
+     0,
+     0,
+     -1.53,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "pmTerms": [
+     0,
+     0,
+     -13.48,
+     0,
+     -44.85,
+     0,
+     0,
+     0
+    ],
+    "periodH": 22.618123,
+    "sense": "prograde"
+   },
+   "colour": "#d7d7d7",
+   "colourHue": "#ffffff",
+   "colourSource": "No disk-integrated colour measurement found in the sources used: neutral grey at the albedo-based lightness. Treat as a placeholder.",
+   "discovery": {
+    "by": "William Herschel",
+    "date": "1789-09-17",
+    "place": "Slough, England (40-foot reflector)",
+    "source": "https://science.nasa.gov/saturn/moons/mimas/"
+   },
+   "facts": [
+    "Herschel crater is 130 km wide, about a third of Mimas’s own diameter. It gives the moon its famous resemblance to the Death Star.",
+    "A slight wobble measured by Cassini points to an ocean hidden under the ice, one that formed within the last 25 million years (Lainey et al. 2024).",
+    "William Herschel found Mimas in 1789 with his 40-foot reflecting telescope. From the ground it is only a faint point of light beside Saturn’s glare."
+   ],
+   "factSources": [
+    "https://science.nasa.gov/saturn/moons/mimas/",
+    "https://doi.org/10.1038/s41586-023-06975-9",
+    "https://science.nasa.gov/saturn/moons/mimas/"
+   ],
+   "assets": {
+    "texture": "textures/mimas.jpg",
+    "textureInfo": {
+     "width": 1024,
+     "height": 512,
+     "channels": 1,
+     "imagedFraction": 1,
+     "fillSrgb": [
+      113
+     ],
+     "product": "Mimas Cassini ISS Global Mosaic (DLR, 30 June 2017), 216 m/pixel",
+     "download": "https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/Mimas/Cassini_DLR_Mimas.zip (entry Cassini_DLR/MI_170630_DLR_basemap.tif)",
+     "credit": "NASA/JPL-Caltech/Space Science Institute/DLR (mosaic by T. Roatsch, DLR); hosted by USGS Astrogeology",
+     "licence": "Public domain or no use constraints (NASA/USGS); see staging/phase2/assets.md",
+     "colourNote": "Greyscale (Cassini ISS clear filter)."
+    },
+    "model": null,
+    "modelInfo": null,
+    "rings": null
+   }
+  },
+  {
+   "id": "enceladus",
+   "name": "Enceladus",
+   "kind": "moon",
+   "parent": "saturn",
+   "naifId": 602,
+   "radiusKm": 252.1,
+   "radiusSigmaKm": 0.2,
+   "radiusSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25)",
+   "triaxialRadiiKm": [
+    256.6,
+    251.4,
+    248.3
+   ],
+   "triaxialSource": "Archinal et al. 2018, \"Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015\", Celest. Mech. Dyn. Astron. 130:22, https://doi.org/10.1007/s10569-017-9805-5 (values as encoded by NAIF in pck00011.tpc, https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/pck00011.tpc)",
+   "gmKm3S2": 7.21037,
+   "gmSigmaKm3S2": 0.00009,
+   "gmSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25) (ephemeris SAT441)",
+   "massKg": 108030000000000000000,
+   "densityGCm3": 1.61,
+   "geometricAlbedo": 1.375,
+   "geometricAlbedoSigma": 0.008,
+   "albedoSource": "Verbiscer et al. 2007, Science 315, 815 (Cassini-era V-band geometric albedos), as tabulated by JPL Solar System Dynamics, Planetary Satellite Physical Parameters (2015-02-19 edition, archived 2021-01-26), https://web.archive.org/web/2021/https://ssd.jpl.nasa.gov/?sat_phys_par",
+   "orbit": {
+    "aKm": 238400,
+    "e": 0.005,
+    "iDeg": 0,
+    "periodD": 1.370218,
+    "source": "JPL Solar System Dynamics, Planetary Satellite Mean Elements, https://ssd.jpl.nasa.gov/sats/elem/sep.html (retrieved 2026-09-25)"
+   },
+   "rotation": {
+    "model": "iau-2015",
+    "source": "Archinal et al. 2018, \"Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015\", Celest. Mech. Dyn. Astron. 130:22, https://doi.org/10.1007/s10569-017-9805-5 (values as encoded by NAIF in pck00011.tpc, https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/pck00011.tpc)",
+    "frame": "ICRF",
+    "poleRaDeg": [
+     40.66,
+     -0.036,
+     0
+    ],
+    "poleDecDeg": [
+     83.52,
+     -0.004,
+     0
+    ],
+    "pmDeg": [
+     6.32,
+     262.7318996,
+     0
+    ],
+    "synchronous": true,
+    "validity": {
+     "fromTdbDays": -6939.5,
+     "toTdbDays": 73049.5,
+     "note": "IAU models are stated to be accurate to about 0.1° near the present (Archinal et al. 2018); outside 1981–2199 they are extrapolations."
+    },
+    "periodH": 32.885234,
+    "sense": "prograde"
+   },
+   "colour": "#d8dadc",
+   "colourHue": "#fbfdff",
+   "colourSource": "Neese (ed.) 2020, Small Satellite Colors, PDS SBN urn:nasa:pds:compil.satellite.colors (colours from Cruikshank 1980, Icarus 41, 246; Schaefer & Schaefer 2000, Icarus 146, 541): B−V 0.62; Holmberg, Flynn & Portinari 2006, MNRAS 367, 449: solar (B−V) = 0.642, (V−R) = 0.354, (V−I) = 0.688",
+   "discovery": {
+    "by": "William Herschel",
+    "date": "1789-08-28",
+    "place": "Slough, England (40-foot reflector)",
+    "source": "https://science.nasa.gov/saturn/moons/enceladus/"
+   },
+   "facts": [
+    "Enceladus has the whitest, most reflective surface in the Solar System: its geometric albedo is about 1.4.",
+    "Jets near its south pole spray water vapour and ice grains from an underground ocean at about 400 m/s. The spray feeds Saturn’s faint E ring.",
+    "Ice grains from the plume contain phosphates, as well as salts and organic molecules (Postberg et al. 2023). Phosphorus is one of the elements life needs."
+   ],
+   "factSources": [
+    "https://doi.org/10.1126/science.1134681",
+    "https://science.nasa.gov/saturn/moons/enceladus/",
+    "https://doi.org/10.1038/s41586-023-05987-9"
+   ],
+   "assets": {
+    "texture": "textures/enceladus.jpg",
+    "textureInfo": {
+     "width": 1024,
+     "height": 512,
+     "channels": 1,
+     "imagedFraction": 0.9995,
+     "fillSrgb": [
+      103
+     ],
+     "product": "Enceladus Cassini Global Mosaic 110m",
+     "download": "https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/Enceladus_Cassini_mosaic_global_110m.tif",
+     "credit": "NASA/JPL-Caltech/Space Science Institute/DLR; hosted by USGS Astrogeology",
+     "licence": "Public domain or no use constraints (NASA/USGS); see staging/phase2/assets.md",
+     "colourNote": "Greyscale (Cassini ISS clear filter)."
+    },
+    "model": null,
+    "modelInfo": null,
+    "rings": null
+   }
+  },
+  {
+   "id": "tethys",
+   "name": "Tethys",
+   "kind": "moon",
+   "parent": "saturn",
+   "naifId": 603,
+   "radiusKm": 531.1,
+   "radiusSigmaKm": 0.6,
+   "radiusSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25)",
+   "triaxialRadiiKm": [
+    538.4,
+    528.3,
+    526.3
+   ],
+   "triaxialSource": "Archinal et al. 2018, \"Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015\", Celest. Mech. Dyn. Astron. 130:22, https://doi.org/10.1007/s10569-017-9805-5 (values as encoded by NAIF in pck00011.tpc, https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/pck00011.tpc)",
+   "gmKm3S2": 41.21353,
+   "gmSigmaKm3S2": 0.00031,
+   "gmSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25) (ephemeris SAT441)",
+   "massKg": 617500000000000000000,
+   "densityGCm3": 0.984,
+   "geometricAlbedo": 1.229,
+   "geometricAlbedoSigma": 0.005,
+   "albedoSource": "Verbiscer et al. 2007, Science 315, 815 (Cassini-era V-band geometric albedos), as tabulated by JPL Solar System Dynamics, Planetary Satellite Physical Parameters (2015-02-19 edition, archived 2021-01-26), https://web.archive.org/web/2021/https://ssd.jpl.nasa.gov/?sat_phys_par",
+   "orbit": {
+    "aKm": 295000,
+    "e": 0.001,
+    "iDeg": 1.1,
+    "periodD": 1.887802,
+    "source": "JPL Solar System Dynamics, Planetary Satellite Mean Elements, https://ssd.jpl.nasa.gov/sats/elem/sep.html (retrieved 2026-09-25)"
+   },
+   "rotation": {
+    "model": "iau-2015",
+    "source": "Archinal et al. 2018, \"Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015\", Celest. Mech. Dyn. Astron. 130:22, https://doi.org/10.1007/s10569-017-9805-5 (values as encoded by NAIF in pck00011.tpc, https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/pck00011.tpc)",
+    "frame": "ICRF",
+    "poleRaDeg": [
+     40.66,
+     -0.036,
+     0
+    ],
+    "poleDecDeg": [
+     83.52,
+     -0.004,
+     0
+    ],
+    "pmDeg": [
+     8.95,
+     190.6979085,
+     0
+    ],
+    "synchronous": true,
+    "validity": {
+     "fromTdbDays": -6939.5,
+     "toTdbDays": 73049.5,
+     "note": "IAU models are stated to be accurate to about 0.1° near the present (Archinal et al. 2018); outside 1981–2199 they are extrapolations."
+    },
+    "phaseSystem": "6",
+    "raTerms": [
+     0,
+     0,
+     0,
+     9.66,
+     0,
+     0,
+     0,
+     0
+    ],
+    "decTerms": [
+     0,
+     0,
+     0,
+     -1.09,
+     0,
+     0,
+     0,
+     0
+    ],
+    "pmTerms": [
+     0,
+     0,
+     0,
+     -9.6,
+     2.23,
+     0,
+     0,
+     0
+    ],
+    "periodH": 45.307261,
+    "sense": "prograde"
+   },
+   "colour": "#e0d9d0",
+   "colourHue": "#fff7ee",
+   "colourSource": "Neese (ed.) 2020, Small Satellite Colors, PDS SBN urn:nasa:pds:compil.satellite.colors (colours from Cruikshank 1980, Icarus 41, 246; Schaefer & Schaefer 2000, Icarus 146, 541): B−V 0.74; Holmberg, Flynn & Portinari 2006, MNRAS 367, 449: solar (B−V) = 0.642, (V−R) = 0.354, (V−I) = 0.688",
+   "discovery": {
+    "by": "Giovanni Domenico Cassini",
+    "date": "1684-03-21",
+    "place": "Paris Observatory",
+    "source": "https://science.nasa.gov/saturn/moons/tethys/"
+   },
+   "facts": [
+    "Its density, 0.98 g/cm³, is a little below that of water: Tethys is almost pure water ice.",
+    "Odysseus, a crater about 445 km across, spans two-fifths of the moon’s diameter.",
+    "Ithaca Chasma, a canyon about 100 km wide and several kilometres deep, runs roughly from pole to pole."
+   ],
+   "factSources": [
+    "https://ssd.jpl.nasa.gov/sats/phys_par/",
+    "https://planetarynames.wr.usgs.gov/Feature/4406",
+    "https://science.nasa.gov/saturn/moons/tethys/"
+   ],
+   "assets": {
+    "texture": "textures/tethys.jpg",
+    "textureInfo": {
+     "width": 2048,
+     "height": 1024,
+     "channels": 1,
+     "imagedFraction": 0.9995,
+     "fillSrgb": [
+      119
+     ],
+     "product": "Tethys Cassini Global Mosaic 293m",
+     "download": "https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/Tethys_Cassini_mosaic_global_293m.tif",
+     "credit": "NASA/JPL-Caltech/Space Science Institute/DLR; hosted by USGS Astrogeology",
+     "licence": "Public domain or no use constraints (NASA/USGS); see staging/phase2/assets.md",
+     "colourNote": "Greyscale."
+    },
+    "model": null,
+    "modelInfo": null,
+    "rings": null
+   }
+  },
+  {
+   "id": "dione",
+   "name": "Dione",
+   "kind": "moon",
+   "parent": "saturn",
+   "naifId": 604,
+   "radiusKm": 561.4,
+   "radiusSigmaKm": 0.4,
+   "radiusSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25)",
+   "triaxialRadiiKm": [
+    563.4,
+    561.3,
+    559.6
+   ],
+   "triaxialSource": "Archinal et al. 2018, \"Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015\", Celest. Mech. Dyn. Astron. 130:22, https://doi.org/10.1007/s10569-017-9805-5 (values as encoded by NAIF in pck00011.tpc, https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/pck00011.tpc)",
+   "gmKm3S2": 73.11607,
+   "gmSigmaKm3S2": 0.00005,
+   "gmSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25) (ephemeris SAT441)",
+   "massKg": 1.0955e+21,
+   "densityGCm3": 1.478,
+   "geometricAlbedo": 0.998,
+   "geometricAlbedoSigma": 0.004,
+   "albedoSource": "Verbiscer et al. 2007, Science 315, 815 (Cassini-era V-band geometric albedos), as tabulated by JPL Solar System Dynamics, Planetary Satellite Physical Parameters (2015-02-19 edition, archived 2021-01-26), https://web.archive.org/web/2021/https://ssd.jpl.nasa.gov/?sat_phys_par",
+   "orbit": {
+    "aKm": 377700,
+    "e": 0.002,
+    "iDeg": 0,
+    "periodD": 2.736916,
+    "source": "JPL Solar System Dynamics, Planetary Satellite Mean Elements, https://ssd.jpl.nasa.gov/sats/elem/sep.html (retrieved 2026-09-25)"
+   },
+   "rotation": {
+    "model": "iau-2015",
+    "source": "Archinal et al. 2018, \"Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015\", Celest. Mech. Dyn. Astron. 130:22, https://doi.org/10.1007/s10569-017-9805-5 (values as encoded by NAIF in pck00011.tpc, https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/pck00011.tpc)",
+    "frame": "ICRF",
+    "poleRaDeg": [
+     40.66,
+     -0.036,
+     0
+    ],
+    "poleDecDeg": [
+     83.52,
+     -0.004,
+     0
+    ],
+    "pmDeg": [
+     357.6,
+     131.5349316,
+     0
+    ],
+    "synchronous": true,
+    "validity": {
+     "fromTdbDays": -6939.5,
+     "toTdbDays": 73049.5,
+     "note": "IAU models are stated to be accurate to about 0.1° near the present (Archinal et al. 2018); outside 1981–2199 they are extrapolations."
+    },
+    "periodH": 65.685973,
+    "sense": "prograde"
+   },
+   "colour": "#e1d9ce",
+   "colourHue": "#fff6eb",
+   "colourSource": "Neese (ed.) 2020, Small Satellite Colors, PDS SBN urn:nasa:pds:compil.satellite.colors (colours from Cruikshank 1980, Icarus 41, 246; Schaefer & Schaefer 2000, Icarus 146, 541): B−V 0.76; Holmberg, Flynn & Portinari 2006, MNRAS 367, 449: solar (B−V) = 0.642, (V−R) = 0.354, (V−I) = 0.688",
+   "discovery": {
+    "by": "Giovanni Domenico Cassini",
+    "date": "1684-03-21",
+    "place": "Paris Observatory",
+    "source": "https://science.nasa.gov/saturn/moons/dione/"
+   },
+   "facts": [
+    "The bright wisps on Dione’s trailing side turned out, in Cassini images, to be ice cliffs along fractures, with darker material having fallen away to expose clean ice.",
+    "Two small moons share its orbit: Helene 60° ahead of it and Polydeuces 60° behind.",
+    "Dione takes 2.7 days to orbit Saturn, and like most large moons keeps one face turned towards the planet."
+   ],
+   "factSources": [
+    "https://science.nasa.gov/saturn/moons/dione/",
+    "https://science.nasa.gov/saturn/moons/dione/",
+    "https://science.nasa.gov/saturn/moons/dione/"
+   ],
+   "assets": {
+    "texture": "textures/dione.jpg",
+    "textureInfo": {
+     "width": 2048,
+     "height": 1024,
+     "channels": 1,
+     "imagedFraction": 0.9982,
+     "fillSrgb": [
+      125
+     ],
+     "product": "Dione Cassini - Voyager Global Mosaic 154m",
+     "download": "https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/Dione_Cassini_Voyager_mosaic_global_154m.tif",
+     "credit": "NASA/JPL-Caltech/Space Science Institute/DLR (Cassini and Voyager data); hosted by USGS Astrogeology",
+     "licence": "Public domain or no use constraints (NASA/USGS); see staging/phase2/assets.md",
+     "colourNote": "Greyscale."
+    },
+    "model": null,
+    "modelInfo": null,
+    "rings": null
+   }
+  },
+  {
+   "id": "rhea",
+   "name": "Rhea",
+   "kind": "moon",
+   "parent": "saturn",
+   "naifId": 605,
+   "radiusKm": 763.5,
+   "radiusSigmaKm": 0.6,
+   "radiusSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25)",
+   "triaxialRadiiKm": [
+    765,
+    763.1,
+    762.4
+   ],
+   "triaxialSource": "Archinal et al. 2018, \"Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015\", Celest. Mech. Dyn. Astron. 130:22, https://doi.org/10.1007/s10569-017-9805-5 (values as encoded by NAIF in pck00011.tpc, https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/pck00011.tpc)",
+   "gmKm3S2": 153.94175,
+   "gmSigmaKm3S2": 0.00041,
+   "gmSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25) (ephemeris SAT441)",
+   "massKg": 2.3065e+21,
+   "densityGCm3": 1.237,
+   "geometricAlbedo": 0.949,
+   "geometricAlbedoSigma": 0.003,
+   "albedoSource": "Verbiscer et al. 2007, Science 315, 815 (Cassini-era V-band geometric albedos), as tabulated by JPL Solar System Dynamics, Planetary Satellite Physical Parameters (2015-02-19 edition, archived 2021-01-26), https://web.archive.org/web/2021/https://ssd.jpl.nasa.gov/?sat_phys_par",
+   "orbit": {
+    "aKm": 527200,
+    "e": 0.001,
+    "iDeg": 0.3,
+    "periodD": 4.517503,
+    "source": "JPL Solar System Dynamics, Planetary Satellite Mean Elements, https://ssd.jpl.nasa.gov/sats/elem/sep.html (retrieved 2026-09-25)"
+   },
+   "rotation": {
+    "model": "iau-2015",
+    "source": "Archinal et al. 2018, \"Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015\", Celest. Mech. Dyn. Astron. 130:22, https://doi.org/10.1007/s10569-017-9805-5 (values as encoded by NAIF in pck00011.tpc, https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/pck00011.tpc)",
+    "frame": "ICRF",
+    "poleRaDeg": [
+     40.38,
+     -0.036,
+     0
+    ],
+    "poleDecDeg": [
+     83.55,
+     -0.004,
+     0
+    ],
+    "pmDeg": [
+     235.16,
+     79.6900478,
+     0
+    ],
+    "synchronous": true,
+    "validity": {
+     "fromTdbDays": -6939.5,
+     "toTdbDays": 73049.5,
+     "note": "IAU models are stated to be accurate to about 0.1° near the present (Archinal et al. 2018); outside 1981–2199 they are extrapolations."
+    },
+    "phaseSystem": "6",
+    "raTerms": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     3.1,
+     0,
+     0
+    ],
+    "decTerms": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     -0.35,
+     0,
+     0
+    ],
+    "pmTerms": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     -3.08,
+     0,
+     0
+    ],
+    "periodH": 108.42006,
+    "sense": "prograde"
+   },
+   "colour": "#dcd5cb",
+   "colourHue": "#fff6eb",
+   "colourSource": "Neese (ed.) 2020, Small Satellite Colors, PDS SBN urn:nasa:pds:compil.satellite.colors (colours from Cruikshank 1980, Icarus 41, 246; Schaefer & Schaefer 2000, Icarus 146, 541): B−V 0.76; Holmberg, Flynn & Portinari 2006, MNRAS 367, 449: solar (B−V) = 0.642, (V−R) = 0.354, (V−I) = 0.688",
+   "discovery": {
+    "by": "Giovanni Domenico Cassini",
+    "date": "1672-12-23",
+    "place": "Paris Observatory",
+    "source": "https://science.nasa.gov/saturn/moons/rhea/"
+   },
+   "facts": [
+    "Rhea is Saturn’s second-largest moon, 1,527 km across, but has less than a third of Titan’s radius.",
+    "In 2010 Cassini detected an extremely thin atmosphere of oxygen and carbon dioxide. It was the first time a spacecraft had directly captured molecules of an oxygen atmosphere at another world.",
+    "Its low density, 1.24 g/cm³, means it is mostly water ice with a smaller share of rock."
+   ],
+   "factSources": [
+    "https://science.nasa.gov/saturn/moons/rhea/",
+    "https://science.nasa.gov/saturn/moons/rhea/",
+    "https://ssd.jpl.nasa.gov/sats/phys_par/"
+   ],
+   "assets": {
+    "texture": "textures/rhea.jpg",
+    "textureInfo": {
+     "width": 2048,
+     "height": 1024,
+     "channels": 1,
+     "imagedFraction": 1,
+     "fillSrgb": [
+      109
+     ],
+     "product": "Rhea Cassini - Voyager Global Mosaic 417m",
+     "download": "https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/Rhea_Cassini_Voyager_mosaic_global_417m.tif",
+     "credit": "NASA/JPL-Caltech/Space Science Institute/DLR (Cassini and Voyager data); hosted by USGS Astrogeology",
+     "licence": "Public domain or no use constraints (NASA/USGS); see staging/phase2/assets.md",
+     "colourNote": "Greyscale."
+    },
+    "model": null,
+    "modelInfo": null,
+    "rings": null
+   }
+  },
+  {
+   "id": "titan",
+   "name": "Titan",
+   "kind": "moon",
+   "parent": "saturn",
+   "naifId": 606,
+   "radiusKm": 2574.76,
+   "radiusSigmaKm": 0.02,
+   "radiusSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25)",
+   "triaxialRadiiKm": [
+    2575.15,
+    2574.78,
+    2574.47
+   ],
+   "triaxialSource": "Archinal et al. 2018, \"Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015\", Celest. Mech. Dyn. Astron. 130:22, https://doi.org/10.1007/s10569-017-9805-5 (values as encoded by NAIF in pck00011.tpc, https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/pck00011.tpc)",
+   "gmKm3S2": 8978.1371,
+   "gmSigmaKm3S2": 0.00025,
+   "gmSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25) (ephemeris SAT441)",
+   "massKg": 1.3452e+23,
+   "densityGCm3": 1.881,
+   "geometricAlbedo": 0.2,
+   "albedoSource": "Morrison et al. 1984, in Saturn (Gehrels & Matthews, eds.), 609, as tabulated by JPL Solar System Dynamics, Planetary Satellite Physical Parameters (2015-02-19 edition, archived 2021-01-26), https://web.archive.org/web/2021/https://ssd.jpl.nasa.gov/?sat_phys_par",
+   "orbit": {
+    "aKm": 1221900,
+    "e": 0.029,
+    "iDeg": 0.3,
+    "periodD": 15.945448,
+    "source": "JPL Solar System Dynamics, Planetary Satellite Mean Elements, https://ssd.jpl.nasa.gov/sats/elem/sep.html (retrieved 2026-09-25)"
+   },
+   "rotation": {
+    "model": "iau-2015",
+    "source": "Archinal et al. 2018, \"Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015\", Celest. Mech. Dyn. Astron. 130:22, https://doi.org/10.1007/s10569-017-9805-5 (values as encoded by NAIF in pck00011.tpc, https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/pck00011.tpc)",
+    "frame": "ICRF",
+    "poleRaDeg": [
+     39.4827,
+     0,
+     0
+    ],
+    "poleDecDeg": [
+     83.4279,
+     0,
+     0
+    ],
+    "pmDeg": [
+     186.5855,
+     22.5769768,
+     0
+    ],
+    "synchronous": true,
+    "validity": {
+     "fromTdbDays": -6939.5,
+     "toTdbDays": 73049.5,
+     "note": "IAU models are stated to be accurate to about 0.1° near the present (Archinal et al. 2018); outside 1981–2199 they are extrapolations."
+    },
+    "phaseSystem": "6",
+    "raTerms": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "decTerms": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "pmTerms": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "periodH": 382.69074,
+    "sense": "prograde"
+   },
+   "colour": "#927f60",
+   "colourHue": "#ffdeab",
+   "colourSource": "B−V 1.28 of Titan’s haze (Allen’s Astrophysical Quantities, 4th ed., 2000); red channel extrapolated. This is the colour of the atmosphere, not the surface.; Holmberg, Flynn & Portinari 2006, MNRAS 367, 449: solar (B−V) = 0.642, (V−R) = 0.354, (V−I) = 0.688",
+   "discovery": {
+    "by": "Christiaan Huygens",
+    "date": "1655-03-25",
+    "place": "The Hague",
+    "source": "https://science.nasa.gov/saturn/moons/titan/facts/"
+   },
+   "facts": [
+    "Titan is the only moon with a thick atmosphere, mostly nitrogen. It is also the only world besides Earth known to have liquid on its surface: seas and lakes of methane and ethane.",
+    "In January 2005 ESA’s Huygens probe landed on Titan, still the most distant landing ever made.",
+    "NASA’s Dragonfly rotorcraft is due to launch in 2028 and spend about three years flying between landing sites on Titan."
+   ],
+   "factSources": [
+    "https://science.nasa.gov/saturn/moons/titan/facts/",
+    "https://www.esa.int/Science_Exploration/Space_Science/Cassini-Huygens",
+    "https://science.nasa.gov/saturn/moons/titan/exploration/"
+   ],
+   "assets": {
+    "texture": "textures/titan.jpg",
+    "textureInfo": {
+     "width": 2048,
+     "height": 1024,
+     "channels": 1,
+     "imagedFraction": 0.9997,
+     "fillSrgb": [
+      125
+     ],
+     "product": "Titan Cassini ISS Global Mosaic 4km",
+     "download": "https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/Titan_ISS_P19658_Mosaic_Global_4km.tif",
+     "credit": "NASA/JPL-Caltech/Space Science Institute; hosted by USGS Astrogeology",
+     "licence": "Public domain or no use constraints (NASA/USGS); see staging/phase2/assets.md",
+     "colourNote": "Greyscale surface albedo at 938 nm (near-infrared), seen through the haze. In visible light Titan is a featureless orange haze ball: render the haze colour and treat this map as the view through it."
+    },
+    "model": null,
+    "modelInfo": null,
+    "rings": null
+   }
+  },
+  {
+   "id": "hyperion",
+   "name": "Hyperion",
+   "kind": "moon",
+   "parent": "saturn",
+   "naifId": 607,
+   "radiusKm": 135,
+   "radiusSigmaKm": 4,
+   "radiusSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25)",
+   "triaxialRadiiKm": [
+    180.1,
+    133,
+    102.7
+   ],
+   "triaxialSource": "Thomas et al. 2007, Nature 448, 50, https://doi.org/10.1038/nature05779 (360.2 × 266 × 205.4 km)",
+   "gmKm3S2": 0.37049,
+   "gmSigmaKm3S2": 0.00005,
+   "gmSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25) (ephemeris SAT441)",
+   "massKg": 5551000000000000000,
+   "densityGCm3": 0.539,
+   "geometricAlbedo": 0.3,
+   "albedoSource": "Morrison et al. 1984, in Saturn (Gehrels & Matthews, eds.), 609, as tabulated by JPL Solar System Dynamics, Planetary Satellite Physical Parameters (2015-02-19 edition, archived 2021-01-26), https://web.archive.org/web/2021/https://ssd.jpl.nasa.gov/?sat_phys_par",
+   "orbit": {
+    "aKm": 1481500,
+    "e": 0.105,
+    "iDeg": 0.6,
+    "periodD": 21.276658,
+    "source": "JPL Solar System Dynamics, Planetary Satellite Mean Elements, https://ssd.jpl.nasa.gov/sats/elem/sep.html (retrieved 2026-09-25)"
+   },
+   "rotation": {
+    "model": "chaotic",
+    "note": "Hyperion rotates chaotically; the IAU report gives no model. Voyager and Cassini saw it spinning roughly about its long axis, the axis wandering on time scales of weeks. Render with an arbitrary slow tumble and say so.",
+    "source": "https://science.nasa.gov/saturn/moons/hyperion/"
+   },
+   "colour": "#94908a",
+   "colourHue": "#fff7ee",
+   "colourSource": "Neese (ed.) 2020, Small Satellite Colors, PDS SBN urn:nasa:pds:compil.satellite.colors (colours from Cruikshank 1980, Icarus 41, 246; Schaefer & Schaefer 2000, Icarus 146, 541): B−V 0.74; Holmberg, Flynn & Portinari 2006, MNRAS 367, 449: solar (B−V) = 0.642, (V−R) = 0.354, (V−I) = 0.688",
+   "discovery": {
+    "by": "William Cranch Bond, George Phillips Bond and William Lassell (independently)",
+    "date": "1848-09-16",
+    "place": "Harvard College Observatory; Liverpool",
+    "source": "https://science.nasa.gov/saturn/moons/hyperion/"
+   },
+   "facts": [
+    "Hyperion tumbles chaotically. Its spin rate and axis change unpredictably, so no one can say which way it will face next year.",
+    "Its density is only about 0.54 g/cm³: about 40% of its volume may be empty space, which gives it a sponge-like look (Thomas et al. 2007).",
+    "It is the largest of Saturn’s non-spherical moons, about 360 × 266 × 205 km."
+   ],
+   "factSources": [
+    "https://science.nasa.gov/saturn/moons/hyperion/",
+    "https://doi.org/10.1038/nature05779",
+    "https://science.nasa.gov/saturn/moons/hyperion/"
+   ],
+   "assets": {
+    "texture": null,
+    "textureInfo": null,
+    "textureNote": "No surface map exists (or none with a licence that allows redistribution). Shade with the body colour.",
+    "model": "models/hyperion.bin",
+    "modelInfo": {
+     "triangles": 4000,
+     "vertices": 2002,
+     "equalVolumeRadiusKm": 132.4767,
+     "deviationKm": {
+      "rms": 0.042,
+      "max": 0.2853,
+      "samples": 2522,
+      "measure": "distance from source-model vertices to the simplified surface"
+     }
+    },
+    "rings": null
+   }
+  },
+  {
+   "id": "iapetus",
+   "name": "Iapetus",
+   "kind": "moon",
+   "parent": "saturn",
+   "naifId": 608,
+   "radiusKm": 734.3,
+   "radiusSigmaKm": 2.8,
+   "radiusSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25)",
+   "triaxialRadiiKm": [
+    745.7,
+    745.7,
+    712.1
+   ],
+   "triaxialSource": "Archinal et al. 2018, \"Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015\", Celest. Mech. Dyn. Astron. 130:22, https://doi.org/10.1007/s10569-017-9805-5 (values as encoded by NAIF in pck00011.tpc, https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/pck00011.tpc)",
+   "gmKm3S2": 120.51511,
+   "gmSigmaKm3S2": 0.00242,
+   "gmSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25) (ephemeris SAT441)",
+   "massKg": 1.8057e+21,
+   "densityGCm3": 1.089,
+   "geometricAlbedo": 0.6,
+   "albedoSource": "Morrison et al. 1984, in Saturn (Gehrels & Matthews, eds.), 609, as tabulated by JPL Solar System Dynamics, Planetary Satellite Physical Parameters (2015-02-19 edition, archived 2021-01-26), https://web.archive.org/web/2021/https://ssd.jpl.nasa.gov/?sat_phys_par",
+   "albedoNote": "Bright trailing hemisphere. The dark leading hemisphere (Cassini Regio) has an albedo of only 0.03 to 0.05 (NASA).",
+   "orbit": {
+    "aKm": 3561700,
+    "e": 0.028,
+    "iDeg": 7.6,
+    "periodD": 79.331002,
+    "source": "JPL Solar System Dynamics, Planetary Satellite Mean Elements, https://ssd.jpl.nasa.gov/sats/elem/sep.html (retrieved 2026-09-25)"
+   },
+   "rotation": {
+    "model": "iau-2015",
+    "source": "Archinal et al. 2018, \"Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015\", Celest. Mech. Dyn. Astron. 130:22, https://doi.org/10.1007/s10569-017-9805-5 (values as encoded by NAIF in pck00011.tpc, https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/pck00011.tpc)",
+    "frame": "ICRF",
+    "poleRaDeg": [
+     318.16,
+     -3.949,
+     0
+    ],
+    "poleDecDeg": [
+     75.03,
+     -1.143,
+     0
+    ],
+    "pmDeg": [
+     355.2,
+     4.5379572,
+     0
+    ],
+    "synchronous": true,
+    "validity": {
+     "fromTdbDays": -6939.5,
+     "toTdbDays": 73049.5,
+     "note": "IAU models are stated to be accurate to about 0.1° near the present (Archinal et al. 2018); outside 1981–2199 they are extrapolations."
+    },
+    "periodH": 1903.9404,
+    "sense": "prograde"
+   },
+   "colour": "#b5b5b5",
+   "colourHue": "#ffffff",
+   "colourSource": "No disk-integrated colour measurement found in the sources used: neutral grey at the albedo-based lightness. Treat as a placeholder.",
+   "discovery": {
+    "by": "Giovanni Domenico Cassini",
+    "date": "1671-10-25",
+    "place": "Paris Observatory",
+    "source": "https://science.nasa.gov/saturn/moons/iapetus/"
+   },
+   "facts": [
+    "One hemisphere is as dark as coal (albedo 0.03 to 0.05) and the other nearly as bright as snow (0.5 to 0.6). Dark dust warms the ice it lands on, which then evaporates and leaves the surface darker still.",
+    "A ridge of mountains about 10 km high runs along much of its equator, giving it a walnut-like outline.",
+    "Cassini noticed in 1671 that he could only see Iapetus on one side of Saturn, and guessed correctly that one side is much darker than the other."
+   ],
+   "factSources": [
+    "https://doi.org/10.1126/science.1177132",
+    "https://science.nasa.gov/saturn/moons/iapetus/",
+    "https://science.nasa.gov/saturn/moons/iapetus/"
+   ],
+   "assets": {
+    "texture": "textures/iapetus.jpg",
+    "textureInfo": {
+     "width": 2048,
+     "height": 1024,
+     "channels": 1,
+     "imagedFraction": 1,
+     "fillSrgb": [
+      113
+     ],
+     "product": "Iapetus Cassini - Voyager Global Mosaic 783m",
+     "download": "https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/Iapetus_Cassini_Voyager_mosaic_global_783m.tif",
+     "sourcePage": "https://astrogeology.usgs.gov/search/map/iapetus_cassini_voyager_global_mosaic_803m",
+     "credit": "NASA/JPL-Caltech/Space Science Institute/DLR (Cassini and Voyager data); hosted by USGS Astrogeology",
+     "licence": "Public domain or no use constraints (NASA/USGS); see staging/phase2/assets.md",
+     "colourNote": "Greyscale. The two-tone leading/trailing hemispheres are real albedo."
+    },
+    "model": null,
+    "modelInfo": null,
+    "rings": null
+   }
+  },
+  {
+   "id": "miranda",
+   "name": "Miranda",
+   "kind": "moon",
+   "parent": "uranus",
+   "naifId": 705,
+   "radiusKm": 235.8,
+   "radiusSigmaKm": 0.7,
+   "radiusSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25)",
+   "triaxialRadiiKm": [
+    240.4,
+    234.2,
+    232.9
+   ],
+   "triaxialSource": "Archinal et al. 2018, \"Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015\", Celest. Mech. Dyn. Astron. 130:22, https://doi.org/10.1007/s10569-017-9805-5 (values as encoded by NAIF in pck00011.tpc, https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/pck00011.tpc)",
+   "gmKm3S2": 4.3,
+   "gmSigmaKm3S2": 0.2,
+   "gmSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25) (ephemeris URA111)",
+   "massKg": 64426000000000000000,
+   "densityGCm3": 1.173,
+   "geometricAlbedo": 0.32,
+   "geometricAlbedoSigma": 0.03,
+   "albedoSource": "Veverka, Brown & Bell 1991, in Uranus (Bergstralh et al., eds.), 528, as tabulated by JPL Solar System Dynamics, Planetary Satellite Physical Parameters (2015-02-19 edition, archived 2021-01-26), https://web.archive.org/web/2021/https://ssd.jpl.nasa.gov/?sat_phys_par",
+   "orbit": {
+    "aKm": 129846,
+    "e": 0.001,
+    "iDeg": 4.4,
+    "periodD": 1.413479,
+    "source": "JPL Solar System Dynamics, Planetary Satellite Mean Elements, https://ssd.jpl.nasa.gov/sats/elem/sep.html (retrieved 2026-09-25)"
+   },
+   "rotation": {
+    "model": "iau-2015",
+    "source": "Archinal et al. 2018, \"Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015\", Celest. Mech. Dyn. Astron. 130:22, https://doi.org/10.1007/s10569-017-9805-5 (values as encoded by NAIF in pck00011.tpc, https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/pck00011.tpc)",
+    "frame": "ICRF",
+    "poleRaDeg": [
+     257.43,
+     0,
+     0
+    ],
+    "poleDecDeg": [
+     -15.08,
+     0,
+     0
+    ],
+    "pmDeg": [
+     30.7,
+     -254.6906892,
+     0
+    ],
+    "synchronous": true,
+    "validity": {
+     "fromTdbDays": -6939.5,
+     "toTdbDays": 73049.5,
+     "note": "IAU models are stated to be accurate to about 0.1° near the present (Archinal et al. 2018); outside 1981–2199 they are extrapolations."
+    },
+    "phaseSystem": "7",
+    "raTerms": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     4.41,
+     0,
+     0,
+     0,
+     0,
+     0,
+     -0.04,
+     0
+    ],
+    "decTerms": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     4.25,
+     0,
+     0,
+     0,
+     0,
+     0,
+     -0.02,
+     0
+    ],
+    "pmTerms": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1.15,
+     -1.27,
+     0,
+     0,
+     0,
+     0,
+     -0.09,
+     0.15
+    ],
+    "periodH": 33.923502,
+    "sense": "retrograde"
+   },
+   "colour": "#939393",
+   "colourHue": "#ffffff",
+   "colourSource": "No disk-integrated colour measurement found in the sources used: neutral grey at the albedo-based lightness. Treat as a placeholder.",
+   "discovery": {
+    "by": "Gerard P. Kuiper",
+    "date": "1948-02-16",
+    "place": "McDonald Observatory, Texas",
+    "source": "https://science.nasa.gov/uranus/moons/miranda/"
+   },
+   "facts": [
+    "Miranda has three huge ‘coronae’, patches of parallel ridges and grooves hundreds of kilometres across, unlike anything else known in the Solar System.",
+    "It was the last moon of Uranus found before Voyager 2 arrived: Gerard Kuiper spotted it on photographs in 1948.",
+    "Voyager 2’s flyby in January 1986 is still the only close look. Uranus’s south pole faced the Sun then, so only the southern hemisphere could be mapped."
+   ],
+   "factSources": [
+    "https://science.nasa.gov/uranus/moons/miranda/",
+    "https://science.nasa.gov/uranus/moons/miranda/",
+    "https://doi.org/10.1126/science.233.4759.43"
+   ],
+   "assets": {
+    "texture": "textures/miranda.jpg",
+    "textureInfo": {
+     "width": 1024,
+     "height": 512,
+     "channels": 1,
+     "imagedFraction": 0.3927,
+     "fillSrgb": [
+      128
+     ],
+     "product": "Miranda Voyager 2 global map (NASA 3D Resources)",
+     "download": "https://raw.githubusercontent.com/nasa/NASA-3D-Resources/master/Images%20and%20Textures/Uranus%20-%20Miranda/Uranus%20-%20Miranda.tif",
+     "sourcePage": "https://github.com/nasa/NASA-3D-Resources/tree/master/Images%20and%20Textures/Uranus%20-%20Miranda",
+     "credit": "NASA/JPL (Voyager 2 images, USGS-controlled mosaic); distributed by NASA 3D Resources",
+     "licence": "Public domain or no use constraints (NASA/USGS); see staging/phase2/assets.md",
+     "colourNote": "Greyscale. Voyager 2 flew past in January 1986, when Uranus’s south pole faced the Sun: only the southern hemisphere was lit and imaged. The source is 1440 × 720, so this map stays at 1024 × 512."
+    },
+    "model": null,
+    "modelInfo": null,
+    "rings": null
+   }
+  },
+  {
+   "id": "ariel",
+   "name": "Ariel",
+   "kind": "moon",
+   "parent": "uranus",
+   "naifId": 701,
+   "radiusKm": 578.9,
+   "radiusSigmaKm": 0.6,
+   "radiusSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25)",
+   "triaxialRadiiKm": [
+    581.1,
+    577.9,
+    577.7
+   ],
+   "triaxialSource": "Archinal et al. 2018, \"Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015\", Celest. Mech. Dyn. Astron. 130:22, https://doi.org/10.1007/s10569-017-9805-5 (values as encoded by NAIF in pck00011.tpc, https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/pck00011.tpc)",
+   "gmKm3S2": 83.5,
+   "gmSigmaKm3S2": 1.4,
+   "gmSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25) (ephemeris URA111)",
+   "massKg": 1.2511e+21,
+   "densityGCm3": 1.54,
+   "geometricAlbedo": 0.39,
+   "geometricAlbedoSigma": 0.04,
+   "albedoSource": "Veverka, Brown & Bell 1991, in Uranus (Bergstralh et al., eds.), 528, as tabulated by JPL Solar System Dynamics, Planetary Satellite Physical Parameters (2015-02-19 edition, archived 2021-01-26), https://web.archive.org/web/2021/https://ssd.jpl.nasa.gov/?sat_phys_par",
+   "orbit": {
+    "aKm": 190929,
+    "e": 0.001,
+    "iDeg": 0,
+    "periodD": 2.520379,
+    "source": "JPL Solar System Dynamics, Planetary Satellite Mean Elements, https://ssd.jpl.nasa.gov/sats/elem/sep.html (retrieved 2026-09-25)"
+   },
+   "rotation": {
+    "model": "iau-2015",
+    "source": "Archinal et al. 2018, \"Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015\", Celest. Mech. Dyn. Astron. 130:22, https://doi.org/10.1007/s10569-017-9805-5 (values as encoded by NAIF in pck00011.tpc, https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/pck00011.tpc)",
+    "frame": "ICRF",
+    "poleRaDeg": [
+     257.43,
+     0,
+     0
+    ],
+    "poleDecDeg": [
+     -15.1,
+     0,
+     0
+    ],
+    "pmDeg": [
+     156.22,
+     -142.8356681,
+     0
+    ],
+    "synchronous": true,
+    "validity": {
+     "fromTdbDays": -6939.5,
+     "toTdbDays": 73049.5,
+     "note": "IAU models are stated to be accurate to about 0.1° near the present (Archinal et al. 2018); outside 1981–2199 they are extrapolations."
+    },
+    "phaseSystem": "7",
+    "raTerms": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0.29
+    ],
+    "decTerms": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0.28
+    ],
+    "pmTerms": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0.05,
+     0.08
+    ],
+    "periodH": 60.489093,
+    "sense": "retrograde"
+   },
+   "colour": "#9c9c9c",
+   "colourHue": "#ffffff",
+   "colourSource": "No disk-integrated colour measurement found in the sources used: neutral grey at the albedo-based lightness. Treat as a placeholder.",
+   "discovery": {
+    "by": "William Lassell",
+    "date": "1851-10-24",
+    "place": "Liverpool",
+    "source": "https://science.nasa.gov/uranus/moons/ariel/"
+   },
+   "facts": [
+    "Ariel has the brightest surface of Uranus’s five large moons, cut by long fault valleys.",
+    "The James Webb Space Telescope found carbon dioxide ice concentrated on its trailing side, and possible carbonate minerals (Cartwright et al. 2024).",
+    "Lassell paid for his telescope with money from his brewing business."
+   ],
+   "factSources": [
+    "https://science.nasa.gov/uranus/moons/ariel/",
+    "https://doi.org/10.3847/2041-8213/ad566a",
+    "https://science.nasa.gov/uranus/moons/ariel/"
+   ],
+   "assets": {
+    "texture": "textures/ariel.jpg",
+    "textureInfo": {
+     "width": 1024,
+     "height": 512,
+     "channels": 1,
+     "imagedFraction": 0.337,
+     "fillSrgb": [
+      130
+     ],
+     "product": "Ariel Voyager 2 global map (NASA 3D Resources)",
+     "download": "https://raw.githubusercontent.com/nasa/NASA-3D-Resources/master/Images%20and%20Textures/Uranus%20-%20Ariel/Uranus%20-%20Ariel.tif",
+     "sourcePage": "https://github.com/nasa/NASA-3D-Resources/tree/master/Images%20and%20Textures/Uranus%20-%20Ariel",
+     "credit": "NASA/JPL (Voyager 2 images, USGS-controlled mosaic); distributed by NASA 3D Resources",
+     "licence": "Public domain or no use constraints (NASA/USGS); see staging/phase2/assets.md",
+     "colourNote": "Greyscale. Voyager 2 flew past in January 1986, when Uranus’s south pole faced the Sun: only the southern hemisphere was lit and imaged. The source is 1440 × 720, so this map stays at 1024 × 512."
+    },
+    "model": null,
+    "modelInfo": null,
+    "rings": null
+   }
+  },
+  {
+   "id": "umbriel",
+   "name": "Umbriel",
+   "kind": "moon",
+   "parent": "uranus",
+   "naifId": 702,
+   "radiusKm": 584.7,
+   "radiusSigmaKm": 2.8,
+   "radiusSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25)",
+   "gmKm3S2": 85.1,
+   "gmSigmaKm3S2": 1.9,
+   "gmSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25) (ephemeris URA111)",
+   "massKg": 1.275e+21,
+   "densityGCm3": 1.523,
+   "geometricAlbedo": 0.21,
+   "geometricAlbedoSigma": 0.02,
+   "albedoSource": "Veverka, Brown & Bell 1991, in Uranus (Bergstralh et al., eds.), 528, as tabulated by JPL Solar System Dynamics, Planetary Satellite Physical Parameters (2015-02-19 edition, archived 2021-01-26), https://web.archive.org/web/2021/https://ssd.jpl.nasa.gov/?sat_phys_par",
+   "orbit": {
+    "aKm": 265986,
+    "e": 0.004,
+    "iDeg": 0.1,
+    "periodD": 4.144177,
+    "source": "JPL Solar System Dynamics, Planetary Satellite Mean Elements, https://ssd.jpl.nasa.gov/sats/elem/sep.html (retrieved 2026-09-25)"
+   },
+   "rotation": {
+    "model": "iau-2015",
+    "source": "Archinal et al. 2018, \"Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015\", Celest. Mech. Dyn. Astron. 130:22, https://doi.org/10.1007/s10569-017-9805-5 (values as encoded by NAIF in pck00011.tpc, https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/pck00011.tpc)",
+    "frame": "ICRF",
+    "poleRaDeg": [
+     257.43,
+     0,
+     0
+    ],
+    "poleDecDeg": [
+     -15.1,
+     0,
+     0
+    ],
+    "pmDeg": [
+     108.05,
+     -86.8688923,
+     0
+    ],
+    "synchronous": true,
+    "validity": {
+     "fromTdbDays": -6939.5,
+     "toTdbDays": 73049.5,
+     "note": "IAU models are stated to be accurate to about 0.1° near the present (Archinal et al. 2018); outside 1981–2199 they are extrapolations."
+    },
+    "phaseSystem": "7",
+    "raTerms": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0.21
+    ],
+    "decTerms": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0.2
+    ],
+    "pmTerms": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     -0.09,
+     0,
+     0.06
+    ],
+    "periodH": 99.46023,
+    "sense": "retrograde"
+   },
+   "colour": "#838383",
+   "colourHue": "#ffffff",
+   "colourSource": "No disk-integrated colour measurement found in the sources used: neutral grey at the albedo-based lightness. Treat as a placeholder.",
+   "discovery": {
+    "by": "William Lassell",
+    "date": "1851-10-24",
+    "place": "Liverpool",
+    "source": "https://science.nasa.gov/uranus/moons/umbriel/"
+   },
+   "facts": [
+    "Umbriel is the darkest of Uranus’s large moons, reflecting only 16% of the light that falls on it.",
+    "Its surface is old and heavily cratered, showing few signs of the geological activity seen on Ariel and Titania.",
+    "William Lassell found Umbriel on the same night as Ariel, 24 October 1851."
+   ],
+   "factSources": [
+    "https://science.nasa.gov/uranus/moons/umbriel/",
+    "https://science.nasa.gov/uranus/moons/umbriel/",
+    "https://science.nasa.gov/uranus/moons/umbriel/"
+   ],
+   "assets": {
+    "texture": "textures/umbriel.jpg",
+    "textureInfo": {
+     "width": 1024,
+     "height": 512,
+     "channels": 1,
+     "imagedFraction": 0.3684,
+     "fillSrgb": [
+      147
+     ],
+     "product": "Umbriel Voyager 2 global map (NASA 3D Resources)",
+     "download": "https://raw.githubusercontent.com/nasa/NASA-3D-Resources/master/Images%20and%20Textures/Uranus%20-%20Umbriel/Uranus%20-%20Umbriel.tif",
+     "sourcePage": "https://github.com/nasa/NASA-3D-Resources/tree/master/Images%20and%20Textures/Uranus%20-%20Umbriel",
+     "credit": "NASA/JPL (Voyager 2 images, USGS-controlled mosaic); distributed by NASA 3D Resources",
+     "licence": "Public domain or no use constraints (NASA/USGS); see staging/phase2/assets.md",
+     "colourNote": "Greyscale. Voyager 2 flew past in January 1986, when Uranus’s south pole faced the Sun: only the southern hemisphere was lit and imaged. The source is 1440 × 720, so this map stays at 1024 × 512."
+    },
+    "model": null,
+    "modelInfo": null,
+    "rings": null
+   }
+  },
+  {
+   "id": "titania",
+   "name": "Titania",
+   "kind": "moon",
+   "parent": "uranus",
+   "naifId": 703,
+   "radiusKm": 788.9,
+   "radiusSigmaKm": 1.8,
+   "radiusSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25)",
+   "gmKm3S2": 226.9,
+   "gmSigmaKm3S2": 4.1,
+   "gmSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25) (ephemeris URA111)",
+   "massKg": 3.3996e+21,
+   "densityGCm3": 1.653,
+   "geometricAlbedo": 0.27,
+   "geometricAlbedoSigma": 0.03,
+   "albedoSource": "Veverka, Brown & Bell 1991, in Uranus (Bergstralh et al., eds.), 528, as tabulated by JPL Solar System Dynamics, Planetary Satellite Physical Parameters (2015-02-19 edition, archived 2021-01-26), https://web.archive.org/web/2021/https://ssd.jpl.nasa.gov/?sat_phys_par",
+   "orbit": {
+    "aKm": 436298,
+    "e": 0.002,
+    "iDeg": 0.1,
+    "periodD": 8.705869,
+    "source": "JPL Solar System Dynamics, Planetary Satellite Mean Elements, https://ssd.jpl.nasa.gov/sats/elem/sep.html (retrieved 2026-09-25)"
+   },
+   "rotation": {
+    "model": "iau-2015",
+    "source": "Archinal et al. 2018, \"Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015\", Celest. Mech. Dyn. Astron. 130:22, https://doi.org/10.1007/s10569-017-9805-5 (values as encoded by NAIF in pck00011.tpc, https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/pck00011.tpc)",
+    "frame": "ICRF",
+    "poleRaDeg": [
+     257.43,
+     0,
+     0
+    ],
+    "poleDecDeg": [
+     -15.1,
+     0,
+     0
+    ],
+    "pmDeg": [
+     77.74,
+     -41.3514316,
+     0
+    ],
+    "synchronous": true,
+    "validity": {
+     "fromTdbDays": -6939.5,
+     "toTdbDays": 73049.5,
+     "note": "IAU models are stated to be accurate to about 0.1° near the present (Archinal et al. 2018); outside 1981–2199 they are extrapolations."
+    },
+    "phaseSystem": "7",
+    "raTerms": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0.29
+    ],
+    "decTerms": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0.28
+    ],
+    "pmTerms": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0.08
+    ],
+    "periodH": 208.94077,
+    "sense": "retrograde"
+   },
+   "colour": "#8e8c88",
+   "colourHue": "#fffaf5",
+   "colourSource": "Neese (ed.) 2020, Small Satellite Colors, PDS SBN urn:nasa:pds:compil.satellite.colors (colours from Cruikshank 1980, Icarus 41, 246; Schaefer & Schaefer 2000, Icarus 146, 541): B−V 0.70; Holmberg, Flynn & Portinari 2006, MNRAS 367, 449: solar (B−V) = 0.642, (V−R) = 0.354, (V−I) = 0.688",
+   "discovery": {
+    "by": "William Herschel",
+    "date": "1787-01-11",
+    "place": "Slough, England",
+    "source": "https://science.nasa.gov/uranus/moons/titania/"
+   },
+   "facts": [
+    "Titania is Uranus’s largest moon, 1,577 km across.",
+    "Fault valleys up to about 1,600 km long cross its surface, signs that the crust was once pulled apart.",
+    "Herschel found Titania and Oberon on the same night, less than six years after he discovered Uranus itself."
+   ],
+   "factSources": [
+    "https://ssd.jpl.nasa.gov/sats/phys_par/",
+    "https://science.nasa.gov/uranus/moons/titania/",
+    "https://science.nasa.gov/uranus/moons/titania/"
+   ],
+   "assets": {
+    "texture": "textures/titania.jpg",
+    "textureInfo": {
+     "width": 1024,
+     "height": 512,
+     "channels": 1,
+     "imagedFraction": 0.318,
+     "fillSrgb": [
+      160
+     ],
+     "product": "Titania Voyager 2 global map (NASA 3D Resources)",
+     "download": "https://raw.githubusercontent.com/nasa/NASA-3D-Resources/master/Images%20and%20Textures/Uranus%20-%20Titania/Uranus%20-%20Titania.tif",
+     "sourcePage": "https://github.com/nasa/NASA-3D-Resources/tree/master/Images%20and%20Textures/Uranus%20-%20Titania",
+     "credit": "NASA/JPL (Voyager 2 images, USGS-controlled mosaic); distributed by NASA 3D Resources",
+     "licence": "Public domain or no use constraints (NASA/USGS); see staging/phase2/assets.md",
+     "colourNote": "Greyscale. Voyager 2 flew past in January 1986, when Uranus’s south pole faced the Sun: only the southern hemisphere was lit and imaged. The source is 1440 × 720, so this map stays at 1024 × 512."
+    },
+    "model": null,
+    "modelInfo": null,
+    "rings": null
+   }
+  },
+  {
+   "id": "oberon",
+   "name": "Oberon",
+   "kind": "moon",
+   "parent": "uranus",
+   "naifId": 704,
+   "radiusKm": 761.4,
+   "radiusSigmaKm": 2.6,
+   "radiusSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25)",
+   "gmKm3S2": 205.3,
+   "gmSigmaKm3S2": 5.8,
+   "gmSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25) (ephemeris URA111)",
+   "massKg": 3.076e+21,
+   "densityGCm3": 1.664,
+   "geometricAlbedo": 0.23,
+   "geometricAlbedoSigma": 0.03,
+   "albedoSource": "Veverka, Brown & Bell 1991, in Uranus (Bergstralh et al., eds.), 528, as tabulated by JPL Solar System Dynamics, Planetary Satellite Physical Parameters (2015-02-19 edition, archived 2021-01-26), https://web.archive.org/web/2021/https://ssd.jpl.nasa.gov/?sat_phys_par",
+   "orbit": {
+    "aKm": 583511,
+    "e": 0.002,
+    "iDeg": 0.1,
+    "periodD": 13.463237,
+    "source": "JPL Solar System Dynamics, Planetary Satellite Mean Elements, https://ssd.jpl.nasa.gov/sats/elem/sep.html (retrieved 2026-09-25)"
+   },
+   "rotation": {
+    "model": "iau-2015",
+    "source": "Archinal et al. 2018, \"Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015\", Celest. Mech. Dyn. Astron. 130:22, https://doi.org/10.1007/s10569-017-9805-5 (values as encoded by NAIF in pck00011.tpc, https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/pck00011.tpc)",
+    "frame": "ICRF",
+    "poleRaDeg": [
+     257.43,
+     0,
+     0
+    ],
+    "poleDecDeg": [
+     -15.1,
+     0,
+     0
+    ],
+    "pmDeg": [
+     6.77,
+     -26.7394932,
+     0
+    ],
+    "synchronous": true,
+    "validity": {
+     "fromTdbDays": -6939.5,
+     "toTdbDays": 73049.5,
+     "note": "IAU models are stated to be accurate to about 0.1° near the present (Archinal et al. 2018); outside 1981–2199 they are extrapolations."
+    },
+    "phaseSystem": "7",
+    "raTerms": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0.16
+    ],
+    "decTerms": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0.16
+    ],
+    "pmTerms": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0.04
+    ],
+    "periodH": 323.11757,
+    "sense": "retrograde"
+   },
+   "colour": "#878684",
+   "colourHue": "#fffcf8",
+   "colourSource": "Neese (ed.) 2020, Small Satellite Colors, PDS SBN urn:nasa:pds:compil.satellite.colors (colours from Cruikshank 1980, Icarus 41, 246; Schaefer & Schaefer 2000, Icarus 146, 541): B−V 0.68; Holmberg, Flynn & Portinari 2006, MNRAS 367, 449: solar (B−V) = 0.642, (V−R) = 0.354, (V−I) = 0.688",
+   "discovery": {
+    "by": "William Herschel",
+    "date": "1787-01-11",
+    "place": "Slough, England",
+    "source": "https://science.nasa.gov/uranus/moons/oberon/"
+   },
+   "facts": [
+    "Oberon orbits about 584,000 km from Uranus, the farthest out of the planet’s five major moons.",
+    "Some of its craters, such as Hamlet, have dark floors, possibly material that welled up from inside.",
+    "Voyager 2 caught a mountain about 6 km high on its limb."
+   ],
+   "factSources": [
+    "https://ssd.jpl.nasa.gov/sats/elem/sep.html",
+    "https://planetarynames.wr.usgs.gov/Feature/2340",
+    "https://science.nasa.gov/uranus/moons/oberon/"
+   ],
+   "assets": {
+    "texture": "textures/oberon.jpg",
+    "textureInfo": {
+     "width": 1024,
+     "height": 512,
+     "channels": 1,
+     "imagedFraction": 0.3381,
+     "fillSrgb": [
+      123
+     ],
+     "product": "Oberon Voyager 2 global map (NASA 3D Resources)",
+     "download": "https://raw.githubusercontent.com/nasa/NASA-3D-Resources/master/Images%20and%20Textures/Uranus%20-%20Oberon/Uranus%20-%20Oberon.tif",
+     "sourcePage": "https://github.com/nasa/NASA-3D-Resources/tree/master/Images%20and%20Textures/Uranus%20-%20Oberon",
+     "credit": "NASA/JPL (Voyager 2 images, USGS-controlled mosaic); distributed by NASA 3D Resources",
+     "licence": "Public domain or no use constraints (NASA/USGS); see staging/phase2/assets.md",
+     "colourNote": "Greyscale. Voyager 2 flew past in January 1986, when Uranus’s south pole faced the Sun: only the southern hemisphere was lit and imaged. The source is 1440 × 720, so this map stays at 1024 × 512."
+    },
+    "model": null,
+    "modelInfo": null,
+    "rings": null
+   }
+  },
+  {
+   "id": "triton",
+   "name": "Triton",
+   "kind": "moon",
+   "parent": "neptune",
+   "naifId": 801,
+   "radiusKm": 1352.6,
+   "radiusSigmaKm": 2.4,
+   "radiusSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25)",
+   "gmKm3S2": 1428.49546,
+   "gmSigmaKm3S2": 0.61603,
+   "gmSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25) (ephemeris NEP097)",
+   "massKg": 2.1403e+22,
+   "densityGCm3": 2.065,
+   "geometricAlbedo": 0.719,
+   "albedoSource": "Hicks & Buratti 2004, Icarus 171, 210, as tabulated by JPL Solar System Dynamics, Planetary Satellite Physical Parameters (2015-02-19 edition, archived 2021-01-26), https://web.archive.org/web/2021/https://ssd.jpl.nasa.gov/?sat_phys_par",
+   "orbit": {
+    "aKm": 354800,
+    "e": 0,
+    "iDeg": 157.3,
+    "periodD": 5.876994,
+    "source": "JPL Solar System Dynamics, Planetary Satellite Mean Elements, https://ssd.jpl.nasa.gov/sats/elem/sep.html (retrieved 2026-09-25)"
+   },
+   "rotation": {
+    "model": "iau-2015",
+    "source": "Archinal et al. 2018, \"Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015\", Celest. Mech. Dyn. Astron. 130:22, https://doi.org/10.1007/s10569-017-9805-5 (values as encoded by NAIF in pck00011.tpc, https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/pck00011.tpc)",
+    "frame": "ICRF",
+    "poleRaDeg": [
+     299.36,
+     0,
+     0
+    ],
+    "poleDecDeg": [
+     41.17,
+     0,
+     0
+    ],
+    "pmDeg": [
+     296.53,
+     -61.2572637,
+     0
+    ],
+    "synchronous": true,
+    "validity": {
+     "fromTdbDays": -6939.5,
+     "toTdbDays": 73049.5,
+     "note": "IAU models are stated to be accurate to about 0.1° near the present (Archinal et al. 2018); outside 1981–2199 they are extrapolations."
+    },
+    "phaseSystem": "8",
+    "raTerms": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     -32.35,
+     0,
+     -6.28,
+     -2.08,
+     -0.74,
+     -0.28,
+     -0.11,
+     -0.07,
+     -0.02,
+     -0.01
+    ],
+    "decTerms": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     22.55,
+     0,
+     2.1,
+     0.55,
+     0.16,
+     0.05,
+     0.02,
+     0.01,
+     0,
+     0
+    ],
+    "pmTerms": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     22.25,
+     0,
+     6.73,
+     2.05,
+     0.74,
+     0.28,
+     0.11,
+     0.05,
+     0.02,
+     0.01
+    ],
+    "periodH": 141.0445,
+    "sense": "retrograde"
+   },
+   "colour": "#c5c0ba",
+   "colourHue": "#fff9f1",
+   "colourSource": "B−V ≈ 0.72 (Allen’s Astrophysical Quantities, 4th ed.); approximate. The Voyager colour map is enhanced (orange–violet–UV) and is not used for this tint.; Holmberg, Flynn & Portinari 2006, MNRAS 367, 449: solar (B−V) = 0.642, (V−R) = 0.354, (V−I) = 0.688",
+   "discovery": {
+    "by": "William Lassell",
+    "date": "1846-10-10",
+    "place": "Liverpool",
+    "note": "17 days after Neptune itself was found.",
+    "source": "https://science.nasa.gov/neptune/moons/triton/"
+   },
+   "facts": [
+    "Triton is the only large moon that orbits backwards, against its planet’s spin. It was probably a Kuiper Belt object captured by Neptune.",
+    "Voyager 2 found active geysers on Triton in 1989. Their dark plumes rose about 8 km before drifting downwind in its thin nitrogen atmosphere.",
+    "Its surface, at about −235 °C, is one of the coldest ever measured in the Solar System."
+   ],
+   "factSources": [
+    "https://science.nasa.gov/neptune/moons/triton/",
+    "https://doi.org/10.1126/science.250.4979.410",
+    "https://science.nasa.gov/neptune/moons/triton/"
+   ],
+   "assets": {
+    "texture": "textures/triton.jpg",
+    "textureInfo": {
+     "width": 2048,
+     "height": 1024,
+     "channels": 3,
+     "imagedFraction": 0.6694,
+     "fillSrgb": [
+      149,
+      154,
+      128
+     ],
+     "product": "Triton Voyager 2 Global Color Mosaic 600m",
+     "download": "https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/Triton_Voyager2_ClrMosaic_GlobalFill_600m.tif",
+     "sourcePage": "https://astrogeology.usgs.gov/search/map/triton_voyager_2_global_color_mosaic_600m",
+     "credit": "NASA/JPL-Caltech/Lunar and Planetary Institute (P. Schenk); hosted by USGS Astrogeology",
+     "licence": "Public domain or no use constraints (NASA/USGS); see staging/phase2/assets.md",
+     "colourNote": "Orange, violet and ultraviolet Voyager 2 filters shown as red, green and blue: enhanced colour, a close approximation to natural colour. Voyager 2 saw only the southern hemisphere and a band north of the equator; the north was in darkness."
+    },
+    "model": null,
+    "modelInfo": null,
+    "rings": null
+   }
+  },
+  {
+   "id": "proteus",
+   "name": "Proteus",
+   "kind": "moon",
+   "parent": "neptune",
+   "naifId": 808,
+   "radiusKm": 208,
+   "radiusSigmaKm": 8,
+   "radiusSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25)",
+   "triaxialRadiiKm": [
+    218,
+    208,
+    201
+   ],
+   "triaxialSource": "Archinal et al. 2018, \"Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015\", Celest. Mech. Dyn. Astron. 130:22, https://doi.org/10.1007/s10569-017-9805-5 (values as encoded by NAIF in pck00011.tpc, https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/pck00011.tpc)",
+   "gmKm3S2": 2.58342,
+   "gmSigmaKm3S2": 2.4207,
+   "gmSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25) (ephemeris NEP097)",
+   "massKg": 38707000000000000000,
+   "densityGCm3": 1.027,
+   "geometricAlbedo": 0.096,
+   "albedoSource": "Karkoschka 2003, Icarus 162, 400, as tabulated by JPL Solar System Dynamics, Planetary Satellite Physical Parameters (2015-02-19 edition, archived 2021-01-26), https://web.archive.org/web/2021/https://ssd.jpl.nasa.gov/?sat_phys_par",
+   "orbit": {
+    "aKm": 117600,
+    "e": 0,
+    "iDeg": 0,
+    "periodD": 1.122315,
+    "source": "JPL Solar System Dynamics, Planetary Satellite Mean Elements, https://ssd.jpl.nasa.gov/sats/elem/sep.html (retrieved 2026-09-25)"
+   },
+   "rotation": {
+    "model": "iau-2015",
+    "source": "Archinal et al. 2018, \"Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015\", Celest. Mech. Dyn. Astron. 130:22, https://doi.org/10.1007/s10569-017-9805-5 (values as encoded by NAIF in pck00011.tpc, https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/pck00011.tpc)",
+    "frame": "ICRF",
+    "poleRaDeg": [
+     299.27,
+     0,
+     0
+    ],
+    "poleDecDeg": [
+     42.91,
+     0,
+     0
+    ],
+    "pmDeg": [
+     93.38,
+     320.7654228,
+     0
+    ],
+    "synchronous": true,
+    "validity": {
+     "fromTdbDays": -6939.5,
+     "toTdbDays": 73049.5,
+     "note": "IAU models are stated to be accurate to about 0.1° near the present (Archinal et al. 2018); outside 1981–2199 they are extrapolations."
+    },
+    "phaseSystem": "8",
+    "raTerms": [
+     0.7,
+     0,
+     0,
+     0,
+     0,
+     0,
+     -0.05,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "decTerms": [
+     -0.51,
+     0,
+     0,
+     0,
+     0,
+     0,
+     -0.04,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "pmTerms": [
+     -0.48,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0.04,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "periodH": 26.935572,
+    "sense": "prograde"
+   },
+   "colour": "#6f6f6f",
+   "colourHue": "#ffffff",
+   "colourSource": "No disk-integrated colour measurement found in the sources used: neutral grey at the albedo-based lightness. Treat as a placeholder.",
+   "discovery": {
+    "by": "Voyager 2 imaging team (Stephen P. Synnott)",
+    "date": "1989-06",
+    "place": "Voyager 2 images",
+    "source": "https://science.nasa.gov/neptune/moons/proteus/"
+   },
+   "facts": [
+    "Proteus is about 420 km across and box-shaped. With a little more mass its own gravity would have pulled it into a sphere.",
+    "It is larger than Nereid, yet was only found by Voyager 2 in 1989: it orbits so close to Neptune that the planet’s glare hid it from telescopes.",
+    "It circles Neptune every 27 hours."
+   ],
+   "factSources": [
+    "https://science.nasa.gov/neptune/moons/proteus/",
+    "https://science.nasa.gov/neptune/moons/proteus/",
+    "https://science.nasa.gov/neptune/moons/proteus/"
+   ],
+   "assets": {
+    "texture": null,
+    "textureInfo": null,
+    "textureNote": "No surface map exists (or none with a licence that allows redistribution). Shade with the body colour.",
+    "model": "models/proteus.bin",
+    "modelInfo": {
+     "triangles": 4000,
+     "vertices": 2002,
+     "equalVolumeRadiusKm": 201.0016,
+     "deviationKm": {
+      "rms": 0.0495,
+      "max": 0.3177,
+      "samples": 2522,
+      "measure": "distance from source-model vertices to the simplified surface"
+     }
+    },
+    "rings": null
+   }
+  },
+  {
+   "id": "nereid",
+   "name": "Nereid",
+   "kind": "moon",
+   "parent": "neptune",
+   "naifId": 802,
+   "radiusKm": 170,
+   "radiusSigmaKm": 25,
+   "radiusSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25)",
+   "geometricAlbedo": 0.155,
+   "albedoSource": "Thomas, Veverka & Helfenstein 1991, JGR 96, 19253, as tabulated by JPL Solar System Dynamics, Planetary Satellite Physical Parameters (2015-02-19 edition, archived 2021-01-26), https://web.archive.org/web/2021/https://ssd.jpl.nasa.gov/?sat_phys_par",
+   "orbit": {
+    "aKm": 5513900,
+    "e": 0.751,
+    "iDeg": 5.1,
+    "periodD": 360.133039,
+    "source": "JPL Solar System Dynamics, Planetary Satellite Mean Elements, https://ssd.jpl.nasa.gov/sats/elem/sep.html (retrieved 2026-09-25)"
+   },
+   "rotation": {
+    "model": "period-only",
+    "periodH": 11.594,
+    "note": "Not synchronous; pole unknown. Period from the Kepler K2 light curve.",
+    "source": "Kiss et al. 2016, MNRAS 457, 2908, https://doi.org/10.1093/mnras/stw081"
+   },
+   "colour": "#7e7974",
+   "colourHue": "#fff4ec",
+   "colourSource": "Neese (ed.) 2020, Small Satellite Colors, PDS SBN urn:nasa:pds:compil.satellite.colors (colours from Cruikshank 1980, Icarus 41, 246; Schaefer & Schaefer 2000, Icarus 146, 541): B−V 0.72, V−R 0.46, V−I 0.72; Holmberg, Flynn & Portinari 2006, MNRAS 367, 449: solar (B−V) = 0.642, (V−R) = 0.354, (V−I) = 0.688",
+   "discovery": {
+    "by": "Gerard P. Kuiper",
+    "date": "1949-05-01",
+    "place": "McDonald Observatory, Texas",
+    "source": "https://science.nasa.gov/neptune/moons/nereid/"
+   },
+   "facts": [
+    "Nereid has one of the most eccentric orbits of any moon: its distance from Neptune swings between about 1.4 and 9.7 million km.",
+    "One orbit takes about 360 days.",
+    "It was the last moon of Neptune found before Voyager 2 arrived in 1989."
+   ],
+   "factSources": [
+    "https://ssd.jpl.nasa.gov/sats/elem/sep.html",
+    "https://science.nasa.gov/neptune/moons/nereid/",
+    "https://science.nasa.gov/neptune/moons/nereid/"
+   ],
+   "assets": {
+    "texture": null,
+    "textureInfo": null,
+    "textureNote": "No surface map exists (or none with a licence that allows redistribution). Shade with the body colour.",
+    "model": null,
+    "modelInfo": null,
+    "rings": null
+   }
+  },
+  {
+   "id": "charon",
+   "name": "Charon",
+   "kind": "moon",
+   "parent": "pluto",
+   "naifId": 901,
+   "radiusKm": 606,
+   "radiusSigmaKm": 0.5,
+   "radiusSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25)",
+   "gmKm3S2": 106.1,
+   "gmSigmaKm3S2": 0.3,
+   "gmSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25) (ephemeris PLU060)",
+   "massKg": 1.5897e+21,
+   "densityGCm3": 1.705,
+   "geometricAlbedo": 0.372,
+   "geometricAlbedoSigma": 0.012,
+   "albedoSource": "Reinsch, Burwitz & Festou 1994, Icarus 108, 209, as tabulated by JPL Solar System Dynamics, Planetary Satellite Physical Parameters (2015-02-19 edition, archived 2021-01-26), https://web.archive.org/web/2021/https://ssd.jpl.nasa.gov/?sat_phys_par",
+   "orbit": {
+    "aKm": 19600,
+    "e": 0,
+    "iDeg": 0,
+    "periodD": 6.387222,
+    "source": "JPL Solar System Dynamics, Planetary Satellite Mean Elements, https://ssd.jpl.nasa.gov/sats/elem/sep.html (retrieved 2026-09-25)"
+   },
+   "rotation": {
+    "model": "iau-2015",
+    "source": "Archinal et al. 2018, \"Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015\", Celest. Mech. Dyn. Astron. 130:22, https://doi.org/10.1007/s10569-017-9805-5 (values as encoded by NAIF in pck00011.tpc, https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/pck00011.tpc)",
+    "frame": "ICRF",
+    "poleRaDeg": [
+     132.993,
+     0,
+     0
+    ],
+    "poleDecDeg": [
+     -6.163,
+     0,
+     0
+    ],
+    "pmDeg": [
+     122.695,
+     56.3625225,
+     0
+    ],
+    "synchronous": true,
+    "validity": {
+     "fromTdbDays": -6939.5,
+     "toTdbDays": 73049.5,
+     "note": "IAU models are stated to be accurate to about 0.1° near the present (Archinal et al. 2018); outside 1981–2199 they are extrapolations."
+    },
+    "periodH": 153.29335,
+    "sense": "prograde"
+   },
+   "colour": "#9d9a96",
+   "colourHue": "#fffaf5",
+   "colourSource": "B−V ≈ 0.70 (Buie, Tholen & Wasserman 1997, Icarus 125, 233); approximate; Holmberg, Flynn & Portinari 2006, MNRAS 367, 449: solar (B−V) = 0.642, (V−R) = 0.354, (V−I) = 0.688",
+   "discovery": {
+    "by": "James W. Christy and Robert S. Harrington",
+    "date": "1978-06-22",
+    "place": "US Naval Observatory, Flagstaff, Arizona",
+    "source": "https://science.nasa.gov/dwarf-planets/pluto/moons/charon/"
+   },
+   "facts": [
+    "Charon is half Pluto’s size, the largest moon relative to its parent. Both orbit a point in the space between them.",
+    "Pluto and Charon are locked face to face: each always shows the other the same side, turning once every 6.4 days.",
+    "Its reddish north polar cap, Mordor Macula, is probably methane that escaped from Pluto, froze onto Charon and was darkened by sunlight (Grundy et al. 2016)."
+   ],
+   "factSources": [
+    "https://science.nasa.gov/dwarf-planets/pluto/moons/charon/",
+    "https://science.nasa.gov/dwarf-planets/pluto/moons/charon/",
+    "https://doi.org/10.1038/nature19340"
+   ],
+   "assets": {
+    "texture": "textures/charon.jpg",
+    "textureInfo": {
+     "width": 2048,
+     "height": 1024,
+     "channels": 1,
+     "imagedFraction": 0.74,
+     "fillSrgb": [
+      131
+     ],
+     "product": "Charon New Horizons Global Mosaic 300m (July 2017)",
+     "download": "https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/Charon_NewHorizons_Global_Mosaic_300m_Jul2017_8bit.tif",
+     "credit": "NASA/Johns Hopkins University Applied Physics Laboratory/Southwest Research Institute/Lunar and Planetary Institute; hosted by USGS Astrogeology",
+     "licence": "Public domain or no use constraints (NASA/USGS); see staging/phase2/assets.md",
+     "colourNote": "Greyscale (LORRI and MVIC panchromatic). The far southern hemisphere was in polar night during the 2015 flyby."
+    },
+    "model": null,
+    "modelInfo": null,
+    "rings": null
+   }
+  },
+  {
+   "id": "nix",
+   "name": "Nix",
+   "kind": "moon",
+   "parent": "pluto",
+   "naifId": 902,
+   "radiusKm": 18,
+   "radiusSigmaKm": 1,
+   "radiusSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25)",
+   "triaxialRadiiKm": [
+    25,
+    17.5,
+    16.5
+   ],
+   "triaxialSource": "Weaver et al. 2016, \"The small satellites of Pluto as observed by New Horizons\", Science 351, aae0030, https://doi.org/10.1126/science.aae0030 (Table 2) (full axes 50 × 35 × 33 km ± 3 km)",
+   "gmKm3S2": 0.0015,
+   "gmSigmaKm3S2": 0.0005,
+   "gmSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25) (ephemeris PLU060)",
+   "massKg": 22474000000000000,
+   "densityGCm3": 0.92,
+   "geometricAlbedo": 0.56,
+   "geometricAlbedoSigma": 0.05,
+   "albedoSource": "Weaver et al. 2016, \"The small satellites of Pluto as observed by New Horizons\", Science 351, aae0030, https://doi.org/10.1126/science.aae0030 (Table 2)",
+   "orbit": {
+    "aKm": 49300,
+    "e": 0.015,
+    "iDeg": 0,
+    "periodD": 24.85,
+    "source": "JPL Solar System Dynamics, Planetary Satellite Mean Elements, https://ssd.jpl.nasa.gov/sats/elem/sep.html (retrieved 2026-09-25)"
+   },
+   "rotation": {
+    "model": "snapshot",
+    "poleRaDeg": [
+     350,
+     0,
+     0
+    ],
+    "poleDecDeg": [
+     42,
+     0,
+     0
+    ],
+    "periodH": 43.896,
+    "validity": {
+     "fromTdbDays": 5600,
+     "toTdbDays": 5720,
+     "note": "Pole and period fitted to 2015 New Horizons images and light curves. Nix tumbles chaotically, so neither holds far from July 2015; the prime meridian is not defined."
+    },
+    "note": "Pole [RA 350°, Dec 42°] and period 1.829 ± 0.009 d from Weaver et al. 2016, Table 2. Chaotic rotation (Showalter & Hamilton 2015).",
+    "source": "Weaver et al. 2016, \"The small satellites of Pluto as observed by New Horizons\", Science 351, aae0030, https://doi.org/10.1126/science.aae0030 (Table 2)"
+   },
+   "colour": "#b0b0b0",
+   "colourHue": "#ffffff",
+   "colourSource": "No disk-integrated colour measurement found in the sources used: neutral grey at the albedo-based lightness. Treat as a placeholder.",
+   "discovery": {
+    "by": "Harold A. Weaver, S. Alan Stern and the Hubble Pluto companion search team",
+    "date": "2005-06",
+    "place": "Hubble Space Telescope",
+    "note": "Found in images taken on 15 May 2005; announced 31 October 2005.",
+    "source": "https://science.nasa.gov/dwarf-planets/pluto/moons/nix/"
+   },
+   "facts": [
+    "Nix is about 50 × 35 × 33 km, shaped roughly like a jelly bean.",
+    "Like Pluto’s other small moons it tumbles chaotically, because Pluto and Charon pull on it from constantly changing directions (Showalter & Hamilton 2015).",
+    "Its surface reflects more than half the light that hits it, which points to fairly clean water ice."
+   ],
+   "factSources": [
+    "https://doi.org/10.1126/science.aae0030",
+    "https://doi.org/10.1038/nature14469",
+    "https://doi.org/10.1126/science.aae0030"
+   ],
+   "assets": {
+    "texture": null,
+    "textureInfo": null,
+    "textureNote": "No surface map exists (or none with a licence that allows redistribution). Shade with the body colour.",
+    "model": "models/nix.bin",
+    "modelInfo": {
+     "triangles": 3968,
+     "vertices": 1986,
+     "equalVolumeRadiusKm": 19.2938,
+     "deviationKm": {
+      "rms": 0.0333,
+      "max": 0.1287,
+      "samples": 15872,
+      "measure": "facet-to-ellipsoid radial gap"
+     }
+    },
+    "rings": null
+   }
+  },
+  {
+   "id": "hydra",
+   "name": "Hydra",
+   "kind": "moon",
+   "parent": "pluto",
+   "naifId": 903,
+   "radiusKm": 18.5,
+   "radiusSigmaKm": 1,
+   "radiusSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25)",
+   "triaxialRadiiKm": [
+    32.5,
+    22.5,
+    12.5
+   ],
+   "triaxialSource": "Weaver et al. 2016, \"The small satellites of Pluto as observed by New Horizons\", Science 351, aae0030, https://doi.org/10.1126/science.aae0030 (Table 2) (full axes 65 × 45 × 25 km ± 10 km)",
+   "gmKm3S2": 0.002,
+   "gmSigmaKm3S2": 0.0003,
+   "gmSource": "JPL Solar System Dynamics, Planetary Satellite Physical Parameters, https://ssd.jpl.nasa.gov/sats/phys_par/ (retrieved 2026-09-25) (ephemeris PLU060)",
+   "massKg": 29966000000000000,
+   "densityGCm3": 1.13,
+   "geometricAlbedo": 0.83,
+   "geometricAlbedoSigma": 0.08,
+   "albedoSource": "Weaver et al. 2016, \"The small satellites of Pluto as observed by New Horizons\", Science 351, aae0030, https://doi.org/10.1126/science.aae0030 (Table 2)",
+   "orbit": {
+    "aKm": 65200,
+    "e": 0.009,
+    "iDeg": 0.3,
+    "periodD": 38.2,
+    "source": "JPL Solar System Dynamics, Planetary Satellite Mean Elements, https://ssd.jpl.nasa.gov/sats/elem/sep.html (retrieved 2026-09-25)"
+   },
+   "rotation": {
+    "model": "snapshot",
+    "poleRaDeg": [
+     257,
+     0,
+     0
+    ],
+    "poleDecDeg": [
+     -24,
+     0,
+     0
+    ],
+    "periodH": 10.308,
+    "validity": {
+     "fromTdbDays": 5600,
+     "toTdbDays": 5720,
+     "note": "Pole and period fitted to 2015 New Horizons data. Hydra’s rotation is chaotic; the prime meridian is not defined."
+    },
+    "note": "Pole [RA 257°, Dec −24°] and period 0.4295 ± 0.0008 d from Weaver et al. 2016, Table 2.",
+    "source": "Weaver et al. 2016, \"The small satellites of Pluto as observed by New Horizons\", Science 351, aae0030, https://doi.org/10.1126/science.aae0030 (Table 2)"
+   },
+   "colour": "#cbcbcb",
+   "colourHue": "#ffffff",
+   "colourSource": "No disk-integrated colour measurement found in the sources used: neutral grey at the albedo-based lightness. Treat as a placeholder.",
+   "discovery": {
+    "by": "Harold A. Weaver, S. Alan Stern and the Hubble Pluto companion search team",
+    "date": "2005-06",
+    "place": "Hubble Space Telescope",
+    "note": "Found in images taken on 15 May 2005; announced 31 October 2005.",
+    "source": "https://science.nasa.gov/dwarf-planets/pluto/moons/hydra/"
+   },
+   "facts": [
+    "Hydra spins once every 10.3 hours, while taking 38 days to orbit Pluto.",
+    "It reflects about 83% of the light that falls on it, so its surface is probably nearly pure water ice.",
+    "It is the outermost of Pluto’s five known moons, about 65,000 km from the centre of the system."
+   ],
+   "factSources": [
+    "https://doi.org/10.1126/science.aae0030",
+    "https://doi.org/10.1126/science.aae0030",
+    "https://ssd.jpl.nasa.gov/sats/elem/sep.html"
+   ],
+   "assets": {
+    "texture": null,
+    "textureInfo": null,
+    "textureNote": "No surface map exists (or none with a licence that allows redistribution). Shade with the body colour.",
+    "model": "models/hydra.bin",
+    "modelInfo": {
+     "triangles": 3968,
+     "vertices": 1986,
+     "equalVolumeRadiusKm": 20.8453,
+     "deviationKm": {
+      "rms": 0.0622,
+      "max": 0.3315,
+      "samples": 15872,
+      "measure": "facet-to-ellipsoid radial gap"
+     }
+    },
+    "rings": null
+   }
+  },
+  {
+   "id": "ceres",
+   "name": "Ceres",
+   "kind": "dwarf-planet",
+   "naifId": 2000001,
+   "radiusKm": 469.7,
+   "radiusSigmaKm": 0.1,
+   "radiusSource": "Park et al. 2016, Nature 537, 515 (mean diameter 939.4 ± 0.2 km), via JPL Small-Body Database, https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html (API retrieved 2026-09-25)",
+   "triaxialRadiiKm": [
+    482.2,
+    482.1,
+    445.9
+   ],
+   "triaxialSource": "Park et al. 2016, Nature 537, 515, https://doi.org/10.1038/nature18955 (964.4 × 964.2 × 891.8 km)",
+   "gmKm3S2": 62.6284,
+   "gmSigmaKm3S2": 0.0009,
+   "gmSource": "JPL Small-Body Database, https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html (API retrieved 2026-09-25) (Nature vol. 537, pp515-517 (22 September 2016))",
+   "massKg": 938350000000000000000,
+   "densityGCm3": 2.162,
+   "geometricAlbedo": 0.09,
+   "geometricAlbedoSigma": 0.003,
+   "albedoSource": "JPL Small-Body Database, https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html (API retrieved 2026-09-25) (Li et al. (2006) Icarus v182:pp143-160)",
+   "rotation": {
+    "model": "iau-2015",
+    "source": "Archinal et al. 2018, \"Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015\", Celest. Mech. Dyn. Astron. 130:22, https://doi.org/10.1007/s10569-017-9805-5 (values as encoded by NAIF in pck00011.tpc, https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/pck00011.tpc)",
+    "frame": "ICRF",
+    "poleRaDeg": [
+     291.418,
+     0,
+     0
+    ],
+    "poleDecDeg": [
+     66.764,
+     0,
+     0
+    ],
+    "pmDeg": [
+     170.65,
+     952.1532,
+     0
+    ],
+    "validity": {
+     "fromTdbDays": -6939.5,
+     "toTdbDays": 73049.5,
+     "note": "IAU models are stated to be accurate to about 0.1° near the present (Archinal et al. 2018); outside 1981–2199 they are extrapolations."
+    },
+    "periodH": 9.07417,
+    "sense": "prograde"
+   },
+   "colour": "#706d6a",
+   "colourHue": "#fff9f2",
+   "colourSource": "B−V 0.713 from JPL Small-Body Database, https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html (API retrieved 2026-09-25) (EAR-A-5-DDR-UBV-MEAN-VALUES-V1.2); red channel extrapolated; Holmberg, Flynn & Portinari 2006, MNRAS 367, 449: solar (B−V) = 0.642, (V−R) = 0.354, (V−I) = 0.688",
+   "discovery": {
+    "by": "Giuseppe Piazzi",
+    "date": "1801-01-01",
+    "place": "Palermo Observatory",
+    "source": "https://science.nasa.gov/dwarf-planets/ceres/facts/"
+   },
+   "facts": [
+    "Ceres is the largest object in the asteroid belt, about 940 km across, and holds a quarter of the belt’s mass.",
+    "The bright spots in Occator crater are sodium carbonate salts, left behind when briny water reached the surface and evaporated (De Sanctis et al. 2016).",
+    "It was called a planet when Piazzi found it in 1801, an asteroid for most of the next two centuries, and a dwarf planet since 2006."
+   ],
+   "factSources": [
+    "https://science.nasa.gov/dwarf-planets/ceres/facts/",
+    "https://doi.org/10.1038/nature18290",
+    "https://science.nasa.gov/dwarf-planets/ceres/facts/"
+   ],
+   "assets": {
+    "texture": "textures/ceres.jpg",
+    "textureInfo": {
+     "width": 2048,
+     "height": 1024,
+     "channels": 1,
+     "imagedFraction": 0.9963,
+     "fillSrgb": [
+      131
+     ],
+     "product": "Ceres Dawn FC Global Mosaic 400m (DLR, October 2015)",
+     "download": "https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/Ceres_Dawn_FC_DLR_global_20ppd_Oct2015.tif",
+     "credit": "NASA/JPL-Caltech/UCLA/MPS/DLR/IDA (Dawn Framing Camera; mosaic by DLR); hosted by USGS Astrogeology",
+     "licence": "Public domain or no use constraints (NASA/USGS); see staging/phase2/assets.md",
+     "colourNote": "Greyscale (Framing Camera clear filter)."
+    },
+    "model": null,
+    "modelInfo": null,
+    "rings": null
+   }
+  },
+  {
+   "id": "vesta",
+   "name": "Vesta",
+   "kind": "dwarf-planet",
+   "kindNote": "Vesta is officially an asteroid (a minor planet), not an IAU dwarf planet. It sits in this list because it is a differentiated protoplanet with its own surface map and shape model.",
+   "naifId": 2000004,
+   "radiusKm": 261.385,
+   "radiusSigmaKm": 0.05,
+   "radiusSource": "Park et al. 2025, Nature Astronomy, https://doi.org/10.1038/s41550-025-02533-7 (mean diameter 522.77 km), via JPL Small-Body Database, https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html (API retrieved 2026-09-25)",
+   "triaxialRadiiKm": [
+    284.62,
+    277.24,
+    226.33
+   ],
+   "triaxialSource": "Park et al. 2025, Nature Astronomy (569.24 × 554.48 × 452.66 km), via JPL Small-Body Database, https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html (API retrieved 2026-09-25)",
+   "gmKm3S2": 17.2882844,
+   "gmSigmaKm3S2": 0.000003,
+   "gmSource": "JPL Small-Body Database, https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html (API retrieved 2026-09-25) (Park, R.S. et al. 2025, Nat Astron, DOI: 10.1038/s41550-025-02533-7)",
+   "massKg": 259030000000000000000,
+   "densityGCm3": 3.463,
+   "geometricAlbedo": 0.4228,
+   "geometricAlbedoSigma": 0.053,
+   "albedoSource": "JPL Small-Body Database, https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html (API retrieved 2026-09-25) (IRAS-A-FPA-3-RDR-IMPS-V6.0)",
+   "rotation": {
+    "model": "iau-2015",
+    "source": "Archinal et al. 2018, \"Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015\", Celest. Mech. Dyn. Astron. 130:22, https://doi.org/10.1007/s10569-017-9805-5 (values as encoded by NAIF in pck00011.tpc, https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/pck00011.tpc)",
+    "frame": "ICRF",
+    "poleRaDeg": [
+     309.031,
+     0,
+     0
+    ],
+    "poleDecDeg": [
+     42.235,
+     0,
+     0
+    ],
+    "pmDeg": [
+     285.39,
+     1617.3329428,
+     0
+    ],
+    "validity": {
+     "fromTdbDays": -6939.5,
+     "toTdbDays": 73049.5,
+     "note": "IAU models are stated to be accurate to about 0.1° near the present (Archinal et al. 2018); outside 1981–2199 they are extrapolations."
+    },
+    "periodH": 5.3421282,
+    "sense": "prograde",
+    "note": "IAU 2015 uses the \"Claudia double-prime\" longitude system (crater Claudia at 146° E), matching the Dawn HAMO map and DTM."
+   },
+   "colour": "#a7a096",
+   "colourHue": "#fff5e7",
+   "colourSource": "B−V 0.782 from JPL Small-Body Database, https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html (API retrieved 2026-09-25) (EAR-A-5-DDR-UBV-MEAN-VALUES-V1.2); red channel extrapolated; Holmberg, Flynn & Portinari 2006, MNRAS 367, 449: solar (B−V) = 0.642, (V−R) = 0.354, (V−I) = 0.688",
+   "discovery": {
+    "by": "Heinrich Wilhelm Olbers",
+    "date": "1807-03-29",
+    "place": "Bremen",
+    "source": "https://science.nasa.gov/solar-system/asteroids/4-vesta/"
+   },
+   "facts": [
+    "Rheasilvia, the impact basin at Vesta’s south pole, is about 500 km wide, some 95% of Vesta’s mean diameter.",
+    "Howardite, eucrite and diogenite meteorites found on Earth appear to be pieces of Vesta.",
+    "NASA’s Dawn orbited Vesta from July 2011 to September 2012, then left for Ceres. It was the first spacecraft to orbit two worlds beyond the Earth–Moon system."
+   ],
+   "factSources": [
+    "https://science.nasa.gov/solar-system/asteroids/4-vesta/",
+    "https://science.nasa.gov/solar-system/asteroids/4-vesta/",
+    "https://science.nasa.gov/solar-system/asteroids/4-vesta/"
+   ],
+   "assets": {
+    "texture": "textures/vesta.jpg",
+    "textureInfo": {
+     "width": 1024,
+     "height": 512,
+     "channels": 1,
+     "imagedFraction": 1,
+     "fillSrgb": [
+      82
+     ],
+     "product": "Vesta Dawn FC HAMO Global Mosaic 60m (DLR, 2013)",
+     "download": "https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/Vesta_Dawn_FC_HAMO_Mosaic_Global_74ppd.tif",
+     "sourcePage": "https://astrogeology.usgs.gov/search/map/vesta_dawn_fc_hamo_global_mosaic_60m",
+     "credit": "NASA/JPL-Caltech/UCLA/MPS/DLR/IDA (Dawn Framing Camera; mosaic by DLR); hosted by USGS Astrogeology",
+     "licence": "Public domain or no use constraints (NASA/USGS); see staging/phase2/assets.md",
+     "colourNote": "Greyscale. Longitudes are in the IAU \"Claudia double-prime\" system (crater Claudia at 146° E)."
+    },
+    "model": "models/vesta.bin",
+    "modelInfo": {
+     "triangles": 4000,
+     "vertices": 2002,
+     "equalVolumeRadiusKm": 261.542,
+     "deviationKm": {
+      "rms": 0.4962,
+      "max": 2.0392,
+      "samples": 3086,
+      "measure": "distance from source-model vertices to the simplified surface"
+     }
+    },
+    "rings": null
+   }
+  },
+  {
+   "id": "eris",
+   "name": "Eris",
+   "kind": "dwarf-planet",
+   "radiusKm": 1163,
+   "radiusSigmaKm": 6,
+   "radiusSource": "Sicardy et al. 2011, Nature 478, 493, https://doi.org/10.1038/nature10550 (occultation, diameter 2326 ± 12 km)",
+   "gmKm3S2": 1098.99,
+   "gmSource": "Holler et al. 2021, Icarus 355, 114130, https://doi.org/10.1016/j.icarus.2020.114130 (mass 1.6466 ± 0.0085 × 10²² kg, from Dysnomia)",
+   "massKg": 1.6466e+22,
+   "densityGCm3": 2.499,
+   "geometricAlbedo": 0.96,
+   "albedoSource": "Sicardy et al. 2011 (0.96 +0.09/−0.04)",
+   "rotation": {
+    "model": "period-only",
+    "periodH": 378.864,
+    "synchronous": true,
+    "note": "Eris is tidally locked to its moon Dysnomia (rotation = Dysnomia’s 15.786-day orbit; Szakáts et al. 2023, A&A 669, L3, https://doi.org/10.1051/0004-6361/202245234; Bernstein et al. 2023, PSJ 4, 115). Pole: presumably Dysnomia’s orbit pole; not adopted here.",
+    "source": "Szakáts et al. 2023; Holler et al. 2021 (Dysnomia period 15.785899 d)"
+   },
+   "colour": "#dad7c7",
+   "colourHue": "#fffbe9",
+   "colourSource": "Neese 2014, TNO and Centaur Colors, PDS SBN urn:nasa:pds:compil.tno-centaur.colors (Carraro et al. 2006); Holmberg, Flynn & Portinari 2006, MNRAS 367, 449: solar (B−V) = 0.642, (V−R) = 0.354, (V−I) = 0.688",
+   "discovery": {
+    "by": "Michael E. Brown, Chad A. Trujillo and David L. Rabinowitz",
+    "date": "2005-01-05",
+    "place": "Palomar Observatory",
+    "note": "Found on 5 January 2005 in images taken on 21 October 2003.",
+    "source": "https://science.nasa.gov/dwarf-planets/eris/"
+   },
+   "facts": [
+    "Eris is almost exactly Pluto’s size, 2,326 km across, but about a quarter more massive.",
+    "Its discovery led the IAU to define ‘dwarf planet’ in 2006, the decision that reclassified Pluto.",
+    "It is now close to its farthest from the Sun, about 96 au away. Sunlight takes more than 13 hours to reach it."
+   ],
+   "factSources": [
+    "https://doi.org/10.1038/nature10550",
+    "https://science.nasa.gov/dwarf-planets/eris/",
+    "https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/?sstr=136199"
+   ],
+   "assets": {
+    "texture": null,
+    "textureInfo": null,
+    "textureNote": "No surface map exists (or none with a licence that allows redistribution). Shade with the body colour.",
+    "model": null,
+    "modelInfo": null,
+    "rings": null
+   }
+  },
+  {
+   "id": "haumea",
+   "name": "Haumea",
+   "kind": "dwarf-planet",
+   "radiusKm": 797.5,
+   "radiusSigmaKm": 5.5,
+   "radiusSource": "Ortiz et al. 2017, \"The size, shape, density and ring of the dwarf planet Haumea from a stellar occultation\", Nature 550, 219, https://doi.org/10.1038/nature24051 (volume-equivalent diameter 1,595 ± 11 km)",
+   "triaxialRadiiKm": [
+    1161,
+    852,
+    513
+   ],
+   "triaxialSource": "Ortiz et al. 2017, \"The size, shape, density and ring of the dwarf planet Haumea from a stellar occultation\", Nature 550, 219, https://doi.org/10.1038/nature24051 (a = 1161 ± 30, b = 852 ± 4, c = 513 ± 16 km)",
+   "gmKm3S2": 267.372,
+   "gmSource": "Ragozzine & Brown 2009, AJ 137, 4766, https://doi.org/10.1088/0004-6256/137/6/4766 (system mass 4.006 ± 0.040 × 10²¹ kg)",
+   "massKg": 4.006e+21,
+   "densityGCm3": 1.886,
+   "geometricAlbedo": 0.51,
+   "geometricAlbedoSigma": 0.02,
+   "albedoSource": "Ortiz et al. 2017, \"The size, shape, density and ring of the dwarf planet Haumea from a stellar occultation\", Nature 550, 219, https://doi.org/10.1038/nature24051",
+   "rotation": {
+    "model": "fitted",
+    "source": "Ortiz et al. 2017, \"The size, shape, density and ring of the dwarf planet Haumea from a stellar occultation\", Nature 550, 219, https://doi.org/10.1038/nature24051. Pole: ring pole solution 1 (RA 285.1° ± 0.5°, Dec −10.6° ± 1.2°), assumed to be the spin pole; period 3.915341 ± 0.000005 h. Phase: at the occultation (2017-01-21 03:09:20 UTC) Haumea was at minimum brightness, i.e. its long axis lay in the plane of the line of sight and the pole; W₀ is set so that +x points along that line then (Horizons geocentric direction). The sign of +x (±180°) is arbitrary for an ellipsoid.",
+    "frame": "ICRF",
+    "poleRaDeg": [
+     285.1,
+     0,
+     0
+    ],
+    "poleDecDeg": [
+     -10.6,
+     0,
+     0
+    ],
+    "pmDeg": [
+     163.2293,
+     2206.704346,
+     0
+    ],
+    "periodH": 3.915341,
+    "sense": "prograde (assumed; the ring/Hiʻiaka orbit sense is prograde about this pole)",
+    "validity": {
+     "fromTdbDays": 1000,
+     "toTdbDays": 12000,
+     "note": "Phase error grows by about 0.5° a year from the 5 × 10⁻⁶ h period uncertainty, about ±5° in 2026; pole uncertain by about 1°."
+    },
+    "occultation": {
+     "w0": 163.2293,
+     "rate": 2206.704346,
+     "jdTdbOcc": 2457774.632282,
+     "wAtOcc": -20.141
+    }
+   },
+   "colour": "#abaaad",
+   "colourHue": "#fdfcff",
+   "colourSource": "Neese 2014, TNO and Centaur Colors, PDS SBN urn:nasa:pds:compil.tno-centaur.colors (Jewitt et al. 2007); Holmberg, Flynn & Portinari 2006, MNRAS 367, 449: solar (B−V) = 0.642, (V−R) = 0.354, (V−I) = 0.688",
+   "discovery": {
+    "by": "Disputed: José Luis Ortiz’s team (Sierra Nevada Observatory) announced it in July 2005, from images taken in March 2003; Michael Brown’s team (Caltech) had been tracking it since December 2004",
+    "date": "2003-03-07",
+    "place": "Sierra Nevada Observatory, Spain (credited site)",
+    "note": "The Minor Planet Center credits the Sierra Nevada observations; the IAU adopted the name proposed by Brown’s team.",
+    "source": "https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/?sstr=136108"
+   },
+   "facts": [
+    "Haumea spins once every 3.9 hours, one of the fastest rotations of any large body, and has been stretched into an ellipsoid about twice as long as it is wide.",
+    "A stellar occultation in January 2017 revealed a ring about 70 km wide, 2,287 km from its centre: the first ring found around a body beyond Neptune.",
+    "Two moons, Hiʻiaka and Namaka, orbit Haumea. A large impact long ago may have set it spinning and created them."
+   ],
+   "factSources": [
+    "https://science.nasa.gov/dwarf-planets/haumea/",
+    "https://doi.org/10.1038/nature24051",
+    "https://science.nasa.gov/dwarf-planets/haumea/"
+   ],
+   "assets": {
+    "texture": null,
+    "textureInfo": null,
+    "textureNote": "No surface map exists (or none with a licence that allows redistribution). Shade with the body colour.",
+    "model": "models/haumea.bin",
+    "modelInfo": {
+     "triangles": 3968,
+     "vertices": 1986,
+     "equalVolumeRadiusKm": 795.5833,
+     "deviationKm": {
+      "rms": 2.0088,
+      "max": 9.4529,
+      "samples": 15872,
+      "measure": "facet-to-ellipsoid radial gap"
+     }
+    },
+    "rings": "rings.json#haumea"
+   }
+  },
+  {
+   "id": "makemake",
+   "name": "Makemake",
+   "kind": "dwarf-planet",
+   "radiusKm": 715,
+   "radiusSigmaKm": 15,
+   "radiusSource": "Ortiz et al. 2012, Nature 491, 566, https://doi.org/10.1038/nature11597 (occultation: 1430 ± 9 × 1502 ± 45 km; mean radius rounded)",
+   "triaxialRadiiKm": [
+    751,
+    751,
+    715
+   ],
+   "triaxialSource": "Ortiz et al. 2012 (oblate fit 1502 × 1430 km; the true shape is not known)",
+   "geometricAlbedo": 0.77,
+   "geometricAlbedoSigma": 0.03,
+   "albedoSource": "Ortiz et al. 2012",
+   "rotation": {
+    "model": "period-only",
+    "periodH": 22.8266,
+    "note": "Single-peaked light-curve period (Hromakina et al. 2019, A&A 625, A46); pole unknown.",
+    "source": "Hromakina et al. 2019, https://doi.org/10.1051/0004-6361/201935274"
+   },
+   "colour": "#cec5b3",
+   "colourHue": "#fff4df",
+   "colourSource": "Neese 2014, TNO and Centaur Colors, PDS SBN urn:nasa:pds:compil.tno-centaur.colors (Jewitt et al. 2007); Holmberg, Flynn & Portinari 2006, MNRAS 367, 449: solar (B−V) = 0.642, (V−R) = 0.354, (V−I) = 0.688",
+   "discovery": {
+    "by": "Michael E. Brown, Chad A. Trujillo and David L. Rabinowitz",
+    "date": "2005-03-31",
+    "place": "Palomar Observatory",
+    "source": "https://science.nasa.gov/dwarf-planets/makemake/"
+   },
+   "facts": [
+    "After Pluto, Makemake is the second-brightest object in the Kuiper Belt as seen from Earth.",
+    "It was found a few days after Easter 2005, and nicknamed ‘Easterbunny’. Makemake is the creator god of the people of Rapa Nui (Easter Island).",
+    "When it passed in front of a star in 2011, the starlight vanished and reappeared abruptly: Makemake has no global atmosphere (Ortiz et al. 2012)."
+   ],
+   "factSources": [
+    "https://science.nasa.gov/dwarf-planets/makemake/",
+    "https://science.nasa.gov/dwarf-planets/makemake/",
+    "https://doi.org/10.1038/nature11597"
+   ],
+   "assets": {
+    "texture": null,
+    "textureInfo": null,
+    "textureNote": "No surface map exists (or none with a licence that allows redistribution). Shade with the body colour.",
+    "model": null,
+    "modelInfo": null,
+    "rings": null
+   }
+  },
+  {
+   "id": "gonggong",
+   "name": "Gonggong",
+   "kind": "dwarf-planet",
+   "kindNote": "Not yet recognised as a dwarf planet by the IAU; widely considered one because of its size.",
+   "radiusKm": 615,
+   "radiusSigmaKm": 25,
+   "radiusSource": "Kiss et al. 2019, Icarus 334, 3, https://doi.org/10.1016/j.icarus.2019.03.013 (diameter 1230 ± 50 km)",
+   "gmKm3S2": 116.8,
+   "gmSource": "Kiss et al. 2019 (system mass 1.75 ± 0.07 × 10²¹ kg, from Xiangliu)",
+   "massKg": 1.75e+21,
+   "densityGCm3": 1.796,
+   "geometricAlbedo": 0.14,
+   "geometricAlbedoSigma": 0.01,
+   "albedoSource": "Kiss et al. 2019",
+   "rotation": {
+    "model": "period-only",
+    "periodH": 22.4,
+    "note": "Light-curve period 22.40 h, with 44.81 h also possible (Pál et al. 2016, AJ 151, 117); pole unknown.",
+    "source": "Pál et al. 2016, https://doi.org/10.3847/0004-6256/151/5/117"
+   },
+   "colour": "#777777",
+   "colourHue": "#ffffff",
+   "colourSource": "No disk-integrated colour measurement found in the sources used: neutral grey at the albedo-based lightness. Treat as a placeholder.",
+   "discovery": {
+    "by": "Megan E. Schwamb, Michael E. Brown and David L. Rabinowitz",
+    "date": "2007-07-17",
+    "place": "Palomar Observatory",
+    "source": "https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/?sstr=225088"
+   },
+   "facts": [
+    "Gonggong is about 1,230 km across, one of the largest bodies beyond Neptune.",
+    "Its small moon, Xiangliu, let astronomers weigh it: about 1.75 × 10²¹ kg (Kiss et al. 2019).",
+    "Known for years as 2007 OR10, it was named in 2020 after a Chinese water god, following a public vote."
+   ],
+   "factSources": [
+    "https://doi.org/10.1016/j.icarus.2019.03.013",
+    "https://doi.org/10.1016/j.icarus.2019.03.013",
+    "https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/?sstr=225088"
+   ],
+   "assets": {
+    "texture": null,
+    "textureInfo": null,
+    "textureNote": "No surface map exists (or none with a licence that allows redistribution). Shade with the body colour.",
+    "model": null,
+    "modelInfo": null,
+    "rings": null
+   }
+  },
+  {
+   "id": "quaoar",
+   "name": "Quaoar",
+   "kind": "dwarf-planet",
+   "kindNote": "Not yet recognised as a dwarf planet by the IAU; widely considered one because of its size.",
+   "radiusKm": 543,
+   "radiusSigmaKm": 2,
+   "radiusSource": "Pereira et al. 2023, A&A 673, L4, https://doi.org/10.1051/0004-6361/202346365 (area-equivalent radius 543 ± 2 km from the August 2022 occultation; Braga-Ribas et al. 2013 found 555 ± 2.5 km)",
+   "gmKm3S2": 80.0916,
+   "gmSource": "Morgado et al. 2023, Nature 614, 239, https://doi.org/10.1038/s41586-022-05629-6 (adopted mass 1.2 × 10²¹ kg)",
+   "massKg": 1.2e+21,
+   "densityGCm3": 1.789,
+   "geometricAlbedo": 0.109,
+   "geometricAlbedoSigma": 0.007,
+   "albedoSource": "Braga-Ribas et al. 2013",
+   "rotation": {
+    "model": "period-only",
+    "periodH": 17.6788,
+    "note": "Double-peaked period 17.6788 h (Ortiz et al. 2003), used by Morgado et al. 2023 to place the ring at the 1/3 spin–orbit resonance; pole unknown (the rings are probably equatorial).",
+    "source": "Morgado et al. 2023"
+   },
+   "colour": "#7c6f62",
+   "colourHue": "#ffe7cc",
+   "colourSource": "Neese 2014, TNO and Centaur Colors, PDS SBN urn:nasa:pds:compil.tno-centaur.colors (Tegler et al. 2003; Fornasier et al. 2004; DeMeo et al. 2009); Holmberg, Flynn & Portinari 2006, MNRAS 367, 449: solar (B−V) = 0.642, (V−R) = 0.354, (V−I) = 0.688",
+   "discovery": {
+    "by": "Chad A. Trujillo and Michael E. Brown",
+    "date": "2002-06-04",
+    "place": "Palomar Observatory",
+    "source": "https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/?sstr=50000"
+   },
+   "facts": [
+    "Quaoar is about 1,090 km across, measured by timing how long it blocked the light of background stars (Pereira et al. 2023).",
+    "It has a ring about 4,100 km from its centre, more than seven times its own radius. That is far outside the Roche limit, where rings were thought unable to survive (Morgado et al. 2023).",
+    "A second ring was found closer in, about 2,500 km from its centre (Pereira et al. 2023)."
+   ],
+   "factSources": [
+    "https://doi.org/10.1051/0004-6361/202346365",
+    "https://doi.org/10.1038/s41586-022-05629-6",
+    "https://doi.org/10.1051/0004-6361/202346365"
+   ],
+   "assets": {
+    "texture": null,
+    "textureInfo": null,
+    "textureNote": "No surface map exists (or none with a licence that allows redistribution). Shade with the body colour.",
+    "model": null,
+    "modelInfo": null,
+    "rings": "rings.json#quaoar"
+   }
+  },
+  {
+   "id": "sedna",
+   "name": "Sedna",
+   "kind": "dwarf-planet",
+   "kindNote": "Not recognised as a dwarf planet by the IAU; its size and likely round shape make it a candidate.",
+   "radiusKm": 497.5,
+   "radiusSigmaKm": 40,
+   "radiusSource": "Pál et al. 2012, A&A 541, L6, https://doi.org/10.1051/0004-6361/201218874 (diameter 995 ± 80 km)",
+   "geometricAlbedo": 0.32,
+   "geometricAlbedoSigma": 0.06,
+   "albedoSource": "Pál et al. 2012",
+   "rotation": {
+    "model": "period-only",
+    "periodH": 10.273,
+    "note": "Uncertain light-curve period 10.273 h (Gaudi et al. 2005); pole unknown.",
+    "source": "JPL Small-Body Database, https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html (API retrieved 2026-09-25) (LCDB)"
+   },
+   "colour": "#a19179",
+   "colourHue": "#ffe6c1",
+   "colourSource": "Neese 2014, TNO and Centaur Colors, PDS SBN urn:nasa:pds:compil.tno-centaur.colors (Sheppard 2010: B−R 1.68, V−R 0.61); Holmberg, Flynn & Portinari 2006, MNRAS 367, 449: solar (B−V) = 0.642, (V−R) = 0.354, (V−I) = 0.688",
+   "discovery": {
+    "by": "Michael E. Brown, Chad A. Trujillo and David L. Rabinowitz",
+    "date": "2003-11-14",
+    "place": "Palomar Observatory",
+    "source": "https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/?sstr=90377"
+   },
+   "facts": [
+    "Sedna never comes closer to the Sun than about 76 au, well beyond Neptune, and swings out to roughly 1,000 au.",
+    "One orbit takes over 11,000 years. It next passes closest to the Sun around 2076.",
+    "Sedna is one of the reddest objects in the Solar System, about 1,000 km across (Pál et al. 2012)."
+   ],
+   "factSources": [
+    "https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/?sstr=90377",
+    "https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/?sstr=90377",
+    "https://doi.org/10.1051/0004-6361/201218874"
+   ],
+   "assets": {
+    "texture": null,
+    "textureInfo": null,
+    "textureNote": "No surface map exists (or none with a licence that allows redistribution). Shade with the body colour.",
+    "model": null,
+    "modelInfo": null,
+    "rings": null
+   }
+  },
+  {
+   "id": "orcus",
+   "name": "Orcus",
+   "kind": "dwarf-planet",
+   "kindNote": "Not yet recognised as a dwarf planet by the IAU; widely considered one because of its size.",
+   "radiusKm": 455,
+   "radiusSigmaKm": 22,
+   "radiusSource": "Brown & Butler 2017, AJ 154, 19, https://doi.org/10.3847/1538-3881/aa6346 (ALMA: diameter 910 +50/−40 km)",
+   "gmKm3S2": 42.1816,
+   "gmSource": "Brown et al. 2010, AJ 139, 2700, https://doi.org/10.1088/0004-6256/139/6/2700 (Orcus–Vanth system mass 6.32 ± 0.05 × 10²⁰ kg). This is the system mass: it includes Vanth",
+   "massKg": 632000000000000000000,
+   "densityGCm3": 1.602,
+   "geometricAlbedo": 0.23,
+   "albedoSource": "Brown & Butler 2017 (0.23 ± 0.02)",
+   "rotation": {
+    "model": "period-only",
+    "periodH": 13.188,
+    "note": "Uncertain light-curve period (LCDB); Orcus may instead be tidally locked to Vanth (9.54 d). Pole unknown.",
+    "source": "JPL Small-Body Database, https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html (API retrieved 2026-09-25) (LCDB)"
+   },
+   "colour": "#868686",
+   "colourHue": "#ffffff",
+   "colourSource": "No disk-integrated colour measurement found in the sources used: neutral grey at the albedo-based lightness. Treat as a placeholder.",
+   "discovery": {
+    "by": "Michael E. Brown, Chad A. Trujillo and David L. Rabinowitz",
+    "date": "2004-02-17",
+    "place": "Palomar Observatory",
+    "source": "https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/?sstr=90482"
+   },
+   "facts": [
+    "Orcus is locked in the same 2:3 resonance with Neptune as Pluto, but on the opposite side of the Sun from it: it is sometimes called the ‘anti-Pluto’.",
+    "Its moon Vanth is unusually large, roughly half Orcus’s diameter (Brown & Butler 2017).",
+    "Orcus is named after the Etruscan and Roman god of the underworld, the counterpart of Pluto."
+   ],
+   "factSources": [
+    "https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/?sstr=90482",
+    "https://doi.org/10.3847/1538-3881/aa6346",
+    "https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/?sstr=90482"
+   ],
+   "assets": {
+    "texture": null,
+    "textureInfo": null,
+    "textureNote": "No surface map exists (or none with a licence that allows redistribution). Shade with the body colour.",
+    "model": null,
+    "modelInfo": null,
+    "rings": null
+   }
+  },
+  {
+   "id": "arrokoth",
+   "name": "Arrokoth",
+   "kind": "dwarf-planet",
+   "kindNote": "Arrokoth is a small cold classical Kuiper Belt object, not a dwarf planet. It shares this category for convenience; the app may label it \"Kuiper Belt object\".",
+   "radiusKm": 9.948,
+   "radiusSource": "Porter et al. 2024, Arrokoth shape model v01, PDS SBN urn:nasa:pds:nh_derived:arrokoth_shapemodel_porter2024 (pole and prime meridian from the product label) (volume-equivalent diameter 19.896 km)",
+   "dimensionsKm": [
+    34.546,
+    19.838,
+    13.822
+   ],
+   "dimensionsSource": "Porter et al. 2024, Table (overall extents a × b × c)",
+   "geometricAlbedo": 0.21,
+   "albedoSource": "Hofgartner et al. 2021, Icarus 356, 113723, https://doi.org/10.1016/j.icarus.2020.113723 (geometric albedo 0.21 +0.05/−0.04)",
+   "rotation": {
+    "model": "fitted",
+    "source": "Porter et al. 2024, Arrokoth shape model v01, PDS SBN urn:nasa:pds:nh_derived:arrokoth_shapemodel_porter2024 (pole and prime meridian from the product label)",
+    "frame": "ICRF",
+    "poleRaDeg": [
+     317.4880752,
+     0,
+     0
+    ],
+    "poleDecDeg": [
+     -24.8876496,
+     0,
+     0
+    ],
+    "pmDeg": [
+     184.4589465,
+     542.777419192881,
+     0
+    ],
+    "periodH": 15.918127,
+    "sense": "prograde",
+    "validity": {
+     "fromTdbDays": 6500,
+     "toTdbDays": 7500,
+     "note": "Fitted to images from 2018-12-31 to 2019-01-01. The period is known to about 10⁻⁵ d, so the phase drifts by tens of degrees per decade away from 2019."
+    }
+   },
+   "colour": "#838383",
+   "colourHue": "#ffffff",
+   "colourSource": "No disk-integrated colour measurement found in the sources used: neutral grey at the albedo-based lightness. Treat as a placeholder.",
+   "discovery": {
+    "by": "New Horizons search team (Marc W. Buie et al.)",
+    "date": "2014-06-26",
+    "place": "Hubble Space Telescope",
+    "source": "https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/?sstr=486958"
+   },
+   "facts": [
+    "On 1 January 2019 New Horizons flew about 3,500 km from Arrokoth, the most distant object ever explored up close.",
+    "Its two lobes, Wenu and Weeyo, seem to have touched gently, at walking pace or less, which supports the idea that they formed from a collapsing cloud of pebbles (McKinnon et al. 2020).",
+    "Arrokoth means ‘sky’ in the Powhatan language of the Chesapeake Bay region."
+   ],
+   "factSources": [
+    "https://doi.org/10.1126/science.aaw9771",
+    "https://doi.org/10.1126/science.aay6620",
+    "https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/?sstr=486958"
+   ],
+   "assets": {
+    "texture": null,
+    "textureInfo": null,
+    "textureNote": "No surface map exists (or none with a licence that allows redistribution). Shade with the body colour.",
+    "model": "models/arrokoth.bin",
+    "modelInfo": {
+     "triangles": 4000,
+     "vertices": 2004,
+     "equalVolumeRadiusKm": 9.9438,
+     "deviationKm": {
+      "rms": 0.0084,
+      "max": 0.0314,
+      "samples": 3414,
+      "measure": "distance from source-model vertices to the simplified surface"
+     }
+    },
+    "rings": null
+   }
+  },
+  {
+   "id": "halley",
+   "name": "1P/Halley",
+   "kind": "comet",
+   "naifId": 1000036,
+   "radiusKm": 4.6,
+   "radiusSource": "Volume-equivalent radius of P. Stooke’s Giotto/Vega shape model (4.58 km; public/models/halley.bin). SBDB lists an 11 km effective diameter (Lamy et al. 2004, in Comets II), a projected-area measure rather than a volume one",
+   "triaxialRadiiKm": [
+    8,
+    4,
+    4
+   ],
+   "triaxialSource": "Archinal et al. 2018, \"Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015\", Celest. Mech. Dyn. Astron. 130:22, https://doi.org/10.1007/s10569-017-9805-5 (values as encoded by NAIF in pck00011.tpc, https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/pck00011.tpc)",
+   "dimensionsKm": [
+    14.9,
+    8.2,
+    8.2
+   ],
+   "dimensionsSource": "Keller et al. 1987, A&A 187, 807 (14.9 × 8.2 km), via JPL Small-Body Database, https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html (API retrieved 2026-09-25); NASA gives about 15 × 8 km",
+   "geometricAlbedo": 0.04,
+   "albedoSource": "JPL Small-Body Database, https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html (API retrieved 2026-09-25) (Lamy et al. 2004)",
+   "rotation": {
+    "model": "complex",
+    "note": "Non-principal-axis rotation: the long axis precesses about the angular momentum vector every ~3.7 d while the nucleus spins about its long axis every ~7.1 d (Belton et al. 1991, Icarus 93, 183). No simple model; tumble it slowly and say so.",
+    "source": "Belton et al. 1991, https://doi.org/10.1016/0019-1035(91)90207-A"
+   },
+   "colour": "#636363",
+   "colourHue": "#ffffff",
+   "colourSource": "No disk-integrated colour measurement found in the sources used: neutral grey at the albedo-based lightness. Treat as a placeholder.",
+   "discovery": {
+    "by": "Known since antiquity; Edmond Halley showed in 1705 that the comets of 1531, 1607 and 1682 were one object",
+    "date": "1705",
+    "place": "Oxford",
+    "note": "Halley predicted its return; Johann Georg Palitzsch recovered it on 25 December 1758.",
+    "source": "https://science.nasa.gov/solar-system/comets/1p-halley/"
+   },
+   "facts": [
+    "In 1705 Edmond Halley used Newton’s laws to show that several historic comets were one object returning about every 76 years. He predicted it would return in 1758, and it did.",
+    "In 1986 ESA’s Giotto flew within about 600 km of its nucleus and photographed it: a dark, peanut-shaped body about 15 × 8 km.",
+    "It is next due at perihelion in 2061. Its dust causes two meteor showers each year, the Eta Aquariids in May and the Orionids in October."
+   ],
+   "factSources": [
+    "https://science.nasa.gov/solar-system/comets/1p-halley/",
+    "https://science.nasa.gov/solar-system/comets/1p-halley/",
+    "https://science.nasa.gov/solar-system/comets/1p-halley/"
+   ],
+   "assets": {
+    "texture": null,
+    "textureInfo": null,
+    "textureNote": "No surface map exists (or none with a licence that allows redistribution). Shade with the body colour.",
+    "model": "models/halley.bin",
+    "modelInfo": {
+     "triangles": 4000,
+     "vertices": 2002,
+     "equalVolumeRadiusKm": 4.579,
+     "deviationKm": {
+      "rms": 0.0022,
+      "max": 0.0108,
+      "samples": 2522,
+      "measure": "distance from source-model vertices to the simplified surface"
+     }
+    },
+    "rings": null
+   }
+  },
+  {
+   "id": "encke",
+   "name": "2P/Encke",
+   "kind": "comet",
+   "radiusKm": 2.4,
+   "radiusSource": "Lamy et al. 2004, in Comets II, 223 (effective diameter 4.8 km), via JPL Small-Body Database, https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html (API retrieved 2026-09-25)",
+   "geometricAlbedo": 0.046,
+   "geometricAlbedoSigma": 0.023,
+   "albedoSource": "JPL Small-Body Database, https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html (API retrieved 2026-09-25) (Fernández 2002, EM&P 89, 117)",
+   "rotation": {
+    "model": "period-only",
+    "periodH": 11.083,
+    "note": "Nucleus rotation period (LCDB, partial coverage); pole unknown.",
+    "source": "JPL Small-Body Database, https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html (API retrieved 2026-09-25) (LCDB)"
+   },
+   "colour": "#646464",
+   "colourHue": "#ffffff",
+   "colourSource": "No disk-integrated colour measurement found in the sources used: neutral grey at the albedo-based lightness. Treat as a placeholder.",
+   "discovery": {
+    "by": "Pierre F. A. Méchain",
+    "date": "1786-01-17",
+    "place": "Paris",
+    "note": "Johann Franz Encke computed its orbit in 1819, linking several sightings.",
+    "source": "https://science.nasa.gov/solar-system/comets/2p-encke/"
+   },
+   "facts": [
+    "Encke goes round the Sun every 3.3 years, the shortest period of any well-known comet.",
+    "It is the parent of the Taurid meteors, which peak in October and November and are known for fireballs.",
+    "It was only the second comet shown to return, after Halley’s, when Encke linked its appearances in 1819."
+   ],
+   "factSources": [
+    "https://science.nasa.gov/solar-system/comets/2p-encke/",
+    "https://science.nasa.gov/solar-system/comets/2p-encke/",
+    "https://science.nasa.gov/solar-system/comets/2p-encke/"
+   ],
+   "assets": {
+    "texture": null,
+    "textureInfo": null,
+    "textureNote": "No surface map exists (or none with a licence that allows redistribution). Shade with the body colour.",
+    "model": null,
+    "modelInfo": null,
+    "rings": null
+   }
+  },
+  {
+   "id": "churyumov-gerasimenko",
+   "name": "67P/Churyumov–Gerasimenko",
+   "kind": "comet",
+   "naifId": 1000012,
+   "radiusKm": 1.649,
+   "radiusSource": "Jorda et al. 2016, Icarus 277, 257, https://doi.org/10.1016/j.icarus.2016.05.002 (volume 18.8 ± 0.3 km³); our 24k-plate SHAP5 model gives 1.647 km",
+   "triaxialRadiiKm": [
+    2.4,
+    1.55,
+    1.2
+   ],
+   "triaxialSource": "Archinal et al. 2018, \"Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015\", Celest. Mech. Dyn. Astron. 130:22, https://doi.org/10.1007/s10569-017-9805-5 (values as encoded by NAIF in pck00011.tpc, https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/pck00011.tpc)",
+   "dimensionsKm": [
+    4.1,
+    3.3,
+    1.8
+   ],
+   "dimensionsSource": "Sierks et al. 2015, Science 347, aaa1044 (large lobe 4.1 × 3.3 × 1.8 km; small lobe 2.6 × 2.3 × 1.8 km)",
+   "gmKm3S2": 6.622e-7,
+   "gmSigmaKm3S2": 2e-10,
+   "gmSource": "Pätzold et al. 2016, Nature 530, 63, https://doi.org/10.1038/nature16535 (mass 9.982 ± 0.003 × 10¹² kg), via JPL Small-Body Database, https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html (API retrieved 2026-09-25)",
+   "massKg": 9921600000000,
+   "densityGCm3": 0.528,
+   "geometricAlbedo": 0.062,
+   "albedoSource": "Fornasier et al. 2015, A&A 583, A30, https://doi.org/10.1051/0004-6361/201525901 (6.2% at 535 nm)",
+   "rotation": {
+    "model": "iau-2015",
+    "source": "Archinal et al. 2018, \"Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015\", Celest. Mech. Dyn. Astron. 130:22, https://doi.org/10.1007/s10569-017-9805-5 (values as encoded by NAIF in pck00011.tpc, https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/pck00011.tpc)",
+    "frame": "ICRF",
+    "poleRaDeg": [
+     69.54,
+     0,
+     0
+    ],
+    "poleDecDeg": [
+     64.11,
+     0,
+     0
+    ],
+    "pmDeg": [
+     114.69,
+     696.543884683,
+     0
+    ],
+    "validity": {
+     "fromTdbDays": -6939.5,
+     "toTdbDays": 73049.5,
+     "note": "IAU models are stated to be accurate to about 0.1° near the present (Archinal et al. 2018); outside 1981–2199 they are extrapolations."
+    },
+    "periodH": 12.4041,
+    "sense": "prograde",
+    "note": "The spin period shortened from 12.76 h to 12.40 h around the August 2015 perihelion; the IAU rate is the post-perihelion one. Prime meridian: the Cheops boulder is at 142.35° E."
+   },
+   "colour": "#686868",
+   "colourHue": "#ffffff",
+   "colourSource": "No disk-integrated colour measurement found in the sources used: neutral grey at the albedo-based lightness. Treat as a placeholder.",
+   "discovery": {
+    "by": "Klim Churyumov, on a photographic plate taken by Svetlana Gerasimenko",
+    "date": "1969-10-22",
+    "place": "Alma-Ata Observatory (plate exposed 11 September 1969)",
+    "source": "https://science.nasa.gov/solar-system/comets/67p-churyumov-gerasimenko/"
+   },
+   "facts": [
+    "67P was the first comet to be orbited and landed on. ESA’s Rosetta arrived in August 2014, and its lander Philae touched down on 12 November 2014.",
+    "Its two lobes give it a rubber-duck shape about 4 km long. With a density of about 0.53 g/cm³ it would float in water: the nucleus is very porous (Pätzold et al. 2016).",
+    "Rosetta ended its mission on 30 September 2016 with a slow, controlled landing on the comet."
+   ],
+   "factSources": [
+    "https://science.nasa.gov/solar-system/comets/67p-churyumov-gerasimenko/",
+    "https://doi.org/10.1038/nature16535",
+    "https://www.esa.int/Science_Exploration/Space_Science/Rosetta"
+   ],
+   "assets": {
+    "texture": null,
+    "textureInfo": null,
+    "textureNote": "No surface map exists (or none with a licence that allows redistribution). Shade with the body colour.",
+    "model": "models/churyumov-gerasimenko.bin",
+    "modelInfo": {
+     "triangles": 4000,
+     "vertices": 2002,
+     "equalVolumeRadiusKm": 1.6472,
+     "deviationKm": {
+      "rms": 0.0039,
+      "max": 0.0148,
+      "samples": 3018,
+      "measure": "distance from source-model vertices to the simplified surface"
+     }
+    },
+    "rings": null
+   }
+  },
+  {
+   "id": "hale-bopp",
+   "name": "C/1995 O1 (Hale–Bopp)",
+   "kind": "comet",
+   "radiusKm": 30,
+   "radiusSigmaKm": 10,
+   "radiusSource": "Fernández 2002, EM&P 89, 3 (diameter 60 ± 20 km), via JPL Small-Body Database, https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html (API retrieved 2026-09-25)",
+   "geometricAlbedo": 0.04,
+   "geometricAlbedoSigma": 0.03,
+   "albedoSource": "JPL Small-Body Database, https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html (API retrieved 2026-09-25)",
+   "rotation": {
+    "model": "period-only",
+    "periodH": 11.35,
+    "note": "Rotation period ~11.35 h from the rotating coma jets in 1997 (Licandro et al. 1998, ApJ 501, L221); pole not adopted.",
+    "source": "Licandro et al. 1998, ApJ 501, L221"
+   },
+   "colour": "#636363",
+   "colourHue": "#ffffff",
+   "colourSource": "No disk-integrated colour measurement found in the sources used: neutral grey at the albedo-based lightness. Treat as a placeholder.",
+   "discovery": {
+    "by": "Alan Hale and Thomas Bopp (independently)",
+    "date": "1995-07-23",
+    "place": "Cloudcroft, New Mexico; near Stanfield, Arizona",
+    "source": "https://science.nasa.gov/solar-system/comets/c-1995-o1-hale-bopp/"
+   },
+   "facts": [
+    "Hale–Bopp stayed visible to the naked eye for about 18 months in 1996 and 1997, a record.",
+    "Its nucleus is unusually large, roughly 60 km across.",
+    "It takes about 2,500 years to go round the Sun, so it will not be back until the 4400s."
+   ],
+   "factSources": [
+    "https://science.nasa.gov/solar-system/comets/c-1995-o1-hale-bopp/",
+    "https://science.nasa.gov/solar-system/comets/c-1995-o1-hale-bopp/",
+    "https://science.nasa.gov/solar-system/comets/c-1995-o1-hale-bopp/"
+   ],
+   "assets": {
+    "texture": null,
+    "textureInfo": null,
+    "textureNote": "No surface map exists (or none with a licence that allows redistribution). Shade with the body colour.",
+    "model": null,
+    "modelInfo": null,
+    "rings": null
+   }
+  },
+  {
+   "id": "oumuamua",
+   "name": "1I/ʻOumuamua",
+   "kind": "interstellar",
+   "radiusKm": 0.07,
+   "radiusSource": "Order of magnitude only. Spitzer non-detection limits the spherical-equivalent diameter to under ~440 m (albedo 0.1; Trilling et al. 2018, AJ 156, 261, https://doi.org/10.3847/1538-3881/aae88f); a 115 × 111 × 19 m disc (Mashchenko 2019, MNRAS 489, 3003) or a ~230 × 35 m cigar (Meech et al. 2017, for albedo 0.04) fit the light curve",
+   "shapeNote": "Never resolved. Shape inferred from the light curve: brightness varied by a factor of ~10, so the long-to-short axis ratio is large (≳6:1). Whether it is a cigar or a pancake is not known.",
+   "geometricAlbedo": null,
+   "albedoSource": "unknown (assumed 0.04–0.1 in size estimates)",
+   "rotation": {
+    "model": "complex",
+    "periodH": 8.67,
+    "note": "Tumbling (non-principal-axis) rotation; the strongest light-curve period is 8.67 ± 0.34 h (Fraser et al. 2018, Nature Astronomy 2, 383).",
+    "source": "Fraser et al. 2018, https://doi.org/10.1038/s41550-018-0398-z"
+   },
+   "colour": "#909090",
+   "colourHue": "#ffffff",
+   "colourSource": "No disk-integrated colour measurement found in the sources used: neutral grey at the albedo-based lightness. Treat as a placeholder.",
+   "discovery": {
+    "by": "Robert Weryk (Pan-STARRS1)",
+    "date": "2017-10-19",
+    "place": "Haleakalā, Hawaiʻi",
+    "source": "https://science.nasa.gov/solar-system/comets/oumuamua/"
+   },
+   "facts": [
+    "ʻOumuamua was the first object known to have come from another star. Its name is Hawaiian for a messenger from afar arriving first.",
+    "No telescope ever resolved it. Its elongated or flattened shape is inferred only from how its brightness changed as it tumbled (Meech et al. 2017).",
+    "As it left, it sped up slightly without any visible coma or tail (Micheli et al. 2018). Escaping hydrogen trapped in its ice is one proposed explanation (Bergner & Seligman 2023)."
+   ],
+   "factSources": [
+    "https://science.nasa.gov/solar-system/comets/oumuamua/",
+    "https://doi.org/10.1038/nature25020",
+    "https://doi.org/10.1038/s41586-018-0254-4"
+   ],
+   "interstellar": {
+    "eccentricity": 1.2,
+    "perihelionAu": 0.256,
+    "hyperbolicExcessKmS": 26.4,
+    "orbitSource": "JPL Small-Body Database, https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html (API retrieved 2026-09-25) (osculating elements, low precision as returned by the API; v∞ = √(GM☉/|a|))",
+    "known": "Hyperbolic orbit; slight non-gravitational acceleration away from the Sun; reddish colour; strong brightness variation (tumbling, elongated or flattened).",
+    "unknown": "Its size, true shape, composition and the cause of its acceleration are not settled; no image resolved it."
+   },
+   "assets": {
+    "texture": null,
+    "textureInfo": null,
+    "textureNote": "No surface map exists (or none with a licence that allows redistribution). Shade with the body colour.",
+    "model": null,
+    "modelInfo": null,
+    "rings": null
+   }
+  },
+  {
+   "id": "borisov",
+   "name": "2I/Borisov",
+   "kind": "interstellar",
+   "radiusKm": 0.4,
+   "radiusSource": "Jewitt et al. 2020, ApJL 888, L23, https://doi.org/10.3847/2041-8213/ab621b (nucleus radius 0.2 < r < 0.5 km)",
+   "geometricAlbedo": null,
+   "albedoSource": "unknown (0.04 assumed in size estimates)",
+   "rotation": {
+    "model": "unknown",
+    "note": "The nucleus was never seen through its coma; rotation unknown.",
+    "source": "JPL Small-Body Database, https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html (API retrieved 2026-09-25)"
+   },
+   "colour": "#909090",
+   "colourHue": "#ffffff",
+   "colourSource": "No disk-integrated colour measurement found in the sources used: neutral grey at the albedo-based lightness. Treat as a placeholder.",
+   "discovery": {
+    "by": "Gennady Borisov",
+    "date": "2019-08-30",
+    "place": "MARGO observatory, Nauchnij, Crimea (0.65 m telescope he built himself)",
+    "source": "https://science.nasa.gov/solar-system/comets/2i-borisov/"
+   },
+   "facts": [
+    "The first known interstellar comet was found by an amateur astronomer, Gennady Borisov, with a telescope he built himself.",
+    "It looked much like comets born around the Sun, but held unusually large amounts of carbon monoxide (Cordiner et al. 2020; Bodewits et al. 2020).",
+    "It left at about 32 km/s relative to the Sun, on an orbit with an eccentricity of about 3.4."
+   ],
+   "factSources": [
+    "https://science.nasa.gov/solar-system/comets/2i-borisov/",
+    "https://doi.org/10.1038/s41550-020-1087-2",
+    "https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/?sstr=2I"
+   ],
+   "interstellar": {
+    "eccentricity": 3.36,
+    "perihelionAu": 2.01,
+    "hyperbolicExcessKmS": 32.3,
+    "orbitSource": "JPL Small-Body Database, https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html (API retrieved 2026-09-25) (osculating elements, low precision as returned by the API; v∞ = √(GM☉/|a|))",
+    "known": "Cometary activity with a CO-rich coma; nucleus radius 0.2–0.5 km; it released a fragment in March 2020 (Jewitt et al. 2020).",
+    "unknown": "Its rotation and exact nucleus size."
+   },
+   "assets": {
+    "texture": null,
+    "textureInfo": null,
+    "textureNote": "No surface map exists (or none with a licence that allows redistribution). Shade with the body colour.",
+    "model": null,
+    "modelInfo": null,
+    "rings": null
+   }
+  },
+  {
+   "id": "atlas-3i",
+   "name": "3I/ATLAS",
+   "kind": "interstellar",
+   "radiusKm": 1.5,
+   "radiusSource": "NASA 3I/ATLAS page: Hubble limits the nucleus diameter to between 0.44 and 5.6 km (as of 20 August 2025); the value here is only a mid-range placeholder",
+   "geometricAlbedo": null,
+   "albedoSource": "unknown",
+   "rotation": {
+    "model": "unknown",
+    "note": "The rotation of the nucleus has not been established.",
+    "source": "https://science.nasa.gov/solar-system/comets/3i-atlas/"
+   },
+   "colour": "#909090",
+   "colourHue": "#ffffff",
+   "colourSource": "No disk-integrated colour measurement found in the sources used: neutral grey at the albedo-based lightness. Treat as a placeholder.",
+   "discovery": {
+    "by": "ATLAS survey (Asteroid Terrestrial-impact Last Alert System)",
+    "date": "2025-07-01",
+    "place": "Río Hurtado, Chile",
+    "note": "Pre-discovery images go back to 14 June 2025.",
+    "source": "https://science.nasa.gov/solar-system/comets/3i-atlas/"
+   },
+   "facts": [
+    "3I/ATLAS is the third object known to have come from another star, reported by the ATLAS survey telescope in Chile on 1 July 2025.",
+    "It passed closest to the Sun around 30 October 2025, about 1.4 au out, just inside Mars’s orbit. Spacecraft at Mars photographed it that October.",
+    "Hubble’s images limit its nucleus to between about 0.44 and 5.6 km across. It is leaving at about 58 km/s relative to the Sun."
+   ],
+   "factSources": [
+    "https://science.nasa.gov/solar-system/comets/3i-atlas/",
+    "https://science.nasa.gov/solar-system/comets/3i-atlas/",
+    "https://science.nasa.gov/solar-system/comets/3i-atlas/"
+   ],
+   "interstellar": {
+    "eccentricity": 6.14,
+    "perihelionAu": 1.36,
+    "hyperbolicExcessKmS": 58,
+    "orbitSource": "JPL Small-Body Database, https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html (API retrieved 2026-09-25) (osculating elements, low precision as returned by the API; v∞ = √(GM☉/|a|))",
+    "known": "Active comet with CO₂-rich coma (JWST), fastest and probably oldest interstellar object known; nucleus 0.44–5.6 km.",
+    "unknown": "Its nucleus size is only bounded; its rotation and origin star are unknown."
+   },
+   "assets": {
+    "texture": null,
+    "textureInfo": null,
+    "textureNote": "No surface map exists (or none with a licence that allows redistribution). Shade with the body colour.",
+    "model": null,
+    "modelInfo": null,
+    "rings": null
+   }
+  },
+  {
+   "id": "voyager2",
+   "name": "Voyager 2",
+   "kind": "spacecraft",
+   "radiusKm": 0.00183,
+   "sizeNote": "High-gain antenna 3.66 m across; magnetometer boom 13 m long.",
+   "massKg": 721.9,
+   "massSource": "https://science.nasa.gov/mission/voyager/voyager-2/",
+   "rotation": {
+    "model": "attitude-controlled",
+    "note": "Three-axis stabilised; the app should point the high-gain antenna (or Webb’s sunshield / Parker’s heat shield) sensibly rather than model attitude."
+   },
+   "colour": "#f2f2f2",
+   "colourHue": "#f2f2f2",
+   "colourSource": "Representative of the spacecraft’s appearance in NASA photographs (thermal blankets, white or gold surfaces).",
+   "facts": [
+    "Voyager 2 is the only spacecraft to have visited Uranus (January 1986) and Neptune (August 1989).",
+    "It crossed the heliopause into interstellar space on 5 November 2018, about 119 au from the Sun (Stone et al. 2019).",
+    "To save power NASA has switched most of its instruments off. Three still work: the magnetometer, the plasma wave instrument and the cosmic ray detector."
+   ],
+   "factSources": [
+    "https://science.nasa.gov/mission/voyager/voyager-2/",
+    "https://doi.org/10.1038/s41550-019-0928-3",
+    "https://science.nasa.gov/mission/voyager/where-are-voyager-1-and-voyager-2-now/"
+   ],
+   "spacecraft": {
+    "launch": "1977-08-20T14:29:44Z",
+    "launchVehicle": "Titan IIIE-Centaur",
+    "launchSite": "Cape Canaveral, Florida",
+    "mission": "Grand Tour flyby of Jupiter (9 July 1979), Saturn (25 August 1981), Uranus (24 January 1986) and Neptune (25 August 1989); now the Voyager Interstellar Mission.",
+    "status": "Operating in interstellar space (since 5 November 2018). Instruments on: cosmic ray subsystem, magnetometer, plasma wave subsystem. Off: plasma science (26 Sep 2024), low-energy charged particles (24 Mar 2025) and all others.",
+    "statusAsOf": "2026-08-20",
+    "statusSource": "https://science.nasa.gov/mission/voyager/where-are-voyager-1-and-voyager-2-now/"
+   },
+   "assets": {
+    "texture": null,
+    "textureInfo": null,
+    "model": null,
+    "modelInfo": null,
+    "rings": null
+   }
+  },
+  {
+   "id": "new-horizons",
+   "name": "New Horizons",
+   "kind": "spacecraft",
+   "radiusKm": 0.00135,
+   "sizeNote": "Body about 0.7 × 2.1 × 2.7 m, with a 2.1 m high-gain dish; radius here is half the largest dimension.",
+   "massKg": 478,
+   "massSource": "https://science.nasa.gov/mission/new-horizons/",
+   "rotation": {
+    "model": "attitude-controlled",
+    "note": "Three-axis stabilised; the app should point the high-gain antenna (or Webb’s sunshield / Parker’s heat shield) sensibly rather than model attitude."
+   },
+   "colour": "#e8d9a8",
+   "colourHue": "#e8d9a8",
+   "colourSource": "Representative of the spacecraft’s appearance in NASA photographs (thermal blankets, white or gold surfaces).",
+   "facts": [
+    "New Horizons flew 12,500 km from Pluto on 14 July 2015, the first close look at the dwarf planet and its moons.",
+    "On 1 January 2019 it flew past Arrokoth, the most distant object ever explored up close.",
+    "A plutonium-powered generator (RTG) keeps it running, because sunlight at that distance is far too weak for solar panels."
+   ],
+   "factSources": [
+    "https://science.nasa.gov/mission/new-horizons/",
+    "https://science.nasa.gov/mission/new-horizons/",
+    "https://science.nasa.gov/mission/new-horizons/"
+   ],
+   "spacecraft": {
+    "launch": "2006-01-19T19:00:00Z",
+    "launchVehicle": "Atlas V 551",
+    "launchSite": "Cape Canaveral, Florida",
+    "mission": "Jupiter gravity assist (28 February 2007), Pluto system flyby (14 July 2015), Arrokoth flyby (1 January 2019); extended mission in the Kuiper Belt.",
+    "status": "Operating in its extended mission, returning heliophysics and Kuiper Belt data.",
+    "statusAsOf": "2025",
+    "statusSource": "https://science.nasa.gov/mission/new-horizons/",
+    "statusCaveat": "NASA’s mission page confirms operations “as of 2025”; no later status notice was found when this file was built."
+   },
+   "assets": {
+    "texture": null,
+    "textureInfo": null,
+    "model": null,
+    "modelInfo": null,
+    "rings": null
+   }
+  },
+  {
+   "id": "pioneer10",
+   "name": "Pioneer 10",
+   "kind": "spacecraft",
+   "radiusKm": 0.00137,
+   "sizeNote": "High-gain antenna 2.74 m across.",
+   "massKg": 258,
+   "massSource": "https://science.nasa.gov/mission/pioneer-10/",
+   "rotation": {
+    "model": "attitude-controlled",
+    "note": "Three-axis stabilised; the app should point the high-gain antenna (or Webb’s sunshield / Parker’s heat shield) sensibly rather than model attitude."
+   },
+   "colour": "#e6e6e6",
+   "colourHue": "#e6e6e6",
+   "colourSource": "Representative of the spacecraft’s appearance in NASA photographs (thermal blankets, white or gold surfaces).",
+   "facts": [
+    "Pioneer 10 was the first spacecraft to cross the asteroid belt and the first to fly past Jupiter, in December 1973.",
+    "Its last signal reached Earth in January 2003, from 12.2 billion km away.",
+    "It is heading roughly towards the red star Aldebaran, which it will pass in about two million years. It carries a plaque telling any finder where and when it came from."
+   ],
+   "factSources": [
+    "https://science.nasa.gov/mission/pioneer-10/",
+    "https://science.nasa.gov/mission/pioneer-10/",
+    "https://science.nasa.gov/mission/pioneer-10/"
+   ],
+   "spacecraft": {
+    "launch": "1972-03-03T01:49:04Z",
+    "launchNote": "Evening of 2 March 1972 local time (US Eastern).",
+    "launchVehicle": "Atlas-Centaur",
+    "launchSite": "Cape Canaveral, Florida",
+    "mission": "First crossing of the asteroid belt and first Jupiter flyby (closest approach 4 December 1973, 130,354 km).",
+    "status": "Silent. Routine contact ended 31 March 1997; the last signal was received on 23 January 2003, from 12.23 billion km. Coasting out of the Solar System towards Aldebaran.",
+    "statusAsOf": "2003-01-23",
+    "statusSource": "https://science.nasa.gov/mission/pioneer-10/"
+   },
+   "assets": {
+    "texture": null,
+    "textureInfo": null,
+    "model": null,
+    "modelInfo": null,
+    "rings": null
+   }
+  },
+  {
+   "id": "parker-solar-probe",
+   "name": "Parker Solar Probe",
+   "kind": "spacecraft",
+   "radiusKm": 0.00115,
+   "sizeNote": "Heat shield 2.3 m across and 11.4 cm thick; radius here is half the shield diameter.",
+   "massKg": 685,
+   "massSource": "https://science.nasa.gov/mission/parker-solar-probe/",
+   "rotation": {
+    "model": "attitude-controlled",
+    "note": "Three-axis stabilised; the app should point the high-gain antenna (or Webb’s sunshield / Parker’s heat shield) sensibly rather than model attitude."
+   },
+   "colour": "#f5f5f0",
+   "colourHue": "#f5f5f0",
+   "colourSource": "Representative of the spacecraft’s appearance in NASA photographs (thermal blankets, white or gold surfaces).",
+   "facts": [
+    "On 24 December 2024 it passed 6.1 million km from the Sun’s surface, closer than any spacecraft before, at about 692,000 km/h.",
+    "A carbon-composite heat shield 11.4 cm thick takes temperatures near 1,400 °C, while the instruments behind it stay near room temperature.",
+    "It was the first NASA mission named after a living person: Eugene Parker, who predicted the solar wind in the 1950s."
+   ],
+   "factSources": [
+    "https://www.nasa.gov/news-release/nasas-parker-solar-probe-makes-history-with-closest-pass-to-sun/",
+    "https://science.nasa.gov/mission/parker-solar-probe/",
+    "https://science.nasa.gov/mission/parker-solar-probe/"
+   ],
+   "spacecraft": {
+    "launch": "2018-08-12T07:31:00Z",
+    "launchVehicle": "Delta IV Heavy",
+    "launchSite": "Cape Canaveral Air Force Station, Florida",
+    "mission": "Repeated close passes of the Sun, lowered by seven Venus flybys to a perihelion of about 6.9 million km from the Sun’s centre (6.1 million km from the surface), first reached on 24 December 2024.",
+    "status": "Operating, continuing perihelia of about 9.9 solar radii every 88 days. NASA’s mission page lists the mission as in progress.",
+    "statusAsOf": "2026-09",
+    "statusSource": "https://science.nasa.gov/mission/parker-solar-probe/"
+   },
+   "assets": {
+    "texture": null,
+    "textureInfo": null,
+    "model": null,
+    "modelInfo": null,
+    "rings": null
+   }
+  },
+  {
+   "id": "jwst",
+   "name": "James Webb Space Telescope",
+   "kind": "spacecraft",
+   "radiusKm": 0.0106,
+   "sizeNote": "Sunshield about 21.2 × 14.2 m; primary mirror 6.5 m. Radius here is half the sunshield length.",
+   "massKg": 6200,
+   "massSource": "https://webb.nasa.gov/content/about/faqs/facts.html (total payload mass approx. 6,200 kg including consumables and launch adaptor)",
+   "rotation": {
+    "model": "attitude-controlled",
+    "note": "Three-axis stabilised; the app should point the high-gain antenna (or Webb’s sunshield / Parker’s heat shield) sensibly rather than model attitude."
+   },
+   "colour": "#d9b44a",
+   "colourHue": "#d9b44a",
+   "colourSource": "Representative of the spacecraft’s appearance in NASA photographs (thermal blankets, white or gold surfaces).",
+   "facts": [
+    "Webb launched on 25 December 2021 and orbits the Sun near the second Lagrange point, about 1.5 million km beyond Earth.",
+    "Its primary mirror is 6.5 m across, made of 18 gold-coated beryllium segments that unfolded in space.",
+    "A five-layer sunshield about the size of a tennis court keeps the telescope cold enough to see faint infrared light."
+   ],
+   "factSources": [
+    "https://science.nasa.gov/mission/webb/",
+    "https://webb.nasa.gov/content/observatory/ote/mirrors/index.html",
+    "https://webb.nasa.gov/content/about/faqs/facts.html"
+   ],
+   "spacecraft": {
+    "launch": "2021-12-25T12:20:00Z",
+    "launchVehicle": "Ariane 5 ECA",
+    "launchSite": "Guiana Space Centre, Kourou",
+    "mission": "Infrared space observatory (NASA, ESA, CSA) in a halo orbit around the Sun–Earth L2 point, 1.5 million km from Earth; arrived 24 January 2022.",
+    "status": "Operating; science observations continuing.",
+    "statusAsOf": "2026-09-25",
+    "statusSource": "https://science.nasa.gov/mission/webb/"
+   },
+   "assets": {
+    "texture": null,
+    "textureInfo": null,
+    "model": null,
+    "modelInfo": null,
+    "rings": null
+   }
+  }
+ ]
+}

@@ -5,6 +5,8 @@ import { astroTimeAt, msFromCivil } from '../lib/time';
 import { chrono, chronoLaunch, chronoTau, chronoTripEnd, zeroChrono } from './chronometer';
 import { setPaused, setWarp } from './clock';
 import { updateEphemeris } from './ephemeris';
+import { updateApparentPositions } from './lightDelay';
+import { clearPulses, emitPulse, pulses, updatePulses } from './pulses';
 import { setSimTime, sim } from './sim';
 import { tickClock, tickTrip } from './tick';
 import {
@@ -143,6 +145,32 @@ describe('flights paced by ship time', () => {
     expect(chrono.tauValid).toBe(false);
     expect(tauAtEarthTime(trip, 5)).toBeNaN();
     expect(tripPace(trip).text).toBe('1 s here = 10 s at home');
+  });
+
+  it('keep everything finite at the fastest warp, retarded light and pulses included', () => {
+    setSimTime(T0);
+    updateEphemeris();
+    zeroChrono();
+    clearPulses();
+    emitPulse('sun');
+    setWarp(1e16);
+    for (let i = 0; i < 120; i++) {
+      const dt = tickClock(1 / FPS);
+      updateEphemeris();
+      tickTrip(dt);
+      updatePulses();
+      updateApparentPositions(true);
+      for (const b of Object.values(sim.bodies)) {
+        const s = b.pos.x + b.pos.y + b.pos.z + b.apparentPos.x + b.vel.x + b.quat.w + b.lightDelay;
+        expect(Number.isFinite(s), `${b.id} at frame ${i}`).toBe(true);
+      }
+    }
+    // Two seconds at 320 million years a second.
+    expect((sim.timeMs - T0) / 1000 / (2e16)).toBeCloseTo(1, 9);
+    expect(chrono.t / 2e16).toBeCloseTo(1, 12);
+    // The pulse told every detector, then went past everything and was retired.
+    expect(pulses.list.length).toBe(0);
+    setWarp(1);
   });
 
   it('play by ship time far from the present too', () => {

@@ -9,8 +9,8 @@
 Every planet sits where it really is today, every distance is to scale, and light takes real time to cross
 them: 8 minutes 19 seconds from the Sun to Earth, 5.5 hours to Pluto, almost a full day to Voyager 1. Fly between
 the planets at nearly the speed of light and the sky crowds ahead of you, colours shift, and your clock falls
-behind Earth's, exactly as special relativity says. The numbers are always a click away, the physics is explained
-as it happens, and for students there is a lab with five guided experiments.
+behind Earth's, exactly as special relativity says. The numbers are always a click away, Learn tells the science
+behind it, and for students there is a lab with five guided experiments.
 
 Built with Vite, React, TypeScript and three.js (React Three Fiber). It is a static site with no backend.
 
@@ -18,26 +18,29 @@ By [Tommy Liu](https://github.com/tommysl8).
 
 ## First visit
 
-The screen opens on the view alone. A welcome screen offers three ways in: a one-minute **guided tour** that points
-at each part of the screen, the **journeys**, or free exploration. Everything else is one click away:
+The screen opens on the view alone: a date, **Where to?**, the journeys, Learn and simple time controls. A welcome
+screen offers three ways in: a one-minute **guided tour** that points at each part of the screen, **Where to?**, or
+the **journeys**. Everything else is one click away:
 
+- **Where to?** (header, `/` or `Ctrl+K`): find any place by name, with how far away it is, how old its light is and
+  what a 1 g flight there would take for you and at home. Enter goes there; Shift+Enter plans the flight.
 - **Journeys** (header): seven set pieces, one click each. Race a pulse of sunlight to Earth, ride to Saturn at
   0.9c, see the sky at 0.999c on a split screen, catch up with Voyager 1, push to Proxima Centauri at 1 g, watch a
-  year pass in half a minute, or a month over Earth. Flights leave from Earth, the clock is set so a trip takes
-  about half a minute, and each journey says what to look for.
+  year pass in half a minute, or a month over Earth. Flights leave from Earth, play in about a minute of ship
+  time, and each journey says what to look for.
 - **Body cards**: click a planet and a card says what it is, how far away it is, how old its light is, and three
-  things worth knowing, with buttons to go there or fly there.
-- **Physics** (left panel, `K`): ten short sections on what you are seeing, from light-travel time to the relativistic
-  rocket, with the equations and further reading. A note appears in the corner the first time each applies. The
-  same panel holds the lab.
-- **Instruments** (right panel, `I`): the numbers, several times a second.
-- **Guide** (header) and `?`: a twelve-chapter guide at `#/guide` (chapters can be linked, such as `#/guide/seeing`,
-  and printed), and the keyboard and mouse on one sheet.
+  things worth knowing, with buttons to go there, fly there at 1 g, read about it and open its data sheet.
+- **Learn** (header, `E`): long reads on the science behind the view at `#/learn`, with their sources.
+- **View** (header): display layers, optics, the **instrument panel** (`I`, every number several times a second)
+  and **physics hints** (off by default), the guide, the keys and About.
+- **Lab** (header, `K`): for students, five guided experiments. It never opens by itself.
+- **Guide** and `?`: a twelve-chapter guide at `#/guide` (chapters can be linked, such as `#/guide/seeing`, and
+  printed), and the keyboard and mouse on one sheet.
 - **About** (`#/about`): what the project is, the author, how to cite it, and its sources, methods and limitations.
 
 ## For students: the lab
 
-The Experiments tab of the physics panel turns the simulator into apparatus. Five experiments, each with a
+The lab (the **Lab** button, or `K`) turns the simulator into apparatus. Five experiments, each with a
 procedure that ticks itself off, a data table filled by the instruments, and a least-squares analysis:
 
 | # | Experiment | What you measure |
@@ -73,9 +76,9 @@ procedure that ticks itself off, a data table filled by the instruments, and a l
   the distance left in both frames.
 - **1 g rocket.** A realistic flip-and-burn at constant proper acceleration. To Proxima Centauri: 3.54 years
   aboard, 5.87 years on Earth, peak 0.95c.
-- **Time.** Real time by default. The simulation rate runs from 10⁰ to 10⁶, plus pause. Above 1 an annunciator
-  lights and the viewport is framed. Click the epoch to set any UTC instant from 1981 to 2199, with presets for
-  the next oppositions of Mars, Jupiter and Saturn.
+- **Time.** Real time by default. The simulation rate runs from 10⁰ to 10¹⁶ (320 million years a second), plus
+  pause. Above 1 an annunciator lights and the viewport is framed. Click the date to go to any instant from
+  10,000 BCE to 9999 CE, with presets for the next oppositions of Mars, Jupiter and Saturn.
 - **Light pulses.** Emit a pulse from any body. Its wavefront is drawn in the ecliptic and on the sky, and every
   body's detector records the exact crossing time, solved from the ephemeris.
 - **Light delay.** The age of Earth's image and the signal time to Earth, plus an optional mode that draws every
@@ -117,11 +120,12 @@ No configuration is needed.
 | `Space` / `P`, `[` `]` (or `,` `.`), `N` | Pause, simulation rate down/up, back to now (zeroes the chronometers) |
 | `Z`, `X` | Relativistic ↔ classical optics, split screen |
 | `R` | Record a reading (Experiments 3 and 4; not in free flight) |
-| `K`, `I`, `E` | Physics panel, instrument panel, physics explanations |
+| `/` or `Ctrl+K` | Where to? (search) |
+| `E`, `I`, `K` | Learn, instrument panel, the lab |
 | `T`, `O`, `L`, `B`, `U`, `J` | True scale ↔ enlarged, orbits, labels, small bodies, readouts over the view, ecliptic grid |
 | `?` | Keyboard and mouse on one sheet |
 
-Shortcuts can be switched off under View › Keyboard shortcuts. Panels, menus, dialogs and the guide work from
+Single-key shortcuts can be switched off under View › Single-key shortcuts. Panels, menus, dialogs and the guide work from
 the keyboard alone (Tab, arrow keys, Esc).
 
 ## How it works
@@ -235,7 +239,7 @@ If you use Lightspeed in teaching or written work:
 
 The About page in the app gives the same citation with the address of the site it is served from.
 
-## License
+## Licence
 
 Code: [MIT](LICENSE), © 2026 Tommy Liu. The star data files are CC BY-SA 4.0, the Solar System Scope textures are
 CC BY 4.0 and the Pluto map is NASA public domain, as listed above and in [CREDITS.md](CREDITS.md).

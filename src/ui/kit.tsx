@@ -2,7 +2,7 @@
  * UI primitives for the instrument-panel look: collapsible sections, readout rows, segmented
  * controls, checkboxes, menus and floating dialogs. Styling lives in index.css.
  */
-import { useEffect, useId, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type ReactNode, type Ref } from 'react';
+import { useEffect, useId, useLayoutEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type ReactNode, type Ref } from 'react';
 import { rich } from './rich';
 
 // ─── Persistence ─────────────────────────────────────────────────────────────────────────
@@ -189,19 +189,35 @@ export function Check({
   );
 }
 
-/** A button that opens a popover menu below it; closes on outside click or Escape. */
+/**
+ * A button that opens a popover menu below it (or above it, in the footer); closes on an
+ * outside click or Escape. `children` may be a function of `close`, for items that act and
+ * should then get out of the way.
+ */
 export function Menu({
   label,
   children,
   align = 'right',
+  placement = 'below',
   title,
+  ariaLabel,
   width = 260,
+  buttonClassName = 'btn btn-q',
+  tour,
+  className = '',
 }: {
   label: ReactNode;
-  children: ReactNode;
+  children: ReactNode | ((close: () => void) => ReactNode);
   align?: 'left' | 'right';
+  placement?: 'below' | 'above';
   title?: string;
+  /** Accessible name when the label is an icon or changes (the date chip). */
+  ariaLabel?: string;
   width?: number;
+  buttonClassName?: string;
+  /** Anchor for the guided tour (data-tour). */
+  tour?: string;
+  className?: string;
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -229,11 +245,30 @@ export function Menu({
       window.removeEventListener('keydown', onKey, true);
     };
   }, [open]);
+  // Keep the popover inside the window: on a phone a menu anchored left of a button near the
+  // middle (the Bodies list) would otherwise run off the right edge, where nothing scrolls.
+  useLayoutEffect(() => {
+    const el = pop.current;
+    if (!open || !el) return;
+    const fit = () => {
+      el.style.translate = '';
+      const r = el.getBoundingClientRect();
+      const margin = 8;
+      let dx = 0;
+      if (r.right > window.innerWidth - margin) dx = window.innerWidth - margin - r.right;
+      if (r.left + dx < margin) dx = margin - r.left;
+      el.style.translate = dx ? `${Math.round(dx)}px 0` : '';
+    };
+    fit();
+    window.addEventListener('resize', fit);
+    return () => window.removeEventListener('resize', fit);
+  }, [open]);
   return (
-    <div ref={ref} className="relative">
+    <div ref={ref} className={`relative ${className}`} data-tour={tour}>
       <button
         ref={btn}
-        className="btn btn-q"
+        className={buttonClassName}
+        aria-label={ariaLabel}
         aria-expanded={open}
         aria-haspopup="dialog"
         aria-controls={open ? id : undefined}
@@ -250,12 +285,14 @@ export function Menu({
         <div
           ref={pop}
           id={id}
-          className={`panel-float appear absolute top-[calc(100%+4px)] z-50 py-1 ${align === 'right' ? 'right-0' : 'left-0'}`}
+          className={`panel-float appear scroll absolute z-50 py-1 ${
+            placement === 'above' ? 'bottom-[calc(100%+4px)] max-h-[calc(100dvh_-_var(--ftr)_-_16px)]' : 'top-[calc(100%+4px)] max-h-[calc(100dvh_-_var(--hdr)_-_16px)]'
+          } ${align === 'right' ? 'right-0' : 'left-0'}`}
           style={{ width: `min(${width}px, calc(100vw - 16px))` }}
           role="dialog"
-          aria-label={title ?? (typeof label === 'string' ? label : undefined)}
+          aria-label={ariaLabel ?? title ?? (typeof label === 'string' ? label : undefined)}
         >
-          {children}
+          {typeof children === 'function' ? children(() => setOpen(false)) : children}
         </div>
       )}
     </div>

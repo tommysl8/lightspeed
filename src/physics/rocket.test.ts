@@ -122,4 +122,63 @@ describe('relativistic rocket (constant proper acceleration)', () => {
   it('needs a photon-rocket mass ratio of ~39 (~38 kg of propellant per kg delivered) to Proxima', () => {
     expect(photonRocketMassRatio(flipAndBurn(PROXIMA_DISTANCE_KM))).toBeCloseTo(38.6, 0);
   });
+
+  it('carries the exact rapidity, where β has long rounded to 1 (γ ≈ 10⁹)', () => {
+    const trip = flipAndBurn(2e9 * LIGHT_YEAR_KM);
+    const k = C_KM_S / G0_KM_S2;
+    expect(trip.peakBeta).toBe(1);
+    expect(trip.peakGamma).toBeGreaterThan(9e8);
+    for (const f of [0.1, 0.5, 0.9]) {
+      const tau = f * trip.shipTime;
+      const s = flipAndBurnAt(trip, tau);
+      const expected = Math.min(tau, trip.shipTime - tau) / k; // aτ/c, mirrored after the flip
+      expect(s.phi / expected).toBeCloseTo(1, 12);
+      expect(Math.cosh(s.phi) / s.gamma).toBeCloseTo(1, 12);
+      // The Earth-time form gives the same φ.
+      expect(flipAndBurnAtEarthTime(trip, s.t).phi / s.phi).toBeCloseTo(1, 9);
+    }
+    expect(acceleratingState(yr).phi).toBeCloseTo((G0_KM_S2 * yr) / C_KM_S, 14);
+  });
+
+  it('keeps sinh φ − φ to a few parts in 10¹⁶ on both sides of the series cut-off', () => {
+    // 50-digit references (Taylor series in exact decimal arithmetic).
+    const ref: [number, number][] = [
+      [0.1, 1.6675001984402582372938352190502e-4],
+      [0.5, 0.021095305493747361622425626411492],
+      [0.9, 0.12651672570817527595833616197842],
+      [0.99, 0.16982889066360829928417764208141],
+      [1.5, 0.6292794550948174968343874946776],
+    ];
+    for (const [x, want] of ref) {
+      expect(Math.abs(sinhMinusX(x) / want - 1), `φ = ${x}`).toBeLessThan(5e-16);
+      expect(sinhMinusX(-x)).toBe(-sinhMinusX(x));
+    }
+  });
+
+  it('works out a trip’s Earth time and peak γ from the distance, exact to a rounding or two at γ ≈ 10⁹', () => {
+    const trip = flipAndBurn(2e9 * LIGHT_YEAR_KM);
+    const x = (G0_KM_S2 * trip.distance) / 2 / (C_KM_S * C_KM_S);
+    expect(trip.peakGamma).toBe(1 + x);
+    // Ship time back from Earth time lands on the flip and on arrival.
+    expect(shipTimeAtEarthTime(trip, trip.earthTime / 2) / (trip.shipTime / 2)).toBeCloseTo(1, 15);
+    expect(shipTimeAtEarthTime(trip, trip.earthTime)).toBe(trip.shipTime);
+    // Neither clock steps backwards across the flip.
+    const h = trip.shipTime / 2;
+    let prevT = -Infinity;
+    let prevD = -Infinity;
+    let prevT2 = -Infinity;
+    for (let i = -50; i <= 50; i++) {
+      const tau = h + i * h * 2 ** -50;
+      const s = flipAndBurnAt(trip, tau);
+      const t = earthTimeAtShipTime(trip, tau);
+      expect(s.t).toBeGreaterThanOrEqual(prevT);
+      expect(s.d).toBeGreaterThanOrEqual(prevD);
+      expect(t).toBeGreaterThanOrEqual(prevT2);
+      // Two roundings of sinh(aτ/c), each amplified by φ ≈ 21: agreement to about 10⁻¹⁴.
+      expect(Math.abs(t / s.t - 1)).toBeLessThan(1e-14);
+      prevT = s.t;
+      prevD = s.d;
+      prevT2 = t;
+    }
+  });
 });

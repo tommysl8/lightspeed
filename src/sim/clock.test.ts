@@ -8,6 +8,8 @@ import {
   WARP_LABELS,
   WARP_STEPS,
   advanceClock,
+  followWallClock,
+  resetToNow,
   setEpoch,
   setPaused,
   setWarp,
@@ -15,6 +17,9 @@ import {
   warpLabel,
 } from './clock';
 import { setSimTime, sim } from './sim';
+import { tickClock } from './tick';
+import { launch, planTrip, travel } from './travel';
+import { updateEphemeris } from './ephemeris';
 
 beforeEach(() => {
   setPaused(false);
@@ -98,5 +103,68 @@ describe('the clock', () => {
     setEpoch(msFromCivil(-20_000, 1, 1));
     expect(sim.timeMs).toBe(EPOCH_MIN_MS);
     expect(EPOCH_MIN_MS).toBe(msFromCivil(-9999, 1, 1));
+  });
+});
+
+describe('the present', () => {
+  const NOW = msFromCivil(2026, 9, 25, 12);
+
+  it('keeps a live clock on the computer’s clock however the frames run', () => {
+    resetToNow();
+    setSimTime(NOW);
+    expect(sim.live).toBe(true);
+    // A tab hidden for five minutes: one clamped 0.1 s frame on return, yet the clock catches up.
+    const dt = tickClock(0.1, NOW + 300_000);
+    expect(sim.timeMs).toBe(NOW + 300_000);
+    expect(dt).toBe(300);
+    // Frames slower than real time (8 fps with 0.1 s clamping) do not fall behind either.
+    tickClock(0.1, NOW + 300_125);
+    expect(sim.timeMs).toBe(NOW + 300_125);
+    expect(sim.live).toBe(true);
+  });
+
+  it('never runs a live clock backwards on a jitter, and follows a clock set back as Now would', () => {
+    resetToNow();
+    setSimTime(NOW);
+    expect(followWallClock(NOW - 5)).toBe(0);
+    expect(sim.timeMs).toBe(NOW);
+    expect(followWallClock(NOW - 3_600_000)).toBe(0);
+    expect(sim.timeMs).toBe(NOW - 3_600_000);
+  });
+
+  it('stops being live on a pause, another rate or a date, and Now brings it back', () => {
+    resetToNow();
+    setPaused(true);
+    expect(sim.live).toBe(false);
+    resetToNow();
+    setWarp(10);
+    expect(sim.live).toBe(false);
+    setWarp(1);
+    expect(sim.live).toBe(false); // back to real time, but behind the present
+    resetToNow();
+    expect(sim.live).toBe(true);
+    setEpoch(msFromCivil(1969, 7, 20));
+    expect(sim.live).toBe(false);
+    resetToNow();
+  });
+
+  it('once off the present, runs by frame time rather than jumping to the computer’s clock', () => {
+    resetToNow();
+    setSimTime(NOW);
+    setPaused(true);
+    setPaused(false);
+    tickClock(0.1, NOW + 300_000);
+    expect(sim.timeMs).toBe(NOW + 100);
+    resetToNow();
+  });
+
+  it('is not live during a trip', () => {
+    resetToNow();
+    setSimTime(NOW);
+    updateEphemeris();
+    launch(planTrip('mars', 0.5, sim.bodies.earth.pos.clone().addScalar(30_000), sim.astroTime)!);
+    expect(sim.live).toBe(false);
+    travel.trip = null;
+    resetToNow();
   });
 });

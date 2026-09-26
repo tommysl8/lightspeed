@@ -138,3 +138,22 @@ Format: claim | value | source | status. "computed" means recomputed in a scratc
 - If not 2030, redefinition postponed to 2034 CGPM | BIPM FAQ / roadmap (Metrologia review) via search | uncertain (secondary)
 - Draft Resolution D on an international lunar reference time scale traceable to UTC; IAU 2024 defined LCRS and Lunar Coordinate Time (TCL) | CGPM 2026 Draft Resolutions | verified
 - Clock on the Moon ticks faster than one on Earth's geoid by 56.02 us/day | Ashby & Patla, AJ 168, 112 (2024), https://doi.org/10.3847/1538-3881/ad643a | verified
+
+## Added during drafting
+
+- Einstein 1911 paper predicts that light from the Sun arrives slightly redder (gravitational redshift) | - | Annalen der Physik 35, 898 (1911); Will, Living Rev. Relativ. 17, 4 (2014) on the history of redshift tests | verified (standard content of the paper)
+- Ives & Stilwell plate numbers: ordinary Doppler displacement for H2 near 20,000 V about 2 mm on the plate; expected second-order shift of the centre of gravity about 0.05 angstrom = 0.005 mm; measured with a Zeiss microscope reading to 0.001 mm; dispersion 10.87 angstrom/mm | text | Ives & Stilwell 1938 | verified
+- Ives & Stilwell 1938 was the first observation of time dilation (by the transverse/second-order Doppler method) | Frisch & Smith 1963 introduction says the effect was first observed through precise frequency measurements of moving atoms, citing Ives 1938 | verified
+- Muon mass / electron mass | 105.658 / 0.511 = 206.8 | PDG muon mass; computed | verified
+- Primary cosmic rays mainly protons accelerated in our galaxy | Frisch & Smith 1963 section IV-A | verified
+- Frisch & Smith skipped a second (coincidence) counter to keep the experiment simple for filming | Section IV-I | Frisch & Smith 1963 | verified
+- CERN ring circumference ~44 m (14 m diameter); a muon at c goes round in ~147 ns, so a 64.4 us lifetime is ~440 turns | computed | verified
+- Fermilab ring cyclotron period 149.2 ns | PRL 126, 141801 (2021) text | verified
+- 0.8c twin: Doppler factor k = sqrt((1+0.8)/(1-0.8)) = 3; home twin sees the turnaround at year 9 (5 + 4 years light delay) | computed | verified
+- Simultaneity jump for the 0.8c traveller at turnaround: Earth date judged from outbound frame 1.8 yr, from inbound frame 8.2 yr, jump 6.4 yr | computed | verified
+- Thorium 2024 teams: PTB (Braunschweig) + TU Wien (Tiedau et al., April 2024, CaF2, 148.3821 nm); UCLA with Nevada, Reno and Los Alamos theorists (Elwell et al., July 2024, LiSrAlF6) | APS abstract pages | verified
+- June 2026 thorium clock preprint authors overlap with the 2024 PTB/TU Wien paper (Tiedau, Okhapkin, Zitzer, Peik, Schumm, Toscani De Col, Morawetz) | arXiv:2606.04997 author list; PRL 132, 182501 author list | verified
+- ACES redshift goal vs earlier tests: 70 ppm (GP-A) / 2-3 ppm = 23-35x; 24.8 ppm (Galileo) / 2-3 ppm = 8-12x | computed | verified
+- 30 m/s: v^2/2c^2 = 5.0e-15; 250 m/s: 3.5e-13 = 30 ns/day | computed | verified
+- One metre of height: 1.09e-16 = 9.4 ps/day; 33 cm: 3.6e-17 = 3.1 ps/day | computed | verified
+- Frisch & Smith averaged 1907 m descent at 0.9952c; rough dilation estimate "factor of 9" from the filmed run | Frisch & Smith 1963 section V-B | verified

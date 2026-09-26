@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { BufferAttribute, BufferGeometry } from 'three';
-import { createStarMaterial } from '../render/materials';
+import { createCmbPointMaterial, createStarMaterial } from '../render/materials';
 import { loadStarCatalog } from './starCatalog';
 import { POINTS_LAYER } from '../render/LightspeedScenePass';
 
 /**
  * ~8,900 naked-eye stars from the HYG catalogue, one draw call. Directions only: across the
- * Solar System, stellar parallax is far below a pixel.
+ * Solar System, stellar parallax is far below a pixel. Also the cosmic microwave background's
+ * hot spot, which joins the sky as a point source at extreme speed.
  */
 export function Starfield() {
   const material = useMemo(createStarMaterial, []);
@@ -39,13 +40,39 @@ export function Starfield() {
     };
   }, []);
 
-  if (!geometry) return null;
+  return (
+    <>
+      {geometry && (
+        <points
+          geometry={geometry}
+          material={material}
+          frustumCulled={false}
+          renderOrder={-100}
+          ref={(o) => o?.layers.set(POINTS_LAYER)}
+        />
+      )}
+      <CmbSpot />
+    </>
+  );
+}
+
+/**
+ * The CMB's hot spot dead ahead once it is narrower than a pixel. One vertex; the shader places
+ * it (its direction is a uniform) and hides it outside the relativistic view.
+ */
+function CmbSpot() {
+  const material = useMemo(createCmbPointMaterial, []);
+  const geometry = useMemo(() => {
+    const g = new BufferGeometry();
+    g.setAttribute('position', new BufferAttribute(new Float32Array(3), 3));
+    return g;
+  }, []);
   return (
     <points
       geometry={geometry}
       material={material}
       frustumCulled={false}
-      renderOrder={-100}
+      renderOrder={-99}
       ref={(o) => o?.layers.set(POINTS_LAYER)}
     />
   );

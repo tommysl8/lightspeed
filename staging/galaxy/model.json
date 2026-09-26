@@ -86,6 +86,9 @@
       "note": "Box/peanut bulge. In-plane exponential along the bar's principal axes (WG13 fitted scale lengths); vertical exponential whose scale height varies along the major axis as measured by WG13, which produces the peanut shape seen side-on. The X-shape above ~400 pc is not modelled explicitly.",
       "density": "rho = exp(-sqrt((x/hx)^2 + (y/hy)^2)) * exp(-|z|/hz(|x|)); (x,y) along the bulge major/intermediate axes",
       "barAngle": { "value": 27, "unc": 2, "ref": "WG13", "note": "Angle between the major axis and the Sun-GC line; near end at positive longitude (first quadrant)." },
+      "axisRatios": { "value": [1.0, 0.63, 0.26], "ref": "WG13", "note": "10 : 6.3 : 2.6 from the exponential scale lengths along the three axes inside ~1 kpc" },
+      "faceOnAxisRatio": { "value": 0.5, "unc": 0.05, "ref": "BHG16", "note": "projected axis ratio seen from the NGP, isophotes to ~2 kpc" },
+      "radiusOfMaximumX": { "value": 1.5, "unc": 0.2, "ref": "BHG16" },
       "hx": { "value": 0.70, "ref": "WG13" },
       "hy": { "value": 0.44, "ref": "WG13" },
       "hzProfile": { "x": [0.0, 0.525, 1.125, 1.725, 2.5], "hz": [0.18, 0.25, 0.56, 0.46, 0.20], "ref": "WG13", "note": "0.18 kpc at x~0 (BHG16/WG13 minor-axis fit), 0.25/0.56/0.46 kpc at 0.525/1.125/1.725 kpc (WG13 conclusions). The 2.5 kpc node (0.20 kpc, the thin long bar's height from Wegg2015) is a model choice that joins the bulge to the long bar. Linear interpolation; constant beyond the ends." },
@@ -157,8 +160,8 @@
       "tangencyPriorsL": { "value": { "3kpc": 337, "norma": 328, "sctcen": 308, "sgrcar": 283 }, "ref": "Reid2019", "note": "Bronfman et al. 2000 tangencies used by Reid et al. as priors in quadrant 4." },
       "extension": {
         "ref": "model",
-        "note": "Arms are continued beyond betaData with the pitch angle of the nearest segment for up to 90 deg of azimuth (30 deg for the short 3-kpc arm), inside 3.0 <= R <= 16.0 kpc (2.5 kpc for the 3-kpc arm). Along the extension the arm strength falls linearly from 0.6 at the data edge to 0 at the end. The far side of the Galaxy is not constrained by parallaxes.",
-        "maxDeltaBeta": 90, "maxDeltaBeta3kpc": 30, "Rmin": 3.0, "Rmin3kpc": 2.5, "Rmax": 16.0, "edgeStrength": 0.6
+        "note": "Arms are continued beyond betaData with the pitch angle of the nearest segment for up to 150 deg of azimuth (90 deg for the 3-kpc arm, which reaches its l = 337 deg tangency, a prior in the Reid et al. fit), inside 3.0 <= R <= 16.0 kpc (2.5 kpc for the 3-kpc arm). Along the extension the arm strength falls linearly from 0.6 at the data edge to 0 at the end. The far side of the Galaxy is not constrained by parallaxes.",
+        "maxDeltaBeta": 150, "maxDeltaBeta3kpc": 90, "Rmin": 3.0, "Rmin3kpc": 2.5, "Rmax": 16.0, "edgeStrength": 0.6
       }
     },
 

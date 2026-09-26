@@ -1,0 +1,167 @@
+import { describe, expect, it } from 'vitest';
+import { existsSync, readFileSync, statSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { dirname, join } from 'node:path';
+import { parseLsm1 } from './mesh';
+
+const here = dirname(fileURLToPath(import.meta.url));
+const root = join(here, '../../../..');
+const staging = join(here, '../..');
+const bodies = JSON.parse(readFileSync(join(staging, 'bodies.json'), 'utf8'));
+const rings = JSON.parse(readFileSync(join(staging, 'rings.json'), 'utf8'));
+
+const REQUIRED = [
+  'phobos', 'deimos', 'io', 'europa', 'ganymede', 'callisto', 'mimas', 'enceladus', 'tethys', 'dione', 'rhea', 'titan',
+  'hyperion', 'iapetus', 'miranda', 'ariel', 'umbriel', 'titania', 'oberon', 'triton', 'proteus', 'nereid', 'charon',
+  'nix', 'hydra', 'ceres', 'vesta', 'eris', 'haumea', 'makemake', 'gonggong', 'quaoar', 'sedna', 'orcus', 'arrokoth',
+  'halley', 'encke', 'churyumov-gerasimenko', 'hale-bopp', 'oumuamua', 'borisov', 'atlas-3i', 'voyager2',
+  'new-horizons', 'pioneer10', 'parker-solar-probe', 'jwst',
+];
+
+interface Body {
+  id: string;
+  kind: string;
+  parent?: string;
+  radiusKm: number;
+  colour: string;
+  facts: string[];
+  factSources: string[];
+  gmKm3S2?: number;
+  densityGCm3?: number;
+  geometricAlbedo?: number | null;
+  rotation: { model: string };
+  discovery?: { date: string };
+  spacecraft?: { status: string };
+  assets: {
+    texture: string | null;
+    textureInfo: { width: number; height: number } | null;
+    model: string | null;
+  };
+}
+
+const list = bodies.bodies as Body[];
+const byId: Record<string, Body> = Object.fromEntries(list.map((b) => [b.id, b]));
+
+describe('bodies.json', () => {
+  it('has every requested body exactly once', () => {
+    expect(list.map((b) => b.id).sort()).toEqual([...REQUIRED].sort());
+  });
+  for (const id of REQUIRED) {
+    it(`${id}: required fields, three sourced facts, plausible numbers`, () => {
+      const b = byId[id];
+      expect(['moon', 'dwarf-planet', 'comet', 'interstellar', 'spacecraft']).toContain(b.kind);
+      if (b.kind === 'moon') expect(typeof b.parent).toBe('string');
+      expect(b.radiusKm).toBeGreaterThan(0);
+      expect(b.radiusKm).toBeLessThan(3000);
+      expect(b.colour).toMatch(/^#[0-9a-f]{6}$/);
+      expect(b.facts).toHaveLength(3);
+      expect(b.factSources).toHaveLength(3);
+      for (const u of b.factSources) expect(u).toMatch(/^https:\/\//);
+      for (const f of b.facts) {
+        expect(f.length).toBeLessThan(260);
+        expect(f).not.toMatch(/!/);
+      }
+      if (b.gmKm3S2 !== undefined) expect(b.gmKm3S2).toBeGreaterThan(0);
+      if (b.densityGCm3 !== undefined) {
+        expect(b.densityGCm3).toBeGreaterThan(0.2);
+        expect(b.densityGCm3).toBeLessThan(4);
+      }
+      if (b.geometricAlbedo !== undefined && b.geometricAlbedo !== null) {
+        expect(b.geometricAlbedo).toBeGreaterThan(0.01);
+        expect(b.geometricAlbedo).toBeLessThan(1.5);
+      }
+      expect(typeof b.rotation.model).toBe('string');
+      if (b.kind === 'spacecraft') expect(typeof b.spacecraft?.status).toBe('string');
+      else expect(typeof b.discovery?.date).toBe('string');
+    });
+  }
+});
+
+/** Width and height from a baseline or progressive JPEG's start-of-frame segment. */
+function jpegSize(buf: Buffer): [number, number] | null {
+  let i = 2;
+  while (i + 9 < buf.length && buf[i] === 0xff) {
+    const marker = buf[i + 1];
+    const len = buf.readUInt16BE(i + 2);
+    if (marker === 0xc0 || marker === 0xc2) return [buf.readUInt16BE(i + 7), buf.readUInt16BE(i + 5)];
+    i += 2 + len;
+  }
+  return null;
+}
+
+describe('textures', () => {
+  const withTex = list.filter((b) => b.assets.texture);
+  for (const b of withTex) {
+    it(`${b.id}: ${b.assets.texture} exists and is a 2:1 JPEG of the stated size`, () => {
+      const f = join(root, 'public', b.assets.texture!);
+      expect(existsSync(f)).toBe(true);
+      const buf = readFileSync(f);
+      expect(buf[0]).toBe(0xff);
+      expect(buf[1]).toBe(0xd8);
+      expect(jpegSize(buf)).toEqual([b.assets.textureInfo!.width, b.assets.textureInfo!.height]);
+      expect(b.assets.textureInfo!.width).toBe(2 * b.assets.textureInfo!.height);
+    });
+  }
+  it('new textures total at most 10 MB', () => {
+    const total = withTex.reduce((s, b) => s + statSync(join(root, 'public', b.assets.texture!)).size, 0);
+    expect(total).toBeLessThan(10 * 1024 * 1024);
+  });
+});
+
+describe('meshes', () => {
+  for (const b of list.filter((x) => x.assets.model)) {
+    it(`${b.id}: closed, outward-facing, ≤ 4000 triangles, ≤ 300 KB, size consistent with bodies.json`, () => {
+      const f = join(root, 'public', b.assets.model!);
+      expect(statSync(f).size).toBeLessThan(300 * 1024);
+      const m = parseLsm1(readFileSync(f));
+      expect(m.triangleCount).toBeLessThanOrEqual(4000);
+      // Every directed edge must have its reverse: closed and consistently wound.
+      const edges = new Set<string>();
+      for (let t = 0; t < m.triangleCount; t++) {
+        for (let e = 0; e < 3; e++) edges.add(`${m.indices[3 * t + e]},${m.indices[3 * t + ((e + 1) % 3)]}`);
+      }
+      for (const k of edges) {
+        const [a, c] = k.split(',');
+        expect(edges.has(`${c},${a}`)).toBe(true);
+      }
+      // Positive signed volume (outward normals), matching the header's equal-volume radius.
+      let vol = 0;
+      const P = m.positions;
+      for (let t = 0; t < m.triangleCount; t++) {
+        const i = m.indices[3 * t], j = m.indices[3 * t + 1], k = m.indices[3 * t + 2];
+        const ax = P[3 * i], ay = P[3 * i + 1], az = P[3 * i + 2];
+        const bx = P[3 * j], by = P[3 * j + 1], bz = P[3 * j + 2];
+        const cx = P[3 * k], cy = P[3 * k + 1], cz = P[3 * k + 2];
+        vol += (ax * (by * cz - bz * cy) - ay * (bx * cz - bz * cx) + az * (bx * cy - by * cx)) / 6;
+      }
+      expect(vol).toBeGreaterThan(0);
+      const req = Math.cbrt((3 * vol) / (4 * Math.PI));
+      expect(Math.abs(req / m.equalVolumeRadiusKm - 1)).toBeLessThan(1e-4);
+      // Within 16% of the catalogue mean radius. The largest gaps are Nix and Hydra, whose meshes
+      // are the Weaver et al. 2016 ellipsoids while the catalogue radii are the smaller SSD values.
+      expect(Math.abs(req / b.radiusKm - 1)).toBeLessThan(0.16);
+    });
+  }
+});
+
+describe('rings.json', () => {
+  it('has the requested systems, with sources and sane values', () => {
+    const parents = rings.systems.map((s: { parent: string }) => s.parent);
+    for (const p of ['jupiter', 'uranus', 'neptune', 'haumea', 'quaoar']) expect(parents).toContain(p);
+    const uranus = rings.systems.find((s: { parent: string }) => s.parent === 'uranus');
+    expect(uranus.rings).toHaveLength(13);
+    expect(uranus.rings.find((r: { name: string }) => r.name === 'Epsilon').radiusKm).toBe(51149);
+    const neptune = rings.systems.find((s: { parent: string }) => s.parent === 'neptune');
+    for (const n of ['Galle', 'Le Verrier', 'Lassell', 'Arago', 'Adams']) {
+      expect(neptune.rings.some((r: { name: string }) => r.name.startsWith(n))).toBe(true);
+    }
+    for (const s of rings.systems) {
+      expect(s.sources.length).toBeGreaterThan(0);
+      for (const r of s.rings) {
+        const rad = r.radiusKm ?? (r.innerKm + r.outerKm) / 2;
+        expect(rad).toBeGreaterThan(0);
+        expect(r.colour).toMatch(/^#[0-9a-f]{6}$/);
+      }
+    }
+  });
+});

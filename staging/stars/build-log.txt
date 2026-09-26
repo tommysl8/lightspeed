@@ -1,0 +1,92 @@
+inputs: AT-HYG 332178 rows, Gaia 329938, HIP 118218, HIP2 117955, IAU names 640
+Tycho-2 calibration: 27 B-V knots (28059 stars), 25 V-VT knots
+combined Hipparcos photometry split for 2496 stars; bright ones:
+  Wurren: V 3.94 -> 3.96 (8476-1304-1)
+  Mesarthim: V 3.88 -> 4.67 (1209-1833-1)
+  Alrescha: V 3.82 -> 4.20 (Alrescha B)
+  Almach: V 2.10 -> 2.18 (2837-2311-2)
+  Kaffaljidhma: V 3.47 -> 3.57 (Kaffaljidhma B)
+  Acamar: V 2.88 -> 3.30 (7563-1017-1)
+  Dalim: V 3.80 -> 3.85 (Dalim B)
+  Atik: V 3.84 -> 3.92 (Atik B)
+  Sceptrum: V 3.86 -> 3.93 (Sceptrum B)
+  skip HIP 21756: companions brighter than the combined light
+  Eta Ori: V 3.35 -> 3.65 (4757-1588-2)
+  Mintaka: V 2.25 -> 2.56 (Mintaka B)
+  Meissa: V 3.39 -> 3.57 (705-2400-2)
+  Alnitak: V 1.74 -> 1.93 (Alnitak B)
+  skip HIP 28442: companions brighter than the combined light
+  Propus: V 3.31 -> 3.40 (Propus B)
+  Bet Mon: V 3.76 -> 4.60 (4797-1881-1, 4797-1882-1)
+  Wasat: V 3.50 -> 3.51 (Wasat B)
+  Castor: V 1.58 -> 1.93 (Castor B)
+  HIP 37229: V 3.80 -> 4.47 (6547-2626-1)
+  Avior: V 1.86 -> 2.00 (Avior B)
+  skip HIP 41404: companions brighter than the combined light
+  skip HIP 42762: companions brighter than the combined light
+  Alsephina: V 1.93 -> 1.97 (Alsephina B)
+  Ashlesha: V 3.38 -> 3.43 (224-1333-2)
+  HIP 44248: V 3.96 -> 4.11 (946882)
+  38 Lyn: V 3.82 -> 3.97 (2499-1655-2)
+  Psi Vel: V 3.60 -> 4.12 (1000660)
+  Ups Car: V 2.92 -> 2.99 (8950-2272-2)
+  Algieba: V 2.01 -> 2.28 (Algieba B)
+  Mu Vel: V 2.69 -> 2.77 (8206-3033-2)
+  Dubhe: V 1.81 -> 1.87 (Dubhe B)
+  Acrux: V 0.77 -> 1.50 (Acrux B)
+  Gam Cen: V 2.20 -> 3.02 (8240-2724-2)
+  Porrima: V 2.74 -> 3.49 (Porrima B)
+  Bet Mus: V 3.04 -> 3.61 (9228-3047-2)
+  Hadar: V 0.61 -> 0.66 (Hadar B)
+  skip HIP 69684: companions brighter than the combined light
+  Zet Boo: V 3.78 -> 4.51 (917-1471-2)
+  skip HIP 71904: companions brighter than the combined light
+  Izar: V 2.35 -> 2.47 (2019-1250-1)
+  Pi Lup: V 3.91 -> 4.70 (8297-4705-2)
+  Del Ser: V 3.80 -> 4.18 (933-1239-1)
+  Gam Lup: V 2.80 -> 3.06 (7840-1432-2)
+  Marfik: V 3.82 -> 4.20 (Marfik B)
+  Tianji: V 2.81 -> 2.92 (Tianji B)
+  Sabik: V 2.43 -> 2.49 (Sabik B)
+  Rasalgethi: V 2.78 -> 2.89 (990-2134-1)
+  Sargas: V 1.86 -> 1.90 (Sargas B)
+  skip HIP 86346: companions brighter than the combined light
+  skip HIP 94336: companions brighter than the combined light
+  Fawaris: V 2.86 -> 2.91 (Fawaris B)
+  Eps Dra: V 3.84 -> 3.91 (4449-2651-1)
+  Tau Cyg: V 3.74 -> 3.84 (2297678)
+  skip HIP 110778: companions brighter than the combined light
+  Zet-1 Aqr: V 3.65 -> 4.35 (5226-1605-2)
+  skip HIP 117059: companions brighter than the combined light
+xi UMa: A and B placed at 8.732 pc (B's Gaia DR2 parallax); separation at J2000 1.770" (ORB6); centre proper motion (-414.1, -556.9) mas/yr (Tycho-2 photocentre: -453.7, -591.4); vs Gaia DR3 at J2016.0: A 0.007", B 0.011", B-A 1.825" (model) vs 1.830" (Gaia)
+[alpha-centauri] Kepler's third law with these a, P and parallax: M1+M2 = 1.9880 M_sun (members' masses sum to 1.9880)
+[alpha-centauri] Proxima relative to the AB barycentre at J2000: separation 12061 au, relative speed 279 m/s, escape speed 557 m/s -> bound; a = 8042 au, e = 0.506, P = 496 kyr, last periastron 230 kyr before J2000, next 266 kyr after (published: a = 8.7 kau, e = 0.50, P = 547 kyr, next periastron in 283 kyr)
+[alpha-centauri] alpha-cen-ab relative orbit: 2025: model 9.19 deg 8.7362" vs ORB6 9.2 deg 8.737" (dPA -0.01 deg, dSep -0.0008"); 2026: model 11.89 deg 9.2927" vs ORB6 11.9 deg 9.294" (dPA -0.01 deg, dSep -0.0013"); 2027: model 14.31 deg 9.7639" vs ORB6 14.3 deg 9.765" (dPA 0.01 deg, dSep -0.0011"); 2028: model 16.52 deg 10.1207" vs ORB6 16.5 deg 10.121" (dPA 0.02 deg, dSep -0.0003"); 2029: model 18.62 deg 10.3285" vs ORB6 18.6 deg 10.329" (dPA 0.02 deg, dSep -0.0005")
+[alpha-centauri] Model vs Hipparcos (1991.25) positions quoted by Akeson et al. 2021: A off by 0.042", B off by 0.107"
+[alpha-centauri] Model position of Proxima at J2016.0 differs from Gaia DR3 by 0.0000" and its distance by 0.0 au
+[sirius] Kepler's third law with these a, P and parallax: M1+M2 = 3.0810 M_sun (members' masses sum to 3.0810)
+[sirius] sirius-ab relative orbit: 2025: model 58.99 deg 11.2564" vs ORB6 59 deg 11.256" (dPA -0.01 deg, dSep 0.0004"); 2026: model 57.13 deg 11.1634" vs ORB6 57.1 deg 11.163" (dPA 0.03 deg, dSep 0.0004"); 2027: model 55.22 deg 11.0322" vs ORB6 55.2 deg 11.032" (dPA 0.02 deg, dSep 0.0002"); 2028: model 53.27 deg 10.8612" vs ORB6 53.3 deg 10.861" (dPA -0.03 deg, dSep 0.0002"); 2029: model 51.24 deg 10.6487" vs ORB6 51.2 deg 10.648" (dPA 0.04 deg, dSep 0.0007")
+[sirius] Model position of Sirius B at J2016.0 differs from Gaia DR3 (source 2947050466531873024) by 0.519" (Gaia DR3 flags this source with RUWE 2.4; the orbit's 1-sigma is ~0.01")
+[sirius] Model proper motion of Sirius B at J2016.0: (-468.8, -935.7) mas/yr; Gaia DR3 (-461.6 +- 0.3, -914.5 +- 0.3) mas/yr
+[procyon] Kepler's third law with these a, P and parallax: M1+M2 = 2.0700 M_sun (members' masses sum to 2.0700)
+[procyon] procyon-ab relative orbit: 2025: model 348.70 deg 5.0704" vs ORB6 348.7 deg 5.07" (dPA -0.00 deg, dSep 0.0004"); 2026: model 353.65 deg 5.1008" vs ORB6 353.7 deg 5.101" (dPA -0.05 deg, dSep -0.0002"); 2027: model 358.56 deg 5.1220" vs ORB6 358.6 deg 5.122" (dPA -0.04 deg, dSep 0.0000"); 2028: model 3.43 deg 5.1347" vs ORB6 3.4 deg 5.135" (dPA 0.03 deg, dSep -0.0003"); 2029: model 8.29 deg 5.1394" vs ORB6 8.3 deg 5.139" (dPA -0.01 deg, dSep 0.0004"); 2013.0947: model 269.40 deg 3.3171" vs HST, Bond et al. 2015 Table 3 269.432 deg 3.316" (dPA -0.03 deg, dSep 0.0011"); 2014.7038: model 285.70 deg 3.7952" vs HST, Bond et al. 2015 Table 3 285.721 deg 3.7966" (dPA -0.02 deg, dSep -0.0014")
+[61-cygni] Kepler's third law with these a, P and parallax: M1+M2 = 1.4000 M_sun (members' masses sum to 1.3000)
+[61-cygni] 61-cyg-ab relative orbit: 2025: model 153.99 deg 32.0398" vs ORB6 154 deg 32.04" (dPA -0.01 deg, dSep -0.0002"); 2026: model 154.15 deg 32.0880" vs ORB6 154.1 deg 32.088" (dPA 0.05 deg, dSep 0.0000"); 2027: model 154.31 deg 32.1355" vs ORB6 154.3 deg 32.136" (dPA 0.01 deg, dSep -0.0005"); 2028: model 154.47 deg 32.1824" vs ORB6 154.5 deg 32.182" (dPA -0.03 deg, dSep 0.0004"); 2029: model 154.63 deg 32.2285" vs ORB6 154.6 deg 32.229" (dPA 0.03 deg, dSep -0.0005")
+[61-cygni] 61 Cyg B relative to A at J2016.0: orbit 31.576", 152.59 deg; Gaia DR3 31.593", 152.58 deg
+[61-cygni] Relative velocity B-A at J2016.0: orbit radial 1.48 km/s, tangential 1.81 km/s; Gaia DR3 radial 1.38 km/s, tangential 1.82 km/s
+[capella] Kepler's third law with these a, P and parallax: M1+M2 = 5.0513 M_sun (members' masses sum to 5.0515)
+[capella] capella-aab relative orbit: 2025: model 72.43 deg 0.0508" vs ORB6 252.4 deg 0.051" (dPA -179.97 deg, dSep -0.0002"); 2026: model 248.90 deg 0.0517" vs ORB6 68.9 deg 0.052" (dPA -180.00 deg, dSep -0.0003"); 2027: model 65.39 deg 0.0527" vs ORB6 245.4 deg 0.053" (dPA 179.99 deg, dSep -0.0003"); 2028: model 242.08 deg 0.0534" vs ORB6 62.1 deg 0.053" (dPA 179.98 deg, dSep 0.0004"); 2029: model 58.81 deg 0.0543" vs ORB6 238.8 deg 0.054" (dPA -179.99 deg, dSep 0.0003")
+[capella] Orbit semi-major axis 0.74272 au (Torres et al. 2015: 0.74272 +- 0.00069 au). The ORB6 ephemeris is 180 deg from this model: ORB6 lists Torres et al.'s omega of star A (342.6 deg) as the relative-orbit omega, while the relative orbit of B about A has omega_A + 180 deg, which is what reproduces Torres et al.'s radial-velocity curves.
+stars3d.bin.gz: 329770 stars, 7914544 bytes raw, 5262589 bytes gzipped (0 without V); sections gz [2935984,1296123,370469,486813,164969]
+stars3d-extra.bin.gz: 989374 bytes raw, 641325 bytes gzipped
+  distance sources {"0":318230,"1":8028,"2":1320,"3":2003,"4":170,"5":12,"6":6,"7":1} precision classes [200067,116647,9380,3676]
+  velocity status [290974,38771,21,4]; Gaia RV 282366 (faint-star corr 150, hot-star corr 25429); clipped components 0
+  dropped: {"noDistance":2406,"manual":1,"implausible":1}; zero-point outside L21 validity 8434; HIP2 parallax more precise than Gaia DR3 for 490 stars; HIP2 distances used for AT-HYG "no distance" stars 0
+  positions replaced by Gaia DR3 (moved to J2000) for 1623 stars with non-mean AT-HYG positions
+  positions replaced by the Hipparcos new reduction moved to J2000 for 4493 stars whose AT-HYG position was more than 0.1" off (539 of them at the Hipparcos epoch J1991.25); V < 3.5: Alpheratz 1.87" (J1991.25), Caph 2.25", Ankaa 0.43", Schedar 0.19", Achird 4.43", Tiansi 0.22" (J1991.25), Bet Phe 0.37", Ruchbah 1.29", Achernar 0.83" (J1991.25), Tau Cet 0.59", Segin 0.15", Alp Hyi 1.22", Almach 0.11", Hamal 0.11", Polaris 0.38", Mirfak 0.31" (J1991.25), Alp Dor 0.21", Aldebaran 1.74" (J1991.25), Capella 3.79" (J1991.25), Bellatrix 0.13" (J1991.25), Elnath 1.53" (J1991.25), Betelgeuse 0.26" (J1991.25), Menkalinan 0.49" (J1991.25), Canopus 0.27" (J1991.25), Alhena 0.50" (J1991.25), Sirius 11.72" (J1991.25), Alp Pic 0.24", Castor 2.10" (J1991.25), Procyon 11.02" (J1991.25), Pollux 5.50" (J1991.25), Naos 0.30" (J1991.25), Gam-2 Vel 0.11" (J1991.25), Avior 0.30" (J1991.25), Muscida 0.59", Alsephina 0.94" (J1991.25), Ashlesha 0.25", Zet Hya 0.28", Talitha 1.28", Miaplacidus 1.67" (J1991.25), Markeb 0.14" (J1991.25), The UMa 3.16", Regulus 2.18" (J1991.25), Tania Borealis 0.49", Algieba 2.99" (J1991.25), Mu Vel 0.20", Merak 0.77" (J1991.25), Dubhe 1.21" (J1991.25), Denebola 4.47" (J1991.25), Del Cen 0.13", Megrez 0.42", Acrux 0.34" (J1991.25), Gacrux 2.33" (J1991.25), Alp Mus 0.20", Gam Cen 0.44", Mimosa 0.41" (J1991.25), Alioth 0.98" (J1991.25), Cor Caroli 0.46", Mizar 1.06" (J1991.25), Spica 0.46" (J1991.25), Eps Cen 0.17" (J1991.25), Alkaid 1.07" (J1991.25), Leepwal 0.63" (J1991.25), Hadar 0.36" (J1991.25), Arcturus 19.95" (J1991.25), Seginus 0.21", Eta Cen 0.42" (J1991.25), Toliman 32.40" (J1991.25), Rigil Kentaurus 32.47" (J1991.25), Uridim 0.28" (J1991.25), Kochab 0.21", Pherkad 0.11", Alphecca 1.31" (J1991.25), Gam Lup 0.47", Bet TrA 0.92", Antares 0.23" (J1991.25), Tianji 0.59", Aldhibah 0.10", Rasalgethi 0.13", Shaula 0.28" (J1991.25), Rasalhague 2.16" (J1991.25), Kap Sco 0.23" (J1991.25), Mu Her 0.16", Kaus Australis 1.14" (J1991.25), Vega 3.06" (J1991.25), Nunki 0.49" (J1991.25), Ascella 0.25", Fawaris 0.13", Altair 5.78" (J1991.25), Peacock 0.75" (J1991.25), Zet Cyg 0.12", Alderamin 0.72", Alnair 1.70" (J1991.25), Fomalhaut 3.22" (J1991.25), Errai 0.22"
+  proper motions filled for AT-HYG rows without a recorded source: Hipparcos new reduction 309, Gaia DR3 3, AT-HYG's unsourced value kept 120, none available 22
+  distances capped at M_V = -10 (1): Polis (V 3.83) -> 5826 pc; HYG 100000-pc placeholders met: 89
+names: 689 proper (67 IAU names added beyond AT-HYG; 65 IAU names without a catalogue star), 1539 Bayer, 2737 Flamsteed, 4899 variable, 3547 Gliese, 107249 HIP, 225225 HD, 9033 HR
+  IAU names without a catalogue star: Butterfly Star (IRAS 04302+2247); Dust-Ball (V* V927 Per); Flying Saucer (2MASS J16281370-2431391); Necklace (IRAS 19417+1701); Peony Star (WR 102ka); Rosette Eye (RAFGL 961); Southern Crab (WRAY 16-147); Beehive Proplyd (HH 540); Frosty Leo (IRAS 09371+1212); Sapaki (WR 67-1); Bajamar Star (2MASS J20555125+4352246); Calvera (PSR J1412+7922); Holoea (IRAS 05327+3404); Paloma (2MASS J05243042+4244506); Pistol Star (V*4647 Sgr); Siwarha (-); Blaze Star (HR 5958); Batsũ̀ (LHS 3844); Dilmun (WASP-121); Gnomon (WASP-43); Guahayona (HAT-P-26); Komondor (HAT-P-12); Kosjenka (WASP-63); Wattle (WASP-19); Zembra (HATS-72); Geminga (PSR B0633+17); Mazaalai (HAT-P-21); Absolutno (XO-5); Amansinaya (WASP-34); Anadolu (WASP-52); Atakoraka (WASP-64); Berehynia (HAT-P-15); Chaophraya (WASP-50); Chasoň (HAT-P-5); Dìwö (WASP-17); Diya (WASP-72); Dombay (HAT-P-3); Franz (HAT-P-14); Gloas (WASP-13); Horna (HAT-P-38); Intan (HD 20868); Koit (XO-4); Lerna (HAT-P-42); Malmok (WASP-39); Márohu (WASP-6); Moldoveanu (XO-1); Montuno (WASP-79); Morava (WASP-60); Moriah (HAT-P-23); Mpingo (WASP-71); Muspelheim (HAT-P-29); Naledi (WASP-62); Nyamien (WASP-15); Parumleo (WASP-32); Petra (WASP-80); Pipoltr (TrES-3 Parent Star); Sansuna (HAT-P-34); Sterrennacht (HAT-P-6); Taika (HAT-P-40); Tangra (WASP-21); Tevel (HAT-P-9); Tislit (WASP-161); Tojil (WASP-22); Tuiren (HAT-P-36); Lich (PSR B1257+12)
+star-names.json.gz: 1154208 bytes gzipped
+systems.json: 5 systems, 38 stars

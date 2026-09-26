@@ -140,6 +140,7 @@ function Clocks() {
 function Target() {
   const id = useUI((s) => s.selected);
   const tripActive = useUI((s) => s.tripActive);
+  const labUsed = useUI((s) => s.labUsed);
   if (!id) {
     return (
       <Sec id="tgt" idx="C" title="Target">
@@ -218,7 +219,7 @@ function Target() {
         <button className="btn" disabled={tripActive} onClick={() => openPlanner(id)} title="Plan a trip at a chosen speed (G)">
           Plan trajectory…
         </button>
-        <button className="btn" onClick={() => emitLightPulse(id)} title="Emit a light pulse from this body’s current position (Experiment 1)">
+        <button className="btn" onClick={() => emitLightPulse(id)} title={`Emit a light pulse from this body’s current position${labUsed ? ' (Experiment 1)' : ''}`}>
           Emit pulse
         </button>
       </div>
@@ -452,11 +453,11 @@ export function InstrumentsDock(): ReactNode {
   useTicker(8);
   const width = useUI((s) => s.rightWidth);
   return (
-    <aside className="dock dock-r relative" aria-label="Instruments" style={{ width }}>
+    <aside className="dock dock-r relative" aria-label="Instrument panel" style={{ width }}>
       <DockResizer side="right" width={width} initial={312} min={260} max={520} onChange={(w) => useUI.setState({ rightWidth: w })} />
       <div className="titlebar !h-[30px]">
-        <span className="cap !text-fg-2">Instruments</span>
-        <button className="btn btn-q btn-sq ml-auto !h-5 !w-5" onClick={() => useUI.setState({ rightOpen: false })} aria-label="Close instruments">
+        <span className="cap !text-fg-2">Instrument panel</span>
+        <button className="btn btn-q btn-sq ml-auto !h-5 !w-5" onClick={() => useUI.setState({ rightOpen: false })} aria-label="Close the instrument panel">
           <CloseIcon />
         </button>
       </div>

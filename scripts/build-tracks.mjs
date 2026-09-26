@@ -6,7 +6,7 @@
 // requested again. Requests are made one at a time with a pause between them.
 //
 // Usage:  node scripts/build-tracks.mjs [--only=id,id,...] [--no-fixtures]
-//   --only        rebuild just these bodies (writes a partial index; for development)
+//   --only        rebuild just these bodies, writing to data-raw/tracks/partial/ (for development)
 //   --no-fixtures skip the independent Horizons checkpoints written for the unit tests
 //
 // Frame: ecliptic and mean equinox of J2000 (Horizons REF_PLANE=ECLIPTIC, REF_SYSTEM=ICRF,
@@ -75,6 +75,7 @@ const API = 'https://ssd.jpl.nasa.gov/api/horizons.api';
 const PAUSE_MS = 1500;
 let lastRequest = 0;
 let requestCount = 0;
+let cacheReads = 0;
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const slug = (s) => s.replace(/[^A-Za-z0-9.+-]+/g, '_').replace(/^_+|_+$/g, '');
 
@@ -84,9 +85,12 @@ const slug = (s) => s.replace(/[^A-Za-z0-9.+-]+/g, '_').replace(/^_+|_+$/g, '');
  */
 async function horizons(params, file, { allowError = false } = {}) {
   const path = join(RAW, file);
-  if (existsSync(path)) return readFileSync(path, 'utf8');
+  if (existsSync(path)) {
+    cacheReads++;
+    return readFileSync(path, 'utf8');
+  }
   const url = `${API}?${new URLSearchParams({ format: 'text', ...params })}`;
-  for (let attempt = 0; attempt < 6; attempt++) {
+  for (let attempt = 0; attempt < 4; attempt++) {
     const wait = lastRequest + PAUSE_MS - Date.now();
     if (wait > 0) await sleep(wait);
     lastRequest = Date.now();
@@ -205,12 +209,20 @@ async function fetchGrid(src, centreCode, a, b, n) {
     );
     header ??= parseHeader(text);
     const rows = parseVectors(text);
+    if (rows.length === i1 - i0) {
+      // Horizons accumulates its step and occasionally lands just past the stop time, dropping
+      // the last row; fetch that epoch on its own.
+      const [last] = await fetchList(src, centreCode, [tb]);
+      rows.push({ jd: J2000_JD + last.t, p: last.p, v: last.v });
+    }
     if (rows.length !== i1 - i0 + 1) throw new Error(`${file}: expected ${i1 - i0 + 1} rows, got ${rows.length}`);
     rows.forEach((r, k) => {
       if (c > 0 && k === 0) return;
-      const t = k === rows.length - 1 && c === chunks - 1 ? b : a + ((b - a) * (i0 + k)) / n;
-      if (Math.abs(r.jd - J2000_JD - t) > 2e-8) throw new Error(`${file}: time mismatch ${r.jd} vs ${t}`);
-      out.push({ t, p: r.p, v: r.v });
+      // Horizons' own step accumulates a few ms over tens of thousands of steps, so the
+      // printed epoch (rounded to 1e-9 day, 43 µs) is the better time tag.
+      const t = a + ((b - a) * (i0 + k)) / n;
+      if (Math.abs(r.jd - J2000_JD - t) > 1e-6) throw new Error(`${file}: time mismatch ${r.jd} vs ${t}`);
+      out.push({ t: r.jd - J2000_JD, p: r.p, v: r.v });
     });
   }
   src.header ??= header;
@@ -221,7 +233,7 @@ async function fetchGrid(src, centreCode, a, b, n) {
 async function fetchList(src, centreCode, times) {
   const sorted = [...new Set(times)].sort((x, y) => x - y);
   const map = new Map();
-  const CH = 90;
+  const CH = 50; // longer TLIST query strings are rejected (HTTP 502)
   for (let c = 0; c < sorted.length; c += CH) {
     const part = sorted.slice(c, c + CH);
     const hash = createHash('sha1').update(part.map(jdString).join(' ')).digest('hex').slice(0, 12);
@@ -482,7 +494,13 @@ function nearestIndex(S, t, lo, hi) {
   return t - S.t[a] <= S.t[b] - t ? a : b;
 }
 
-/** Largest error / tolerance over samples i0..i1 (every `stride`-th, plus the ends). */
+/**
+ * Largest error / tolerance over samples i0..i1 (every `stride`-th, plus the ends), and also at
+ * the midpoint after each checked sample, against the cubic Hermite interpolant of the two
+ * neighbouring samples, (p0 + p1)/2 + h(v0 − v1)/8. Sampling is dense enough (≥ 16 samples per
+ * r/|v|) that the Hermite midpoint is far more accurate than the tolerance, so this catches a
+ * polynomial that wiggles between samples.
+ */
 function worstRatio(S, i0, i1, n, c, stride = 1, stopAbove = Infinity) {
   const a = S.t[i0];
   const b = S.t[i1];
@@ -490,12 +508,23 @@ function worstRatio(S, i0, i1, n, c, stride = 1, stopAbove = Infinity) {
   const mid = (a + b) / 2;
   const nc = n + 1;
   let worst = 0;
+  const check = (t, px, py, pz, w) => {
+    const x = (t - mid) / half;
+    const dx = clenshaw(c, 0, n, x) - px;
+    const dy = clenshaw(c, nc, n, x) - py;
+    const dz = clenshaw(c, 2 * nc, n, x) - pz;
+    return Math.sqrt(dx * dx + dy * dy + dz * dz) * w;
+  };
   for (let i = i0; i <= i1; i += stride) {
-    const x = (S.t[i] - mid) / half;
-    const dx = clenshaw(c, 0, n, x) - S.p[3 * i];
-    const dy = clenshaw(c, nc, n, x) - S.p[3 * i + 1];
-    const dz = clenshaw(c, 2 * nc, n, x) - S.p[3 * i + 2];
-    const r = Math.sqrt(dx * dx + dy * dy + dz * dz) * S.w[i];
+    let r = check(S.t[i], S.p[3 * i], S.p[3 * i + 1], S.p[3 * i + 2], S.w[i]);
+    if (i < i1) {
+      const j = i + 1;
+      const h = (S.t[j] - S.t[i]) / 8;
+      const mx = 0.5 * (S.p[3 * i] + S.p[3 * j]) + h * (S.v[3 * i] - S.v[3 * j]);
+      const my = 0.5 * (S.p[3 * i + 1] + S.p[3 * j + 1]) + h * (S.v[3 * i + 1] - S.v[3 * j + 1]);
+      const mz = 0.5 * (S.p[3 * i + 2] + S.p[3 * j + 2]) + h * (S.v[3 * i + 2] - S.v[3 * j + 2]);
+      r = Math.max(r, check(0.5 * (S.t[i] + S.t[j]), mx, my, mz, Math.min(S.w[i], S.w[j])));
+    }
     if (r > worst) {
       worst = r;
       if (worst > stopAbove) return worst;
@@ -546,6 +575,7 @@ function longestSegment(S, i0, iEnd, n, guess) {
 async function segmentize(S, refine, label) {
   const segs = [];
   const guess = {};
+  const discontinuities = [];
   let i0 = 0;
   let refinements = 0;
   while (i0 < S.t.length - 1) {
@@ -582,15 +612,24 @@ async function segmentize(S, refine, label) {
       await refine(i0, j1, 8);
       continue;
     }
-    // A genuine discontinuity in the source (sub-second): end the segment here and restart
-    // just after the jump, leaving a gap the evaluator bridges by clamping.
-    console.warn(`  ${label}: discontinuity near ${isoOf(S.t[i0])}; splitting`);
-    const c = fitSegment(S, i0, i0 + 1, 3);
-    segs.push({ t0: S.t[i0], t1: S.t[i0 + 1], n: 3, c, i0, i1: i0 + 1, gapAfter: true });
-    i0 = i0 + 2 <= iEnd ? i0 + 2 : i0 + 1;
-    if (i0 === iEnd) break;
+    // A genuine jump in the source (the samples straddling it are < 2 s apart): put a segment
+    // boundary across it and leave a sub-second gap, which the evaluator bridges with the
+    // previous segment. The jump is JPL's (for example where Horizons joins a design
+    // trajectory to a reconstruction), so it is kept, and reported.
+    const jumpVec = (i) => {
+      const dt = S.t[i + 1] - S.t[i];
+      return [0, 1, 2].map((d) => S.p[3 * (i + 1) + d] - S.p[3 * i + d] - 0.5 * dt * (S.v[3 * i + d] + S.v[3 * (i + 1) + d]));
+    };
+    const jump = (i) => Math.hypot(...jumpVec(i));
+    const j = jump(i0) >= jump(i0 + 1) || i0 + 1 >= iEnd ? i0 : i0 + 1;
+    const speed = Math.hypot(S.v[3 * j], S.v[3 * j + 1], S.v[3 * j + 2]); // km/day
+    discontinuities.push({ t: S.t[j + 1], jumpKm: jump(j), jump: jumpVec(j), speed, cause: 'source' });
+    console.warn(`  ${label}: source discontinuity of ${jump(j).toFixed(1)} km at ${isoOf(S.t[j])}`);
+    if (j > i0) segs.push({ t0: S.t[i0], t1: S.t[j], n: 3, c: fitSegment(S, i0, j, 3), i0, i1: j });
+    if (segs.length) segs[segs.length - 1].gapAfter = true;
+    i0 = j + 1;
   }
-  return { segs, refinements };
+  return { segs, refinements, discontinuities };
 }
 
 // ─── Sample sets ──────────────────────────────────────────────────────────────────────────
@@ -614,31 +653,103 @@ function toSampleSet(rows, tolFn) {
   return S;
 }
 
-const smoothstep = (u) => (u <= 0 ? 0 : u >= 1 ? 1 : u * u * (3 - 2 * u));
+/**
+ * Join the separately fitted solution groups of one piece. Consecutive groups share the switch
+ * time s (the earlier group's last sample and the later group's first are both at s), so the
+ * segments meet with no gap; the join is flagged as a jump (bit 0), and the jump itself is the
+ * difference between the two solutions at s.
+ */
+function mergeParts(parts, provider) {
+  if (parts.length === 1) return parts[0];
+  const N = parts.reduce((n, x) => n + x.S.t.length, 0);
+  const S = { t: new Float64Array(N), p: new Float64Array(3 * N), v: new Float64Array(3 * N), w: new Float64Array(N), rows: [] };
+  const segs = [];
+  const discontinuities = [];
+  let refinements = 0;
+  let off = 0;
+  parts.forEach((x, g) => {
+    S.t.set(x.S.t, off);
+    S.p.set(x.S.p, 3 * off);
+    S.v.set(x.S.v, 3 * off);
+    S.w.set(x.S.w, off);
+    S.rows.push(...x.S.rows);
+    for (const s of x.segs) segs.push({ ...s, i0: s.i0 + off, i1: s.i1 + off });
+    discontinuities.push(...x.discontinuities);
+    refinements += x.refinements;
+    off += x.S.t.length;
+    if (g === parts.length - 1) return;
+    const A = x.S;
+    const B = parts[g + 1].S;
+    const ia = A.t.length - 1;
+    if (Math.abs(A.t[ia] - B.t[0]) > 1e-9) throw new Error(`solution groups ${g}/${g + 1} do not meet (${A.t[ia]} vs ${B.t[0]})`);
+    segs[segs.length - 1].gapAfter = true;
+    const jump = [0, 1, 2].map((d) => B.p[d] - A.p[3 * ia + d]);
+    const speed = Math.hypot(A.v[3 * ia], A.v[3 * ia + 1], A.v[3 * ia + 2]); // km/day
+    discontinuities.push({
+      t: B.t[0],
+      jumpKm: Math.hypot(...jump),
+      jump,
+      speed,
+      cause: 'solution-switch',
+      from: provider.groupSource(g).command.replace(';', ''),
+      to: provider.groupSource(g + 1).command.replace(';', ''),
+    });
+  });
+  discontinuities.sort((a, b) => a.t - b.t);
+  return { S, segs, refinements, discontinuities };
+}
 
 /**
  * The truth a piece is fitted to: one Horizons source, or several consecutive ones (comet
- * apparition solutions) cross-faded with a smoothstep over [s − β, s + β] around each switch s.
+ * apparition solutions, Arrokoth's two orbits). Consecutive sources hand over with an exact
+ * switch at `switchAt` s: before s the earlier solution, from s on the later one. There is no
+ * cross-fade, because two solutions that differ by D km cannot be joined continuously without
+ * some point lying at least D/2 from both, and D is 900–67,000 km here. The fitted track keeps
+ * the switch as a jump (see `jumps` in tracks.md), so it is within its bound of the solution it
+ * follows at every instant.
+ *
+ * Spans overlap by 2β around each switch only so that the cached Horizons grids stay the same;
+ * rows of the other solution inside the overlap are not used.
+ *
+ * Every row carries `g`, the index of the solution group it belongs to. Two legs of the same
+ * solution (the interstellar objects, split at their solution epoch) share a group.
  */
 class Provider {
   constructor(spans, centreCode) {
-    this.spans = spans; // [{ src, a, b }], overlapping by 2β at each switch
+    this.spans = spans; // [{ src, a, b, switchAt? }]
     this.centreCode = centreCode;
+    let g = 0;
+    spans.forEach((s, k) => {
+      if (k > 0 && s.src !== spans[k - 1].src) g++;
+      s.group = g;
+    });
+    this.groups = g + 1;
   }
   covering(t) {
     return this.spans.filter((s) => t >= s.a - 1e-9 && t <= s.b + 1e-9);
   }
-  combine(t, parts) {
-    if (parts.length === 1) return { t, p: parts[0].row.p, v: parts[0].row.v };
-    const [A, B] = parts;
-    const a = B.span.a; // start of the overlap
-    const b = A.span.b; // end of the overlap
-    const u = (t - a) / (b - a);
-    const w = smoothstep(u);
-    const dw = u <= 0 || u >= 1 ? 0 : (6 * u * (1 - u)) / (b - a);
-    const p = [0, 1, 2].map((d) => A.row.p[d] + w * (B.row.p[d] - A.row.p[d]));
-    const v = [0, 1, 2].map((d) => A.row.v[d] + w * (B.row.v[d] - A.row.v[d]) + dw * (B.row.p[d] - A.row.p[d]));
-    return { t, p, v };
+  /**
+   * The row(s) for ideal time t0. At a switch, `both` returns the earlier solution's and the
+   * later one's rows, each moved to exactly s with its own velocity (Horizons' printed epochs
+   * drift from the ideal grid by milliseconds); otherwise the later one.
+   */
+  combine(t0, parts, both = false) {
+    const tag = (part, t = part.row.t ?? t0) => ({ t, p: part.row.p, v: part.row.v, g: part.span.group });
+    // One span, or two legs of the same solution meeting at its epoch: nothing to choose.
+    if (parts.length === 1 || parts[0].span.src === parts[1].span.src) return [tag(parts[0])];
+    const [A, B] = parts; // earlier and later span
+    const s = A.span.switchAt;
+    if (Math.abs(t0 - s) < 1e-9) {
+      const at = (part) => {
+        const dt = s - (part.row.t ?? s);
+        return { t: s, p: part.row.p.map((x, d) => x + part.row.v[d] * dt), v: part.row.v, g: part.span.group };
+      };
+      const a = at(A);
+      const b = at(B);
+      A.span.handoverKm = Math.hypot(b.p[0] - a.p[0], b.p[1] - a.p[1], b.p[2] - a.p[2]);
+      return both ? [a, b] : [b];
+    }
+    return [t0 < s ? tag(A) : tag(B)];
   }
   async grid(a, b, n) {
     const times = Array.from({ length: n + 1 }, (_, i) => (i === n ? b : a + ((b - a) * i) / n));
@@ -655,11 +766,12 @@ class Provider {
         i1 > i0 ? await fetchGrid(span.src, this.centreCode, times[i0], times[i1], i1 - i0) : await fetchList(span.src, this.centreCode, [times[i0]]);
       rows.forEach((row, k) => perTime[i0 + k].push({ span, row }));
     }
-    return times.map((t, i) => {
+    return times.flatMap((t, i) => {
       if (!perTime[i].length) throw new Error(`no source covers ${isoOf(t)}`);
-      return this.combine(t, perTime[i]);
+      return this.combine(t, perTime[i], true);
     });
   }
+  /** One row per time, from the solution in force at that time. */
   async list(times) {
     const perTime = times.map(() => []);
     for (const span of this.spans) {
@@ -671,7 +783,24 @@ class Provider {
         if (byT.has(t)) perTime[i].push({ span, row: byT.get(t) });
       });
     }
-    return times.map((t, i) => this.combine(t, perTime[i]));
+    return times.map((t, i) => this.combine(t, perTime[i])[0]);
+  }
+  /** Both solutions' rows at every switch time (the grid need not contain the switch). */
+  async switchRows() {
+    const out = [];
+    for (let k = 0; k + 1 < this.spans.length; k++) {
+      const A = this.spans[k];
+      const B = this.spans[k + 1];
+      if (A.group === B.group || A.switchAt === undefined) continue;
+      const [ra] = await fetchList(A.src, this.centreCode, [A.switchAt]);
+      const [rb] = await fetchList(B.src, this.centreCode, [A.switchAt]);
+      out.push(...this.combine(A.switchAt, [{ span: A, row: ra }, { span: B, row: rb }], true));
+    }
+    return out;
+  }
+  /** Label of the solution used by group g. */
+  groupSource(g) {
+    return this.spans.find((s) => s.group === g).src;
   }
 }
 
@@ -688,9 +817,11 @@ const K_TAU = 16;
 async function buildPiece(piece) {
   const { provider, t0, t1 } = piece;
   const n0 = Math.max(4, Math.round((t1 - t0) / piece.h0));
-  let rows = await provider.grid(t0, t1, n0);
+  let rows = (await provider.grid(t0, t1, n0)).concat(await provider.switchRows());
   const tolFn = (r) => piece.tolTarget(Math.hypot(r.p[0], r.p[1], r.p[2]));
-  // Densify by the local time scale.
+  // Densify by the local time scale. Contiguous intervals that need it are fetched as one
+  // uniform grid at the finest step any of them needs (split where that would oversample
+  // more than 8x), so each perihelion or flyby costs Horizons a few requests, not dozens.
   for (let pass = 0; pass < 12; pass++) {
     rows.sort((a, b) => a.t - b.t);
     const runs = [];
@@ -701,25 +832,45 @@ async function buildPiece(piece) {
       const tau = Math.min(Math.hypot(...A.p) / Math.hypot(...A.v), Math.hypot(...B.p) / Math.hypot(...B.v));
       const need = tau / K_TAU;
       if (dt > need * 1.0001 && dt > 1e-5) {
-        const sub = 2 ** Math.min(10, Math.ceil(Math.log2(dt / need)));
+        const sub = 2 ** Math.min(12, Math.ceil(Math.log2(dt / need)));
         const last = runs[runs.length - 1];
-        if (last && last.j === i && last.sub === sub && Math.abs(last.dt - dt) < 1e-9 * Math.max(1, dt)) last.j = i + 1;
-        else runs.push({ i, j: i + 1, sub, dt });
+        const joins =
+          last &&
+          last.j === i &&
+          Math.abs(last.dt - dt) < 1e-9 * Math.max(1, dt) &&
+          Math.max(last.maxSub, sub) / Math.min(last.minSub, sub) <= 8;
+        if (joins) {
+          last.j = i + 1;
+          last.maxSub = Math.max(last.maxSub, sub);
+          last.minSub = Math.min(last.minSub, sub);
+        } else runs.push({ i, j: i + 1, maxSub: sub, minSub: sub, dt });
       }
     }
     if (!runs.length) break;
     const add = [];
-    for (const r of runs) add.push(...(await provider.grid(rows[r.i].t, rows[r.j].t, (r.j - r.i) * r.sub)));
+    for (const r of runs) add.push(...(await provider.grid(rows[r.i].t, rows[r.j].t, (r.j - r.i) * r.maxSub)));
     rows = rows.concat(add);
   }
-  const S = toSampleSet(rows, tolFn);
-  const refine = async (i0, j1, factor) => {
-    const times = [];
-    for (let i = i0; i < j1; i++) for (let k = 1; k < factor; k++) times.push(S.t[i] + ((S.t[i + 1] - S.t[i]) * k) / factor);
-    const extra = await provider.list(times);
-    Object.assign(S, toSampleSet(S.rows.concat(extra), tolFn));
-  };
-  const { segs, refinements } = await segmentize(S, refine, `${piece.body}/${piece.centre}`);
+  // Each solution group is fitted on its own; groups meet at the switch with an exact jump.
+  const parts = [];
+  for (let g = 0; g < provider.groups; g++) {
+    const S = toSampleSet(
+      rows.filter((r) => (r.g ?? 0) === g),
+      tolFn,
+    );
+    if (S.t.length < 2) throw new Error(`${piece.body}: solution group ${g} has ${S.t.length} samples`);
+    const refine = async (i0, j1, factor) => {
+      const times = [];
+      for (let i = i0; i < j1; i++) for (let k = 1; k < factor; k++) times.push(S.t[i] + ((S.t[i + 1] - S.t[i]) * k) / factor);
+      const extra = await provider.list(times);
+      if (extra.some((r) => (r.g ?? 0) !== g)) throw new Error(`${piece.body}: refinement crossed a solution switch`);
+      Object.assign(S, toSampleSet(S.rows.concat(extra), tolFn));
+    };
+    const label = provider.groups > 1 ? `${piece.body}/${piece.centre}#${g}` : `${piece.body}/${piece.centre}`;
+    parts.push({ S, ...(await segmentize(S, refine, label)) });
+  }
+  const { S, segs, refinements, discontinuities } = mergeParts(parts, provider);
+  piece.discontinuities = discontinuities;
   // Error at every sample (fit samples; the independent check comes later).
   let maxErr = 0;
   let maxRatio = 0;
@@ -733,6 +884,8 @@ async function buildPiece(piece) {
     }
   }
   piece.samples = S;
+  piece.t0 = S.t[0];
+  piece.t1 = S.t[S.t.length - 1];
   piece.segs = segs;
   piece.stats = { samples: S.t.length, refinements, maxErrKm: maxErr, maxRatio, rmsKm: Math.sqrt(sumSq / S.t.length) };
   return piece;
@@ -811,7 +964,27 @@ const SMALL_BODIES = [
   { id: 'quaoar', name: 'Quaoar', kind: 'tno', designation: '50000 Quaoar (2002 LM60)', command: '50000;', h0: 16, extrapolate: 'ssb' },
   { id: 'sedna', name: 'Sedna', kind: 'tno', designation: '90377 Sedna (2003 VB12)', command: '90377;', h0: 16, extrapolate: 'ssb' },
   { id: 'orcus', name: 'Orcus', kind: 'tno', designation: '90482 Orcus (2004 DW)', command: '90482;', h0: 16, extrapolate: 'ssb' },
-  { id: 'arrokoth', name: 'Arrokoth', kind: 'tno', designation: '486958 Arrokoth (2014 MU69)', command: '486958;', h0: 16, extrapolate: 'ssb' },
+  {
+    id: 'arrokoth',
+    name: 'Arrokoth',
+    kind: 'tno',
+    designation: '486958 Arrokoth (2014 MU69)',
+    command: '486958;',
+    h0: 16,
+    extrapolate: 'ssb',
+    // Horizons calls the New Horizons flight-project ephemeris (target 2486958, 1993-12-25 to
+    // 2034-01-08, including the spacecraft's optical navigation) more accurate than the
+    // ground-based solution; the two differ by ~22,000 km at the 2019 flyby, ~48,000 km in 1995
+    // and ~66,000 km in 2033 (they are closest, ~1,700 km, in 2011). Use the project ephemeris
+    // where it exists and the ground-based solution outside, with an exact switch (a listed
+    // jump) at each boundary. The ±180-day overlap is only what is fetched around each switch.
+    sources: [
+      { command: '486958;', label: 'JPL ground-based orbit solution', until: '1995-01-01' },
+      { command: '2486958', label: 'New Horizons flight-project ephemeris (NavSBE_2014MU69_od159)', until: '2033-01-01' },
+      { command: '486958;', label: 'JPL ground-based orbit solution' },
+    ],
+    overlapDays: 180,
+  },
 ];
 
 const range = (a, b) => Array.from({ length: b - a + 1 }, (_, i) => String(a + i));
@@ -910,7 +1083,9 @@ async function twoBodyEdge(centre, piece, which) {
 /**
  * Horizons keeps one orbit solution per apparition for periodic comets. Each perihelion
  * passage in the window uses the solution whose element epoch is closest to it; solutions
- * hand over at the aphelion between two passages, cross-faded over ±30 days.
+ * hand over with an exact switch at the aphelion between two passages (snapped to the coarse
+ * grid), where the comet moves slowest, so the along-track difference between them is small. The spans overlap
+ * by ±15 coarse steps (±60 days) only so that the grids fetched stay the same.
  */
 async function cometSpans(cfg, t0, t1, h) {
   const recs = [];
@@ -977,20 +1152,44 @@ async function buildSmallBody(cfg, kind) {
   const h = (t1 - t0) / n0;
   let spans;
   let plan;
-  let blendDays = 0;
-  if (cfg.records) ({ spans, plan, beta: blendDays } = await cometSpans(cfg, t0, t1, h));
-  else spans = [{ src: source(cfg.command, cfg.designation), a: t0, b: t1 }];
+  let overlap = 0;
+  if (cfg.records) ({ spans, plan, beta: overlap } = await cometSpans(cfg, t0, t1, h));
+  else if (cfg.sources) {
+    overlap = cfg.overlapDays;
+    const cuts = cfg.sources.slice(0, -1).map((x) => tdb(x.until));
+    spans = cfg.sources.map((x, k) => ({
+      src: source(x.command, x.label),
+      a: k === 0 ? t0 : cuts[k - 1] - overlap,
+      b: k === cfg.sources.length - 1 ? t1 : cuts[k] + overlap,
+      switchAt: cuts[k],
+    }));
+    plan = cfg.sources.map((x, k) => ({ source: x.label, command: x.command, from: k === 0 ? t0 : cuts[k - 1], to: k === cuts.length ? t1 : cuts[k] }));
+  } else spans = [{ src: source(cfg.command, cfg.designation), a: t0, b: t1 }];
+  if (kind === 'interstellar') {
+    // Horizons integrates a grid from the solution epoch back to its start and then forward
+    // through the whole span. For these hyperbolic, non-gravitational orbits the forward pass
+    // through perihelion drifts from a direct integration (about 50,000 km by 2476 for 1I), so
+    // the span is fetched as two legs that meet at the solution epoch.
+    const src = spans[0].src;
+    const epoch = parseHeader(await objectData(src.command)).elementEpochJd - J2000_JD;
+    spans = [
+      { src, a: t0, b: epoch },
+      { src, a: epoch, b: t1 },
+    ];
+  }
   const provider = new Provider(spans, '10');
   const tick = Date.now();
   const piece = await buildPiece({ body: cfg.id, centre: 'sun', role: 'outer', t0, t1, h0: h, provider, ...constTol(TOL.small) });
   console.log(`${cfg.id}: ${spans.length} source span(s), ${piece.segs.length} segments, ${((Date.now() - tick) / 1000).toFixed(1)} s`);
   const extrap = kind === 'interstellar' ? 'ssb' : cfg.extrapolate;
+  plan?.forEach((p, k) => {
+    if (spans[k].handoverKm) p.handoverToNextKm = Number(spans[k].handoverKm.toPrecision(3));
+  });
   return {
     cfg,
     kind: kind === 'comet' ? 'comet' : kind === 'interstellar' ? 'interstellar' : cfg.kind,
     pieces: [piece],
     plan,
-    blendDays,
     before: await twoBodyEdge(extrap, piece, 'start'),
     after: await twoBodyEdge(extrap, piece, 'end'),
   };
@@ -998,8 +1197,8 @@ async function buildSmallBody(cfg, kind) {
 
 function encounterSearch(key) {
   if (key === 'venus') return { D: 3, step: 0.005 };
-  if (key === 'pluto') return { D: 15, step: 0.02 };
-  if (key === 'arrokoth') return { D: 2, step: 0.002 };
+  if (key === 'pluto') return { D: 60, step: 0.05 };
+  if (key === 'arrokoth') return { D: 3, step: 0.002 };
   return { D: 220, step: 0.5 };
 }
 
@@ -1008,6 +1207,22 @@ const crossing = (A, B, level) => {
   const rb = norm(B.p);
   return A.t + ((B.t - A.t) * (level - ra)) / (rb - ra);
 };
+
+/**
+ * Where to switch a spacecraft to a planet-centred track, and how long to blend. The app's
+ * planet (astronomy-engine) is offset from JPL's by `offset` km (tens of thousands of km for
+ * the giant planets), and the planet-centred track inherits that offset, so the switch must
+ * happen far enough out that the offset is small next to the distance (≤ 0.2%), and the blend
+ * must be long enough that fading the offset in adds ≤ 1% to the relative speed. The switch
+ * radius is at least the Laplace sphere of influence.
+ */
+const SWITCH_FRACTION = 0.002;
+const BLEND_SPEED_FRACTION = 0.01;
+
+async function centreOffset(key, t) {
+  const [row] = await fetchList(source(CENTRES[key].code), '10', [t]);
+  return norm(sub3(aeHelio(key, t), row.p));
+}
 
 async function findEncounter(src, key, near, cov) {
   const C = CENTRES[key];
@@ -1020,22 +1235,37 @@ async function findEncounter(src, key, near, cov) {
     if (norm(row.p) < norm(rows[k].p)) k = i;
   });
   const rMin = norm(rows[k].p);
-  if (key === 'arrokoth') return { key, tin: rows[k].t - 1, tout: rows[k].t + 1, rMin, beta: 0.05 };
+  if (key === 'arrokoth') {
+    // Arrokoth's own track (this file) follows the same flight-project ephemeris, so the
+    // offset is only the fit error; ±2 days is 2.5 million km either side.
+    return { key, tin: rows[k].t - 2, tout: rows[k].t + 2, rMin, beta: 0.25, switchRadius: norm(rows[0].p), offset: null };
+  }
+  const offset = await centreOffset(key, rows[k].t);
+  const R = Math.max(C.soi, offset / SWITCH_FRACTION);
   let i = k;
-  while (i > 0 && norm(rows[i].p) < C.soi) i--;
+  while (i > 0 && norm(rows[i].p) < R) i--;
   let j = k;
-  while (j < rows.length - 1 && norm(rows[j].p) < C.soi) j++;
-  if (norm(rows[i].p) < C.soi || norm(rows[j].p) < C.soi) throw new Error(`${src.label}: ${key} sphere of influence not bracketed`);
-  const tin = crossing(rows[i], rows[i + 1], C.soi);
-  const tout = crossing(rows[j - 1], rows[j], C.soi);
-  return { key, tin, tout, rMin, beta: clamp(0.05 * (tout - tin), 0.01, 2) };
+  while (j < rows.length - 1 && norm(rows[j].p) < R) j++;
+  if (norm(rows[i].p) < R || norm(rows[j].p) < R) throw new Error(`${src.label}: ${key} switch radius not bracketed`);
+  const tin = crossing(rows[i], rows[i + 1], R);
+  const tout = crossing(rows[j - 1], rows[j], R);
+  const vrel = Math.min(norm(rows[i].v), norm(rows[j].v)); // km/day
+  const beta = clamp(offset / (BLEND_SPEED_FRACTION * vrel), 0.02, 0.25 * (tout - tin));
+  return { key, tin, tout, rMin, beta, switchRadius: R, offset };
 }
 
 async function launchExit(src, start) {
-  const soi = CENTRES.earth.soi;
+  const offset = await centreOffset('earth', start);
+  const R = Math.max(CENTRES.earth.soi, offset / SWITCH_FRACTION);
   const rows = await fetchGrid(src, CENTRES.earth.code, start, start + 8, 1600);
-  for (let i = 1; i < rows.length; i++) if (norm(rows[i].p) > soi) return crossing(rows[i - 1], rows[i], soi);
-  throw new Error(`${src.label}: did not leave the Earth's sphere of influence within 8 days`);
+  for (let i = 1; i < rows.length; i++) {
+    if (norm(rows[i].p) > R) {
+      const exit = crossing(rows[i - 1], rows[i], R);
+      const beta = clamp(offset / (BLEND_SPEED_FRACTION * norm(rows[i].v)), 0.02, 0.5 * (exit - start));
+      return { exit, beta, switchRadius: R, offset };
+    }
+  }
+  throw new Error(`${src.label}: did not leave the Earth's neighbourhood within 8 days`);
 }
 
 function planetTol(fineRadius) {
@@ -1083,18 +1313,21 @@ async function buildCraft(cfg) {
     console.log(`${cfg.id}: Earth-centred ${isoOf(start)} → ${isoOf(end)}`);
     pieces.push(await inner('earth', start, end, 10 * earth.radius, { blendIn: 0, blendOut: 0 }));
   } else {
-    const exit = await launchExit(src, start);
-    const betaL = clamp(0.05 * (exit - start), 0.01, 0.5);
+    const L = await launchExit(src, start);
     const windows = [];
     for (const [key, near] of cfg.encounters) windows.push(await findEncounter(src, key, tdb(near), cov));
-    console.log(`${cfg.id}: leaves Earth's SOI ${isoOf(exit)}; ` + windows.map((w) => `${w.key} ${isoOf(w.tin).slice(0, 16)} → ${isoOf(w.tout).slice(0, 16)}`).join('; '));
-    pieces.push(await inner('earth', start, exit, 10 * earth.radius, { blendIn: 0, blendOut: betaL }));
-    let prev = exit - betaL;
+    console.log(
+      `${cfg.id}: leaves Earth's neighbourhood ${isoOf(L.exit)}; ` +
+        windows.map((w) => `${w.key} ${isoOf(w.tin).slice(0, 16)} → ${isoOf(w.tout).slice(0, 16)} (blend ${w.beta.toFixed(2)} d)`).join('; '),
+    );
+    const meta = (w) => ({ switchRadiusKm: w.switchRadius, appOffsetKm: w.offset });
+    pieces.push(await inner('earth', start, L.exit, 10 * earth.radius, { blendIn: 0, blendOut: L.beta, window: meta(L) }));
+    let prev = L.exit - L.beta;
     for (const w of windows) {
       pieces.push(await outer(prev, w.tin + w.beta));
       const C = CENTRES[w.key];
       const fine = Math.max(10 * C.radius, 1.5 * w.rMin);
-      pieces.push(await inner(w.key, w.tin, w.tout, fine, { blendIn: w.beta, blendOut: w.beta }));
+      pieces.push(await inner(w.key, w.tin, w.tout, fine, { blendIn: w.beta, blendOut: w.beta, window: meta(w) }));
       prev = w.tout - w.beta;
     }
     pieces.push(await outer(prev, end));
@@ -1283,7 +1516,7 @@ const NOTES = {
   'new-horizons': [
     'Concatenated KinetX navigation reconstructions and predictions (tracking cut-off 2026-07-20); the Pluto system uses the plu060 reconstruction. Prediction to 2050-01-01.',
     'The Pluto flyby is stored relative to the Pluto–Charon barycentre (Horizons 9), which is what astronomy-engine’s Pluto is. Pluto’s body centre is about 2,100 km from it.',
-    'The Arrokoth flyby is stored relative to the New Horizons project ephemeris of Arrokoth (Horizons centre 2486958) and resolved in the app against this file’s own Arrokoth track.',
+    'The Arrokoth flyby (±2 days) is stored relative to the New Horizons flight-project ephemeris of Arrokoth (Horizons centre 2486958) and resolved against this file’s own Arrokoth track, which follows that same ephemeris from 1995 to 2033, so the 3,538 km flyby is exact in the app.',
     'After 2050-01-01 the position is a two-body hyperbola about the Solar System barycentre.',
   ],
   pioneer10: [
@@ -1299,10 +1532,18 @@ const NOTES = {
     'After the data end the position is flagged "unknown" (the app hides it).',
   ],
   halley: ['Single Horizons solution (record 90000030, JPL#75, arc 1835–1994, with non-gravitational terms). Its 2061 perihelion is 2061-07-28.'],
+  arrokoth: [
+    'From 1995-01-01 to 2033-01-01 this follows the New Horizons flight-project ephemeris (Horizons 2486958, NavSBE_2014MU69_od159), which Horizons describes as more accurate than the ground-based orbit; outside it, the JPL ground-based solution (486958). The two differ by about 22,000 km at the 2019 flyby and grow apart linearly away from 2011, so each switch is an exact jump (about 48,000 km in 1995 and 66,000 km in 2033, listed under the piece’s "jumps"). No continuous path can stay within 1,000 km of both.',
+  ],
+  encke: ['One Horizons apparition solution per perihelion passage (see "solutions"), switched exactly at the aphelion between passages. The solutions differ there by 770–13,300 km, which the track keeps as listed jumps rather than blending: at every instant it follows one JPL solution.'],
+  'churyumov-gerasimenko': ['One Horizons apparition solution per perihelion passage (see "solutions"), switched exactly at the aphelion between passages. The solutions differ there by 2,800–12,500 km, which the track keeps as listed jumps rather than blending: at every instant it follows one JPL solution.'],
   oumuamua: ['JPL solution with the Micheli et al. (2018) non-gravitational acceleration; JPL warns that the acceleration outside the 2017-10-14 to 2018-01-02 arc is assumed, so positions far from 2017 are much less certain than the fit.'],
   borisov: ['JPL#54 solution with non-gravitational terms, data arc 2019-02-24 to 2020-09-30.'],
   'atlas-3i': ['JPL#54 solution with non-gravitational terms (CO₂-driven g(r) = (1 au/r)²), data arc 2025-05-15 to 2026-02-19. Future solutions may shift it.'],
 };
+
+/** Length of the optional smoothing ramp: adds at most 1% to the speed (smoothstep peak slope 1.5). */
+const rampDays = (d) => round((1.5 * d.jumpKm) / (0.01 * d.speed), 3);
 
 function bodyJson(b, appOffsets) {
   const cfg = b.cfg;
@@ -1333,6 +1574,27 @@ function bodyJson(b, appOffsets) {
         out.accuracy.flyby = { points: f.points, maxKm: round(f.maxKm), rmsKm: round(f.rmsKm) };
       }
     }
+    if (p.window) {
+      out.switchRadiusKm = round(p.window.switchRadiusKm, 4);
+      if (p.window.appOffsetKm != null) out.appPlanetOffsetKm = round(p.window.appOffsetKm, 3);
+    }
+    // Jumps: where Horizons itself joins separately fitted trajectories ('source'), and where
+    // this track switches from one JPL orbit solution to the next ('solution-switch'). The data
+    // keep them exactly and the default evaluation returns them as they are. On request
+    // (smoothJumps) the evaluator spreads each over a smoothstep ramp centred on t, long enough
+    // that the ramp adds at most 1% to the speed (see tracks.md).
+    const jumps = (p.discontinuities ?? []).filter((d) => d.jumpKm >= 1);
+    if (jumps.length) {
+      out.jumps = jumps.map((d) => ({
+        t: d.t,
+        iso: isoOf(d.t).slice(0, 19),
+        cause: d.cause,
+        ...(d.from ? { from: d.from, to: d.to } : {}),
+        jumpKm: round(d.jumpKm, 4),
+        jump: d.jump.map((x) => round(x, 6)),
+        rampDays: rampDays(d),
+      }));
+    }
     if (p.ca !== undefined) {
       out.closestApproach = { t: p.ca, iso: isoOf(p.ca), distanceKm: round(norm(pieceEval(p, p.ca)), 7) };
     }
@@ -1343,15 +1605,18 @@ function bodyJson(b, appOffsets) {
   const fitMax = Math.max(...b.pieces.map((p) => p.stats.maxErrKm));
   const src = b.src ?? b.pieces[0].provider.spans[0].src;
   const h = src.header ?? {};
-  const horizons = {
-    command: cfg.command ?? cfg.records.join(', '),
-    target: h.target,
-    ephemeris: h.ephemeris,
-    record: cfg.records ? undefined : h.record,
-    solution: h.solution,
-    solutionDate: h.solutionDate,
-    dataArc: h.dataArc,
-  };
+  const multi = b.plan && b.plan.length > 1;
+  const horizons = multi
+    ? { command: [...new Set(b.plan.map((x) => x.record ?? x.command))].join(', '), target: h.target, solutions: 'see "solutions"' }
+    : {
+        command: cfg.records ? cfg.records[0] : cfg.command,
+        target: h.target,
+        ephemeris: h.ephemeris,
+        record: h.record,
+        solution: h.solution,
+        solutionDate: h.solutionDate,
+        dataArc: h.dataArc,
+      };
   if (b.coverage) horizons.coverage = [b.coverage.startText, b.coverage.endText];
   const flyby = b.pieces.flatMap((p) => (p.validation.fine ? p.validation.errs.slice(p.validation.randomCount) : []));
   const fs = summarize(flyby);
@@ -1361,7 +1626,6 @@ function bodyJson(b, appOffsets) {
     kind: b.kind,
     horizons,
     solutions: b.plan,
-    solutionBlendDays: b.blendDays || undefined,
     precise: [b.pieces[0].t0, b.pieces[b.pieces.length - 1].t1],
     preciseIso: [isoOf(b.pieces[0].t0), isoOf(b.pieces[b.pieces.length - 1].t1)],
     pieces,
@@ -1438,6 +1702,23 @@ async function checkpointsFor(b) {
         push({ kind: 'blend', tdb: t, centre: outerPiece.centre, pos: pout.p, tolKm: outerPiece.tolReq(norm(pout.p)), regime: 'precise' });
       }
     }
+  }
+  // Both sides of every jump (source jumps and solution switches): just before and after it,
+  // and half a smoothing ramp away. The default evaluation must follow Horizons (the solution in
+  // force) there too.
+  for (const p of b.pieces) {
+    const jumps = (p.discontinuities ?? []).filter((d) => d.jumpKm >= 1);
+    if (!jumps.length) continue;
+    const times = [];
+    for (const d of jumps) {
+      const half = rampDays(d) / 2;
+      for (const dt of [-half, -1e-3, 1e-3, half]) {
+        const t = d.t + dt;
+        if (t > p.t0 && t < p.t1) times.push(t);
+      }
+    }
+    const rows = await p.provider.list(times);
+    times.forEach((t, k) => push({ kind: 'jump-side', tdb: t, centre: p.centre, pos: rows[k].p, tolKm: p.tolReq(norm(rows[k].p)), regime: 'precise' }));
   }
   const first = b.pieces[0];
   const last = b.pieces[b.pieces.length - 1];
@@ -1552,7 +1833,7 @@ async function main() {
 
   // Report.
   const gz = gzipSync(bin, { level: 9 }).length;
-  console.log(`\ntracks.bin ${bin.length} bytes (${(bin.length / 1048576).toFixed(3)} MiB), gzip -9 ${gz} bytes; ${requestCount} Horizons requests; ${((Date.now() - tick) / 1000).toFixed(0)} s`);
+  console.log(`\ntracks.bin ${bin.length} bytes (${(bin.length / 1048576).toFixed(3)} MiB), gzip -9 ${gz} bytes; ${requestCount} Horizons requests, ${cacheReads} cached responses; ${((Date.now() - tick) / 1000).toFixed(0)} s`);
   console.log('body                    pieces  segs    bytes   maxKm(indep)  rmsKm   fitMaxKm  flybyMaxKm');
   for (const b of bodies) {
     const j = index.bodies[b.cfg.id];
@@ -1572,4 +1853,5 @@ async function main() {
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) await main();
 
+// Building blocks, exported for ad-hoc checks against Horizons.
 export { tdb, isoOf, fetchGrid, fetchList, source, Provider, buildPiece, pieceEval, CENTRES, GM, GM_SYSTEM, twoBody, aeHelio };

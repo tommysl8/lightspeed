@@ -1,0 +1,4731 @@
+{
+ "format": "lightspeed-exoplanets-featured/1",
+ "generated": "2026-09-25",
+ "epoch": {
+  "jd": 2461041.5,
+  "iso": "2026-01-01T00:00:00 TDB",
+  "note": "Every planet's phase is set so that the configuration SEEN FROM THE SUN is right at this epoch (and at its reference time). atEpoch gives the mean anomaly then and, where the sources give uncertainties, the propagated timing uncertainty."
+ },
+ "conventions": {
+  "orbit": "Relative Keplerian orbit of each body about its centre (a star id, or \"AB\" for the barycentre of a binary). iDeg 0-180 (<90 = counterclockwise on the sky); nodeDeg = position angle (east of north) of the ascending node, the node where the body RECEDES from the Sun; argPeriDeg = argument of periastron of the body's own orbit; tPeriJd = time of periastron, JD (TDB) on the observed (barycentric arrival-time) clock. RV/transit omegas were converted with omega_planet = omega_star + 180 deg (inputs.argPeri.convention records which was published).",
+  "time": "All JDs are BJD_TDB unless a source note says otherwise (HJD/BJD differences are < 10 min). To get the state at app coordinate time t (TDB, Sun rest frame), evaluate the orbit at t + D/c, where D is the host distance the app uses at t (orbit.ts: observedTimeJd).",
+  "values": "Each input is {v, err?, ref, where?, note?}; err is symmetric or [minus, plus]. \"assumed\": the value is not measured and the text says what was assumed. \"derived\": computed by us from cited values. \"estimate\": model estimate (not measured). refs are keys of the refs table."
+ },
+ "refs": {
+  "nea-pscomppars": {
+   "cite": "NASA Exoplanet Archive, Planetary Systems Composite Parameters table, retrieved 2026-09-25",
+   "doi": "10.26133/NEA13",
+   "url": "https://exoplanetarchive.ipac.caltech.edu/"
+  },
+  "nea-ps": {
+   "cite": "NASA Exoplanet Archive, Planetary Systems table (per-reference solutions), retrieved 2026-09-25",
+   "doi": "10.26133/NEA12",
+   "url": "https://exoplanetarchive.ipac.caltech.edu/"
+  },
+  "christiansen2025": {
+   "cite": "Christiansen, J. L., et al. 2025, PSJ, 6, 186 (the NASA Exoplanet Archive)",
+   "doi": "10.3847/PSJ/ade3c2"
+  },
+  "agol2021": {
+   "cite": "Agol, E., et al. 2021, PSJ, 2, 1",
+   "ads": "2021PSJ.....2....1A",
+   "arxiv": "2010.01074"
+  },
+  "agol2021-forecast": {
+   "cite": "Agol, E., et al. 2021, PSJ, 2, 1, Table 15 (forecast transit times, full electronic table from the authors' repository github.com/ericagol/TRAPPIST1_Spitzer, MIT licence)",
+   "ads": "2021PSJ.....2....1A",
+   "arxiv": "2010.01074"
+  },
+  "rathcke2025": {
+   "cite": "Rathcke et al. 2025, ApJL, 979, L19 (JWST transit times of TRAPPIST-1 b and c; used only as a check)",
+   "ads": "2025ApJ...979L..19R"
+  },
+  "suarez2025": {
+   "cite": "Suárez Mascareño, A., et al. 2025, A&A, 700, A11",
+   "doi": "10.1051/0004-6361/202553728",
+   "arxiv": "2507.21751"
+  },
+  "damasso2020": {
+   "cite": "Damasso, M., et al. 2020, Science Advances, 6, eaax7467",
+   "doi": "10.1126/sciadv.aax7467"
+  },
+  "kervella2020": {
+   "cite": "Kervella, P., Arenou, F., & Thévenin, F. 2020, A&A, 635, L14",
+   "doi": "10.1051/0004-6361/202037551",
+   "arxiv": "2003.13106"
+  },
+  "gratton2020": {
+   "cite": "Gratton, R., et al. 2020, A&A, 638, A120",
+   "doi": "10.1051/0004-6361/202037594",
+   "arxiv": "2004.06685"
+  },
+  "artigau2022": {
+   "cite": "Artigau, É., et al. 2022, AJ, 164, 84",
+   "doi": "10.3847/1538-3881/ac7ce6",
+   "arxiv": "2207.13524"
+  },
+  "faria2022": {
+   "cite": "Faria, J. P., et al. 2022, A&A, 658, A115",
+   "ads": "2022A&A...658A.115F"
+  },
+  "basant2025": {
+   "cite": "Basant, R., et al. 2025, ApJL, 982, L1",
+   "doi": "10.3847/2041-8213/adb8d5",
+   "arxiv": "2503.08095"
+  },
+  "gonzalez2024": {
+   "cite": "González Hernández, J. I., et al. 2024, A&A, 690, A79",
+   "ads": "2024A&A...690A..79G"
+  },
+  "cont2026": {
+   "cite": "Cont, D., et al. 2026, A&A, 710, A345",
+   "doi": "10.1051/0004-6361/202558116",
+   "arxiv": "2605.23582"
+  },
+  "mayor1995": {
+   "cite": "Mayor, M., & Queloz, D. 1995, Nature, 378, 355",
+   "ads": "1995Natur.378..355M"
+  },
+  "wang2018": {
+   "cite": "Wang, J. J., et al. 2018, AJ, 156, 192",
+   "doi": "10.3847/1538-3881/aae150",
+   "arxiv": "1809.04107"
+  },
+  "ruffio2019": {
+   "cite": "Ruffio, J.-B., et al. 2019, AJ, 158, 200",
+   "doi": "10.3847/1538-3881/ab4594",
+   "arxiv": "1909.07571"
+  },
+  "marois2008": {
+   "cite": "Marois, C., et al. 2008, Science, 322, 1348",
+   "ads": "2008Sci...322.1348M"
+  },
+  "cabrera2014": {
+   "cite": "Cabrera, J., et al. 2014, ApJ, 781, 18",
+   "doi": "10.1088/0004-637X/781/1/18",
+   "arxiv": "1310.6248"
+  },
+  "shallue2018": {
+   "cite": "Shallue, C. J., & Vanderburg, A. 2018, AJ, 155, 94",
+   "doi": "10.3847/1538-3881/aa9e09",
+   "arxiv": "1712.05044"
+  },
+  "shaw2025": {
+   "cite": "Shaw, D. E., et al. 2025, AJ, 170, 146",
+   "doi": "10.3847/1538-3881/ade67b",
+   "arxiv": "2507.13588"
+  },
+  "pass2026": {
+   "cite": "Pass, E. K., Charbonneau, D., Vanderburg, A., & Bean, J. L. 2026, AJ, 172, 175",
+   "ads": "2026AJ....172..175P",
+   "arxiv": "2604.05235"
+  },
+  "gilbert2023": {
+   "cite": "Gilbert, E. A., et al. 2023, ApJL, 944, L35",
+   "doi": "10.3847/2041-8213/acb599",
+   "arxiv": "2301.03617"
+  },
+  "doyle2011": {
+   "cite": "Doyle, L. R., et al. 2011, Science, 333, 1602",
+   "doi": "10.1126/science.1210923",
+   "arxiv": "1109.3432"
+  },
+  "keplerEB": {
+   "cite": "Villanova Kepler Eclipsing Binary Catalog, KIC 12644769 (Kirk, B., et al. 2016, AJ, 151, 68)",
+   "url": "https://keplerebs.villanova.edu/overview/?k=12644769"
+  },
+  "thompson2025": {
+   "cite": "Thompson, W., et al. 2025, AJ, 170, 301",
+   "doi": "10.3847/1538-3881/ae0cbd",
+   "arxiv": "2502.20561"
+  },
+  "harada2025": {
+   "cite": "Harada, C. K., et al. 2025, AJ, 170, 343 (values as tabulated in the NASA Exoplanet Archive PS table)",
+   "ads": "2025AJ....170..343H"
+  },
+  "llopsayson2026": {
+   "cite": "Llop-Sayson, J., et al. 2026, arXiv:2609.19131 (submitted; not used for values)",
+   "arxiv": "2609.19131"
+  },
+  "feng2017": {
+   "cite": "Feng, F., et al. 2017, AJ, 154, 135",
+   "doi": "10.3847/1538-3881/aa83b4",
+   "arxiv": "1708.02051"
+  },
+  "figueira2025": {
+   "cite": "Figueira, P., et al. 2025, A&A, 700, A174",
+   "doi": "10.1051/0004-6361/202553869",
+   "arxiv": "2507.07514"
+  },
+  "lawler2014": {
+   "cite": "Lawler, S. M., et al. 2014, MNRAS, 444, 2665 (Herschel; disc i = 35 ± 10 deg, PA = 105 ± 10 deg, as quoted by MacGregor et al. 2016, ApJ, 828, 113, doi:10.3847/0004-637X/828/2/113)",
+   "doi": "10.1093/mnras/stu1641"
+  },
+  "beichman2025": {
+   "cite": "Beichman, C., Sanghi, A., et al. 2025, ApJL, 989, L22 (Paper I)",
+   "doi": "10.3847/2041-8213/adf53f",
+   "arxiv": "2508.03814"
+  },
+  "sanghi2025": {
+   "cite": "Sanghi, A., Beichman, C., et al. 2025, ApJL, 989, L23 (Paper II)",
+   "doi": "10.3847/2041-8213/adf53e",
+   "arxiv": "2508.03812"
+  },
+  "wagner2021": {
+   "cite": "Wagner, K., et al. 2021, Nature Communications, 12, 922 (VLT/NEAR candidate C1)",
+   "doi": "10.1038/s41467-021-21176-6",
+   "arxiv": "2102.05159"
+  },
+  "akeson2021": {
+   "cite": "Akeson, R., et al. 2021, AJ, 162, 14",
+   "doi": "10.3847/1538-3881/abfaff",
+   "arxiv": "2104.10086"
+  },
+  "chen2017": {
+   "cite": "Chen, J., & Kipping, D. 2017, ApJ, 834, 17 (probabilistic mass-radius relation; mean relation used for estimates)",
+   "ads": "2017ApJ...834...17C"
+  }
+ },
+ "systems": [
+  {
+   "id": "trappist-1",
+   "name": "TRAPPIST-1",
+   "archiveHost": "TRAPPIST-1",
+   "position": {
+    "raDeg": 346.6223687,
+    "decDeg": -5.0413993,
+    "epoch": "J2000.0",
+    "distancePc": 12.42988881,
+    "pmRaMasYr": 930.788,
+    "pmDecMasYr": -479.038,
+    "radialVelocityKms": null,
+    "ref": "nea-pscomppars",
+    "source": "RA/Dec: Gaia DR3 (ESA/Gaia/DPAC), carried from J2016.0 to J2000.0; distance: Gaia DR2 (via the NASA Exoplanet Archive)",
+    "ids": {
+     "gaiaDr3": "2635476908753563008",
+     "hip": null,
+     "hd": null,
+     "tic": "278892590"
+    }
+   },
+   "stars": [
+    {
+     "id": "A",
+     "name": "TRAPPIST-1",
+     "massMsun": {
+      "v": 0.0898,
+      "ref": "agol2021",
+      "err": 0.0023,
+      "where": "Table 7 (from Mann et al. 2019)"
+     },
+     "radiusRsun": {
+      "v": 0.1192,
+      "ref": "agol2021",
+      "err": 0.0013,
+      "where": "Table 7"
+     },
+     "teffK": {
+      "v": 2566,
+      "ref": "agol2021",
+      "err": 26,
+      "where": "Table 7"
+     },
+     "luminosityLsun": {
+      "v": 0.000553,
+      "ref": "agol2021",
+      "err": 0.000019,
+      "where": "Table 7 (from Ducrot et al. 2020)"
+     },
+     "spectralType": {
+      "v": "M8.0 V",
+      "ref": "nea-pscomppars",
+      "source": "Piaulet-Ghorayeb et al. 2025"
+     }
+    }
+   ],
+   "planets": [
+    {
+     "id": "b",
+     "name": "TRAPPIST-1 b",
+     "archiveName": "TRAPPIST-1 b",
+     "status": "confirmed",
+     "centre": "A",
+     "inputs": {
+      "periodDays": {
+       "v": 1.51088185,
+       "derived": "mean period: least-squares line through the 1985 posterior-mean transit times of Agol et al. 2021 Table 15 (BJD 2457259.1 to 2460256.6)",
+       "ref": "agol2021-forecast"
+      },
+      "aAu": {
+       "v": 0.01154,
+       "ref": "agol2021",
+       "err": 0.0001,
+       "where": "Table 6"
+      },
+      "e": {
+       "v": 0.00305,
+       "ref": "agol2021",
+       "where": "Table 2, sqrt((e cos w)^2 + (e sin w)^2), osculating at BJD 2457257.93; consistent with zero within 1-3 sigma"
+      },
+      "argPeri": {
+       "v": 134.73,
+       "ref": "agol2021",
+       "where": "Table 2, atan2(e sin w, e cos w)",
+       "convention": "star",
+       "note": "The paper does not state the sign convention of its N-body omega; we take the transit convention (omega of the star). With e < 0.01 the choice moves a planet by at most 1% of a and does not change transit times, which come from the ephemeris."
+      },
+      "iDeg": {
+       "v": 89.728,
+       "ref": "agol2021",
+       "err": 0.165,
+       "where": "Table 5 (for impact parameter b > 0)"
+      },
+      "nodeDeg": {
+       "v": 347.1,
+       "assumed": "The position angle of the orbits on the sky is not measurable from transits. All seven planets share one node (the TTV analysis assumes coplanar orbits); the value is a fixed pseudo-random angle derived from the host name (assumedNodeDeg), identical to the archive fallback."
+      },
+      "phase": {
+       "kind": "transit",
+       "jd": 2461040.796411,
+       "ref": "agol2021-forecast",
+       "how": "transit nearest the epoch on the fitted mean ephemeris (T0 = 2457257.548258 BJD_TDB at epoch 0)",
+       "ttvRmsMinutes": 1.4,
+       "ttvMaxMinutes": 4.3,
+       "note": "A fixed Kepler orbit cannot follow the transit-timing variations; over 2015-2023 the forecast times scatter about this mean ephemeris by the rms and maximum quoted here. The JWST transits of b and c on 2024-07-11 (Rathcke et al. 2025) fall 8.8 and -3.3 minutes from it."
+      }
+     },
+     "radiusEarth": {
+      "v": 1.116,
+      "ref": "agol2021",
+      "err": [
+       -0.012,
+       0.014
+      ],
+      "where": "Table 6"
+     },
+     "massEarth": {
+      "v": 1.374,
+      "ref": "agol2021",
+      "err": 0.069,
+      "where": "Table 6",
+      "kind": "true"
+     },
+     "insolationEarth": {
+      "v": 4.153,
+      "ref": "agol2021",
+      "where": "Table 6"
+     },
+     "teqK": {
+      "v": 397,
+      "derived": "zero albedo, full heat redistribution, from the insolation S (Table 6)"
+     },
+     "discovery": {
+      "year": 2016,
+      "method": "Transit",
+      "facility": "La Silla Observatory",
+      "reference": "Gillon et al. 2016",
+      "url": "https://ui.adsabs.harvard.edu/abs/2016Natur.533..221G/abstract"
+     },
+     "orbit": {
+      "periodDays": 1.51088185,
+      "aAu": 0.01154,
+      "e": 0.00305,
+      "iDeg": 89.728,
+      "nodeDeg": 347.1,
+      "argPeriDeg": 314.73,
+      "tPeriJd": 2461039.472226
+     },
+     "atEpoch": {
+      "jd": 2461041.5,
+      "meanAnomalyDeg": 123.161,
+      "firstConjunctionAfterJd": 2461042.30729,
+      "phaseSigmaDays": null,
+      "phaseSigmaOrbits": null
+     }
+    },
+    {
+     "id": "c",
+     "name": "TRAPPIST-1 c",
+     "archiveName": "TRAPPIST-1 c",
+     "status": "confirmed",
+     "centre": "A",
+     "inputs": {
+      "periodDays": {
+       "v": 2.42180218,
+       "derived": "mean period: least-squares line through the 1239 posterior-mean transit times of Agol et al. 2021 Table 15 (BJD 2457258.6 to 2460256.8)",
+       "ref": "agol2021-forecast"
+      },
+      "aAu": {
+       "v": 0.0158,
+       "ref": "agol2021",
+       "err": 0.00013,
+       "where": "Table 6"
+      },
+      "e": {
+       "v": 0.00055,
+       "ref": "agol2021",
+       "where": "Table 2, sqrt((e cos w)^2 + (e sin w)^2), osculating at BJD 2457257.93; consistent with zero within 1-3 sigma"
+      },
+      "argPeri": {
+       "v": 1.04,
+       "ref": "agol2021",
+       "where": "Table 2, atan2(e sin w, e cos w)",
+       "convention": "star",
+       "note": "The paper does not state the sign convention of its N-body omega; we take the transit convention (omega of the star). With e < 0.01 the choice moves a planet by at most 1% of a and does not change transit times, which come from the ephemeris."
+      },
+      "iDeg": {
+       "v": 89.778,
+       "ref": "agol2021",
+       "err": 0.118,
+       "where": "Table 5 (for impact parameter b > 0)"
+      },
+      "nodeDeg": {
+       "v": 347.1,
+       "assumed": "The position angle of the orbits on the sky is not measurable from transits. All seven planets share one node (the TTV analysis assumes coplanar orbits); the value is a fixed pseudo-random angle derived from the host name (assumedNodeDeg), identical to the archive fallback."
+      },
+      "phase": {
+       "kind": "transit",
+       "jd": 2461041.444963,
+       "ref": "agol2021-forecast",
+       "how": "transit nearest the epoch on the fitted mean ephemeris (T0 = 2457256.168154 BJD_TDB at epoch 0)",
+       "ttvRmsMinutes": 2.1,
+       "ttvMaxMinutes": 4.9,
+       "note": "A fixed Kepler orbit cannot follow the transit-timing variations; over 2015-2023 the forecast times scatter about this mean ephemeris by the rms and maximum quoted here. The JWST transits of b and c on 2024-07-11 (Rathcke et al. 2025) fall 8.8 and -3.3 minutes from it."
+      }
+     },
+     "radiusEarth": {
+      "v": 1.097,
+      "ref": "agol2021",
+      "err": [
+       -0.012,
+       0.014
+      ],
+      "where": "Table 6"
+     },
+     "massEarth": {
+      "v": 1.308,
+      "ref": "agol2021",
+      "err": 0.056,
+      "where": "Table 6",
+      "kind": "true"
+     },
+     "insolationEarth": {
+      "v": 2.214,
+      "ref": "agol2021",
+      "where": "Table 6"
+     },
+     "teqK": {
+      "v": 340,
+      "derived": "zero albedo, full heat redistribution, from the insolation S (Table 6)"
+     },
+     "discovery": {
+      "year": 2016,
+      "method": "Transit",
+      "facility": "La Silla Observatory",
+      "reference": "Gillon et al. 2016",
+      "url": "https://ui.adsabs.harvard.edu/abs/2016Natur.533..221G/abstract"
+     },
+     "orbit": {
+      "periodDays": 2.42180218,
+      "aAu": 0.0158,
+      "e": 0.00055,
+      "iDeg": 89.778,
+      "nodeDeg": 347.1,
+      "argPeriDeg": 181.04,
+      "tPeriJd": 2461040.846933
+     },
+     "atEpoch": {
+      "jd": 2461041.5,
+      "meanAnomalyDeg": 97.078,
+      "firstConjunctionAfterJd": 2461043.86677,
+      "phaseSigmaDays": null,
+      "phaseSigmaOrbits": null
+     }
+    },
+    {
+     "id": "d",
+     "name": "TRAPPIST-1 d",
+     "archiveName": "TRAPPIST-1 d",
+     "status": "confirmed",
+     "centre": "A",
+     "inputs": {
+      "periodDays": {
+       "v": 4.0494605,
+       "derived": "mean period: least-squares line through the 741 posterior-mean transit times of Agol et al. 2021 Table 15 (BJD 2457261.1 to 2460257.8)",
+       "ref": "agol2021-forecast"
+      },
+      "aAu": {
+       "v": 0.02227,
+       "ref": "agol2021",
+       "err": 0.00019,
+       "where": "Table 6"
+      },
+      "e": {
+       "v": 0.00563,
+       "ref": "agol2021",
+       "where": "Table 2, sqrt((e cos w)^2 + (e sin w)^2), osculating at BJD 2457257.93; consistent with zero within 1-3 sigma"
+      },
+      "argPeri": {
+       "v": 151.71,
+       "ref": "agol2021",
+       "where": "Table 2, atan2(e sin w, e cos w)",
+       "convention": "star",
+       "note": "The paper does not state the sign convention of its N-body omega; we take the transit convention (omega of the star). With e < 0.01 the choice moves a planet by at most 1% of a and does not change transit times, which come from the ephemeris."
+      },
+      "iDeg": {
+       "v": 89.896,
+       "ref": "agol2021",
+       "err": 0.077,
+       "where": "Table 5 (for impact parameter b > 0)"
+      },
+      "nodeDeg": {
+       "v": 347.1,
+       "assumed": "The position angle of the orbits on the sky is not measurable from transits. All seven planets share one node (the TTV analysis assumes coplanar orbits); the value is a fixed pseudo-random angle derived from the host name (assumedNodeDeg), identical to the archive fallback."
+      },
+      "phase": {
+       "kind": "transit",
+       "jd": 2461043.355874,
+       "ref": "agol2021-forecast",
+       "how": "transit nearest the epoch on the fitted mean ephemeris (T0 = 2457257.110310 BJD_TDB at epoch 0)",
+       "ttvRmsMinutes": 31.5,
+       "ttvMaxMinutes": 61,
+       "note": "A fixed Kepler orbit cannot follow the transit-timing variations; over 2015-2023 the forecast times scatter about this mean ephemeris by the rms and maximum quoted here. The JWST transits of b and c on 2024-07-11 (Rathcke et al. 2025) fall 8.8 and -3.3 minutes from it."
+      }
+     },
+     "radiusEarth": {
+      "v": 0.788,
+      "ref": "agol2021",
+      "err": [
+       -0.01,
+       0.011
+      ],
+      "where": "Table 6"
+     },
+     "massEarth": {
+      "v": 0.388,
+      "ref": "agol2021",
+      "err": 0.012,
+      "where": "Table 6",
+      "kind": "true"
+     },
+     "insolationEarth": {
+      "v": 1.115,
+      "ref": "agol2021",
+      "where": "Table 6"
+     },
+     "teqK": {
+      "v": 286,
+      "derived": "zero albedo, full heat redistribution, from the insolation S (Table 6)"
+     },
+     "discovery": {
+      "year": 2016,
+      "method": "Transit",
+      "facility": "La Silla Observatory",
+      "reference": "Gillon et al. 2016",
+      "url": "https://ui.adsabs.harvard.edu/abs/2016Natur.533..221G/abstract"
+     },
+     "orbit": {
+      "periodDays": 4.0494605,
+      "aAu": 0.02227,
+      "e": 0.00563,
+      "iDeg": 89.896,
+      "nodeDeg": 347.1,
+      "argPeriDeg": 331.71,
+      "tPeriJd": 2461039.994181
+     },
+     "atEpoch": {
+      "jd": 2461041.5,
+      "meanAnomalyDeg": 133.868,
+      "firstConjunctionAfterJd": 2461043.35587,
+      "phaseSigmaDays": null,
+      "phaseSigmaOrbits": null
+     }
+    },
+    {
+     "id": "e",
+     "name": "TRAPPIST-1 e",
+     "archiveName": "TRAPPIST-1 e",
+     "status": "confirmed",
+     "centre": "A",
+     "inputs": {
+      "periodDays": {
+       "v": 6.09948006,
+       "derived": "mean period: least-squares line through the 491 posterior-mean transit times of Agol et al. 2021 Table 15 (BJD 2457263.9 to 2460252.6)",
+       "ref": "agol2021-forecast"
+      },
+      "aAu": {
+       "v": 0.02925,
+       "ref": "agol2021",
+       "err": 0.00025,
+       "where": "Table 6"
+      },
+      "e": {
+       "v": 0.00632,
+       "ref": "agol2021",
+       "where": "Table 2, sqrt((e cos w)^2 + (e sin w)^2), osculating at BJD 2457257.93; consistent with zero within 1-3 sigma"
+      },
+      "argPeri": {
+       "v": 313.21,
+       "ref": "agol2021",
+       "where": "Table 2, atan2(e sin w, e cos w)",
+       "convention": "star",
+       "note": "The paper does not state the sign convention of its N-body omega; we take the transit convention (omega of the star). With e < 0.01 the choice moves a planet by at most 1% of a and does not change transit times, which come from the ephemeris."
+      },
+      "iDeg": {
+       "v": 89.793,
+       "ref": "agol2021",
+       "err": 0.048,
+       "where": "Table 5 (for impact parameter b > 0)"
+      },
+      "nodeDeg": {
+       "v": 347.1,
+       "assumed": "The position angle of the orbits on the sky is not measurable from transits. All seven planets share one node (the TTV analysis assumes coplanar orbits); the value is a fixed pseudo-random angle derived from the host name (assumedNodeDeg), identical to the archive fallback."
+      },
+      "phase": {
+       "kind": "transit",
+       "jd": 2461039.485074,
+       "ref": "agol2021-forecast",
+       "how": "transit nearest the epoch on the fitted mean ephemeris (T0 = 2457257.807437 BJD_TDB at epoch 0)",
+       "ttvRmsMinutes": 19.2,
+       "ttvMaxMinutes": 39.2,
+       "note": "A fixed Kepler orbit cannot follow the transit-timing variations; over 2015-2023 the forecast times scatter about this mean ephemeris by the rms and maximum quoted here. The JWST transits of b and c on 2024-07-11 (Rathcke et al. 2025) fall 8.8 and -3.3 minutes from it."
+      }
+     },
+     "radiusEarth": {
+      "v": 0.92,
+      "ref": "agol2021",
+      "err": [
+       -0.012,
+       0.013
+      ],
+      "where": "Table 6"
+     },
+     "massEarth": {
+      "v": 0.692,
+      "ref": "agol2021",
+      "err": 0.022,
+      "where": "Table 6",
+      "kind": "true"
+     },
+     "insolationEarth": {
+      "v": 0.646,
+      "ref": "agol2021",
+      "where": "Table 6"
+     },
+     "teqK": {
+      "v": 250,
+      "derived": "zero albedo, full heat redistribution, from the insolation S (Table 6)"
+     },
+     "discovery": {
+      "year": 2017,
+      "method": "Transit",
+      "facility": "Multiple Observatories",
+      "reference": "Gillon et al. 2017",
+      "url": "https://ui.adsabs.harvard.edu/abs/2017Natur.542..456G/abstract"
+     },
+     "orbit": {
+      "periodDays": 6.09948006,
+      "aAu": 0.02925,
+      "e": 0.00632,
+      "iDeg": 89.793,
+      "nodeDeg": 347.1,
+      "argPeriDeg": 133.21,
+      "tPeriJd": 2461037.175871
+     },
+     "atEpoch": {
+      "jd": 2461041.5,
+      "meanAnomalyDeg": 255.216,
+      "firstConjunctionAfterJd": 2461045.58455,
+      "phaseSigmaDays": null,
+      "phaseSigmaOrbits": null
+     }
+    },
+    {
+     "id": "f",
+     "name": "TRAPPIST-1 f",
+     "archiveName": "TRAPPIST-1 f",
+     "status": "confirmed",
+     "centre": "A",
+     "inputs": {
+      "periodDays": {
+       "v": 9.20680297,
+       "derived": "mean period: least-squares line through the 325 posterior-mean transit times of Agol et al. 2021 Table 15 (BJD 2457266.3 to 2460249.3)",
+       "ref": "agol2021-forecast"
+      },
+      "aAu": {
+       "v": 0.03849,
+       "ref": "agol2021",
+       "err": 0.00033,
+       "where": "Table 6"
+      },
+      "e": {
+       "v": 0.00842,
+       "ref": "agol2021",
+       "where": "Table 2, sqrt((e cos w)^2 + (e sin w)^2), osculating at BJD 2457257.93; consistent with zero within 1-3 sigma"
+      },
+      "argPeri": {
+       "v": 183.47,
+       "ref": "agol2021",
+       "where": "Table 2, atan2(e sin w, e cos w)",
+       "convention": "star",
+       "note": "The paper does not state the sign convention of its N-body omega; we take the transit convention (omega of the star). With e < 0.01 the choice moves a planet by at most 1% of a and does not change transit times, which come from the ephemeris."
+      },
+      "iDeg": {
+       "v": 89.74,
+       "ref": "agol2021",
+       "err": 0.019,
+       "where": "Table 5 (for impact parameter b > 0)"
+      },
+      "nodeDeg": {
+       "v": 347.1,
+       "assumed": "The position angle of the orbits on the sky is not measurable from transits. All seven planets share one node (the TTV analysis assumes coplanar orbits); the value is a fixed pseudo-random angle derived from the host name (assumedNodeDeg), identical to the archive fallback."
+      },
+      "phase": {
+       "kind": "transit",
+       "jd": 2461041.074362,
+       "ref": "agol2021-forecast",
+       "how": "transit nearest the epoch on the fitted mean ephemeris (T0 = 2457257.078340 BJD_TDB at epoch 0)",
+       "ttvRmsMinutes": 33.1,
+       "ttvMaxMinutes": 83,
+       "note": "A fixed Kepler orbit cannot follow the transit-timing variations; over 2015-2023 the forecast times scatter about this mean ephemeris by the rms and maximum quoted here. The JWST transits of b and c on 2024-07-11 (Rathcke et al. 2025) fall 8.8 and -3.3 minutes from it."
+      }
+     },
+     "radiusEarth": {
+      "v": 1.045,
+      "ref": "agol2021",
+      "err": [
+       -0.012,
+       0.013
+      ],
+      "where": "Table 6"
+     },
+     "massEarth": {
+      "v": 1.039,
+      "ref": "agol2021",
+      "err": 0.031,
+      "where": "Table 6",
+      "kind": "true"
+     },
+     "insolationEarth": {
+      "v": 0.373,
+      "ref": "agol2021",
+      "where": "Table 6"
+     },
+     "teqK": {
+      "v": 218,
+      "derived": "zero albedo, full heat redistribution, from the insolation S (Table 6)"
+     },
+     "discovery": {
+      "year": 2017,
+      "method": "Transit",
+      "facility": "Multiple Observatories",
+      "reference": "Gillon et al. 2017",
+      "url": "https://ui.adsabs.harvard.edu/abs/2017Natur.542..456G/abstract"
+     },
+     "orbit": {
+      "periodDays": 9.20680297,
+      "aAu": 0.03849,
+      "e": 0.00842,
+      "iDeg": 89.74,
+      "nodeDeg": 347.1,
+      "argPeriDeg": 3.47,
+      "tPeriJd": 2461034.233363
+     },
+     "atEpoch": {
+      "jd": 2461041.5,
+      "meanAnomalyDeg": 284.137,
+      "firstConjunctionAfterJd": 2461050.28116,
+      "phaseSigmaDays": null,
+      "phaseSigmaOrbits": null
+     }
+    },
+    {
+     "id": "g",
+     "name": "TRAPPIST-1 g",
+     "archiveName": "TRAPPIST-1 g",
+     "status": "confirmed",
+     "centre": "A",
+     "inputs": {
+      "periodDays": {
+       "v": 12.35356212,
+       "derived": "mean period: least-squares line through the 242 posterior-mean transit times of Agol et al. 2021 Table 15 (BJD 2457270.1 to 2460247.3)",
+       "ref": "agol2021-forecast"
+      },
+      "aAu": {
+       "v": 0.04683,
+       "ref": "agol2021",
+       "err": 0.0004,
+       "where": "Table 6"
+      },
+      "e": {
+       "v": 0.00401,
+       "ref": "agol2021",
+       "where": "Table 2, sqrt((e cos w)^2 + (e sin w)^2), osculating at BJD 2457257.93; consistent with zero within 1-3 sigma"
+      },
+      "argPeri": {
+       "v": 18.62,
+       "ref": "agol2021",
+       "where": "Table 2, atan2(e sin w, e cos w)",
+       "convention": "star",
+       "note": "The paper does not state the sign convention of its N-body omega; we take the transit convention (omega of the star). With e < 0.01 the choice moves a planet by at most 1% of a and does not change transit times, which come from the ephemeris."
+      },
+      "iDeg": {
+       "v": 89.742,
+       "ref": "agol2021",
+       "err": 0.012,
+       "where": "Table 5 (for impact parameter b > 0)"
+      },
+      "nodeDeg": {
+       "v": 347.1,
+       "assumed": "The position angle of the orbits on the sky is not measurable from transits. All seven planets share one node (the TTV analysis assumes coplanar orbits); the value is a fixed pseudo-random angle derived from the host name (assumedNodeDeg), identical to the archive fallback."
+      },
+      "phase": {
+       "kind": "transit",
+       "jd": 2461037.873466,
+       "ref": "agol2021-forecast",
+       "how": "transit nearest the epoch on the fitted mean ephemeris (T0 = 2457257.683458 BJD_TDB at epoch 0)",
+       "ttvRmsMinutes": 22.8,
+       "ttvMaxMinutes": 51.9,
+       "note": "A fixed Kepler orbit cannot follow the transit-timing variations; over 2015-2023 the forecast times scatter about this mean ephemeris by the rms and maximum quoted here. The JWST transits of b and c on 2024-07-11 (Rathcke et al. 2025) fall 8.8 and -3.3 minutes from it."
+      }
+     },
+     "radiusEarth": {
+      "v": 1.129,
+      "ref": "agol2021",
+      "err": [
+       -0.013,
+       0.015
+      ],
+      "where": "Table 6"
+     },
+     "massEarth": {
+      "v": 1.321,
+      "ref": "agol2021",
+      "err": 0.038,
+      "where": "Table 6",
+      "kind": "true"
+     },
+     "insolationEarth": {
+      "v": 0.252,
+      "ref": "agol2021",
+      "where": "Table 6"
+     },
+     "teqK": {
+      "v": 197,
+      "derived": "zero albedo, full heat redistribution, from the insolation S (Table 6)"
+     },
+     "discovery": {
+      "year": 2017,
+      "method": "Transit",
+      "facility": "Multiple Observatories",
+      "reference": "Gillon et al. 2017",
+      "url": "https://ui.adsabs.harvard.edu/abs/2017Natur.542..456G/abstract"
+     },
+     "orbit": {
+      "periodDays": 12.35356212,
+      "aAu": 0.04683,
+      "e": 0.00401,
+      "iDeg": 89.742,
+      "nodeDeg": 347.1,
+      "argPeriDeg": 198.62,
+      "tPeriJd": 2461035.438958
+     },
+     "atEpoch": {
+      "jd": 2461041.5,
+      "meanAnomalyDeg": 176.627,
+      "firstConjunctionAfterJd": 2461050.22703,
+      "phaseSigmaDays": null,
+      "phaseSigmaOrbits": null
+     }
+    },
+    {
+     "id": "h",
+     "name": "TRAPPIST-1 h",
+     "archiveName": "TRAPPIST-1 h",
+     "status": "confirmed",
+     "centre": "A",
+     "inputs": {
+      "periodDays": {
+       "v": 18.76670662,
+       "derived": "mean period: least-squares line through the 160 posterior-mean transit times of Agol et al. 2021 Table 15 (BJD 2457268.4 to 2460252.3)",
+       "ref": "agol2021-forecast"
+      },
+      "aAu": {
+       "v": 0.06189,
+       "ref": "agol2021",
+       "err": 0.00053,
+       "where": "Table 6"
+      },
+      "e": {
+       "v": 0.00365,
+       "ref": "agol2021",
+       "where": "Table 2, sqrt((e cos w)^2 + (e sin w)^2), osculating at BJD 2457257.93; consistent with zero within 1-3 sigma"
+      },
+      "argPeri": {
+       "v": 180.31,
+       "ref": "agol2021",
+       "where": "Table 2, atan2(e sin w, e cos w)",
+       "convention": "star",
+       "note": "The paper does not state the sign convention of its N-body omega; we take the transit convention (omega of the star). With e < 0.01 the choice moves a planet by at most 1% of a and does not change transit times, which come from the ephemeris."
+      },
+      "iDeg": {
+       "v": 89.805,
+       "ref": "agol2021",
+       "err": 0.013,
+       "where": "Table 5 (for impact parameter b > 0)"
+      },
+      "nodeDeg": {
+       "v": 347.1,
+       "assumed": "The position angle of the orbits on the sky is not measurable from transits. All seven planets share one node (the TTV analysis assumes coplanar orbits); the value is a fixed pseudo-random angle derived from the host name (assumedNodeDeg), identical to the archive fallback."
+      },
+      "phase": {
+       "kind": "transit",
+       "jd": 2461040.581219,
+       "ref": "agol2021-forecast",
+       "how": "transit nearest the epoch on the fitted mean ephemeris (T0 = 2457249.706481 BJD_TDB at epoch 0)",
+       "ttvRmsMinutes": 49.3,
+       "ttvMaxMinutes": 134.8,
+       "note": "A fixed Kepler orbit cannot follow the transit-timing variations; over 2015-2023 the forecast times scatter about this mean ephemeris by the rms and maximum quoted here. The JWST transits of b and c on 2024-07-11 (Rathcke et al. 2025) fall 8.8 and -3.3 minutes from it."
+      }
+     },
+     "radiusEarth": {
+      "v": 0.755,
+      "ref": "agol2021",
+      "err": 0.014,
+      "where": "Table 6"
+     },
+     "massEarth": {
+      "v": 0.326,
+      "ref": "agol2021",
+      "err": 0.02,
+      "where": "Table 6",
+      "kind": "true"
+     },
+     "insolationEarth": {
+      "v": 0.144,
+      "ref": "agol2021",
+      "where": "Table 6"
+     },
+     "teqK": {
+      "v": 171,
+      "derived": "zero albedo, full heat redistribution, from the insolation S (Table 6)"
+     },
+     "discovery": {
+      "year": 2017,
+      "method": "Transit",
+      "facility": "Multiple Observatories",
+      "reference": "Gillon et al. 2017",
+      "url": "https://ui.adsabs.harvard.edu/abs/2017Natur.542..456G/abstract"
+     },
+     "orbit": {
+      "periodDays": 18.76670662,
+      "aAu": 0.06189,
+      "e": 0.00365,
+      "iDeg": 89.805,
+      "nodeDeg": 347.1,
+      "argPeriDeg": 0.31,
+      "tPeriJd": 2461026.500546
+     },
+     "atEpoch": {
+      "jd": 2461041.5,
+      "meanAnomalyDeg": 287.733,
+      "firstConjunctionAfterJd": 2461059.34793,
+      "phaseSigmaDays": null,
+      "phaseSigmaOrbits": null
+     }
+    }
+   ],
+   "notes": [
+    "Seven Earth-sized planets in a chain of near-resonances; all transit. Orbits are Keplerian approximations of an N-body system (see each planet's phase note)."
+   ],
+   "epochJd": 2461041.5,
+   "epochIso": "2026-01-01T00:00:00 TDB"
+  },
+  {
+   "id": "proxima-cen",
+   "name": "Proxima Centauri",
+   "archiveHost": "Proxima Cen",
+   "position": {
+    "raDeg": 217.4289321,
+    "decDeg": -62.6794892,
+    "epoch": "J2000.0",
+    "distancePc": 1.30119,
+    "pmRaMasYr": -3781.741,
+    "pmDecMasYr": 769.465,
+    "radialVelocityKms": null,
+    "ref": "nea-pscomppars",
+    "source": "RA/Dec: Gaia DR3 (ESA/Gaia/DPAC), carried from J2016.0 to J2000.0; distance: TICv8 (via the NASA Exoplanet Archive)",
+    "ids": {
+     "gaiaDr3": "5853498713190525696",
+     "hip": 70890,
+     "hd": null,
+     "tic": "388857263"
+    }
+   },
+   "stars": [
+    {
+     "id": "A",
+     "name": "Proxima Cen",
+     "massMsun": {
+      "v": 0.1221,
+      "ref": "nea-pscomppars",
+      "err": 0.0022,
+      "source": "Suárez Mascareño et al. 2025",
+      "url": "https://ui.adsabs.harvard.edu/abs/2025A&A...700A..11M/abstract"
+     },
+     "radiusRsun": {
+      "v": 0.141,
+      "ref": "nea-pscomppars",
+      "err": 0.021,
+      "source": "Suárez Mascareño et al. 2025",
+      "url": "https://ui.adsabs.harvard.edu/abs/2025A&A...700A..11M/abstract"
+     },
+     "teffK": {
+      "v": 2900,
+      "ref": "nea-pscomppars",
+      "err": 100,
+      "source": "Suárez Mascareño et al. 2025",
+      "url": "https://ui.adsabs.harvard.edu/abs/2025A&A...700A..11M/abstract"
+     },
+     "luminosityLsun": {
+      "v": 0.00151,
+      "ref": "nea-pscomppars",
+      "source": "Suárez Mascareño et al. 2025",
+      "url": "https://ui.adsabs.harvard.edu/abs/2025A&A...700A..11M/abstract",
+      "derived": "10^(log L) of the archive value"
+     },
+     "spectralType": {
+      "v": "M5.5 V",
+      "ref": "nea-pscomppars",
+      "source": "Suárez Mascareño et al. 2025"
+     }
+    }
+   ],
+   "planets": [
+    {
+     "id": "d",
+     "name": "Proxima Cen d",
+     "archiveName": "Proxima Cen d",
+     "status": "confirmed",
+     "centre": "A",
+     "inputs": {
+      "periodDays": {
+       "v": 5.12338,
+       "ref": "suarez2025",
+       "err": 0.00035,
+       "where": "Table 3"
+      },
+      "aAu": {
+       "v": 0.02881,
+       "ref": "suarez2025",
+       "err": 0.00017,
+       "where": "Table 3"
+      },
+      "e": {
+       "v": 0,
+       "ref": "suarez2025",
+       "where": "Table 3: adopted model is circular (e fixed at 0)"
+      },
+      "argPeri": {
+       "v": 90,
+       "assumed": "Undefined for a circular orbit; any value gives the same positions.",
+       "convention": "star"
+      },
+      "iDeg": {
+       "v": 47,
+       "assumed": "Orbits assumed coplanar with the stellar equator, tilted 47 ± 7 deg (Klein et al. 2021, as adopted in Suárez Mascareño et al. 2025 Table 3 for the \"mp,47\" masses). Only m sin i is measured.",
+       "ref": "suarez2025"
+      },
+      "nodeDeg": {
+       "v": 180.3,
+       "assumed": "Unknown (RV only). Fixed pseudo-random angle from the host name (assumedNodeDeg)."
+      },
+      "phase": {
+       "kind": "conjunction",
+       "jd": 2460557.55,
+       "sigmaDays": 0.16,
+       "periodSigmaDays": 0.00035,
+       "ref": "suarez2025",
+       "where": "Table 3, T0 = time of inferior conjunction (eq. 12 and text; the archive lists it as a time of periastron)"
+      }
+     },
+     "radiusEarth": {
+      "v": 0.756,
+      "derived": "estimate from the mass assuming i = 47 deg (0.357 Earth masses) with the Chen & Kipping 2017 mean relation; not measured",
+      "ref": "chen2017",
+      "estimate": true
+     },
+     "massEarth": {
+      "v": 0.26,
+      "ref": "suarez2025",
+      "err": 0.038,
+      "where": "Table 3",
+      "kind": "minimum",
+      "ifInclination47": {
+       "v": 0.357,
+       "err": 0.072
+      }
+     },
+     "insolationEarth": {
+      "v": 1.814,
+      "ref": "suarez2025",
+      "where": "Table 3"
+     },
+     "teqK": {
+      "v": 282,
+      "ref": "suarez2025",
+      "where": "Table 3, Bond albedo 0.3"
+     },
+     "discovery": {
+      "year": 2025,
+      "method": "Radial Velocity",
+      "facility": "La Silla Observatory",
+      "reference": "Suárez Mascareño et al. 2025",
+      "url": "https://ui.adsabs.harvard.edu/abs/2025A&A...700A..11M/abstract"
+     },
+     "orbit": {
+      "periodDays": 5.12338,
+      "aAu": 0.02881,
+      "e": 0,
+      "iDeg": 47,
+      "nodeDeg": 180.3,
+      "argPeriDeg": 270,
+      "tPeriJd": 2460557.55
+     },
+     "atEpoch": {
+      "jd": 2461041.5,
+      "meanAnomalyDeg": 165.286,
+      "firstConjunctionAfterJd": 2461044.2711,
+      "phaseSigmaDays": 0.16338,
+      "phaseSigmaOrbits": 0.03189
+     }
+    },
+    {
+     "id": "b",
+     "name": "Proxima Cen b",
+     "archiveName": "Proxima Cen b",
+     "status": "confirmed",
+     "centre": "A",
+     "inputs": {
+      "periodDays": {
+       "v": 11.18465,
+       "ref": "suarez2025",
+       "err": 0.00053,
+       "where": "Table 3"
+      },
+      "aAu": {
+       "v": 0.04848,
+       "ref": "suarez2025",
+       "err": 0.00029,
+       "where": "Table 3"
+      },
+      "e": {
+       "v": 0,
+       "ref": "suarez2025",
+       "where": "Table 3: adopted model is circular (e fixed at 0)"
+      },
+      "argPeri": {
+       "v": 90,
+       "assumed": "Undefined for a circular orbit; any value gives the same positions.",
+       "convention": "star"
+      },
+      "iDeg": {
+       "v": 47,
+       "assumed": "Orbits assumed coplanar with the stellar equator, tilted 47 ± 7 deg (Klein et al. 2021, as adopted in Suárez Mascareño et al. 2025 Table 3 for the \"mp,47\" masses). Only m sin i is measured.",
+       "ref": "suarez2025"
+      },
+      "nodeDeg": {
+       "v": 180.3,
+       "assumed": "Unknown (RV only). Fixed pseudo-random angle from the host name (assumedNodeDeg)."
+      },
+      "phase": {
+       "kind": "conjunction",
+       "jd": 2460548.59,
+       "sigmaDays": 0.12,
+       "periodSigmaDays": 0.00053,
+       "ref": "suarez2025",
+       "where": "Table 3, T0 = time of inferior conjunction (eq. 12 and text; the archive lists it as a time of periastron)"
+      }
+     },
+     "radiusEarth": {
+      "v": 1.116,
+      "derived": "estimate from the mass assuming i = 47 deg (1.44 Earth masses) with the Chen & Kipping 2017 mean relation; not measured",
+      "ref": "chen2017",
+      "estimate": true
+     },
+     "massEarth": {
+      "v": 1.055,
+      "ref": "suarez2025",
+      "err": 0.055,
+      "where": "Table 3",
+      "kind": "minimum",
+      "ifInclination47": {
+       "v": 1.44,
+       "err": 0.21
+      }
+     },
+     "insolationEarth": {
+      "v": 0.641,
+      "ref": "suarez2025",
+      "where": "Table 3"
+     },
+     "teqK": {
+      "v": 218,
+      "ref": "suarez2025",
+      "where": "Table 3, Bond albedo 0.3"
+     },
+     "discovery": {
+      "year": 2016,
+      "method": "Radial Velocity",
+      "facility": "European Southern Observatory",
+      "reference": "Anglada-Escudé et al. 2016",
+      "url": "https://ui.adsabs.harvard.edu/abs/2016Natur.536..437A/abstract"
+     },
+     "orbit": {
+      "periodDays": 11.18465,
+      "aAu": 0.04848,
+      "e": 0,
+      "iDeg": 47,
+      "nodeDeg": 180.3,
+      "argPeriDeg": 270,
+      "tPeriJd": 2460548.59
+     },
+     "atEpoch": {
+      "jd": 2461041.5,
+      "meanAnomalyDeg": 25.28,
+      "firstConjunctionAfterJd": 2461051.89925,
+      "phaseSigmaDays": 0.12225,
+      "phaseSigmaOrbits": 0.01093
+     }
+    },
+    {
+     "id": "c",
+     "name": "Proxima Cen c",
+     "archiveName": null,
+     "status": "disputed",
+     "showByDefault": false,
+     "centre": "A",
+     "statusNote": "Proposed from HARPS and UVES radial velocities by Damasso et al. 2020 (P ~ 1900 d, m sin i = 5.8 ± 1.9 Earth masses). Kervella et al. 2020 combined it with the Gaia DR2 proper-motion anomaly (i = 152 ± 14 deg, m ~ 12 Earth masses) and Gratton et al. 2020 reported a possible SPHERE counterpart. Artigau et al. 2022 found the signal likely instrumental, ESPRESSO (Faria et al. 2022) did not confirm it, and NIRPS (Suárez Mascareño et al. 2025) found only inconclusive hints. The NASA Exoplanet Archive does not list it as confirmed: it appears only as a \"Candidate Planet\" on the alf Cen overview page (Targets Excluded page, updated 8 July 2026).",
+     "inputs": {
+      "periodDays": {
+       "v": 1900,
+       "ref": "damasso2020",
+       "err": [
+        -82,
+        96
+       ],
+       "where": "Table 1"
+      },
+      "aAu": {
+       "v": 1.48,
+       "ref": "damasso2020",
+       "err": 0.08,
+       "where": "Table 1"
+      },
+      "e": {
+       "v": 0,
+       "ref": "damasso2020",
+       "where": "Table 1: e fixed at 0"
+      },
+      "argPeri": {
+       "v": 90,
+       "assumed": "Undefined for a circular orbit.",
+       "convention": "star"
+      },
+      "iDeg": {
+       "v": 152,
+       "ref": "kervella2020",
+       "err": 14,
+       "note": "Gaia DR2 proper-motion anomaly; i > 90 deg means clockwise on the sky"
+      },
+      "nodeDeg": {
+       "v": 180.3,
+       "assumed": "Unknown (RV only). Fixed pseudo-random angle from the host name (assumedNodeDeg)."
+      },
+      "phase": {
+       "kind": "conjunction",
+       "jd": 2455892,
+       "sigmaDays": 102,
+       "periodSigmaDays": 89,
+       "ref": "damasso2020",
+       "where": "Table 1, T_c,conj = 2455892 (-102/+101) BJD"
+      }
+     },
+     "radiusEarth": {
+      "v": 3.49,
+      "derived": "estimate for 12 Earth masses (Kervella et al. 2020) from the Chen & Kipping 2017 mean relation",
+      "ref": "chen2017",
+      "estimate": true
+     },
+     "massEarth": {
+      "v": 5.8,
+      "ref": "damasso2020",
+      "err": 1.9,
+      "kind": "minimum",
+      "alternative": {
+       "v": 12,
+       "err": [
+        -5,
+        12
+       ],
+       "ref": "kervella2020",
+       "kind": "true (astrometric)"
+      }
+     },
+     "teqK": {
+      "v": 39,
+      "ref": "damasso2020",
+      "err": [
+       -18,
+       16
+      ],
+      "where": "Table 1"
+     },
+     "discovery": {
+      "year": 2020,
+      "method": "Radial Velocity",
+      "facility": "European Southern Observatory",
+      "reference": "Damasso et al. 2020",
+      "url": "https://doi.org/10.1126/sciadv.aax7467"
+     },
+     "orbit": {
+      "periodDays": 1900,
+      "aAu": 1.48,
+      "e": 0,
+      "iDeg": 152,
+      "nodeDeg": 180.3,
+      "argPeriDeg": 270,
+      "tPeriJd": 2455892
+     },
+     "atEpoch": {
+      "jd": 2461041.5,
+      "meanAnomalyDeg": 255.695,
+      "firstConjunctionAfterJd": 2461592,
+      "phaseSigmaDays": 261.89294,
+      "phaseSigmaOrbits": 0.13784
+     }
+    }
+   ],
+   "notes": [
+    "Proxima c is kept for completeness, flagged as disputed and hidden by default."
+   ],
+   "epochJd": 2461041.5,
+   "epochIso": "2026-01-01T00:00:00 TDB"
+  },
+  {
+   "id": "barnards-star",
+   "name": "Barnard's Star",
+   "archiveHost": "Barnard's star",
+   "position": {
+    "raDeg": 269.4520734,
+    "decDeg": 4.6934105,
+    "epoch": "J2000.0",
+    "distancePc": 1.82655,
+    "pmRaMasYr": -801.551,
+    "pmDecMasYr": 10362.394,
+    "radialVelocityKms": -110.5,
+    "ref": "nea-pscomppars",
+    "source": "RA/Dec: Gaia DR3 (ESA/Gaia/DPAC), carried from J2016.0 to J2000.0; distance: TICv8 (via the NASA Exoplanet Archive)",
+    "ids": {
+     "gaiaDr3": "4472832130942575872",
+     "hip": 87937,
+     "hd": null,
+     "tic": "325554331"
+    }
+   },
+   "stars": [
+    {
+     "id": "A",
+     "name": "Barnard's star",
+     "massMsun": {
+      "v": 0.162,
+      "ref": "nea-pscomppars",
+      "err": 0.007,
+      "source": "González Hernández et al. 2024",
+      "url": "https://ui.adsabs.harvard.edu/abs/2024A&A...690A..79G/abstract"
+     },
+     "radiusRsun": {
+      "v": 0.185,
+      "ref": "nea-pscomppars",
+      "err": 0.006,
+      "source": "González Hernández et al. 2024",
+      "url": "https://ui.adsabs.harvard.edu/abs/2024A&A...690A..79G/abstract"
+     },
+     "teffK": {
+      "v": 3195,
+      "ref": "nea-pscomppars",
+      "err": 28,
+      "source": "González Hernández et al. 2024",
+      "url": "https://ui.adsabs.harvard.edu/abs/2024A&A...690A..79G/abstract"
+     },
+     "luminosityLsun": {
+      "v": 0.00355,
+      "ref": "nea-pscomppars",
+      "source": "González Hernández et al. 2024",
+      "url": "https://ui.adsabs.harvard.edu/abs/2024A&A...690A..79G/abstract",
+      "derived": "10^(log L) of the archive value"
+     },
+     "spectralType": {
+      "v": "M3.5-4 V",
+      "ref": "nea-pscomppars",
+      "source": "González Hernández et al. 2024"
+     }
+    }
+   ],
+   "planets": [
+    {
+     "id": "d",
+     "name": "Barnard d",
+     "archiveName": "Barnard d",
+     "status": "confirmed",
+     "centre": "A",
+     "inputs": {
+      "periodDays": {
+       "v": 2.3402,
+       "ref": "basant2025",
+       "err": 0.0003,
+       "where": "Table 3"
+      },
+      "aAu": {
+       "v": 0.0188,
+       "ref": "basant2025",
+       "err": 0.0003,
+       "where": "Table 3"
+      },
+      "e": {
+       "v": 0,
+       "assumed": "Table 3 eccentricities (0.03-0.08, beta-distribution prior) are consistent with zero and their arguments of periastron are unconstrained (uncertainties > 90 deg); we use circular orbits."
+      },
+      "argPeri": {
+       "v": 90,
+       "assumed": "Undefined for a circular orbit.",
+       "convention": "star"
+      },
+      "iDeg": {
+       "v": 60,
+       "assumed": "Unknown: RV only and no transits. 60 deg is the median inclination for randomly oriented orbits (cos i uniform); masses are therefore minimum masses."
+      },
+      "nodeDeg": {
+       "v": 189.9,
+       "assumed": "Unknown (RV only). Fixed pseudo-random angle from the host name (assumedNodeDeg)."
+      },
+      "phase": {
+       "kind": "conjunction",
+       "jd": 2460243.7,
+       "sigmaDays": 0.08,
+       "periodSigmaDays": 0.0003,
+       "ref": "basant2025",
+       "where": "Table 3, t0",
+       "note": "The text calls t0 the \"time of periastron passage\", but the fit uses juliet, whose t0 is the time of inferior conjunction, and a +-0.1 d uncertainty is only possible for a conjunction time when omega is unconstrained. We use it as the conjunction time."
+      }
+     },
+     "radiusEarth": {
+      "v": 0.723,
+      "derived": "estimate from m sin i / sin(60 deg) with the Chen & Kipping 2017 mean relation; not measured",
+      "ref": "chen2017",
+      "estimate": true
+     },
+     "massEarth": {
+      "v": 0.263,
+      "ref": "basant2025",
+      "err": 0.024,
+      "where": "Table 3",
+      "kind": "minimum"
+     },
+     "rvSemiAmplitudeMs": {
+      "v": 0.428,
+      "ref": "basant2025",
+      "where": "Table 3"
+     },
+     "teqK": {
+      "v": 483,
+      "ref": "basant2025",
+      "where": "Table 3, zero albedo, full redistribution"
+     },
+     "discovery": {
+      "year": 2025,
+      "method": "Radial Velocity",
+      "facility": "Gemini Observatory",
+      "reference": "Basant et al. 2025",
+      "url": "https://ui.adsabs.harvard.edu/abs/2025ApJ...982L...1B/abstract"
+     },
+     "orbit": {
+      "periodDays": 2.3402,
+      "aAu": 0.0188,
+      "e": 0,
+      "iDeg": 60,
+      "nodeDeg": 189.9,
+      "argPeriDeg": 270,
+      "tPeriJd": 2460243.7
+     },
+     "atEpoch": {
+      "jd": 2461041.5,
+      "meanAnomalyDeg": 327.972,
+      "firstConjunctionAfterJd": 2461041.7082,
+      "phaseSigmaDays": 0.12985,
+      "phaseSigmaOrbits": 0.05548
+     }
+    },
+    {
+     "id": "b",
+     "name": "Barnard b",
+     "archiveName": "Barnard b",
+     "status": "confirmed",
+     "centre": "A",
+     "inputs": {
+      "periodDays": {
+       "v": 3.1542,
+       "ref": "basant2025",
+       "err": 0.0004,
+       "where": "Table 3"
+      },
+      "aAu": {
+       "v": 0.0229,
+       "ref": "basant2025",
+       "err": 0.0003,
+       "where": "Table 3"
+      },
+      "e": {
+       "v": 0,
+       "assumed": "Table 3 eccentricities (0.03-0.08, beta-distribution prior) are consistent with zero and their arguments of periastron are unconstrained (uncertainties > 90 deg); we use circular orbits."
+      },
+      "argPeri": {
+       "v": 90,
+       "assumed": "Undefined for a circular orbit.",
+       "convention": "star"
+      },
+      "iDeg": {
+       "v": 60,
+       "assumed": "Unknown: RV only and no transits. 60 deg is the median inclination for randomly oriented orbits (cos i uniform); masses are therefore minimum masses."
+      },
+      "nodeDeg": {
+       "v": 189.9,
+       "assumed": "Unknown (RV only). Fixed pseudo-random angle from the host name (assumedNodeDeg)."
+      },
+      "phase": {
+       "kind": "conjunction",
+       "jd": 2460243.38,
+       "sigmaDays": 0.09,
+       "periodSigmaDays": 0.0004,
+       "ref": "basant2025",
+       "where": "Table 3, t0",
+       "note": "The text calls t0 the \"time of periastron passage\", but the fit uses juliet, whose t0 is the time of inferior conjunction, and a +-0.1 d uncertainty is only possible for a conjunction time when omega is unconstrained. We use it as the conjunction time."
+      }
+     },
+     "radiusEarth": {
+      "v": 0.749,
+      "derived": "estimate from m sin i / sin(60 deg) with the Chen & Kipping 2017 mean relation; not measured",
+      "ref": "chen2017",
+      "estimate": true
+     },
+     "massEarth": {
+      "v": 0.299,
+      "ref": "basant2025",
+      "err": 0.026,
+      "where": "Table 3",
+      "kind": "minimum"
+     },
+     "rvSemiAmplitudeMs": {
+      "v": 0.44,
+      "ref": "basant2025",
+      "where": "Table 3"
+     },
+     "teqK": {
+      "v": 438,
+      "ref": "basant2025",
+      "where": "Table 3, zero albedo, full redistribution"
+     },
+     "discovery": {
+      "year": 2024,
+      "method": "Radial Velocity",
+      "facility": "Paranal Observatory",
+      "reference": "González Hernández et al. 2024",
+      "url": "https://ui.adsabs.harvard.edu/abs/2024A&A...690A..79G/abstract"
+     },
+     "orbit": {
+      "periodDays": 3.1542,
+      "aAu": 0.0229,
+      "e": 0,
+      "iDeg": 60,
+      "nodeDeg": 189.9,
+      "argPeriDeg": 270,
+      "tPeriJd": 2460243.38
+     },
+     "atEpoch": {
+      "jd": 2461041.5,
+      "meanAnomalyDeg": 12.258,
+      "firstConjunctionAfterJd": 2461044.5468,
+      "phaseSigmaDays": 0.13544,
+      "phaseSigmaOrbits": 0.04294
+     }
+    },
+    {
+     "id": "c",
+     "name": "Barnard c",
+     "archiveName": "Barnard c",
+     "status": "confirmed",
+     "centre": "A",
+     "inputs": {
+      "periodDays": {
+       "v": 4.1244,
+       "ref": "basant2025",
+       "err": 0.0006,
+       "where": "Table 3"
+      },
+      "aAu": {
+       "v": 0.0274,
+       "ref": "basant2025",
+       "err": 0.0004,
+       "where": "Table 3"
+      },
+      "e": {
+       "v": 0,
+       "assumed": "Table 3 eccentricities (0.03-0.08, beta-distribution prior) are consistent with zero and their arguments of periastron are unconstrained (uncertainties > 90 deg); we use circular orbits."
+      },
+      "argPeri": {
+       "v": 90,
+       "assumed": "Undefined for a circular orbit.",
+       "convention": "star"
+      },
+      "iDeg": {
+       "v": 60,
+       "assumed": "Unknown: RV only and no transits. 60 deg is the median inclination for randomly oriented orbits (cos i uniform); masses are therefore minimum masses."
+      },
+      "nodeDeg": {
+       "v": 189.9,
+       "assumed": "Unknown (RV only). Fixed pseudo-random angle from the host name (assumedNodeDeg)."
+      },
+      "phase": {
+       "kind": "conjunction",
+       "jd": 2460242.92,
+       "sigmaDays": 0.1,
+       "periodSigmaDays": 0.0006,
+       "ref": "basant2025",
+       "where": "Table 3, t0",
+       "note": "The text calls t0 the \"time of periastron passage\", but the fit uses juliet, whose t0 is the time of inferior conjunction, and a +-0.1 d uncertainty is only possible for a conjunction time when omega is unconstrained. We use it as the conjunction time."
+      }
+     },
+     "radiusEarth": {
+      "v": 0.773,
+      "derived": "estimate from m sin i / sin(60 deg) with the Chen & Kipping 2017 mean relation; not measured",
+      "ref": "chen2017",
+      "estimate": true
+     },
+     "massEarth": {
+      "v": 0.335,
+      "ref": "basant2025",
+      "err": 0.03,
+      "where": "Table 3",
+      "kind": "minimum"
+     },
+     "rvSemiAmplitudeMs": {
+      "v": 0.452,
+      "ref": "basant2025",
+      "where": "Table 3"
+     },
+     "teqK": {
+      "v": 400,
+      "ref": "basant2025",
+      "where": "Table 3, zero albedo, full redistribution"
+     },
+     "discovery": {
+      "year": 2025,
+      "method": "Radial Velocity",
+      "facility": "Gemini Observatory",
+      "reference": "Basant et al. 2025",
+      "url": "https://ui.adsabs.harvard.edu/abs/2025ApJ...982L...1B/abstract"
+     },
+     "orbit": {
+      "periodDays": 4.1244,
+      "aAu": 0.0274,
+      "e": 0,
+      "iDeg": 60,
+      "nodeDeg": 189.9,
+      "argPeriDeg": 270,
+      "tPeriJd": 2460242.92
+     },
+     "atEpoch": {
+      "jd": 2461041.5,
+      "meanAnomalyDeg": 224.393,
+      "firstConjunctionAfterJd": 2461043.0536,
+      "phaseSigmaDays": 0.15329,
+      "phaseSigmaOrbits": 0.03717
+     }
+    },
+    {
+     "id": "e",
+     "name": "Barnard e",
+     "archiveName": "Barnard e",
+     "status": "confirmed",
+     "centre": "A",
+     "inputs": {
+      "periodDays": {
+       "v": 6.7392,
+       "ref": "basant2025",
+       "err": 0.0028,
+       "where": "Table 3"
+      },
+      "aAu": {
+       "v": 0.0381,
+       "ref": "basant2025",
+       "err": 0.0005,
+       "where": "Table 3"
+      },
+      "e": {
+       "v": 0,
+       "assumed": "Table 3 eccentricities (0.03-0.08, beta-distribution prior) are consistent with zero and their arguments of periastron are unconstrained (uncertainties > 90 deg); we use circular orbits."
+      },
+      "argPeri": {
+       "v": 90,
+       "assumed": "Undefined for a circular orbit.",
+       "convention": "star"
+      },
+      "iDeg": {
+       "v": 60,
+       "assumed": "Unknown: RV only and no transits. 60 deg is the median inclination for randomly oriented orbits (cos i uniform); masses are therefore minimum masses."
+      },
+      "nodeDeg": {
+       "v": 189.9,
+       "assumed": "Unknown (RV only). Fixed pseudo-random angle from the host name (assumedNodeDeg)."
+      },
+      "phase": {
+       "kind": "conjunction",
+       "jd": 2460245.3,
+       "sigmaDays": 0.37,
+       "periodSigmaDays": 0.0028,
+       "ref": "basant2025",
+       "where": "Table 3, t0",
+       "note": "The text calls t0 the \"time of periastron passage\", but the fit uses juliet, whose t0 is the time of inferior conjunction, and a +-0.1 d uncertainty is only possible for a conjunction time when omega is unconstrained. We use it as the conjunction time."
+      }
+     },
+     "radiusEarth": {
+      "v": 0.663,
+      "derived": "estimate from m sin i / sin(60 deg) with the Chen & Kipping 2017 mean relation; not measured",
+      "ref": "chen2017",
+      "estimate": true
+     },
+     "massEarth": {
+      "v": 0.193,
+      "ref": "basant2025",
+      "err": 0.033,
+      "where": "Table 3",
+      "kind": "minimum"
+     },
+     "rvSemiAmplitudeMs": {
+      "v": 0.221,
+      "ref": "basant2025",
+      "where": "Table 3"
+     },
+     "teqK": {
+      "v": 340,
+      "ref": "basant2025",
+      "where": "Table 3, zero albedo, full redistribution"
+     },
+     "discovery": {
+      "year": 2025,
+      "method": "Radial Velocity",
+      "facility": "Gemini Observatory",
+      "reference": "Basant et al. 2025",
+      "url": "https://ui.adsabs.harvard.edu/abs/2025ApJ...982L...1B/abstract"
+     },
+     "orbit": {
+      "periodDays": 6.7392,
+      "aAu": 0.0381,
+      "e": 0,
+      "iDeg": 60,
+      "nodeDeg": 189.9,
+      "argPeriDeg": 270,
+      "tPeriJd": 2460245.3
+     },
+     "atEpoch": {
+      "jd": 2461041.5,
+      "meanAnomalyDeg": 52.051,
+      "firstConjunctionAfterJd": 2461047.2648,
+      "phaseSigmaDays": 0.49632,
+      "phaseSigmaOrbits": 0.07365
+     }
+    }
+   ],
+   "notes": [
+    "b was reported by González Hernández et al. 2024; Basant et al. 2025 confirmed it and added c, d and e. All four are sub-Earths (minimum masses)."
+   ],
+   "epochJd": 2461041.5,
+   "epochIso": "2026-01-01T00:00:00 TDB"
+  },
+  {
+   "id": "51-peg",
+   "name": "51 Pegasi",
+   "archiveHost": "51 Peg",
+   "position": {
+    "raDeg": 344.3665835,
+    "decDeg": 20.7688309,
+    "epoch": "J2000.0",
+    "distancePc": 15.4614,
+    "pmRaMasYr": 207.25,
+    "pmDecMasYr": 60.34,
+    "radialVelocityKms": -33.1392,
+    "ref": "nea-pscomppars",
+    "source": "RA/Dec: Hipparcos new reduction (van Leeuwen 2007), carried from J1991.25 to J2000.0; distance: TICv8 (via the NASA Exoplanet Archive)",
+    "ids": {
+     "gaiaDr3": "2835207319109249920",
+     "hip": 113357,
+     "hd": "217014",
+     "tic": "139298196"
+    }
+   },
+   "stars": [
+    {
+     "id": "A",
+     "name": "51 Peg",
+     "massMsun": {
+      "v": 1.07,
+      "ref": "nea-pscomppars",
+      "err": 0.05,
+      "source": "Cont et al. 2026",
+      "url": "https://ui.adsabs.harvard.edu/abs/2026A&A...710A.345C/abstract"
+     },
+     "radiusRsun": {
+      "v": 1.19,
+      "ref": "nea-pscomppars",
+      "err": 0.03,
+      "source": "Cont et al. 2026",
+      "url": "https://ui.adsabs.harvard.edu/abs/2026A&A...710A.345C/abstract"
+     },
+     "teffK": {
+      "v": 5761,
+      "ref": "nea-pscomppars",
+      "err": 95,
+      "source": "Cont et al. 2026",
+      "url": "https://ui.adsabs.harvard.edu/abs/2026A&A...710A.345C/abstract"
+     },
+     "luminosityLsun": {
+      "v": 1.369,
+      "ref": "nea-pscomppars",
+      "source": "Butler et al. 2006",
+      "url": "https://ui.adsabs.harvard.edu/abs/2006ApJ...646..505B/abstract",
+      "derived": "10^(log L) of the archive value"
+     },
+     "spectralType": {
+      "v": "G5V",
+      "ref": "nea-pscomppars",
+      "source": "Turnbull 2015"
+     }
+    }
+   ],
+   "planets": [
+    {
+     "id": "b",
+     "name": "51 Peg b",
+     "archiveName": "51 Peg b",
+     "status": "confirmed",
+     "centre": "A",
+     "inputs": {
+      "periodDays": {
+       "v": 4.2307966,
+       "ref": "cont2026",
+       "err": 0.0000027,
+       "where": "Table 2"
+      },
+      "aAu": {
+       "v": 0.052,
+       "ref": "cont2026",
+       "where": "Table 1"
+      },
+      "e": {
+       "v": 0,
+       "ref": "cont2026",
+       "where": "Table 2: e < 0.0063; circular adopted"
+      },
+      "argPeri": {
+       "v": 90,
+       "assumed": "Undefined for a circular orbit.",
+       "convention": "star"
+      },
+      "iDeg": {
+       "v": 49.8,
+       "ref": "cont2026",
+       "err": [
+        -5.7,
+        5.8
+       ],
+       "where": "abstract and Table 1, from the planet's orbital velocity K_p = 102.8 km/s measured with CRIRES+",
+       "note": "Only sin i is measured: 49.8 or 130.2 deg (the sense of motion on the sky is unknown; 49.8 assumed). Earlier dayside detections gave K_p ~ 133 km/s and i ~ 70-82 deg (Brogi et al. 2013; Birkby et al. 2017); Cont et al. discuss the discrepancy."
+      },
+      "nodeDeg": {
+       "v": 213.1,
+       "assumed": "Unknown. Fixed pseudo-random angle from the host name (assumedNodeDeg)."
+      },
+      "phase": {
+       "kind": "conjunction",
+       "jd": 2456326.9323,
+       "sigmaDays": 0.0013,
+       "periodSigmaDays": 0.0000027,
+       "ref": "cont2026",
+       "where": "Table 2, T_C (BJD_TDB)"
+      }
+     },
+     "radiusEarth": {
+      "v": 14.07,
+      "derived": "estimate for 0.61 Jupiter masses with the Chen & Kipping 2017 mean relation; 51 Peg b does not transit, so its radius is not measured",
+      "ref": "chen2017",
+      "estimate": true
+     },
+     "massEarth": {
+      "v": 193.9,
+      "ref": "cont2026",
+      "err": [
+       -15.9,
+       19.1
+      ],
+      "where": "0.61 (+0.06/-0.05) Jupiter masses",
+      "kind": "true"
+     },
+     "teqK": {
+      "v": 1329,
+      "ref": "nea-pscomppars",
+      "source": "calculated by the NASA Exoplanet Archive (mass-radius relation / derived)"
+     },
+     "discovery": {
+      "year": 1995,
+      "method": "Radial Velocity",
+      "facility": "Haute-Provence Observatory",
+      "reference": "Mayor & Queloz 1995",
+      "url": "https://ui.adsabs.harvard.edu/abs/1995Natur.378..355M/abstract"
+     },
+     "orbit": {
+      "periodDays": 4.2307966,
+      "aAu": 0.052,
+      "e": 0,
+      "iDeg": 49.8,
+      "nodeDeg": 213.1,
+      "argPeriDeg": 270,
+      "tPeriJd": 2456326.9323
+     },
+     "atEpoch": {
+      "jd": 2461041.5,
+      "meanAnomalyDeg": 124.256,
+      "firstConjunctionAfterJd": 2461044.27051,
+      "phaseSigmaDays": 0.00328,
+      "phaseSigmaOrbits": 0.00077
+     }
+    }
+   ],
+   "notes": [
+    "The first planet found around a Sun-like star (Mayor & Queloz 1995; Nobel Prize in Physics 2019)."
+   ],
+   "epochJd": 2461041.5,
+   "epochIso": "2026-01-01T00:00:00 TDB"
+  },
+  {
+   "id": "hr-8799",
+   "name": "HR 8799",
+   "archiveHost": "HR 8799",
+   "position": {
+    "raDeg": 346.8696461,
+    "decDeg": 21.1342515,
+    "epoch": "J2000.0",
+    "distancePc": 41.2441,
+    "pmRaMasYr": 107.93,
+    "pmDecMasYr": -49.63,
+    "radialVelocityKms": null,
+    "ref": "nea-pscomppars",
+    "source": "RA/Dec: Hipparcos new reduction (van Leeuwen 2007), carried from J1991.25 to J2000.0; distance: TICv8 (via the NASA Exoplanet Archive)",
+    "ids": {
+     "gaiaDr3": "2832463659640297472",
+     "hip": 114189,
+     "hd": "218396",
+     "tic": "245368902"
+    }
+   },
+   "stars": [
+    {
+     "id": "A",
+     "name": "HR 8799",
+     "massMsun": {
+      "v": 1.47,
+      "ref": "wang2018",
+      "err": [
+       -0.08,
+       0.11
+      ],
+      "where": "Table 4 (dynamical, from the orbits)"
+     },
+     "radiusRsun": {
+      "v": 1.493,
+      "ref": "nea-pscomppars",
+      "err": [
+       -0.0509,
+       0.0493
+      ],
+      "source": "Konopacky et al. 2016",
+      "url": "https://ui.adsabs.harvard.edu/abs/2016AJ....152...28K/abstract"
+     },
+     "teffK": {
+      "v": 7205,
+      "ref": "nea-pscomppars",
+      "err": [
+       -130,
+       83.8
+      ],
+      "source": "Konopacky et al. 2016",
+      "url": "https://ui.adsabs.harvard.edu/abs/2016AJ....152...28K/abstract"
+     },
+     "luminosityLsun": {
+      "v": 4.92,
+      "ref": "nea-pscomppars",
+      "source": "Marois et al. 2008",
+      "url": "https://ui.adsabs.harvard.edu/abs/2008Sci...322.1348M/abstract",
+      "derived": "10^(log L) of the archive value"
+     },
+     "spectralType": {
+      "v": "A5 V",
+      "ref": "nea-pscomppars",
+      "source": "Marois et al. 2008"
+     }
+    }
+   ],
+   "planets": [
+    {
+     "id": "b",
+     "name": "HR 8799 b",
+     "archiveName": "HR 8799 b",
+     "status": "confirmed",
+     "centre": "A",
+     "inputs": {
+      "periodDays": {
+       "v": 179469.1,
+       "derived": "Kepler's third law from a and the stellar mass 1.47 solar masses (Wang et al. 2018 Table 4; their fits share one total mass). 491.4 yr.",
+       "ref": "wang2018"
+      },
+      "aAu": {
+       "v": 70.8,
+       "ref": "wang2018",
+       "err": [
+        -0.18,
+        0.19
+       ],
+       "where": "Table 4 (stable coplanar)"
+      },
+      "e": {
+       "v": 0.018,
+       "ref": "wang2018",
+       "err": [
+        -0.013,
+        0.018
+       ],
+       "where": "Table 4"
+      },
+      "argPeri": {
+       "v": 87,
+       "ref": "wang2018",
+       "err": 58,
+       "where": "Table 4",
+       "convention": "planet"
+      },
+      "iDeg": {
+       "v": 26.8,
+       "ref": "wang2018",
+       "err": 2.3,
+       "where": "Table 4 (coplanar); i < 90: counterclockwise, as observed"
+      },
+      "nodeDeg": {
+       "v": 67.9,
+       "ref": "wang2018",
+       "err": [
+        -5.2,
+        5.9
+       ],
+       "where": "Table 4",
+       "note": "Astrometry alone leaves a 180 deg ambiguity (which half of the orbit is nearer). The planets' radial velocities (Ruffio et al. 2019: RV_b - RV_c = +2.4 ± 0.7 km/s in 2010) select this branch in our receding-node convention: the model gives +2.6 km/s, the other branch -2.6 km/s (tested).",
+       "ref2": "ruffio2019"
+      },
+      "phase": {
+       "kind": "periastron",
+       "jd": 2500619.755,
+       "ref": "wang2018",
+       "how": "tau refitted to the GPI astrometry of Wang et al. 2018 Table 2 with the other Table 4 elements fixed (published median tau = 0.46; refit tau = 0.28205; rms residual 1.9 mas over 1 epoch(s)). The medians of tau and omega are not a consistent pair for near-circular orbits, so the published tau alone misplaces b and c by up to 60 deg."
+      }
+     },
+     "radiusEarth": {
+      "v": 13,
+      "ref": "nea-pscomppars",
+      "err": 1,
+      "source": "Marois et al. 2008",
+      "url": "https://ui.adsabs.harvard.edu/abs/2008Sci...322.1348M/abstract"
+     },
+     "massEarth": {
+      "v": 1843,
+      "ref": "wang2018",
+      "err": 159,
+      "where": "abstract: 5.8 Jupiter masses from dynamical stability plus hot-start evolution models (age 42 ± 5 Myr)",
+      "kind": "model-dependent"
+     },
+     "teqK": {
+      "v": 1200,
+      "ref": "nea-pscomppars",
+      "source": "Bonnefoy et al. 2016",
+      "url": "https://ui.adsabs.harvard.edu/abs/2016A&A...587A..58B/abstract"
+     },
+     "discovery": {
+      "year": 2008,
+      "method": "Imaging",
+      "facility": "Gemini Observatory",
+      "reference": "Marois et al. 2008",
+      "url": "https://ui.adsabs.harvard.edu/abs/2008Sci...322.1348M/abstract"
+     },
+     "orbit": {
+      "periodDays": 179469.1,
+      "aAu": 70.8,
+      "e": 0.018,
+      "iDeg": 26.8,
+      "nodeDeg": 67.9,
+      "argPeriDeg": 87,
+      "tPeriJd": 2500619.755
+     },
+     "atEpoch": {
+      "jd": 2461041.5,
+      "meanAnomalyDeg": 280.609,
+      "firstConjunctionAfterJd": 2591904.43131,
+      "phaseSigmaDays": null,
+      "phaseSigmaOrbits": null
+     }
+    },
+    {
+     "id": "c",
+     "name": "HR 8799 c",
+     "archiveName": "HR 8799 c",
+     "status": "confirmed",
+     "centre": "A",
+     "inputs": {
+      "periodDays": {
+       "v": 85242.4,
+       "derived": "Kepler's third law from a and the stellar mass 1.47 solar masses (Wang et al. 2018 Table 4; their fits share one total mass). 233.4 yr.",
+       "ref": "wang2018"
+      },
+      "aAu": {
+       "v": 43.1,
+       "ref": "wang2018",
+       "err": [
+        -1.4,
+        1.3
+       ],
+       "where": "Table 4 (stable coplanar)"
+      },
+      "e": {
+       "v": 0.022,
+       "ref": "wang2018",
+       "err": [
+        -0.017,
+        0.023
+       ],
+       "where": "Table 4"
+      },
+      "argPeri": {
+       "v": 67,
+       "ref": "wang2018",
+       "err": [
+        -39,
+        59
+       ],
+       "where": "Table 4",
+       "convention": "planet"
+      },
+      "iDeg": {
+       "v": 26.8,
+       "ref": "wang2018",
+       "err": 2.3,
+       "where": "Table 4 (coplanar); i < 90: counterclockwise, as observed"
+      },
+      "nodeDeg": {
+       "v": 67.9,
+       "ref": "wang2018",
+       "err": [
+        -5.2,
+        5.9
+       ],
+       "where": "Table 4",
+       "note": "Astrometry alone leaves a 180 deg ambiguity (which half of the orbit is nearer). The planets' radial velocities (Ruffio et al. 2019: RV_b - RV_c = +2.4 ± 0.7 km/s in 2010) select this branch in our receding-node convention: the model gives +2.6 km/s, the other branch -2.6 km/s (tested).",
+       "ref2": "ruffio2019"
+      },
+      "phase": {
+       "kind": "periastron",
+       "jd": 2496345.94,
+       "ref": "wang2018",
+       "how": "tau refitted to the GPI astrometry of Wang et al. 2018 Table 2 with the other Table 4 elements fixed (published median tau = 0.43; refit tau = 0.54369; rms residual 10.8 mas over 3 epoch(s)). The medians of tau and omega are not a consistent pair for near-circular orbits, so the published tau alone misplaces b and c by up to 60 deg."
+      }
+     },
+     "radiusEarth": {
+      "v": 13,
+      "ref": "nea-pscomppars",
+      "err": [
+       0,
+       1
+      ],
+      "source": "Marois et al. 2008",
+      "url": "https://ui.adsabs.harvard.edu/abs/2008Sci...322.1348M/abstract"
+     },
+     "massEarth": {
+      "v": 2288,
+      "ref": "wang2018",
+      "err": [
+       -222,
+       191
+      ],
+      "where": "abstract: 7.2 Jupiter masses from dynamical stability plus hot-start evolution models (age 42 ± 5 Myr)",
+      "kind": "model-dependent"
+     },
+     "teqK": {
+      "v": 1200,
+      "ref": "nea-pscomppars",
+      "source": "Bonnefoy et al. 2016",
+      "url": "https://ui.adsabs.harvard.edu/abs/2016A&A...587A..58B/abstract"
+     },
+     "discovery": {
+      "year": 2008,
+      "method": "Imaging",
+      "facility": "Gemini Observatory",
+      "reference": "Marois et al. 2008",
+      "url": "https://ui.adsabs.harvard.edu/abs/2008Sci...322.1348M/abstract"
+     },
+     "orbit": {
+      "periodDays": 85242.4,
+      "aAu": 43.1,
+      "e": 0.022,
+      "iDeg": 26.8,
+      "nodeDeg": 67.9,
+      "argPeriDeg": 67,
+      "tPeriJd": 2496345.94
+     },
+     "atEpoch": {
+      "jd": 2461041.5,
+      "meanAnomalyDeg": 210.901,
+      "firstConjunctionAfterJd": 2544650.01238,
+      "phaseSigmaDays": null,
+      "phaseSigmaOrbits": null
+     }
+    },
+    {
+     "id": "d",
+     "name": "HR 8799 d",
+     "archiveName": "HR 8799 d",
+     "status": "confirmed",
+     "centre": "A",
+     "inputs": {
+      "periodDays": {
+       "v": 40401,
+       "derived": "Kepler's third law from a and the stellar mass 1.47 solar masses (Wang et al. 2018 Table 4; their fits share one total mass). 110.6 yr.",
+       "ref": "wang2018"
+      },
+      "aAu": {
+       "v": 26.2,
+       "ref": "wang2018",
+       "err": [
+        -0.7,
+        0.9
+       ],
+       "where": "Table 4 (stable coplanar)"
+      },
+      "e": {
+       "v": 0.129,
+       "ref": "wang2018",
+       "err": [
+        -0.025,
+        0.022
+       ],
+       "where": "Table 4"
+      },
+      "argPeri": {
+       "v": 17,
+       "ref": "wang2018",
+       "err": [
+        -11,
+        12
+       ],
+       "where": "Table 4",
+       "convention": "planet"
+      },
+      "iDeg": {
+       "v": 26.8,
+       "ref": "wang2018",
+       "err": 2.3,
+       "where": "Table 4 (coplanar); i < 90: counterclockwise, as observed"
+      },
+      "nodeDeg": {
+       "v": 67.9,
+       "ref": "wang2018",
+       "err": [
+        -5.2,
+        5.9
+       ],
+       "where": "Table 4",
+       "note": "Astrometry alone leaves a 180 deg ambiguity (which half of the orbit is nearer). The planets' radial velocities (Ruffio et al. 2019: RV_b - RV_c = +2.4 ± 0.7 km/s in 2010) select this branch in our receding-node convention: the model gives +2.6 km/s, the other branch -2.6 km/s (tested).",
+       "ref2": "ruffio2019"
+      },
+      "phase": {
+       "kind": "periastron",
+       "jd": 2484250.415,
+       "ref": "wang2018",
+       "how": "tau refitted to the GPI astrometry of Wang et al. 2018 Table 2 with the other Table 4 elements fixed (published median tau = 0.839; refit tau = 0.84775; rms residual 3.2 mas over 3 epoch(s)). The medians of tau and omega are not a consistent pair for near-circular orbits, so the published tau alone misplaces b and c by up to 60 deg."
+      }
+     },
+     "radiusEarth": {
+      "v": 13,
+      "ref": "nea-pscomppars",
+      "err": [
+       0,
+       1
+      ],
+      "source": "Marois et al. 2008",
+      "url": "https://ui.adsabs.harvard.edu/abs/2008Sci...322.1348M/abstract"
+     },
+     "massEarth": {
+      "v": 2288,
+      "ref": "wang2018",
+      "err": [
+       -222,
+       191
+      ],
+      "where": "abstract: 7.2 Jupiter masses from dynamical stability plus hot-start evolution models (age 42 ± 5 Myr)",
+      "kind": "model-dependent"
+     },
+     "teqK": {
+      "v": 1300,
+      "ref": "nea-pscomppars",
+      "source": "Bonnefoy et al. 2016",
+      "url": "https://ui.adsabs.harvard.edu/abs/2016A&A...587A..58B/abstract"
+     },
+     "discovery": {
+      "year": 2008,
+      "method": "Imaging",
+      "facility": "W. M. Keck Observatory",
+      "reference": "Marois et al. 2008",
+      "url": "https://ui.adsabs.harvard.edu/abs/2008Sci...322.1348M/abstract"
+     },
+     "orbit": {
+      "periodDays": 40401,
+      "aAu": 26.2,
+      "e": 0.129,
+      "iDeg": 26.8,
+      "nodeDeg": 67.9,
+      "argPeriDeg": 17,
+      "tPeriJd": 2484250.415
+     },
+     "atEpoch": {
+      "jd": 2461041.5,
+      "meanAnomalyDeg": 153.193,
+      "firstConjunctionAfterJd": 2473870.62644,
+      "phaseSigmaDays": null,
+      "phaseSigmaOrbits": null
+     }
+    },
+    {
+     "id": "e",
+     "name": "HR 8799 e",
+     "archiveName": "HR 8799 e",
+     "status": "confirmed",
+     "centre": "A",
+     "inputs": {
+      "periodDays": {
+       "v": 19643.2,
+       "derived": "Kepler's third law from a and the stellar mass 1.47 solar masses (Wang et al. 2018 Table 4; their fits share one total mass). 53.8 yr.",
+       "ref": "wang2018"
+      },
+      "aAu": {
+       "v": 16.2,
+       "ref": "wang2018",
+       "err": 0.5,
+       "where": "Table 4 (stable coplanar)"
+      },
+      "e": {
+       "v": 0.118,
+       "ref": "wang2018",
+       "err": [
+        -0.028,
+        0.019
+       ],
+       "where": "Table 4"
+      },
+      "argPeri": {
+       "v": 110,
+       "ref": "wang2018",
+       "err": 9,
+       "where": "Table 4",
+       "convention": "planet"
+      },
+      "iDeg": {
+       "v": 26.8,
+       "ref": "wang2018",
+       "err": 2.3,
+       "where": "Table 4 (coplanar); i < 90: counterclockwise, as observed"
+      },
+      "nodeDeg": {
+       "v": 67.9,
+       "ref": "wang2018",
+       "err": [
+        -5.2,
+        5.9
+       ],
+       "where": "Table 4",
+       "note": "Astrometry alone leaves a 180 deg ambiguity (which half of the orbit is nearer). The planets' radial velocities (Ruffio et al. 2019: RV_b - RV_c = +2.4 ± 0.7 km/s in 2010) select this branch in our receding-node convention: the model gives +2.6 km/s, the other branch -2.6 km/s (tested).",
+       "ref2": "ruffio2019"
+      },
+      "phase": {
+       "kind": "periastron",
+       "jd": 2452513.455,
+       "ref": "wang2018",
+       "how": "tau refitted to the GPI astrometry of Wang et al. 2018 Table 2 with the other Table 4 elements fixed (published median tau = 0.124; refit tau = 0.12793; rms residual 3.8 mas over 2 epoch(s)). The medians of tau and omega are not a consistent pair for near-circular orbits, so the published tau alone misplaces b and c by up to 60 deg."
+      }
+     },
+     "radiusEarth": {
+      "v": 13.11,
+      "ref": "nea-pscomppars",
+      "err": [
+       -1.23,
+       1.46
+      ],
+      "source": "Gravity Collaboration et al. 2019",
+      "url": "https://ui.adsabs.harvard.edu/abs/2019A&A...623L..11G/abstract"
+     },
+     "massEarth": {
+      "v": 2288,
+      "ref": "wang2018",
+      "err": [
+       -222,
+       191
+      ],
+      "where": "abstract: 7.2 Jupiter masses from dynamical stability plus hot-start evolution models (age 42 ± 5 Myr)",
+      "kind": "model-dependent"
+     },
+     "teqK": {
+      "v": 1150,
+      "ref": "nea-pscomppars",
+      "err": 50,
+      "source": "Gravity Collaboration et al. 2019",
+      "url": "https://ui.adsabs.harvard.edu/abs/2019A&A...623L..11G/abstract"
+     },
+     "discovery": {
+      "year": 2010,
+      "method": "Imaging",
+      "facility": "W. M. Keck Observatory",
+      "reference": "Marois et al. 2010",
+      "url": "https://ui.adsabs.harvard.edu/abs/2010Natur.468.1080M/abstract"
+     },
+     "orbit": {
+      "periodDays": 19643.2,
+      "aAu": 16.2,
+      "e": 0.118,
+      "iDeg": 26.8,
+      "nodeDeg": 67.9,
+      "argPeriDeg": 110,
+      "tPeriJd": 2452513.455
+     },
+     "atEpoch": {
+      "jd": 2461041.5,
+      "meanAnomalyDeg": 156.293,
+      "firstConjunctionAfterJd": 2480611.99529,
+      "phaseSigmaDays": null,
+      "phaseSigmaOrbits": null
+     }
+    }
+   ],
+   "notes": [
+    "Four directly imaged giants (Marois et al. 2008, 2010). Wang et al. 2018 used a parallax of 24.3 mas; positions scale by the ratio if the app uses another distance."
+   ],
+   "epochJd": 2461041.5,
+   "epochIso": "2026-01-01T00:00:00 TDB"
+  },
+  {
+   "id": "kepler-90",
+   "name": "Kepler-90",
+   "archiveHost": "KOI-351",
+   "position": {
+    "raDeg": 284.433493,
+    "decDeg": 49.3051379,
+    "epoch": "J2000.0",
+    "distancePc": 848.254,
+    "pmRaMasYr": -4.35,
+    "pmDecMasYr": -3.256,
+    "radialVelocityKms": null,
+    "ref": "nea-pscomppars",
+    "source": "RA/Dec: Gaia DR3 (ESA/Gaia/DPAC), carried from J2016.0 to J2000.0; distance: TICv8 (via the NASA Exoplanet Archive)",
+    "ids": {
+     "gaiaDr3": "2132193431285570304",
+     "hip": null,
+     "hd": null,
+     "tic": "267667295"
+    }
+   },
+   "stars": [
+    {
+     "id": "A",
+     "name": "Kepler-90 (KOI-351)",
+     "massMsun": {
+      "v": 1.2,
+      "ref": "nea-pscomppars",
+      "err": 0.1,
+      "source": "Cabrera et al. 2014",
+      "url": "https://ui.adsabs.harvard.edu/abs/2014ApJ...781...18C/abstract"
+     },
+     "radiusRsun": {
+      "v": 1.2,
+      "ref": "nea-pscomppars",
+      "err": 0.1,
+      "source": "Cabrera et al. 2014",
+      "url": "https://ui.adsabs.harvard.edu/abs/2014ApJ...781...18C/abstract"
+     },
+     "teffK": {
+      "v": 6080,
+      "ref": "nea-pscomppars",
+      "err": [
+       -170,
+       260
+      ],
+      "source": "Cabrera et al. 2014",
+      "url": "https://ui.adsabs.harvard.edu/abs/2014ApJ...781...18C/abstract"
+     },
+     "luminosityLsun": {
+      "v": 1.856,
+      "ref": "nea-pscomppars",
+      "source": "Gajdoš et al. 2019",
+      "url": "https://ui.adsabs.harvard.edu/abs/2019RAA....19...41G/abstract",
+      "derived": "10^(log L) of the archive value"
+     },
+     "spectralType": null
+    }
+   ],
+   "planets": [
+    {
+     "id": "b",
+     "name": "Kepler-90 b",
+     "archiveName": "KOI-351 b",
+     "status": "confirmed",
+     "centre": "A",
+     "inputs": {
+      "periodDays": {
+       "v": 7.008151,
+       "ref": "cabrera2014",
+       "err": 0.000019
+      },
+      "aAu": {
+       "v": 0.074,
+       "ref": "cabrera2014"
+      },
+      "e": {
+       "v": 0,
+       "assumed": "Not measured; circular assumed."
+      },
+      "argPeri": {
+       "v": 90,
+       "assumed": "Undefined for a circular orbit.",
+       "convention": "star"
+      },
+      "iDeg": {
+       "v": 89.4,
+       "ref": "cabrera2014",
+       "err": 1.5
+      },
+      "nodeDeg": {
+       "v": 51.3,
+       "assumed": "Not measurable from transits; all eight planets share one node. Fixed pseudo-random angle from the host name (assumedNodeDeg)."
+      },
+      "phase": {
+       "kind": "transit",
+       "jd": 2454970.6906,
+       "sigmaDays": 0.0017,
+       "periodSigmaDays": 0.000019,
+       "ref": "cabrera2014",
+       "where": "epoch (HJD - 2454833); HJD and BJD differ by < 1 min here"
+      }
+     },
+     "radiusEarth": {
+      "v": 1.31,
+      "ref": "cabrera2014",
+      "err": 0.17
+     },
+     "massEarth": {
+      "v": null,
+      "note": "not measured"
+     },
+     "teqK": {
+      "v": 1062,
+      "ref": "nea-pscomppars",
+      "source": "Q1-Q17 DR25 KOI Table",
+      "url": "https://exoplanetarchive.ipac.caltech.edu/docs/Kepler_KOI_docs.html"
+     },
+     "discovery": {
+      "year": 2013,
+      "method": "Transit",
+      "facility": "Kepler",
+      "reference": "Cabrera et al. 2014",
+      "url": "https://ui.adsabs.harvard.edu/abs/2014ApJ...781...18C/abstract"
+     },
+     "orbit": {
+      "periodDays": 7.008151,
+      "aAu": 0.074,
+      "e": 0,
+      "iDeg": 89.4,
+      "nodeDeg": 51.3,
+      "argPeriDeg": 270,
+      "tPeriJd": 2454970.6906
+     },
+     "atEpoch": {
+      "jd": 2461041.5,
+      "meanAnomalyDeg": 89.928,
+      "firstConjunctionAfterJd": 2461046.75752,
+      "phaseSigmaDays": 0.01655,
+      "phaseSigmaOrbits": 0.00236
+     }
+    },
+    {
+     "id": "c",
+     "name": "Kepler-90 c",
+     "archiveName": "KOI-351 c",
+     "status": "confirmed",
+     "centre": "A",
+     "inputs": {
+      "periodDays": {
+       "v": 8.719375,
+       "ref": "cabrera2014",
+       "err": 0.000027
+      },
+      "aAu": {
+       "v": 0.089,
+       "ref": "cabrera2014"
+      },
+      "e": {
+       "v": 0,
+       "assumed": "Not measured; circular assumed."
+      },
+      "argPeri": {
+       "v": 90,
+       "assumed": "Undefined for a circular orbit.",
+       "convention": "star"
+      },
+      "iDeg": {
+       "v": 89.68,
+       "ref": "cabrera2014",
+       "err": 0.74
+      },
+      "nodeDeg": {
+       "v": 51.3,
+       "assumed": "Not measurable from transits; all eight planets share one node. Fixed pseudo-random angle from the host name (assumedNodeDeg)."
+      },
+      "phase": {
+       "kind": "transit",
+       "jd": 2454972.5687,
+       "sigmaDays": 0.0023,
+       "periodSigmaDays": 0.000027,
+       "ref": "cabrera2014",
+       "where": "epoch (HJD - 2454833); HJD and BJD differ by < 1 min here"
+      }
+     },
+     "radiusEarth": {
+      "v": 1.19,
+      "ref": "cabrera2014",
+      "err": 0.14
+     },
+     "massEarth": {
+      "v": null,
+      "note": "not measured"
+     },
+     "teqK": {
+      "v": 987,
+      "ref": "nea-pscomppars",
+      "source": "Q1-Q17 DR25 KOI Table",
+      "url": "https://exoplanetarchive.ipac.caltech.edu/docs/Kepler_KOI_docs.html"
+     },
+     "discovery": {
+      "year": 2013,
+      "method": "Transit",
+      "facility": "Kepler",
+      "reference": "Cabrera et al. 2014",
+      "url": "https://ui.adsabs.harvard.edu/abs/2014ApJ...781...18C/abstract"
+     },
+     "orbit": {
+      "periodDays": 8.719375,
+      "aAu": 0.089,
+      "e": 0,
+      "iDeg": 89.68,
+      "nodeDeg": 51.3,
+      "argPeriDeg": 270,
+      "tPeriJd": 2454972.5687
+     },
+     "atEpoch": {
+      "jd": 2461041.5,
+      "meanAnomalyDeg": 10.169,
+      "firstConjunctionAfterJd": 2461049.97308,
+      "phaseSigmaDays": 0.01893,
+      "phaseSigmaOrbits": 0.00217
+     }
+    },
+    {
+     "id": "i",
+     "name": "Kepler-90 i",
+     "archiveName": "Kepler-90 i",
+     "status": "confirmed",
+     "centre": "A",
+     "inputs": {
+      "periodDays": {
+       "v": 14.44912,
+       "ref": "shallue2018",
+       "err": 0.0002
+      },
+      "aAu": {
+       "v": 0.1201,
+       "ref": "nea-pscomppars",
+       "source": "Weiss et al. 2024",
+       "url": "https://ui.adsabs.harvard.edu/abs/2024ApJS..270....8W/abstract"
+      },
+      "e": {
+       "v": 0,
+       "assumed": "Not measured; circular assumed."
+      },
+      "argPeri": {
+       "v": 90,
+       "assumed": "Undefined for a circular orbit.",
+       "convention": "star"
+      },
+      "iDeg": {
+       "v": 89.2,
+       "ref": "shallue2018"
+      },
+      "nodeDeg": {
+       "v": 51.3,
+       "assumed": "Not measurable from transits; all eight planets share one node. Fixed pseudo-random angle from the host name (assumedNodeDeg)."
+      },
+      "phase": {
+       "kind": "transit",
+       "jd": 2455644.3488,
+       "sigmaDays": 0.0048,
+       "periodSigmaDays": 0.0002,
+       "ref": "shallue2018",
+       "where": "as tabulated in the NASA Exoplanet Archive PS table"
+      }
+     },
+     "radiusEarth": {
+      "v": 1.32,
+      "ref": "shallue2018"
+     },
+     "massEarth": {
+      "v": null,
+      "note": "not measured"
+     },
+     "teqK": {
+      "v": 709,
+      "ref": "nea-pscomppars",
+      "err": 75,
+      "source": "Shallue & Vanderburg 2018",
+      "url": "https://ui.adsabs.harvard.edu/abs/2018AJ....155...94S/abstract"
+     },
+     "discovery": {
+      "year": 2017,
+      "method": "Transit",
+      "facility": "Kepler",
+      "reference": "Shallue & Vanderburg 2018",
+      "url": "https://ui.adsabs.harvard.edu/abs/2018AJ....155...94S/abstract"
+     },
+     "orbit": {
+      "periodDays": 14.44912,
+      "aAu": 0.1201,
+      "e": 0,
+      "iDeg": 89.2,
+      "nodeDeg": 51.3,
+      "argPeriDeg": 270,
+      "tPeriJd": 2455644.3488
+     },
+     "atEpoch": {
+      "jd": 2461041.5,
+      "meanAnomalyDeg": 190.088,
+      "firstConjunctionAfterJd": 2461048.31968,
+      "phaseSigmaDays": 0.07486,
+      "phaseSigmaOrbits": 0.00518
+     }
+    },
+    {
+     "id": "d",
+     "name": "Kepler-90 d",
+     "archiveName": "KOI-351 d",
+     "status": "confirmed",
+     "centre": "A",
+     "inputs": {
+      "periodDays": {
+       "v": 59.73667,
+       "ref": "cabrera2014",
+       "err": 0.00038
+      },
+      "aAu": {
+       "v": 0.32,
+       "ref": "cabrera2014"
+      },
+      "e": {
+       "v": 0,
+       "assumed": "Not measured; circular assumed."
+      },
+      "argPeri": {
+       "v": 90,
+       "assumed": "Undefined for a circular orbit.",
+       "convention": "star"
+      },
+      "iDeg": {
+       "v": 89.71,
+       "ref": "cabrera2014",
+       "err": 0.29
+      },
+      "nodeDeg": {
+       "v": 51.3,
+       "assumed": "Not measurable from transits; all eight planets share one node. Fixed pseudo-random angle from the host name (assumedNodeDeg)."
+      },
+      "phase": {
+       "kind": "transit",
+       "jd": 2454991.9656,
+       "sigmaDays": 0.0042,
+       "periodSigmaDays": 0.00038,
+       "ref": "cabrera2014",
+       "where": "epoch (HJD - 2454833); HJD and BJD differ by < 1 min here"
+      }
+     },
+     "radiusEarth": {
+      "v": 2.87,
+      "ref": "cabrera2014",
+      "err": 0.3
+     },
+     "massEarth": {
+      "v": null,
+      "note": "not measured"
+     },
+     "teqK": {
+      "v": 520,
+      "ref": "nea-pscomppars",
+      "source": "Q1-Q17 DR25 KOI Table",
+      "url": "https://exoplanetarchive.ipac.caltech.edu/docs/Kepler_KOI_docs.html"
+     },
+     "discovery": {
+      "year": 2013,
+      "method": "Transit",
+      "facility": "Kepler",
+      "reference": "Cabrera et al. 2014",
+      "url": "https://ui.adsabs.harvard.edu/abs/2014ApJ...781...18C/abstract"
+     },
+     "orbit": {
+      "periodDays": 59.73667,
+      "aAu": 0.32,
+      "e": 0,
+      "iDeg": 89.71,
+      "nodeDeg": 51.3,
+      "argPeriDeg": 270,
+      "tPeriJd": 2454991.9656
+     },
+     "atEpoch": {
+      "jd": 2461041.5,
+      "meanAnomalyDeg": 97.211,
+      "firstConjunctionAfterJd": 2461085.10594,
+      "phaseSigmaDays": 0.03871,
+      "phaseSigmaOrbits": 0.00065
+     }
+    },
+    {
+     "id": "e",
+     "name": "Kepler-90 e",
+     "archiveName": "KOI-351 e",
+     "status": "confirmed",
+     "centre": "A",
+     "inputs": {
+      "periodDays": {
+       "v": 91.93913,
+       "ref": "cabrera2014",
+       "err": 0.00073
+      },
+      "aAu": {
+       "v": 0.42,
+       "ref": "cabrera2014"
+      },
+      "e": {
+       "v": 0,
+       "assumed": "Not measured; circular assumed."
+      },
+      "argPeri": {
+       "v": 90,
+       "assumed": "Undefined for a circular orbit.",
+       "convention": "star"
+      },
+      "iDeg": {
+       "v": 89.79,
+       "ref": "cabrera2014",
+       "err": 0.19
+      },
+      "nodeDeg": {
+       "v": 51.3,
+       "assumed": "Not measurable from transits; all eight planets share one node. Fixed pseudo-random angle from the host name (assumedNodeDeg)."
+      },
+      "phase": {
+       "kind": "transit",
+       "jd": 2454967.3127,
+       "sigmaDays": 0.0063,
+       "periodSigmaDays": 0.00073,
+       "ref": "cabrera2014",
+       "where": "epoch (HJD - 2454833); HJD and BJD differ by < 1 min here"
+      }
+     },
+     "radiusEarth": {
+      "v": 2.66,
+      "ref": "cabrera2014",
+      "err": 0.29
+     },
+     "massEarth": {
+      "v": null,
+      "note": "not measured"
+     },
+     "teqK": {
+      "v": 450,
+      "ref": "nea-pscomppars",
+      "source": "Q1-Q17 DR25 KOI Table",
+      "url": "https://exoplanetarchive.ipac.caltech.edu/docs/Kepler_KOI_docs.html"
+     },
+     "discovery": {
+      "year": 2013,
+      "method": "Transit",
+      "facility": "Kepler",
+      "reference": "Cabrera et al. 2014",
+      "url": "https://ui.adsabs.harvard.edu/abs/2014ApJ...781...18C/abstract"
+     },
+     "orbit": {
+      "periodDays": 91.93913,
+      "aAu": 0.42,
+      "e": 0,
+      "iDeg": 89.79,
+      "nodeDeg": 51.3,
+      "argPeriDeg": 270,
+      "tPeriJd": 2454967.3127
+     },
+     "atEpoch": {
+      "jd": 2461041.5,
+      "meanAnomalyDeg": 24.295,
+      "firstConjunctionAfterJd": 2461127.23441,
+      "phaseSigmaDays": 0.04864,
+      "phaseSigmaOrbits": 0.00053
+     }
+    },
+    {
+     "id": "f",
+     "name": "Kepler-90 f",
+     "archiveName": "KOI-351 f",
+     "status": "confirmed",
+     "centre": "A",
+     "inputs": {
+      "periodDays": {
+       "v": 124.9144,
+       "ref": "cabrera2014",
+       "err": 0.0019
+      },
+      "aAu": {
+       "v": 0.48,
+       "ref": "cabrera2014"
+      },
+      "e": {
+       "v": 0,
+       "assumed": "Not measured; circular assumed."
+      },
+      "argPeri": {
+       "v": 90,
+       "assumed": "Undefined for a circular orbit.",
+       "convention": "star"
+      },
+      "iDeg": {
+       "v": 89.77,
+       "ref": "cabrera2014",
+       "err": 0.31
+      },
+      "nodeDeg": {
+       "v": 51.3,
+       "assumed": "Not measurable from transits; all eight planets share one node. Fixed pseudo-random angle from the host name (assumedNodeDeg)."
+      },
+      "phase": {
+       "kind": "transit",
+       "jd": 2455087.704,
+       "sigmaDays": 0.014,
+       "periodSigmaDays": 0.0019,
+       "ref": "cabrera2014",
+       "where": "epoch (HJD - 2454833); HJD and BJD differ by < 1 min here"
+      }
+     },
+     "radiusEarth": {
+      "v": 2.88,
+      "ref": "cabrera2014",
+      "err": 0.52
+     },
+     "massEarth": {
+      "v": null,
+      "note": "not measured"
+     },
+     "teqK": {
+      "v": 407,
+      "ref": "nea-pscomppars",
+      "source": "Q1-Q17 DR25 KOI Table",
+      "url": "https://exoplanetarchive.ipac.caltech.edu/docs/Kepler_KOI_docs.html"
+     },
+     "discovery": {
+      "year": 2013,
+      "method": "Transit",
+      "facility": "Kepler",
+      "reference": "Cabrera et al. 2014",
+      "url": "https://ui.adsabs.harvard.edu/abs/2014ApJ...781...18C/abstract"
+     },
+     "orbit": {
+      "periodDays": 124.9144,
+      "aAu": 0.48,
+      "e": 0,
+      "iDeg": 89.77,
+      "nodeDeg": 51.3,
+      "argPeriDeg": 270,
+      "tPeriJd": 2455087.704
+     },
+     "atEpoch": {
+      "jd": 2461041.5,
+      "meanAnomalyDeg": 238.683,
+      "firstConjunctionAfterJd": 2461083.5952,
+      "phaseSigmaDays": 0.09164,
+      "phaseSigmaOrbits": 0.00073
+     }
+    },
+    {
+     "id": "g",
+     "name": "Kepler-90 g",
+     "archiveName": "KOI-351 g",
+     "status": "confirmed",
+     "centre": "A",
+     "inputs": {
+      "periodDays": {
+       "v": 210.738648,
+       "derived": "mean period: least-squares line through the 35 predicted transit times of Shaw et al. 2025 Table 6 (BJD 2454980.1 to 2462144.6; scatter about it 7.8 h rms, 13.9 h max)",
+       "ref": "shaw2025"
+      },
+      "aAu": {
+       "v": 0.71,
+       "ref": "cabrera2014"
+      },
+      "e": {
+       "v": 0.0292,
+       "ref": "shaw2025",
+       "err": 0.0038,
+       "where": "Table 4 (RV + all transits, MCMC)"
+      },
+      "argPeri": {
+       "v": 114.6,
+       "ref": "shaw2025",
+       "err": [
+        -3.8,
+        3.5
+       ],
+       "where": "Table 4",
+       "convention": "star",
+       "note": "Joint RV-TTV fit: omega of the RV (stellar) convention."
+      },
+      "iDeg": {
+       "v": 89.8,
+       "ref": "cabrera2014",
+       "err": 0.06
+      },
+      "nodeDeg": {
+       "v": 51.3,
+       "assumed": "Not measurable from transits; all eight planets share one node. Fixed pseudo-random angle from the host name (assumedNodeDeg)."
+      },
+      "phase": {
+       "kind": "transit",
+       "jd": 2461091.6,
+       "sigmaDays": 0.006,
+       "ref": "shaw2025",
+       "where": "Table 6, predicted transit epoch 29 (TTVs included)",
+       "note": "Kepler-90 g has large transit-timing variations; the orbit is anchored on this predicted transit and drifts from the true times by up to 13.9 h elsewhere."
+      }
+     },
+     "radiusEarth": {
+      "v": 8.1,
+      "ref": "cabrera2014",
+      "err": 0.8
+     },
+     "massEarth": {
+      "v": 15,
+      "ref": "shaw2025",
+      "err": 1.3,
+      "where": "Table 4",
+      "kind": "true"
+     },
+     "teqK": {
+      "v": 342,
+      "ref": "nea-pscomppars",
+      "source": "Q1-Q17 DR25 KOI Table",
+      "url": "https://exoplanetarchive.ipac.caltech.edu/docs/Kepler_KOI_docs.html"
+     },
+     "discovery": {
+      "year": 2013,
+      "method": "Transit",
+      "facility": "Kepler",
+      "reference": "Cabrera et al. 2014",
+      "url": "https://ui.adsabs.harvard.edu/abs/2014ApJ...781...18C/abstract"
+     },
+     "orbit": {
+      "periodDays": 210.738648,
+      "aAu": 0.71,
+      "e": 0.0292,
+      "iDeg": 89.8,
+      "nodeDeg": 51.3,
+      "argPeriDeg": 294.6,
+      "tPeriJd": 2460894.462415
+     },
+     "atEpoch": {
+      "jd": 2461041.5,
+      "meanAnomalyDeg": 251.181,
+      "firstConjunctionAfterJd": 2461091.6,
+      "phaseSigmaDays": 0.006,
+      "phaseSigmaOrbits": 0.00003
+     }
+    },
+    {
+     "id": "h",
+     "name": "Kepler-90 h",
+     "archiveName": "KOI-351 h",
+     "status": "confirmed",
+     "centre": "A",
+     "inputs": {
+      "periodDays": {
+       "v": 331.60263,
+       "derived": "mean period: least-squares line through the 35 predicted transit times of Shaw et al. 2025 Table 6 (BJD 2454973.5 to 2466248.0; scatter about it 0.7 h rms, 1.2 h max)",
+       "ref": "shaw2025"
+      },
+      "aAu": {
+       "v": 1.01,
+       "ref": "cabrera2014"
+      },
+      "e": {
+       "v": 0.0276,
+       "ref": "shaw2025",
+       "err": 0.0031,
+       "where": "Table 4 (RV + all transits, MCMC)"
+      },
+      "argPeri": {
+       "v": 119,
+       "ref": "shaw2025",
+       "err": [
+        -3.1,
+        3
+       ],
+       "where": "Table 4",
+       "convention": "star",
+       "note": "Joint RV-TTV fit: omega of the RV (stellar) convention."
+      },
+      "iDeg": {
+       "v": 89.886,
+       "derived": "from the impact parameter b = 0.36 ± 0.07 and a/R* = 180.7 ± 4.7 (Cabrera et al. 2014): cos i = b / (a/R*). The tabulated i = 89.6 ± 1.3 deg is rounded too coarsely to make the planet transit (it gives b = 1.26).",
+       "ref": "cabrera2014"
+      },
+      "nodeDeg": {
+       "v": 51.3,
+       "assumed": "Not measurable from transits; all eight planets share one node. Fixed pseudo-random angle from the host name (assumedNodeDeg)."
+      },
+      "phase": {
+       "kind": "transit",
+       "jd": 2460942.321,
+       "sigmaDays": 0.006,
+       "ref": "shaw2025",
+       "where": "Table 6, predicted transit epoch 18 (TTVs included)",
+       "note": "Kepler-90 h has large transit-timing variations; the orbit is anchored on this predicted transit and drifts from the true times by up to 1.2 h elsewhere."
+      }
+     },
+     "radiusEarth": {
+      "v": 11.3,
+      "ref": "cabrera2014",
+      "err": 1
+     },
+     "massEarth": {
+      "v": 203,
+      "ref": "shaw2025",
+      "err": 16,
+      "where": "Table 4",
+      "kind": "true"
+     },
+     "teqK": {
+      "v": 294,
+      "ref": "nea-pscomppars",
+      "source": "Q1-Q17 DR25 KOI Table",
+      "url": "https://exoplanetarchive.ipac.caltech.edu/docs/Kepler_KOI_docs.html"
+     },
+     "discovery": {
+      "year": 2013,
+      "method": "Transit",
+      "facility": "Kepler",
+      "reference": "Cabrera et al. 2014",
+      "url": "https://ui.adsabs.harvard.edu/abs/2014ApJ...781...18C/abstract"
+     },
+     "orbit": {
+      "periodDays": 331.60263,
+      "aAu": 1.01,
+      "e": 0.0276,
+      "iDeg": 89.886,
+      "nodeDeg": 51.3,
+      "argPeriDeg": 299,
+      "tPeriJd": 2460636.043643
+     },
+     "atEpoch": {
+      "jd": 2461041.5,
+      "meanAnomalyDeg": 80.178,
+      "firstConjunctionAfterJd": 2461273.92363,
+      "phaseSigmaDays": 0.006,
+      "phaseSigmaOrbits": 0.00002
+     }
+    }
+   ],
+   "notes": [
+    "Eight transiting planets, tied with the Solar System for the most known around one star. The archive lists the host as KOI-351 and the planets as KOI-351 b-h and Kepler-90 i."
+   ],
+   "epochJd": 2461041.5,
+   "epochIso": "2026-01-01T00:00:00 TDB"
+  },
+  {
+   "id": "toi-700",
+   "name": "TOI-700",
+   "archiveHost": "TOI-700",
+   "position": {
+    "raDeg": 97.0967856,
+    "decDeg": -65.5793112,
+    "epoch": "J2000.0",
+    "distancePc": 31.1265,
+    "pmRaMasYr": -102.641,
+    "pmDecMasYr": 161.748,
+    "radialVelocityKms": -4.4,
+    "ref": "nea-pscomppars",
+    "source": "RA/Dec: Gaia DR3 (ESA/Gaia/DPAC), carried from J2016.0 to J2000.0; distance: TICv8 (via the NASA Exoplanet Archive)",
+    "ids": {
+     "gaiaDr3": "5284517766615850752",
+     "hip": null,
+     "hd": null,
+     "tic": "150428135"
+    }
+   },
+   "stars": [
+    {
+     "id": "A",
+     "name": "TOI-700",
+     "massMsun": {
+      "v": 0.417,
+      "ref": "nea-pscomppars",
+      "err": 0.02,
+      "source": "Pass et al. 2026",
+      "url": "https://ui.adsabs.harvard.edu/abs/2026AJ....172..175P/abstract"
+     },
+     "radiusRsun": {
+      "v": 0.4104,
+      "ref": "nea-pscomppars",
+      "err": [
+       -0.0069,
+       0.0093
+      ],
+      "source": "Pass et al. 2026",
+      "url": "https://ui.adsabs.harvard.edu/abs/2026AJ....172..175P/abstract"
+     },
+     "teffK": {
+      "v": 3459,
+      "ref": "nea-pscomppars",
+      "err": 65,
+      "source": "Gilbert et al. 2023",
+      "url": "https://ui.adsabs.harvard.edu/abs/2023ApJ...944L..35G/abstract"
+     },
+     "luminosityLsun": {
+      "v": 0.0233,
+      "ref": "nea-pscomppars",
+      "source": "Kokori et al. 2023",
+      "url": "https://ui.adsabs.harvard.edu/abs/2023ApJS..265....4K/abstract",
+      "derived": "10^(log L) of the archive value"
+     },
+     "spectralType": {
+      "v": "M2.5 V",
+      "ref": "nea-pscomppars",
+      "source": "Gilbert et al. 2023"
+     }
+    }
+   ],
+   "planets": [
+    {
+     "id": "b",
+     "name": "TOI-700 b",
+     "archiveName": "TOI-700 b",
+     "status": "confirmed",
+     "centre": "A",
+     "inputs": {
+      "periodDays": {
+       "v": 9.97722,
+       "ref": "pass2026",
+       "err": 0.000012,
+       "where": "Table 2"
+      },
+      "aAu": {
+       "v": 0.0678,
+       "ref": "pass2026",
+       "err": 0.0011,
+       "where": "Table 2"
+      },
+      "e": {
+       "v": 0,
+       "ref": "pass2026",
+       "where": "circular orbits assumed in the fit (Sect. 3.1.4)"
+      },
+      "argPeri": {
+       "v": 90,
+       "assumed": "Undefined for a circular orbit.",
+       "convention": "star"
+      },
+      "iDeg": {
+       "v": 89.63,
+       "ref": "pass2026",
+       "err": [
+        -0.21,
+        0.23
+       ],
+       "where": "Table 2"
+      },
+      "nodeDeg": {
+       "v": 257,
+       "assumed": "Not measurable from transits; shared by all four planets. Fixed pseudo-random angle from the host name (assumedNodeDeg)."
+      },
+      "phase": {
+       "kind": "transit",
+       "jd": 2458880.0994,
+       "sigmaDays": 0.0013,
+       "periodSigmaDays": 0.000012,
+       "ref": "pass2026",
+       "where": "Table 2, time of conjunction (BJD)"
+      }
+     },
+     "radiusEarth": {
+      "v": 0.963,
+      "ref": "pass2026",
+      "err": [
+       -0.034,
+       0.037
+      ],
+      "where": "Table 2"
+     },
+     "massEarth": {
+      "v": null,
+      "note": "not measured (no RV mass)"
+     },
+     "teqK": {
+      "v": 417,
+      "ref": "nea-pscomppars",
+      "err": 12,
+      "source": "Rodriguez et al. 2020",
+      "url": "https://ui.adsabs.harvard.edu/abs/2020AJ....160..117R/abstract"
+     },
+     "discovery": {
+      "year": 2020,
+      "method": "Transit",
+      "facility": "Transiting Exoplanet Survey Satellite (TESS)",
+      "reference": "Gilbert et al. 2020",
+      "url": "https://ui.adsabs.harvard.edu/abs/2020AJ....160..116G/abstract"
+     },
+     "orbit": {
+      "periodDays": 9.97722,
+      "aAu": 0.0678,
+      "e": 0,
+      "iDeg": 89.63,
+      "nodeDeg": 257,
+      "argPeriDeg": 270,
+      "tPeriJd": 2458880.0994
+     },
+     "atEpoch": {
+      "jd": 2461041.5,
+      "meanAnomalyDeg": 228.078,
+      "firstConjunctionAfterJd": 2461045.15614,
+      "phaseSigmaDays": 0.00291,
+      "phaseSigmaOrbits": 0.00029
+     }
+    },
+    {
+     "id": "c",
+     "name": "TOI-700 c",
+     "archiveName": "TOI-700 c",
+     "status": "confirmed",
+     "centre": "A",
+     "inputs": {
+      "periodDays": {
+       "v": 16.0511039,
+       "ref": "pass2026",
+       "err": 0.0000056,
+       "where": "Table 2"
+      },
+      "aAu": {
+       "v": 0.0931,
+       "ref": "pass2026",
+       "err": 0.0015,
+       "where": "Table 2"
+      },
+      "e": {
+       "v": 0,
+       "ref": "pass2026",
+       "where": "circular orbits assumed in the fit (Sect. 3.1.4)"
+      },
+      "argPeri": {
+       "v": 90,
+       "assumed": "Undefined for a circular orbit.",
+       "convention": "star"
+      },
+      "iDeg": {
+       "v": 88.942,
+       "ref": "pass2026",
+       "err": [
+        -0.036,
+        0.032
+       ],
+       "where": "Table 2"
+      },
+      "nodeDeg": {
+       "v": 257,
+       "assumed": "Not measurable from transits; shared by all four planets. Fixed pseudo-random angle from the host name (assumedNodeDeg)."
+      },
+      "phase": {
+       "kind": "transit",
+       "jd": 2458821.6219,
+       "sigmaDays": 0.00043,
+       "periodSigmaDays": 0.0000056,
+       "ref": "pass2026",
+       "where": "Table 2, time of conjunction (BJD)"
+      }
+     },
+     "radiusEarth": {
+      "v": 2.535,
+      "ref": "pass2026",
+      "err": [
+       -0.073,
+       0.084
+      ],
+      "where": "Table 2"
+     },
+     "massEarth": {
+      "v": null,
+      "note": "not measured (no RV mass)"
+     },
+     "teqK": {
+      "v": 356,
+      "ref": "nea-pscomppars",
+      "err": 10,
+      "source": "Rodriguez et al. 2020",
+      "url": "https://ui.adsabs.harvard.edu/abs/2020AJ....160..117R/abstract"
+     },
+     "discovery": {
+      "year": 2020,
+      "method": "Transit",
+      "facility": "Transiting Exoplanet Survey Satellite (TESS)",
+      "reference": "Gilbert et al. 2020",
+      "url": "https://ui.adsabs.harvard.edu/abs/2020AJ....160..116G/abstract"
+     },
+     "orbit": {
+      "periodDays": 16.0511039,
+      "aAu": 0.0931,
+      "e": 0,
+      "iDeg": 88.942,
+      "nodeDeg": 257,
+      "argPeriDeg": 270,
+      "tPeriJd": 2458821.6219
+     },
+     "atEpoch": {
+      "jd": 2461041.5,
+      "meanAnomalyDeg": 108.234,
+      "firstConjunctionAfterJd": 2461052.72534,
+      "phaseSigmaDays": 0.00089,
+      "phaseSigmaOrbits": 0.00006
+     }
+    },
+    {
+     "id": "e",
+     "name": "TOI-700 e",
+     "archiveName": "TOI-700 e",
+     "status": "confirmed",
+     "centre": "A",
+     "inputs": {
+      "periodDays": {
+       "v": 27.810124,
+       "ref": "pass2026",
+       "err": 0.000087,
+       "where": "Table 2"
+      },
+      "aAu": {
+       "v": 0.1336,
+       "ref": "pass2026",
+       "err": 0.002,
+       "where": "Table 2"
+      },
+      "e": {
+       "v": 0,
+       "ref": "pass2026",
+       "where": "circular orbits assumed in the fit (Sect. 3.1.4)"
+      },
+      "argPeri": {
+       "v": 90,
+       "assumed": "Undefined for a circular orbit.",
+       "convention": "star"
+      },
+      "iDeg": {
+       "v": 89.89,
+       "ref": "pass2026",
+       "err": [
+        -0.099,
+        0.076
+       ],
+       "where": "Table 2"
+      },
+      "nodeDeg": {
+       "v": 257,
+       "assumed": "Not measurable from transits; shared by all four planets. Fixed pseudo-random angle from the host name (assumedNodeDeg)."
+      },
+      "phase": {
+       "kind": "transit",
+       "jd": 2460772.46343,
+       "sigmaDays": 0.00024,
+       "periodSigmaDays": 0.000087,
+       "ref": "pass2026",
+       "where": "Table 2, time of conjunction (BJD)"
+      }
+     },
+     "radiusEarth": {
+      "v": 0.919,
+      "ref": "pass2026",
+      "err": [
+       -0.024,
+       0.028
+      ],
+      "where": "Table 2"
+     },
+     "massEarth": {
+      "v": null,
+      "note": "not measured (no RV mass)"
+     },
+     "teqK": {
+      "v": 272.9,
+      "ref": "nea-pscomppars",
+      "source": "ExoFOP",
+      "url": "https://exofop.ipac.caltech.edu/tess/view_toi.php"
+     },
+     "discovery": {
+      "year": 2023,
+      "method": "Transit",
+      "facility": "Transiting Exoplanet Survey Satellite (TESS)",
+      "reference": "Gilbert et al. 2023",
+      "url": "https://ui.adsabs.harvard.edu/abs/2023ApJ...944L..35G/abstract"
+     },
+     "orbit": {
+      "periodDays": 27.810124,
+      "aAu": 0.1336,
+      "e": 0,
+      "iDeg": 89.89,
+      "nodeDeg": 257,
+      "argPeriDeg": 270,
+      "tPeriJd": 2460772.46343
+     },
+     "atEpoch": {
+      "jd": 2461041.5,
+      "meanAnomalyDeg": 242.659,
+      "firstConjunctionAfterJd": 2461050.56467,
+      "phaseSigmaDays": 0.00088,
+      "phaseSigmaOrbits": 0.00003
+     }
+    },
+    {
+     "id": "d",
+     "name": "TOI-700 d",
+     "archiveName": "TOI-700 d",
+     "status": "confirmed",
+     "centre": "A",
+     "inputs": {
+      "periodDays": {
+       "v": 37.423457,
+       "ref": "pass2026",
+       "err": 0.000018,
+       "where": "Table 2"
+      },
+      "aAu": {
+       "v": 0.1642,
+       "ref": "pass2026",
+       "err": [
+        -0.0027,
+        0.0025
+       ],
+       "where": "Table 2"
+      },
+      "e": {
+       "v": 0,
+       "ref": "pass2026",
+       "where": "circular orbits assumed in the fit (Sect. 3.1.4)"
+      },
+      "argPeri": {
+       "v": 90,
+       "assumed": "Undefined for a circular orbit.",
+       "convention": "star"
+      },
+      "iDeg": {
+       "v": 89.83,
+       "ref": "pass2026",
+       "err": [
+        -0.068,
+        0.086
+       ],
+       "where": "Table 2"
+      },
+      "nodeDeg": {
+       "v": 257,
+       "assumed": "Not measurable from transits; shared by all four planets. Fixed pseudo-random angle from the host name (assumedNodeDeg)."
+      },
+      "phase": {
+       "kind": "transit",
+       "jd": 2460763.01612,
+       "sigmaDays": 0.00023,
+       "periodSigmaDays": 0.000018,
+       "ref": "pass2026",
+       "where": "Table 2, time of conjunction (BJD)"
+      }
+     },
+     "radiusEarth": {
+      "v": 1.145,
+      "ref": "pass2026",
+      "err": [
+       -0.026,
+       0.032
+      ],
+      "where": "Table 2"
+     },
+     "massEarth": {
+      "v": null,
+      "note": "not measured (no RV mass)"
+     },
+     "teqK": {
+      "v": 268.8,
+      "ref": "nea-pscomppars",
+      "err": [
+       -7.6,
+       7.7
+      ],
+      "source": "Rodriguez et al. 2020",
+      "url": "https://ui.adsabs.harvard.edu/abs/2020AJ....160..117R/abstract"
+     },
+     "discovery": {
+      "year": 2020,
+      "method": "Transit",
+      "facility": "Transiting Exoplanet Survey Satellite (TESS)",
+      "reference": "Gilbert et al. 2020",
+      "url": "https://ui.adsabs.harvard.edu/abs/2020AJ....160..116G/abstract"
+     },
+     "orbit": {
+      "periodDays": 37.423457,
+      "aAu": 0.1642,
+      "e": 0,
+      "iDeg": 89.83,
+      "nodeDeg": 257,
+      "argPeriDeg": 270,
+      "tPeriJd": 2460763.01612
+     },
+     "atEpoch": {
+      "jd": 2461041.5,
+      "meanAnomalyDeg": 158.913,
+      "firstConjunctionAfterJd": 2461062.40378,
+      "phaseSigmaDays": 0.00027,
+      "phaseSigmaOrbits": 0.00001
+     }
+    }
+   ],
+   "notes": [
+    "TOI-700 d and e are Earth-sized planets in the habitable zone (Gilbert et al. 2020, 2023)."
+   ],
+   "epochJd": 2461041.5,
+   "epochIso": "2026-01-01T00:00:00 TDB"
+  },
+  {
+   "id": "kepler-16",
+   "name": "Kepler-16",
+   "archiveHost": "Kepler-16",
+   "position": {
+    "raDeg": 289.0757327,
+    "decDeg": 51.7574396,
+    "epoch": "J2000.0",
+    "distancePc": 75.0852,
+    "pmRaMasYr": 14.092,
+    "pmDecMasYr": -48.939,
+    "radialVelocityKms": -33.8065,
+    "ref": "nea-pscomppars",
+    "source": "RA/Dec: Gaia DR3 (ESA/Gaia/DPAC), carried from J2016.0 to J2000.0; distance: TICv8 (via the NASA Exoplanet Archive)",
+    "ids": {
+     "gaiaDr3": "2133476355197071616",
+     "hip": null,
+     "hd": null,
+     "tic": "299096355"
+    }
+   },
+   "stars": [
+    {
+     "id": "A",
+     "name": "Kepler-16 A",
+     "massMsun": {
+      "v": 0.6897,
+      "ref": "doyle2011",
+      "err": [
+       -0.0034,
+       0.0035
+      ]
+     },
+     "radiusRsun": {
+      "v": 0.6489,
+      "ref": "doyle2011",
+      "err": 0.0013
+     },
+     "teffK": {
+      "v": 4450,
+      "ref": "doyle2011",
+      "err": 150
+     }
+    },
+    {
+     "id": "B",
+     "name": "Kepler-16 B",
+     "massMsun": {
+      "v": 0.20255,
+      "ref": "doyle2011",
+      "err": [
+       -0.00065,
+       0.00066
+      ]
+     },
+     "radiusRsun": {
+      "v": 0.22623,
+      "ref": "doyle2011",
+      "err": [
+       -0.00053,
+       0.00059
+      ]
+     }
+    }
+   ],
+   "starOrbit": {
+    "primary": "A",
+    "secondary": "B",
+    "massFractionSecondary": 0.22701,
+    "orbit": {
+     "periodDays": 41.07922,
+     "aAu": 0.22431,
+     "e": 0.15944,
+     "iDeg": 90.3401,
+     "nodeDeg": 68.6,
+     "argPeriDeg": 83.464,
+     "tPeriJd": 2455190.56935
+    },
+    "inputs": {
+     "periodDays": {
+      "v": 41.07922,
+      "ref": "doyle2011",
+      "err": [
+       -0.000077,
+       0.000078
+      ],
+      "where": "Table 1"
+     },
+     "aAu": {
+      "v": 0.22431,
+      "ref": "doyle2011",
+      "err": [
+       -0.00034,
+       0.00035
+      ]
+     },
+     "e": {
+      "v": 0.15944,
+      "ref": "doyle2011",
+      "err": [
+       -0.00062,
+       0.00061
+      ]
+     },
+     "argPeri": {
+      "v": 263.464,
+      "ref": "doyle2011",
+      "err": [
+       -0.027,
+       0.026
+      ],
+      "convention": "star",
+      "note": "transit convention: omega + f = 90 deg at primary eclipse; visual-binary omega = 83.464 deg"
+     },
+     "meanLongitudeDeg": {
+      "v": 92.352,
+      "ref": "doyle2011",
+      "err": 0.0011,
+      "where": "at BJD 2455212.12316, a primary eclipse (Kepler EB catalogue ephemeris, tested)"
+     },
+     "iDeg": {
+      "v": 90.3401,
+      "ref": "doyle2011",
+      "err": [
+       -0.0019,
+       0.0016
+      ]
+     },
+     "nodeDeg": {
+      "v": 68.6,
+      "assumed": "Omega_1 = 0 by definition in Doyle et al.; the sky PA of the node line is unknown. Fixed pseudo-random angle from the host name."
+     }
+    },
+    "note": "Orbit of B relative to A. The epoch BJD 2455212.12316 is a primary eclipse (star B in front of A), consistent with the Villanova Kepler EB catalogue ephemeris (tested)."
+   },
+   "planets": [
+    {
+     "id": "b",
+     "name": "Kepler-16 (AB) b",
+     "archiveName": "Kepler-16 b",
+     "status": "confirmed",
+     "centre": "AB",
+     "checkTransitsOfA": [
+      2454973.4000000004,
+      2455203.7,
+      2455425.2
+     ],
+     "inputs": {
+      "periodDays": {
+       "v": 225.89,
+       "derived": "mean period fitted by us to the three transits of star A in the Kepler data (BJD 2454973.4, 2455203.7, 2455425.2; Doyle et al. 2011 text and Figure 1) with Doyle's other elements and phase fixed; timing residuals -0.1, 0.05, -0.105 d. The osculating Jacobian period in Table 1 is 228.776 (+0.020/-0.037) d; the binary's quadrupole makes the mean period shorter (the Kepler EB catalogue lists 225.885 d).",
+       "ref": "doyle2011",
+       "osculatingPeriodDays": 228.776
+      },
+      "aAu": {
+       "v": 0.7048,
+       "ref": "doyle2011",
+       "err": 0.0011,
+       "where": "Table 1"
+      },
+      "e": {
+       "v": 0.0069,
+       "ref": "doyle2011",
+       "err": [
+        -0.0015,
+        0.001
+       ],
+       "where": "Table 1"
+      },
+      "argPeri": {
+       "v": 318,
+       "ref": "doyle2011",
+       "err": [
+        -22,
+        10
+       ],
+       "where": "Table 1",
+       "convention": "star"
+      },
+      "iDeg": {
+       "v": 90.0322,
+       "ref": "doyle2011",
+       "err": [
+        -0.0023,
+        0.0022
+       ],
+       "where": "Table 1"
+      },
+      "nodeDeg": {
+       "v": 68.60300000000001,
+       "assumed": "Sky PA of the node line unknown (same assumed angle as the binary); the planet's node is 0.003 ± 0.013 deg from the binary's (Doyle et al. 2011 Table 1).",
+       "ref": "doyle2011"
+      },
+      "phase": {
+       "kind": "meanAnomaly",
+       "jd": 2455212.12316,
+       "meanAnomalyDeg": 148.507,
+       "ref": "doyle2011",
+       "how": "mean anomaly at BJD 2455212.12316 from the mean longitude lambda_2 = 106.51 deg: M = lambda - omega - Omega (Table 1)"
+      }
+     },
+     "radiusEarth": {
+      "v": 8.449,
+      "ref": "doyle2011",
+      "where": "0.7538 (+0.0026/-0.0023) Jupiter radii"
+     },
+     "massEarth": {
+      "v": 105.8,
+      "ref": "doyle2011",
+      "where": "0.333 ± 0.016 Jupiter masses",
+      "kind": "true"
+     },
+     "teqK": {
+      "v": 185,
+      "ref": "doyle2011",
+      "where": "text: 170-200 K averaged over several orbits (Bond albedo 0.2-0.5); midpoint quoted"
+     },
+     "discovery": {
+      "year": 2011,
+      "method": "Transit",
+      "facility": "Kepler",
+      "reference": "Doyle et al. 2011",
+      "url": "https://ui.adsabs.harvard.edu/abs/2011Sci...333.1602D/abstract"
+     },
+     "notes": [
+      "The planet orbits the barycentre of the two stars. A fixed Kepler orbit ignores the three-body precession: the planet stopped transiting star A in 2018 and should resume around 2042 (Doyle et al. 2011)."
+     ],
+     "orbit": {
+      "periodDays": 225.89,
+      "aAu": 0.7048,
+      "e": 0.0069,
+      "iDeg": 90.0322,
+      "nodeDeg": 68.603,
+      "argPeriDeg": 138,
+      "tPeriJd": 2455118.939143
+     },
+     "atEpoch": {
+      "jd": 2461041.5,
+      "meanAnomalyDeg": 78.762,
+      "firstConjunctionAfterJd": 2461074.5355,
+      "phaseSigmaDays": null,
+      "phaseSigmaOrbits": null
+     }
+    }
+   ],
+   "notes": [
+    "The first transiting circumbinary planet: a Saturn-mass world with two suns."
+   ],
+   "epochJd": 2461041.5,
+   "epochIso": "2026-01-01T00:00:00 TDB"
+  },
+  {
+   "id": "eps-eri",
+   "name": "Epsilon Eridani",
+   "archiveHost": "eps Eri",
+   "position": {
+    "raDeg": 53.2326875,
+    "decDeg": -9.4582587,
+    "epoch": "J2000.0",
+    "distancePc": 3.2026,
+    "pmRaMasYr": -975.17,
+    "pmDecMasYr": 19.49,
+    "radialVelocityKms": 16,
+    "ref": "nea-pscomppars",
+    "source": "RA/Dec: Hipparcos new reduction (van Leeuwen 2007), carried from J1991.25 to J2000.0; distance: TICv8 (via the NASA Exoplanet Archive)",
+    "ids": {
+     "gaiaDr3": "5164707970261890560",
+     "hip": 16537,
+     "hd": "22049",
+     "tic": "118572803"
+    }
+   },
+   "stars": [
+    {
+     "id": "A",
+     "name": "eps Eri",
+     "massMsun": {
+      "v": 0.82,
+      "ref": "thompson2025",
+      "err": 0.02,
+      "where": "Table 3 (prior)"
+     },
+     "radiusRsun": {
+      "v": 0.7591,
+      "ref": "nea-pscomppars",
+      "err": 0.0118,
+      "source": "Rosenthal et al. 2021",
+      "url": "https://ui.adsabs.harvard.edu/abs/2021ApJS..255....8R/abstract"
+     },
+     "teffK": {
+      "v": 5020,
+      "ref": "nea-pscomppars",
+      "err": 57.7,
+      "source": "Rosenthal et al. 2021",
+      "url": "https://ui.adsabs.harvard.edu/abs/2021ApJS..255....8R/abstract"
+     },
+     "luminosityLsun": {
+      "v": 0.3808,
+      "ref": "nea-pscomppars",
+      "source": "Gaia DR2",
+      "url": "https://ui.adsabs.harvard.edu/abs/2018A&A...616A...1G/abstract",
+      "derived": "10^(log L) of the archive value"
+     },
+     "spectralType": {
+      "v": "K2 V",
+      "ref": "nea-pscomppars",
+      "source": "Llop-Sayson et al. 2021"
+     }
+    }
+   ],
+   "planets": [
+    {
+     "id": "b",
+     "name": "eps Eri b",
+     "archiveName": "eps Eri b",
+     "status": "confirmed",
+     "centre": "A",
+     "inputs": {
+      "periodDays": {
+       "v": 2677.3,
+       "ref": "thompson2025",
+       "err": [
+        -26,
+        29
+       ],
+       "where": "Table 3, complete model (RV, HIP, FGS, DR2, DR3): 7.33 (+0.08/-0.07) yr"
+      },
+      "aAu": {
+       "v": 3.53,
+       "ref": "thompson2025",
+       "err": 0.04,
+       "where": "Table 3"
+      },
+      "e": {
+       "v": 0,
+       "assumed": "Thompson et al. 2025 find e = 0.06 (+0.06/-0.04), consistent with zero; its periastron time and omega are only marginally constrained and their medians are not a consistent pair, so we use a circular orbit."
+      },
+      "argPeri": {
+       "v": 90,
+       "assumed": "Undefined for a circular orbit.",
+       "convention": "star"
+      },
+      "iDeg": {
+       "v": 40,
+       "ref": "thompson2025",
+       "err": [
+        -5,
+        6
+       ],
+       "where": "Table 3; < 90 deg = counterclockwise, as the Hipparcos data prefer"
+      },
+      "nodeDeg": {
+       "v": 186,
+       "ref": "thompson2025",
+       "err": [
+        -9,
+        8
+       ],
+       "where": "Table 3"
+      },
+      "phase": {
+       "kind": "conjunction",
+       "jd": 2457405,
+       "sigmaDays": 44,
+       "periodSigmaDays": 29,
+       "ref": "harada2025",
+       "where": "time of inferior conjunction 2457405.00000000 ± 44 BJD (RV)",
+       "note": "Check: with Thompson et al.'s node and inclination this puts the planet south-southwest of the star in early 2025 and north in 2029, as Thompson et al. state (tested)."
+      }
+     },
+     "radiusEarth": {
+      "v": 13.77,
+      "derived": "estimate for 1.00 Jupiter mass with the Chen & Kipping 2017 mean relation; not measured",
+      "ref": "chen2017",
+      "estimate": true
+     },
+     "massEarth": {
+      "v": 318,
+      "ref": "thompson2025",
+      "err": 32,
+      "where": "1.00 ± 0.10 Jupiter masses",
+      "kind": "true"
+     },
+     "discovery": {
+      "year": 2000,
+      "method": "Radial Velocity",
+      "facility": "Multiple Observatories",
+      "reference": "Hatzes et al. 2000",
+      "url": "https://ui.adsabs.harvard.edu/abs/2000ApJ...544L.145H/abstract"
+     },
+     "notes": [
+      "A newer joint model (Llop-Sayson et al. 2026, arXiv:2609.19131, submitted) finds 0.91 ± 0.06 Jupiter masses and an orbit consistent with Thompson et al. 2025; it is not used here until refereed."
+     ],
+     "orbit": {
+      "periodDays": 2677.3,
+      "aAu": 3.53,
+      "e": 0,
+      "iDeg": 40,
+      "nodeDeg": 186,
+      "argPeriDeg": 270,
+      "tPeriJd": 2457405
+     },
+     "atEpoch": {
+      "jd": 2461041.5,
+      "meanAnomalyDeg": 128.978,
+      "firstConjunctionAfterJd": 2462759.6,
+      "phaseSigmaDays": 59.05558,
+      "phaseSigmaOrbits": 0.02206
+     }
+    }
+   ],
+   "notes": [
+    "The nearest known Jupiter analogue, orbiting inside a debris disc; the orbit is close to coplanar with the outer disc (Thompson et al. 2025)."
+   ],
+   "epochJd": 2461041.5,
+   "epochIso": "2026-01-01T00:00:00 TDB"
+  },
+  {
+   "id": "tau-cet",
+   "name": "Tau Ceti",
+   "archiveHost": "tau Cet",
+   "position": {
+    "raDeg": 26.0170141,
+    "decDeg": -15.9374795,
+    "epoch": "J2000.0",
+    "distancePc": 3.60304,
+    "pmRaMasYr": -1721.05,
+    "pmDecMasYr": 854.16,
+    "radialVelocityKms": -17.1,
+    "ref": "nea-pscomppars",
+    "source": "RA/Dec: Hipparcos new reduction (van Leeuwen 2007), carried from J1991.25 to J2000.0; distance: TICv8 (via the NASA Exoplanet Archive)",
+    "ids": {
+     "gaiaDr3": "2452378776434477184",
+     "hip": 8102,
+     "hd": "10700",
+     "tic": "419015728"
+    }
+   },
+   "stars": [
+    {
+     "id": "A",
+     "name": "tau Cet",
+     "massMsun": {
+      "v": 0.783,
+      "ref": "feng2017",
+      "err": 0.012,
+      "where": "as adopted in Table 5 (Teixeira et al. 2009)"
+     },
+     "radiusRsun": {
+      "v": 0.83,
+      "ref": "nea-pscomppars",
+      "err": 0.02,
+      "source": "Takeda et al. 2007",
+      "url": "https://ui.adsabs.harvard.edu/abs/2007ApJS..168..297T/abstract"
+     },
+     "teffK": {
+      "v": 5310,
+      "ref": "nea-pscomppars",
+      "err": 17,
+      "source": "Sousa et al. 2008",
+      "url": "https://ui.adsabs.harvard.edu/abs/2008A&A...487..373S/abstract"
+     },
+     "luminosityLsun": {
+      "v": 0.495,
+      "ref": "nea-pscomppars",
+      "source": "Sousa et al. 2008",
+      "url": "https://ui.adsabs.harvard.edu/abs/2008A&A...487..373S/abstract",
+      "derived": "10^(log L) of the archive value"
+     },
+     "spectralType": {
+      "v": "G8.5V",
+      "ref": "nea-pscomppars",
+      "source": "Turnbull 2015"
+     }
+    }
+   ],
+   "planets": [
+    {
+     "id": "g",
+     "name": "tau Cet g",
+     "archiveName": "tau Cet g",
+     "status": "disputed",
+     "showByDefault": true,
+     "statusNote": "Candidate from a re-analysis of archival HARPS, AAPS and HIRES velocities (Feng et al. 2017). Flagged controversial by the NASA Exoplanet Archive. ESPRESSO (Figueira et al. 2025) could not confirm it: the 20 d signal is compatible but not significant and may be the first harmonic of the stellar rotation; the 49 d signal is near the detection limit; the 636 d signal is below it.",
+     "centre": "A",
+     "inputs": {
+      "periodDays": {
+       "v": 20,
+       "ref": "feng2017",
+       "err": [
+        -0.01,
+        0.02
+       ],
+       "where": "Table 5 (MAP; 1%-99% interval)"
+      },
+      "aAu": {
+       "v": 0.133,
+       "ref": "feng2017",
+       "where": "Table 5"
+      },
+      "e": {
+       "v": 0.06,
+       "ref": "feng2017",
+       "where": "Table 5"
+      },
+      "argPeri": {
+       "v": 395.34,
+       "ref": "feng2017",
+       "where": "Table 5: 6.9 rad",
+       "convention": "star"
+      },
+      "iDeg": {
+       "v": 35,
+       "assumed": "Assumed coplanar with the debris disc, i = 35 ± 10 deg (Lawler et al. 2014). Feng et al. note that masses would then be about twice m sin i.",
+       "ref": "lawler2014"
+      },
+      "nodeDeg": {
+       "v": 105,
+       "assumed": "Assumed coplanar with the debris disc: disc position angle 105 ± 10 deg (Lawler et al. 2014). Which node is ascending, and hence the sense of motion, is unknown.",
+       "ref": "lawler2014"
+      },
+      "phase": {
+       "kind": "meanAnomaly",
+       "jd": 2461041.5,
+       "meanAnomalyDeg": 43.36,
+       "ref": "feng2017",
+       "assumed": "Feng et al. give M0 = 7.04 rad but do not state its reference epoch, so the true phase is unknown. We apply M0 at the stated epoch, which is arbitrary."
+      }
+     },
+     "radiusEarth": {
+      "v": 1.56,
+      "derived": "estimate from m sin i / sin(35 deg) with the Chen & Kipping 2017 mean relation",
+      "ref": "chen2017",
+      "estimate": true
+     },
+     "massEarth": {
+      "v": 1.75,
+      "ref": "feng2017",
+      "where": "Table 5",
+      "kind": "minimum"
+     },
+     "rvSemiAmplitudeMs": {
+      "v": 0.49,
+      "ref": "feng2017",
+      "where": "Table 5"
+     },
+     "discovery": {
+      "year": 2017,
+      "method": "Radial Velocity",
+      "facility": "HARPS, AAPS, HIRES (archival)",
+      "reference": "Feng et al. 2017",
+      "url": "https://doi.org/10.3847/1538-3881/aa83b4"
+     },
+     "orbit": {
+      "periodDays": 20,
+      "aAu": 0.133,
+      "e": 0.06,
+      "iDeg": 35,
+      "nodeDeg": 105,
+      "argPeriDeg": 215.34,
+      "tPeriJd": 2461039.091111
+     },
+     "atEpoch": {
+      "jd": 2461041.5,
+      "meanAnomalyDeg": 43.36,
+      "firstConjunctionAfterJd": 2461041.82424,
+      "phaseSigmaDays": null,
+      "phaseSigmaOrbits": null
+     }
+    },
+    {
+     "id": "h",
+     "name": "tau Cet h",
+     "archiveName": "tau Cet h",
+     "status": "disputed",
+     "showByDefault": true,
+     "statusNote": "Candidate from a re-analysis of archival HARPS, AAPS and HIRES velocities (Feng et al. 2017). Flagged controversial by the NASA Exoplanet Archive. ESPRESSO (Figueira et al. 2025) could not confirm it: the 20 d signal is compatible but not significant and may be the first harmonic of the stellar rotation; the 49 d signal is near the detection limit; the 636 d signal is below it.",
+     "centre": "A",
+     "inputs": {
+      "periodDays": {
+       "v": 49.41,
+       "ref": "feng2017",
+       "err": [
+        -0.1,
+        0.08
+       ],
+       "where": "Table 5 (MAP; 1%-99% interval)"
+      },
+      "aAu": {
+       "v": 0.243,
+       "ref": "feng2017",
+       "where": "Table 5"
+      },
+      "e": {
+       "v": 0.23,
+       "ref": "feng2017",
+       "where": "Table 5"
+      },
+      "argPeri": {
+       "v": 7.45,
+       "ref": "feng2017",
+       "where": "Table 5: 0.13 rad",
+       "convention": "star"
+      },
+      "iDeg": {
+       "v": 35,
+       "assumed": "Assumed coplanar with the debris disc, i = 35 ± 10 deg (Lawler et al. 2014). Feng et al. note that masses would then be about twice m sin i.",
+       "ref": "lawler2014"
+      },
+      "nodeDeg": {
+       "v": 105,
+       "assumed": "Assumed coplanar with the debris disc: disc position angle 105 ± 10 deg (Lawler et al. 2014). Which node is ascending, and hence the sense of motion, is unknown.",
+       "ref": "lawler2014"
+      },
+      "phase": {
+       "kind": "meanAnomaly",
+       "jd": 2461041.5,
+       "meanAnomalyDeg": 287.23,
+       "ref": "feng2017",
+       "assumed": "Feng et al. give M0 = -1.27 rad but do not state its reference epoch, so the true phase is unknown. We apply M0 at the stated epoch, which is arbitrary."
+      }
+     },
+     "radiusEarth": {
+      "v": 1.6,
+      "derived": "estimate from m sin i / sin(35 deg) with the Chen & Kipping 2017 mean relation",
+      "ref": "chen2017",
+      "estimate": true
+     },
+     "massEarth": {
+      "v": 1.83,
+      "ref": "feng2017",
+      "where": "Table 5",
+      "kind": "minimum"
+     },
+     "rvSemiAmplitudeMs": {
+      "v": 0.39,
+      "ref": "feng2017",
+      "where": "Table 5"
+     },
+     "discovery": {
+      "year": 2017,
+      "method": "Radial Velocity",
+      "facility": "HARPS, AAPS, HIRES (archival)",
+      "reference": "Feng et al. 2017",
+      "url": "https://doi.org/10.3847/1538-3881/aa83b4"
+     },
+     "orbit": {
+      "periodDays": 49.41,
+      "aAu": 0.243,
+      "e": 0.23,
+      "iDeg": 35,
+      "nodeDeg": 105,
+      "argPeriDeg": 187.45,
+      "tPeriJd": 2461002.077683
+     },
+     "atEpoch": {
+      "jd": 2461041.5,
+      "meanAnomalyDeg": 287.23,
+      "firstConjunctionAfterJd": 2461059.33984,
+      "phaseSigmaDays": null,
+      "phaseSigmaOrbits": null
+     }
+    },
+    {
+     "id": "e",
+     "name": "tau Cet e",
+     "archiveName": null,
+     "status": "refuted",
+     "showByDefault": false,
+     "statusNote": "Refuted: ESPRESSO would have detected a 3.93 Earth-mass planet at 162 d and did not (Figueira et al. 2025). The NASA Exoplanet Archive lists tau Cet e as a False Positive Planet (Targets Excluded page, 2026).",
+     "centre": "A",
+     "inputs": {
+      "periodDays": {
+       "v": 162.87,
+       "ref": "feng2017",
+       "err": [
+        -0.46,
+        1.08
+       ],
+       "where": "Table 5 (MAP; 1%-99% interval)"
+      },
+      "aAu": {
+       "v": 0.538,
+       "ref": "feng2017",
+       "where": "Table 5"
+      },
+      "e": {
+       "v": 0.18,
+       "ref": "feng2017",
+       "where": "Table 5"
+      },
+      "argPeri": {
+       "v": 22.35,
+       "ref": "feng2017",
+       "where": "Table 5: 0.39 rad",
+       "convention": "star"
+      },
+      "iDeg": {
+       "v": 35,
+       "assumed": "Assumed coplanar with the debris disc, i = 35 ± 10 deg (Lawler et al. 2014). Feng et al. note that masses would then be about twice m sin i.",
+       "ref": "lawler2014"
+      },
+      "nodeDeg": {
+       "v": 105,
+       "assumed": "Assumed coplanar with the debris disc: disc position angle 105 ± 10 deg (Lawler et al. 2014). Which node is ascending, and hence the sense of motion, is unknown.",
+       "ref": "lawler2014"
+      },
+      "phase": {
+       "kind": "meanAnomaly",
+       "jd": 2461041.5,
+       "meanAnomalyDeg": 355.81,
+       "ref": "feng2017",
+       "assumed": "Feng et al. give M0 = 6.21 rad but do not state its reference epoch, so the true phase is unknown. We apply M0 at the stated epoch, which is arbitrary."
+      }
+     },
+     "radiusEarth": {
+      "v": 2.51,
+      "derived": "estimate from m sin i / sin(35 deg) with the Chen & Kipping 2017 mean relation",
+      "ref": "chen2017",
+      "estimate": true
+     },
+     "massEarth": {
+      "v": 3.93,
+      "ref": "feng2017",
+      "where": "Table 5",
+      "kind": "minimum"
+     },
+     "rvSemiAmplitudeMs": {
+      "v": 0.55,
+      "ref": "feng2017",
+      "where": "Table 5"
+     },
+     "discovery": {
+      "year": 2017,
+      "method": "Radial Velocity",
+      "facility": "HARPS, AAPS, HIRES (archival)",
+      "reference": "Feng et al. 2017",
+      "url": "https://doi.org/10.3847/1538-3881/aa83b4"
+     },
+     "orbit": {
+      "periodDays": 162.87,
+      "aAu": 0.538,
+      "e": 0.18,
+      "iDeg": 35,
+      "nodeDeg": 105,
+      "argPeriDeg": 202.35,
+      "tPeriJd": 2460880.525626
+     },
+     "atEpoch": {
+      "jd": 2461041.5,
+      "meanAnomalyDeg": 355.81,
+      "firstConjunctionAfterJd": 2461065.83207,
+      "phaseSigmaDays": null,
+      "phaseSigmaOrbits": null
+     }
+    },
+    {
+     "id": "f",
+     "name": "tau Cet f",
+     "archiveName": "tau Cet f",
+     "status": "disputed",
+     "showByDefault": true,
+     "statusNote": "Candidate from a re-analysis of archival HARPS, AAPS and HIRES velocities (Feng et al. 2017). Flagged controversial by the NASA Exoplanet Archive. ESPRESSO (Figueira et al. 2025) could not confirm it: the 20 d signal is compatible but not significant and may be the first harmonic of the stellar rotation; the 49 d signal is near the detection limit; the 636 d signal is below it.",
+     "centre": "A",
+     "inputs": {
+      "periodDays": {
+       "v": 636.13,
+       "ref": "feng2017",
+       "err": [
+        -47.69,
+        11.7
+       ],
+       "where": "Table 5 (MAP; 1%-99% interval)"
+      },
+      "aAu": {
+       "v": 1.334,
+       "ref": "feng2017",
+       "where": "Table 5"
+      },
+      "e": {
+       "v": 0.16,
+       "ref": "feng2017",
+       "where": "Table 5"
+      },
+      "argPeri": {
+       "v": 119.75,
+       "ref": "feng2017",
+       "where": "Table 5: 2.09 rad",
+       "convention": "star"
+      },
+      "iDeg": {
+       "v": 35,
+       "assumed": "Assumed coplanar with the debris disc, i = 35 ± 10 deg (Lawler et al. 2014). Feng et al. note that masses would then be about twice m sin i.",
+       "ref": "lawler2014"
+      },
+      "nodeDeg": {
+       "v": 105,
+       "assumed": "Assumed coplanar with the debris disc: disc position angle 105 ± 10 deg (Lawler et al. 2014). Which node is ascending, and hence the sense of motion, is unknown.",
+       "ref": "lawler2014"
+      },
+      "phase": {
+       "kind": "meanAnomaly",
+       "jd": 2461041.5,
+       "meanAnomalyDeg": 321.04,
+       "ref": "feng2017",
+       "assumed": "Feng et al. give M0 = -0.68 rad but do not state its reference epoch, so the true phase is unknown. We apply M0 at the stated epoch, which is arbitrary."
+      }
+     },
+     "radiusEarth": {
+      "v": 2.51,
+      "derived": "estimate from m sin i / sin(35 deg) with the Chen & Kipping 2017 mean relation",
+      "ref": "chen2017",
+      "estimate": true
+     },
+     "massEarth": {
+      "v": 3.93,
+      "ref": "feng2017",
+      "where": "Table 5",
+      "kind": "minimum"
+     },
+     "rvSemiAmplitudeMs": {
+      "v": 0.35,
+      "ref": "feng2017",
+      "where": "Table 5"
+     },
+     "discovery": {
+      "year": 2017,
+      "method": "Radial Velocity",
+      "facility": "HARPS, AAPS, HIRES (archival)",
+      "reference": "Feng et al. 2017",
+      "url": "https://doi.org/10.3847/1538-3881/aa83b4"
+     },
+     "orbit": {
+      "periodDays": 636.13,
+      "aAu": 1.334,
+      "e": 0.16,
+      "iDeg": 35,
+      "nodeDeg": 105,
+      "argPeriDeg": 299.75,
+      "tPeriJd": 2460474.213402
+     },
+     "atEpoch": {
+      "jd": 2461041.5,
+      "meanAnomalyDeg": 321.04,
+      "firstConjunctionAfterJd": 2461072.29933,
+      "phaseSigmaDays": null,
+      "phaseSigmaOrbits": null
+     }
+    }
+   ],
+   "notes": [
+    "All four are unconfirmed candidates; e is refuted. Show them as candidates."
+   ],
+   "epochJd": 2461041.5,
+   "epochIso": "2026-01-01T00:00:00 TDB"
+  },
+  {
+   "id": "alf-cen",
+   "name": "Alpha Centauri A and B",
+   "archiveHost": null,
+   "position": {
+    "raDeg": 219.89936743,
+    "decDeg": -60.83541844,
+    "epoch": "J2000.0",
+    "distancePc": 1.331895,
+    "pmRaMasYr": -3639.95,
+    "pmDecMasYr": 700.4,
+    "radialVelocityKms": -22.3796,
+    "ref": "akeson2021",
+    "source": "AB barycentre, ICRS: Table 9 position at J2019.5 (219.85892215, -60.83163195) carried to J2000.0 with the Table 9 proper motion, Table 8 parallax and barycentric RV",
+    "ids": {
+     "hipA": 71683,
+     "hipB": 71681,
+     "hdA": "128620",
+     "hdB": "128621"
+    }
+   },
+   "stars": [
+    {
+     "id": "A",
+     "name": "alf Cen A",
+     "massMsun": {
+      "v": 1.0788,
+      "ref": "akeson2021",
+      "err": 0.0029
+     },
+     "radiusRsun": {
+      "v": 1.2175,
+      "ref": "akeson2021",
+      "err": 0.0055
+     },
+     "luminosityLsun": {
+      "v": 1.5059,
+      "ref": "akeson2021",
+      "err": 0.0019
+     }
+    },
+    {
+     "id": "B",
+     "name": "alf Cen B",
+     "massMsun": {
+      "v": 0.9092,
+      "ref": "akeson2021",
+      "err": 0.0025
+     },
+     "radiusRsun": {
+      "v": 0.8591,
+      "ref": "akeson2021",
+      "err": 0.0036
+     },
+     "luminosityLsun": {
+      "v": 0.4981,
+      "ref": "akeson2021",
+      "err": 0.0007
+     }
+    }
+   ],
+   "starOrbit": {
+    "primary": "A",
+    "secondary": "B",
+    "massFractionSecondary": 0.45734,
+    "orbit": {
+     "periodDays": 29133.071,
+     "aAu": 23.29884,
+     "e": 0.51947,
+     "iDeg": 79.243,
+     "nodeDeg": 205.073,
+     "argPeriDeg": 231.519,
+     "tPeriJd": 2435314.751
+    },
+    "inputs": {
+     "periodYears": {
+      "v": 79.762,
+      "ref": "akeson2021",
+      "err": 0.019,
+      "where": "Table 8 (present work, epoch 2019.5)"
+     },
+     "aArcsec": {
+      "v": 17.493,
+      "ref": "akeson2021",
+      "err": 0.0096,
+      "where": "Table 8"
+     },
+     "parallaxMas": {
+      "v": 750.81,
+      "ref": "akeson2021",
+      "err": 0.38,
+      "where": "Table 8"
+     },
+     "e": {
+      "v": 0.51947,
+      "ref": "akeson2021",
+      "err": 0.00015,
+      "where": "Table 8"
+     },
+     "iDeg": {
+      "v": 79.243,
+      "ref": "akeson2021",
+      "err": 0.0089,
+      "where": "Table 8"
+     },
+     "nodeDeg": {
+      "v": 205.073,
+      "ref": "akeson2021",
+      "err": 0.025,
+      "where": "Table 8 (resolved by RVs; tested against the HARPS RVs of A)"
+     },
+     "argPeriDeg": {
+      "v": 231.519,
+      "ref": "akeson2021",
+      "err": 0.027,
+      "where": "Table 8 (orbit of B relative to A)"
+     },
+     "tPeriYear": {
+      "v": 1955.564,
+      "ref": "akeson2021",
+      "err": 0.015,
+      "where": "Table 8 (Julian year)"
+     },
+     "massFractionA": {
+      "v": 0.54266,
+      "ref": "akeson2021",
+      "err": 0.00011,
+      "where": "Table 8: m_A/(m_A + m_B)"
+     }
+    },
+    "note": "Orbit of B relative to A. Tested against the ALMA separation and position angle of 2019 (Akeson et al. Table 6) and the HARPS radial velocity of A in 2004."
+   },
+   "planets": [
+    {
+     "id": "S1",
+     "name": "alf Cen A candidate (S1)",
+     "archiveName": null,
+     "status": "candidate",
+     "statusNote": "Single JWST/MIRI detection (S1, 10 August 2024, 3.3-4.3 sigma), possibly the same object as the VLT/NEAR source C1 of 2019 (Wagner et al. 2021); not recovered in February and April 2025, which orbits can explain (52% chance). Paper II finds S1 robust against artefacts. A JWST re-observation was planned for August 2026; no result had been published as of 25 September 2026.",
+     "centre": "A",
+     "inputs": {
+      "periodDays": {
+       "v": 752.13,
+       "derived": "Kepler's third law from a = 1.66 au and M_A = 1.0788 solar masses (Akeson et al. 2021); 2.06 yr",
+       "ref": "beichman2025"
+      },
+      "aAu": {
+       "v": 1.66,
+       "ref": "beichman2025",
+       "err": 0.06,
+       "where": "Table 4, prograde a < 2 au family (S1, C1 and non-detections, no RV constraint)"
+      },
+      "e": {
+       "v": 0.37,
+       "ref": "beichman2025",
+       "err": 0.12,
+       "where": "Table 4, same family"
+      },
+      "argPeri": {
+       "v": 318.75,
+       "derived": "fitted by us to the S1 and C1 astrometry and the 2025 non-detections, with a, e, i fixed",
+       "convention": "planet",
+       "illustrative": true
+      },
+      "iDeg": {
+       "v": 124,
+       "ref": "beichman2025",
+       "err": 13,
+       "where": "Table 4, same family: i_sky = 55 ± 15 or 124 ± 13 deg; 124 fits the astrometry better with a, e fixed (chi^2 0.26 vs 7.4)"
+      },
+      "nodeDeg": {
+       "v": 255.5,
+       "derived": "fitted by us (see argPeri); the mirror solution 75.5 deg is equally good",
+       "illustrative": true
+      },
+      "phase": {
+       "kind": "periastron",
+       "jd": 2460048.89,
+       "ref": "beichman2025",
+       "how": "fitted by us (see argPeri): passes within 0.08 arcsec of S1 and 0.03 arcsec of C1",
+       "illustrative": true
+      }
+     },
+     "radiusEarth": {
+      "v": 11.8,
+      "ref": "beichman2025",
+      "err": 0.6,
+      "where": "abstract: radius 1-1.1 Jupiter radii (from photometry and models); midpoint"
+     },
+     "massEarth": {
+      "v": 120,
+      "ref": "beichman2025",
+      "err": 30,
+      "where": "abstract: 90-150 Earth masses, consistent with RV limits; midpoint",
+      "kind": "model-dependent range"
+     },
+     "teqK": {
+      "v": 225,
+      "ref": "beichman2025",
+      "where": "abstract"
+     },
+     "discovery": {
+      "year": 2025,
+      "method": "Imaging",
+      "facility": "James Webb Space Telescope (JWST)",
+      "reference": "Beichman et al. 2025; Sanghi et al. 2025",
+      "url": "https://doi.org/10.3847/2041-8213/adf53f"
+     },
+     "notes": [
+      "Illustrative orbit: one member of a family of orbits consistent with the data. Show it as a candidate with an uncertain orbit."
+     ],
+     "orbit": {
+      "periodDays": 752.13,
+      "aAu": 1.66,
+      "e": 0.37,
+      "iDeg": 124,
+      "nodeDeg": 255.5,
+      "argPeriDeg": 318.75,
+      "tPeriJd": 2460048.89
+     },
+     "atEpoch": {
+      "jd": 2461041.5,
+      "meanAnomalyDeg": 115.104,
+      "firstConjunctionAfterJd": 2461506.65137,
+      "phaseSigmaDays": null,
+      "phaseSigmaOrbits": null
+     }
+    }
+   ],
+   "notes": [
+    "Positions are relative to the A-B barycentre; the evaluator also returns each star. Proxima Centauri is a separate system (id proxima-cen)."
+   ],
+   "epochJd": 2461041.5,
+   "epochIso": "2026-01-01T00:00:00 TDB"
+  }
+ ]
+}

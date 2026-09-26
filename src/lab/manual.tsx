@@ -208,7 +208,7 @@ const E2: ManualEntry = {
     </>
   ),
   apparatus: [
-    'Trajectory planner with the constant-speed drive (straight line in S, aimed at where the target will be on arrival).',
+    'Flight planner with the constant-speed drive (straight line in S, aimed at where the target will be on arrival).',
     <>
       Ship chronometer (proper time <M t="\tau" />) and the coordinate clocks of S (<M t="\Delta t" />).
     </>,
@@ -224,7 +224,7 @@ const E2: ManualEntry = {
     {
       text: (
         <>
-          Open the trajectory planner (<kbd className="kbd">G</kbd>) and choose a distant destination. Proxima Centauri gives trips
+          Open the flight planner (<kbd className="kbd">G</kbd>) and choose a distant destination. Proxima Centauri gives trips
           of years; Neptune gives hours.
         </>
       ),

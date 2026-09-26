@@ -8,6 +8,14 @@ import { sim } from '../sim/sim';
 import { POINTS_LAYER } from '../render/LightspeedScenePass';
 
 /**
+ * Glints farther than this are drawn at this distance along their true direction (their
+ * brightness comes from the float64 magnitude, not the distance). The shader squares the
+ * position, and float32 overflows above ~1.8 × 10¹⁹ km; 10¹⁶ km (about 1,000 light-years)
+ * leaves a wide margin.
+ */
+const GLINT_MAX_KM = 1e16;
+
+/**
  * Every body is also drawn as a point source with its real apparent magnitude. At true scale
  * a planet is usually far smaller than a pixel, yet it still shines, just as Jupiter or Venus
  * do in the night sky. The glint fades out once the disc is resolved.
@@ -51,11 +59,16 @@ export function Glints() {
       const b = sim.bodies[id];
       // Floating origin: camera-relative position computed in float64.
       const p = b.apparentPos;
-      pos.setXYZ(i, p.x - sim.camera.pos.x, p.y - sim.camera.pos.y, p.z - sim.camera.pos.z);
+      const x = p.x - sim.camera.pos.x;
+      const y = p.y - sim.camera.pos.y;
+      const z = p.z - sim.camera.pos.z;
+      const d = Math.hypot(x, y, z);
+      const k = d > GLINT_MAX_KM ? GLINT_MAX_KM / d : 1;
+      pos.setXYZ(i, x * k, y * k, z * k);
       mag.setX(i, b.magnitude);
       const f = 1 - Math.min(1, Math.max(0, (b.radiusPx - 1.2) / 2.5));
       fade.setX(i, f);
-      rad.setX(i, b.displayRadius);
+      rad.setX(i, b.displayRadius * k);
     });
     pos.needsUpdate = mag.needsUpdate = fade.needsUpdate = rad.needsUpdate = true;
     material.uniforms.uPixelRatio.value = gl.getPixelRatio();

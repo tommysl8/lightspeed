@@ -124,7 +124,10 @@ export const isBodyAvailable = (id: BodyId, ms: number = sim.timeMs): boolean =>
 
 // ─── Positions ───────────────────────────────────────────────────────────────────────────
 
-/** Proxima Centauri: fixed at its catalogue position (its 3.9″/yr proper motion is negligible here). */
+/**
+ * Proxima Centauri: fixed at its catalogue position. Its proper motion (3.9″ a year) is ignored:
+ * negligible for centuries, but some 5° by 3000 BCE and meaningless in deep time.
+ */
 const PROXIMA_POS = raDecToWorld(PROXIMA_RA_DEG, PROXIMA_DEC_DEG).multiplyScalar(PROXIMA_DISTANCE_KM);
 
 const ecl = newEclState();
@@ -254,15 +257,17 @@ interface FrozenAxis {
   moonL: number;
 }
 
-const frozenAxes = new Map<string, FrozenAxis>();
+/** Per side of the span (past, future), filled on first use. */
+const frozenPast: Partial<Record<BodyId, FrozenAxis>> = {};
+const frozenFuture: Partial<Record<BodyId, FrozenAxis>> = {};
 
 /**
  * The rotation elements at an edge of 3000 BCE–3000 CE. Beyond, a pole direction held there
  * stays sensible; the IAU polynomials (and Earth's precession series) would wander off.
  */
 function frozenAxis(id: BodyId, side: 1 | -1): FrozenAxis {
-  const key = `${id}${side}`;
-  let f = frozenAxes.get(key);
+  const cache = side > 0 ? frozenFuture : frozenPast;
+  let f = cache[id];
   if (!f) {
     const t0 = astroTimeAt(side > 0 ? APPROX_END_MS : APPROX_START_MS);
     const body = AXIS_BODY[id]!;
@@ -272,7 +277,7 @@ function frozenAxis(id: BodyId, side: 1 | -1): FrozenAxis {
     const a1 = RotationAxis(body, t1);
     const dSpin = ((((a1.spin - a0.spin) % 360) + 540) % 360) - 180;
     f = { ra: a0.ra, dec: a0.dec, spin: a0.spin, rate: dSpin / (t1.tt - t0.tt), tt: t0.tt, moonL: moonMeanLongitude(t0.tt / CY_D) };
-    frozenAxes.set(key, f);
+    cache[id] = f;
   }
   return f;
 }

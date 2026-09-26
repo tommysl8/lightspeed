@@ -5,15 +5,15 @@
  */
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { BODIES } from '../../physics/constants';
-import { explainerById, EXPLAINERS } from '../../content/explainers';
+import { explainerById } from '../../content/explainers';
 import { qty } from '../../lib/sci';
 import { relView } from '../../render/relativisticView';
 import { pulses } from '../../sim/pulses';
 import { sim } from '../../sim/sim';
-import { travel } from '../../sim/travel';
+import { travel, tripPace } from '../../sim/travel';
 import { useUI } from '../../state/ui';
 import { useLabEvents, type EventKind } from '../../lab/events';
-import { openExplainer } from '../explainerActions';
+import { readMore } from '../explainerActions';
 import { CloseIcon, Kbd } from '../kit';
 import { useTicker } from '../useTicker';
 import { rich } from '../rich';
@@ -79,17 +79,24 @@ function Annunciators() {
   const mode = useUI((s) => s.controlMode);
   const inFlight = pulses.list.filter((p) => p.pending.size > 0 && sim.timeMs >= p.t0Ms).length;
   const warpTrip = !!travel.trip?.warp;
+  // A real trip plays by ship time, whatever the time warp is set to.
+  const paced = travel.trip?.pacing === 'ship' ? tripPace(travel.trip) : null;
   return (
     <div className="pointer-events-none absolute inset-x-0 top-3 flex flex-wrap justify-center gap-1.5 px-40 max-md:px-4">
       {paused && <Lamp tone="white">Paused</Lamp>}
-      {!paused && warp > 1 && (
+      {!paused && paced && (
+        <Lamp tone="amber" title={paced.text}>
+          1 s = {paced.onBoard} on board
+        </Lamp>
+      )}
+      {!paused && !paced && warp > 1 && (
         <Lamp tone="amber" title="Simulated seconds per real second">
           Rate 10<sup className="sup">{Math.round(Math.log10(warp))}</sup>
         </Lamp>
       )}
       {mode === 'free' && <Lamp tone="amber">Free flight</Lamp>}
       {relView.active && <Lamp tone="cyan">{relView.split ? 'Split optics' : 'Relativistic optics'}</Lamp>}
-      {retarded && <Lamp tone="cyan">Light-time corr.</Lamp>}
+      {retarded && <Lamp tone="cyan">Light-time correction</Lamp>}
       {inFlight > 0 && <Lamp tone="cyan">{inFlight === 1 ? 'Pulse in flight' : `${inFlight} pulses in flight`}</Lamp>}
       {warpTrip && <Lamp tone="red">Non-physical state</Lamp>}
     </div>
@@ -110,11 +117,21 @@ function fmtSimTime(ms: number) {
 }
 
 /**
+ * The events shown: most are the lab's bookkeeping ("P1 → Earth … [E1 #1]"), so until the lab
+ * has been opened only errors appear, which say why something asked for did not happen.
+ */
+function useShownEvents() {
+  const events = useLabEvents();
+  const labUsed = useUI((s) => s.labUsed);
+  return labUsed ? events : events.filter((e) => e.kind === 'ERR');
+}
+
+/**
  * What a screen reader hears: every event except detector hits, which come in bursts and are
  * counted instead. Errors (a reading that could not be taken) are announced at once.
  */
 function EventAnnouncer() {
-  const events = useLabEvents();
+  const events = useShownEvents();
   const last = events.at(-1);
   let text = '';
   if (last?.kind === 'DET') {
@@ -136,7 +153,7 @@ function EventAnnouncer() {
 
 /** The last few lab events, fading out after 14 s. */
 function EventConsole() {
-  const events = useLabEvents();
+  const events = useShownEvents();
   const overlays = useUI((s) => s.showOverlays);
   const now = performance.now();
   const live = events.length > 0 && now - events[events.length - 1].at < 14_000;
@@ -222,18 +239,17 @@ function NoteToast() {
   const topic = useUI((s) => s.noteTopic);
   if (!topic) return null;
   const e = explainerById(topic);
-  const n = EXPLAINERS.findIndex((x) => x.id === topic) + 1;
   return (
     <div className="panel-float appear px-3 pb-2 pt-2">
       <div className="flex items-center gap-2">
-        <span className="cap !text-accent">Physics §{n}</span>
+        <span className="cap !text-accent">Physics note</span>
         <span className="min-w-0 truncate font-serif text-[13px] text-fg">{e.title}</span>
         <button className="btn btn-q btn-sq ml-auto !h-5 !w-5" onClick={() => useUI.setState({ noteTopic: null })} aria-label="Dismiss">
           <CloseIcon />
         </button>
       </div>
       <p className="mt-1 text-[12px] leading-snug text-fg-2">{e.blurb}</p>
-      <button className="btn btn-sm mt-1.5" onClick={() => openExplainer(topic)}>
+      <button className="btn btn-sm mt-1.5" onClick={() => void readMore(topic)}>
         Read more
       </button>
     </div>
@@ -280,7 +296,7 @@ const HINT_KEY = 'lightspeed.hinted';
  * (or after half a minute).
  */
 function FirstHint() {
-  const blocked = useUI((s) => s.welcomeOpen || s.tourStep !== null || s.tripActive || s.plannerOpen || s.journeysOpen || !!s.journeyNote);
+  const blocked = useUI((s) => s.welcomeOpen || s.tourStep !== null || s.tripActive || s.plannerOpen || s.journeysOpen || s.searchOpen || !!s.journeyNote);
   const [show, setShow] = useState(() => {
     try {
       return localStorage.getItem(HINT_KEY) !== '1';
@@ -334,7 +350,7 @@ function FirstHint() {
           ·
         </span>
         <span>
-          Click a name below, or <Kbd>0</Kbd>–<Kbd>9</Kbd>, to visit a planet
+          <b className="font-medium text-fg">Where to?</b> (or <Kbd>/</Kbd>) to visit anything
         </span>
         <span className="text-line-3 max-md:hidden" aria-hidden>
           ·
@@ -357,7 +373,7 @@ function WarpBand() {
       <span className="text-[12px] text-fg">
         Superluminal transfer: γ is imaginary, proper time and the relativistic optics are undefined. Shown for comparison only.
       </span>
-      <button className="btn btn-sm btn-hazard" onClick={() => openExplainer('ftl')}>
+      <button className="btn btn-sm btn-hazard" onClick={() => void readMore('ftl')}>
         Why
       </button>
     </div>

@@ -1,75 +1,113 @@
 /**
  * Fitted orbit models for planetary moons (public/data/moons.json, built by
- * scripts/build-moons.mjs from JPL Horizons vectors). See staging/phase2/moons.md.
+ * scripts/build-moons.mjs from JPL Horizons state vectors). Format and method: staging/phase2/moons.md.
  *
- * Every model gives the position of a moon RELATIVE TO ITS CENTRE (the planet's centre, or the
- * Pluto–Charon barycentre for Charon, Nix, Hydra and Pluto itself) in the ecliptic J2000 frame,
- * in km. Time is TDB days since J2000.0 (JD 2451545.0 TDB); astronomy-engine's AstroTime.tt is
- * within 2 ms of TDB and can be passed directly.
+ * Each model gives a moon's position RELATIVE TO ITS CENTRE — the planet's centre, or the Pluto
+ * system barycentre for Charon, Nix, Hydra and Pluto itself — in the ecliptic J2000 frame, in km.
+ * Time is TDB days since J2000.0 (JD 2451545.0 TDB); astronomy-engine's AstroTime.tt is within
+ * 2 ms of TDB and can be passed as is.
  *
- * Model: a precessing Keplerian ellipse in equinoctial elements, written in a per-moon reference
- * plane (its Laplace plane or its planet's equator), plus periodic terms on each element and a
- * small set of periodic position corrections:
- *   a(t)      = poly(τc) + w·Σ [c cos ντ + s sin ντ]
- *   λ(t)      = l0 + l1 τ + Σ_{k≥2} l_k τc^k + w·Σ [...]
- *   k + i h   = poly(τc) + Σ_free C e^{iντ} + w·Σ C e^{iντ}      (e·e^{iϖ})
- *   q + i p   = poly(τc) + Σ_free C e^{iντ} + w·Σ C e^{iντ}      (sin(i/2)·e^{iΩ})
- *   r_fit     = Kepler(a, λ, k, h, q, p) + w·[Σ C e^{iντ} (x + i y),  Σ (c cos + s sin) (z)]
- *   r_ecl     = F · r_fit
- * with τ = t − epoch. Inside the fitted window τc = τ and w = 1 ("precise"). Outside it the
- * periodic terms fade out smoothly (w → 0 over `taper` days) and the polynomial parts freeze
- * (τc is a C¹ clamp), leaving the mean precessing orbit ("illustrative").
+ * The model is a precessing Keplerian ellipse in equinoctial elements, written in a per-moon
+ * reference plane (its Laplace plane or its planet's equator), plus periodic terms:
+ *
+ *   τ = t − epoch;  inside the precise window τc = τ and w = 1
+ *   Λ   = l1·τ + Σ_{k≥2} l_k·τc^k + w·Σ_lt [A cos ντ + B sin ντ]         (mean longitude − l0)
+ *   θ   = ν·τ + k·Λ                                                        (argument of a term)
+ *   λ   = l0 + Λ + w·Σ_lm [A cos θ + B sin θ]
+ *   a   = a0 + Σ_{k≥1} a_k·τc^k + w·Σ_am [A cos θ + B sin θ]
+ *   k+ih = Σ z_k·τc^k + Σ_zf C e^{iντ} + w·Σ_zm C e^{iθ}                  (e·e^{iϖ})
+ *   q+ip = Σ s_k·τc^k + Σ_sf C e^{iντ} + w·Σ_sm C e^{iθ}                  (sin(i/2)·e^{iΩ})
+ *   r_fit = Kepler(a, λ, k, h, q, p) + w·[Σ_xy C e^{iθ} (as x + iy),  Σ_zz (A cos θ + B sin θ) (z)]
+ *   r_ecl = F · r_fit
+ *
+ * Outside the window the periodic terms fade out smoothly (w → 0 over `taper` days) and the
+ * polynomial parts freeze (τc is a C¹ clamp), leaving the mean precessing orbit: finite and
+ * plausible at any date, but only "illustrative".
  */
 
 export type MoonRegime = 'precise' | 'illustrative';
 
-/** [ν rad/day, cos amplitude, sin amplitude] */
-export type RealTerm = [number, number, number];
-/** [ν rad/day, Re C, Im C] for C·e^{iντ} */
-export type ComplexTerm = [number, number, number];
+/** [ν rad/day, A, B] — A cos ντ + B sin ντ (real) or (A + iB)·e^{iντ} (complex). */
+export type Term3 = [number, number, number];
+/** [ν rad/day, A, B, k] — as Term3 with argument θ = ντ + kΛ. */
+export type Term4 = [number, number, number, number];
 
 export interface MoonModel {
   id: string;
   name: string;
-  /** Body the position is relative to: a planet id, or 'pluto-barycenter'. */
+  /** App body id of the centre, or 'pluto-barycenter'. */
   centre: string;
+  /** Planet the moon belongs to (for grouping and labels). */
+  planet: string;
   /** Epoch of τ = 0, TDB days since J2000. */
   epoch: number;
-  /** Fitted (precise) window, TDB days since J2000. */
+  /**
+   * Precise window, TDB days since J2000 (inclusive): 1981-01-01 to 2200-01-01, or to the end of the
+   * Horizons ephemeris (2199-12-30 Neptune, 2199-12-29 Pluto). The fit itself extends up to five
+   * years beyond it on each side, where Horizons has data.
+   */
   window: [number, number];
   /** Fade length outside the window, days. */
   taper: number;
-  /** Fit frame → ecliptic J2000 rotation, row-major 3×3. */
+  /** Fit frame → ecliptic J2000 rotation matrix, row-major 3×3. */
   frame: number[];
-  a: { p: number[]; t: RealTerm[] };
-  l: { p: number[]; t: RealTerm[] };
-  z: { p: [number, number][]; f: ComplexTerm[]; t: ComplexTerm[] };
-  s: { p: [number, number][]; f: ComplexTerm[]; t: ComplexTerm[] };
-  xy: ComplexTerm[];
-  zz: RealTerm[];
-  /** Effective GM of the fit (km³/day²); only used for velocities and periods. */
+  /** Effective GM used for the elements, km³/day². */
   mu: number;
+  a: { p: number[]; m: Term4[] };
+  /** q = 1: the τ² term of λ is physical (tidal acceleration) and is not clamped outside. */
+  l: { p: number[]; t: Term3[]; m: Term4[]; q?: number };
+  z: { p: [number, number][]; f: Term3[]; m: Term4[] };
+  s: { p: [number, number][]; f: Term3[]; m: Term4[] };
+  xy: Term4[];
+  zz: Term4[];
+  /** Rotation locked to the orbital period (same face to the planet). */
   synchronous: boolean;
   orbit: {
+    /** Mean semi-major axis, km. */
     a: number;
+    /** Mean (free/forced) eccentricity. */
     e: number;
-    /** Inclination to the model's reference plane, degrees. */
+    /** Mean inclination to the reference plane, degrees. */
     i: number;
-    /** Sidereal period, days. */
+    /** Mean sidereal period, days. */
     period: number;
+    /** The orbit runs against the planet's rotation (true only for Triton). */
+    retrograde: boolean;
     /** Unit normal of the mean orbit (ecliptic J2000) at the model epoch. */
     normal: [number, number, number];
-    /** Unit pole of the reference plane (Laplace plane or equator), ecliptic J2000. */
+    /**
+     * Unit pole of the fit frame (ecliptic J2000): the Laplace-plane or equatorial pole, or Nereid's
+     * mean orbit pole, signed so that the orbit is prograde about it (flipped for Triton).
+     */
     refPole: [number, number, number];
+    /** 'laplace', 'equator' or 'mean orbit'. */
     refPlane: string;
+    /**
+     * Free (or resonance-locked) precession periods of the pericentre and node kept outside the
+     * window, years; negative = regression. 0 where not meaningful (e < 0.001, i < 0.02°, or the
+     * slowest term is a forced one faster than half a year).
+     */
+    apsidalPeriodYears: number;
+    nodalPeriodYears: number;
   };
   accuracy: {
-    /** Max position error vs Horizons over the fitted window, km. */
+    /** Worst position error vs Horizons over the window: fit grid, dense window and checkpoints, km. */
     maxKm: number;
+    /** RMS error over the fitted grid, km. */
     rmsKm: number;
+    fitMaxKm: number;
+    /** Worst error on the independent densely sampled window (2020 onwards), km. */
+    denseMaxKm: number;
+    /** Worst error at the 64 independent random checkpoints, km. */
+    checkpointMaxKm: number;
     /** Requirement: max(100 km, 5e-4 a). */
     targetKm: number;
+    /** Errors at Horizons epochs outside 1981–2199 (TDB days since J2000, km): the illustrative regime. */
+    illustrativeOutsideKm: { tdb: number; errKm: number }[];
   };
+  /** What the model was fitted to. */
+  horizons: { target: number; centre: number; ephemeris: string };
+  source: string;
 }
 
 export interface MoonCatalog {
@@ -88,15 +126,17 @@ export interface MoonElements {
   p: number;
   /** Weight of the periodic terms (1 inside the window, fading to 0 outside). */
   w: number;
+  /** Λ, the modulation argument (mean longitude minus its constant). */
+  Lambda: number;
 }
 
 export function moonRegime(model: MoonModel, tdbDays: number): MoonRegime {
   return tdbDays >= model.window[0] && tdbDays <= model.window[1] ? 'precise' : 'illustrative';
 }
 
-/** Periodic-term weight and clamped polynomial time τc for time t. */
 function taperAt(model: MoonModel, t: number): { w: number; tc: number } {
-  const [w0, w1] = model.window;
+  const w0 = model.window[0];
+  const w1 = model.window[1];
   const L = model.taper;
   const d = t < w0 ? w0 - t : t > w1 ? t - w1 : 0;
   if (d <= 0) return { w: 1, tc: t - model.epoch };
@@ -106,22 +146,24 @@ function taperAt(model: MoonModel, t: number): { w: number; tc: number } {
   return { w, tc: (t < w0 ? w0 - s : w1 + s) - model.epoch };
 }
 
-function realSum(terms: RealTerm[], tau: number): number {
+function realSum(terms: ReadonlyArray<Term3 | Term4>, tau: number, Lambda: number): number {
   let s = 0;
   for (let j = 0; j < terms.length; j++) {
     const T = terms[j];
-    const a = T[0] * tau;
+    const k = T.length > 3 ? (T as Term4)[3] : 0;
+    const a = T[0] * tau + (k ? k * Lambda : 0);
     s += T[1] * Math.cos(a) + T[2] * Math.sin(a);
   }
   return s;
 }
 
-function cplxSum(terms: ComplexTerm[], tau: number, out: [number, number], weight = 1): void {
+function cplxSum(terms: ReadonlyArray<Term3 | Term4>, tau: number, Lambda: number, out: number[], weight: number): void {
   let re = 0;
   let im = 0;
   for (let j = 0; j < terms.length; j++) {
     const T = terms[j];
-    const a = T[0] * tau;
+    const k = T.length > 3 ? (T as Term4)[3] : 0;
+    const a = T[0] * tau + (k ? k * Lambda : 0);
     const c = Math.cos(a);
     const s = Math.sin(a);
     re += T[1] * c - T[2] * s;
@@ -132,8 +174,8 @@ function cplxSum(terms: ComplexTerm[], tau: number, out: [number, number], weigh
 }
 
 /**
- * Equinoctial elements of the model at time t. With `secularOnly` the periodic terms are
- * dropped (the mean precessing orbit).
+ * Equinoctial elements at time t. With `secularOnly` all periodic terms are dropped (the mean
+ * precessing orbit, which is also what the model tends to far outside its window).
  */
 export function moonElements(model: MoonModel, tdbDays: number, secularOnly = false): MoonElements {
   const tau = tdbDays - model.epoch;
@@ -141,41 +183,43 @@ export function moonElements(model: MoonModel, tdbDays: number, secularOnly = fa
   const tc = tp.tc;
   const w = secularOnly ? 0 : tp.w;
 
+  const lp = model.l.p;
+  let Lambda = lp[1] * tau;
+  let pw = tc * tc;
+  for (let k = 2; k < lp.length; k++) {
+    Lambda += lp[k] * (k === 2 && model.l.q ? tau * tau : pw);
+    pw *= tc;
+  }
+  if (w) Lambda += w * realSum(model.l.t, tau, 0);
+  let lambda = lp[0] + Lambda;
+  if (w) lambda += w * realSum(model.l.m, tau, Lambda);
+
   const ap = model.a.p;
   let a = ap[0];
-  let pw = tc;
+  pw = tc;
   for (let k = 1; k < ap.length; k++) {
     a += ap[k] * pw;
     pw *= tc;
   }
-  if (w) a += w * realSum(model.a.t, tau);
+  if (w) a += w * realSum(model.a.m, tau, Lambda);
 
-  const lp = model.l.p;
-  let lambda = lp[0] + lp[1] * tau;
-  pw = tc * tc;
-  for (let k = 2; k < lp.length; k++) {
-    lambda += lp[k] * pw;
-    pw *= tc;
-  }
-  if (w) lambda += w * realSum(model.l.t, tau);
-
-  const z: [number, number] = [0, 0];
-  const s: [number, number] = [0, 0];
-  const src = [model.z, model.s];
-  const dst = [z, s];
-  for (let n = 0; n < 2; n++) {
-    const S = src[n];
-    const out = dst[n];
+  const z = [0, 0];
+  const s = [0, 0];
+  const blocks = [model.z, model.s];
+  const outs = [z, s];
+  for (let b = 0; b < 2; b++) {
+    const B = blocks[b];
+    const out = outs[b];
     let pp = 1;
-    for (let k = 0; k < S.p.length; k++) {
-      out[0] += S.p[k][0] * pp;
-      out[1] += S.p[k][1] * pp;
+    for (let k = 0; k < B.p.length; k++) {
+      out[0] += B.p[k][0] * pp;
+      out[1] += B.p[k][1] * pp;
       pp *= tc;
     }
-    cplxSum(S.f, tau, out);
-    if (w) cplxSum(S.t, tau, out, w);
+    cplxSum(B.f, tau, 0, out, 1);
+    if (w) cplxSum(B.m, tau, Lambda, out, w);
   }
-  return { a, lambda, k: z[0], h: z[1], q: s[0], p: s[1], w };
+  return { a, lambda, k: z[0], h: z[1], q: s[0], p: s[1], w, Lambda };
 }
 
 /** Position in the fit frame from equinoctial elements (generalised Kepler equation). */
@@ -201,12 +245,12 @@ function keplerPosition(el: MoonElements, out: number[]): number[] {
   return out;
 }
 
-const scratch = [0, 0, 0];
-const scratchXY: [number, number] = [0, 0];
+const rFit = [0, 0, 0];
+const xy = [0, 0];
 
 /**
- * Position of the moon relative to its centre, ecliptic J2000 (x, y, z), km.
- * Always finite; check moonRegime() for whether it is inside the precisely fitted window.
+ * Position of the moon relative to its centre, ecliptic J2000 [x, y, z], km.
+ * Always finite; use moonRegime() to know whether t is inside the precisely fitted window.
  */
 export function evalMoon(
   model: MoonModel,
@@ -214,15 +258,15 @@ export function evalMoon(
   out: [number, number, number] = [0, 0, 0],
 ): [number, number, number] {
   const el = moonElements(model, tdbDays);
-  const r = keplerPosition(el, scratch);
+  const r = keplerPosition(el, rFit);
   if (el.w) {
     const tau = tdbDays - model.epoch;
-    scratchXY[0] = 0;
-    scratchXY[1] = 0;
-    cplxSum(model.xy, tau, scratchXY);
-    r[0] += el.w * scratchXY[0];
-    r[1] += el.w * scratchXY[1];
-    r[2] += el.w * realSum(model.zz, tau);
+    xy[0] = 0;
+    xy[1] = 0;
+    cplxSum(model.xy, tau, el.Lambda, xy, el.w);
+    r[0] += xy[0];
+    r[1] += xy[1];
+    r[2] += el.w * realSum(model.zz, tau, el.Lambda);
   }
   const F = model.frame;
   out[0] = F[0] * r[0] + F[1] * r[1] + F[2] * r[2];
@@ -231,13 +275,13 @@ export function evalMoon(
   return out;
 }
 
-/** Velocity relative to the centre (ecliptic J2000, km/day) by central difference. */
+/** Velocity relative to the centre (ecliptic J2000), km/day, by a central difference. */
 export function evalMoonVelocity(
   model: MoonModel,
   tdbDays: number,
   out: [number, number, number] = [0, 0, 0],
 ): [number, number, number] {
-  const dt = Math.min(0.01, model.orbit.period / 2000);
+  const dt = Math.min(1e-3, model.orbit.period / 5000);
   const p1 = evalMoon(model, tdbDays + dt, [0, 0, 0]);
   const p0 = evalMoon(model, tdbDays - dt, [0, 0, 0]);
   out[0] = (p1[0] - p0[0]) / (2 * dt);
@@ -250,28 +294,28 @@ export interface MoonEllipse {
   /** Semi-major axis, km. */
   a: number;
   e: number;
-  /** Inclination to the ecliptic J2000, radians. */
+  /** Inclination to the ecliptic J2000, radians (> π/2 for retrograde orbits). */
   i: number;
   /** Longitude of the ascending node on the ecliptic J2000, radians. */
   node: number;
-  /** Argument of pericentre from that node, radians. */
+  /** Argument of pericentre, radians. */
   argPeri: number;
-  /** Mean anomaly at the requested time, radians. */
+  /** Mean anomaly at t, radians. */
   meanAnomaly: number;
-  /** Orbital period from the mean motion, days. */
+  /** Period from the mean motion, days. */
   period: number;
-  /** Unit orbit normal, ecliptic J2000. */
+  /** Unit orbit normal (direction of the orbital angular momentum), ecliptic J2000. */
   normal: [number, number, number];
-  /** Unit vector to pericentre, ecliptic J2000. */
+  /** Unit vector towards pericentre, ecliptic J2000. */
   periapsis: [number, number, number];
-  /** Unit vector completing the in-plane basis (normal × periapsis). */
+  /** Unit in-plane vector 90° ahead of pericentre (normal × periapsis). */
   qAxis: [number, number, number];
 }
 
 /**
- * The ellipse to draw as the moon's orbit line at time t, in ecliptic J2000. By default it uses
- * the full elements, so the moon sits on its drawn orbit; `secularOnly` gives the mean orbit.
- * A point on the line: a (cos E − e) periapsis + a √(1−e²) sin E qAxis, E ∈ [0, 2π).
+ * The ellipse to draw as the orbit line at time t (ecliptic J2000). By default it uses the full
+ * elements, so the moon sits on its line (to within the few-km position terms); `secularOnly`
+ * gives the smooth mean orbit. Points: a(cos E − e)·periapsis + a√(1−e²) sin E·qAxis.
  */
 export function moonEllipse(model: MoonModel, tdbDays: number, secularOnly = false): MoonEllipse {
   const el = moonElements(model, tdbDays, secularOnly);
@@ -281,7 +325,7 @@ export function moonEllipse(model: MoonModel, tdbDays: number, secularOnly = fal
   const g = [2 * q * p, 1 - 2 * q * q, 2 * c * q];
   const wv = [2 * c * p, -2 * c * q, 1 - 2 * (q * q + p * p)];
   const e = Math.hypot(k, h);
-  const varpi = e > 0 ? Math.atan2(h, k) : 0;
+  const varpi = Math.atan2(h, k);
   const cw = Math.cos(varpi);
   const sw = Math.sin(varpi);
   const pf = [f[0] * cw + g[0] * sw, f[1] * cw + g[1] * sw, f[2] * cw + g[2] * sw];
@@ -299,7 +343,7 @@ export function moonEllipse(model: MoonModel, tdbDays: number, secularOnly = fal
     normal[0] * periapsis[1] - normal[1] * periapsis[0],
   ];
   const i = Math.acos(Math.max(-1, Math.min(1, normal[2])));
-  // ascending node direction = ẑ × normal
+  // ascending node = ẑ × normal (x axis if the orbit lies in the ecliptic)
   let nx = -normal[1];
   let ny = normal[0];
   const nn = Math.hypot(nx, ny);
@@ -311,17 +355,15 @@ export function moonEllipse(model: MoonModel, tdbDays: number, secularOnly = fal
     ny /= nn;
   }
   const node = Math.atan2(ny, nx);
-  // argument of pericentre: angle from node to periapsis, measured in the orbit plane
+  // argument of pericentre: angle from the node to pericentre, positive along the motion
   const cosw = nx * periapsis[0] + ny * periapsis[1];
-  const sinw = (normal[1] * 0 - normal[2] * ny) * periapsis[0] + (normal[2] * nx - normal[0] * 0) * periapsis[1] + (normal[0] * ny - normal[1] * nx) * periapsis[2];
+  const sinw = normal[0] * (ny * periapsis[2]) - normal[1] * (nx * periapsis[2]) + normal[2] * (nx * periapsis[1] - ny * periapsis[0]);
   const argPeri = Math.atan2(sinw, cosw);
-  const lpRate = model.l.p[1];
-  const period = (2 * Math.PI) / Math.abs(lpRate);
-  const meanAnomaly = el.lambda - varpi;
-  return { a: el.a, e, i, node, argPeri, meanAnomaly, period, normal, periapsis, qAxis };
+  const period = (2 * Math.PI) / Math.abs(model.l.p[1]);
+  return { a: el.a, e, i, node, argPeri, meanAnomaly: el.lambda - varpi, period, normal, periapsis, qAxis };
 }
 
-/** Index a parsed moons.json by id. */
+/** Index a parsed moons.json by moon id, checking the format tag. */
 export function indexMoonCatalog(catalog: MoonCatalog): Record<string, MoonModel> {
   if (!catalog || typeof catalog.format !== 'string' || !catalog.format.startsWith('lightspeed-moons/')) {
     throw new Error('moons.json: unexpected format');

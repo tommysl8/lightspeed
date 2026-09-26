@@ -26,7 +26,8 @@
 // point LIGHTSPEED_TOOLS at that folder, e.g.
 //   npm install --prefix ../lightspeed-tools sharp
 //   LIGHTSPEED_TOOLS=../lightspeed-tools node scripts/build-textures.mjs [id ...]
-// Pass --check to also write annotated preview sheets (nomenclature overlay) to data-raw/d3/check/.
+// Registration was verified by overlaying IAU feature positions from the USGS Gazetteer on every output
+// (staging/phase2/src/physical/__fixtures__/check-texture-registration.py).
 
 import { createRequire } from 'node:module';
 import { existsSync, mkdirSync, readFileSync, writeFileSync, statSync } from 'node:fs';
@@ -53,7 +54,7 @@ const NASA3D = 'https://raw.githubusercontent.com/nasa/NASA-3D-Resources/master/
 //   'url-tiff'   a small TIFF fetched whole (NASA 3D Resources)
 // Geometry: centerLonEast = east longitude at continuous source x = xCenter (pixels from the left
 // edge); east longitude increases to the right in every source used here (checked per map by
-// overlaying IAU nomenclature, see --check).
+// overlaying IAU nomenclature; see the header).
 
 export const MAPS = [
   {
@@ -79,7 +80,7 @@ export const MAPS = [
     size: [2048, 1024],
     src: { kind: 'usgs-tiff', product: 'Ganymede_Voyager_GalileoSSI_Global_ClrMosaic_1435m' },
     title: 'Ganymede Voyager - Galileo SSI Global Color Mosaic 1.4km',
-    page: 'https://astrogeology.usgs.gov/search/map/Ganymede/Voyager-Galileo/Ganymede_Voyager_GalileoSSI_Global_ClrMosaic_1435m',
+    page: null, // no Astropedia page could be verified; the download URL is the reference
     credit: 'NASA/JPL-Caltech/USGS Astrogeology Science Center (Galileo SSI and Voyager data)',
     colour: 'Colour from Voyager and Galileo filter images; enhanced relative to natural colour.',
   },
@@ -102,7 +103,7 @@ export const MAPS = [
       centerLonEast: 0,
     },
     title: 'Mimas Cassini ISS Global Mosaic (DLR, 30 June 2017), 216 m/pixel',
-    page: 'https://astrogeology.usgs.gov/search/map/mimas_cassini_global_mosaic_216m',
+    page: null, // no Astropedia page could be verified; the download URL is the reference
     credit: 'NASA/JPL-Caltech/Space Science Institute/DLR (mosaic by T. Roatsch, DLR); hosted by USGS Astrogeology',
     colour: 'Greyscale (Cassini ISS clear filter).',
   },
@@ -111,7 +112,7 @@ export const MAPS = [
     size: [1024, 512],
     src: { kind: 'usgs-tiff', product: 'Enceladus_Cassini_mosaic_global_110m' },
     title: 'Enceladus Cassini Global Mosaic 110m',
-    page: 'https://astrogeology.usgs.gov/search/map/enceladus_cassini_global_mosaic_110m',
+    page: null, // no Astropedia page could be verified; the download URL is the reference
     credit: 'NASA/JPL-Caltech/Space Science Institute/DLR; hosted by USGS Astrogeology',
     colour: 'Greyscale (Cassini ISS clear filter).',
   },
@@ -120,7 +121,7 @@ export const MAPS = [
     size: [2048, 1024],
     src: { kind: 'usgs-tiff', product: 'Tethys_Cassini_mosaic_global_293m' },
     title: 'Tethys Cassini Global Mosaic 293m',
-    page: 'https://astrogeology.usgs.gov/search/map/tethys_cassini_global_mosaic_293m',
+    page: null, // no Astropedia page could be verified; the download URL is the reference
     credit: 'NASA/JPL-Caltech/Space Science Institute/DLR; hosted by USGS Astrogeology',
     colour: 'Greyscale.',
   },
@@ -129,7 +130,7 @@ export const MAPS = [
     size: [2048, 1024],
     src: { kind: 'usgs-tiff', product: 'Dione_Cassini_Voyager_mosaic_global_154m' },
     title: 'Dione Cassini - Voyager Global Mosaic 154m',
-    page: 'https://astrogeology.usgs.gov/search/map/dione_cassini_voyager_global_mosaic_154m',
+    page: null, // no Astropedia page could be verified; the download URL is the reference
     credit: 'NASA/JPL-Caltech/Space Science Institute/DLR (Cassini and Voyager data); hosted by USGS Astrogeology',
     colour: 'Greyscale.',
   },
@@ -138,7 +139,7 @@ export const MAPS = [
     size: [2048, 1024],
     src: { kind: 'usgs-tiff', product: 'Rhea_Cassini_Voyager_mosaic_global_417m' },
     title: 'Rhea Cassini - Voyager Global Mosaic 417m',
-    page: 'https://astrogeology.usgs.gov/search/map/rhea_cassini_voyager_global_mosaic_417m',
+    page: null, // no Astropedia page could be verified; the download URL is the reference
     credit: 'NASA/JPL-Caltech/Space Science Institute/DLR (Cassini and Voyager data); hosted by USGS Astrogeology',
     colour: 'Greyscale.',
   },
@@ -156,7 +157,7 @@ export const MAPS = [
     size: [2048, 1024],
     src: { kind: 'usgs-tiff', product: 'Titan_ISS_P19658_Mosaic_Global_4km' },
     title: 'Titan Cassini ISS Global Mosaic 4km',
-    page: 'https://astrogeology.usgs.gov/search/map/titan_cassini_iss_global_mosaic_4km',
+    page: null, // no Astropedia page could be verified; the download URL is the reference
     credit: 'NASA/JPL-Caltech/Space Science Institute; hosted by USGS Astrogeology',
     colour:
       'Greyscale surface albedo at 938 nm (near-infrared), seen through the haze. In visible light Titan is a featureless orange haze ball: render the haze colour and treat this map as the view through it.',
@@ -176,7 +177,7 @@ export const MAPS = [
     size: [2048, 1024],
     src: { kind: 'usgs-tiff', product: 'Charon_NewHorizons_Global_Mosaic_300m_Jul2017_8bit' },
     title: 'Charon New Horizons Global Mosaic 300m (July 2017)',
-    page: 'https://astrogeology.usgs.gov/search/map/charon_new_horizons_lorri_mvic_global_mosaic_300m',
+    page: null, // no Astropedia page could be verified; the download URL is the reference
     credit: 'NASA/Johns Hopkins University Applied Physics Laboratory/Southwest Research Institute/Lunar and Planetary Institute; hosted by USGS Astrogeology',
     colour: 'Greyscale (LORRI and MVIC panchromatic). The far southern hemisphere was in polar night during the 2015 flyby.',
   },
@@ -185,7 +186,7 @@ export const MAPS = [
     size: [2048, 1024],
     src: { kind: 'usgs-tiff', product: 'Ceres_Dawn_FC_DLR_global_20ppd_Oct2015' },
     title: 'Ceres Dawn FC Global Mosaic 400m (DLR, October 2015)',
-    page: 'https://astrogeology.usgs.gov/search/map/ceres_dawn_fc_global_mosaic_400m',
+    page: null, // no Astropedia page could be verified; the download URL is the reference
     credit: 'NASA/JPL-Caltech/UCLA/MPS/DLR/IDA (Dawn Framing Camera; mosaic by DLR); hosted by USGS Astrogeology',
     colour: 'Greyscale (Framing Camera clear filter).',
   },
@@ -201,11 +202,11 @@ export const MAPS = [
   {
     id: 'phobos',
     size: [1024, 512],
-    src: { kind: 'usgs-tiff', product: 'Phobos_ME_SRC_Mosaic_Global_16ppd' },
-    title: 'Phobos Mars Express SRC Global Mosaic 12m (16 pixels/degree)',
-    page: 'https://astrogeology.usgs.gov/search/map/phobos_mars_express_src_global_mosaic_12m',
-    credit: 'ESA/DLR/FU Berlin (Mars Express HRSC Super Resolution Channel; mosaic by K.-D. Matz/DLR); hosted by USGS Astrogeology',
-    colour: 'Greyscale.',
+    src: { kind: 'usgs-tiff', product: 'Phobos_Viking_Mosaic_40ppd_DLRcontrol' },
+    title: 'Phobos Viking Mosaic 40ppd (DLR controlled), P. Stooke 2011',
+    page: null, // no Astropedia page could be verified; the download URL is the reference
+    credit: 'NASA/JPL (Viking Orbiter images); mosaic by Philip Stooke (University of Western Ontario), after Simonelli et al. 1993, reprojected to the DLR control network; hosted by USGS Astrogeology',
+    colour: 'Greyscale. (A sharper Mars Express SRC mosaic exists, but HRSC imagery is ESA material; this NASA-data mosaic avoids any licence question.)',
   },
   {
     id: 'deimos',
@@ -239,6 +240,15 @@ export const MAPS = [
       'Greyscale. Voyager 2 flew past in January 1986, when Uranus’s south pole faced the Sun: only the southern hemisphere was lit and imaged. The source is 1440 × 720, so this map stays at 1024 × 512.',
   })),
 ];
+
+/** The URL each map is read from (for credits and checks). */
+export function downloadUrl(map) {
+  const s = map.src;
+  if (s.kind === 'usgs-tiff') return `${USGS}/${s.product}.tif`;
+  if (s.kind === 'zip-tiff') return `${s.url} (entry ${s.entry})`;
+  if (s.kind === 'wms') return `${s.url}&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&LAYERS=${s.layer}&SRS=EPSG:4326&BBOX=-180,-90,180,90&WIDTH=${s.fetchSize[0]}&HEIGHT=${s.fetchSize[1]}&FORMAT=image/png`;
+  return s.url;
+}
 
 // ─── Small utilities ────────────────────────────────────────────────────────────────────────
 
@@ -538,6 +548,8 @@ function packReduced({ acc, wacc, tot, bands }, Wo, Ho) {
 function fillAndFlatten(data, channels, Wo, Ho) {
   const bands = channels - 1;
   const mean = new Float64Array(bands);
+  const meanLinear = new Float64Array(bands); // area-weighted mean in linear light, for body colours
+  const toLinear = (v) => { const c = v / 255; return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; };
   let wsum = 0;
   let cover = 0;
   let area = 0;
@@ -549,18 +561,24 @@ function fillAndFlatten(data, channels, Wo, Ho) {
       cover += w * f;
       area += w;
       if (f > 0.99) {
-        for (let b = 0; b < bands; b++) mean[b] += w * data[o + b];
+        for (let b = 0; b < bands; b++) {
+          mean[b] += w * data[o + b];
+          meanLinear[b] += w * toLinear(data[o + b]);
+        }
         wsum += w;
       }
     }
   }
-  for (let b = 0; b < bands; b++) mean[b] /= wsum;
+  for (let b = 0; b < bands; b++) {
+    mean[b] /= wsum;
+    meanLinear[b] /= wsum;
+  }
   const out = Buffer.alloc(Wo * Ho * bands);
   for (let o = 0; o < Wo * Ho; o++) {
     const f = data[o * channels + bands] / 255;
     for (let b = 0; b < bands; b++) out[o * bands + b] = Math.round(f * data[o * channels + b] + (1 - f) * mean[b]);
   }
-  return { pixels: out, bands, fill: Array.from(mean, (v) => Math.round(v)), imagedFraction: cover / area };
+  return { pixels: out, bands, fill: Array.from(mean, (v) => Math.round(v)), meanLinear: Array.from(meanLinear, (v) => +v.toFixed(5)), imagedFraction: cover / area };
 }
 
 // ─── Main ───────────────────────────────────────────────────────────────────────────────────
@@ -589,7 +607,7 @@ async function build(sharp, map) {
     ({ data, channels } = packReduced(red, Wo, Ho));
     await sharp(data, { raw: { width: Wo, height: Ho, channels } }).png({ compressionLevel: 9 }).toFile(cache);
   }
-  let { pixels, bands, fill, imagedFraction } = fillAndFlatten(data, channels, Wo, Ho);
+  let { pixels, bands, fill, meanLinear, imagedFraction } = fillAndFlatten(data, channels, Wo, Ho);
   // Some decoders hand a greyscale source back as three equal channels: store those as grey.
   if (bands === 3) {
     let grey = true;
@@ -600,6 +618,7 @@ async function build(sharp, map) {
       pixels = g;
       bands = 1;
       fill = fill.slice(0, 1);
+      meanLinear = meanLinear.slice(0, 1);
     }
   }
   const file = join(OUT, `${map.id}.jpg`);
@@ -607,7 +626,7 @@ async function build(sharp, map) {
     .jpeg({ quality: JPEG_QUALITY, mozjpeg: true, chromaSubsampling: '4:2:0' })
     .toFile(file);
   const bytes = statSync(file).size;
-  return { id: map.id, file: `public/textures/${map.id}.jpg`, width: Wo, height: Ho, bands, bytes, fill, imagedFraction };
+  return { id: map.id, file: `public/textures/${map.id}.jpg`, width: Wo, height: Ho, bands, bytes, fill, meanLinear, imagedFraction: +imagedFraction.toFixed(4) };
 }
 
 async function main() {
