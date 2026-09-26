@@ -268,3 +268,9 @@ Each line below was re-checked against the source named (read in full or in the 
 - 1 g flip-and-burn: TRAPPIST-1 (40.54 ly) 7.32 yr ship, 42.4 yr Earth, peak 0.9990c, above 0.99c for 71% of the distance; Proxima (4.25 ly) 3.54 yr ship, 5.87 yr Earth | node | verified
 - Proxima b 0.643 of Earth's sunlight; angle 0.0373 arcsec; HR 8799 b 1.649 arcsec; ELT 1.22 lambda/D at 1 um = 6.45 mas; Earth from 10 pc 0.1 arcsec = 0.07 mm at 144 m | node | verified
 - PSR B1257+12 c reflex orbit 497 km; light time 1.66 ms; projected (sin 53 deg) 1.32 ms | node | verified
+
+## Cross-article consistency pass (25 September 2026)
+
+Numbers shared with other Learn articles were compared across all 16 articles; changes made here for agreement are listed below.
+
+- Style: astronomical unit written 'au' (IAU 2012 symbol) instead of 'AU' in the prose, as in all other articles; 'Barnard's Star' capitalised in the prose (quoted paper titles unchanged) | n/a | n/a | style

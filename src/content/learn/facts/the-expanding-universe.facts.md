@@ -184,3 +184,10 @@ One line per fact: claim | value | source | status. "computed" means recomputed 
 - Books checked against Open Library / Crossref: Kragh 1996 Princeton UP; Nussbaumer & Bieri 2009 CUP; Peebles, Page, Partridge 2009 CUP; Singh 2004 Fourth Estate; Weinberg 1977 Basic Books; Mather & Boslough 1996 Basic Books; Livio 2013 Simon & Schuster; Panek 2011 Houghton Mifflin Harcourt; Ryden 2nd ed. 2016 CUP (doi 10.1017/9781316651087); Eddington 1933 on archive.org (in.ernet.dli.2015.220736) | - | openlibrary.org; api.crossref.org; archive.org | re-verified
 - Online pages opened (HTTP 200): AIP cosmology exhibit index; NASA LAMBDA; ESA Planck 2013 release; Ned Wright tutorial and calculator; DESI site; Nobel lecture PDFs; archived IAU iau1812 | - | - | re-verified
 - The Edge of reach article (same series) uses the same JADES-GS-z14-0 figures (13.5 Gyr, 2.2 and 33.7 billion ly, Hubble sphere 14.5 billion ly at z ~ 1.48); this article keeps only a short summary and links there | - | the-edge-of-reach.md | re-verified
+
+## Cross-article consistency pass (25 September 2026)
+
+Numbers shared with other Learn articles were compared across all 16 articles; changes made here for agreement are listed below.
+
+- 'cosmic microwave background (CMB)' introduced in the blackbody section, before the CMB-S4 mention | n/a | n/a | style
+- H0 67.4 (Planck alone) here vs 67.66 (Planck + BAO) in The edge of reach and Rockets to the stars: both kept; The edge of reach now states the difference explicitly | Planck 2018 VI | consistent

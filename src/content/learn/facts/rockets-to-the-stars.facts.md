@@ -259,3 +259,9 @@ Each line below was re-checked against the primary source (page text, scan OCR o
 - Essays on the History of Rocketry and Astronautics vol. 1 contains "First works of K. E. Tsiolkovsky and I. V. Meshchersky" | - | NTRS full text | verified
 - All 13 YouTube links: title and channel match (YouTube oEmbed), durations match (watch-page lengthSeconds); Cool Worlds description: "14 different methods" | - | YouTube | verified
 - All DOIs in the article resolve on Crossref with matching title, journal, volume, pages and year | - | Crossref API | verified
+
+## Cross-article consistency pass (25 September 2026)
+
+Numbers shared with other Learn articles were compared across all 16 articles; changes made here for agreement are listed below.
+
+- Daedalus target distance | '5.9 light-years' -> 'about 6 light-years' | Gaia via SIMBAD 5.963 ly (the article's own table gives 5.96 ly; How far are the stars? gives 5.96) | corrected: 5.96 rounds to 6.0, not 5.9

@@ -201,3 +201,9 @@ Adversarial fact-check pass, 25 September 2026: every line below was re-checked 
 11. Mount Blue Sky: "its summit now has an optical clock" -> "in the summer of 2025 its summit hosted an optical clock".
 12. ACES status: supporting footnote [^lachmann2026] added.
 13. Sixty Symbols and HyperPhysics descriptions corrected; CGPM footnote version date corrected.
+
+## Cross-article consistency pass (25 September 2026)
+
+Numbers shared with other Learn articles were compared across all 16 articles; changes made here for agreement are listed below.
+
+- Voyager 1 one light-day: the EarthSky time recorded above (12:16:07 a.m. CST = 06:16 UT) disagrees with NASA's page, which gives 2:16:07 a.m. PST = 10:16 UTC on 18 Nov 2026 (used in Light takes time) | NASA Science, 'Voyager 1: What Is a Light-Day?' (updated 22 Sep 2026) | note: the article gives only the date, 18 November 2026, on which all sources agree; no change needed

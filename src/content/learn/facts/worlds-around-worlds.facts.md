@@ -215,3 +215,9 @@ Adversarial fact-check pass, 25 September 2026: every line below was re-checked 
 - ESA Voyage 2050 (SPC, 10 June 2021): large mission theme "moons of the giant planets", possibly with lander or drone | n/a | ESA, https://www.esa.int/Science_Exploration/Space_Science/Voyage_2050_sets_sail_ESA_chooses_future_science_mission_themes | verified | re-verified 25 Sep 2026
 - Whether/when an Enceladus mission is approved | n/a | none found | uncertain | re-verified 25 Sep 2026
 - Juno's operational status after September 2025 | n/a | NASA Juno page shows "End of Mission" section and says extended through Sept 2025 | uncertain (not used) | re-verified 25 Sep 2026
+
+## Cross-article consistency pass (25 September 2026)
+
+Numbers shared with other Learn articles were compared across all 16 articles; changes made here for agreement are listed below.
+
+- Style: 'Kuiper Belt' -> 'Kuiper belt' (as in Edges of the Solar System); cross-link to Other worlds added in Open questions | n/a | n/a | style

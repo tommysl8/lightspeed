@@ -174,3 +174,9 @@ Adversarial fact-check, 25 Sep 2026: every line below was re-checked against the
 8. Orbit widening: 0.9 cm/yr at the MESSENGER rate vs 1.4 cm/yr theoretical estimate, no longer presented as one number.
 9. Sources replaced: Pioneer 10 (NASA Science mission page), Proxima distance (NASA light-day page, eso1629 removed), Arecibo footnote byline (Associated Press).
 10. Wording: DE442 "has not been documented"; ngRADAR superlative attributed to its team; Horizons span; Maor blurb; Cook's journal "that evening" removed.
+
+## Cross-article consistency pass (25 September 2026)
+
+Numbers shared with other Learn articles were compared across all 16 articles; changes made here for agreement are listed below.
+
+- Proxima Centauri distance in the scale-model caption | 4.24 ly -> 4.25 ly | SIMBAD, Gaia parallax 768.07 mas = 1.302 pc = 4.25 ly, https://simbad.cds.unistra.fr/simbad/sim-id?Ident=Proxima+Centauri (new footnote [^gaiaproxima]) | corrected for consistency with How far are the stars?, Rockets to the stars and Edges of the Solar System (all 4.25 ly / 268,600 au); the model distance, about 29,000 km, is unchanged

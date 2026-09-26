@@ -198,3 +198,10 @@ Every claim in the article was re-checked against the sources below. Items not m
 - All 10 YouTube videos re-checked (oEmbed title and channel, watch-page length and description) | verified
 - Physics recomputed in node (local scratch script): Rømer 226,700 km/s, 24% slow, 16 min 38 s; 1.2 au = 599 s; aberration 20.49 arcsec; 41 arcsec = 2 cm at 100 m; Fizeau 313,274 km/s and 55.1 us; 315,300 km/s is 5.2% high; Michelson 16DN = 299,270; LLR 2.568 s and 384,934 km; Shapiro Venus grazing 233 us round trip = 34.9 km; 1 ns = 0.2998 m; light-year exact; 4.1e15 s; DSOC 27.5 min; LISA 8.34 s; 56 us = 16.8 km | verified
 - Timeline "2026: Voyager 1 reaches one light-day" | future event as of 25 Sep 2026 | corrected -> "is due to reach"
+
+## Cross-article consistency pass (25 September 2026)
+
+Numbers shared with other Learn articles were compared across all 16 articles; changes made here for agreement are listed below.
+
+- Jupiter light-time in the opening | 'between half an hour and 54 minutes' -> 'between 33 and 54 minutes' | the article's own table: 32 min 43 s to 53 min 51 s (NSSDC closest/farthest distances) | corrected for internal consistency
+- Cross-links added to How big is the Solar System? (au history) and The edges of the Solar System (Voyager 1) | n/a | n/a | note

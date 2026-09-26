@@ -200,3 +200,10 @@ Every claim in the article was re-checked against a primary source or recomputed
 - All 25 DOIs resolved on Crossref with matching titles, volumes and pages (Nagamine & Loeb DOI checked separately) | verified
 - Videos (oEmbed + watch page lengthSeconds): eVoh27gJgME 1083 s = 18:03; uzkD5SeuwzM 700 s = 11:40; WrhsPZt5JtM 1115 s = 18:35 (description names Dr Tamara Davis); XBr4GkRnY04 346 s = 5:46; OM9KepKsg6U 729 s = 12:09; YXRJH4-bOSA 1922 s = 32:02 (uploaded 30 May 2024); j6HZaaypoSI 1927 s = 32:07; NiHgzb8PkYs 293 s = 4:53 (uploaded 9 June 2026); BhG_QZl8WVY 659 s = 10:59; titles and channels match | verified
 - Online links return HTTP 200: CosmoCalc, cosmo_01, Scientific American (Lineweaver and Davis, 1 March 2005), Physics FAQ rocket, Kurzgesagt sources, Euclid DR1 timeline | verified
+
+## Cross-article consistency pass (25 September 2026)
+
+Numbers shared with other Learn articles were compared across all 16 articles; changes made here for agreement are listed below.
+
+- H0 = 67.66 km/s/Mpc is Planck 2018 combined with BAO (TT,TE,EE+lowE+lensing+BAO); Planck alone gives 67.36 +/- 0.54 (quoted as 67.4 in The expanding universe) | Planck 2018 VI, A&A 641, A6 (2020), Table 2 | clarified in the text (two places) and in the [^planck2018] footnote so readers of both articles see why the numbers differ; all horizon distances here remain computed with 67.66 / 0.3111
+- 'cosmic microwave background (CMB)' introduced at first prose use | n/a | n/a | style

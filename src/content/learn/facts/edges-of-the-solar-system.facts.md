@@ -247,3 +247,9 @@ Re-verified against the primary or official source (read directly this pass):
 - All 30 cited DOIs resolve on Crossref with matching authors, titles, volumes and pages | verified
 - Online list: the claim that NASA's Eyes "follows ... 3I/ATLAS" could not be verified from the page source; CORRECTED to "in which you can follow the Voyagers and New Horizons"
 - Videos: YouTube oEmbed titles/channels and yt-dlp durations re-checked for all 11 IDs (7pbj_llmiMg description dated 19 Jan 2011; kzlryv_55UI features Darryl Seligman; MGPM58S5Njg features Ed Stone and Suzanne Dodd) | verified
+
+## Cross-article consistency pass (25 September 2026)
+
+Numbers shared with other Learn articles were compared across all 16 articles; changes made here for agreement are listed below.
+
+- Gliese 710 closest approach | 14,000 au (90% 10,700-17,400 au, Gaia DR2) -> about 13,000 au, a fifth of a light-year (90% about 12,300-14,000 au, Gaia DR3) | C. A. L. Bailer-Jones, ApJL 935, L9 (2022), median 0.0636 pc (90% 0.0595-0.0678 pc), https://doi.org/10.3847/2041-8213/ac816a (new footnote [^bj2022]) | corrected: How far are the stars? already used the DR3 value; DR3 supersedes DR2. The 'hardest shove' sentence keeps its Bailer-Jones et al. 2018 citation; Berski and Dybczynski 2016 kept for the ~1.3 Myr timing

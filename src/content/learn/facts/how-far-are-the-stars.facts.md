@@ -208,3 +208,9 @@ Adversarial fact-check pass, 25 Sep 2026: every claim re-checked against the pri
 - Nine videos: ids, titles, channels and durations as listed; upload dates PBS 9 May 2018 (after DR2 on 25 Apr 2018), UCD 13 Mar 2014, ESA 30 Mar 2025, ESA Space Science Hub 12 Dec 2025 | yt-dlp metadata 25 Sep 2026 | re-verified
 - Online links (ESA Gaia overview, DR4 page, Gaia Sky, Hipparcos, SIMBAD, MacTutor, Linda Hall, Roman blog, Gutenberg #28247 = Clerke) return HTTP 200 | curl 25 Sep 2026 | re-verified
 - No near-infrared Gaia successor selected as of Sep 2026 | not contradicted by any ESA page read | uncertain (absence claim; kept as stated)
+
+## Cross-article consistency pass (25 September 2026)
+
+Numbers shared with other Learn articles were compared across all 16 articles; changes made here for agreement are listed below.
+
+- Style: 'Oort Cloud' -> 'Oort cloud' and 'Galactic centre/bulge' -> 'galactic centre/bulge' to match the other articles | n/a | n/a | style

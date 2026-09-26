@@ -9,19 +9,19 @@ updated: 2026-09-25
 
 On the evening of 9 November 1676, an observer at the Paris Observatory watched Io, the innermost large moon of Jupiter, slide out of Jupiter's shadow at 5 hours, 35 minutes and 45 seconds. The tables built from that August's observations said it should have appeared ten minutes earlier.[^romer1677] Nobody had miscounted. Two months before, a 31-year-old Dane named Ole Rømer had told the Académie royale des sciences to expect exactly this.[^lindahall]
 
-His explanation was short, and to most of the room it was outrageous. Io had been on time. Its light had not. In August, Earth had been on the same side of the Sun as Jupiter and fairly close to it; by November it had swung away, and the light from Io's reappearance needed extra minutes to cross the extra distance. Light, Rømer said, takes time to get anywhere.
+His explanation was short. Io had been on time. Its light had not. In August, Earth had been on the same side of the Sun as Jupiter and fairly close to it; by November it had swung away, and the light from Io's reappearance needed extra minutes to cross the extra distance. Light, Rømer said, takes time to get anywhere.
 
-Accept that and the sky becomes a record of the past. The Moon you see is about 1.3 seconds old. The Sun is 8 minutes 19 seconds old. Jupiter tonight is somewhere between half an hour and 54 minutes old. Pinning down those numbers took two centuries of argument, a toothed wheel aimed at Montmartre and, eventually, a mirror on the Moon.
+Accept that and the sky becomes a record of the past. The Moon you see is about 1.3 seconds old. The Sun is 8 minutes 19 seconds old. Jupiter tonight is somewhere between 33 and 54 minutes old. Pinning those numbers down took a toothed wheel aimed at Montmartre, a mirror spinning 400 times a second and, eventually, a mirror on the Moon.
 
 ## Instant, or only very fast?
 
-For about two thousand years the smart money said light does not travel at all. Aristotle held that light is not something that moves at all. Empedocles, in the fifth century BCE, was one of the few who thought it must take time to arrive. In the 11th century CE Ibn al-Haytham argued that light moves very fast and slows down in denser materials, but Kepler and Descartes, the heavyweights of the early 1600s, both held that it arrives instantly.[^opn2009]
+For about two thousand years the smart money said light does not travel. Aristotle held that it is not something that moves at all. Empedocles, in the fifth century BCE, was one of the few who thought it must take time to arrive. In the 11th century CE Ibn al-Haytham argued that light moves very fast and slows down in denser materials, but Kepler and Descartes, the heavyweights of the early 1600s, both held that it arrives instantly.[^opn2009]
 
-Descartes was not shy about it. In a letter dated 22 August 1634 he told his friend Isaac Beeckman that if anyone showed light takes time, he would admit he knew nothing at all in philosophy.[^descartes1634] Beeckman had proposed a test: at night, wave a torch in front of a mirror a quarter of a mile away and see whether the reflection lags behind your hand. It was the right question with a hopeless instrument. Whichever mile Beeckman had in mind, a quarter of one there and back is at most a few kilometres, which light covers in about a hundred-thousandth of a second or less. No eye can see that.
+Descartes was not shy about it. In a letter dated 22 August 1634 he told his friend Isaac Beeckman that if anyone showed light takes time, he would admit he knew nothing at all in philosophy.[^descartes1634] Beeckman had proposed a test: at night, wave a torch in front of a mirror a quarter of a mile away and see whether the reflection lags behind your hand. Right question, hopeless instrument: whichever mile Beeckman meant, a quarter of one there and back is a few kilometres at most, which light covers in about a hundred-thousandth of a second. No eye can see that.
 
-Descartes answered with an argument from the sky. If light were slow enough for Beeckman's torch to catch it, he calculated, it would need at least an hour to cross to the Moon and back, and the eclipsed Moon would then appear out of line with the Sun and Earth. It never does, so light must be instant.[^descartes1634] Christiaan Huygens later spotted the gap: if light took ten seconds to reach the Moon, the misalignment would be under six arcminutes, too small to notice during an eclipse.[^huygens1690] Eclipses proved only that light is fast.
+Descartes answered with an argument from the sky. If light were slow enough for Beeckman's torch to catch it, he calculated, it would need at least an hour to cross to the Moon and back, and the eclipsed Moon would then appear out of line with the Sun and Earth. It never does, so light must be instant.[^descartes1634] Christiaan Huygens later spotted the gap: if light took ten seconds to reach the Moon, the misalignment would be under six arcminutes (an arcminute is a sixtieth of a degree), too small to notice during an eclipse.[^huygens1690] Eclipses proved only that light is fast.
 
-Galileo had tried the direct approach with two lanterns. You uncover yours, your assistant uncovers his the moment he sees it, and you time the gap. He managed it over less than a mile, could not tell whether the response was instantaneous, and concluded in 1638 that "if not instantaneous it is extraordinarily rapid".[^galileo1638] Every one of these attempts hit the same wall. Over a hillside, light is far too fast for any human reflex or any clock of the day. The distances had to be astronomical.
+Galileo had tried the direct approach with two lanterns. You uncover yours, your assistant uncovers his the moment he sees it, and you time the gap. He managed it over less than a mile, could not tell whether the response was instantaneous, and concluded in 1638 that "if not instantaneous it is extraordinarily rapid".[^galileo1638] Over a hillside, light is far too fast for any human reflex or any clock of the day. The distances had to be astronomical.
 
 ## The moon that ran late
 
@@ -47,27 +47,29 @@ $$v = \frac{d}{t}$$
 
 In words: speed equals distance travelled divided by the time taken.
 
-Rømer's distance was the width of Earth's orbit, two astronomical units (au). With today's value of 149.6 million km for one au, that is 299.2 million km. His time was 22 minutes, or 1,320 s. So $v = 299{,}200{,}000\ \text{km} \div 1{,}320\ \text{s} \approx 226{,}700$ km/s. The modern speed of light is 299,792 km/s, so Rømer's timing comes out about 24% slow; the true crossing time is 16 min 38 s. With 1670s clocks and telescopes, that is a respectable miss.
+Rømer's distance was the width of Earth's orbit, two astronomical units (au), where one au is the average distance from Earth to the Sun, 149.6 million km. That makes 299.2 million km. His time was 22 minutes, or 1,320 s. So $v = 299{,}200{,}000\ \text{km} \div 1{,}320\ \text{s} \approx 226{,}700$ km/s. The modern speed of light is 299,792 km/s, so the speed from Rømer's timing comes out about 24% low; the true crossing time is 16 min 38 s. With 1670s clocks and telescopes, that is a respectable miss.
 
-The famous prediction checks out too. A modern ephemeris puts Jupiter about 4.3 au from Earth in mid-August 1676 and about 5.5 au away on 9 November.[^horizons] The extra 1.2 au, at 499 s per au, is 600 s: ten minutes.
+The famous prediction checks out too. A modern ephemeris, a computed table of where the planets are on any date, puts Jupiter about 4.3 au from Earth in mid-August 1676 and about 5.5 au away on 9 November.[^horizons] The extra 1.2 au, at 499 s per au, is 600 s: ten minutes.
 
-Rømer himself never divided a distance by his 22 minutes. Laurence Bobis and James Lequeux of the Paris Observatory suggest he and Cassini thought the speed too enormous to be worth stating, and the size of Earth's orbit was shaky anyway: Huygens put the Sun about 12,000 Earth diameters away, roughly 153 million km, while Newton later used 70 million miles, roughly 113 million km.[^bobis2008][^huygens1690][^newton1704] The first person to turn the delay into a speed was Huygens, in his *Treatise on Light*, written in 1678 and published in 1690.[^bobis2008] Rounding the orbit down to 22,000 Earth diameters to be safe, he got about 16⅔ Earth diameters per second, more than 600,000 times the speed of sound, which is a little over 210,000 km/s in modern units (about 230,000 km/s with his own preferred figure of 24,000).[^huygens1690][^bobis2008] The exact figure mattered less to him than the principle. Fast is not the same as instant, because there is "all the difference between a finite thing and an infinite".[^huygens1690]
+Rømer himself never divided a distance by his 22 minutes. Laurence Bobis and James Lequeux of the Paris Observatory suggest he and Cassini thought the speed too enormous to be worth stating, and the size of Earth's orbit was shaky anyway: Huygens put the Sun about 12,000 Earth diameters away, roughly 153 million km, while Newton later used 70 million miles, roughly 113 million km.[^bobis2008][^huygens1690][^newton1704]
+
+The first person to turn the delay into a speed was Huygens, in his *Treatise on Light*, written in 1678 and published in 1690.[^bobis2008] Rounding the orbit down to 22,000 Earth diameters to be safe, he got about 16⅔ Earth diameters per second, more than 600,000 times the speed of sound: a little over 210,000 km/s in modern units, or about 230,000 km/s with his own preferred figure of 24,000.[^huygens1690][^bobis2008] The exact figure mattered less to him than the principle. Fast is not the same as instant, because there is "all the difference between a finite thing and an infinite".[^huygens1690]
 
 The idea spread slowly. Newton's *Opticks* of 1704 credits Rømer and puts the Sun-to-Earth time at seven or eight minutes, closer to the truth than the 11 implied by Rømer's figure.[^newton1704] John Flamsteed, England's first Astronomer Royal, adopted it after Rømer visited in 1679; Robert Hooke stayed unconvinced, and Cassini never came round.[^opn2009][^bobis2008] Rømer went home in 1681 and ended up as mayor and chief of police of Copenhagen. Nearly all his observations burned in the city's great fire of 1728.[^nbi]
 
 ::: myth Rømer measured the speed of light.
-He measured a delay: about 22 minutes for light to cross Earth's orbit. Neither he nor Cassini gave a speed in distance per second. Huygens was the first to do that, years later.[^bobis2008][^romer1677]
+He measured a delay, about 22 minutes for light to cross Earth's orbit, and neither he nor Cassini ever stated a speed. Huygens did that first, years later.[^bobis2008][^romer1677]
 :::
 
 ## Running through starlight
 
 Rømer's case rested on one moon and a shaky model of its orbit, so for fifty years plenty of astronomers doubted it.[^opn2009] The proof nobody could argue with came from an experiment that failed at what it was built to do.
 
-In 1725 Samuel Molyneux, a wealthy amateur astronomer, installed a 24-foot (7.3 m) zenith sector, a long telescope fixed to point almost straight up, at his house in Kew, west of London. The instrument maker George Graham built it.[^dsbbradley] The target was Gamma Draconis, a bright star in the head of the Dragon that passes nearly overhead in London. The goal was its parallax, the tiny yearly shift in a nearby star's position as Earth goes round the Sun, which Robert Hooke had claimed to measure. Molyneux and his friend James Bradley wanted to check.[^bradley1729] (Parallax turned out to be far too small for their instrument; [How far are the stars?](#/learn/how-far-are-the-stars) tells that story.)
+In 1725 Samuel Molyneux, a wealthy amateur astronomer, installed a 24-foot (7.3 m) zenith sector, a long telescope fixed to point almost straight up, at his house in Kew, west of London. The instrument maker George Graham built it.[^dsbbradley] The target was Gamma Draconis, a bright star in the head of the Dragon that passes nearly overhead in London. The goal was its parallax, the tiny yearly shift in a nearby star's position as Earth goes round the Sun, which Robert Hooke had claimed to measure. Molyneux and his friend James Bradley wanted to check.[^bradley1729] (Parallax was far too small for their instrument; [How far are the stars?](#/learn/how-far-are-the-stars) tells that story.)
 
-Molyneux first measured the star on 3 December 1725. Bradley, visiting on 17 December, found it passing a little further south. On 20 December it was further south still, which was "the contrary way from what it would have been, had it proceeded from an annual Parallax".[^bradley1729] They checked the instrument, found nothing wrong, and kept watching. By early March 1726 the star sat 20 arcseconds south of its December position, and by mid-April it was heading back north.[^bradley1729] (England was still on the old Julian calendar, so these dates run eleven days behind the modern one.)
+Molyneux first measured the star on 3 December 1725. Bradley, visiting on 17 December, found it passing a little further south. On 20 December it was further south still, which was "the contrary way from what it would have been, had it proceeded from an annual Parallax".[^bradley1729] They checked the instrument, found nothing wrong, and kept watching. By early March 1726 the star sat 20 arcseconds south of its December position, and by mid-April it was heading back north.[^bradley1729] An arcsecond is a sixtieth of an arcminute. (England was still on the old Julian calendar, so these dates run eleven days behind the modern one.)
 
-Bradley set up his own, smaller Graham sector at Wanstead in 1727 so he could follow more stars.[^dsbbradley] All of them swung back and forth over a year, each by an amount that depended on where it sat relative to the plane of Earth's orbit. The swing tracked Earth's velocity, not its position. His explanation went to Edmond Halley as a letter, read to the Royal Society in January 1729: the star's light and the Earth's own motion combine, so a telescope carried along by the Earth must be tipped very slightly forward to catch the light.[^mactutorbradley][^bradley1729]
+Bradley set up his own, smaller Graham sector at Wanstead in 1727 so he could follow more stars.[^dsbbradley] All of them swung back and forth over a year, each by an amount that depended on where it sat relative to the plane of Earth's orbit. The swing followed the direction Earth was moving, not where Earth was. His explanation went to Edmond Halley as a letter, read to the Royal Society in January 1729: the star's light and Earth's own motion combine, so a telescope carried along by Earth must be tipped slightly forward to catch the light.[^mactutorbradley][^bradley1729]
 
 The popular story that the idea came to him on a Thames boat, watching the masthead vane swing whenever the boat changed course, makes a good picture of the effect. It appears nowhere in his letter.[^bradley1729]
 
@@ -79,11 +81,11 @@ $$\tan\theta = \frac{v}{c}$$
 
 In words: the tangent of the tilt angle equals your sideways speed divided by the speed of the light falling on you.
 
-Earth moves round the Sun at 29.78 km/s.[^nssdcearth] Divide by 299,792 km/s and you get 0.0000993. For angles this small, $\tan\theta$ is the angle itself measured in radians, and one radian is 206,265 arcseconds, so $\theta = 0.0000993 \times 206{,}265 \approx 20.5$ arcseconds. Six months later Earth is moving the opposite way, so the star is pushed the opposite way, and the total swing is about 41 arcseconds: the width of a 2 cm coin seen from 100 m.
+Earth moves round the Sun at 29.78 km/s.[^nssdcearth] Divide by 299,792 km/s and you get 0.0000993. For angles this small, $\tan\theta$ is the angle itself measured in radians (a full circle is $2\pi$ radians), and one radian is 206,265 arcseconds, so $\theta = 0.0000993 \times 206{,}265 \approx 20.5$ arcseconds. Six months later Earth is moving the opposite way, so the star is pushed the opposite way, and the total swing is about 41 arcseconds: the width of a 2 cm coin seen from 100 m.
 
-Bradley measured 20.2 arcseconds. That gave him a ratio of 10,210 between the speed of light and Earth's orbital speed, and a Sun-to-Earth light time of 8 minutes 12 seconds.[^bradley1729] The modern figure is 8 min 19 s, so a star wobbling by the width of a coin had given him the light time to within 2%. It was also direct evidence that Earth moves round the Sun, since every star's wobble followed the changing direction of Earth's motion through the year.
+Bradley measured 20.2 arcseconds. That gave him a ratio of 10,210 between the speed of light and Earth's orbital speed, and a Sun-to-Earth light time of 8 minutes 12 seconds.[^bradley1729] The modern figure is 8 min 19 s, so a star wobbling by the width of a coin had given him the light time to within 2%. It was also direct evidence that Earth moves round the Sun.
 
-There is a neat cross-check. We see the Sun displaced by the same 20.5 arcseconds, and there is a second way to get that number. The Sun creeps along the sky by about a degree a day as Earth orbits, and in 8 minutes 19 seconds it moves 20.5 arcseconds. *We see the Sun where it was when its light left* and *the telescope must be tipped because Earth is moving* are two descriptions of one fact.
+The Sun offers a cross-check. Aberration shifts it by the same 20.5 arcseconds as any star. Separately, the Sun creeps along the sky by about a degree a day as Earth orbits, so in the 8 minutes 19 seconds its light spends on the way, it moves 20.5 arcseconds. Same number. *We see the Sun where it was when its light left* and *the telescope must be tipped because Earth is moving* are two descriptions of one fact.
 
 ::: figure aberration
 A ring of stars seen at rest, and the same ring seen from a ship moving at 0.9c: the stars crowd towards the direction of travel. Bradley's 20.5 arcseconds is the same effect at a gentle 30 km/s. [What you would see near the speed of light](#/learn/seeing-near-light-speed) takes it all the way.
@@ -99,7 +101,7 @@ For the next 120 years the speed of light was an astronomical number, tied to th
 
 ### Fizeau's toothed wheel
 
-In the summer of 1849 Hippolyte Fizeau put a bright lamp and a telescope in a house at Suresnes, west of Paris, and a mirror on the hill of Montmartre, 8,633 m away.[^fizeau1849] The outgoing beam passed through a gap between the teeth of a wheel with 720 teeth, driven by a falling weight like the works of a clock.[^samueli] The light bounced off the mirror and came back through the wheel. Turn the wheel slowly and the returning light finds the same gap still open. Turn it faster and there is a speed at which, during the round trip, the gap moves on and a tooth takes its place, so the returning light is blocked and the view goes dark. Fizeau saw the first blackout at 12.6 turns per second.[^fizeau1849]
+In the summer of 1849 Hippolyte Fizeau put a bright lamp and a telescope in a house at Suresnes, west of Paris, and a mirror on the hill of Montmartre, 8,633 m away.[^fizeau1849] The outgoing beam passed through a gap between the teeth of a wheel with 720 teeth, driven by a falling weight like the works of a clock.[^samueli] The light bounced off the mirror and came back through the wheel. Turn the wheel slowly and the returning light finds the same gap still open. Turn it fast enough and, during the round trip, a tooth moves into the gap's place: the returning light is blocked and the view goes dark. Fizeau saw the first blackout at 12.6 turns per second.[^fizeau1849]
 
 The light covers twice the distance $d$, out and back. The wheel has $N$ teeth and $N$ gaps; turning $f$ times per second, it swaps a gap for a tooth in a time $t = 1/(2Nf)$. Put those together:
 
@@ -114,12 +116,12 @@ With $d = 8{,}633$ m, $N = 720$ and $f = 12.6$ per second, the gap-to-tooth time
 Léon Foucault, Fizeau's old schoolmate and now his rival, found a way to use a far shorter path. Light bounces off a mirror spinning hundreds of times a second, runs to a fixed mirror and back, and returns to find the spinning mirror has turned slightly, so the returning beam comes off at a tiny, measurable angle. In April 1850 Foucault used this to show that light travels more slowly in water than in air, beating Fizeau (working with the instrument maker Louis Breguet) by six or seven weeks. The two fell out over it.[^obspm][^samueli]
 
 ::: note Slower in water
-Newton's particle theory of light predicted that light should speed up in water; the wave theory predicted it should slow down. Foucault's result, slower, counted heavily for waves.[^obspm] Water's refractive index of about 1.33 puts light's speed there near 225,000 km/s.[^samueli] Everywhere else in this article, *the speed of light* means its speed in a vacuum.
+Newton's particle theory said light should speed up in water; the wave theory said it should slow down. Foucault's result counted heavily for waves.[^obspm] Water's refractive index of about 1.33 means light moves 1.33 times slower there, near 225,000 km/s.[^samueli] Everywhere else in this article, *the speed of light* means its speed in a vacuum.
 :::
 
-In 1862, at the request of Urbain Le Verrier, the director of the Paris Observatory, Foucault built a precision version.[^obspm] Sunlight came in from a heliostat and hit a mirror spun at exactly 400 turns per second by a compressed-air turbine, then travelled 40.4 m in total along a path folded by five mirrors. The steady air supply came from a blower built by the organ builder Aristide Cavaillé-Coll. Foucault got 298,000 km/s, with an uncertainty he put, a little optimistically, at 500 km/s.[^obspm]
+In 1862, at the request of Urbain Le Verrier, the director of the Paris Observatory, Foucault built a precision version.[^obspm] Sunlight came in from a heliostat, a mirror that turns to follow the Sun, and hit a mirror spun at exactly 400 turns per second by a compressed-air turbine, then travelled 40.4 m in total along a path folded by five mirrors. The steady air supply came from a blower built by the organ builder Aristide Cavaillé-Coll. Foucault got 298,000 km/s, with an uncertainty he put, a little optimistically, at 500 km/s.[^obspm]
 
-Le Verrier cared because of the Sun. Astronomers already had the light time from the Sun, from Io's eclipses and from aberration. Multiply a good speed by a good time and you have the distance: Foucault's result put the Sun 148.3 million km away, close to what Le Verrier had predicted from the motions of the planets, against a modern 149.6 million.[^obspm]
+Le Verrier cared because of the Sun. Astronomers already had the Sun's light time from Io's eclipses and from aberration. Multiply a good speed by a good time and you have the distance: Foucault's result put the Sun 148.3 million km away, close to what Le Verrier had predicted from the motions of the planets, against a modern 149.6 million.[^obspm]
 
 ## Michelson's long obsession
 
@@ -127,25 +129,25 @@ Albert Michelson was a young instructor at the US Naval Academy in Annapolis whe
 
 He spent the rest of his life on the number. In 1926 he sent light 35 km from Mount Wilson, above Pasadena, to a mirror on Lookout Mountain on Mount San Antonio and back again, using an eight-sided spinning mirror.[^michelson1927] The trick was to spin it at 528 turns per second, so that during the round trip the mirror turned exactly one-eighth of a turn and the next face stood exactly where the last one had been. Then $V = 16DN$, with $D$ the one-way distance and $N$ the turns per second: $16 \times 35.425\ \text{km} \times 528 = 299{,}270$ km/s, before small corrections for the exact mirror angle. The final result, corrected to vacuum and averaged over five different mirrors, was 299,796 km/s, 4 km/s above today's value.[^michelson1927]
 
-Then came a wrong turn. For his last experiment Michelson ran light back and forth through a mile-long (1.6 km) steel pipe, pumped down to a partial vacuum, on the Irvine Ranch in southern California. He died on 9 May 1931 before it was finished. His colleagues Francis Pease and Fred Pearson published 2,885.5 determinations in 1935, averaging 299,774 km/s: 18 km/s too low.[^michelson1935][^otherhand] The accepted value in the following years sat low too. When Louis Essen at Britain's National Physical Laboratory published a microwave-cavity value of 299,792 km/s in 1947, 16 km/s above the accepted figure, he was not believed for several years. His number won only once it was shown to make radar ranging more accurate.[^essen2010]
+Then came a wrong turn. For his last experiment Michelson ran light back and forth through a mile-long (1.6 km) steel pipe, pumped down to a partial vacuum, on the Irvine Ranch in southern California. He died on 9 May 1931 before it was finished. His colleagues Francis Pease and Fred Pearson published 2,885.5 determinations in 1935, averaging 299,774 km/s: 18 km/s too low.[^michelson1935][^otherhand] The accepted value in the following years sat low too. In 1947 Louis Essen at Britain's National Physical Laboratory got 299,792 km/s from microwaves resonating in a metal cavity of known size, 16 km/s above the accepted figure, and was not believed for several years. His number won only once it was shown to make radar ranging more accurate.[^essen2010]
 
 ## Echoes: radar and mirrors on the Moon
 
-Timing light over a known distance gives you its speed. Once you trust the speed, timing an echo gives you the distance, and after the Second World War radar made that work on astronomical scales.
+Once you trust the speed, timing an echo gives you a distance. After the Second World War, radar made that work on astronomical scales.
 
-On 10 January 1946 a team of Army and civilian engineers at Camp Evans, New Jersey, bounced the signal of a modified SCR-270 radar off the Moon and detected the echo 2.5 seconds later.[^diana] In 1961 radar reached Venus. Between 6 March and 18 May, MIT's Lincoln Laboratory timed echoes with its Millstone Hill radar and derived an astronomical unit of 149,597,850 km, give or take 400 km; JPL's team at Goldstone found 149,598,845 km, give or take 250.[^pettengill1962][^muhleman1962] Before radar, published values had ranged all the way from 149,419,000 to 149,674,000 km.[^pettengill1962] The modern figure, 149,597,870.7 km, was fixed as an exact definition by the International Astronomical Union in 2012.[^iau2012]
+On 10 January 1946 a team of Army and civilian engineers at Camp Evans, New Jersey, bounced the signal of a modified SCR-270 radar off the Moon and detected the echo 2.5 seconds later.[^diana] In 1961 radar reached Venus. Between 6 March and 18 May, MIT's Lincoln Laboratory timed echoes with its Millstone Hill radar and derived an astronomical unit of 149,597,850 km, give or take 400 km; JPL's team at Goldstone found 149,598,845 km, give or take 250.[^pettengill1962][^muhleman1962] Before radar, published values ranged from 149,419,000 to 149,674,000 km.[^pettengill1962] The modern figure, 149,597,870.7 km, was fixed as an exact definition by the International Astronomical Union in 2012.[^iau2012] [How big is the Solar System?](#/learn/how-big-is-the-solar-system) tells the longer story of that number.
 
 ### A mirror on the Moon
 
 In July 1969 Apollo 11's crew left a panel of 100 corner-cube reflectors on the Moon. A corner cube is a glass prism shaped like the inside corner of a box, and it sends light back exactly the way it came. On 1 August astronomers at Lick Observatory in California fired a ruby laser through the 120-inch Shane telescope and caught the first returns.[^ucsc2019][^faller1969] Apollo 14 left another 100-cube array and Apollo 15 one with 300; two French-built arrays rode to the Moon on the Soviet Lunokhod rovers.[^murphy2013]
 
-Each shot is a stopwatch race:
+Each shot is one line of arithmetic:
 
 $$d = \frac{c\,t}{2}$$
 
 In words: the distance is the speed of light times the round-trip time, halved because the light went there and back.
 
-The average round trip between the centres of Earth and Moon is 2.568 s, so $d = 299{,}792\ \text{km/s} \times 2.568\ \text{s} \div 2 \approx 385{,}000$ km.[^murphy2013] Each millimetre of distance adds 6.67 picoseconds (trillionths of a second) to the round trip, and the best stations time returns to a few picoseconds.[^murphy2013][^apollobasics]
+The average round trip between the centres of Earth and Moon is 2.568 s, so $d = 299{,}792\ \text{km/s} \times 2.568\ \text{s} \div 2 \approx 385{,}000$ km.[^murphy2013] Each millimetre of distance adds 6.67 picoseconds (trillionths of a second) to the round trip, and the best stations time returns to a few picoseconds.[^murphy2013][^apollobasics] Timing is the easy part. Catching the returning photons, the individual particles of light, is hard.
 
 ::: numbers A photon's odds
 | Step | Figure |
@@ -155,17 +157,16 @@ The average round trip between the centres of Earth and Moon is 2.568 s, so $d =
 | Chance a photon hits the Apollo 11 array | about 1 in 25 million |
 | Width of the returning beam at Earth | about 15 km |
 | Photons detected per pulse, best case (3.5 m telescope) | 1 to 5 |
-| Round-trip time | 2.33 to 2.71 s |
 | Pulses in flight at once, firing 20 per second | about 50 |
 
 Figures from Tom Murphy's review and the APOLLO project at Apache Point Observatory.[^murphy2013][^apollobasics]
 :::
 
-More than fifty years of these echoes show the Moon drifting away by 3.8 cm a year, as tides slowly hand Earth's spin to the Moon's orbit. They show the Moon has a liquid core about 350 km in radius. They also test whether Earth and Moon fall towards the Sun at the same rate, as Einstein's gravity says they must, to better than one part in a trillion.[^murphy2013] The Lunokhod 1 reflector went unranged for almost 40 years because the rest of the world had lost track of exactly where the rover had parked. In March 2010 NASA's Lunar Reconnaissance Orbiter photographed it to within about 100 m, and ranging to it became possible again.[^murphy2011][^murphy2013] The reflectors are also getting fainter, most likely because a thin film of dust has settled on them.[^murphy2013]
+More than fifty years of these echoes show the Moon drifting away by 3.8 cm a year, as tides slowly hand Earth's spin to the Moon's orbit. They show the Moon has a liquid core about 350 km in radius. They also test whether Earth and Moon fall towards the Sun at the same rate, as Einstein's gravity says they must, to better than one part in a trillion.[^murphy2013] Nobody ranged the Lunokhod 1 reflector for almost 40 years, because nobody knew precisely where the rover had parked. In March 2010 NASA's Lunar Reconnaissance Orbiter photographed it to within about 100 m, and ranging to it became possible again.[^murphy2011][^murphy2013] The reflectors are also getting fainter, most likely because a thin film of dust has settled on them.[^murphy2013]
 
-### Light that takes the long way round
+### An echo held up by the Sun
 
-In 1964 Irwin Shapiro pointed out that general relativity predicts a radar echo passing close to the Sun should come back late, held up by the Sun's gravity.[^shapiro1964] For an echo from Venus that skims the edge of the Sun, the extra round-trip time works out to roughly 230 microseconds, as if Venus had moved about 35 km further away. His team measured the effect with planetary radar and published first results in 1968.[^shapiro1968] A later test, using radio signals to the Cassini spacecraft on its way to Saturn, matched Einstein's prediction to within a few parts in 100,000.[^bertotti2003]
+In 1964 Irwin Shapiro pointed out that general relativity, Einstein's theory of gravity, predicts that a radar echo passing close to the Sun should come back late.[^shapiro1964] For an echo from Venus that skims the edge of the Sun, the extra round-trip time works out to roughly 230 microseconds (millionths of a second), as if Venus had moved about 35 km further away. His team measured the effect with planetary radar and published first results in 1968.[^shapiro1968] A later test, using radio signals to the Cassini spacecraft on its way to Saturn, matched Einstein's prediction to within a few parts in 100,000.[^bertotti2003]
 
 ## The day we stopped measuring the speed of light
 
@@ -179,14 +180,14 @@ In words: a metre is however far light travels in a vacuum in one 299,792,458th 
 
 A nanosecond is a billionth of a second, and in that time light goes $299{,}792{,}458\ \text{m/s} \times 10^{-9}\ \text{s} = 0.2998$ m, just under 30 cm. The computer scientist Grace Hopper used to hand out 30 cm lengths of wire, "nanoseconds", to show audiences why smaller components make faster computers: no signal can cross a circuit faster than light crosses that distance.[^hopper]
 
-Since 1983 the speed of light has had no uncertainty in SI units, and it cannot be measured in them. If a laboratory times light over a baseline today and gets 299,792,459 m/s, it has learned nothing new about light. It has found an error of about 3 parts in a billion in its own length measurement, because its metre is made of light. The 2019 revision of the SI kept exactly this arrangement.[^bipmmetre] Astronomy followed suit: the astronomical unit has been exactly 149,597,870,700 m since 2012, and a light-year, the distance light covers in a Julian year of 365.25 days, is exactly 9,460,730,472,580.8 km.[^iau2012][^iauunits]
+Since 1983 the speed of light has had no uncertainty in SI units (the international metric system), and it cannot be measured in them. If a laboratory times light over a baseline today and gets 299,792,459 m/s, it has learned nothing new about light. It has found an error of about 3 parts in a billion in its own length measurement, because its metre is made of light. The 2019 revision of the SI kept exactly this arrangement.[^bipmmetre] Astronomy followed suit: the astronomical unit has been exactly 149,597,870,700 m since 2012, and a light-year, the distance light covers in a Julian year of 365.25 days, is exactly 9,460,730,472,580.8 km.[^iau2012][^iauunits]
 
 ::: myth The speed of light is exactly 299,792,458 m/s because it has been measured that precisely.
-The best measurements before 1983 were uncertain by about a metre per second.[^evenson1972] The value is exact because since 1983 the metre has been defined from it. Any error in a measurement now lands on the ruler, not on light.[^cgpm1983]
+The best measurements before 1983 were uncertain by about a metre per second.[^evenson1972] The number is exact because the metre has been defined from it since 1983.[^cgpm1983]
 :::
 
 ::: note One way or round trip?
-Nearly every precise measurement in this article timed a round trip: Fizeau, Foucault, Michelson, radar, lasers. Checking that light goes at the same speed out and back would need two distant clocks, and setting those clocks to agree already assumes something about the one-way speed. Einstein built this into his 1905 relativity paper by defining synchronised clocks that way, which is why physicists treat the equal-speed assumption as a convention rather than a measurement.[^einstein1905] [Why nothing outruns light](#/learn/nothing-outruns-light) picks up the thread.
+Nearly every measurement in this article timed a round trip. Checking that light goes at the same speed out and back would need two distant clocks, and setting those clocks to agree already assumes something about the one-way speed. Einstein built this into his 1905 relativity paper by defining synchronised clocks that way, which is why physicists treat the equal-speed assumption as a convention rather than a measurement.[^einstein1905] [Why nothing outruns light](#/learn/nothing-outruns-light) picks up the thread.
 :::
 
 ::: timeline Four centuries of timing light
@@ -194,18 +195,14 @@ Nearly every precise measurement in this article timed a round trip: Fizeau, Fou
 - **1676:** Rømer: light needs about 22 minutes to cross Earth's orbit.
 - **1729:** Bradley's aberration gives 8 min 12 s from the Sun.
 - **1849:** Fizeau's toothed wheel: 315,300 km/s.
-- **1862:** Foucault's spinning mirror: 298,000 km/s.
-- **1879:** Michelson at Annapolis: 299,940 km/s.
 - **1926:** Michelson at Mount Wilson: 299,796 km/s.
-- **1947:** Essen's microwave cavity: 299,792 km/s.
 - **1972:** Evenson's laser: 299,792,456.2 m/s, good to about 1 m/s.
 - **1983:** The metre is redefined, and c becomes exactly 299,792,458 m/s.
-- **2026:** Voyager 1 is due to reach one light-day from Earth on 18 November.
 :::
 
 ## Living with the delay
 
-The table gives the age of each view.
+With the speed fixed, every object in the sky comes with an age.
 
 ::: numbers How old is what you see?
 | Object | Light-time from Earth |
@@ -226,16 +223,16 @@ Planet ranges computed from the closest and farthest distances in NASA's planeta
 :::
 
 ::: see-it race-sunlight
-A pulse of light leaves the Sun and sweeps outward. It passes Mercury after about 3 minutes and Earth at 8 minutes 19 seconds, and it will not reach Neptune for more than four hours.
+Watch the pulse pass Mercury after about 3 minutes and Earth at 8 minutes 19 seconds. It will not reach Neptune for more than four hours.
 :::
 
 For Mars the delay rules out steering anything from Earth. When the Curiosity rover landed in August 2012, its descent through the Martian atmosphere took about seven minutes, while its radio signals took about 14 minutes to reach Earth. By the time engineers heard that the spacecraft had reached the top of the atmosphere, it had already been, in the words of the landing team's Adam Steltzner, "alive...or dead, on the surface, for at least seven minutes".[^steltzner] Every step of the landing had to be automatic.
 
 ::: see-it mars-opposition
-The app jumps to Mars's next opposition, in February 2027, when Earth passes between Mars and the Sun. Even at this closest approach, Mars will be about 5.6 light-minutes away.
+The app jumps to Mars's next opposition, in February 2027, when Earth passes between Mars and the Sun. Even this close, Mars will be about 5.6 light-minutes away.
 :::
 
-Astronomers who predict where a planet will appear have to decide whether they mean where it is now or where it was when the light reaching you set off. Jupiter moves along its orbit at about 13 km/s, so in the 33 to 54 minutes its light takes to reach us it travels 26,000 to 42,000 km, a good fraction of its own radius of about 70,000 km.[^nssdc]
+Astronomers who predict where a planet will appear have to decide whether they mean where it is now or where it was when the light now arriving set off. Jupiter moves along its orbit at about 13 km/s, so in the 33 to 54 minutes its light takes to reach us it travels 26,000 to 42,000 km, a good fraction of its own radius of about 70,000 km.[^nssdc]
 
 ::: see-it light-time-correction
 Every body is now drawn where it was when the light reaching Earth left it. Nearby bodies barely shift; the farther away something is, the older the position you are looking at.
@@ -243,14 +240,14 @@ Every body is now drawn where it was when the light reaching Earth left it. Near
 
 ### Voyager 1, one light-day out
 
-Voyager 1, launched in 1977, is the most distant spacecraft. On 25 September 2026 its radio signals take 23 hours 51 minutes to reach us.[^horizons] At 10:16 UTC on Wednesday 18 November 2026 (2:16 a.m. in California, where the mission is run) it will be 25.9 billion km from Earth: one light-day.[^lightday] A command sent on a Monday morning will get its answer on Wednesday morning. To save its dwindling power, engineers switched off the cosmic ray instrument in February 2025 and the low-energy particle instrument in April 2026; the magnetometer and plasma wave instrument still run.[^voyagerstatus] The spacecraft moves about 17 km/s away from the Sun, adding roughly half a light-hour to the delay every year.[^horizons]
+Voyager 1, launched in 1977, is the most distant spacecraft. On 25 September 2026 its radio signals take 23 hours 51 minutes to reach us.[^horizons] At 10:16 UTC on Wednesday 18 November 2026 (2:16 a.m. in California, where the mission is run) it will be 25.9 billion km from Earth: one light-day.[^lightday] A command sent on a Monday morning will get its answer on Wednesday morning. To save its dwindling power, engineers switched off the cosmic ray instrument in February 2025 and the low-energy particle instrument in April 2026; the magnetometer and plasma wave instrument still run.[^voyagerstatus] The spacecraft moves about 17 km/s away from the Sun, adding roughly half a light-hour to the delay every year.[^horizons] [The edges of the Solar System](#/learn/edges-of-the-solar-system) follows it out.
 
 ::: note Which moment counts as one light-day?
-NASA's time uses the distance between Earth and Voyager 1 at a single instant. The signal arriving at that instant left the spacecraft almost a day earlier, when it was about 1.5 million km closer to the Sun. Signals that have actually spent a full 24 hours in flight start arriving roughly 16 hours later, around 02:18 UTC on 19 November, according to JPL's Horizons ephemeris.[^horizons]
+NASA's time uses the distance between Earth and Voyager 1 at a single instant. The signal arriving at that instant left almost a day earlier, when the spacecraft was about 1.5 million km closer to the Sun. Signals that have spent a full 24 hours in flight start arriving roughly 16 hours later, around 02:18 UTC on 19 November.[^horizons]
 :::
 
 ::: see-it go:voyager1
-The camera glides out to Voyager 1, beyond the bubble of the Sun's wind, and shows its card. A signal from Earth takes nearly a day to catch up with it.
+Voyager 1 sits beyond the bubble of the Sun's wind. A signal from Earth takes nearly a day to catch up with it.
 :::
 
 ### Starlight and galaxy light
@@ -258,7 +255,7 @@ The camera glides out to Voyager 1, beyond the bubble of the Sun's wind, and sho
 Proxima Centauri, the nearest star, is just over four light-years away, so you see it as it was four years ago.[^eso1629] The Andromeda Galaxy is 2.5 million light-years away.[^m31] The James Webb Space Telescope has caught light from JADES-GS-z14-0, a galaxy seen as it was only about 290 million years after the Big Bang.[^jades] How far away that galaxy is today is a harder question than it looks, because space has been stretching while the light travelled; [The expanding universe](#/learn/the-expanding-universe) deals with that.
 
 ::: see-it go:jades-gs-z14-0
-The camera travels to one of the most distant galaxies known. The light we see from it set out about 13.5 billion years ago, when the universe was about 2% of its present age.
+The light we see from this galaxy set out about 13.5 billion years ago, when the universe was about 2% of its present age.
 :::
 
 ::: myth Most of the stars you see at night are already dead.
@@ -267,17 +264,17 @@ Most naked-eye stars are within about a thousand light-years, and stars live for
 
 ### A race 130 million years long
 
-On 17 August 2017 the LIGO and Virgo detectors caught gravitational waves from two neutron stars colliding about 130 million light-years away.[^ligo] The Fermi and INTEGRAL satellites recorded a burst of gamma rays from the same event 1.74 seconds later.[^gw170817] After a race lasting 130 million years, about $4 \times 10^{15}$ seconds, gravity and light finished less than two seconds apart. The discovery team turned this into a limit: the speed of gravity matches the speed of light to within a few parts in $10^{15}$.[^gw170817]
+On 17 August 2017 the LIGO and Virgo detectors caught gravitational waves, ripples in space itself, from a collision between two neutron stars (the collapsed cores of exploded stars) about 130 million light-years away.[^ligo] The Fermi and INTEGRAL satellites recorded a burst of gamma rays from the same event 1.74 seconds later.[^gw170817] After a race lasting 130 million years, about $4 \times 10^{15}$ seconds, gravity and light finished less than two seconds apart. The discovery team turned this into a limit: the speed of gravity matches the speed of light to within a few parts in $10^{15}$.[^gw170817]
 
 ## What comes next
 
 ### Voyager 1 crosses a light-day
 
-**Status:** on track for 18 November 2026 at 10:16 UTC; Voyager 2 is on pace to reach the same mark in November 2035.[^lightday] After that the delay keeps growing by about half a light-hour a year.[^horizons] NASA has not announced an end date for either mission. It depends on how long the power lasts and how many systems engineers can keep running, so any date is a guess.
+**Status:** on track for 18 November 2026 at 10:16 UTC; Voyager 2 is on pace to reach the same mark in November 2035.[^lightday] NASA has not announced an end date for either mission. It depends on how long the power lasts and how many systems engineers can keep running, so any date is a guess.
 
 ### Talking by laser
 
-NASA's Deep Space Optical Communications experiment flew on the Psyche spacecraft, launched on 13 October 2023 towards the asteroid belt.[^psyche] It achieved first light on 14 November 2023 from nearly 16 million km, when its photons took about 50 seconds to reach Earth.[^dsoc2023] On 11 December 2023 it sent a 15-second video of a JPL employee's cat, Taters, chasing a laser dot; the signal took 101 seconds to arrive, at 267 megabits per second.[^taters] On 3 December 2024 it set a distance record for laser communication at 494 million km, and it finished on 2 September 2025 after 65 passes and 13.6 terabits of data.[^dsoc2025][^dsocmission] At that record distance, each bit still took 27 minutes to arrive. Lasers carry far more data per second than radio, but they are no faster.
+NASA's Deep Space Optical Communications experiment flew on the Psyche spacecraft, launched on 13 October 2023 towards the asteroid belt.[^psyche] It made its first link on 14 November 2023 from nearly 16 million km, when its photons took about 50 seconds to reach Earth.[^dsoc2023] On 11 December 2023 it sent a 15-second video of a JPL employee's cat, Taters, chasing a laser dot; the signal took 101 seconds to arrive, at 267 megabits per second.[^taters] On 3 December 2024 it set a distance record for laser communication at 494 million km, and it finished on 2 September 2025 after 65 passes and 13.6 terabits of data.[^dsoc2025][^dsocmission] At that record distance, each bit still took 27 minutes to arrive. Lasers carry far more data per second than radio, but they are no faster.
 
 **Status:** DSOC is complete. On 7 July 2025 ESA made Europe's first deep-space laser link with Psyche, from two mountaintop observatories in Greece at a distance of 265 million km.[^esa2025] Artemis II, launched on 1 April 2026, carried a laser terminal around the Moon that was built to send data home at up to 260 megabits per second, enough for live 4K video.[^o2o][^sciam2026] Routine laser links from Mars do not yet have a firm date.
 

@@ -7,19 +7,19 @@ pitch: In 1846 a Paris mathematician told Berlin where to aim a telescope, and a
 updated: 2026-09-25
 ---
 
-On the morning of 23 September 1846 a letter from Paris reached Johann Gottfried Galle, an assistant at the Berlin Observatory. It came from Urbain Le Verrier, to whom Galle had sent a paper a year and a half earlier without a reply, and after a paragraph of overdue thanks it got to the point. Look at a certain spot on the ecliptic, Le Verrier wrote, and you should find an unknown planet with a disc a little over 3 arcseconds wide.[^krajnovic2021] That day was the 55th birthday of the observatory's director, Johann Franz Encke, who had a party to go to. He let Galle have the big Fraunhofer refractor for the night, and a student named Heinrich d'Arrest overheard and asked to come along.[^krajnovic2021]
+On the morning of 23 September 1846 a letter from Paris reached Johann Gottfried Galle, an assistant at the Berlin Observatory. It came from Urbain Le Verrier, who had never answered a paper Galle sent him a year and a half earlier, and after a paragraph of overdue thanks it got to the point. Look at a certain spot on the ecliptic, the Sun's yearly path through the stars, Le Verrier wrote, and you should find an unknown planet with a disc a little over 3 arcseconds wide (an arcsecond is 1/3,600 of a degree).[^krajnovic2021] That day was the 55th birthday of the observatory's director, Johann Franz Encke, who had a party to go to. He let Galle have the big Fraunhofer refractor for the night, and a student named Heinrich d'Arrest overheard and asked to come along.[^krajnovic2021]
 
-For about an hour they swept the area for a disc and found nothing they could be sure of. Then d'Arrest remembered a new star chart among Encke's papers, Hora XXI, part of a Berlin series meant to show every star down to about the ninth or tenth magnitude, printed only the year before.[^krajnovic2021][^aiplogo] Galle stayed at the eyepiece calling out stars while d'Arrest sat at a desk checking each one against the chart. Some time after ten o'clock Galle described a star of the eighth magnitude and d'Arrest could not find it. By his own account he exclaimed "that star is not on the map!"[^krajnovic2021]
+For about an hour they swept the area for a disc and found nothing they could be sure of. Then d'Arrest remembered a new star chart among Encke's papers, Hora XXI, part of a Berlin series meant to show every star down to about the ninth or tenth magnitude (bigger magnitudes are fainter), printed only the year before.[^krajnovic2021][^aiplogo] Galle stayed at the eyepiece calling out stars while d'Arrest sat at a desk checking each one against the chart. Some time after ten o'clock Galle described a star of the eighth magnitude and d'Arrest could not find it. By his own account he exclaimed "that star is not on the map!"[^krajnovic2021]
 
 The next night it had moved. It was a planet, about a degree from the place Le Verrier had named, and he had found it without a telescope. He had worked backwards from the way Uranus was drifting off course, with pen, paper, Newton's law of gravity and a year of calculation.
 
-That night was the high-water mark of an idea two centuries old: that the Solar System is clockwork, and anyone patient enough with the arithmetic can say where every part of it will be. Pushed harder, the same arithmetic would find its limits. Mercury would refuse to fit. A prize-winning memoir would turn out to contain a mistake that started chaos theory. And computers would show that nobody can say where Earth will be in its orbit 100 million years from now.
+That night was the high-water mark of an idea two centuries old: the Solar System as clockwork, where anyone patient enough with the arithmetic can say where every part will be. Then Mercury refused to fit, a prize-winning memoir turned out to hide the mistake that started chaos theory, and computers showed that nobody can say where Earth will be in its orbit 100 million years from now.
 
 ## Eight arcminutes
 
 In 1600 Johannes Kepler, a 28-year-old mathematics teacher from Graz, moved to Prague to work for the Danish astronomer Tycho Brahe.[^sepkepler][^mactutorkepler] Tycho had been measuring the positions of the planets by eye for more than twenty years; the telescope had not yet been invented. Kepler was put on the orbit of Mars, a job he came to call his war with Mars.[^mactutorkepler] When Tycho died in October 1601, Kepler inherited his post as Imperial Mathematician and, with it, the observations.[^sepkepler]
 
-Planetary models at the time were built from circles, including the Sun-centred system Copernicus had published in 1543. Kepler built the best circle model he could from ten oppositions of Mars in Tycho's records and two of his own. It matched the planet's positions along the ecliptic to within 2 arcminutes, as well as any theory of the day. Checked against other observations, it missed by 8 arcminutes, about a quarter of the width of the full Moon.[^sepkepler]
+Planetary models at the time were built from circles, including the Sun-centred system Copernicus had published in 1543. Kepler built the best circle model he could from ten oppositions of Mars (when Mars is opposite the Sun in the sky) in Tycho's records and two of his own. It matched the planet's positions along the ecliptic to within 2 arcminutes (sixtieths of a degree), as well as any theory of the day. Checked against other observations, it missed by 8 arcminutes, about a quarter of the width of the full Moon.[^sepkepler]
 
 The easy way out was to blame the data. Kepler trusted Tycho's observations to better than 8 arcminutes, so the circles had to go, and he wrote that those eight minutes alone would lead to the reform of all astronomy.[^sepkepler] His *Astronomia Nova*, published in 1609, replaced the circle with an ellipse.[^mactutorkepler]
 
@@ -30,7 +30,7 @@ Push two drawing pins into a board, drop a loop of string over them, pull it tig
 The second law says the line from the Sun to the planet sweeps out equal areas in equal times. Close to the Sun that line is short, so the planet must move faster to sweep the same area. Mercury swings between 46.0 and 69.8 million km from the Sun, and its speed between 58.97 and 38.86 km/s. At those two turning points speed times distance comes out the same: $58.97 \times 46.0 \approx 38.86 \times 69.8 \approx 2{,}713$. Earth's orbit is so nearly circular that its speed only changes from 30.29 to 29.29 km/s.[^nssdcmercury][^nssdcearth]
 
 ::: see-it year-in-30s
-Watch Mercury, the innermost dot. It whips round the Sun at its closest point and slows down on the far side, while Earth's pace barely changes through the year.
+Mercury, the innermost dot, whips round the Sun at its closest point and slows on the far side. Earth's pace barely changes all year.
 :::
 
 The third law took another decade. Kepler had the idea on 8 March 1618, botched the arithmetic and threw it away, then returned to it on 15 May, when, as he put it, it "stormed the darkness of my mind".[^mactutorkepler] It appeared in *Harmonices Mundi* in 1619:
@@ -39,7 +39,7 @@ $$T^2 = a^3$$
 
 In words: the square of the orbital period, in years, equals the cube of the average distance from the Sun, in astronomical units (au, the average Earth-Sun distance).
 
-Halley's comet has an average distance of 17.93 au.[^horizons] Cube it: $17.93^3 \approx 5{,}764$. The square root of 5,764 is 75.9, so the comet should come round every 75.9 years, which it does, give or take a few years as the planets tug on it. The law turns a clock into a ruler: time how long something takes to go round the Sun and you know how far out it lives, whether it is a planet, a comet, or a planet nobody has seen yet.
+Halley's comet has an average distance of 17.93 au.[^horizons] Cube it: $17.93^3 \approx 5{,}764$. The square root of 5,764 is 75.9, so the comet should come round every 75.9 years, which it does, give or take a few years as the planets tug on it. The law turns a clock into a ruler: time how long something takes to go round the Sun and you know how far out it lives.
 
 ## Newton's answer
 
@@ -67,12 +67,12 @@ Halley turned the new theory on comets. The comets of 1531, 1607 and 1682 had al
 
 Working out the planets' pull in detail fell to the French. In June 1757 the astronomer Jérôme Lalande asked the mathematician Alexis Clairaut for a method, and Clairaut produced one that needed a vast amount of arithmetic: the pulls of Jupiter and Saturn on the comet, degree by degree along its path, over 150 years. Lalande did the sums with Nicole-Reine Lepaute. "During six months we calculated from morning to night, sometimes even at meals," he recalled.[^mactutorlepaute] On 14 November 1758 Clairaut told the Paris Academy the comet would pass closest to the Sun in mid-April 1759, give or take a month.[^mactutorclairaut][^hughes1987] When he published the method in 1760 he left Lepaute's name off the list of helpers. Lalande did not.[^mactutorlepaute]
 
-In Paris the young Charles Messier hunted for months along a track worked out by his employer, Joseph-Nicolas Delisle, which was wrong. Along the way, while following a different comet in 1758, he logged a fuzzy patch in Taurus that never moved. It became M1, the first entry in his catalogue of things that are not comets, now called the Crab Nebula.[^seds] On Christmas night 1758 a German amateur astronomer, Johann Georg Palitzsch, found Halley's comet. Messier picked it up on 21 January 1759, but Delisle would not let him announce it until 1 April.[^seds]
+In Paris the young Charles Messier hunted for months along a track worked out by his employer, Joseph-Nicolas Delisle, which was wrong. While following a different comet in 1758 he logged a fuzzy patch in Taurus that never moved: M1, now the Crab Nebula, the first entry in his catalogue of things that are not comets.[^seds] On Christmas night 1758 a German amateur astronomer, Johann Georg Palitzsch, found Halley's comet. Messier picked it up on 21 January 1759, but Delisle would not let him announce it until 1 April.[^seds]
 
-The comet passed perihelion on 13 March 1759, a month before Clairaut's date and inside his margin.[^hughes1987][^horizons] It was the first comet ever to return on a predicted schedule.[^hughes1987] For the 1910 return the calculation was 2.7 days out, a gap that led astronomers to realise the comet's own jets of gas push it around. With the jets built in, the prediction for 1986 was out by about five hours.[^hughes1987]
+The comet passed perihelion, its closest point to the Sun, on 13 March 1759, a month before Clairaut's date and inside his margin.[^hughes1987][^horizons] It was the first comet ever to return on a predicted schedule.[^hughes1987] For the 1910 return the calculation was 2.7 days out, a gap that led astronomers to realise the comet's own jets of gas push it around. With the jets built in, the prediction for 1986 was out by about five hours.[^hughes1987]
 
 ::: see-it go:halley
-The camera flies out to Halley's comet. It passed the far end of its orbit, 35 au from the Sun, in December 2023 and is now falling back in.
+Halley's comet passed the far end of its orbit, 35 au from the Sun, in December 2023 and is now falling back in.
 :::
 
 ::: myth Edmond Halley discovered Halley's comet.
@@ -81,12 +81,12 @@ It had been recorded for nearly two thousand years before him; the earliest iden
 
 ## A planet nobody ordered
 
-William Herschel was a professional musician in Bath, organist at the Octagon Chapel, who built telescopes at home with his sister Caroline.[^herschelmuseum] Between ten and eleven on the evening of Tuesday 13 March 1781, sweeping the stars near H Geminorum for a project on stellar distances, he noticed one that looked bigger than the rest and "suspected it to be a comet". Stars stay points of light however much you magnify them; planets and comets swell. He raised the magnification from 227 to 460 and then 932, and the object grew each time.[^herschel1781] He reported it as one to the Royal Society in April. (The project it interrupted is part of [How far are the stars?](#/learn/how-far-are-the-stars).)
+William Herschel was a professional musician in Bath, organist at the Octagon Chapel, who built telescopes at home with his sister Caroline.[^herschelmuseum] Between ten and eleven on the evening of Tuesday 13 March 1781, sweeping the stars near H Geminorum for a project on stellar distances, he noticed one that looked bigger than the rest and "suspected it to be a comet". Stars stay points of light however much you magnify them; planets and comets swell. He raised the magnification from 227 to 460 and then 932, and the object grew each time.[^herschel1781] In April he reported a comet to the Royal Society. (The project it interrupted is part of [How far are the stars?](#/learn/how-far-are-the-stars).)
 
 Anders Lexell worked out the orbit: nearly circular and about twice as far from the Sun as Saturn, the orbit of a planet.[^mactutorlexell] Herschel wanted to call it Georgium Sidus, George's Star, after King George III; the name that stuck, Uranus, was suggested by the Berlin astronomer Johann Bode.[^nasauranus] At 19.2 au, it doubled the size of the known Solar System overnight.[^nssdcuranus] [How big is the Solar System?](#/learn/how-big-is-the-solar-system) puts that in scale. Lexell noticed something else, too: even in the first observations, Uranus seemed to be pulled by something farther out.[^mactutorlexell]
 
 ::: see-it go:uranus
-The camera glides to Uranus. Its orbit takes 84 years, so astronomers had watched it for only about half a lap when the trouble started.
+Uranus takes 84 years to go round, so astronomers had watched it for only about half a lap when the trouble started.
 :::
 
 ## Uranus goes off script
@@ -103,7 +103,7 @@ In Paris, Le Verrier, then 34, took up the problem in 1845 at the urging of Fran
 
 ## Right place, wrong orbit
 
-The letter to Galle opened with thanks for his paper on old observations made by Ole Rømer, the man who first showed that light takes time to travel (see [Light takes time](#/learn/light-takes-time)). Then it changed subject. The observations of Uranus, Le Verrier wrote, could not be satisfied without a new planet, and there was only one place on the ecliptic where it could be. He listed its orbit.[^krajnovic2021]
+The overdue thanks in the letter to Galle were for his paper on old observations by Ole Rømer, the man who first showed that light takes time to travel (see [Light takes time](#/learn/light-takes-time)). Then Le Verrier changed subject: the observations of Uranus could not be satisfied without a new planet, and there was only one place on the ecliptic where it could be. He listed its orbit.[^krajnovic2021]
 
 ::: numbers Le Verrier's planet against the real Neptune
 | | Le Verrier, 18 September 1846 | Neptune |
@@ -124,23 +124,23 @@ On 24 September the new object had shifted against the stars in the direction Le
 The position was good, just over a degree off (1° 03′), though Le Verrier himself, thanking Galle, called it less than a degree.[^krajnovic2021] The orbit was not: Le Verrier's planet was too far out and about twice too heavy, and Adams's was too far out as well. Both predicted orbits ran close to the real Neptune around 1840 to 1850, the years that mattered, and far from it at other times.[^mactutorneptune]
 :::
 
-An orbit that is right over the stretch you have data for is as much as the data can tell you. Adams, for one, simply assumed the planet was twice as far from the Sun as Uranus and solved for everything else.[^mactutorneptune]
+The Uranus data could pin down where the planet was in the 1840s and not much more. Adams, for one, simply assumed the planet was twice as far from the Sun as Uranus and solved for the rest.[^mactutorneptune]
 
 The row that followed was bitter. Once the news reached England, John Herschel, William's son, made public that Adams had reached a similar answer the year before, and Adams presented his calculations to the Royal Astronomical Society that November.[^adams1846][^mactutorneptune] The British story became that Adams had got there first and Airy had sat on it. Then the Royal Greenwich Observatory's Neptune file, missing for decades, turned up in Chile in 1999. The historian Nicholas Kollerstrom concluded from it that Adams's predicted positions had wandered over as much as 20 degrees, and that the British had searched for six weeks without success while Berlin, once it had the right chart, needed under half an hour.[^bbc2003][^kollerstrom][^mactutorneptune] Historians still argue about how much credit Adams deserves.
 
 Neptune had been seen long before. Galileo drew it as a star near Jupiter on 28 December 1612 and again in January 1613, and even noted it shifting against a neighbouring star.[^kowal1980][^mactutorneptune]
 
 ::: see-it go:neptune
-The camera flies to Neptune, 30 au out. It has completed only one lap of the Sun since Galle found it.
+Neptune, 30 au out, has completed only one lap of the Sun since Galle found it.
 :::
 
 ## Vulcan and the missing 43 arcseconds
 
-Le Verrier became director of the Paris Observatory in 1854 and set about rebuilding the theory of every planet.[^mactutorleverrier] Mercury would not behave. In a letter to the Academy on 12 September 1859 he showed that the recorded transits of Mercury, when it crosses the face of the Sun, could all be fitted to within a second, but only if the point of Mercury's closest approach to the Sun turned 38 arcseconds per century faster than the known planets could make it turn.[^leverrier1859]
+Le Verrier became director of the Paris Observatory in 1854 and set about rebuilding the theory of every planet.[^mactutorleverrier] Mercury would not behave. In a letter to the Academy on 12 September 1859 he showed that the recorded transits of Mercury, when it crosses the face of the Sun, could all be fitted to within a second, but only if Mercury's perihelion turned 38 arcseconds per century faster than the known planets could make it turn.[^leverrier1859]
 
 After Neptune the answer looked obvious: another unseen planet, this time inside Mercury's orbit. Le Verrier worked out that a single planet at a little under half Mercury's distance would need Mercury's own mass, and pointed out that something so bright should have been seen at eclipses or crossing the Sun. He suggested a ring of small bodies instead.[^leverrier1859]
 
-Three months later a letter came from Edmond Lescarbault of Orgères, who said he had seen a planet cross the Sun nine months before. Le Verrier went to see him and, according to a contemporary account, opened with "It is then you, Sir, who pretend to have observed the intra-Mercurial planet".[^mactutorleverrier] Lescarbault satisfied him. The planet got a name, Vulcan, and for decades astronomers hunted it at eclipses and watched the Sun for transits; Le Verrier himself went to Spain for the eclipse of July 1860. Reports came and went, and none held up.[^mactutorleverrier] Lick Observatory photographed the sky round the Sun at the eclipses of 1901, 1905 and 1908 and found about three hundred stars down to the ninth magnitude, every one already known. Its director, W. W. Campbell, called the search closed.[^campbell1908]
+Three months later a letter came from Edmond Lescarbault of Orgères, who said he had seen a planet cross the Sun nine months before. Le Verrier went to see him and, according to a contemporary account, opened with "It is then you, Sir, who pretend to have observed the intra-Mercurial planet".[^mactutorleverrier] Lescarbault satisfied him. The planet got a name, Vulcan, and for decades astronomers hunted it at eclipses and in front of the Sun; Le Verrier himself went to Spain for the eclipse of July 1860. None of the sightings held up.[^mactutorleverrier] Lick Observatory photographed the sky round the Sun at the eclipses of 1901, 1905 and 1908 and found about three hundred stars down to the ninth magnitude, every one already known. Its director, W. W. Campbell, called the search closed.[^campbell1908]
 
 The problem stayed. Seen from Earth, Mercury's perihelion turns about 5,600 arcseconds per century. The slow wobble of Earth's own axis accounts for 5,026 of those and the other planets for 531, which leaves 43 arcseconds per century unexplained.[^mactutorleverrier]
 
@@ -154,10 +154,10 @@ In words: the angle the orbit turns each lap, in radians, is six times pi times 
 
 The combination $GM/c^2$ is the Sun's gravity expressed as a length, 1,477 m. For Mercury, $a = 5.791 \times 10^{10}$ m and $1 - e^2 = 1 - 0.2056^2 = 0.958$.[^nssdcmercury] So $\Delta\phi = 6\pi \times 1{,}477 \div (5.791 \times 10^{10} \times 0.958) = 5.02 \times 10^{-7}$ radians per orbit. One radian is 206,265 arcseconds, so that is 0.1035 arcseconds per orbit. Mercury goes round 415.2 times a century ($36{,}525 \div 87.97$ days), and $415.2 \times 0.1035 = 42.98$ arcseconds per century.
 
-The modern value of the unexplained advance is 43 arcseconds per century.[^will2014] No extra planet, no ring of dust: the 43 arcseconds were the first measured crack in Newton's gravity. Einstein's theory also changes how clocks tick near massive bodies, which [Time dilation is real](#/learn/time-dilation) follows up.
+The modern value of the unexplained advance is 43 arcseconds per century.[^will2014] No extra planet, no ring of dust: the 43 arcseconds were the first measured crack in Newton's gravity. [Time dilation is real](#/learn/time-dilation) covers what the same theory does to clocks.
 
 ::: see-it go:mercury
-The camera flies to Mercury. Einstein's share of its orbit's turning is about a tenth of an arcsecond each 88-day lap, and it took more than a century of transit timings to catch it.
+Einstein's share of the turning of Mercury's orbit is about a tenth of an arcsecond each 88-day lap. It took more than a century of transit timings to catch it.
 :::
 
 ## Poincaré's expensive mistake
@@ -170,9 +170,9 @@ The corrected memoir of 1890 is regarded as the birth of chaos theory.[^mactutor
 
 ## How far ahead can we see?
 
-In the 1770s and 1780s Joseph-Louis Lagrange and Pierre-Simon Laplace had shown that the planets' orbits only rock back and forth, over periods from tens of thousands to millions of years, and cannot drift apart. The proof held only in an approximation.[^laskar2013] Testing it properly had to wait for computers that could follow the planets for hundreds of millions of years.
+In the 1770s and 1780s Joseph-Louis Lagrange and Pierre-Simon Laplace had shown that the planets' orbits only rock back and forth, over periods from tens of thousands to millions of years, and cannot drift apart. The proof held only in an approximation.[^laskar2013] Testing it properly had to wait for computers.
 
-In 1988 Gerald Sussman and Jack Wisdom found that Pluto's orbit is chaotic.[^sussman1988] In 1989 Jacques Laskar in Paris showed the same for the inner planets, Mercury, Venus, Earth and Mars.[^laskar1989] Chaos is measured by the Lyapunov time, the time for a small uncertainty to grow by a factor of $e \approx 2.7$: about 20 million years for Pluto and about 5 million years for the inner Solar System.[^laskar2013] A factor of ten is easier to work with, and Laskar's own example comes out close to a tenfold growth every 10 million years:
+In 1988 Gerald Sussman and Jack Wisdom found that Pluto's orbit is chaotic.[^sussman1988] In 1989 Jacques Laskar in Paris showed the same for the inner planets: Mercury, Venus, Earth and Mars.[^laskar1989] Chaos is measured by the Lyapunov time, the time for a small uncertainty to grow by a factor of about 2.7 (the constant e, not the eccentricity): about 20 million years for Pluto and about 5 million years for the inner Solar System.[^laskar2013] A factor of ten is easier to work with, and Laskar's own example works out to roughly tenfold every 10 million years:
 
 $$\delta = \delta_0 \times 10^{\,t/T}$$
 
@@ -196,7 +196,7 @@ The weak spot is a near match between how fast Mercury's perihelion turns and ho
 
 In 1867 Daniel Kirkwood, a mathematics professor in Pennsylvania, published a table of the ninety or so asteroids then known, sorted by period. The widest empty stretches, he pointed out, lay where an asteroid's period would be a simple fraction of Jupiter's. An asteroid at about 2.5 au would go round exactly three times for each lap of Jupiter, meet Jupiter at the same points again and again, and have its orbit stretched by the repeated tugs.[^kirkwood1867] He compared it to the gap in Saturn's rings.
 
-This is resonance, and it works like pushing someone on a swing: random pushes cancel out, pushes in time with the swing add up. The third law says where the gaps should be. Jupiter is 5.20 au from the Sun, so its period is $5.20^{3/2} = 11.9$ years.[^jplelements] A third of that is 3.96 years, and $a = 3.96^{2/3} = 2.50$ au. The same sum puts the 5:2, 7:3 and 2:1 gaps at 2.82, 2.96 and 3.28 au, and a JPL histogram of nearly 157,000 asteroids shows the gaps exactly there.[^jplhist] In 1982 Wisdom showed that orbits in the 3:1 gap are chaotic, and later work found that asteroids there are pushed onto planet-crossing orbits within a few million years, which is how the gaps get emptied.[^wisdom1982][^moons1995]
+This is resonance, and it works like pushing someone on a swing: random pushes cancel out, pushes in time with the swing add up. The third law says where the gaps should be. Jupiter is 5.20 au from the Sun, so its period is the square root of $5.20^3$, or 11.9 years.[^jplelements] A third of that is 3.96 years, and running the law backwards, the cube root of $3.96^2$ is 2.50 au. The same sum puts the 5:2, 7:3 and 2:1 gaps (five laps to Jupiter's two, and so on) at 2.82, 2.96 and 3.28 au, and a JPL histogram of nearly 157,000 asteroids shows the gaps exactly there.[^jplhist] In 1982 Wisdom showed that orbits in the 3:1 gap are chaotic, and later work found that asteroids there are pushed onto planet-crossing orbits within a few million years, which is how the gaps get emptied.[^wisdom1982][^moons1995]
 
 Resonance can also protect. Pluto goes round the Sun twice for every three laps of Neptune, 247.9 years against 164.8, and the lock keeps the two apart even though Pluto's orbit crosses Neptune's.[^cohen1965][^nssdcpluto] Around Jupiter, Io, Europa and Ganymede take 1.769, 3.551 and 7.155 days, each almost exactly double the one inside it.[^nssdcjupsat] The regular tugs keep Io's orbit slightly out of round, so Jupiter's tides flex it constantly, and in 1979 Stanton Peale and colleagues predicted that Io's interior would be melted.[^peale1979] Voyager 1 found volcanoes there that year, and Io is now known as the most volcanically active world in the Solar System.[^nasaio] [Worlds around worlds: the moons](#/learn/worlds-around-worlds) has more.
 
@@ -208,9 +208,9 @@ Chaos shows up in spin too. Saturn's moon Hyperion, a porous, heavily cratered l
 
 ## Borrowing speed from a planet
 
-Throw a tennis ball at the front of an oncoming train and it bounces off faster than it arrived, having picked up some of the train's speed.[^nasaprimer] A spacecraft passing close behind a planet does the same through gravity. Relative to the planet, it leaves as fast as it came, in a new direction. Relative to the Sun, it has taken on some of the planet's orbital motion, and the planet slows by a matching, unmeasurably small amount.
+Throw a tennis ball at the front of an oncoming train and it bounces off faster than it arrived, having picked up some of the train's speed.[^nasaprimer] A spacecraft passing close behind a planet does the same through gravity. Relative to the planet, it leaves as fast as it came, in a new direction. Relative to the Sun, it has taken on some of the planet's orbital motion.
 
-Mariner 10 was the first spacecraft to use one planet's gravity to reach another, swinging past Venus in 1974 on its way to Mercury.[^nasamariner10] Voyager 2 used an arrangement of Jupiter, Saturn, Uranus and Neptune that comes round about every 175 years, and its launch gave it only enough energy to reach Jupiter.[^nasagrandtour][^nasaprimer] According to JPL's ephemeris, at the end of June 1979 it was coasting at 9.9 km/s relative to the Sun, well below the 18.3 km/s needed to escape from that distance. By 20 July, past Jupiter, it was doing 20.9 km/s and had left the Sun's grip for good. Saturn took it from 15.6 to about 20.4 km/s in 1981, and Uranus from 17.9 to 19.7 km/s in 1986, measured a month after each flyby.[^horizons] In exchange Jupiter's speed changed by the spacecraft's 722 kg times 11 km/s divided by Jupiter's mass, about $4 \times 10^{-21}$ m/s.[^nssdcvoyager2] In a trillion years that would leave Jupiter 13 cm behind schedule.
+Mariner 10 was the first spacecraft to use one planet's gravity to reach another, swinging past Venus in 1974 on its way to Mercury.[^nasamariner10] Voyager 2 used an arrangement of Jupiter, Saturn, Uranus and Neptune that comes round about every 175 years, and its launch gave it only enough energy to reach Jupiter.[^nasagrandtour][^nasaprimer] At the end of June 1979 it was coasting at 9.9 km/s relative to the Sun, well below the 18.3 km/s needed to escape from that distance. By 20 July, past Jupiter, it was doing 20.9 km/s and had left the Sun's grip for good. Saturn took it from 15.6 to about 20.4 km/s in 1981, and Uranus from 17.9 to 19.7 km/s in 1986, measured a month after each flyby.[^horizons] In exchange Jupiter's speed changed by the spacecraft's 722 kg times 11 km/s divided by Jupiter's mass, about $4 \times 10^{-21}$ m/s.[^nssdcvoyager2] In a trillion years that would leave Jupiter 13 cm behind schedule.
 
 ::: myth Gravity assists give spacecraft energy for free.
 The energy comes from the planet. The spacecraft's gain is the planet's loss, shared between a spacecraft of a few hundred kilograms and a planet of around $10^{27}$ kg, so the planet's change is far too small to notice.[^nasaprimer]
@@ -219,30 +219,30 @@ The energy comes from the planet. The spacecraft's gain is the planet's loss, sh
 Assists work in reverse too. Falling towards the Sun speeds a spacecraft up, and the European and Japanese probe BepiColombo, launched in 2018, has needed nine flybys (Earth once, Venus twice, Mercury six times) to shed enough speed to stay at Mercury. ESA notes that entering orbit there takes more energy than a trip to Pluto.[^esabepifacts]
 
 ::: see-it go:voyager2
-The camera flies to Voyager 2, 144 au out, still coasting on the speed Jupiter, Saturn and Uranus lent it more than forty years ago.
+Voyager 2 is 144 au out, still coasting on the speed Jupiter, Saturn and Uranus lent it more than forty years ago.
 :::
 
 ## The planet that might be there
 
 The pencil method has one embarrassing near-miss. Percival Lowell predicted a Planet X beyond Neptune, and in 1930 Clyde Tombaugh found Pluto near where Lowell had pointed. But Pluto has about 0.002 Earth masses, where Lowell's calculations needed seven. The find was luck.[^mactutorneptune]
 
-The new case rests on bodies far beyond Neptune. Sedna, found in 2003, never comes closer to the Sun than 76 au, and in 2014 Chadwick Trujillo and Scott Sheppard announced 2012 VP113, which stays beyond 80 au, and pointed out that the most distant objects of this kind had oddly similar orbital orientations.[^sbdb][^trujillo2014] On 20 January 2016 Konstantin Batygin and Mike Brown of Caltech argued that the orbits of the most distant of these objects were lined up in space, with only a 0.007% chance of that happening by accident, and that a planet of at least about 10 Earth masses on a distant, stretched orbit could herd them.[^batygin2016] Their 2021 update put it at 6.2 Earth masses with an average distance of about 380 au, and the clustering at the 99.6% confidence level.[^brown2021]
+The new case rests on bodies far beyond Neptune. Sedna, found in 2003, never comes closer to the Sun than 76 au. In 2014 Chadwick Trujillo and Scott Sheppard announced 2012 VP113, which stays beyond 80 au, and pointed out that the most distant objects of this kind had oddly similar orbital orientations.[^sbdb][^trujillo2014] On 20 January 2016 Konstantin Batygin and Mike Brown of Caltech argued that those orbits were lined up in space, with only a 0.007% chance of that happening by accident, and that a planet of at least about 10 Earth masses on a distant, stretched orbit could herd them.[^batygin2016] Their 2021 update put it at 6.2 Earth masses with an average distance of about 380 au, and the clustering at the 99.6% confidence level.[^brown2021]
 
 Not everyone accepts the clustering. Telescopes find distant objects mainly where and when they look, and a 2021 study that allowed for the pointing records of three surveys found 14 of these objects consistent with orbits pointing in random directions.[^napier2021] Others see clustering but a different planet: a study first posted in 2024 by Amir Siraj, Christopher Chyba and Scott Tremaine prefers one of about 4.4 Earth masses at 290 au.[^siraj2025] In 2025 an international team reported 2023 KQ14, nicknamed Ammonite, whose orbit points the wrong way to belong to the cluster; if a distant planet exists, they argue, it is probably around 500 au out.[^chen2025]
 
-The searches have come up empty so far. Pan-STARRS rules out a Planet Nine down to magnitude 21.5, and together with two other surveys it excludes 78% of the orbits Brown and Batygin predicted in 2021. Much of what remains is fainter than magnitude 21, near where the Milky Way crosses the planets' path, in crowded star fields where a faint mover is easy to miss.[^brown2024] As of September 2026 nobody has reported seeing it. [The edges of the Solar System](#/learn/edges-of-the-solar-system) covers the region where it would live.
+The Pan-STARRS survey rules out a Planet Nine down to magnitude 21.5, and together with two other surveys it excludes 78% of the orbits Brown and Batygin predicted in 2021. Much of what remains is fainter than magnitude 21, near where the Milky Way crosses the planets' path, in crowded star fields where a faint mover is easy to miss.[^brown2024] As of September 2026 nobody has reported seeing it. [The edges of the Solar System](#/learn/edges-of-the-solar-system) covers where it would live.
 
 ::: see-it go:sedna
-The camera flies to Sedna, one of the distant objects whose orbits started the argument. It takes more than ten thousand years to go round once.
+Sedna is one of the distant objects whose orbits started the argument. It takes more than ten thousand years to go round once.
 :::
 
 ## What comes next
 
 ### Rubin Observatory's ten-year survey
 
-The Vera C. Rubin Observatory in Chile released its first images on 23 June 2025 and began the Legacy Survey of Space and Time in late June 2026.[^rubinfirstlook][^rubinlsst] With an 8.4 m mirror and a 3.2-gigapixel camera, it will photograph each patch of the southern sky about 800 times over ten years, reaching about magnitude 24.5 in a single visit, and its planners expect orbits for about 6 million Solar System bodies.[^rubinnumbers][^ivezic2019] Most of the places where Planet Nine could still hide are at magnitude 21 or fainter, so Rubin should see it if it lies in the survey area and is not lost in a crowded star field.[^brown2024] Finding many more distant objects, with well-understood biases, should also show whether the clustering is real.
+The Vera C. Rubin Observatory in Chile released its first images on 23 June 2025 and began the Legacy Survey of Space and Time in late June 2026.[^rubinfirstlook][^rubinlsst] With an 8.4 m mirror and a 3.2-gigapixel camera, it will photograph each patch of the southern sky about 800 times over ten years, reaching about magnitude 24.5 in a single visit, and its planners expect orbits for about 6 million Solar System bodies.[^rubinnumbers][^ivezic2019] Planet Nine's remaining hiding places are mostly at magnitude 21 or fainter, so Rubin should see it if it lies in the survey area and is not lost in a crowded star field.[^brown2024] A large sample of distant objects with well-understood biases should also show whether the clustering is real.
 
-**Status:** survey running since June 2026. When it settles the Planet Nine question depends on where the planet is, if it exists, so no date can be given.
+**Status:** survey running since June 2026. No date can be given for a Planet Nine answer; that depends on where the planet is, if it exists.
 
 ### BepiColombo arrives at Mercury
 
@@ -252,16 +252,16 @@ BepiColombo dropped its cruise module on 3 September 2026. It is due to enter or
 
 ### Apophis passes Earth, 13 April 2029
 
-The asteroid Apophis will pass about 32,000 km above Earth's surface on 13 April 2029, closer than geostationary satellites. NASA's OSIRIS-APEX spacecraft, which flew past Earth on 23 September 2025, is on its way to study how the close pass changes the asteroid, arriving in June 2029, about two months after the flyby.[^nasaapophis][^nasaapex] The date, the distance and the fact that it will miss were all calculated years ahead.
+The asteroid Apophis will pass about 32,000 km above Earth's surface on 13 April 2029, closer than geostationary satellites. NASA's OSIRIS-APEX spacecraft, which flew past Earth on 23 September 2025, is on its way to study how the close pass changes the asteroid, arriving in June 2029.[^nasaapophis][^nasaapex]
 
 **Status:** flyby date fixed by orbital mechanics; OSIRIS-APEX due to arrive in June 2029.
 
 ### Halley comes back, 28 July 2061
 
-JPL's orbit puts Halley's next perihelion on 28 July 2061, 0.59 au from the Sun.[^horizons] This time Earth will be on the same side of the Sun: the comet will be about 0.48 au from us around 30 July, though only about 21 degrees from the Sun in the sky. In February 1986 it went round the far side of the Sun, 1.55 au from Earth.[^horizons] The date will be refined once the comet is picked up on its way in, and its jets will still shift it by hours.[^hughes1987] How bright it will get is anyone's guess until then.
+JPL's orbit puts Halley's next perihelion on 28 July 2061, 0.59 au from the Sun.[^horizons] This time Earth will be on the same side of the Sun: the comet will be about 0.48 au from us around 30 July, though only about 21 degrees from the Sun in the sky. In February 1986 it went round the far side of the Sun, 1.55 au from Earth.[^horizons] The date will be refined once the comet is picked up on its way in, and its jets will still shift it by hours.[^hughes1987] Nobody can say yet how bright it will get.
 
 ::: see-it date:2061-07-28
-The date jumps to 28 July 2061. Find Halley's comet near the Sun, swinging through perihelion on the same side as Earth.
+On 28 July 2061, look for Halley's comet near the Sun, passing perihelion on the same side as Earth.
 :::
 
 **Status:** orbit known; brightness uncertain.

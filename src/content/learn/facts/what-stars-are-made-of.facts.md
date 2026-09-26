@@ -195,3 +195,10 @@ One line per fact: claim | value | source | status. Adversarial fact-check pass 
 - IHEP JUNO release: data from 26 Aug 2025; first physics result released in Nature on 10 June 2026 (59 days of data); 20,000 t; 700 m underground | verified
 - Maiolino 2024 (arXiv abstract): >5 sigma He II 1640 clump near GN-z11 at z = 10.6, no metal lines, consistent with Pop III, alternatives discussed | verified
 - Online links (NIST ASD, NOIRLab solar spectrum image, NIST Wien constant, Nobel summaries, SURF, ChemTeam, archive.org items) return HTTP 200 on 25 Sep 2026 | verified
+
+## Cross-article consistency pass (25 September 2026)
+
+Numbers shared with other Learn articles were compared across all 16 articles; changes made here for agreement are listed below.
+
+- Leavitt cross-link pointed to How far are the stars?, which does not tell the Cepheid story | n/a | n/a | corrected: link now points to Island universes; How far are the stars? is linked instead where stellar distances are mentioned
+- LSST start | 'on 30 June 2026 began' -> 'at the end of June 2026 began' (announced on 30 June) | NOIRLab noirlab2616 | reworded to match Clockwork and chaos, Edges of the Solar System and The edge of reach

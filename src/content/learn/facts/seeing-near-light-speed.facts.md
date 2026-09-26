@@ -182,3 +182,9 @@ Fact-check pass of 25 September 2026: every claim below was re-checked against t
 - https://oikofuge.com/the-myth-of-the-starbow/ | 19 Sept 2018 | verified
 - https://archive.org/details/ueberdasfarbigel00doppuoft | 1903 Studnicka reprint | verified
 - arXiv IDs 0708.3454, 1409.7951, 1303.5087, 1905.04330, 2505.23526, 2409.04296 match the papers they are attached to | verified
+
+## Cross-article consistency pass (25 September 2026)
+
+Numbers shared with other Learn articles were compared across all 16 articles; changes made here for agreement are listed below.
+
+- Style: 'Virgo cluster' -> 'Virgo Cluster'; 'percent' -> 'per cent'; 'cosmic microwave background (CMB)' introduced at first use | n/a | n/a | style
