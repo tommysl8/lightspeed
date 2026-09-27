@@ -24,8 +24,11 @@ import { openJourneys, openSearch, toggleLab } from '../onboarding';
 import { Icon } from '../icons';
 import { constellationsShown, toggleConstellations } from '../constellations';
 import { planetHostsShown, togglePlanetHosts } from '../planetHosts';
+import { cosmicWebShare, toggleCosmicWeb } from '../cosmicLayers';
 import { starMotionNote } from '../../sim/stars/motion';
 import { Wordmark } from '../Logo';
+import { JOURNEYS } from '../../content/journeys';
+import { countWord } from '../../lib/words';
 
 export function OpticsSeg() {
   const relMode = useUI((s) => s.relMode);
@@ -218,6 +221,8 @@ function ViewMenu() {
       showGrid: u.showGrid,
       constellations: u.constellations,
       planetHosts: u.planetHosts,
+      cosmicWeb: u.cosmicWeb,
+      showCmb: u.showCmb,
       retarded: u.retarded,
       showFps: u.showFps,
       shortcuts: u.shortcuts,
@@ -283,6 +288,20 @@ function ViewMenu() {
             }
           >
             Planet hosts
+          </Check>
+          <Check
+            checked={cosmicWebShare(s.cosmicWeb, sim.camera.pos.length()) > 0}
+            onChange={toggleCosmicWeb}
+            hint={
+              s.cosmicWeb === 'auto'
+                ? '55,877 galaxies with measured distances, as a map (Cosmicflows-4). On by itself beyond the Local Group'
+                : '55,877 galaxies with measured distances, as a map (Cosmicflows-4)'
+            }
+          >
+            Cosmic web
+          </Check>
+          <Check checked={s.showCmb} onChange={() => t('showCmb')} hint="The cosmic microwave background over the sky: WMAP’s map, contrast enhanced about 10,000 times">
+            CMB map
           </Check>
           <Check checked={s.showOverlays} onChange={() => t('showOverlays')} kbd="U" hint="Scale bar and camera readout; in flight the reticle and apex markers">
             Readouts over the view
@@ -378,7 +397,7 @@ export function Header() {
           className="btn btn-pri"
           data-tour="search"
           onClick={openSearch}
-          title="Where to? Find a planet, moon, spacecraft or star and go there (/ or Ctrl+K)"
+          title="Where to? Find a planet, a star or a galaxy and go there (/ or Ctrl+K)"
           aria-label="Where to?"
         >
           <Icon name="search" size={14} />
@@ -391,7 +410,7 @@ export function Header() {
           className="btn btn-q"
           data-tour="journeys"
           onClick={openJourneys}
-          title="Journeys: ten one-click trips and scenes, each with what to look for"
+          title={`Journeys: ${countWord(JOURNEYS.length)} one-click trips and scenes, each with what to look for`}
           aria-label="Journeys"
         >
           <Icon name="compass" size={14} className="text-accent" />

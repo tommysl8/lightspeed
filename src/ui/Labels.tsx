@@ -11,9 +11,9 @@
  */
 import { useEffect, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { C_KM_S } from '../physics/constants';
+import { C_KM_S, PARSEC_KM } from '../physics/constants';
 import { qty } from '../lib/sci';
-import { isWithin, registryVersion, systemOf, type BodyId, type BodyRecord } from '../sim/bodies';
+import { getBody, isWithin, registryVersion, rootOf, systemOf, type BodyId, type BodyRecord } from '../sim/bodies';
 import { bodyEntries, type Entry } from '../sim/bodies/registry';
 import { useUI } from '../state/ui';
 import { controller } from '../controls/cameraController';
@@ -21,7 +21,10 @@ import { onDetection } from '../sim/pulses';
 import { labelRank, labelScore } from './labelRank';
 import { unresolvedPairs, type PairLabels } from './labelPairs';
 import { solarSystemHidden } from '../sim/derived';
+import { sim } from '../sim/sim';
 import { starLabelRank, STAR_MAG_LIMIT } from '../sim/stars';
+import { lightLeftAgo } from '../sim/cosmos/sight';
+import { cosmicSky } from '../sim/cosmos/expansion';
 
 /** Label elements in the pool: the most that can show at once. */
 export const LABEL_POOL = 40;
@@ -67,11 +70,47 @@ export const SUN_FROM_AFAR = 'Sun (home)';
 /** Unresolved pairs this frame: the one label they share. */
 const pairs: PairLabels = { hide: new Set(), text: new Map() };
 
-/** What a body's label says now (the Sun is "Sun (home)" from afar; an unresolved pair its system's name). */
-const labelNow = (e: Entry, far: boolean): string => (far && e.id === 'sun' ? SUN_FROM_AFAR : (pairs.text.get(e.id) ?? labelText(e.record)));
+/** The Milky Way's label from beyond it, where the Sun is lost in it: home is the Galaxy. */
+export const MILKY_WAY_FROM_AFAR = 'Milky Way (home)';
+/** From this far from the Sun (100 kpc, well outside the Galaxy's disc) the Milky Way, not the Sun, is labelled as home. */
+export const GALAXY_HOME_KM = 1e5 * PARSEC_KM;
+
+/**
+ * What a body's label says now (the Sun is "Sun (home)" from afar, the Milky Way "Milky Way (home)"
+ * from beyond the Galaxy; an unresolved pair its system's name).
+ */
+const labelNow = (e: Entry, far: boolean, beyondGalaxy = false): string =>
+  far && e.id === 'sun' ? SUN_FROM_AFAR : beyondGalaxy && e.id === 'milky-way' ? MILKY_WAY_FROM_AFAR : (pairs.text.get(e.id) ?? labelText(e.record));
 
 /** A star fainter than this (the eye's limit, and the half magnitude over which the star field fades it out) gets no label of its own. */
 const LABEL_MAG_LIMIT = STAR_MAG_LIMIT + 0.5;
+
+const DEEP_SKY: ReadonlySet<string> = new Set(['cluster', 'nebula', 'galaxy']);
+/** A deep-sky object's label shows from this radius on screen, CSS px (or once it is as bright as a star that shows). */
+export const DEEP_SKY_LABEL_PX = 4;
+
+/** With the Local Group in focus, its galaxies are labelled down to this apparent magnitude (Triangulum, the Clouds, M32). */
+export const GROUP_MEMBER_MAG = 11;
+
+/**
+ * Whether a label in the background (tier 4) is left out because of what the view is about: anything
+ * behind the body in focus, within its disc on screen (the Seagull Nebula's label on the Orion
+ * Nebula's picture), and, while a scene of the Solar System runs, anything beyond it (a nebula's
+ * label among Jupiter's moons).
+ */
+export function hiddenBehindFocus(
+  b: { distCamera: number; screen: { x: number; y: number } },
+  focus: { distCamera: number; radiusPx: number; screen: { x: number; y: number; onScreen: boolean } } | undefined,
+): boolean {
+  if (!focus || !focus.screen.onScreen || !(b.distCamera > focus.distCamera)) return false;
+  return Math.hypot(b.screen.x - focus.screen.x, b.screen.y - focus.screen.y) < 0.9 * focus.radiusPx;
+}
+
+/** Whether a cluster, nebula or galaxy gets a label of its own from where the camera is. */
+export function deepSkyLabelled(b: { distCamera: number; displayRadius: number; radiusPx: number; magnitude: number }): boolean {
+  if (b.distCamera <= b.displayRadius) return false;
+  return b.radiusPx >= DEEP_SKY_LABEL_PX || b.magnitude <= LABEL_MAG_LIMIT;
+}
 
 const ranks = { version: -1, map: new Map<BodyId, number>() };
 function rankOf(e: Entry): number {
@@ -94,6 +133,9 @@ const placed: { x: number; y: number; w: number }[] = [];
 const chosen = new Map<BodyId, { e: Entry; opacity: number; flashing: boolean }>();
 const byScore = (a: Candidate, b: Candidate) => a.score - b.score;
 
+/** Whether a body's label shows now (ui/HoverTag.tsx names only what has none). */
+export const labelShown = (id: BodyId): boolean => (chosen.get(id)?.opacity ?? 0) > 0.3;
+
 /**
  * Assigns the pooled label elements to bodies and positions them, straight in the DOM.
  */
@@ -101,11 +143,20 @@ export function LabelSync() {
   const focusSystem = useRef({ focus: '', system: '' as BodyId | '' });
   useFrame(() => {
     if (!slots.length) return;
-    const { showLabels, selected, focus } = useUI.getState();
+    const { showLabels, selected, focus, journeyNote } = useUI.getState();
+    const focusState = sim.bodies[focus];
+    // What covers what lies behind it: a body, a nebula's picture, a galaxy; not a cluster's sparse points.
+    const focusCovers = !!focusState && getBody(focus)?.kind !== 'cluster';
+    // A scene of the Solar System (a note showing, the focus in it, the camera inside it): its own labels only.
+    const solarScene = !!journeyNote && focusState?.present && rootOf(focus)?.id === 'sun' && !solarSystemHidden();
+    // The Local Group in focus: its galaxies are labelled, not only the biggest on screen.
+    const groupFocus = focus === 'local-group';
     const now = performance.now();
     if (focusSystem.current.focus !== focus) focusSystem.current = { focus, system: systemOf(focus)?.id ?? '' };
     const system = focusSystem.current.system;
     const far = solarSystemHidden();
+    // Beyond the Galaxy the Sun's label gives way to the Milky Way's.
+    const beyondGalaxy = sim.camera.pos.length() > GALAXY_HOME_KM;
 
     // 1. Candidates on screen, scored (lower first).
     cand.length = 0;
@@ -118,10 +169,23 @@ export function LabelSync() {
       const hit = hits.get(e.id);
       const flashing = hit !== undefined && now - hit < FLASH_MS;
       if (!showLabels && !flashing) continue;
-      const tier = e.id === selected ? 0 : flashing ? 1 : e.id === focus ? 2 : system && system !== 'sun' && isWithin(e.id, system) ? 3 : 4;
+      // From beyond the Galaxy home is the Milky Way: its label comes before the other galaxies'.
+      const tier =
+        e.id === selected ? 0 : flashing ? 1 : e.id === focus ? 2 : (system && system !== 'sun' && isWithin(e.id, system)) || (beyondGalaxy && e.id === 'milky-way') ? 3 : 4;
       const star = e.record.kind === 'star' && e.id !== 'sun';
+      // From beyond the Galaxy only galaxies and clusters of galaxies are labelled (besides the
+      // selection and the focus): the Sun, the stars, their planets and the nebulae are lost in the
+      // Milky Way's light, which is labelled as home.
+      if (beyondGalaxy && tier >= 3 && e.record.kind !== 'galaxy' && !(e.record.kind === 'cluster' && /galaxies/.test(e.record.kindText ?? ''))) continue;
       // A star nobody could see from here, or one that shares its pair's label, is left unlabelled.
       if (star && tier >= 3 && (b.magnitude > LABEL_MAG_LIMIT || pairs.hide.has(e.id))) continue;
+      // A cluster, nebula or galaxy is labelled once it is big enough on screen or bright enough to
+      // see, and not while the camera is inside it (the Milky Way from the Sun).
+      // Home keeps its label from beyond the Galaxy, however small it looks.
+      const groupMember = groupFocus && e.record.kind === 'galaxy' && !!cosmicSky.byId.get(e.id)?.home && b.magnitude <= GROUP_MEMBER_MAG;
+      if (tier >= 3 && DEEP_SKY.has(e.record.kind) && !deepSkyLabelled(b) && !(beyondGalaxy && e.id === 'milky-way') && !groupMember) continue;
+      if (tier === 4 && focusCovers && hiddenBehindFocus(b, focusState)) continue;
+      if (tier === 4 && solarScene && e.root.id !== 'sun') continue;
       // Stars rank by how bright they look from the camera, not from the Sun.
       const score = labelScore(tier, star ? starLabelRank(b.magnitude) : rankOf(e), b.radiusPx);
       let c = pool[cand.length];
@@ -145,7 +209,7 @@ export function LabelSync() {
         // Fade when close (the body itself is then obvious).
         opacity = 1 - smoothstep(26, 70, b.radiusPx);
         if (e.id === selected && b.radiusPx < 40) opacity = Math.max(opacity, 0.35);
-        const w = 12 + labelNow(e, far).length * 7.2;
+        const w = 12 + labelNow(e, far, beyondGalaxy).length * 7.2;
         const overlaps = placed.some((p) => Math.abs(p.y - b.screen.y) < 16 && b.screen.x < p.x + p.w && b.screen.x + w > p.x);
         if (overlaps && e.id !== selected) opacity = 0;
         if (opacity > 0.05) placed.push({ x: b.screen.x, y: b.screen.y, w });
@@ -184,7 +248,7 @@ export function LabelSync() {
         s.el.setAttribute('aria-label', `Select ${c.e.record.name}`);
         s.sub.textContent = '';
       }
-      const text = labelNow(c.e, far);
+      const text = labelNow(c.e, far, beyondGalaxy);
       if (s.text !== text) {
         s.text = text;
         s.name.firstChild!.nodeValue = text;
@@ -205,8 +269,11 @@ export function LabelSync() {
         if (s.sub.style.display) s.sub.style.display = '';
         if (subFrame % 8 === 0 || !s.sub.textContent) {
           const r = qty(b.distTrue, 'length', 4);
+          // A galaxy in the expanding universe: when its light left, not distance / c.
+          const left = lightLeftAgo(id, false);
           const lt = qty(b.distTrue / C_KM_S, 'time', 3);
-          s.sub.textContent = `${r.v} ${r.u} · ${lt.v} ${lt.u}`;
+          s.sub.textContent =
+            left === 'none' ? `${r.v} ${r.u} · no light yet` : left ? `${r.v} ${r.u} · light from ${left} ago` : left === undefined ? `${r.v} ${r.u}` : `${r.v} ${r.u} · ${lt.v} ${lt.u}`;
         }
       } else if (s.sub.style.display !== 'none') {
         s.sub.textContent = '';

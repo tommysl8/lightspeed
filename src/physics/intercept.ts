@@ -17,7 +17,12 @@ export interface Intercept {
   targetAtArrival: Vec3;
 }
 
-const MAX_TIME_S = 1e4 * 365.25 * 86_400; // give up beyond 10,000 years
+/**
+ * Give up beyond ten million years: far enough for any flight within the Galaxy and its
+ * satellites (the Galactic Centre is 27,000 years away at 1 g, the Magellanic Clouds about
+ * 160,000), where space is taken as static.
+ */
+const MAX_TIME_S = 1e7 * 365.25 * 86_400;
 
 export function solveIntercept(
   targetAt: (dtSeconds: number) => Vec3,

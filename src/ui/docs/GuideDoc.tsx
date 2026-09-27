@@ -14,13 +14,16 @@ import { FEATURED_IDS, findDestination } from '../../content/destinations';
 import { findArticle, useArticles } from '../../content/learn/library';
 import { formatDurationShort } from '../../lib/time';
 import { superscript } from '../../lib/sci';
+import { countWord, countWordStart } from '../../lib/words';
 import { openLearn } from '../../state/route';
 import { useUI } from '../../state/ui';
 import { frameSolarSystem, goToBody } from '../navigation';
+import { runScene } from '../../content/scenes';
 import { openJourneys, openLab, openSearch, resetPreferences, showWelcome, startExperiment1, startTour } from '../onboarding';
 import { KEY_GROUPS } from '../keys';
 import { Kbd } from '../kit';
 import { rich } from '../rich';
+import { GuideFlightsBeyond } from './GuideFlightsBeyond';
 import { AberrationFigure, ScreenMap, WorkflowFigure } from './figures';
 import { Callout, Chapter, Fig, H3, KeyTable, Lamp, Note, Ref, Steps, Try, type TocEntry } from './parts';
 
@@ -29,6 +32,7 @@ export const GUIDE_TOC: TocEntry[] = [
   { id: 'quick-start', title: 'Quick start' },
   { id: 'screen', title: 'The screen' },
   { id: 'looking', title: 'Looking around' },
+  { id: 'universe', title: 'What is out there' },
   { id: 'time', title: 'Time' },
   { id: 'flying', title: 'Journeys and flights' },
   { id: 'seeing', title: 'What you are seeing' },
@@ -38,6 +42,23 @@ export const GUIDE_TOC: TocEntry[] = [
   { id: 'troubleshooting', title: 'Troubleshooting' },
   { id: 'glossary', title: 'Glossary' },
 ];
+
+/** A chapter's number, from its place in the contents. */
+const chapterNo = (id: string): number => GUIDE_TOC.findIndex((c) => c.id === id) + 1;
+
+/** A cross-reference to a chapter by its number ("Chapter 7"), which follows the contents. */
+function Ch({ to }: { to: string }) {
+  return <Ref to={to}>Chapter {chapterNo(to)}</Ref>;
+}
+
+/** Two chapters at once: "Chapters 5 and 8", each number a link. */
+function Chs({ to: [a, b] }: { to: [string, string] }) {
+  return (
+    <>
+      Chapters <Ref to={a}>{chapterNo(a)}</Ref> and <Ref to={b}>{chapterNo(b)}</Ref>
+    </>
+  );
+}
 
 // ─── Actions for the "Try it" buttons ────────────────────────────────────────────────────
 
@@ -95,47 +116,56 @@ function Welcome() {
   return (
     <Chapter
       id="welcome"
-      n={1}
+      n={chapterNo('welcome')}
       title="Welcome to Lightspeed"
       lead={
         <>
-          Lightspeed is a space exploration tool with real physics. It shows the Solar System as it is at this moment, at true
-          scale, and lets you fly through it at nearly the speed of light, with the sky and the clocks behaving exactly as
-          relativity says they must.
+          Lightspeed is a space exploration tool with real physics. It shows the universe as it is at this moment, from the
+          planets at true scale to the stars, the Milky Way and the galaxies beyond, and lets you fly through it at nearly the
+          speed of light, with the sky and the clocks behaving exactly as relativity says they must.
         </>
       }
     >
       <H3>What you can do</H3>
       <ul>
         <li>
-          <b>Explore.</b> Press <b>Where to?</b> and name a place: a planet, the Moon, Voyager 1, the nearest star. Read each
-          body’s card, run time forwards to watch the orbits turn, or go to any date from 10,000 BCE to 9999.
+          <b>Explore.</b> Press <b>Where to?</b> and name a place: a planet, the Moon, Voyager 1, a star, a nebula, the Andromeda
+          Galaxy. Read each card, run time forwards to watch the orbits turn, or go to any date from 10,000 BCE to 9999.
         </li>
         <li>
           <b>Fly.</b> Take a one-click journey, or fly anywhere at 1 g or at any speed below <i>c</i>. Watch the stars crowd ahead
-          of you and change colour, and see how much less time passes for you than at home.
+          of you and change colour, and see how much less time passes for you than at home. Go beyond the Local Group and space
+          itself expands while you travel.
         </li>
         <li>
           <b>Read.</b> <b>Learn</b> has long reads on the science behind the view: how it was found out, what the physics says and
-          what comes next, with sources to go further (<Ref to="seeing">Chapter 7</Ref>).
+          what comes next, with sources to go further (<Chs to={['universe', 'seeing']} />).
         </li>
         <li>
-          <b>Measure, if you want to.</b> Every number is live in the instrument panel (<Ref to="readings">Chapter 8</Ref>). For
-          students, the lab holds five guided experiments, each ending in a printable report (<Ref to="lab">Chapter 9</Ref>).
-          Neither opens unless you ask for it.
+          <b>Measure, if you want to.</b> Every number is live in the instrument panel (<Ch to="readings" />). For students, the
+          lab holds five guided experiments, each ending in a printable report (<Ch to="lab" />). Neither opens unless you ask
+          for it.
         </li>
       </ul>
 
-      <H3>What is real, and what is not</H3>
+      <H3>What is real, and what is a model</H3>
       <p>
         Planet positions come from published ephemerides for the date shown at the top of the screen: to about an arcminute
         between 1700 and 2200, to about half a degree between 3000 BCE and 3000 CE, and only illustrative beyond (the orbits are
-        right, the places along them are not). Distances are never compressed, light travels at 299,792.458 km/s, and what you
-        see in flight follows the transformation laws of special relativity exactly.
+        right, the places along them are not). The stars, the star clusters, the nebulae and the galaxies are at their measured
+        distances (the farthest galaxies at the distance their redshift gives). Distances are never compressed, light travels at 299,792.458 km/s, and what you see in flight follows the
+        transformation laws of special relativity exactly.
       </p>
       <p>
-        Two things are idealised, and the program says so where it matters: the constant-speed drive starts and stops
-        instantly, and gravity is ignored on a flight. A third drive, faster than light, is outright fiction, offered only for
+        Where the measurements run out, a model takes over, and the card says so. The Milky Way seen from outside is a model
+        built from published measurements, its spiral arms carried on beyond the parallax data. Other galaxies are drawn from
+        their measured size, brightness and tilt, with the shape typical of their type. The cosmic web is a survey, with gaps,
+        and the map of the oldest light is contrast enhanced. <Ch to="universe" /> says what each of them is.
+      </p>
+      <p>
+        Some things are idealised, and the program says so where it matters: the constant-speed drive starts and stops
+        instantly, gravity is ignored on a flight, and flights beyond the Local Group assume a perfect engine and a destination
+        that moves with the expansion of the universe. A third drive, faster than light, is outright fiction, offered only for
         comparison. It is marked in red and none of its readings are recorded. The full list is under{' '}
         <Ref page="about" to="limitations">
           Model limitations
@@ -145,9 +175,10 @@ function Welcome() {
 
       <H3>How to use this guide</H3>
       <p>
-        Chapters 2 and 3 are all you need to get started. Chapters 4 to 8 explain each part of the program, chapter 9 is for
-        students, and chapters 10 to 12 are for looking things up. Buttons marked <b>Try it</b> close the guide and do what the
-        text describes. The simulation pauses while the guide is open.
+        Chapters 2 and 3 are all you need to get started. Chapters 4 to {chapterNo('readings')} explain each part of the
+        program and what you are looking at, chapter {chapterNo('lab')} is for students, and chapters {chapterNo('controls')} to{' '}
+        {chapterNo('glossary')} are for looking things up. Buttons marked <b>Try it</b> close the guide and do what the text
+        describes. The simulation pauses while the guide is open.
       </p>
       <TryRow>
         <Try run={startTour}>Take the tour</Try>
@@ -166,11 +197,11 @@ function Welcome() {
 
 function QuickStart() {
   return (
-    <Chapter id="quick-start" n={2} title="Quick start" lead="Ten minutes, seven steps. Most have a button that sets them up for you.">
+    <Chapter id="quick-start" n={chapterNo('quick-start')} title="Quick start" lead="Ten minutes, eight steps. Most have a button that sets them up for you.">
       <Steps>
         <li>
           <b>Look around.</b> Drag in the view to orbit Earth, and scroll to move in and out. The distance scale is logarithmic,
-          so the same gesture takes you from the Moon’s orbit to the edge of the Solar System.
+          so the same gesture takes you from the Moon’s orbit to the edge of the Solar System, and on out to the stars.
         </li>
         <li>
           <b>Go somewhere.</b> Press <b>Where to?</b> (or <Kbd>/</Kbd>), type <i>sat</i> and press <Kbd>Enter</Kbd>. The camera
@@ -203,7 +234,7 @@ function QuickStart() {
           </TryRow>
         </li>
         <li>
-          <b>Take a journey.</b> Press <b>Journeys</b> in the header. Each of the ten is one click, and says what to look for
+          <b>Take a journey.</b> Press <b>Journeys</b> in the header. Each of the {countWord(JOURNEYS.length)} is one click, and says what to look for
           while it runs. Start with <i>Race sunlight to Earth</i> or <i>Earth to Saturn at 0.9c</i>.
           <TryRow>
             <Try run={openJourneys}>Open the journeys</Try>
@@ -224,6 +255,16 @@ function QuickStart() {
           relativity. The panel along the bottom shows your speed, your clock, the clock at home and the distance left.{' '}
           <b>Skip to arrival</b> jumps to the end, and the readings stay exact.
         </li>
+        <li>
+          <b>Leave the Galaxy.</b> Click <b>Milky Way</b> in the trail at the bottom of the screen (on wide screens) to see the
+          Galaxy from 100,000 light-years: a model built from published measurements. <b>Local Group</b> goes out to Andromeda
+          and its neighbours, and <b>Where to?</b> finds any galaxy by name. A 1 g flight to Andromeda takes under 30 years by
+          your clock, and over two million at home.
+          <TryRow>
+            <Try run={() => runScene('milky-way-outside')}>See the Milky Way from outside</Try>
+            <Try run={() => runScene('local-group')}>See the Local Group</Try>
+          </TryRow>
+        </li>
       </Steps>
       <Note title="For students">
         The lab’s first experiment measures the speed of light in about 15 minutes, using nothing but the time controls.
@@ -242,38 +283,38 @@ const SCREEN_PARTS: [number, ReactNode, ReactNode][] = [
     'Date',
     <>
       The date and time being shown, in UTC. Amber, with a dot, when it is not the present. Click it to go to another date (
-      <Ref to="time">Chapter 5</Ref>).
+      <Ch to="time" />).
     </>,
   ],
-  [3, <>Where to? <Kbd>/</Kbd></>, <>Find any place by name and go there or fly there (<Ref to="looking">Chapter 4</Ref>).</>],
-  [4, 'Journeys', <>Ten one-click trips and scenes (<Ref to="flying">Chapter 6</Ref>).</>],
-  [5, <>Learn <Kbd>E</Kbd></>, <>Long reads on the science behind the view (<Ref to="seeing">Chapter 7</Ref>).</>],
-  [6, <>Lab <Kbd>K</Kbd></>, <>For students: five guided experiments, in a panel on the left (<Ref to="lab">Chapter 9</Ref>).</>],
+  [3, <>Where to? <Kbd>/</Kbd></>, <>Find any place by name, from the Moon to Andromeda, and go there or fly there (<Ch to="looking" />).</>],
+  [4, 'Journeys', <>{countWordStart(JOURNEYS.length)} one-click trips and scenes (<Ch to="flying" />).</>],
+  [5, <>Learn <Kbd>E</Kbd></>, <>Long reads on the science behind the view, from relativity to the galaxies (<Chs to={['universe', 'seeing']} />).</>],
+  [6, <>Lab <Kbd>K</Kbd></>, <>For students: five guided experiments, in a panel on the left (<Ch to="lab" />).</>],
   [
     7,
     'View',
-    'Display layers, body size and optics; the instrument panel and physics hints; the guide, the keys and About. Below 900 pixels it shows as an icon.',
+    'Display layers (the constellations, planet hosts, the cosmic web, the CMB map), body size and optics; the instrument panel and physics hints; the guide, the keys and About. Below 900 pixels it shows as an icon.',
   ],
   [
     8,
     'The view',
-    'The simulation. Top left: what the camera is doing and its range to the target. Top centre: status lamps. Top right: the card of the selected body. Bottom left: a scale bar. In flight, a panel along the bottom.',
+    'The simulation. Top left: what the camera is doing and its range to the target, and the cards of the cosmic web and the CMB map while they show. Top centre: status lamps. Top right: the card of the selected body. Bottom left: a scale bar; bottom right, the credits of the nebulae’s pictures in view. In flight, a panel along the bottom.',
   ],
-  [9, 'Time', <>Pause; slower and faster, with the rate in words; Now (<Ref to="time">Chapter 5</Ref>).</>],
+  [9, 'Time', <>Pause; slower and faster, with the rate in words; Now (<Ch to="time" />).</>],
   [
     10,
     'Where you are',
-    'Where the camera is, as a trail: Solar neighbourhood › Solar System › Earth › Moon. Click a level to go there. Bodies lists everything you can visit, by kind.',
+    'Where the camera is, as a trail from the observable universe down to the body in view: … › Local Group › Milky Way › Orion Arm › Solar neighbourhood › Solar System › Earth. Click a level to go there; the outer levels show on wide screens. Bodies lists everything you can visit, by kind, from the planets to the galaxies.',
   ],
   [11, <>Keys <Kbd>?</Kbd></>, 'The keyboard and mouse on one sheet. On wide screens the status beside it says what the camera is doing.'],
-  [12, <>Instrument panel <Kbd>I</Kbd></>, <>Every number, live: speed, clocks, the target, optics and light-time (<Ref to="readings">Chapter 8</Ref>).</>],
+  [12, <>Instrument panel <Kbd>I</Kbd></>, <>Every number, live: speed, clocks, the target, optics and light-time (<Ch to="readings" />).</>],
 ];
 
 function Screen() {
   return (
     <Chapter
       id="screen"
-      n={3}
+      n={chapterNo('screen')}
       title="The screen"
       lead="Everything on screen, numbered as in Figure 3.1. A first visit shows only the header, the view and the footer; the two side panels open when you ask for them."
     >
@@ -322,13 +363,13 @@ function Screen() {
             </Lamp>,
             'Time runs faster than real time. The view also gets an amber border.',
           ],
-          [<Lamp tone="amber">1 s = 3.4 months on board</Lamp>, <>In flight: how much of your time passes each second (<Ref to="flying">Chapter 6</Ref>).</>],
-          [<Lamp tone="amber">Free flight</Lamp>, <>You are flying the camera by hand (<Ref to="looking">Chapter 4</Ref>).</>],
+          [<Lamp tone="amber">1 s = 3.4 months on board</Lamp>, <>In flight: how much of your time passes each second (<Ch to="flying" />).</>],
+          [<Lamp tone="amber">Free flight</Lamp>, <>You are flying the camera by hand (<Ch to="looking" />).</>],
           [
             <Lamp tone="cyan">Relativistic optics</Lamp>,
             <>
               The view shows aberration and Doppler shift; in split screen the lamp reads <i>Split optics</i> (
-              <Ref to="seeing">Chapter 7</Ref>).
+              <Ch to="seeing" />).
             </>,
           ],
           [<Lamp tone="cyan">Light-time corr.</Lamp>, 'Bodies are drawn where they were when the light now arriving left them.'],
@@ -353,7 +394,7 @@ function Looking() {
   return (
     <Chapter
       id="looking"
-      n={4}
+      n={chapterNo('looking')}
       title="Looking around"
       lead="The camera normally orbits one body. It can go anywhere, at any distance, without that counting as a journey."
     >
@@ -374,15 +415,19 @@ function Looking() {
 
       <H3>Where to?</H3>
       <p>
-        <b>Where to?</b> in the header (or <Kbd>/</Kbd>, or <Kbd>Ctrl</Kbd>+<Kbd>K</Kbd>) finds any place by name. It forgives
+        <b>Where to?</b> in the header (or <Kbd>/</Kbd>, or <Kbd>Ctrl</Kbd>+<Kbd>K</Kbd>) finds any place by name: a planet or a
+        moon, a spacecraft, any of the 330,000 stars, a planet of another star, a star cluster, a nebula, a galaxy, the cosmic
+        web. It forgives
         part of a name (<i>prox</i>), a nickname (<i>Luna</i>, <i>the red planet</i>) and a slip of the keyboard (
-        <i>Satrun</i>). Each result gives what it is, how far away it is and how long its light takes to reach you; the
+        <i>Satrun</i>). Each result gives what it is, how far away it is and how long its light takes to reach you (for a
+        galaxy in the expanding universe, how long ago the light now arriving left it); the
         highlighted one also shows what a flight there at 1 g would take for you and at home. A planet of another star has a
         small letter and a star of a system a capital, as astronomers write them: <i>Kepler-16 b</i> is the planet,{' '}
         <i>Kepler-16 B</i> the second star. Choose with the arrow keys.{' '}
         <Kbd>Enter</Kbd> (or <b>Go</b>) takes the camera there; <Kbd>Shift</Kbd>+<Kbd>Enter</Kbd> (or <b>Fly</b>) opens the
-        flight planner set to that 1 g flight. Before you type, it offers {featuredNames()}, with what a 1 g flight to each
-        would take, and the journeys.
+        flight planner set to that 1 g flight. Before you type, it offers {countWord(FEATURED_IDS.length)} places from the Moon
+        out to the centre of the Galaxy and Andromeda ({featuredNames()}), each with what a 1 g flight there would take, and
+        the journeys.
       </p>
       <TryRow>
         <Try run={openSearch}>Open Where to?</Try>
@@ -390,7 +435,7 @@ function Looking() {
 
       <H3>Choosing a body</H3>
       <p>
-        Click a body or its label to <i>select</i> it. Amber brackets mark it, its label shows its range and light-time, and a
+        Click a body (a planet, a star, a nebula, a galaxy) or its label to <i>select</i> it. Amber brackets mark it, its label shows its range and light-time, and a
         card in the top-right corner of the view says what it is, how far away it is, how long its light took to reach you, and
         three things worth knowing about it. On the card, <b>Go there</b> takes the camera to it, <b>Fly here</b> plans a 1 g
         flight, <b>Read</b> opens its story in Learn where there is one, and <b>Details</b> opens the instrument panel with its
@@ -400,39 +445,26 @@ function Looking() {
         To take the camera somewhere directly, double-click the body, click it in <b>Bodies</b> at the bottom of the screen, or
         press its key: <Kbd>0</Kbd> for the Sun, <Kbd>1</Kbd> to <Kbd>9</Kbd> for Mercury to Pluto, <Kbd>M</Kbd> for the Moon
         and <Kbd>V</Kbd> for Voyager 1. In <b>Bodies</b> the moons sit under their planets (the ▸ beside a planet opens its
-        moons), followed by the dwarf planets, asteroids and Kuiper belt objects, comets, interstellar visitors, spacecraft and
-        stars. Under <b>Bodies › Stars</b> the named stars are sorted into those within 16 light-years, those with planets and
+        moons), followed by the dwarf planets, asteroids and Kuiper belt objects, comets, interstellar visitors, spacecraft,
+        stars, planets of other stars, and then the Milky Way (the Galaxy itself, Sagittarius A* with its stars, and the
+        galaxies that orbit it), the star clusters (open, then globular), the nebulae (where stars are born, what dying stars
+        shed, and those in the Magellanic Clouds), the other galaxies (the Local Group, those beyond it and the most distant
+        known) and the clusters, the cosmic web and the CMB map. Under <b>Bodies › Stars</b> the named stars are sorted into those within 16 light-years, those with planets and
         the bright ones, and a star system (Alpha Centauri, Sirius) has a row of its own with its stars and planets under it;
         stars you found in search come last. <b>Where to?</b> finds any of the 330,000 stars in the sky by name or catalogue
-        number (Vega, α Lyrae, HIP 91262). The trail beside <b>Bodies</b> says where the camera is (Solar neighbourhood › Solar
-        System › Saturn › Titan; a star farther than 100 light-years is in the Milky Way); click a level to see it all at once:{' '}
-        <b>Solar neighbourhood</b> steps back 26 light-years from the Sun, among the nearest stars.
-      </p>
-      <p>
-        The stars are where they really are, in three dimensions: each at its measured distance (mostly from ESA’s Gaia
-        mission), moving with its measured velocity, as bright and as coloured as it looks from where you are. From Earth they
-        make the familiar sky; fly among them and the constellations come apart. Come within a third of a light-year of a star
-        and it becomes a body you can orbit, a glowing disc at its measured (or estimated) size. The sky shows stars down to
-        magnitude 6.5, as the eye would; the catalogue goes to 10, so fainter stars appear as you approach them.
-      </p>
-      <p>
-        Many stars have planets. <b>Where to?</b> finds any of the 6,372 confirmed planets of NASA’s Exoplanet Archive by name
-        (<i>K2-18 b</i>, <i>51 Pegasi b</i>) and takes you to its star, which joins the view with its planets even when it is
-        too faint for the star catalogue. Eleven systems are built from their papers, among them TRAPPIST-1’s seven planets and
-        HR 8799’s four giants on their measured orbits. Each planet goes round on a fixed Kepler orbit, timed so that from the
-        Sun transits happen at their published times. Nobody has seen the surface of any of them, so their colours are
-        illustrative, and the card says so, along with what else is assumed (often the orbit’s orientation on the sky). Once
-        you are among the stars, a small ring marks each star of the catalogue with known planets, within 130 light-years (
-        <b>View › Planet hosts</b>).
-      </p>
-      <p>
-        Each body’s card says how far to trust what you see: where its position comes from and how accurate it is at the
-        date shown, and what else is a model, such as a rotation no one can predict or a surface never mapped. Its facts
-        link to their sources.
+        number (Vega, α Lyrae, HIP 91262). The trail beside <b>Bodies</b> says where the camera is (Observable universe › Local
+        Universe › Local Group › Milky Way › Orion Arm › Solar neighbourhood › Solar System › Saturn › Titan); click a level to
+        see it all at once: <b>Solar neighbourhood</b> steps back 26 light-years from the Sun, among the nearest stars,{' '}
+        <b>Milky Way</b> goes out to see the Galaxy from 100,000 light-years, <b>Local Group</b> to 3 million parsecs and{' '}
+        <b>Local Universe</b> to the cosmic web. The spiral arm is named only where the arms have been measured: within two of
+        their widths of an arm’s ridge, on the stretch that radio parallaxes of star-forming regions trace (Reid et al. 2019).
+        The Local Group is what lies inside its zero-velocity surface, where gravity has stopped the expansion; the local
+        universe reaches redshift 0.1, about as far as distances are measured galaxy by galaxy. On narrow screens these
+        levels are left out of the trail.
       </p>
       <Note title="The camera is not a spaceship">
         Camera moves ignore physics: the camera glides to its target in a few seconds (never more than six), whatever the
-        distance. To travel physically, with clocks that obey relativity, take a journey or fly (<Ref to="flying">Chapter 6</Ref>).
+        distance. To travel physically, with clocks that obey relativity, take a journey or fly (<Ch to="flying" />).
       </Note>
 
       <H3>True scale and enlarged</H3>
@@ -456,13 +488,22 @@ function Looking() {
           [<>Ecliptic grid <Kbd>J</Kbd></>, 'Lines of ecliptic longitude and latitude every 15°, labelled, with an axis triad in the corner.'],
           [
             <>Constellations <Kbd>Y</Kbd></>,
-            'The 88 constellation figures and their names, drawn between the real stars, so they come apart as you fly away. They show by themselves once you are among the stars (0.65 light-years or more from the Sun); Y turns them on or off for good.',
+            'The 88 constellation figures and their names, drawn between the real stars, so they come apart as you fly away. They show by themselves once you are among the stars (0.65 light-years or more from the Sun), each fading away once it has come apart; Y turns them all on or off for good.',
           ],
           [
             'Planet hosts',
-            'A small ring around each star of the catalogue with known planets, within 130 light-years (40 parsecs) of you. Like the constellations, they show by themselves once you are among the stars.',
+            'A small ring around each star of the catalogue with known planets, within 130 light-years (40 parsecs) of you. Point at one for the star’s name; click it to select the star. Like the constellations, they show by themselves once you are among the stars.',
           ],
-          [<>Readouts over the view <Kbd>U</Kbd></>, <>The camera readout and scale bar; in flight also the reticle and the apex markers (<Ref to="readings">Chapter 8</Ref>).</>],
+          ['Cosmic web', 'The 55,877 galaxies of Cosmicflows-4 as a map, coloured by kind and sized by infrared luminosity. It shows by itself beyond the Local Group; its card lists what the survey misses.'],
+          [
+            'CMB map',
+            <>
+              The cosmic microwave background over the sky (WMAP), contrast enhanced about 10,000 times, with its label. Drawn
+              whenever the relativistic view is off: below 0.01<i>c</i>, in classical optics, and on the classical side of the split
+              screen.
+            </>,
+          ],
+          [<>Readouts over the view <Kbd>U</Kbd></>, <>The camera readout and scale bar; in flight also the reticle and the apex markers (<Ch to="readings" />).</>],
           ['Light-time correction', 'Draw each body where it was when the light now reaching you left it.'],
         ]}
       />
@@ -504,6 +545,215 @@ function Looking() {
   );
 }
 
+/** Learn articles about what is out there, in the order to read them. */
+const OUT_THERE: Reading[] = [
+  { slug: 'how-far-are-the-stars', title: 'How far are the stars?', what: 'Parallax, and how the distances behind the star map were measured, down to Gaia.' },
+  { slug: 'what-stars-are-made-of', title: 'What stars are made of', what: 'Spectra, what makes a star shine, and how stars live and die.' },
+  { slug: 'other-worlds', title: 'Other worlds', what: 'How the planets of other stars were found, from wobbles and shadows to pictures.' },
+  { slug: 'our-galaxy', title: 'Our galaxy', what: 'How the Milky Way was mapped from inside, and the black hole at its centre weighed.' },
+  { slug: 'island-universes', title: 'Island universes', what: 'How the spiral nebulae turned out to be other galaxies, and Andromeda’s approach.' },
+  { slug: 'the-expanding-universe', title: 'The expanding universe', what: 'Redshifts, the expansion, and the oldest light there is.' },
+  { slug: 'the-edge-of-reach', title: 'The edge of reach', what: 'Why some galaxies we can see could never be reached, even at the speed of light.' },
+];
+
+function Universe() {
+  return (
+    <Chapter
+      id="universe"
+      n={chapterNo('universe')}
+      title="What is out there"
+      lead="From the Moon to the most distant galaxies known, everything is where it has been measured to be. Where the measurements stop, a model takes over, and the card says which is which."
+    >
+      <H3>The Solar System</H3>
+      <p>
+        The Sun, the planets and the Moon follow published ephemerides. The other moons, the dwarf planets, the comets, the
+        interstellar visitors and the spacecraft follow fits to JPL’s Horizons, and 31,930 asteroids, Trojans and
+        trans-Neptunian objects their catalogued orbits (<Kbd>B</Kbd>). Each body’s card says how far to trust what you see:
+        where its position comes from and how accurate it is at the date shown, and what else is a model, such as a rotation no
+        one can predict or a surface never mapped. Its facts link to their sources.
+      </p>
+
+      <H3>Stars and their planets</H3>
+      <p>
+        The stars are where they really are, in three dimensions: each at its measured distance (mostly from ESA’s Gaia
+        mission), moving with its measured velocity, as bright and as coloured as it looks from where you are. From Earth they
+        make the familiar sky; fly among them and the constellations come apart. Come within a third of a light-year of a star
+        and it becomes a body you can orbit, a glowing disc at its measured (or estimated) size. The sky shows stars down to
+        magnitude 6.5, as the eye would; the catalogue goes to 10, so fainter stars appear as you approach them.
+      </p>
+      <p>
+        Many stars have planets. <b>Where to?</b> finds any of the 6,372 confirmed planets of NASA’s Exoplanet Archive by name
+        (<i>K2-18 b</i>, <i>51 Pegasi b</i>) and takes you to its star, which joins the view with its planets even when it is
+        too faint for the star catalogue. Eleven systems are built from their papers, among them TRAPPIST-1’s seven planets and
+        HR 8799’s four giants on their measured orbits. Each planet goes round on a fixed Kepler orbit, timed so that from the
+        Sun transits happen at their published times. Nobody has seen the surface of any of them, so their colours are
+        illustrative, and the card says so, along with what else is assumed (often the orbit’s orientation on the sky). Once
+        you are among the stars, a small ring marks each star of the catalogue with known planets, within 130 light-years (
+        <b>View › Planet hosts</b>). Point at a ring to see the star’s name and how many planets it has; click it to select the
+        star, and its planets join the view.
+      </p>
+      <TryRow>
+        <Try run={() => runScene('go:proxima')}>Go to Proxima Centauri</Try>
+      </TryRow>
+
+      <H3>The Milky Way</H3>
+      <p>
+        From anywhere near the Sun the glow of the Milky Way behind the stars is the real sky: the light of the stars too faint
+        to draw one by one, mapped by ESA’s Gaia satellite and rendered by NASA’s Scientific Visualization Studio, with its
+        dark dust lanes (the Great Rift through Cygnus and Aquila, the Coalsack beside the Southern Cross) where they really
+        are. The light of the star catalogue’s own faint stars, down to magnitude 10, is added to it. It is drawn as bright, for its size, as the faint stars are, and it fades out where the eye would lose it, about
+        as faint as the darkest skies on Earth. In flight it is squeezed ahead of you and shifted in colour like everything
+        else.
+      </p>
+      <p>
+        That sky is the view from the Sun, so it fades out a few hundred parsecs away, and a model of the whole Galaxy takes
+        over: 200,000 points of light drawn from the laws that describe its disc, its bar and bulge, its halo and its spiral
+        arms, dimmed by a model of its dust along each line of sight. It is a <b>model built from published measurements</b>{' '}
+        (Reid et al. 2019 arms, Wegg et al. bar, Drimmel and Spergel dust): the points are not real stars, and the far side of
+        the Galaxy has never been mapped directly, so the arms there are carried on beyond the parallax data. Close to the
+        camera each point would stand for hundreds of thousands of suns spread over hundreds of parsecs, so there the discs
+        and the young stars of the arms are drawn as a smooth glow worked out from the same laws, and the points take over 1
+        to 4 kiloparsecs out. From 100,000 light-years it is a barred spiral with the Sun about halfway out. Seen from the Sun
+        the model is within half a magnitude of the real sky towards the Galaxy’s anticentre and poles, but over a magnitude
+        fainter towards the star clouds of Sagittarius and Scutum: its dust is smooth, without the gaps that let their light
+        through.
+      </p>
+      <p>
+        Among the stars are 1,664 star clusters. The open clusters’ stars are the star catalogue’s own; a ring marks each
+        famous one (the Pleiades, the Hyades, Praesepe…) by the radius holding half its members. The 164 globular clusters are
+        drawn as glows with their measured brightness and size, speckled with points that show how their light gathers to
+        the middle (the points are illustrative, not their real stars). The 45 nebulae are photographs from ESO, ESA/Hubble,
+        ESA/Webb and NSF NOIRLab placed at their measured distances and true sizes. A photograph is the view from Earth only,
+        so from anywhere else it is drawn as a flat card facing the Sun: it fades away seen edge-on, and from the far side it
+        shows the picture mirrored. Its brightness is set for display, as in a long-exposure photograph. Every picture in
+        view carries its credit and a note of how it was changed, on its body card and in the corner of the view.
+      </p>
+      <p>
+        At the centre is Sagittarius A*, a black hole of 4.3 million solar masses 27,000 light-years away, drawn as a black
+        disc the size of its shadow, with the four stars whose orbits round it are published under an open licence (S2 goes
+        round every 16 years). Other published orbits exist but are not licensed for reuse.
+      </p>
+      <TryRow>
+        <Try run={() => runScene('milky-way-outside')}>See the Milky Way from outside</Try>
+        <Try run={() => runScene('galactic-centre-orbits')}>Watch S2 go round</Try>
+      </TryRow>
+
+      <H3>Other galaxies</H3>
+      <p>
+        Beyond the Milky Way are 169 galaxies of the Local Group and its surroundings out to 3 million parsecs, from the Local
+        Volume Database (Andromeda, Triangulum, the Magellanic Clouds and the dwarf galaxies round them, each at its measured
+        distance), the nearby galaxies the Learn articles talk about (M81, M87, Centaurus A, the Sombrero and the Whirlpool),
+        the Virgo, Coma and Bullet clusters, and three of the most distant galaxies confirmed (GN-z11 at redshift 10.6,
+        JADES-GS-z14-0 at 14.18 and MoM-z14, at 14.44 the record).
+      </p>
+      <p>
+        No galaxy but ours has been mapped in three dimensions, so each is drawn as a <b>model</b>: a few thousand points
+        following the light of its type (a spiral, a barred or Magellanic spiral, an irregular, a dwarf spheroidal, an
+        elliptical; the Sombrero as a disc dominated by its bulge), scaled to its measured size and brightness and tilted as
+        it lies. Its arms, clumps and dust are typical of its type, not a map of that galaxy. Where a disc’s near side is not
+        known the tilt drawn is one of two mirror images; where only its outline on the sky is measured, its depth is taken as
+        its width. Each card says which. From Earth Andromeda is a tilted oval 3° long, six full Moons, at its real angle on the
+        sky; from above it is a spiral. Seen from far off most galaxies are faint or invisible, as they would be to the eye.
+      </p>
+      <p>
+        The young galaxies are placed where they are now, more than 30 billion light-years away as space has stretched. What
+        you would see from there is their light of 13.5 billion years ago, the galaxy as it was a few hundred million years
+        after the Big Bang: they are drawn that way, and what they have become since, nobody knows. Space has stretched while their light
+        travelled and is stretching still, so they lie beyond the edge of reach: no ship could ever get there, not even light
+        sent now (<LearnLink slug="the-edge-of-reach">The edge of reach</LearnLink> tells why).
+      </p>
+      <TryRow>
+        <Try run={() => runScene('local-group')}>See the Local Group</Try>
+        <Try run={() => runScene('go:andromeda')}>Go to Andromeda</Try>
+      </TryRow>
+
+      <H3>The cosmic web and the oldest light</H3>
+      <p>
+        <b>View › Cosmic web</b> shows 55,877 galaxies with measured distances (Cosmicflows-4) as a map, at their places now:
+        walls and filaments round empty voids. Nearby each sits at its group’s measured distance, farther out at the distance
+        its group’s redshift gives. From out there no galaxy is bright enough to see, so the points show where they
+        are, orange for ellipticals, blue for spirals, sized by their infrared luminosity. It is a survey, not a census: most of
+        its galaxies are in the northern galactic sky, almost none behind the Milky Way’s disc, and single distances are 15 to
+        25% uncertain; its card says so. It shows by itself from beyond the Local Group. <b>View › CMB map</b> lays the
+        cosmic microwave background over the sky: the oldest light there is, mapped by WMAP, blue colder and red warmer by up
+        to 250 millionths of a kelvin. Its contrast is enhanced about 10,000 times: to the eye it is perfectly even.
+      </p>
+      <p>
+        The universe expands with the clock. Run it billions of years ahead, or fly far, and the galaxies beyond the Local
+        Group recede: each is held at its place in the expanding universe, so the space between them grows, while the Local
+        Group, the groups and the clusters, held together by gravity, keep their size. Their light is the light that arrives:
+        reddened and dimmed as space stretches it on the way, and in flight shifted again by your own motion; a galaxy’s card
+        says how long ago that light left it and how much it was stretched. The background’s temperature falls as the
+        universe grows, 2.72548 K now and 1.45 K ten billion years from now. The CMB map is the pattern seen from the Solar
+        System today: from far away, or at another time, the sky shows a different shell of the early universe, so the map
+        fades out.
+      </p>
+      <TryRow>
+        <Try run={() => runScene('cosmic-web')}>See the cosmic web</Try>
+        <Try run={() => runScene('cmb-map')}>Show the CMB map</Try>
+      </TryRow>
+
+      <H3>What is a model</H3>
+      <p>Wherever you look, the card says what is measured and what is a model. In short:</p>
+      <ul>
+        <li>
+          <b>The Milky Way seen from outside</b> is a model built from published measurements. Its points are not real stars,
+          and its spiral arms are extrapolated beyond the parallax data.
+        </li>
+        <li>
+          <b>Nebulae</b> are their photographs from Earth, at a brightness set for display. From anywhere else they are flat
+          cards facing the Sun, mirrored when seen from behind.
+        </li>
+        <li>
+          <b>Globular clusters</b> are glows with their measured brightness and size; the points speckling them are
+          illustrative. <b>The S-stars</b> are drawn where their orbits carry them now, 27,000 years beyond the positions whose
+          light we see.
+        </li>
+        <li>
+          <b>Other galaxies</b> are modelled from their measured size, brightness and orientation, with the arms, clumps and dust
+          typical of their type. Where a disc’s near side is not known, which side is nearer is assumed.
+        </li>
+        <li>
+          <b>The young galaxies</b> are drawn as they were when the light we see left them, with the spectrum of a hot black body
+          (their ultraviolet brightness standing in for their visible one), redshifted and dimmed by the expansion. In truth
+          hydrogen in the young universe absorbed all their visible light: to the eye they are dark.
+        </li>
+        <li>
+          <b>The cosmic web</b> places each galaxy of Cosmicflows-4 at its group’s measured distance nearby and at the distance
+          of its group’s redshift farther out (a single galaxy’s measured distance is 15 to 25% uncertain), and the survey covers
+          the sky unevenly: almost nothing behind the Milky Way’s disc.
+        </li>
+        <li>
+          <b>The CMB map</b> is contrast enhanced about 10,000 times; to the eye the oldest light is perfectly even. It is the
+          pattern seen from the Solar System today.
+        </li>
+        <li>
+          <b>The expanding universe</b> follows the Planck 2018 cosmology. Galaxies beyond the Local Group are held at their
+          places in it (their own motions are not followed), groups and clusters keep their size, and the redshift of their
+          light is drawn as if it were a black body’s.
+        </li>
+        <li>
+          <b>Planets of other stars</b> have illustrative colours, and often an assumed orientation.
+        </li>
+        <li>
+          <b>Flights beyond the Local Group</b> assume a perfect engine and a destination that moves with the expansion of the
+          universe.
+        </li>
+      </ul>
+      <p>
+        The full list is under{' '}
+        <Ref page="about" to="limitations">
+          Model limitations
+        </Ref>{' '}
+        on the About page.
+      </p>
+
+      <H3>Reading on</H3>
+      <Reads list={OUT_THERE} />
+    </Chapter>
+  );
+}
+
 /** The rate steps, from clock.ts, in powers of ten and in words. */
 function RateTable() {
   return (
@@ -532,7 +782,7 @@ function Time() {
   return (
     <Chapter
       id="time"
-      n={5}
+      n={chapterNo('time')}
       title="Time"
       lead="The simulation starts at the present moment and runs in real time. You can stop it, run it up to hundreds of millions of years a second, or jump to another date."
     >
@@ -572,6 +822,17 @@ function Time() {
         far from the present it simply advances in coarser steps.
       </p>
 
+      <H3>The age of the universe</H3>
+      <p>
+        The clock is the universe’s clock too. Its date fixes the age of the universe, 13.8 billion years today, how far space
+        has stretched since the Big Bang, and the temperature of the cosmic background radiation, from the standard model of
+        cosmology with the Planck 2018 parameters. Run the clock billions of years ahead and the universe expands with it,
+        whether or not you are flying, and a flight moves the clock on as it goes. The Local Group, held together by its own
+        gravity, does not take part in the expansion. The bodies themselves do not age: more than ten million years from the
+        present the Sun, the planets, the stars and the nebulae are still drawn as they are today. Their cards say so, and
+        for times ahead they say what the Sun and the Earth will have become.
+      </p>
+
       <H3>In flight</H3>
       <p>
         A flight plays by the clock on board. The same arrows then set how much of your time passes each second, shown as, say,{' '}
@@ -602,13 +863,13 @@ function Flying() {
   return (
     <Chapter
       id="flying"
-      n={6}
+      n={chapterNo('flying')}
       title="Journeys and flights"
-      lead="A flight is a physical journey: a straight line through space at 1 g or at a speed you choose, with clocks that obey special relativity. Journeys are flights and scenes set up for you."
+      lead="A flight is a physical journey: a straight line through space at 1 g or at a speed you choose, with clocks that obey relativity, and beyond the Local Group through space that expands as you go. Journeys are flights and scenes set up for you."
     >
       <H3>Journeys</H3>
       <p>
-        <b>Journeys</b> in the header lists ten set pieces. Each is one click: the camera is placed, the clock is set, and a
+        <b>Journeys</b> in the header lists {countWord(JOURNEYS.length)} set pieces. Each is one click: the camera is placed, the clock is set, and a
         line says what to look for. Flights leave from Earth and show their predicted times, by Earth’s clocks and by yours,
         before you go.
       </p>
@@ -636,8 +897,9 @@ function Flying() {
       <p>
         <b>Fly here</b> on a body’s card and <b>Fly</b> in Where to? open the flight planner set to a 1 g rocket to that body.{' '}
         <Kbd>G</Kbd> opens it for the selected body, with the drive and speed chosen last. You leave from wherever the camera is, and the planner aims at the
-        point where the destination will be when you arrive, not where it is now. Press <b>Ignite</b> (or <b>Execute</b> for a
-        constant speed) to go.
+        point where the destination will be when you arrive, not where it is now. A flight ends a few radii from a planet, a
+        moon or a star; to a galaxy, a cluster or a nebula it goes in almost to the centre, and the view then pulls back to show the
+        whole of it. Press <b>Ignite</b> (or <b>Execute</b> for a constant speed) to go.
       </p>
       <TryRow>
         <Try run={planFlight('mars', 0.5)}>Plan a flight to Mars at 0.5c</Try>
@@ -648,10 +910,13 @@ function Flying() {
         head={['Drive', 'What it does']}
         rows={[
           [
-            '1 g flip-and-burn',
-            'Accelerates at one Earth gravity, turns round halfway and decelerates, arriving at rest. A real rocket could in principle fly this, and the crew would feel their normal weight all the way.',
+            'Flip-and-burn',
+            'A rocket that accelerates at one Earth gravity (or at 0.1, 2 or 10 g, if you choose), turns round halfway and decelerates, arriving at rest. A real rocket could in principle fly this, and at 1 g the crew would feel their normal weight all the way. In expanding space the turn comes after the halfway point, since the expansion also slows the ship. You can set a limit on the time on board: a longer flight is refused.',
           ],
-          ['Constant speed', 'Jumps instantly to the chosen speed, coasts, and stops instantly on arrival. Idealised, but the clock readings between the jumps are exact.'],
+          [
+            'Constant speed',
+            'Jumps instantly to the chosen speed, coasts, and stops instantly on arrival. Idealised, but the clock readings between the jumps are exact. Through expanding space it cannot simply coast: it burns up to the speed at the chosen acceleration, holds it against the expansion, and brakes.',
+          ],
           [
             <span key="w" className="!text-hazard">
               Superluminal (fiction)
@@ -672,9 +937,10 @@ function Flying() {
       <p>
         Before you launch, the planner lists what the flight will involve: the path length; the time Δ<i>t</i> it takes by the
         Sun’s clocks; the time Δ<i>τ</i> that will pass on board; their difference; for the constant-speed drive, the length of
-        the path as measured on the ship; and how long light would take over the same path. For 1 g flights it adds the peak
-        speed and the mass ratio a perfect photon rocket would need. The worldline preview plots the trip on a spacetime
-        diagram in which light travels at 45°.
+        the path as measured on the ship; and how long light would take over the same path. For rocket flights it adds the
+        peak speed and the mass ratio a perfect photon rocket would need. The worldline preview plots the trip on a spacetime
+        diagram in which light travels at 45°. Flights through expanding space have numbers of their own, and a plot of the
+        two clocks in place of the worldline (below).
       </p>
 
       <H3>In flight</H3>
@@ -686,7 +952,7 @@ function Flying() {
       </p>
       <p>
         Drag to look around, or use <b>Ahead</b> and <b>Astern</b>. The arrows beside <i>1 s = …</i> set the pace (
-        <Ref to="time">Chapter 5</Ref>). <b>Skip to arrival</b> advances the clocks to the end of the trip, and the readings stay
+        <Ch to="time" />). <b>Skip to arrival</b> advances the clocks to the end of the trip, and the readings stay
         exact. <b>Abort</b> stops the ship where it is (instantly, which no real ship could do). <b>Details</b> opens the full
         flight recorder: both clocks to more figures, their difference, the distance left measured in the Sun’s frame and in
         yours, a ruler of the path, and the optics. You can still select bodies and read their cards, but the camera stays with
@@ -696,6 +962,13 @@ function Flying() {
         On arrival a card sums the trip up: for example, <i>Arrived at Saturn. The trip took 34 min for you and 1 h 18 min at
         home.</i> After a trip of a year or more at home it adds how much older you are and the date at home.
       </p>
+      <p>
+        Inside the Milky Way space is taken as static: the flights are special relativity, with no expansion of the universe to
+        allow for (it does not stretch gravitationally bound systems). A 1 g flight to the black hole at the centre takes about
+        20 years by your clock and about 27,000 years at home. The same holds within the Local Group: a 1 g flight to
+        Andromeda takes about 29 years aboard and 2.5 million years at home. Farther out, the expansion of the universe matters.
+      </p>
+      <GuideFlightsBeyond />
       <Note title="Faster than light" tone="hazard">
         Nothing with mass can reach <i>c</i>: the energy needed grows without limit as <i>β</i> approaches 1. The superluminal
         drive exists to show why. During it the Lorentz factor is imaginary, time on board has no meaning, and some observers
@@ -707,20 +980,27 @@ function Flying() {
 }
 
 /** The Learn articles about what you see, in the order to read them. */
-const SEEING: { slug: string; title: string; what: string }[] = [
+interface Reading {
+  slug: string;
+  title: string;
+  what: string;
+}
+
+const SEEING: Reading[] = [
   { slug: 'light-takes-time', title: 'Light takes time', what: 'Why nothing you see is current, and how the speed of light was first timed.' },
   { slug: 'how-big-is-the-solar-system', title: 'How big is the Solar System?', what: 'The scale of it all, and why the planets are specks at true scale.' },
   { slug: 'nothing-outruns-light', title: 'Why nothing outruns light', what: 'The Lorentz factor, the energy cost of each extra nine, and what faster than light would break.' },
   { slug: 'time-dilation', title: 'Time dilation is real', what: 'Why your clock falls behind Earth’s in flight, the twin paradox, and the experiments that prove it.' },
-  { slug: 'seeing-near-light-speed', title: 'What you would see near the speed of light', what: 'Aberration, the Doppler shift and beaming: the sky of Figure 7.1.' },
+  { slug: 'seeing-near-light-speed', title: 'What you would see near the speed of light', what: `Aberration, the Doppler shift and beaming: the sky of Figure ${chapterNo('seeing')}.1.` },
   { slug: 'rockets-to-the-stars', title: 'Rockets to the stars', what: 'The 1 g flip-and-burn, and the fuel it would need.' },
 ];
 
-function SeeingReads() {
+/** A list of Learn articles, each with a line on what it tells. */
+function Reads({ list }: { list: readonly Reading[] }) {
   useArticles(); // the list follows the article index as articles are added
   return (
     <dl className="doc-dl">
-      {SEEING.map((a) => {
+      {list.map((a) => {
         const meta = findArticle(a.slug);
         return (
           <div key={a.slug}>
@@ -737,11 +1017,11 @@ function Seeing() {
   return (
     <Chapter
       id="seeing"
-      n={7}
+      n={chapterNo('seeing')}
       title="What you are seeing"
       lead="Near the speed of light the sky and the clocks behave strangely, and every bit of it is real physics. Learn tells the full stories; this chapter points to them."
     >
-      <SeeingReads />
+      <Reads list={SEEING} />
       <TryRow>
         <button type="button" className="doc-try" onClick={() => openLearn()}>
           <span className="doc-try-k">Learn</span>
@@ -752,11 +1032,12 @@ function Seeing() {
       <H3>The sky in flight</H3>
       <p>
         Your motion tilts the light coming in, the way rain seems to come from ahead when you run through it. At 0.9<i>c</i> the
-        whole forward half of the sky fits within 26° of the point you are heading for (Figure 7.1); at 0.999<i>c</i>, within
-        2.6°. Light from ahead is shifted to the blue and brightened, and the sky behind fades to red.
+        whole forward half of the sky fits within 26° of the point you are heading for (Figure {chapterNo('seeing')}.1); at
+        0.999<i>c</i>, within 2.6°. Light from ahead is shifted to the blue and brightened, and the sky behind fades to red. The
+        glow of the Milky Way, the nebulae and the galaxies change in the same way as the stars.
       </p>
       <Fig
-        n="7.1"
+        n={`${chapterNo('seeing')}.1`}
         caption={
           <>
             Twenty-four stars spaced every 15° round a circle, seen at rest (left) and from a ship moving towards the top at{' '}
@@ -781,7 +1062,7 @@ function Seeing() {
       <p>
         With <b>View › Physics hints</b> on, a note in the corner points to the right article the first time each of these
         things happens. For students, the lab’s <b>Reference</b> tab has the same physics in ten short sections with their
-        equations (<Ref to="lab">Chapter 9</Ref>).
+        equations (<Ch to="lab" />).
       </p>
     </Chapter>
   );
@@ -791,7 +1072,7 @@ function Readings() {
   return (
     <Chapter
       id="readings"
-      n={8}
+      n={chapterNo('readings')}
       title="Readings"
       lead="The card tells you about a body; the instrument panel gives every number, several times a second. Open it from View › Instrument panel, from Details on a card, or with I. Its sections are lettered; click a heading to fold it."
     >
@@ -806,11 +1087,11 @@ function Readings() {
           {(
             [
               ['A', 'Observer', 'Your distance from the Sun and your direction; speed v and β = v/c; the Lorentz factor γ; rapidity; how fast your clock runs; kinetic energy per kilogram.'],
-              ['B', 'Chronometers', 'Coordinate time t, your proper time τ, their difference and their ratio (Chapter 5).'],
+              ['B', 'Chronometers', `Coordinate time t, your proper time τ, their difference and their ratio (Chapter ${chapterNo('time')}).`],
               ['C', 'Target', 'For the selected body: range, light-time, range rate, angular size and brightness; in motion, its angle from the apex in both frames and its Doppler factor; physical data and a short description. Buttons slew the camera, plan a flight, or emit a light pulse from the body.'],
               ['D', 'Relativistic optics', 'Whether the relativistic view is active; the Doppler factor ahead, abeam and astern; the angle within which the forward half of the sky appears; the colour temperature of the Sun if it lay dead ahead; the reticle’s spectrometer reading.'],
               ['E', 'Light-time', 'How old your view of Earth is, how long a signal to Earth would take, and how long ago the sunlight reaching you left the Sun.'],
-              ['F', 'Spacetime diagram', 'In flight only: your worldline, with ticks of ship time and your current line of simultaneity.'],
+              ['F', 'Spacetime diagram', 'In flight through static space only: your worldline, with ticks of ship time and your current line of simultaneity.'],
               ['G', 'Ephemeris', 'The distance from the Sun and from you, and the light-time, of the Sun, the planets, Pluto, the Moon, Voyager 1, the stars of the named systems, the moons of the system in view, and the target. Click a row to select the body.'],
               ['H', 'Strip-chart recorder', 'The last 30 seconds of β, γ, the Doppler factor ahead, the clock rate, or range.'],
             ] as const
@@ -833,7 +1114,7 @@ function Readings() {
       <KeyTable
         rows={[
           ['Body card', 'Top right, for the selected body: what it is, its range and light-time, three facts, and Go there, Fly here, Read and Details. × closes it; the next selection brings it back.'],
-          ['Flight panel', <>Along the bottom in flight: speed, your clock, the clock at home and the distance left (<Ref to="flying">Chapter 6</Ref>).</>],
+          ['Flight panel', <>Along the bottom in flight: speed, your clock, the clock at home and the distance left (<Ch to="flying" />).</>],
           ['Reticle', <>In motion, marks the centre of the view. Its spectrometer reads the angle <i>θ</i>′ from the apex and the Doppler factor <i>D</i> there.</>],
           ['APEX, ANTAPEX', 'The directions you are heading towards and away from.'],
           ['Scale bar', 'A length at the distance of the body named beside it. In the relativistic view it reads “scale undefined”, since the scale varies across the sky.'],
@@ -860,7 +1141,7 @@ function Lab() {
   return (
     <Chapter
       id="lab"
-      n={9}
+      n={chapterNo('lab')}
       title="For students: the lab"
       lead="The lab turns the simulator into apparatus. Five experiments are laid out like a university lab script, and the program does the bookkeeping. Anyone else can skip this chapter: the lab never opens by itself."
     >
@@ -872,8 +1153,9 @@ function Lab() {
         physics behind what you see in ten short sections with equations.
       </p>
       <p>
-        The lab keeps every constant-speed and 1 g flight as a reading, whether or not it is open. Once you have opened it, the
-        arrival card also says which experiment logged the flight, and the planner says which experiment will.
+        The lab keeps every constant-speed and rocket flight as a reading, whether or not it is open. Once you have opened it,
+        the arrival card also says which experiment logged the flight, and the planner says which experiment will. Flights
+        through expanding space are not logged: the experiments are about special relativity.
       </p>
       <TryRow>
         <Try run={() => openLab()}>Open the lab</Try>
@@ -912,8 +1194,8 @@ function Lab() {
         proportion to proper time, and <i>c</i> times the slope is the acceleration felt on board.
       </p>
       <p>
-        Constant-speed flights are logged by Experiment 2 and 1 g flights by Experiment 5. Journeys count too. Flights with the
-        fictional drive are never logged.
+        Constant-speed flights are logged by Experiment 2 and rocket flights by Experiment 5. Journeys count too. Flights with
+        the fictional drive, and flights through expanding space, are never logged.
       </p>
       <TryRow>
         <Try run={startExperiment1}>Open Experiment 1</Try>
@@ -922,10 +1204,10 @@ function Lab() {
       <H3>Anatomy of an experiment</H3>
       <p>
         Every experiment page has the same eight sections: Aim, Background (the theory, with numbered equations), Apparatus,
-        Procedure, Observations, Analysis, Questions and Conclusion. The first three are reading. Figure 9.1 shows how the rest
+        Procedure, Observations, Analysis, Questions and Conclusion. The first three are reading. Figure {chapterNo('lab')}.1 shows how the rest
         fit together.
       </p>
-      <Fig n="9.1" caption="Working through an experiment, from the procedure to the report.">
+      <Fig n={`${chapterNo('lab')}.1`} caption="Working through an experiment, from the procedure to the report.">
         <WorkflowFigure />
       </Fig>
 
@@ -941,7 +1223,7 @@ function Lab() {
       <H3>Recording data</H3>
       <p>
         Experiments 1, 2 and 5 record by themselves: every detector that registers a pulse (1), every constant-speed flight that
-        arrives (2), and samples along every 1 g flight (5). Experiments 3 and 4 need you to take readings: open the experiment,
+        arrives (2), and samples along every rocket flight (5). Experiments 3 and 4 need you to take readings: open the experiment,
         set up the view as its procedure describes, and press <b>Record</b> or <Kbd>R</Kbd>. If a reading cannot be taken, the
         message in the corner of the view says why. Readings go into the data table under Observations; point at a row and click
         × to delete it, or <b>Clear</b> to delete them all.
@@ -982,7 +1264,7 @@ function Controls() {
   return (
     <Chapter
       id="controls"
-      n={10}
+      n={chapterNo('controls')}
       title="Keyboard and mouse"
       lead="Single-key shortcuts work whenever you are not typing in a field. Press ? at any time for this list on one sheet. If the keys clash with assistive software, turn them off in View › Single-key shortcuts (or on the keys sheet); Ctrl+K still opens Where to?."
     >
@@ -1026,6 +1308,13 @@ function Troubleshooting() {
       <>
         At true scale they are smaller than a pixel. Look for their labels, or press <Kbd>T</Kbd> for enlarged bodies. If the
         labels are off, press <Kbd>L</Kbd>.
+      </>,
+    ],
+    [
+      'I can’t see the galaxies',
+      <>
+        Seen from far off most galaxies are too faint to see, as they would be to the eye. Go closer (<b>Where to?</b> finds
+        any of them by name), or turn on <b>View › Cosmic web</b> to see where they are as a map.
       </>,
     ],
     [
@@ -1078,13 +1367,13 @@ function Troubleshooting() {
     [
       'Where is my data?',
       <>
-        In this browser’s local storage (<Ref to="lab">Chapter 9</Ref>). Export it before clearing your browsing data or moving
+        In this browser’s local storage (<Ch to="lab" />). Export it before clearing your browsing data or moving
         to another computer.
       </>,
     ],
   ];
   return (
-    <Chapter id="troubleshooting" n={11} title="Troubleshooting" lead="Common problems and what to do about them.">
+    <Chapter id="troubleshooting" n={chapterNo('troubleshooting')} title="Troubleshooting" lead="Common problems and what to do about them.">
       {faq.map(([q, a]) => (
         <div key={q}>
           <H3>{q}</H3>
@@ -1116,19 +1405,29 @@ const GLOSSARY: [ReactNode, ReactNode][] = [
   ['Astronomical unit (au)', 'A defined length, 149,597,870.7 km, close to the mean distance from Earth to the Sun: about 8 minutes 19 seconds of light-time.'],
   [<><i>β</i> (beta)</>, <>Speed as a fraction of the speed of light, <i>v</i>/<i>c</i>.</>],
   ['Beaming', 'The brightening of light from ahead, and dimming of light from behind, seen by a fast observer.'],
+  ['Comoving distance', 'The distance between two galaxies carried along by the expansion, with the expansion taken out: their distance at any moment divided by the scale factor then. Today it is their distance now.'],
   [<>Coordinate time, <i>t</i></>, 'Time kept by clocks at rest in the Sun’s frame S: the clock “at home”.'],
+  ['Cosmic event horizon', 'The distance beyond which light sent today will never arrive, because the expansion of the universe is speeding up: about 16.6 billion light-years. No ship can reach anything beyond it.'],
+  ['Cosmic microwave background (CMB)', 'The oldest light there is, set free about 370,000 years after the Big Bang and stretched since into microwaves; it fills the sky at 2.725 K.'],
+  ['Cosmic time', 'Time since the Big Bang, as kept by clocks at rest in the expanding universe: 13.8 billion years today. On flights through expanding space it is the clock at home.'],
+  ['Cosmic web', 'The pattern of galaxies on the largest scales: walls and filaments round nearly empty voids.'],
   [<>Doppler factor, <i>D</i></>, <>The ratio of observed to emitted frequency. <i>D</i> greater than 1 is a blueshift.</>],
   ['Ecliptic', 'The plane of Earth’s orbit, and the circle it traces on the sky; the reference plane for the coordinates used here.'],
   ['Epoch', 'The instant being simulated: the date on the chip in the header.'],
   ['Frame, S and S′', 'S is the rest frame of the Sun; S′ is the frame moving with the observer.'],
   [<><i>γ</i> (gamma), Lorentz factor</>, <>1/√(1 − <i>β</i><sup className="sup">2</sup>): the factor by which moving clocks run slow and moving lengths contract.</>],
-  ['Journey', 'One of the ten set pieces under Journeys: a flight from Earth, or a scene with the clock set, with a line on what to look for.'],
+  ['Journey', `One of the ${countWord(JOURNEYS.length)} set pieces under Journeys: a flight from Earth, or a scene with the clock set, with a line on what to look for.`],
+  [<>Lambda-CDM (<i>Λ</i>CDM)</>, 'The standard model of cosmology: a flat universe of ordinary matter, cold dark matter and dark energy in the form of a cosmological constant, Λ. Lightspeed uses it with the values measured by the Planck satellite (2018).'],
   ['Light-time', 'How long light takes to cover a given distance.'],
   ['Light-year (ly)', <>The distance light travels in a Julian year, 9.46 × 10<sup className="sup">12</sup> km.</>],
+  ['Local Group', 'The Milky Way, Andromeda, Triangulum and dozens of smaller galaxies, held together by gravity within about a megaparsec; inside it space does not expand.'],
   ['Opposition', 'The time when a planet stands opposite the Sun in Earth’s sky, near its closest to Earth.'],
+  ['Parsec (pc)', 'The distance at which one astronomical unit spans one second of arc: 3.26 light-years. A kiloparsec (kpc) is a thousand parsecs, a megaparsec (Mpc) a million.'],
   [<>Proper time, <i>τ</i> (tau)</>, 'Time kept by a clock travelling with the observer: “your clock”.'],
   [<>Rapidity, <i>φ</i> (phi)</>, <>artanh <i>β</i>: a measure of speed that adds simply for successive boosts along a line, and grows in proportion to proper time at constant acceleration.</>],
+  [<>Redshift, <i>z</i></>, <>How much light has been stretched on its way: 1 + <i>z</i> is the wavelength received over the wavelength sent. For distant galaxies most of it is the expansion of space.</>],
   [<>Reduced chi-squared, <i>χ</i><sup className="sup">2</sup>/<i>ν</i></>, 'The sum of squared residuals, each divided by its variance, over the degrees of freedom. About 1 for a good fit with honest error bars.'],
+  [<>Scale factor, <i>a</i></>, 'How far space has stretched: distances between galaxies far apart grow in proportion to it. It is 1 today.'],
   ['Simulation rate', <>Simulated seconds per real second, from 1 to {rich(`10${superscript(Math.round(Math.log10(WARP_STEPS[WARP_STEPS.length - 1])))}`)}.</>],
   ['True scale', 'Every body drawn at its real size and at its real distance.'],
   ['Worldline', 'The path of an object through spacetime.'],
@@ -1136,7 +1435,7 @@ const GLOSSARY: [ReactNode, ReactNode][] = [
 
 function Glossary() {
   return (
-    <Chapter id="glossary" n={12} title="Glossary">
+    <Chapter id="glossary" n={chapterNo('glossary')} title="Glossary">
       <dl className="doc-dl">
         {GLOSSARY.map(([t, d], i) => (
           <div key={i}>
@@ -1164,12 +1463,16 @@ export default function GuideDoc() {
       <header className="doc-mast">
         <div className="doc-mast-k">Guide</div>
         <h1>Exploring with Lightspeed</h1>
-        <p>How to look around, fly, and find your way, and what everything on the screen does. Chapter 9 is for students using the lab.</p>
+        <p>
+          How to look around, fly and find your way, from the Moon to the cosmic web, and what everything on the screen does.
+          Chapter {chapterNo('lab')} is for students using the lab.
+        </p>
       </header>
       <Welcome />
       <QuickStart />
       <Screen />
       <Looking />
+      <Universe />
       <Time />
       <Flying />
       <Seeing />

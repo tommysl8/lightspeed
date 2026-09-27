@@ -206,6 +206,11 @@ function setMagnitude(rec: BodyRecord, b: MagnitudeTarget): void {
     b.magnitude = lum.vmag + 5 * Math.log10(Math.max(distCameraKm, 1) / lum.atKm);
     return;
   }
+  // Nothing to reflect or shine: a nebula (its picture is its light) or a black hole.
+  if (rec.visual?.renderer === 'layer' || rec.kind === 'black-hole') {
+    b.magnitude = 99;
+    return;
+  }
   const p = rec.physical.geometricAlbedo ?? 0.3;
   const R = rec.physical.radiusKm;
   // The star whose light it reflects: the Sun, or its own star (a planet of another star).

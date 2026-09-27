@@ -431,6 +431,7 @@ const KIND_TEXT: Record<BodyKind, string> = {
   galaxy: 'Galaxy',
   cluster: 'Star cluster',
   nebula: 'Nebula',
+  'black-hole': 'Black hole',
   barycentre: 'Barycentre',
 };
 

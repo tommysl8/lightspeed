@@ -15,10 +15,11 @@ import { useUI } from '../state/ui';
 import { psfUniforms } from '../render/materials';
 import { updateRelativisticView } from '../render/relativisticView';
 import { onArrival } from '../ui/tripActions';
-import { pickBody } from './picking';
+import { pickAt, pickedBody } from './picking';
 import { updateNearbyStars } from '../sim/stars';
 import { updateExoplanets } from '../sim/exoplanets';
 import { isWithin } from '../sim/bodies';
+import { updateCosmicSky } from '../sim/cosmos/expansion';
 
 /**
  * A star registered on demand stays while it (or a planet of it) is looked at, selected or flown
@@ -41,16 +42,18 @@ export function SimDriver() {
 
   useEffect(() => {
     controller.attach(gl.domElement);
-    controller.onClick = (x, y) => useUI.getState().select(pickBody(x, y));
+    // A ring round a star with planets picks that star, registering it (and its planets) if need be.
+    const pick = (x: number, y: number) => pickedBody(pickAt(x, y, camera as PerspectiveCamera));
+    controller.onClick = (x, y) => useUI.getState().select(pick(x, y));
     controller.onDoubleClick = (x, y) => {
-      const id = pickBody(x, y);
+      const id = pick(x, y);
       if (id) {
         useUI.getState().select(id);
         controller.goTo(id);
       }
     };
     return () => controller.detach();
-  }, [gl]);
+  }, [gl, camera]);
 
   useFrame((_, delta) => {
     const dtReal = sim.debugDt > 0 ? sim.debugDt : Math.min(delta, 0.1);
@@ -100,6 +103,8 @@ export function SimDriver() {
 
     // What the camera sees
     updateApparentPositions(ui.retarded);
+    // The galaxies' light in the expanding universe: redshifts, and where each is seen (sim/cosmos/expansion.ts)
+    updateCosmicSky(ui.retarded);
     updateRelativisticView(ui.relMode, ui.splitX, ui.relDoppler, !!travel.trip?.warp);
     updateDerived(cam, ui.focus, ui.selected);
     if (sim.frame - earthLight.frame >= 12) updateEarthLight();

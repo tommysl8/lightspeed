@@ -15,10 +15,14 @@ import {
   NAMED_SCENES,
   parseScene,
   resolveTarget,
+  runScene,
   sceneNote,
   sceneStatus,
   specOf,
+  theName,
 } from './scenes';
+import { starData } from '../sim/stars/load';
+import { cosmosState } from '../sim/cosmos/load';
 import { JOURNEYS } from './journeys';
 import { registerSolarSystem, type BodiesFile, type RingsFile } from '../sim/solarSystem';
 import { indexMoonCatalog, type MoonCatalog } from '../sim/moonModels';
@@ -48,7 +52,8 @@ describe('parseScene', () => {
   it('accepts every target the articles use, even those not in the app yet', () => {
     for (const t of KNOWN_TARGETS) expect(parseScene(`go:${t}`)).not.toBeNull();
     expect(KNOWN_TARGETS).toContain('jades-gs-z14-0');
-    expect(KNOWN_TARGETS).toHaveLength(109);
+    expect(KNOWN_TARGETS).toContain('mom-z14');
+    expect(KNOWN_TARGETS).toHaveLength(110);
     expect(KNOWN_TARGETS).toEqual(expect.arrayContaining(['trappist-1', 'hr-8799', '51-pegasi', 'kepler-90', 'toi-700', 'kepler-16']));
   });
 
@@ -90,11 +95,26 @@ describe('sceneStatus', () => {
       expect(sceneStatus(name).ok, name).toBe(true);
   });
 
-  it('is "coming in a later update" for targets and scenes not built yet', () => {
-    expect(sceneStatus('go:andromeda')).toEqual({ ok: false, reason: LATER, label: 'Go to Andromeda Galaxy' });
+  it('says what is still loading, what did not load, and what is not in the app at all', () => {
+    // The stars and the galaxies (sim/stars, sim/cosmos) are not loaded in this test: their loaders were never asked.
     expect(sceneStatus('fly:barnards-star?beta=0.12')).toEqual({ ok: false, reason: LATER, label: 'Fly to Barnard’s Star at 0.12c' });
-    expect(sceneStatus('cosmic-web')).toEqual({ ok: false, reason: LATER, label: 'The cosmic web' });
-    expect(sceneStatus('edge-of-reach').reason).toBe(LATER);
+    expect(LATER).not.toMatch(/later update/);
+    const stars = starData.status;
+    const galaxies = cosmosState.status;
+    try {
+      starData.status = 'loading';
+      cosmosState.status = 'loading';
+      expect(sceneStatus('fly:barnards-star?beta=0.12').reason).toBe('Loading the star catalogue…');
+      expect(sceneStatus('go:andromeda')).toEqual({ ok: false, reason: 'Loading the galaxies…', label: 'Go to the Andromeda Galaxy' });
+      expect(sceneStatus('cosmic-web')).toEqual({ ok: false, reason: 'Loading the galaxies…', label: 'The cosmic web' });
+      starData.status = 'failed';
+      cosmosState.status = 'failed';
+      expect(sceneStatus('go:sirius').reason).toBe('The star catalogue did not load: reload the page to try again');
+      expect(sceneStatus('local-group').reason).toBe('The galaxies did not load: reload the page to try again');
+    } finally {
+      starData.status = stars;
+      cosmosState.status = galaxies;
+    }
   });
 
   it('explains specs that are not scenes and flights that go nowhere', () => {
@@ -107,7 +127,7 @@ describe('sceneStatus', () => {
     try {
       expect(sceneStatus('go:mars')).toMatchObject({ ok: false, reason: expect.stringMatching(/flight is under way/) });
       expect(sceneStatus('race-sunlight').ok).toBe(false);
-      // Not built yet is the answer whatever is happening.
+      // Not in the app (or not loaded yet) is the answer whatever is happening.
       expect(sceneStatus('go:andromeda').reason).toBe(LATER);
     } finally {
       useUI.setState({ tripActive: false });
@@ -117,7 +137,7 @@ describe('sceneStatus', () => {
   it('can be extended by later updates: a resolver for new targets, a definition for new scenes', () => {
     expect(resolveTarget('andromeda')).toBeNull();
     const remove = addTargetResolver((id) => (id === 'andromeda' ? { kind: 'body', id: 'proxima', name: 'Andromeda Galaxy' } : null));
-    expect(sceneStatus('go:andromeda')).toEqual({ ok: true, label: 'Go to Andromeda Galaxy' });
+    expect(sceneStatus('go:andromeda')).toEqual({ ok: true, label: 'Go to the Andromeda Galaxy' });
     remove();
     expect(sceneStatus('go:andromeda').ok).toBe(false);
 
@@ -138,6 +158,29 @@ describe('notes and flights', () => {
     expect(sceneNote('date:2061-07-28')).toBe('The date is now 28 July 2061. Press N to come back to today.');
   });
 
+  it('give a 1 g flight’s two clocks as the planner has them', () => {
+    // Neptune is 29 au out: 2√(d/g) = 15 days at 1 g, hardly less on board (the peak speed is 0.02c).
+    expect(sceneNote('fly:neptune')).toMatch(/^A rocket pushing at one Earth gravity, turning round halfway to arrive at Neptune at rest: about 15 days on board and 15 days at home\. Watch your clock/);
+    expect(sceneNote('fly:sun')).toMatch(/arrive at the Sun at rest/);
+  });
+
+  it('put "the" before the names that take it', () => {
+    expect(['Sun', 'Moon', 'Andromeda Galaxy', 'Virgo Cluster', 'Orion Nebula', 'Large Magellanic Cloud', 'Local Group', 'Pleiades', 'James Webb Space Telescope'].map(theName)).toEqual([
+      'the Sun',
+      'the Moon',
+      'the Andromeda Galaxy',
+      'the Virgo Cluster',
+      'the Orion Nebula',
+      'the Large Magellanic Cloud',
+      'the Local Group',
+      'the Pleiades',
+      'the James Webb Space Telescope',
+    ]);
+    for (const n of ['Mars', 'Proxima Centauri', 'Bode’s Galaxy (M81)', 'Sagittarius A*', 'M87', 'Omega Centauri', 'Halley’s Comet', 'GN-z11']) expect(theName(n)).toBe(n);
+    expect(sceneStatus('go:sun').label).toBe('Go to the Sun');
+    expect(sceneNote('sky-from:sun')).toBe('Beyond the Sun, looking back towards Earth. Drag to look around.');
+  });
+
   it('give the flight a spec makes', () => {
     expect(flightOf('fly:proxima')).toEqual({ dest: 'proxima', drive: 'rocket', beta: 0 });
     expect(flightOf('fly:saturn?beta=0.9')).toEqual({ dest: 'saturn', drive: 'cruise', beta: 0.9 });
@@ -149,7 +192,8 @@ describe('notes and flights', () => {
 
 describe('journeys', () => {
   it('wait for the Solar System data when they need it', () => {
-    expect(sceneStatus('voyager2-neptune')).toMatchObject({ ok: false, reason: 'Loading the Solar System data…', label: 'Ride Voyager 2 past Neptune' });
+    // The loader was never asked here; in the app it starts with the page ("Loading the Solar System data…").
+    expect(sceneStatus('voyager2-neptune')).toMatchObject({ ok: false, reason: LATER, label: 'Ride Voyager 2 past Neptune' });
     expect(sceneStatus('halley-2061').ok).toBe(false);
   });
 
@@ -166,7 +210,7 @@ describe('journeys', () => {
       expect(parseScene(j.scene), j.id).not.toBeNull();
       expect(j.look.length, j.id).toBeGreaterThan(40);
       // TRAPPIST-1 needs the stars and the planetary systems (sim/exoplanets/exoplanets.test.ts runs it).
-      if (j.id === 'trappist') expect(sceneStatus(j.scene).reason).toBe('Loading the star catalogue…');
+      if (j.id === 'trappist') expect(sceneStatus(j.scene).reason).toBe(LATER);
       else expect(sceneStatus(j.scene).ok, j.id).toBe(true);
     }
   });
@@ -181,6 +225,33 @@ describe('journeys', () => {
     expect(byId.sunlight.clock).toBe('1 s here = 100 s');
     expect(byId.proxima.look).toMatch(/^A steady push of one Earth gravity takes you to the nearest star in 3\.5 years/);
     expect(byId.moon.look).toMatch(/^A month passes in 25 seconds\./);
+  });
+});
+
+describe('views a scene turns on for itself', () => {
+  it('are turned back by the next scene', () => {
+    useUI.setState({ retarded: false, showCmb: false });
+    expect(runScene('light-time-correction')).toBe(true);
+    expect(useUI.getState().retarded).toBe(true);
+    expect(runScene('go:jupiter')).toBe(true);
+    expect(useUI.getState().retarded).toBe(false);
+    cancelSceneStep();
+  });
+
+  it('stay as the visitor left them', () => {
+    // Turned on by the visitor, not by a scene: kept.
+    useUI.setState({ showCmb: true });
+    expect(runScene('go:mars')).toBe(true);
+    expect(useUI.getState().showCmb).toBe(true);
+    // Turned off by the visitor after the scene turned it on: not turned back on.
+    useUI.setState({ showCmb: false, retarded: false });
+    expect(runScene('light-time-correction')).toBe(true);
+    useUI.setState({ retarded: false });
+    useUI.setState({ showCmb: true });
+    expect(runScene('go:mars')).toBe(true);
+    expect(useUI.getState()).toMatchObject({ retarded: false, showCmb: true });
+    useUI.setState({ showCmb: false });
+    cancelSceneStep();
   });
 });
 

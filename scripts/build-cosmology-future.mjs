@@ -1,4 +1,4 @@
-// Builds staging/cosmology/future.json: what happens at home while a traveller is away.
+// Builds src/physics/cosmology/future.json: what happens at home while a traveller is away.
 //
 //   node scripts/build-cosmology-future.mjs
 //
@@ -17,7 +17,7 @@ import { gunzipSync, inflateSync } from 'node:zlib';
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const rawDir = join(root, 'data-raw', 'cosmology');
 const tarPath = join(rawDir, 'arXiv-2408.00064v1.tar.gz');
-const outPath = join(root, 'staging', 'cosmology', 'future.json');
+const outPath = join(root, 'src', 'physics', 'cosmology', 'future.json');
 
 async function ensureTarball() {
   if (existsSync(tarPath)) return;
@@ -172,7 +172,7 @@ const future = {
   version: 1,
   generator: 'scripts/build-cosmology-future.mjs',
   about:
-    'What happens at home (the Sun, the Earth, the Local Group, the cosmic background) while a traveller is away. Times are Gyr from the present day. Evaluate with staging/cosmology/src/future.ts.',
+    'What happens at home (the Sun, the Earth, the Local Group, the cosmic background) while a traveller is away. Times are Gyr from the present day. Evaluate with src/physics/cosmology/future.ts.',
   timeOrigin: {
     note: 'fromNowGyr = 0 is the present. The present is cosmic time 13.787 +- 0.020 Gyr after the big bang (Planck 2018); the app computes cosmic times from its cosmology module.',
     universeAgeGyr: 13.787,

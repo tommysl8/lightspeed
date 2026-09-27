@@ -238,7 +238,7 @@ That was the standard forecast after the Hubble Space Telescope measured Androme
 Either way the Local Group stays bound. Kentaro Nagamine and Abraham Loeb simulated the neighbourhood's future in 2002 and found that in the far future the only big galaxy left inside our event horizon is the one the Milky Way and Andromeda eventually make together.[^nagamine2003][^krauss2007]
 
 ::: see-it local-group
-The Local Group from outside: the Milky Way, Andromeda, Triangulum and their small companions. This is everything that will still be in our sky once the rest of the universe has gone.
+The Local Group from outside: the Milky Way, Andromeda, Triangulum and their small companions, most of them too faint to see from this far (the Bodies list names every one). This is everything that will still be in our sky once the rest of the universe has gone.
 :::
 
 Everything else fades on a schedule set by the event horizon. Take the Virgo Cluster, the nearest big cluster, which is not bound to us.[^nagamine2003] Treating it as moving purely with the expansion, the last light it sends that will ever reach us leaves it when the universe is about 113 billion years old. Nobody would see it vanish; its image would slow down and redden instead. Seen when the universe is 150 billion years old its light would be stretched ninefold, and at 200 billion years 146-fold.[^calc] Lawrence Krauss and Robert Scherrer put the general case in 2007: over roughly 100 billion years, every structure beyond the Local Group is carried out of view.[^krauss2007]
@@ -260,7 +260,7 @@ That is why a 2025 result caused a stir. The Dark Energy Spectroscopic Instrumen
 Since then the hint has shrunk a little but not vanished. Recalibrating the Dark Energy Survey's supernovae brought the strongest figure down from 4.2 to 3.2 standard deviations; that survey's full six-year analysis, combined with DESI and the microwave background, gives 3.0; a combined sample of 2,884 supernovae released this month gives 3.3.[^popovic2025][^des2026][^camilleri2026] All three are still well short of five.
 
 ::: see-it cosmic-web
-The large-scale structure of real galaxies from redshift surveys: filaments, walls and voids. Surveys such as DESI read the history of dark energy from the spacing of this pattern at different distances.
+The large-scale structure of real galaxies from Cosmicflows-4, a catalogue of galaxies with measured distances: filaments, walls and voids. Redshift surveys such as DESI read the history of dark energy from the spacing of this pattern at different distances.
 :::
 
 Suppose the hint holds. The fits use a simple formula for how dark energy changes, designed to describe the past, not to forecast. Run the best-fitting versions forward anyway, as an illustration, and the acceleration stops within about 5 to 10 billion years, the expansion goes back to slowing down, and the event horizon disappears: light sent today would keep gaining ground for ever.[^calc] The opposite possibility was worked out in 2003 by Robert Caldwell, Marc Kamionkowski and Nevin Weinberg. If dark energy grew stronger with time, the expansion could run away to infinity in a finite time. In one of their examples this "Big Rip" comes 22 billion years from now, tears apart the Milky Way 60 million years before the end and breaks up the Earth half an hour before it.[^caldwell2003] The current hints point the other way.

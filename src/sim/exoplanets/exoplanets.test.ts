@@ -134,7 +134,7 @@ describe('the featured systems', () => {
       expect(sceneStatus(`go:${id}`).ok, id).toBe(true);
     }
     for (const id of ['trappist-1-e', 'hr-8799-b', '51-pegasi-b', 'kepler-16-ab-b']) expect(resolveTarget(id), id).not.toBeNull();
-    expect(locationPath('orbit', 'trappist-1-e').map((c) => c.label)).toEqual(['Solar neighbourhood', 'TRAPPIST-1', 'TRAPPIST-1 e']);
+    expect(locationPath('orbit', 'trappist-1-e').map((c) => c.label)).toEqual(['Observable universe', 'Local Universe', 'Local Group', 'Milky Way', 'Orion Arm', 'Solar neighbourhood', 'TRAPPIST-1', 'TRAPPIST-1 e']);
     for (const id of ['hr-8799', '51-pegasi', 'kepler-90', 'toi-700', 'kepler-16']) expect(articleForBody(id), id).toBe('other-worlds');
     // "See it" on a star with planets frames the whole system, orbits shown: HR 8799's outermost at 70 au.
     expect(runScene('go:hr-8799')).toBe(true);
@@ -305,7 +305,7 @@ describe('the featured systems', () => {
 
   it('put the circumbinary planet under its system, not one of its stars', () => {
     // Kepler-16 is 245 light-years out: in the Milky Way, beyond the neighbourhood.
-    expect(locationPath('orbit', 'kepler-16-ab-b').map((c) => c.label)).toEqual(['Milky Way', 'Kepler-16', 'Kepler-16 (AB) b']);
+    expect(locationPath('orbit', 'kepler-16-ab-b').map((c) => c.label)).toEqual(['Observable universe', 'Local Universe', 'Local Group', 'Milky Way', 'Orion Arm', 'Kepler-16', 'Kepler-16 (AB) b']);
     expect(findDestination('kepler-16-ab-b')!.parent).toBe(KEPLER16_BARYCENTRE);
     const stars = nestedDestinations().find((g) => g.id === 'stars')!.items;
     const k = stars.findIndex((x) => x.destination.id === KEPLER16_BARYCENTRE);

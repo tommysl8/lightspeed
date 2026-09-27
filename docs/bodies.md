@@ -5,9 +5,10 @@ Everything Lightspeed draws, labels, lists, flies to or measures is a **body in 
 registered at start-up (`core.ts`). The rest of the Solar System (25 moons, the dwarf planets and
 trans-Neptunian objects, comets, interstellar objects and spacecraft) is registered from its data
 once that has loaded (`src/sim/solarSystem/`, below), and so are the star systems and named stars
-(`src/sim/stars/`, below), and so are the planets of other stars (`src/sim/exoplanets/`, below); later phases
-add galaxies the same way, and the rest of
-the app picks them up by itself:
+(`src/sim/stars/`, below), and so are the planets of other stars (`src/sim/exoplanets/`, below) and the Milky Way's
+bodies: the Galaxy itself, Sagittarius A* and its stars, the nebulae and the famous star clusters (`src/sim/galaxy/`,
+below), and so are the galaxies beyond it: the Local Group and its neighbours, the named galaxies and clusters and
+the most distant galaxies known (`src/sim/cosmos/`, below). The rest of the app picks them up by itself:
 
 | Where | What a new body gets without further work |
 | --- | --- |
@@ -15,9 +16,9 @@ the app picks them up by itself:
 | Labels | a label from the pool of 40 when it is among the most important on screen (stars rank by how bright they look from the camera; one fainter than the eye's limit gets none unless selected, in focus or in the system in focus; the stars of a pair closer than 12 px on screen share one label, the pair's barycentre's name: `ui/labelPairs.ts`) |
 | Picking | click or double-click it |
 | Where to? and the Bodies list | a destination, found by name and aliases, listed by kind, moons under their planet, planets under their star; a star system (a root barycentre) gets a row of its own with its stars under it, and the Stars sit under sub-headings (within 16 light-years, with planets, bright, found in search or nearby) |
-| Location trail | "Solar neighbourhood › Solar System › Saturn › Titan"; "Solar neighbourhood › Alpha Centauri › Proxima Centauri"; "Milky Way › Betelgeuse" beyond 100 light-years; a planet on its star's barycentre (circumbinary) straight under the system |
+| Location trail | "Observable universe › Local Universe › Local Group › Milky Way › Orion Arm › Solar neighbourhood › Solar System › Saturn › Titan"; "… › Milky Way › Orion Arm › Solar neighbourhood › Alpha Centauri › Proxima Centauri"; "… › Milky Way › Orion Arm › Betelgeuse" beyond 100 light-years; the spiral arm only where the arms are measured (`src/sim/galaxy/arms.ts`); a planet on its star's barycentre (circumbinary) straight under the system; "… › Milky Way › Large Magellanic Cloud › Tarantula Nebula" for a body whose `deepSky.hostGalaxy` is another galaxy; a galaxy or a cluster of galaxies under the level of the universe it is in (the Local Group within its zero-velocity surface, the local universe to redshift 0.1, the observable universe beyond: `ui/location.ts`) |
 | Scenes | `go:`, `fly:` and `sky-from:` resolve its id (`KNOWN_TARGETS` stays the contract list) |
-| Flights | the planner's searchable destination list; the standoff is its framing distance |
+| Flights | the planner's searchable destination list; the standoff is its framing distance, except for a galaxy, a cluster or a nebula, where the flight goes all the way in to its closest approach and the view then pulls back (`controls/framing.ts` `flightStandoff`); beyond the Local Group flights cross expanding space (`docs/data/cosmology.md` section 12) |
 | Body card and instruments | name, kind, facts, the data sheet from whatever physical fields it has, the ephemeris table while its system is in focus |
 | Lab | a light-pulse detector (E1) if it is a planet, a dwarf planet, a spacecraft or a moon of 1,000 km or more (`detector: true` for others); the goniometer (E4) when selected |
 
@@ -41,7 +42,7 @@ the built-in bodies before anyone can ask for them.
 - **Id**: lower-case words joined by hyphens (`churyumov-gerasimenko`, `atlas-3i`). Use the
   staging ids, which are also the scene target ids in `src/content/scenes.ts`.
 - **Kind**: `star`, `planet`, `dwarf-planet`, `moon`, `asteroid`, `comet`, `interstellar`,
-  `spacecraft`, `exoplanet`, `galaxy`, `cluster`, `nebula`, or `barycentre` (a point, not a body:
+  `spacecraft`, `exoplanet`, `galaxy`, `cluster`, `nebula`, `black-hole`, or `barycentre` (a point, not a body:
   never drawn, labelled, listed or visited).
 - **Parent** is what the body orbits *as people put it*: the Moon → Earth, Charon → Pluto,
   Pluto → the Sun, Proxima b → Proxima. Roots (the Sun, a star, a star system's barycentre) have
@@ -120,6 +121,7 @@ Record fields (`src/sim/bodies/types.ts` has them all, documented):
 | `article` | Learn article slug (moons default to `worlds-around-worlds`, exoplanets and stars with known planets to `other-worlds`) |
 | `litBy` | the star whose light the body reflects, when it is not the Sun (a planet of another star): it lights the mesh and sets the point of light's magnitude |
 | `exoplanet` | a planet of another star's catalogue data for the card and data sheet (`ExoplanetInfo`: status, period, size, mass, temperature, discovery, how each orbital element was found, the colour rule) |
+| `deepSky` | a cluster's, nebula's, black hole's or galaxy's data for the card and data sheet (`DeepSkyInfo`: what it is, distance with its range and how it was measured, sizes in pc, other rows, references, the galaxy it is in when not the Milky Way, and a nebula's picture with its credit line, modification note, licence and page, which the card shows with the picture) |
 | `discovery`, `mission` | who found it and when; a spacecraft's launch and status (the card shows them) |
 | `positionNote` | how far to trust the position, one line for the card and the data sheet (every body has one, the built-in ones the date policy in words) |
 | `modelNotes` | the other models and approximations in how it is drawn, one line each, for the card and the data sheet |
@@ -323,6 +325,53 @@ float32 parsecs relative to the camera (near the Sun only the first ~16,000, the
 - In Where to? and the Bodies list an exoplanet goes to its star's whole system with the planet selected
   (`goToPlanetarySystem`); a scene's `go:` to a star with planets frames the system too.
 
+### The Milky Way (`src/sim/galaxy/`, docs/data/galaxy.md)
+
+- **At start-up** `loadGalaxy` registers the Milky Way itself (`milky-way`, kind `galaxy`, renderer `layer`, framed
+  from 100,000 light-years: `frameMilkyWay`), Sagittarius A* (`sgr-a-star`, kind `black-hole`: a black sphere the size
+  of its shadow) and the four S-stars of GRAVITY 2022 on their orbits about it (`sStarProvider`: allocation-free,
+  evaluated a light-time after the date, general relativity's precession included, `illustrative` away from the
+  epochs of the data). The 45 nebulae follow from their own chunk (`nebulae.json`), and once the stars are in, the
+  particle model and the clusters load in a worker; the 60 famous open clusters and the named globulars then join the
+  registry (ids clear of the nebulae's). A scene naming a cluster or nebula target says "Loading the Milky Way…"
+  meanwhile.
+- Nebulae, clusters and the Galaxy have renderer `layer`: `scene/Nebulae.tsx` draws each nebula's picture as a card
+  facing the Sun at its distance and true size, `scene/GalaxyModel.tsx` the particle model with the globulars' clumps
+  (into their own quarter-resolution target, `render/galaxyLayer.ts`) and the open clusters' rings, and
+  `scene/MilkyWay.tsx` the sky from the Sun behind everything (`render/shaders/milkyway.glsl`, also in the
+  relativistic remap pass). They get no point of light; globulars carry `physical.luminous` from their measured M_V
+  for labels and the data sheet.
+- Labels: a cluster, nebula or galaxy is labelled when its radius on screen is 4 px or more or it is as bright as a
+  star that shows, and never while the camera is inside it; picking skips what the camera is inside. A background
+  label behind the body in focus, within its disc on screen, is left out, and so is anything beyond the Solar System
+  while a scene of the Solar System runs; with the Local Group in focus its galaxies are labelled down to V = 11.
+- Every nebula's picture carries its credit line, unaltered, and its modification note (`deepSky.image`); the card
+  shows them with the picture, and `ui/viewport/PictureCredits.tsx` in the corner of the view for every picture drawn
+  in the view (in flight, aberrated and 1/D times its size: `apparentCard`), one entry each, whatever the readouts
+  setting.
+
+### Galaxies beyond the Milky Way (`src/sim/cosmos/`, docs/data/cosmos.md)
+
+- **Once the browser is idle** `loadCosmos` registers, in one call, the 169 galaxies of `local-galaxies.json.gz`
+  (the CC0 Local Volume Database: ids `lg-<database key>` with hyphens, and `andromeda`, `triangulum`, `lmc`, `smc`),
+  the named objects of `named.json` (`m81`, `m87`, `centaurus-a`, `sombrero`, `whirlpool`, the `virgo-cluster`,
+  `coma-cluster` and `bullet-cluster`, and `gn-z11`, `jades-gs-z14-0`, `mom-z14`) and the `local-group` (its
+  barycentre, radius the zero-velocity surface). The Milky Way must be registered first: its satellites have
+  `parent: 'milky-way'`, Andromeda's `parent: 'andromeda'`, M87 `parent: 'virgo-cluster'`. Positions are fixed
+  (`approximate` within a million years of J2000); the young galaxies and the Bullet Cluster stand at their comoving
+  places now. A scene naming one of them says "Loading the galaxies…" meanwhile.
+- They are `kind: 'galaxy'` (clusters and groups of galaxies `kind: 'cluster'` with `kindText` "Cluster of galaxies" or
+  "Group of galaxies", which puts them in their own group of the Bodies list), renderer `layer`, with
+  `physical.luminous` from their M_V for labels and the data sheet. `scene/Galaxies.tsx` draws them from their
+  `GalaxyShape` (`cosmosState.shapes`: template, size, world axes, luminosity, dust): each one large enough on screen
+  as its particle template (one instanced draw per template), the others as one splat each, into the Milky Way's
+  target. A body registered by another phase with renderer `layer` and no shape is not drawn by it.
+- `deepSky.distanceNow` marks a comoving distance ("… light-years from the Sun now"); cards say what is a model.
+- Articles: galaxies, the Bullet Cluster and the Local Group → island-universes; Virgo and Coma →
+  the-expanding-universe; the young galaxies → the-edge-of-reach.
+- The cosmic web (`scene/CosmicWeb.tsx`) and the CMB map (`scene/CmbMap.tsx`) are layers, not bodies: the View menu
+  turns them on, their cards show while they do (`ui/viewport/LayerCards.tsx`), and "Where to?" finds them.
+
 ## Rotation
 
 `rotation` is data; the registry compiles it:
@@ -372,8 +421,9 @@ longitudes, so the app keeps them rather than pointing the moons at the planet.
 - **Renderer**: `visual.renderer` is `planet` (default for solid bodies), `sun`, `star` (a
   blackbody disc at `luminous.teffK`), `spacecraft` (a model at true size, scaled to the craft's
   radius: `visual.craft` `probe`, Voyager's shape with its antenna to Earth; `jwst` and `parker`,
-  their shields to the Sun) or `point` (galaxies, clusters and nebulae until they have renderers of
-  their own).
+  their shields to the Sun), `point` (a point of light only) or `layer` (drawn by a layer of its own, never as a mesh
+  or a point of light: the Milky Way's model, the star clusters and the nebulae's pictures, `src/sim/galaxy/`; the
+  galaxies beyond it, `src/sim/cosmos/` and `scene/Galaxies.tsx`).
 
 ## A whole system
 
@@ -413,8 +463,26 @@ longitudes, so the app keeps them rather than pointing the moons at the planet.
 - Frame budget on the target laptop (Intel Xe, Chrome, 1936 × 1384 px): 3.7–4.7 ms of GPU a frame
   at Earth, Saturn, TRAPPIST-1, Alpha Centauri and in flight to Sirius without multisampling,
   9.1–9.8 ms with it (render/AdaptiveQuality.tsx drops it at a pixel ratio of 2 on integrated
-  GPUs). A new large geometry needs a bounding sphere set by hand, or three.js computes one over
-  every vertex on its first frame (34 ms for the star field).
+  GPUs). With the Milky Way (1936 × 1416 px, GPU timer queries, best of batches): 5.1 ms at Earth (1.3 of it the sky
+  from the Sun), 5.3 from outside the Galaxy, 5.8 among the S-stars, 6.1 to 7.2 in the disc (Carina and Orion
+  nebulae), 6.3 to 6.6 facing the bulge from 1 to 3 kpc, 6.4 to 7.4 all along the 1 g flight to Sgr A*, and 7.6 to
+  8.1 for that flight in the split view (render/galaxyLayer.ts: the large splats in a coarser target, and half the
+  particles again in the split view). With the galaxies beyond (1936 × 1376 px): 4.8 ms at Earth, 4.4 ms for the
+  Local Group from 3 Mpc with the cosmic web on, 4.1 ms for the cosmic web from 200 Mpc, 4.7 to 4.8 ms at and inside
+  Andromeda, 5.8 to 5.9 ms at and inside the Large Magellanic Cloud, 5.6 ms in the 1 g flight to Andromeda and 6.9 ms
+  in its split view (docs/data/cosmos.md; 0.5 to 1 ms more while the processor is busy). With the faint stars' map
+  and the model's glow (evening review, warm GPU): 6.5 to 7.0 ms at Earth, 7.6 to 7.9 at the start of a 1 g flight,
+  8.2 to 9.3 at the start of one in the split view, and 9.3 to 10.3 in the classical view 100 to 500 pc from the Sun,
+  where the sky map and the model hand over (docs/data/cosmos.md, Performance; docs/data/galaxy.md §12). A new large
+  geometry needs a bounding sphere set by hand, or three.js computes one over every vertex on its first frame (34 ms
+  for the star field).
+- A shader's first compile stops the frame that first draws it: 100 to 270 ms each for the stars, the galaxies, the
+  cosmic web and the Milky Way model and its glow on the target laptop (browsers keep compiled programs, so this is a
+  first visit's cost, and an update's). `render/precompile.ts` compiles the ones first drawn on demand (the model and
+  its glow, the CMB map, the relativistic remap, the cosmic web once its table is in) in the background, one at a
+  time, 8 s after start-up (KHR_parallel_shader_compile); compiled during start-up they held up its own compiles
+  (0.95 s of stopped frames instead of 0.75 s, every program compiled afresh). Give it any new large material that
+  first shows on demand.
 - Register a system in one `registerBodies` call: every call rebuilds the orders and re-renders
   the scene's lists (500 single calls take 60 ms; one call of 500 takes 2 ms).
 - Everything stays float64 until the camera's position is subtracted (the floating origin).
@@ -450,6 +518,17 @@ longitudes, so the app keeps them rather than pointing the moons at the planet.
   conventions, light-time, the featured systems against their observations, the archive's orbits) and
   (`exoplanets.test.ts`) the planets in the registry: exactly where the evaluator puts them, transits seen from the
   Sun at the published times, HR 8799 on its measured plane, cards, colours, host matching, search, hosts released.
+- `src/sim/galaxy/*.test.ts`: the model's arms, warp and dust against the papers and the generator, the particle
+  file and its GPU arrays, the S-star orbits against GRAVITY's, the frames, the cards' geometry (not mirrored), the
+  clusters' light, the one display law for diffuse light, the sky map's calibration, the spiral arm of a place, and
+  (`galaxy.test.ts`) the Milky Way's bodies: every target resolving, S2 in the registry and as its orbit line, the 1 g
+  flight to the centre, the trail, the groups and search, the pictures' credits, the named scenes.
+- `src/sim/cosmos/*.test.ts`: the extragalactic files and their evaluators (frames, disc orientations rebuilt from
+  their angles, the cosmic web's layout and distance modes, the CMB maps), the one cosmology reproducing named.json's
+  numbers, the particle templates, and (`cosmos.test.ts`) the galaxies in the registry: every target resolving,
+  places and parents, the Local Group's barycentre, Andromeda a 3°-long oval at position angle 37.7° from Earth with
+  its arms trailing its spin, the trail up to the observable universe, the lists and search, the articles, the young
+  galaxies' cards, the clusters' sizes from their members, and the named scenes.
 - `src/sim/stars/*.test.ts`: the star files (layout, sorting, distances, velocities, the bright subset, the sky
   from Earth against the catalogue it replaced), motion and light-time, the Sixth Orbit Catalog ephemerides and HST
   measurements, magnitudes and estimated sizes, names and search, constellations, and (`stars.test.ts`) the star

@@ -19,11 +19,13 @@ export const AUTHOR = {
 export const APP = {
   name: 'Lightspeed',
   /** One line, for the header, link previews and the About page. */
-  tagline: 'Explore the real Solar System close to the speed of light',
+  tagline: 'Explore the real universe at nearly the speed of light',
   /** Short form, beside the name where there is little room. */
-  taglineShort: 'The Solar System at the speed of light',
-  /** For citations. */
-  citeTitle: 'Lightspeed: A relativistic Solar System explorer',
+  taglineShort: 'The real universe at nearly the speed of light',
+  /** For citations (APA: sentence case). */
+  citeTitle: 'Lightspeed: A relativistic explorer of the real universe',
+  /** The same title in title case, for BibTeX. */
+  citeTitleCaps: 'Lightspeed: A Relativistic Explorer of the Real Universe',
   version: typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : 'dev',
   build: typeof __BUILD_SHA__ === 'string' ? __BUILD_SHA__ : 'local',
   date: typeof __BUILD_DATE__ === 'string' ? __BUILD_DATE__ : '',

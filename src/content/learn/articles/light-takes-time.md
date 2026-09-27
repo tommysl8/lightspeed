@@ -36,7 +36,7 @@ Then he changed his mind. If light was responsible, the same delay should show u
 Rømer kept the idea and sharpened it. At the beginning of September he told the Académie to expect a late emergence of Io in November.[^romer1677] On 9 November it came ten minutes late. On 21 November he read the Académie an account showing that the motion of light is not instantaneous, and on 7 December 1676 a short version appeared in the *Journal des Sçavans*.[^bobis2008] Its headline number was a time, not a speed: light needs about 22 minutes to cross the full width of Earth's orbit.[^romer1677]
 
 ::: see-it jupiter-moons
-Watch Io, the innermost of the four, lap Jupiter every 1.8 days. Each lap carries it through Jupiter's shadow, and the moment it reappears is the tick of the clock Rømer was reading.
+Watch Io, the innermost of the four, lap Jupiter every 1.8 days. Each lap carries it through Jupiter's shadow (not drawn here), and the moment it comes out again is the tick of the clock Rømer was reading.
 :::
 
 ### The arithmetic of a late moon
@@ -223,7 +223,7 @@ Planet ranges computed from the closest and farthest distances in NASA's planeta
 :::
 
 ::: see-it race-sunlight
-Watch the pulse pass Mercury after about 3 minutes and Earth at 8 minutes 19 seconds. It will not reach Neptune for more than four hours.
+Watch the pulse pass Mercury after about 3 minutes and Earth after about 8 minutes 20 seconds. It will not reach Neptune for more than four hours.
 :::
 
 For Mars the delay rules out steering anything from Earth. When the Curiosity rover landed in August 2012, its descent through the Martian atmosphere took about seven minutes, while its radio signals took about 14 minutes to reach Earth. By the time engineers heard that the spacecraft had reached the top of the atmosphere, it had already been, in the words of the landing team's Adam Steltzner, "alive...or dead, on the surface, for at least seven minutes".[^steltzner] Every step of the landing had to be automatic.

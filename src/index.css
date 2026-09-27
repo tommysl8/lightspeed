@@ -902,6 +902,39 @@ button {
     white-space: nowrap;
     cursor: pointer;
   }
+  /* The name of what the pointer is on (ui/HoverTag.tsx): like a body label, a little brighter. */
+  .hover-tag {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 0;
+    height: 0;
+    will-change: transform;
+  }
+  .hover-tag-name {
+    position: absolute;
+    left: 13px;
+    top: 0;
+    transform: translateY(-50%);
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: #fff;
+    text-shadow:
+      0 0 2px #000,
+      0 0 5px #000;
+    white-space: nowrap;
+  }
+  .hover-tag-sub {
+    position: absolute;
+    left: 13px;
+    top: 9px;
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    color: rgba(127, 208, 184, 0.9);
+    text-shadow: 0 0 3px #000;
+    white-space: nowrap;
+  }
   /* Constellation names (ui/ConstellationNames.tsx): quiet, under the body labels. */
   .constellation-name {
     position: absolute;

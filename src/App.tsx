@@ -2,6 +2,12 @@ import { lazy, Suspense, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { SimDriver } from './scene/SimDriver';
 import { Starfield } from './scene/Starfield';
+import { MilkyWayBackground } from './scene/MilkyWay';
+import { GalaxyModel } from './scene/GalaxyModel';
+import { Nebulae } from './scene/Nebulae';
+import { Galaxies } from './scene/Galaxies';
+import { CosmicWeb } from './scene/CosmicWeb';
+import { CmbMap } from './scene/CmbMap';
 import { Constellations } from './scene/Constellations';
 import { PlanetHosts } from './scene/PlanetHosts';
 import { Bodies } from './scene/Bodies';
@@ -14,6 +20,7 @@ import { EclipticGrid } from './scene/EclipticGrid';
 import { RenderPipeline } from './render/RenderPipeline';
 import { AdaptiveQuality } from './render/AdaptiveQuality';
 import { LabelSync, LabelsLayer } from './ui/Labels';
+import { HoverSync, HoverTagLayer } from './ui/HoverTag';
 import { ConstellationNameSync, ConstellationNamesLayer } from './ui/ConstellationNames';
 import { Header } from './ui/layout/Header';
 import { Footer } from './ui/layout/Footer';
@@ -88,7 +95,13 @@ export default function App() {
           className="!absolute inset-0"
         >
           <SimDriver />
+          <MilkyWayBackground />
+          <CmbMap />
+          <GalaxyModel />
+          <Galaxies />
+          <Nebulae />
           <Starfield />
+          <CosmicWeb />
           <Constellations />
           <PlanetHosts />
           <EclipticGrid />
@@ -99,6 +112,7 @@ export default function App() {
           <Glints />
           <LightPulses />
           <LabelSync />
+          <HoverSync />
           <ConstellationNameSync />
           <OverlaySync />
           <AdaptiveQuality />
@@ -106,6 +120,7 @@ export default function App() {
         </Canvas>
         <ConstellationNamesLayer />
         <LabelsLayer />
+        <HoverTagLayer />
         <ViewportInstruments />
         <ViewportChrome />
         <TrajectoryPlanner />

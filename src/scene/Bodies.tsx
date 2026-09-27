@@ -671,7 +671,8 @@ export function Bodies() {
       const px = b.radiusPx * extentFactor(e.record);
       if (b.present && px >= MOUNT_PX) {
         if (!has) {
-          if (rendererOf(e.record) === 'point') continue;
+          const how = rendererOf(e.record);
+          if (how === 'point' || how === 'layer') continue;
           st.set.add(e.id);
           changed = true;
         }

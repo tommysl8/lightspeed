@@ -5,7 +5,7 @@
  */
 import { borrowCompanionTemperatures, decodeStars3D, decodeStars3DExtra, fetchGzip, stars3DTransfer } from './catalogue';
 import { buildNameTable, nameTableTransfer, type StarNamesJson } from './names';
-import { nearSunCounts } from './visibility';
+import { nearSunCounts, starDrawLists } from './visibility';
 
 export type StarWorkerRequest = { id: number; kind: 'stars' | 'extra' | 'names'; url: string };
 export type StarWorkerReply = { id: number; ok: true; data: unknown } | { id: number; ok: false; error: string };
@@ -25,6 +25,7 @@ scope.onmessage = (e) => {
         const stars = decodeStars3D(buf);
         borrowCompanionTemperatures(stars);
         stars.nearSun = nearSunCounts(stars);
+        stars.drawLists = starDrawLists(stars);
         scope.postMessage({ id, ok: true, data: stars }, stars3DTransfer(stars));
       } else if (kind === 'extra') {
         const extra = decodeStars3DExtra(buf);

@@ -1,4 +1,4 @@
-"""Builds the nebula billboards: public/images/nebulae/<id>.jpg and staging/galaxy/nebulae.json.
+"""Builds the nebula billboards: public/images/nebulae/<id>.jpg and src/sim/galaxy/nebulae.json.
 
 Images: ESA/Hubble, ESA/Webb, ESO and NSF NOIRLab public image archives. All four state that their images are
 released under Creative Commons Attribution 4.0 International and may be reproduced provided the full credit line is
@@ -34,7 +34,7 @@ from PIL import Image
 ROOT = Path(__file__).resolve().parents[1]
 RAW = ROOT / "data-raw" / "galaxy" / "nebulae"
 OUT_IMG = ROOT / "public" / "images" / "nebulae"
-OUT_JSON = ROOT / "staging" / "galaxy" / "nebulae.json"
+OUT_JSON = ROOT / "src" / "sim" / "galaxy" / "nebulae.json"
 HR24 = ROOT / "data-raw" / "galaxy" / "HR24_clusters.dat.gz"
 MAX_PX = 512
 JPEG_Q = 90

@@ -5,6 +5,8 @@
  */
 import type { ReactNode } from 'react';
 import { APP, AUTHOR } from '../../content/author';
+import { JOURNEYS } from '../../content/journeys';
+import { countWordStart } from '../../lib/words';
 import { openDoc, openLearn } from '../../state/route';
 import { useUI } from '../../state/ui';
 import { markWelcomed, openJourneys, openLab, openSearch, startTour } from '../onboarding';
@@ -73,21 +75,22 @@ function WelcomeCard() {
         <div className="px-5 pb-5 pt-5 sm:px-7">
           <div className="cap">Welcome</div>
           <h1 id="welcome-title" className="mt-1.5 font-serif text-[27px] font-medium leading-[1.15] text-fg">
-            The real Solar System, close to the speed of light
+            The real universe, at nearly the speed of light
           </h1>
           <p id="welcome-desc" className="mt-3 max-w-[58ch] font-serif text-[15px] leading-relaxed text-fg-2">
-            Every planet is where it really is at this moment, at true scale, with light travelling at its real speed. Fly between
-            the planets at nearly the speed of light, watch the sky warp around you, and see what happens to your clock.
+            Every planet is where it really is at this moment, at true scale, with light travelling at its real speed. Beyond them
+            are the real stars, each at its measured distance, then the Milky Way and the galaxies out to the cosmic web. Fly among
+            them at nearly the speed of light, watch the sky warp around you, and see what happens to your clock.
           </p>
           <div className="mt-5 grid gap-2 sm:grid-cols-3">
             <Choice n="01" icon="tour" title="Take the tour" primary onClick={() => close(startTour)}>
               One minute: what everything on the screen is, and where to click.
             </Choice>
             <Choice n="02" icon="search" title="Where to?" onClick={() => close(openSearch)}>
-              Name a planet, the Moon, Voyager 1 or the nearest star, and go there.
+              Name a planet, a star or a galaxy (Saturn, Proxima Centauri, Andromeda) and go there.
             </Choice>
             <Choice n="03" icon="compass" title="Take a journey" onClick={() => close(openJourneys)}>
-              Ten one-click trips, from a pulse of sunlight to Proxima Centauri at 1 g.
+              {countWordStart(JOURNEYS.length)} one-click trips, from a pulse of sunlight to Proxima Centauri at 1 g.
             </Choice>
           </div>
         </div>

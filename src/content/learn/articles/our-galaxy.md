@@ -105,7 +105,7 @@ Geometry turns speeds into distances. Point a dish along the plane at 30 degrees
 In 1958 Oort, Kerr and Gart Westerhout joined the Dutch and Australian surveys into a hydrogen map of the whole disc.[^okw1958] Two wedges are empty, pointing towards and away from the centre, where the gas moves across the line of sight and gives no shift. The arms that stood out got names that stuck: Perseus, Sagittarius and Orion, near whose inner edge the Sun sits.[^okw1958]
 
 ::: see-it go:orion-nebula
-The Orion Nebula, 414 parsecs (1,350 light-years) away, is a nursery of young, hot stars in our own spiral arm.[^menten2007] Glowing clouds like this one, strung along the arms, were what first traced spiral structure in our galaxy in 1951, just before the hydrogen maps.[^okw1958]
+The Orion Nebula, 388 parsecs (1,270 light-years) away by the radio parallaxes of its young stars (an earlier radio measurement gave 414), is a nursery of young, hot stars in our own spiral arm.[^kounkel2017][^menten2007] Glowing clouds like this one, strung along the arms, were what first traced spiral structure in our galaxy in 1951, just before the hydrogen maps.[^okw1958]
 :::
 
 ::: myth The spiral arms are solid bands of stars that turn with the Galaxy, like the spokes of a wheel.
@@ -182,7 +182,7 @@ S2 also measures the distance to the centre by pure geometry: the orbit's size o
 :::
 
 ::: see-it fly:sgr-a-star
-A flight to the centre at a steady 1 g, turning round halfway to brake. Watch the two clocks: the ship's reads about 20 years on arrival, the one at home about 26,700.
+A flight to the centre at a steady 1 g, turning round halfway to brake. Watch the two clocks: the ship's reads about 20 years on arrival, the one at home about 27,000 (Lightspeed puts the centre at GRAVITY's 2022 distance, 8,277 parsecs).
 :::
 
 ## A shadow the size of a doughnut on the Moon
@@ -341,6 +341,7 @@ With current measurements it is close to a coin toss. In 2025 Till Sawala and co
 [^nraohorn]: National Radio Astronomy Observatory, "Horn O'Plenty Discoveries". https://public.nrao.edu/gallery/horn-oplenty-discoveries/
 [^nature1951]: H. I. Ewen and E. M. Purcell, Nature 168, 356 (1951), https://doi.org/10.1038/168356a0; C. A. Muller and J. H. Oort, Nature 168, 357-358 (1951), https://doi.org/10.1038/168357a0; J. L. Pawsey, Nature 168, 358 (1951), https://doi.org/10.1038/168358a0 (issue of 1 September 1951).
 [^menten2007]: K. M. Menten, M. J. Reid, J. Forbrich and A. Brunthaler, "The distance to the Orion Nebula", Astronomy & Astrophysics 474, 515-520 (2007): 414 ± 7 pc. https://doi.org/10.1051/0004-6361:20078247
+[^kounkel2017]: M. Kounkel, L. Hartmann, L. Loinard, G. N. Ortiz-León, A. J. Mioduszewski et al., "The Gould's Belt Distances Survey (GOBELINS). II. Distances and structure toward the Orion Molecular Clouds", Astrophysical Journal 834, 142 (2017): Orion Nebula Cluster 388 ± 5 pc. https://doi.org/10.3847/1538-4357/834/2/142
 [^linshu1964]: C. C. Lin and F. H. Shu, "On the spiral structure of disk galaxies", Astrophysical Journal 140, 646-655 (1964). https://doi.org/10.1086/147955
 [^dobbs2014]: C. Dobbs and J. Baba, "Dawes Review 4: Spiral structures in disc galaxies", Publications of the Astronomical Society of Australia 31, e035 (2014). https://doi.org/10.1017/pasa.2014.31 (open access at https://arxiv.org/abs/1407.5062)
 [^sanna2017]: A. Sanna, M. J. Reid, T. M. Dame, K. M. Menten and A. Brunthaler, "Mapping spiral structure on the far side of the Milky Way", Science 358, 227-230 (2017). https://doi.org/10.1126/science.aan5452

@@ -260,8 +260,8 @@ The asteroid Apophis will pass about 32,000 km above Earth's surface on 13 April
 
 JPL's orbit puts Halley's next perihelion on 28 July 2061, 0.59 au from the Sun.[^horizons] This time Earth will be on the same side of the Sun: the comet will be about 0.48 au from us around 30 July, though only about 21 degrees from the Sun in the sky. In February 1986 it went round the far side of the Sun, 1.55 au from Earth.[^horizons] The date will be refined once the comet is picked up on its way in, and its jets will still shift it by hours.[^hughes1987] Nobody can say yet how bright it will get.
 
-::: see-it date:2061-07-28
-On 28 July 2061, look for Halley's comet near the Sun, passing perihelion on the same side as Earth.
+::: see-it halley-2061
+The date jumps to a few days before 28 July 2061, and time runs on as Halley's comet rounds the Sun, 0.59 au out and on the same side of it as Earth.
 :::
 
 **Status:** orbit known; brightness uncertain.

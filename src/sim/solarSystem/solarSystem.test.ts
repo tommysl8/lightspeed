@@ -298,8 +298,8 @@ describe('in the rest of the app', () => {
   });
 
   it('has trails, systems and articles', () => {
-    expect(locationPath('orbit', 'titan').map((c) => c.label)).toEqual(['Solar neighbourhood', 'Solar System', 'Saturn', 'Titan']);
-    expect(locationPath('orbit', 'nix').map((c) => c.label)).toEqual(['Solar neighbourhood', 'Solar System', 'Pluto', 'Nix']);
+    expect(locationPath('orbit', 'titan').map((c) => c.label)).toEqual(['Observable universe', 'Local Universe', 'Local Group', 'Milky Way', 'Orion Arm', 'Solar neighbourhood', 'Solar System', 'Saturn', 'Titan']);
+    expect(locationPath('orbit', 'nix').map((c) => c.label)).toEqual(['Observable universe', 'Local Universe', 'Local Group', 'Milky Way', 'Orion Arm', 'Solar neighbourhood', 'Solar System', 'Pluto', 'Nix']);
     expect(systemOf('titan')?.id).toBe('saturn');
     expect(articleForBody('titan')).toBe('worlds-around-worlds');
     expect(articleForBody('charon')).toBe('edges-of-the-solar-system');

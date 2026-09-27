@@ -195,7 +195,7 @@ On 12 April 2016, in New York, Yuri Milner and Stephen Hawking announced Breakth
 The lasers were never built. In September 2025 Scientific American reported an estimate by Philip Lubin, whose laboratory worked on the project, that only about 4.5 million dollars had gone out, in some 30 contracts, and quoted an e-mail from Pete Worden, Starshot's executive director: "We have put the program on hold and are working to transition portions to others."[^sciam2025] Jim Benford, who worked on the project, counters that Phase I cost about 25 million dollars, produced about 50 papers and settled most of the conceptual questions, and that the project was paused in 2024, not cancelled.[^benford2026] Laboratory work goes on. In January 2025 a group at Caltech reported measuring directly how hard a laser pushes on a candidate sail material, a silicon nitride membrane 50 nanometres thick: 80 femtonewtons, or $8 \times 10^{-14}$ N, from a beam of 100 W per square centimetre.[^michaeli2025]
 
 ::: see-it fly:proxima?beta=0.2
-A Starshot-style trip at a constant 20% of light speed. It takes 21 years by the home clock and only about 2% less on board, and the probe does not stop.
+A Starshot-style trip at a constant 20% of light speed. It takes 21 years by the home clock and only about 2% less on board. Here the ship stops at the star; a real Starshot probe could not, and would flash through the system and away.
 :::
 
 ## What hits you on the way
@@ -213,7 +213,7 @@ Shepherd saw this coming in 1952: near light speed, he warned, nuclei from the i
 On the flight to the galactic centre it becomes absurd. At the midpoint γ is about 13,800, so each hydrogen nucleus strikes with 12.9 TeV, nearly twice the energy of a proton in the beams of the Large Hadron Collider,[^lhc] and, with the crowding factor of 13,800 on top, the nose takes about 2.6 million megawatts per square metre.
 
 ::: see-it fly:sgr-a-star
-The 1 g flight to the black hole at the centre of the Milky Way: 19.8 years on board, about 26,700 at home, nearly half of it (by the home clock) spent in a headwind more energetic than anything made at CERN.
+The 1 g flight to the black hole at the centre of the Milky Way: 19.8 years on board, about 27,000 at home, nearly half of it (by the home clock) spent in a headwind more energetic than anything made at CERN.
 :::
 
 Dust is worse, one grain at a time. A grain of rock a micrometre across has a mass of about $10^{-15}$ kg. At the Proxima midpoint it strikes with about 200 J, the energy of a baseball pitched at 190 km/h, delivered to a spot a micrometre wide. At the midpoint of the flight to Andromeda a single grain carries 116 MJ, as much as 28 kg of TNT. Even Starshot's sails, at 0.2c, would be worn: Thiem Hoang and colleagues calculated in 2017 that gas would damage the front surface to a depth of about 0.1 mm over the trip, and dust would erode about 0.5 mm.[^hoang2017]

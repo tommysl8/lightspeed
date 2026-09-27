@@ -13,7 +13,7 @@ import { raDecToWorld } from '../sim/frames';
 import { screenOf } from '../sim/derived';
 import type { ScreenPoint } from '../sim/sim';
 import { sim } from '../sim/sim';
-import { constellationsNow } from './constellations';
+import { constellationsNow, figureFade } from './constellations';
 
 interface NameSlot {
   el: HTMLSpanElement;
@@ -71,7 +71,8 @@ export function ConstellationNameSync() {
     const cz = cam.y / PARSEC_KM;
     // Near the Sun the chart's label places; from 0.5 pc on, the figures' own middles.
     const w = Math.min(1, Math.max(0, (Math.hypot(cx, cy, cz) - 0.05) / 0.45));
-    for (const s of slots) {
+    for (let k = 0; k < slots.length; k++) {
+      const s = slots[k];
       acc.set(0, 0, 0);
       for (const i of s.stars) {
         const px = P[3 * i];
@@ -87,9 +88,9 @@ export function ConstellationNameSync() {
         acc.z += -ey / d;
       }
       // How closely the figure's stars gather on the sky (1: a point, 0: all over it). A figure
-      // that has come apart (far from the Sun) keeps no name.
+      // that has come apart (far from the Sun) keeps no name, nor does one whose lines have faded.
       const gathered = acc.length() / s.stars.length;
-      const opacity = Math.min(1, Math.max(0, (gathered - 0.55) / 0.25));
+      const opacity = Math.min(1, Math.max(0, (gathered - 0.55) / 0.25)) * (figureFade[k] ?? 1);
       dir.copy(acc).normalize().multiplyScalar(w).addScaledVector(s.chart, 1 - w).normalize();
       screenOf(dir, camera as PerspectiveCamera, screen);
       const el = s.el;

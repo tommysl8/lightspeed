@@ -22,7 +22,7 @@ import type { SystemsFile } from './orbits';
 import type { ConstellationsFile } from './constellations';
 import { catalogueStarId, catalogueStarRecord, mergeCoreProxima, starRecords } from './records';
 import type { StarWorkerReply, StarWorkerRequest } from './worker';
-import { nearSunCounts } from './visibility';
+import { nearSunCounts, starDrawLists } from './visibility';
 
 export type StarStatus = 'idle' | 'loading' | 'ready' | 'failed';
 
@@ -96,6 +96,7 @@ async function request<T>(kind: StarWorkerRequest['kind'], path: string): Promis
     const stars = decodeStars3D(buf);
     borrowCompanionTemperatures(stars);
     stars.nearSun = nearSunCounts(stars);
+    stars.drawLists = starDrawLists(stars);
     return stars as T;
   }
   if (kind === 'extra') return decodeStars3DExtra(buf) as T;

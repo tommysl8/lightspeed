@@ -9,10 +9,12 @@
  * Matching is fuzzy and forgiving: prefixes and whole words first, then letters in order
  * ("jptr"), then one slip of the keyboard ("satrun").
  */
-import { bodyRecords, childrenOf, getBody, isPlaced, kindText, registryVersion, subscribeRegistry, type BodyId, type BodyRecord } from '../sim/bodies';
+import { bodyRecords, childrenOf, getBody, isBody, isPlaced, kindText, registryVersion, subscribeRegistry, type BodyId, type BodyRecord } from '../sim/bodies';
 import { PARSEC_KM } from '../physics/constants';
 import { sim } from '../sim/sim';
-import { goToBody, goToPlanetarySystem, goToStarSystem } from '../ui/navigation';
+import { frameCosmicWeb, goToBody, goToPlanetarySystem, goToStarSystem, showCmbMap } from '../ui/navigation';
+import { cosmicLevel } from '../ui/location';
+import { ARTICLE_EDGE } from '../sim/cosmos/records';
 
 // ─── The registry ───────────────────────────────────────────────────────────────────────
 
@@ -27,8 +29,11 @@ export const DESTINATION_GROUPS = [
   { id: 'spacecraft', title: 'Spacecraft' },
   { id: 'stars', title: 'Stars' },
   { id: 'exoplanets', title: 'Exoplanets' },
-  { id: 'deep-sky', title: 'Clusters and nebulae' },
+  { id: 'milky-way', title: 'The Milky Way' },
+  { id: 'clusters', title: 'Star clusters' },
+  { id: 'nebulae', title: 'Nebulae' },
   { id: 'galaxies', title: 'Galaxies' },
+  { id: 'universe', title: 'Clusters, the cosmic web and the CMB' },
 ] as const;
 
 export type DestinationGroup = (typeof DESTINATION_GROUPS)[number]['id'];
@@ -115,8 +120,11 @@ export function allDestinations(): Destination[] {
 
 export const findDestination = (id: string): Destination | undefined => allDestinations().find((d) => d.id === id);
 
-/** The destinations shown before anything is typed. */
-export const FEATURED_IDS = ['moon', 'mars', 'saturn', 'pluto', 'voyager1', 'proxima'] as const;
+/**
+ * The destinations shown before anything is typed, from near to far: the Moon to the nearest
+ * star, then the Galactic Centre and Andromeda (these two join once the galaxy data are in).
+ */
+export const FEATURED_IDS = ['moon', 'mars', 'saturn', 'pluto', 'voyager1', 'proxima', 'sgr-a-star', 'andromeda'] as const;
 
 export function featuredDestinations(list: readonly Destination[] = allDestinations()): Destination[] {
   return FEATURED_IDS.map((id) => list.find((d) => d.id === id)).filter((d): d is Destination => !!d);
@@ -131,10 +139,16 @@ export function groupedDestinations(list: readonly Destination[] = allDestinatio
  * Groups whose members are listed under what they orbit when that is listed too: moons under
  * their planet, planets under their star, the stars of a system under the system.
  */
-const NESTED_GROUPS: ReadonlySet<DestinationGroup> = new Set(['moons', 'exoplanets', 'stars']);
+const NESTED_GROUPS: ReadonlySet<DestinationGroup> = new Set(['moons', 'exoplanets', 'stars', 'nebulae', 'galaxies']);
 
 /** Sub-headings of the Stars, in order (starSection). */
 export const STAR_SECTIONS = ['Within 16 light-years', 'Stars with planets', 'Bright stars', 'Found in search or nearby'] as const;
+/** Sub-headings of the star clusters and the nebulae, in order (deepSkySection). */
+export const DEEP_SKY_SECTIONS = ['Open clusters', 'Globular clusters', 'Where stars are born', 'Shed by dying stars', 'In the Magellanic Clouds'] as const;
+/** Sub-headings of the galaxies, in order (galaxySection). */
+export const GALAXY_SECTIONS = ['The Local Group', 'Beyond the Local Group', 'The most distant known'] as const;
+/** Every sub-heading, in order. */
+const SECTION_ORDER: readonly string[] = [...STAR_SECTIONS, ...DEEP_SKY_SECTIONS, ...GALAXY_SECTIONS];
 
 export interface NestedItem {
   destination: Destination;
@@ -169,7 +183,7 @@ export function nestedDestinations(list: readonly Destination[] = allDestination
     out.push({ destination: d, depth, children: kids.length });
     for (const k of kids) add(k, depth + 1, out);
   };
-  const sectionRank = (d: Destination) => (d.section ? (STAR_SECTIONS as readonly string[]).indexOf(d.section) : -1);
+  const sectionRank = (d: Destination) => (d.section ? SECTION_ORDER.indexOf(d.section) : -1);
   return DESTINATION_GROUPS.map((g) => {
     const items: NestedItem[] = [];
     // Top-level members, by section (stable: each section keeps the providers' order).
@@ -215,13 +229,37 @@ export function bodyGroup(r: BodyRecord): DestinationGroup {
     case 'exoplanet':
       return 'exoplanets';
     case 'cluster':
+      return isGalaxyCluster(r) ? 'universe' : 'clusters';
     case 'nebula':
-      return 'deep-sky';
+      return 'nebulae';
+    case 'black-hole':
+      return 'milky-way';
     case 'galaxy':
-      return 'galaxies';
+      return r.id === 'milky-way' ? 'milky-way' : 'galaxies';
     default:
       return 'stars';
   }
+}
+
+/** A group or cluster of galaxies (not of stars). */
+const isGalaxyCluster = (r: BodyRecord): boolean => r.kind === 'cluster' && /galaxies/.test(r.kindText ?? '');
+
+/** The sub-heading of a galaxy: in the Local Group, beyond it, or among the most distant known. */
+function galaxySection(r: BodyRecord): string | undefined {
+  if (r.kind !== 'galaxy' || r.id === 'milky-way') return undefined;
+  if (r.article === ARTICLE_EDGE) return GALAXY_SECTIONS[2];
+  return cosmicLevel(r) === 'local-group' ? GALAXY_SECTIONS[0] : GALAXY_SECTIONS[1];
+}
+
+/** Kinds of nebula that are made by dying stars (sim/galaxy/records.ts NEBULA_TYPES). */
+const SHED_BY_STARS = /planetary|supernova|Wolf|thrown off|bubble/i;
+
+/** The sub-heading of a star cluster or a nebula. */
+function deepSkySection(r: BodyRecord): string | undefined {
+  if (r.kind === 'cluster') return r.kindText === 'Globular cluster' ? DEEP_SKY_SECTIONS[1] : DEEP_SKY_SECTIONS[0];
+  if (r.kind !== 'nebula') return undefined;
+  if (r.deepSky?.hostGalaxy) return DEEP_SKY_SECTIONS[4];
+  return SHED_BY_STARS.test(r.deepSky?.type ?? '') ? DEEP_SKY_SECTIONS[3] : DEEP_SKY_SECTIONS[2];
 }
 
 /** The outermost barycentre above a body: its star system (Alpha Centauri for Alpha Centauri B). */
@@ -294,7 +332,7 @@ function bodyDestination(r: BodyRecord): Destination {
     aliases: r.aliases ?? [],
     kind: kindText(id),
     group: bodyGroup(r),
-    section: r.kind === 'star' && id !== 'sun' && !parent ? starSection(r) : undefined,
+    section: r.kind === 'star' && id !== 'sun' && !parent ? starSection(r) : !parent ? (deepSkySection(r) ?? galaxySection(r)) : undefined,
     body: id,
     parent,
     key: r.key,
@@ -335,6 +373,33 @@ function bodyDestinations(): readonly Destination[] {
 
 registerDestinations(bodyDestinations);
 subscribeRegistry(destinationsChanged);
+
+// ─── The layers of the universe ─────────────────────────────────────────────────────────
+
+/** The cosmic web and the CMB map: places to go that are views, not bodies (they need the galaxies registered). */
+const LAYER_DESTINATIONS: readonly Destination[] = [
+  {
+    id: 'cosmic-web',
+    name: 'The cosmic web',
+    aliases: ['cosmic web', 'large-scale structure', 'Cosmicflows-4', 'galaxy filaments', 'Laniakea', 'supercluster', 'local universe'],
+    kind: 'Map of 55,877 galaxies',
+    group: 'universe',
+    distanceKm: () => NaN,
+    unavailable: () => (isBody('local-group') ? null : 'Loading the galaxies…'),
+    go: frameCosmicWeb,
+  },
+  {
+    id: 'cmb',
+    name: 'Cosmic microwave background',
+    aliases: ['CMB', 'CMB map', 'microwave background', 'WMAP', 'Big Bang', 'oldest light'],
+    kind: 'Map of the sky (WMAP)',
+    group: 'universe',
+    distanceKm: () => NaN,
+    unavailable: () => (isBody('local-group') ? null : 'Loading the galaxies…'),
+    go: showCmbMap,
+  },
+];
+registerDestinations(() => (isBody('local-group') ? LAYER_DESTINATIONS : []));
 
 // ─── Matching ───────────────────────────────────────────────────────────────────────────
 

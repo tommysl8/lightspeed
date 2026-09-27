@@ -19,6 +19,7 @@ import { updateApparentPositions } from '../lightDelay';
 import { setSimTime, sim } from '../sim';
 import { coreBodyRecords, fixedOffsetProvider, keplerProvider, registerBodies, unregisterBodies, updateWorld, type BodyRecord } from '.';
 import { bodyEntries, lightTimeGroups } from './registry';
+import { cpuMs } from '../../test/timing';
 
 // Node's own modules, reached without its type definitions (the app is typed for the browser).
 interface V8 {
@@ -107,9 +108,10 @@ function msPerFrame(stage: Stage): number {
   let best = Infinity;
   const frames = 100;
   for (let run = 0; run < FRAMES / frames; run++) {
-    const t0 = performance.now();
+    // This thread's processor time: other test files and programs sharing the cores do not add to it.
+    const t0 = cpuMs();
     for (let i = 0; i < frames; i++) step(run * frames + i, stage);
-    best = Math.min(best, (performance.now() - t0) / frames);
+    best = Math.min(best, (cpuMs() - t0) / frames);
   }
   return best;
 }

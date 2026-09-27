@@ -11,7 +11,7 @@
  * are the k brightest in the sky.
  */
 
-import type { NearSunCounts } from './visibility';
+import type { NearSunCounts, StarDrawLists } from './visibility';
 
 export interface Stars3D {
   /** Number of stars (the Sun is not included). */
@@ -36,6 +36,8 @@ export interface Stars3D {
   flags: Uint16Array;
   /** How many of the first stars can be seen from near the Sun (visibility.ts; the loader sets it, for drawing). */
   nearSun?: NearSunCounts;
+  /** The only stars that can be seen away from the Sun, and near it while they stand still (visibility.ts; the loader sets it, for drawing). */
+  drawLists?: StarDrawLists;
   /**
    * Stars whose `teff` is not their own but their companion's (borrowCompanionTemperatures;
    * the loader sets it), ascending.
@@ -116,6 +118,7 @@ export function decodeStars3DExtra(buf: ArrayBuffer): Stars3DExtra {
 export function stars3DTransfer(s: Stars3D): ArrayBuffer[] {
   const out = [s.positions.buffer, s.velocitiesInt16.buffer, s.absMagInt16.buffer, s.absMag.buffer, s.teff.buffer, s.flags.buffer] as ArrayBuffer[];
   if (s.teffBorrowed) out.push(s.teffBorrowed.buffer as ArrayBuffer);
+  if (s.drawLists) for (const l of [...s.drawLists.far, ...s.drawLists.frozen]) out.push(l.buffer as ArrayBuffer);
   return out;
 }
 

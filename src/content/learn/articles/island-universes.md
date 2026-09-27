@@ -38,7 +38,7 @@ Charles Messier just wanted the nebulae out of his way. He hunted comets from Pa
 In the spring of 1845 William Parsons, third Earl of Rosse, turned a new telescope on M51 at Birr Castle in Ireland. Its metal mirror, six feet (1.8 m) across and cast in his own foundry, made it the largest reflector in the world; the locals called it the Leviathan of Parsonstown.[^lhrosse] In it M51 became a whirlpool, with arms curling out of a bright centre.[^sedsm51] Spirals look like something turning, which suited either side of the argument: a disc of stars, or a cloud of gas collapsing to form a new star and its planets.
 
 ::: see-it go:whirlpool
-M51, the Whirlpool Galaxy, is 31 million light-years away.[^nasam51] Look for the two arms Rosse drew in 1845, and the small companion galaxy at the tip of one of them, which Messier's friend Pierre Méchain spotted in 1781.[^sedsm51]
+M51, the Whirlpool Galaxy, is about 28 million light-years away.[^mcquinn2016m51] Lightspeed draws it as a model scaled to its measured size and tilt: its arms are typical ones, not a map of the two Rosse drew in 1845, and the small companion galaxy at the tip of one of them, which Messier's friend Pierre Méchain spotted in 1781, is not drawn.[^sedsm51]
 :::
 
 Then the balance tipped the other way. In 1864 William Huggins, at his private observatory in London, pointed a spectroscope, which spreads light into its colours, at the nebulae. Some showed a few bright lines, the mark of a thin glowing gas ([What stars are made of](#/learn/what-stars-are-made-of) explains why). Andromeda gave a continuous spectrum, which a crowd of stars produces, but so does any dense hot body.[^sedsm31][^lhhuggins] On 20 August 1885 Ernst Hartwig, at Dorpat in what is now Estonia, noticed a new star near the centre of the Andromeda nebula. It reached magnitude 6, the limit of the naked eye; on the magnitude scale, bigger numbers mean fainter.[^sedsm31] If Andromeda were a galaxy as big as ours, one star had briefly outshone a large part of it. That seemed impossible. Stars that destroy themselves that brightly were named supernovae only in 1934, by Walter Baade and Fritz Zwicky.[^lhbaade]
@@ -151,7 +151,7 @@ Hubble called ellipticals "early" and spirals "late", but warned in 1926 that he
 :::
 
 ::: see-it go:sombrero
-M104, the Sombrero Galaxy, is a spiral 28 million light-years away, seen nearly edge-on.[^nasam104] The dark band across it is dust, the kind of lane Curtis said would hide any spirals behind our own galaxy.[^hoskin1976]
+M104, the Sombrero Galaxy, is a spiral 31 million light-years away, seen nearly edge-on.[^mcquinn2016m104] The dark band across it is dust, the kind of lane Curtis said would hide any spirals behind our own galaxy.[^hoskin1976]
 :::
 
 ## Too much gravity
@@ -183,7 +183,7 @@ The 1970 paper made no such claim. Rubin and Ford reported the mass inside 24 kp
 The most direct evidence came in 2006 from two galaxy clusters that passed through each other about 4 billion light-years away, known as 1E 0657-558 or the Bullet Cluster.[^chandra2006] Most of the ordinary matter in a cluster is not in its galaxies but in hundred-million-degree gas between them, which glows in X-rays. In the collision the two gas clouds hit and were slowed, as air slows a thrown ball, while the widely spaced galaxies sailed on. The Chandra X-ray telescope mapped the gas. Douglas Clowe and his colleagues mapped the mass from the way it bends the light of galaxies behind it, the lensing Zwicky had proposed in 1937.[^clowe2006][^chandra2006] The mass sits with the galaxies, not the gas, though the gas outweighs the galaxies. The offset is significant at 8 sigma, a measure of how unlikely it is to be a fluke, far past the 5 sigma physicists usually require, and, Clowe's team argued, no change to the law of gravity alone could explain it.[^clowe2006]
 
 ::: see-it go:bullet-cluster
-The Bullet Cluster. In the published images the X-ray gas is pink and the mass found by lensing is blue.[^chandra2006] The blue lies beyond the pink on both sides: the dark matter went straight through.
+The Bullet Cluster, drawn here as its two groups of galaxies; its hot gas is not drawn. In the published images the X-ray gas is pink and the mass found by lensing is blue.[^chandra2006] The blue lies beyond the pink on both sides: the dark matter went straight through.
 :::
 
 ## The neighbourhood
@@ -191,7 +191,7 @@ The Bullet Cluster. In the published images the X-ray gas is pink and the mass f
 Hubble named our corner of space in 1936. The galactic system, he wrote, belongs to a small group isolated in the general field: the Milky Way and the two Magellanic Clouds, Andromeda with M32 and NGC 205, M33, NGC 6822 and IC 1613, with perhaps a few more hidden by dust. He called it the local group.[^hubble1936] A 2012 census listed over a hundred galaxies within 3 Mpc (megaparsecs, about 10 million light-years), most of them faint dwarfs.[^mcconnachie2012] The Milky Way and Andromeda together weigh about 3 trillion Suns.[^vdm2012b]
 
 ::: see-it local-group
-Two big spirals dominate the Local Group: the Milky Way and Andromeda, about 2.5 million light-years apart, each with its swarm of satellites. Triangulum sits off to one side.
+Two big spirals dominate the Local Group: the Milky Way and Andromeda, about 2.5 million light-years apart, each with its swarm of satellites. Triangulum sits off to one side. From this far they are faint smudges and most of the satellites are too faint to see; the Bodies list names every one.
 :::
 
 The Large Magellanic Cloud is 49.6 kpc (161,700 light-years) away, a distance measured to 1% in 2019 from 20 pairs of stars that eclipse each other.[^pietrzynski2019] In 2006 Nitya Kallivayalil and colleagues used the Hubble Space Telescope to track the Clouds across the sky and found them moving about 100 km/s faster than expected, close to the Milky Way's escape speed, the speed needed to break free of its gravity. Gurtina Besla and colleagues then argued that, for a Milky Way of the mass that standard cosmological models suggested, the Clouds must be on their first pass, not old satellites.[^kallivayalil2006][^besla2007] The Large Cloud weighs about 140 billion Suns, enough to bend streams of stars in our galaxy's outskirts.[^erkal2019]
@@ -311,7 +311,7 @@ Nobody knows what dark matter is; as of September 2026 no experiment has confirm
 [^sedsm31]: H. Frommert and C. Kronberg, "Messier Object 31", SEDS Messier Database. http://www.messier.seds.org/m/m031.html
 [^sedsm51]: H. Frommert and C. Kronberg, "Messier Object 51", SEDS Messier Database. http://www.messier.seds.org/m/m051.html
 [^lhrosse]: W. B. Ashworth Jr., "Scientist of the Day: William Parsons", Linda Hall Library (17 June 2015). https://www.lindahall.org/about/news/scientist-of-the-day/william-parsons/
-[^nasam51]: NASA Science, "Messier 51 (The Whirlpool Galaxy)", Hubble Messier catalogue. https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-51/
+[^mcquinn2016m51]: K. B. W. McQuinn, E. D. Skillman, A. E. Dolphin, D. Berg and R. Kennicutt, "The distance to M51", Astrophysical Journal 826, 21 (2016): 8.58 ± 0.10 Mpc, from the tip of the red giant branch. https://doi.org/10.3847/0004-637X/826/1/21
 [^lhhuggins]: W. B. Ashworth Jr., "Scientist of the Day: William Huggins", Linda Hall Library (7 February 2017). https://www.lindahall.org/about/news/scientist-of-the-day/william-huggins/
 [^lhbaade]: W. B. Ashworth Jr., "Scientist of the Day: Walter Baade", Linda Hall Library (24 March 2021). https://www.lindahall.org/about/news/scientist-of-the-day/walter-baade/
 [^clerke1890]: A. M. Clerke, The System of the Stars (Longmans, Green, 1890), chapter XXIV, "Status of the Nebulae", p. 368. https://archive.org/details/systemstars01clergoog
@@ -343,7 +343,7 @@ Nobody knows what dark matter is; as of September 2026 no experiment has confirm
 [^hubble1936]: E. Hubble, The Realm of the Nebulae (Yale University Press, 1936), chapters II and VI. https://archive.org/details/in.ernet.dli.2015.212163
 [^vdm2012c]: R. P. van der Marel, G. Besla, T. J. Cox, S. T. Sohn and J. Anderson, "The M31 velocity vector. III. Future Milky Way-M31-M33 orbital evolution, merging, and fate of the Sun", Astrophysical Journal 753, 9 (2012). https://doi.org/10.1088/0004-637X/753/1/9
 [^nasa2012]: NASA, "NASA's Hubble shows Milky Way is destined for head-on collision" (31 May 2012). https://science.nasa.gov/missions/hubble/nasas-hubble-shows-milky-way-is-destined-for-head-on-collision/
-[^nasam104]: NASA Science, "Messier 104 (The Sombrero Galaxy)", Hubble Messier catalogue. https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-104/
+[^mcquinn2016m104]: K. B. W. McQuinn, E. D. Skillman, A. E. Dolphin, D. Berg and R. Kennicutt, "The distance to M104", Astronomical Journal 152, 144 (2016): 9.55 ± 0.34 Mpc, from the tip of the red giant branch. https://doi.org/10.3847/0004-6256/152/5/144
 [^zwicky1933]: F. Zwicky, "Die Rotverschiebung von extragalaktischen Nebeln", Helvetica Physica Acta 6, 110-127 (1933); English translation by H. Andernach, arXiv:1711.01693. https://arxiv.org/abs/1711.01693
 [^bertone2018]: G. Bertone and D. Hooper, "History of dark matter", Reviews of Modern Physics 90, 045002 (2018). https://doi.org/10.1103/RevModPhys.90.045002
 [^zwicky1937]: F. Zwicky, "On the masses of nebulae and of clusters of nebulae", Astrophysical Journal 86, 217-246 (1937). https://doi.org/10.1086/143864

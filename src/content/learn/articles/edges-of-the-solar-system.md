@@ -127,7 +127,7 @@ New Horizons left Cape Canaveral on 19 January 2006 at 58,536 km/h, the fastest 
 Pluto turned out to be busy. The western half of a pale, heart-shaped region named Tombaugh Regio is a plain of frozen nitrogen about 1,000 km across, Sputnik Planitia, divided into cells tens of kilometres wide that look like slowly churning ice.[^stern2015][^nasanh] It has no craters bigger than 10 km, so it has been resurfaced within the last few hundred million years and may still be changing. Around it stand mountains of water ice 2 to 3 km high, and above the surface hangs a haze about 150 km deep, in an atmosphere with about a hundred-thousandth of the Earth's surface pressure.[^stern2015] In July 2026 a study of the images argued that dark streaks at the northern end of the glacier are now and then wetted by liquid nitrogen seeping up from underneath. If so, liquid has flowed on Pluto recently.[^nasa2026liquid]
 
 ::: see-it go:pluto
-Pluto is 35.6 au from the Sun. Look for the pale heart of Tombaugh Regio; its western lobe is the nitrogen glacier of Sputnik Planitia.
+Pluto is 35.6 au from the Sun. Look for the pale heart of Tombaugh Regio, on the side that faces away from Charon; its western lobe is the nitrogen glacier of Sputnik Planitia.
 :::
 
 ### Arrokoth
@@ -201,7 +201,7 @@ The third was found on 1 July 2025 by the ATLAS survey telescope at Río Hurtado
 What sets it apart is its chemistry. The James Webb Space Telescope found it unusually rich in carbon dioxide and, for the first time in an interstellar object, detected methane.[^belyakov2026] In June 2026 a Webb team reported about 30 times as much deuterium, heavy hydrogen, as in the Solar System's comets and very little carbon-13, the heavier form of carbon. That points to a very cold birthplace early in the galaxy's history. They estimate it may have formed 10 to 12 billion years ago, more than twice as long ago as the Sun.[^nasawebb2026]
 
 ::: see-it go:atlas-3i
-3I/ATLAS is now 11.6 au from the Sun, beyond Saturn's orbit and heading out at about 59 km/s, nearly five times the local escape speed.
+At the end of September 2026, 3I/ATLAS was 11.7 au from the Sun, beyond Saturn's orbit and heading out at about 59 km/s, nearly five times the local escape speed.
 :::
 
 Three in eight years sounds rare, but they are probably everywhere. From how hard 'Oumuamua was to find, astronomers estimate about one such object in every 10 cubic au of space. A sphere the size of Neptune's orbit holds about 113,000 cubic au, so about 10,000 of them are inside it at any moment, nearly all too small and faint to notice.[^jewittseligman2023]

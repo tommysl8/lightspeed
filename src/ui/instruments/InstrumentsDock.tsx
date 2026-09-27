@@ -9,6 +9,8 @@ import { bodyName, getBody, kindText, type BodyId, type BodyRecord, type Regime 
 import { gamma } from '../../physics/relativity';
 import { fixed, fmtBeta, fmtGamma, pickUnit, qty, sci, sig, storedDigits } from '../../lib/sci';
 import { radiusReading, stored } from '../dataSheet';
+import { lightYearsText, roundedText, sizeText } from '../deepSkyText';
+import { PictureCredit } from '../viewport/BodyCard';
 import { ephemerisRows } from './ephemerisRows';
 import { controller } from '../../controls/cameraController';
 import { relView, REL_THRESHOLD_BETA } from '../../render/relativisticView';
@@ -26,9 +28,10 @@ import { Check, CloseIcon, DockResizer, Ro, Sec, Seg, Sym } from '../kit';
 import { Plot } from '../plot/Plot';
 import { useTicker } from '../useTicker';
 import { SpacetimeDiagram } from './SpacetimeDiagram';
+import { lightLeftAgo } from '../../sim/cosmos/sight';
 import { rich } from '../rich';
 import { starData, starLabels, loadStarNames, loadStarExtra, starsVersion, subscribeStars } from '../../sim/stars';
-import type { ExoplanetInfo, StarInfo } from '../../sim/bodies';
+import type { DeepSkyInfo, ExoplanetInfo, StarInfo } from '../../sim/bodies';
 import { massText, methodWords, radiusText, temperatureWords } from '../exoplanetText';
 
 /** What the target is, for the data sheet ("Natural satellite of Earth"). */
@@ -184,6 +187,34 @@ function ExoplanetRows({ x }: { x: ExoplanetInfo }) {
   );
 }
 
+/** A cluster's, nebula's, black hole's or galaxy's rows of the data sheet (sim/galaxy/records.ts). */
+function DeepSkyRows({ x }: { x: DeepSkyInfo }) {
+  return (
+    <>
+      <div className="cap px-2.5 pb-0.5 pt-2">{x.type}</div>
+      {x.distancePc !== undefined && (
+        <Ro
+          l="Distance from the Sun"
+          v={roundedText(x.distancePc, 4)}
+          u="pc"
+          title={x.distanceLoPc !== undefined && x.distanceHiPc !== undefined ? `${roundedText(x.distanceLoPc, 4)} to ${roundedText(x.distanceHiPc, 4)} pc` : undefined}
+        />
+      )}
+      {x.distancePc !== undefined && <Ro l="In light-years" v={lightYearsText(x.distancePc, 4)} />}
+      {x.distanceSource && <Ro l="Distance measured by" v={x.distanceSource} />}
+      {x.hostGalaxy && <Ro l="In the galaxy" v={x.hostGalaxy} />}
+      {(x.sizes ?? []).map((s) => (
+        <Ro key={s.label} l={s.label} v={sizeText(s.pc)} title={s.title} />
+      ))}
+      {(x.rows ?? []).map((r) => (
+        <Ro key={r.l} l={r.l} v={r.v} u={r.u} title={r.title} />
+      ))}
+      {x.refs && x.refs.length > 0 && <p className="mono px-2.5 pt-1 text-[9.5px] leading-snug text-fg-3">{x.refs.join('; ')}</p>}
+      {x.image && <PictureCredit image={x.image} className="px-2.5 pt-1" />}
+    </>
+  );
+}
+
 /** A star's rows of the data sheet: what it is and how each number was found. */
 function StarRows({ star }: { star: StarInfo }) {
   useSyncExternalStore(subscribeStars, starsVersion);
@@ -263,6 +294,8 @@ function Target() {
   const massKg = d.massKg ?? (d.gmKm3S2 ? d.gmKm3S2 / G_KM3 : NaN);
   const radius = radiusReading(r, d.triaxialRadiiKm ? 'Mean radius' : 'Radius');
   const notes = [r.positionNote, ...(r.modelNotes ?? [])].filter((n): n is string => !!n);
+  // A galaxy in the expanding universe: when its light left, not distance / c.
+  const lightLeft = lightLeftAgo(id);
   return (
     <Sec
       id="tgt"
@@ -279,7 +312,13 @@ function Target() {
         <span className="text-[11px] text-fg-3">{kindLine(r)}</span>
       </div>
       <Ro l="Range" v={<Q x={b.distTrue} dim="length" d={7} />} tone="data" />
-      <Ro l="Light-time" v={<Q x={b.distTrue / C_KM_S} dim="time" d={6} />} />
+      {lightLeft === 'none' ? (
+        <Ro l="Light-time" v="none of its light has arrived" title="It lies beyond the observable universe from here and now" />
+      ) : lightLeft ? (
+        <Ro l="Its light left" v={`${lightLeft} ago`} title="A galaxy in the expanding universe: its light arriving now left it when it was nearer, so distance ÷ c is no light-time" />
+      ) : (
+        <Ro l="Light-time" v={<Q x={b.distTrue / C_KM_S} dim="time" d={6} />} />
+      )}
       <Ro l="Range rate" v={sig(rangeRate(id), 4)} u="km/s" title="Positive: receding" />
       <Ro l="Angular diameter" v={ang.v} u={ang.u} />
       {b.magnitude < 40 && (
@@ -305,7 +344,8 @@ function Target() {
       )}
       {r.star && <StarRows star={r.star} />}
       {r.exoplanet && <ExoplanetRows x={r.exoplanet} />}
-      <div className="cap px-2.5 pb-0.5 pt-2">Physical data</div>
+      {r.deepSky && <DeepSkyRows x={r.deepSky} />}
+      {!r.deepSky && <div className="cap px-2.5 pb-0.5 pt-2">Physical data</div>}
       {/* Each value to the precision it has (ui/dataSheet.ts): no padded figures. */}
       {d.equatorialRadiusKm ? (
         <>
@@ -315,10 +355,10 @@ function Target() {
       ) : (
         d.triaxialRadiiKm && <Ro l="Radii a × b × c" v={d.triaxialRadiiKm.map((x) => stored(x, 4)).join(' × ')} u="km" />
       )}
-      {!d.equatorialRadiusKm && <Ro l={radius.l} v={radius.v} u={radius.u} title={radius.title} />}
+      {!d.equatorialRadiusKm && !r.deepSky && <Ro l={radius.l} v={radius.v} u={radius.u} title={radius.title} />}
       {/* A star's or an exoplanet's mass is in its own rows above, with how it was found; GM from it would add false figures. */}
-      {d.gmKm3S2 && !r.star && !r.exoplanet && <Ro l={<><Sym>GM</Sym></>} v={sci(d.gmKm3S2, Math.min(6, storedDigits(d.gmKm3S2)))} u="km³/s²" />}
-      {Number.isFinite(massKg) && !r.star && !r.exoplanet && <Ro l={<>Mass <Sym>GM</Sym>/<Sym>G</Sym></>} v={sci(massKg, Math.min(4, storedDigits(massKg)))} u="kg" />}
+      {d.gmKm3S2 && !r.star && !r.exoplanet && !r.deepSky && <Ro l={<><Sym>GM</Sym></>} v={sci(d.gmKm3S2, Math.min(6, storedDigits(d.gmKm3S2)))} u="km³/s²" />}
+      {Number.isFinite(massKg) && !r.star && !r.exoplanet && !r.deepSky && <Ro l={<>Mass <Sym>GM</Sym>/<Sym>G</Sym></>} v={sci(massKg, Math.min(4, storedDigits(massKg)))} u="kg" />}
       {d.siderealRotationH !== undefined && (
         <Ro l="Sidereal rotation" v={stored(Math.abs(d.siderealRotationH), 5)} u={d.siderealRotationH < 0 ? 'h retro.' : 'h'} />
       )}
@@ -452,7 +492,8 @@ function LightTime() {
 function Spacetime() {
   const tripActive = useUI((s) => s.tripActive);
   const t = travel.trip;
-  if (tripActive && t) {
+  // Special relativity's diagram (the Sun's frame) does not describe a flight through expanding space.
+  if (tripActive && t && !t.cosmic) {
     return (
       <Sec id="st" idx="F" title="Spacetime diagram">
         <div className="px-2.5 pb-2 pt-1">

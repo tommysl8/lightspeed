@@ -19,6 +19,8 @@ import { useTicker } from '../useTicker';
 import { rich } from '../rich';
 import { BodyCard } from './BodyCard';
 import { formatSimDate } from '../../lib/time';
+import { PictureCredits, keepCreditsClear } from './PictureCredits';
+import { LayerCards } from './LayerCards';
 
 function Corners() {
   const c = 'vf-corner';
@@ -279,7 +281,7 @@ function JourneyBanner() {
   if (!note || tripActive || plannerOpen) return null;
   return (
     <div className="absolute inset-x-0 bottom-10 z-10 flex justify-center px-4">
-      <div className="panel-float appear flex max-w-[640px] items-start gap-3 py-2 pl-3.5 pr-1.5">
+      <div ref={keepCreditsClear} className="panel-float appear flex max-w-[640px] items-start gap-3 py-2 pl-3.5 pr-1.5">
         <span className="cap mt-[3px] shrink-0 !text-accent">Journey</span>
         <span className="font-serif text-[13px] leading-snug text-fg-2">{note}</span>
         <button className="btn btn-q btn-sq -mt-0.5 shrink-0" onClick={() => useUI.setState({ journeyNote: null })} aria-label="Dismiss">
@@ -397,6 +399,8 @@ export function ViewportChrome() {
       <RightStack />
       <JourneyBanner />
       <FirstHint />
+      <PictureCredits />
+      <LayerCards />
     </>
   );
 }

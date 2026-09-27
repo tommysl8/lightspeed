@@ -54,9 +54,11 @@ function CopyButton({ text, label }: { text: string; label: string }) {
 }
 
 const PRINCIPLES: [string, string][] = [
-  ['True scale', 'Distances and sizes are never compressed. Drawing bodies larger is an explicit option, and says so.'],
-  ['The real sky', 'Positions from published ephemerides, good to an arcminute from 1700 to 2200 and to about half a degree from 3000 BCE to 3000 CE, among 329,770 stars placed in three dimensions at their measured distances.'],
+  ['True scale', 'Distances and sizes are never compressed, from a moon to the cosmic web. Drawing bodies larger is an explicit option, and says so.'],
+  ['The real sky', 'Positions from published ephemerides, good to an arcminute from 1700 to 2200 and to about half a degree from 3000 BCE to 3000 CE, among 329,770 stars placed in three dimensions at their measured distances, and the galaxies beyond at theirs.'],
   ['Exact relativity', 'Aberration, Doppler shift, beaming and time dilation follow from the Lorentz transformation, not from low-speed approximations.'],
+  ['Expanding space', 'Beyond the Local Group space expands, and the program models it: the clock keeps cosmic time, and flights out there cross the expanding universe of the Planck 2018 model rather than zooming.'],
+  ['Models labelled', 'Where the measurements run out, a model built from published measurements takes over (the Milky Way seen from outside, the shapes of other galaxies), and its card says so.'],
   ['Fiction labelled', 'The one non-physical feature, faster-than-light travel, is marked in red and never enters the notebook.'],
 ];
 
@@ -64,9 +66,10 @@ function Overview() {
   return (
     <Chapter id="overview" title="What it is">
       <p className="doc-lead">
-        Lightspeed is a space exploration tool with real physics. It shows the Solar System as it is right now, at true scale,
-        and lets you fly through it close to the speed of light, with the sky and the clocks doing exactly what special
-        relativity says they do.
+        Lightspeed is a space exploration tool with real physics. It shows the universe as it is right now, from the Solar
+        System at true scale to 329,770 stars in three dimensions, the Milky Way and the galaxies of the cosmic web, and lets
+        you fly through it at nearly the speed of light, with the sky and the clocks doing exactly what relativity says they
+        do.
       </p>
       <p>
         It is for anyone who has wondered what the sky would look like from a starship, and how long the trip would really
@@ -157,7 +160,7 @@ function Cite() {
   const apa = `${AUTHOR.citeShort} (${APP.year}). ${APP.citeTitle} (Version ${APP.version}) [Computer software]. ${url}`;
   const bib = `@software{liu_lightspeed_${APP.year},
   author  = {${AUTHOR.citeName}},
-  title   = {Lightspeed: A Relativistic Solar System Explorer},
+  title   = {${APP.citeTitleCaps}},
   year    = {${APP.year}},
   version = {${APP.version}},
   url     = {${url}}
@@ -327,13 +330,16 @@ function Sources() {
           </>,
         ]}
       />
-      <h3 className="doc-h3-plain">The Milky Way and beyond (on the site ahead of the update that shows them)</h3>
+      <h3 className="doc-h3-plain">The Milky Way</h3>
       <Refs
         start={24}
         items={[
           <>
             NASA/Goddard Space Flight Center <Ext href="https://svs.gsfc.nasa.gov/4851">Scientific Visualization Studio</Ext>,
-            Deep Star Maps 2020, Milky Way background layer (Gaia DR2: ESA/Gaia/DPAC), re-encoded: public domain.
+            Deep Star Maps 2020, Milky Way background layer (Gaia DR2: ESA/Gaia/DPAC), re-encoded: public domain. Added to it,
+            a map of the light of the catalogue’s stars too faint to draw one by one (V 6.5 to about 10), built from the star
+            files [11] and under their terms: non-commercial use only, crediting David Nash (AT-HYG, CC BY-SA 4.0) and
+            ESA/Gaia/DPAC (CC BY-NC 3.0 IGO).
           </>,
           <>
             A model of the Milky Way’s stars and dust, generated for Lightspeed from published parameters: GRAVITY Collaboration
@@ -350,9 +356,23 @@ function Sources() {
           <>
             45 images of nebulae from ESA/Hubble, ESA/Webb, ESO and NSF NOIRLab,{' '}
             <Ext href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</Ext>, modified for Lightspeed (resized, black
-            level subtracted, edges faded; three cropped). The credit line of every image is listed in{' '}
-            <Ext href={`${AUTHOR.repo}/blob/main/CREDITS.md#nebula-images`}>CREDITS.md</Ext>.
+            level subtracted, edges faded; three cropped). Each picture’s credit line is on its card and in the corner of the
+            view while it shows, and all of them are listed in{' '}
+            <Ext href={`${AUTHOR.repo}/blob/main/CREDITS.md#nebula-images`}>CREDITS.md</Ext>. Positions from SIMBAD (CDS,
+            Strasbourg); distances from Hunt &amp; Reffert (2024), Bailer-Jones et al. (2021) and the papers named on each card.
           </>,
+          <>
+            The Galactic Centre: the mass and distance of Sagittarius A* and the orbits of S2, S29, S38 and S55 from GRAVITY
+            Collaboration (2022, A&amp;A 657, L12;{' '}
+            <Ext href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</Ext>), its position from Reid &amp; Brunthaler
+            (2004, ApJ 616, 872), and the K-band dust towards it from Fritz et al. (2011, ApJ 737, 73).
+          </>,
+        ]}
+      />
+      <h3 className="doc-h3-plain">Beyond the Milky Way</h3>
+      <Refs
+        start={29}
+        items={[
           <>
             Galaxies: <Ext href="https://doi.org/10.3847/1538-4357/ac94d8">Cosmicflows-4</Ext> (Tully et al. 2023, ApJ 944, 94;
             CC BY 4.0) via CDS/VizieR, with the 2MASS Extended Source Catalog (“This publication makes use of data products from
@@ -363,15 +383,43 @@ function Sources() {
             of Astrophysics 8, 142; CC0).
           </>,
           <>
+            Named galaxies, clusters and young galaxies: positions from SIMBAD, sizes from RC3 (de Vaucouleurs et al. 1991) via
+            VizieR (“This research has made use of the SIMBAD database and the VizieR catalogue access tool, CDS, Strasbourg,
+            France.”), two redshifts from NED (“This research has made use of the NASA/IPAC Extragalactic Database (NED), which
+            is funded by the National Aeronautics and Space Administration and operated by the California Institute of
+            Technology.”), and distances, redshifts, disc angles and sizes from the papers cited on each card (Li et al. 2021;
+            Breuval et al. 2023; Pietrzyński et al. 2019; Graczyk et al. 2020; EHT Collaboration 2019; McQuinn et al. 2016; Mei
+            et al. 2007; Scolnic et al. 2025; Clowe et al. 2006; Bunker et al. 2023; Tacchella et al. 2023; Carniani et al.
+            2024, 2025; Naidu et al. 2026; Corbelli et al. 2010; van der Marel &amp; Kallivayalil 2014).
+          </>,
+          <>
             Cosmic microwave background: the{' '}
-            <Ext href="https://lambda.gsfc.nasa.gov/product/wmap/dr5/ilc_map_get.html">WMAP 9-year ILC map</Ext>, NASA / WMAP
-            Science Team: public domain.
+            <Ext href="https://lambda.gsfc.nasa.gov/product/wmap/dr5/ilc_map_get.html">WMAP 9-year ILC map</Ext> (Bennett et
+            al. 2013, ApJS 208, 20), NASA / WMAP Science Team: public domain; drawn with the end colours of Moreland’s (2009)
+            cool–warm map, contrast enhanced about 10,000 times.
+          </>,
+          <>
+            The expanding universe: flat ΛCDM with the Planck 2018 parameters (Planck Collaboration 2020, A&amp;A 641, A6), its
+            massive neutrino included, and the CMB temperature of Fixsen (2009, ApJ 707, 916), checked against an independent
+            implementation and astropy; the Local Group’s zero-velocity surface and barycentre from Karachentsev et al. (2009,
+            MNRAS 393, 1265). What happens at home while a traveller is away: the Solar System’s age from Connelly et al.
+            (2012, Science 338, 651), the Sun’s future from Schröder &amp; Connon Smith (2008, MNRAS 386, 155), the Milky Way and
+            Andromeda from van der Marel et al. (2012, ApJ 753, 9) and Sawala et al. (2025, Nature Astronomy 9, 1206; their
+            figure 3 read point by point,{' '}
+            <Ext href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</Ext>), the Large Magellanic Cloud from Cautun et
+            al. (2019, MNRAS 483, 2185), and the far future from Loeb (2002, Phys. Rev. D 65, 047301), Krauss &amp; Scherrer
+            (2007, Gen. Rel. Grav. 39, 1545) and Adams &amp; Laughlin (1997, Rev. Mod. Phys. 69, 337).
+          </>,
+          <>
+            The galaxies drawn as models: light profiles and values typical of each type from van der Kruit &amp; Freeman
+            (2011), Simien &amp; de Vaucouleurs (1986), Kennicutt (1981), Hernquist (1990), Fukugita, Shimasaku &amp; Ichikawa
+            (1995) and Xilouris et al. (1999); the dwarfs’ dark matter from their stars’ speeds after Wolf et al. (2010).
           </>,
         ]}
       />
       <h3 className="doc-h3-plain">Methods</h3>
       <Refs
-        start={30}
+        start={34}
         items={[
           <>
             Relativistic rendering: the rest-frame scene is rendered to a cube map and resampled per pixel by the aberration
@@ -379,6 +427,23 @@ function Sources() {
             a reflectance basis under a 5,772 K spectrum shifted by <i>D</i>, with <i>I</i>′<sub>λ</sub> = <i>D</i>
             <sup className="sup">5</sup> <i>I</i>
             <sub>λ</sub>(<i>λD</i>).
+          </>,
+          <>
+            Diffuse light (the Milky Way, the model of the Galaxy, the nebulae): a patch of sky the size of a faint star’s image
+            is drawn as bright as a star holding the same light would be, from the SVS calibration of 18.44 − 2.5 log₁₀ <i>p</i>{' '}
+            magnitudes per square arcsecond; it fades out between 22 and 24. The Galaxy’s 200,000 particles are Gaussian splats
+            of linear light, dimmed by the dust model integrated along each line of sight, summed at a quarter of the screen’s
+            resolution and turned into what is drawn afterwards; in flight each is aberrated and Doppler shifted like a star.
+            Near the camera, where each would be hundreds of parsecs wide, the light of the discs and the young arm stars is
+            instead integrated from the model’s laws along each line of sight through its dust, and handed over to the
+            particles between 1 and 4 kpc out.
+            The other galaxies are drawn the same way, each from a template of a few thousand points scaled, tilted and
+            brightened to its measurements, dimmed by a layer of its own dust.
+          </>,
+          <>
+            Flights beyond the Local Group: the equations of motion of a rocket in a flat Friedmann–Lemaître–Robertson–Walker
+            universe, integrated with the Dormand–Prince 5(4) method (J. R. Dormand, P. J. Prince 1980, J. Comput. Appl. Math. 6,
+            19), for a perfect engine and a destination that moves with the expansion; inside the Local Group, static space.
           </>,
           <>C. Wyman, P.-P. Sloan, P. Shirley (2013), JCGT 2(2): analytic CIE 1931 colour-matching functions.</>,
           <>F. J. Ballesteros (2012), EPL 97, 34008: B−V to effective temperature.</>,
@@ -405,10 +470,24 @@ function Sources() {
 function Limitations() {
   return (
     <Chapter id="limitations" title="Model limitations">
-      <p>Lightspeed simplifies in the following ways. None of them affects what you see in flight, or the lab’s experiments as designed.</p>
+      <p>
+        Lightspeed simplifies in the following ways, and says so on screen where it matters. None of them affects the lab’s
+        experiments as designed.
+      </p>
       <ol className="doc-list-num">
-        <li>Spacetime is flat: gravity bends neither trajectories nor light, and no gravitational time dilation is applied.</li>
+        <li>
+          Apart from the expansion of the universe and the precession that general relativity adds to the S-stars’ orbits,
+          spacetime is flat: gravity bends neither the flights nor light, and no gravitational time dilation is applied.
+        </li>
         <li>Constant-speed trips start and stop instantaneously. The 1 g drive is the physically realisable profile.</li>
+        <li>
+          Flights beyond the Local Group cross an expanding universe (flat ΛCDM, Planck 2018) and assume a perfect engine and a
+          destination that moves with the expansion, with no motion of its own. Inside the Local Group, which gravity holds
+          together, space is taken as static. The clock runs billions of years ahead and the universe expands with it, but the
+          bodies do not age: more than ten million years from the present the Sun, the planets and the stars are drawn as they
+          are today, and their cards say so (with what the Sun and the Earth will have become, from Schröder and Connon Smith
+          2008).
+        </li>
         <li>
           Stars move in straight lines (good for about a million years either side of 2000; they stand still beyond), with no
           interstellar dust; most double stars are one point, and the sizes of stars without a measured radius are estimates.
@@ -421,7 +500,43 @@ function Limitations() {
           measured and is assumed; nobody has seen their surfaces, so their colours are illustrative. Each planet’s card says
           what is measured and what is assumed.
         </li>
-        <li>Doppler colours of surfaces are approximate; stars are exact blackbodies. The cosmic microwave background is not modelled.</li>
+        <li>
+          Doppler colours of surfaces are approximate; stars are exact blackbodies. The cosmic microwave background seen at speed
+          is a perfect blackbody without its tiny ripples; its map (WMAP) is a separate layer, contrast enhanced about 10,000
+          times and drawn only while the relativistic view is off (below 0.01<i>c</i>, in classical optics, or on the classical
+          side of the split screen).
+        </li>
+        <li>
+          The Milky Way’s glow is the real sky only near the Sun; beyond a few hundred parsecs it is a model built from
+          published measurements (Reid et al. 2019 arms, Wegg et al. bar, Drimmel and Spergel dust), whose points are not real
+          stars and whose spiral arms are extrapolated beyond the parallax data, over the far side of the Galaxy. Near the
+          camera its discs and young arm stars are a smooth glow worked out from the model’s laws, its points further out. The
+          model’s dust is smooth: with no Local Bubble it dims high latitudes near the Sun too much, with no central molecular
+          zone it dims the very centre too little, and it has none of the gaps through which the star clouds of Sagittarius and
+          Scutum shine. Seen from the Sun the model is within half a magnitude of the real sky towards the anticentre and the
+          poles, and over a magnitude fainter towards those star clouds. The sky from the Sun holds the light of the
+          catalogue’s stars too faint to draw (to V ≈ 10) and of the stars fainter than about V = 11; those in between, a small
+          share of the light, are in neither. The glow is shown as the eye would see it, down to about 23
+          magnitudes per square arcsecond. Nebulae are their photographs from Earth, drawn as flat cards facing the Sun
+          (mirrored from behind), at a brightness set for display; the points of the globular clusters are illustrative. Where
+          the S-stars are now is their orbit carried 27,000 years beyond what we see.
+        </li>
+        <li>
+          Other galaxies are models: their shapes are modelled from their measured size, brightness and orientation, with the
+          light profile, arms, clumps and dust typical of their type. Where a disc’s near side is not known it is assumed (the
+          real galaxy could be its mirror image), and a galaxy known only by its outline on the sky is taken to be as deep as
+          it is wide. The most distant galaxies stand where they are now but are drawn as they were 13.5 billion years ago,
+          their light redshifted and dimmed as a black body’s would be (in truth hydrogen absorbed all their visible light:
+          to the eye they are dark). Galaxies beyond the Local Group are held at their places in the expanding universe, their
+          own motions not followed, while groups and clusters keep their size; the CMB map is the pattern seen from the Solar
+          System today.
+        </li>
+        <li>
+          The cosmic web is Cosmicflows-4 drawn as a map: a survey, not a census. Its footprint is uneven (most of its galaxies
+          lie in the northern galactic sky, almost none behind the Milky Way’s disc), and each galaxy’s own distance is 15 to 25%
+          uncertain, so within 30 Mpc each is placed at its group’s measured distance, beyond 60 Mpc at the distance its group’s
+          redshift gives in the Planck 2018 cosmology, and in between at a blend of the two.
+        </li>
         <li>Planets are lit without the 1/r² dimming of sunlight, and the relativistic view uses automatic exposure.</li>
         <li>The superluminal drive is fiction, provided for comparison; nothing measured during it has physical meaning.</li>
         <li>
@@ -445,9 +560,11 @@ function Software() {
       </p>
       <p>
         The code is released under the MIT Licence, © {APP.year} {AUTHOR.name}. The star catalogue, maps, shape models and other data
-        keep their own licences (the star and exoplanet files are for non-commercial use only, because of their Gaia DR3 values, and the star
-        files are also CC BY-SA 4.0; the 67P shape model is CC BY-SA 3.0 IGO; the Solar System Scope textures and the nebula images are CC BY
-        4.0), listed under <Ref page="about" to="sources">Sources and methods</Ref>.
+        keep their own licences (the star and exoplanet files, and the map of the faint stars’ light built from them, are for
+        non-commercial use only, because of their Gaia DR3 values, and the star files are also CC BY-SA 4.0; the 67P shape
+        model is CC BY-SA 3.0 IGO; the Solar System Scope textures, the nebula images, the star clusters (the Harris catalogue
+        apart, which is free of charge), the S-stars’ orbits, the Cosmicflows-4 galaxies and the figure read from Sawala et al.
+        are CC BY 4.0; the Local Volume Database is CC0; the NASA SVS sky and the WMAP map are public domain), listed under <Ref page="about" to="sources">Sources and methods</Ref>.
       </p>
       <p>
         The source code is on GitHub at <Ext href={AUTHOR.repo}>{AUTHOR.repo.replace('https://', '')}</Ext>.

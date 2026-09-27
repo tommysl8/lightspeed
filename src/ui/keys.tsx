@@ -1,5 +1,7 @@
 /** The keyboard and mouse, grouped, for the keys sheet and the guide. Matches useShortcuts.ts. */
 import type { ReactNode } from 'react';
+import { WARP_STEPS } from '../sim/clock';
+import { formatDurationShort } from '../lib/time';
 import { Kbd } from './kit';
 
 export interface KeyGroup {
@@ -7,24 +9,28 @@ export interface KeyGroup {
   rows: [ReactNode, ReactNode][];
 }
 
+/** The fastest rate of time, in words ("320 million years"). */
+const FASTEST = formatDurationShort(WARP_STEPS[WARP_STEPS.length - 1], 2);
+
 export const KEY_GROUPS: KeyGroup[] = [
   {
     title: 'Mouse',
     rows: [
       ['Drag', 'Orbit the target; look around in flight'],
-      ['Scroll', 'Move in and out (Shift: faster); throttle in free flight'],
-      ['Click a body', 'Select it: its card'],
+      ['Scroll', 'Move in and out, from a moon to the cosmic web (Shift: faster); throttle in free flight'],
+      ['Click', 'Select a planet, star, nebula or galaxy: its card'],
       ['Double-click', 'Take the camera there'],
+      ['The trail', 'Click a level to see it whole: Solar System, Milky Way, Local Group…'],
     ],
   },
   {
     title: 'Go places',
     rows: [
-      [<><Kbd>/</Kbd> or <Kbd>Ctrl</Kbd>+<Kbd>K</Kbd></>, 'Where to? Find anything and go there'],
+      [<><Kbd>/</Kbd> or <Kbd>Ctrl</Kbd>+<Kbd>K</Kbd></>, 'Where to? Find anything by name, from the Moon to Andromeda'],
       [<><Kbd>0</Kbd>–<Kbd>9</Kbd></>, 'Sun, Mercury … Neptune, Pluto (in flight: select it)'],
       [<><Kbd>M</Kbd> <Kbd>V</Kbd></>, 'Moon, Voyager 1'],
       [<Kbd key="h">H</Kbd>, 'Back to Earth'],
-      [<Kbd key="g">G</Kbd>, 'Plan a flight'],
+      [<Kbd key="g">G</Kbd>, 'Plan a flight to the selected body'],
       [<>Arrows · <Kbd>+</Kbd> <Kbd>−</Kbd></>, 'Orbit (in flight: look around) · move in and out (Shift+−: faster)'],
       [<Kbd key="esc">Esc</Kbd>, 'Close things; clear the selection; leave free flight'],
     ],
@@ -33,7 +39,7 @@ export const KEY_GROUPS: KeyGroup[] = [
     title: 'Time',
     rows: [
       [<><Kbd>Space</Kbd> <Kbd>P</Kbd></>, 'Pause and resume (P in free flight)'],
-      [<><Kbd>[</Kbd> <Kbd>]</Kbd> or <Kbd>,</Kbd> <Kbd>.</Kbd></>, 'Slower, faster (in flight: the pace of the trip)'],
+      [<><Kbd>[</Kbd> <Kbd>]</Kbd> or <Kbd>,</Kbd> <Kbd>.</Kbd></>, `Slower, faster, up to ${FASTEST} a second (in flight: the pace of the trip)`],
       [<Kbd key="n">N</Kbd>, 'Back to the present'],
     ],
   },
@@ -47,6 +53,7 @@ export const KEY_GROUPS: KeyGroup[] = [
       [<Kbd key="u">U</Kbd>, 'Readouts over the view'],
       [<Kbd key="z">Z</Kbd>, 'Relativistic or classical sky'],
       [<Kbd key="x">X</Kbd>, 'Split screen'],
+      ['View menu', 'Planet hosts, the cosmic web and the CMB map'],
     ],
   },
   {
