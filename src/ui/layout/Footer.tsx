@@ -13,7 +13,7 @@ import { quality } from '../../render/quality';
 import { WARP_STEPS, resetToNow, setPaused, warpLabel } from '../../sim/clock';
 import { SHIP_RATE_MIN, stepRate, travel, tripPace } from '../../sim/travel';
 import { useUI } from '../../state/ui';
-import { frameNeighbourhood, frameSolarSystem, goToBody, goToSystem } from '../navigation';
+import { frameCosmicWeb, frameLocalGroup, frameMilkyWay, frameNeighbourhood, frameSolarSystem, goToBody, goToSystem } from '../navigation';
 import { locationPath } from '../location';
 import { Kbd, Menu } from '../kit';
 import { Icon } from '../icons';
@@ -221,22 +221,35 @@ function Location() {
           const last = i === path.length - 1;
           // A level above the target frames its whole system (Saturn with the orbits of its moons).
           const go = () =>
-            c.to === 'solar-neighbourhood' ? frameNeighbourhood() : c.to === 'solar-system' ? frameSolarSystem() : last ? goToBody(c.to!) : goToSystem(c.to!);
+            c.to === 'solar-neighbourhood'
+              ? frameNeighbourhood()
+              : c.to === 'solar-system'
+                ? frameSolarSystem()
+                : c.to === 'milky-way'
+                  ? frameMilkyWay()
+                  : c.to === 'local-group'
+                    ? frameLocalGroup()
+                    : c.to === 'local-universe'
+                      ? frameCosmicWeb()
+                      : last
+                        ? goToBody(c.to!)
+                        : goToSystem(c.to!);
           const title =
             c.to === 'solar-neighbourhood'
               ? 'See the stars around the Sun'
               : c.to === 'solar-system'
                 ? 'See the whole Solar System'
-                : last
-                  ? `Go to ${bodyName(c.to!)}`
-                  : `See ${bodyName(c.to!)} and what orbits it`;
+                : c.to === 'milky-way'
+                  ? 'See the Milky Way from outside (a model built from published measurements)'
+                  : c.to === 'local-group'
+                    ? 'See the Local Group from 3 million parsecs out'
+                    : c.to === 'local-universe'
+                      ? 'See the cosmic web: the galaxies around us with measured distances'
+                      : last
+                    ? `Go to ${bodyName(c.to!)}`
+                    : `See ${bodyName(c.to!)} and what orbits it`;
           return (
-            <li key={`${i}-${c.label}`} className={`flex min-w-0 items-center ${last ? '' : 'shrink-0'}`}>
-              {i > 0 && (
-                <span className="px-0.5 text-fg-4" aria-hidden>
-                  ›
-                </span>
-              )}
+            <li key={`${i}-${c.label}`} className={`flex min-w-0 items-center ${last ? '' : 'shrink-0'} ${c.galactic && !last ? 'max-xl:hidden' : ''} ${c.outer && !last ? 'max-2xl:hidden' : ''}`}>
               {c.to && !tripActive ? (
                 <button
                   className={`btn btn-q btn-sm min-w-0 !px-1.5 ${last ? '!text-fg' : ''}`}
@@ -249,6 +262,12 @@ function Location() {
               ) : (
                 <span className={`truncate px-1.5 text-[11.5px] lg:text-[13px] ${last ? 'text-fg' : 'text-fg-2'}`} aria-current={last ? 'location' : undefined}>
                   {c.label}
+                </span>
+              )}
+              {/* After each level, so a level left out on a narrow screen takes its separator with it. */}
+              {!last && (
+                <span className="px-0.5 text-fg-4" aria-hidden>
+                  ›
                 </span>
               )}
             </li>

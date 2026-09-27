@@ -101,8 +101,9 @@ describe('the body destinations', () => {
     expect(bodyKindText('proxima')).toBe('Star');
   });
 
-  it('features six destinations, in order', () => {
-    expect(featuredDestinations().map((d) => d.id)).toEqual([...FEATURED_IDS]);
+  it('features its destinations in order, the galaxy ones only once their data are in', () => {
+    // Here only the built-in bodies are registered (overlays/featured.test.ts registers the galaxies).
+    expect(featuredDestinations().map((d) => d.id)).toEqual(FEATURED_IDS.filter((id) => id !== 'sgr-a-star' && id !== 'andromeda'));
   });
 });
 

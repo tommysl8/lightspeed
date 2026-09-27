@@ -1,10 +1,12 @@
 /**
  * Guided tour: a short sequence of notes, each pinned to one part of the screen, which is
  * picked out by a spotlight. Anchors are elements marked data-tour="…" (the header's search,
- * journeys, date chip, Learn and View menu, the footer's time controls, and the view); a step
- * whose anchor is not on screen (a narrow layout) is shown centred instead.
+ * journeys, date chip, Learn and View menu, the footer's time controls and trail, and the
+ * view); a step whose anchor is not on screen (a narrow layout) is shown centred instead.
  */
 import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
+import { JOURNEYS } from '../../content/journeys';
+import { countWordStart } from '../../lib/words';
 import { useUI } from '../../state/ui';
 import { Kbd } from '../kit';
 import { openSearch } from '../onboarding';
@@ -19,11 +21,12 @@ interface Step {
 const STEPS: Step[] = [
   {
     anchor: 'view',
-    title: 'The Solar System, right now',
+    title: 'The universe, right now',
     body: (
       <>
-        Every planet is where it really is at this moment, and every distance is true to scale. Drag to look around, scroll to
-        zoom, and click a planet for its card. At this scale the planets are specks, so labels mark where they are.
+        Every planet, star and galaxy is where it really is at this moment, and every distance is true to scale. Drag to look
+        around, scroll to move in and out, from a moon to the cosmic web, and click anything for its card. At this scale most
+        things are specks, so labels mark where they are.
       </>
     ),
   },
@@ -32,9 +35,9 @@ const STEPS: Step[] = [
     title: 'Where to?',
     body: (
       <>
-        Type a name, or part of one: Saturn, the Moon, Voyager 1, the nearest star. <b>Go</b> takes the camera there; <b>Fly</b>{' '}
-        plans a real flight at 1 g and shows how long it takes for you and at home. Press <Kbd>/</Kbd> or <Kbd>Ctrl</Kbd>+<Kbd>K</Kbd>{' '}
-        from anywhere.
+        Type a name, or part of one: Saturn, Proxima Centauri, the Orion Nebula, Andromeda. <b>Go</b> takes the camera there;{' '}
+        <b>Fly</b> plans a real flight at 1 g and shows how long it takes for you and at home. Press <Kbd>/</Kbd> or{' '}
+        <Kbd>Ctrl</Kbd>+<Kbd>K</Kbd> from anywhere.
       </>
     ),
   },
@@ -43,8 +46,8 @@ const STEPS: Step[] = [
     title: 'Journeys',
     body: (
       <>
-        Ten set pieces, one click each: race a pulse of sunlight to Earth, ride to Saturn at 0.9<i>c</i>, or push to Proxima
-        Centauri at 1 g. Each says what to look for.
+        {countWordStart(JOURNEYS.length)} set pieces, one click each: race a pulse of sunlight to Earth, ride to Saturn at 0.9
+        <i>c</i>, or push to Proxima Centauri at 1 g. Each says what to look for.
       </>
     ),
   },
@@ -64,7 +67,19 @@ const STEPS: Step[] = [
     body: (
       <>
         Pause with <Kbd>Space</Kbd>; the arrows (or <Kbd>[</Kbd> <Kbd>]</Kbd>) run time slower or faster, from real time up to
-        millions of years a second. <b>Now</b> brings you back to the present. In flight they set the pace of the trip instead.
+        hundreds of millions of years a second, and the universe ages with the clock. <b>Now</b> brings you back to the present.
+        In flight they set the pace of the trip instead.
+      </>
+    ),
+  },
+  {
+    anchor: 'location',
+    title: 'Where you are',
+    body: (
+      <>
+        The trail says where the camera is, from a moon out to the observable universe. Click a level to see it whole: the Solar
+        System, the Milky Way, the Local Group. <b>Bodies</b> lists every place you can go, by kind, from the planets to the
+        galaxies.
       </>
     ),
   },
@@ -73,8 +88,9 @@ const STEPS: Step[] = [
     title: 'Learn',
     body: (
       <>
-        Long reads on the science behind the view: how it was found out, what the physics says and what comes next, with the
-        sources to go further. Press <Kbd>E</Kbd> to open it.
+        Long reads on the science behind the view, from light and relativity to the stars, the galaxies and the expanding
+        universe: how it was found out, what the physics says and what comes next, with the sources to go further. Press{' '}
+        <Kbd>E</Kbd> to open it.
       </>
     ),
   },
@@ -83,9 +99,9 @@ const STEPS: Step[] = [
     title: 'Everything else',
     body: (
       <>
-        The View menu holds the display layers, the optics, the guide and the keys, and the instrument panel with every number
-        live. Beside it, <b>Lab</b> (on a phone, at the end of Learn) has five guided experiments for students. Both are
-        there for those who want them.
+        The View menu holds the display layers (the constellations, the cosmic web, the map of the oldest light), the optics,
+        the guide and the keys, and the instrument panel with every number live. Beside it, <b>Lab</b> (on a phone, at the end
+        of Learn) has five guided experiments for students. Both are there for those who want them.
       </>
     ),
   },

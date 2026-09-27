@@ -19,6 +19,8 @@ import {
 } from '../physics/cmb';
 import { galacticToWorld } from '../sim/frames';
 import { sim } from '../sim/sim';
+import { cosmicNow } from '../sim/cosmicTime';
+import { insideLocalGroup } from '../sim/cosmos/expansion';
 import { cmbPointUniforms, relativityUniforms, SUN_SURFACE_RADIANCE } from './materials';
 
 export type RelMode = 'off' | 'on' | 'split';
@@ -64,8 +66,8 @@ export const relView = {
   /** The cosmic microwave background as the ship sees it. */
   cmb: {
     /**
-     * Its temperature in its own rest frame, K. Today's value; a later phase can scale it as
-     * 1/a(t) for the expanding universe (everything downstream takes it from here).
+     * Its temperature in its own rest frame, K: T0 / a(t) at the clock's time (sim/cosmicTime.ts),
+     * set each frame; everything downstream takes it from here.
      */
     temperature: T_CMB_K,
     /** The ship's motion through it: rapidity and direction (ship frame, world axes). */
@@ -127,19 +129,23 @@ export function updateRelativisticView(mode: RelMode, splitX: number, doppler: b
 }
 
 /**
- * The CMB: the ship's motion through it (its motion in the Sun's frame composed with the Sun's
- * through the CMB), the hot spot's total flux, and how much of it a pixel can resolve.
+ * The CMB: its temperature at the clock's time, the ship's motion through it, the hot spot's total
+ * flux, and how much of it a pixel can resolve. Inside the Local Group the ship's motion is measured
+ * in the Sun's frame, so it is composed with the Sun's own motion through the CMB (the dipole);
+ * beyond it the ship's motion is measured against the local comoving frame, the CMB's rest frame
+ * there (the flights through expanding space arrive at rest in it, and treat home as comoving).
  */
 function updateCmb(): void {
   const c = relView.cmb;
   const u = cmbPointUniforms;
+  c.temperature = cosmicNow().tCmbK;
   if (!relView.active || !relView.doppler) {
     c.resolved = 1;
     c.visible = false;
     u.uCmbPointFade.value = 0;
     return;
   }
-  motionThroughCmb(relView.velDir, relView.phi, CMB_DIPOLE_DIR, CMB_DIPOLE_PHI, c.motion);
+  motionThroughCmb(relView.velDir, relView.phi, CMB_DIPOLE_DIR, insideLocalGroup(sim.camera.pos) ? CMB_DIPOLE_PHI : 0, c.motion);
   u.uCmbPointDir.value.set(c.motion.dir.x, c.motion.dir.y, c.motion.dir.z);
   // The spot only changes with φ and T; recompute when either moves.
   if (c.motion.phi !== spotPhi || c.temperature !== spotT) {

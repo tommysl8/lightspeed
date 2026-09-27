@@ -207,7 +207,7 @@ The jet from the giant black hole in M87 points about 17° from our line of sigh
 Beaming explains the rest of the picture. Many jets look one-sided because the jet coming towards us is boosted by a large power of D while the one heading away is dimmed by the same power, often below detection.[^rybicki1979] And when the Event Horizon Telescope, a network of radio dishes around the world working as one, published the first image of the black hole at the centre of M87 in 2019, the ring was brighter on one side. The collaboration explained the lopsidedness as relativistic beaming from gas orbiting close to the speed of light.[^eht2019]
 
 ::: see-it go:m87
-The camera glides to M87, 55 million light-years away in the Virgo Cluster. Its jet is the one Hubble and Chandra clocked at apparent speeds of up to about six times the speed of light.
+The camera glides to M87, 55 million light-years away in the Virgo Cluster. Its jet, not drawn here, is the one Hubble and Chandra clocked at apparent speeds of up to about six times the speed of light.
 :::
 
 ## A glow from the Big Bang
@@ -233,7 +233,7 @@ To reach it, D has to be 798 ÷ 2.7255 = 293, which needs γ ≈ 146, a speed of
 The last two rows are flights you can take in this app ([Rockets to the stars](#/learn/rockets-to-the-stars) explains how they work). On the way to Andromeda the glow ahead passes right through visible light and out the other side, into X-rays. [The expanding universe](#/learn/the-expanding-universe) explains where the background comes from.
 
 ::: see-it cmb-glow
-A 1 g flight in which the ship clock runs past five years. Watch the point dead ahead: a dull red spot appears where the sky was black, shrinks to a point and whitens as the years tick by. It is the Big Bang's afterglow, blueshifted by a factor of hundreds, then thousands.
+A 1 g flight to the Virgo Cluster. Some six or seven years in on the ship's clock, watch the point dead ahead: a dull red spot appears where the sky was black, shrinks to a point and whitens as the years tick by. It is the Big Bang's afterglow, blueshifted by a factor of hundreds, then thousands, and by the halfway flip tens of millions.
 :::
 
 ## What comes next

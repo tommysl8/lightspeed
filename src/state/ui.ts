@@ -34,6 +34,13 @@ export interface UIState {
    * distances, as the constellations are (ui/planetHosts.ts).
    */
   planetHosts: 'auto' | 'on' | 'off';
+  /**
+   * The cosmic web (the galaxies of Cosmicflows-4 as points): on, off, or 'auto', shown only from
+   * beyond the Local Group (ui/cosmicLayers.ts).
+   */
+  cosmicWeb: 'auto' | 'on' | 'off';
+  /** The map of the cosmic microwave background over the sky (contrast enhanced). */
+  showCmb: boolean;
   /** First-visit welcome screen. */
   welcomeOpen: boolean;
   /** Guided tour: index of the step shown, or null. */
@@ -114,6 +121,7 @@ export interface UIState {
       | 'showBelts'
       | 'showOverlays'
       | 'showGrid'
+      | 'showCmb'
       | 'retarded'
       | 'showFps'
       | 'leftOpen'
@@ -191,6 +199,7 @@ export const savedPrefs = (s: UIState) => ({
   showGrid: s.showGrid,
   constellations: s.constellations,
   planetHosts: s.planetHosts,
+  cosmicWeb: s.cosmicWeb,
   showFps: s.showFps,
   // Not leftOpen: the lab opens only when asked for, never on a reload.
   rightOpen: s.rightOpen,
@@ -228,6 +237,8 @@ export const useUI = create<UIState>()(
       showGrid: false,
       constellations: 'auto',
       planetHosts: 'auto',
+      cosmicWeb: 'auto',
+      showCmb: false,
       welcomeOpen: !welcomed(),
       tourStep: null,
       journeysOpen: false,

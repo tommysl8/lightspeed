@@ -24,6 +24,11 @@ function flyRocket(ly: number, tauFraction: number) {
     earthTime: rocket.earthTime,
     shipTime: rocket.shipTime,
     rocket,
+    model: 'static',
+    accelG: 1,
+    cosmic: null,
+    course: null,
+    homeOnArrival: null,
   };
   launch(plan);
   travel.trip!.tau = tauFraction * rocket.shipTime;

@@ -30,6 +30,7 @@ export type BodyKind =
   | 'galaxy'
   | 'cluster'
   | 'nebula'
+  | 'black-hole'
   /** A point, not a body: the centre of mass of a system. Never drawn, labelled or visited. */
   | 'barycentre';
 
@@ -230,9 +231,11 @@ export interface BodyVisual {
    *  sun         the Sun's limb-darkened, granulated disc
    *  star        a blackbody disc at the star's temperature
    *  spacecraft  a small probe model, antenna towards Earth
-   *  point       no mesh at all: only the point of light (galaxies, clusters, nebulae until they have renderers)
+   *  point       no mesh at all: only the point of light (galaxies until they have renderers)
+   *  layer       drawn by a layer of its own (the Milky Way's particles, the star clusters, the nebulae's
+   *              pictures: scene/MilkyWay.tsx, scene/Nebulae.tsx): no mesh and no point of light here
    */
-  renderer?: 'planet' | 'sun' | 'star' | 'spacecraft' | 'point';
+  renderer?: 'planet' | 'sun' | 'star' | 'spacecraft' | 'point' | 'layer';
   /** Surface map: a file in public/textures/, or a path from public/ when it contains a slash. Equirectangular, prime meridian at the centre. */
   map?: string;
   night?: string;
@@ -401,6 +404,55 @@ export interface BodyRecord {
   litBy?: BodyId;
   /** A planet of another star: its catalogue data and how each number was found (sim/exoplanets). */
   exoplanet?: ExoplanetInfo;
+  /** A cluster, nebula, black hole or galaxy: its catalogue data for the card and the data sheet (sim/galaxy). */
+  deepSky?: DeepSkyInfo;
+}
+
+/** A picture of a deep-sky object, with what its licence asks to be shown with it (CC BY 4.0). */
+export interface DeepSkyImage {
+  /** Path from public/ ("images/nebulae/orion-nebula.jpg"). */
+  file: string;
+  /** The credit line, exactly as the archive gives it. */
+  credit: string;
+  /** What was changed (CC BY 4.0 asks for it to be said). */
+  modificationNote: string;
+  /** The archive's page for the image. */
+  page: string;
+  /** Archive and image id ("ESO eso1723a"). */
+  source: string;
+  licence: string;
+  licenceUrl: string;
+  /** Visible light, or near-infrared. */
+  band: string;
+}
+
+/**
+ * What the card and the data sheet say about a deep-sky object (sim/galaxy/records.ts). Every
+ * number says where it comes from; what is a model says so.
+ */
+export interface DeepSkyInfo {
+  /** What it is, in a few words ("Star-forming region", "Globular cluster"). */
+  type: string;
+  /** Distance from the Sun, pc, with its range (1σ or the 16th to 84th percentiles) and source. */
+  distancePc?: number;
+  distanceLoPc?: number;
+  distanceHiPc?: number;
+  distanceSource?: string;
+  /**
+   * The distance is where it is now, measured along expanding space (a comoving distance, from its
+   * redshift), not the distance its light has come: the young galaxies and the far clusters.
+   */
+  distanceNow?: boolean;
+  /** Sizes, pc, for the data sheet. */
+  sizes?: readonly { label: string; pc: number; title?: string }[];
+  /** Other rows of the data sheet. */
+  rows?: readonly { l: string; v: string; u?: string; title?: string }[];
+  /** Its picture (a nebula), shown on its card with the credit. */
+  image?: DeepSkyImage;
+  /** The galaxy it lies in, when it is not the Milky Way. */
+  hostGalaxy?: string;
+  /** References of the values, as citations. */
+  refs?: readonly string[];
 }
 
 /**

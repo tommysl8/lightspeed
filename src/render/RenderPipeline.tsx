@@ -3,7 +3,15 @@ import { useFrame, useThree } from '@react-three/fiber';
 import { HalfFloatType, type PerspectiveCamera } from 'three';
 import { BloomEffect, EffectComposer, EffectPass, ToneMappingEffect, ToneMappingMode } from 'postprocessing';
 import { LightspeedScenePass } from './LightspeedScenePass';
+import { precompileLater } from './precompile';
 import { quality } from './quality';
+
+/**
+ * The shaders drawn later are compiled in the background this long after the pipeline starts, ms:
+ * once start-up's loading (the stars, the galaxies, the Milky Way model) and its own compiles are
+ * over, which they would otherwise hold up (precompile.ts).
+ */
+const PRECOMPILE_AFTER_MS = 8000;
 
 /**
  * Nothing after the scene pass reads its depth (bloom and tone mapping use colour only), so the
@@ -50,6 +58,15 @@ export function RenderPipeline() {
   }, [composer, size, dpr]);
 
   useEffect(() => () => composer.dispose(), [composer]);
+
+  // After start-up: the shaders of what is drawn later, and the relativistic view's.
+  useEffect(() => {
+    const id = setTimeout(() => {
+      const pass = composer.passes[0];
+      void precompileLater(gl, camera, pass instanceof LightspeedScenePass ? [pass.remapScene] : []);
+    }, PRECOMPILE_AFTER_MS);
+    return () => clearTimeout(id);
+  }, [gl, camera, composer]);
 
   useFrame((_, delta) => {
     if (composer.multisampling !== quality.msaa) {

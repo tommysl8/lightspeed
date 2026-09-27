@@ -27,6 +27,9 @@ import { framingDistance, minDistance } from './framing';
 export { framingDistance };
 
 const UP = new Vector3(0, 1, 0);
+/** Kinds seen along our line of sight (niceDirection), when this far from the Sun (a light-year) or farther. */
+const FROM_EARTH_KINDS: ReadonlySet<string> = new Set(['galaxy', 'cluster', 'nebula']);
+const FROM_EARTH_KM = 9.46e12;
 const ZERO = new Vector3();
 /** Farthest orbit distance, km (about 10¹¹ light-years: beyond the observable universe's 4.4 × 10²³ km radius). */
 export const MAX_DIST_KM = 1e24;
@@ -89,6 +92,12 @@ export class CameraController {
   private travelDir = new Vector3(0, 0, -1);
 
   private tr: Transition | null = null;
+  /**
+   * A slow turn of the orbit camera about the vertical (a scene's: the cosmic web turning), rad/s,
+   * and the move it belongs to: any other camera move or a touch of the controls stops it.
+   */
+  private spinRate = 0;
+  private spinMove = -1;
   private dom: HTMLElement | null = null;
   private dragging = false;
   private lastX = 0;
@@ -196,6 +205,20 @@ export class CameraController {
     useUI.setState({ focus: id });
   }
 
+  /**
+   * Turn the orbit camera slowly about the vertical, rad/s, once the move under way (a slew to the
+   * target) has ended; stopped by any other move, a drag, the wheel or a key.
+   */
+  spin(radPerS: number): void {
+    this.spinRate = radPerS;
+    this.spinMove = this.moves;
+  }
+
+  /** Whether the camera is turning by itself. */
+  get spinning(): boolean {
+    return this.spinRate !== 0 && this.spinMove === this.moves;
+  }
+
   enterFreeFlight(): void {
     if (this.mode === 'travel') return;
     this.moves++;
@@ -242,7 +265,10 @@ export class CameraController {
     this.frameBody = id;
     this.az = this.goalAz = Math.atan2(dir.x, dir.z);
     this.el = this.goalEl = Math.asin(Math.max(-1, Math.min(1, dir.y)));
-    this.logDist = this.goalLogDist = Math.log(dist);
+    this.logDist = Math.log(dist);
+    // A flight to a galaxy, cluster or nebula ends near its centre (framing.ts flightStandoff): the
+    // view then pulls back along the way the ship came, to show all of it.
+    this.goalLogDist = Math.log(Math.max(dist, framingDistance(id)));
     this.setMode('orbit');
     this.clampGoals();
     useUI.setState({ focus: id });
@@ -313,6 +339,7 @@ export class CameraController {
     if (k.has('Equal')) this.goalLogDist -= zoomRate;
     else if (k.has('NumpadAdd')) this.goalLogDist -= zoomRate * fast;
     if (k.has('Minus') || k.has('NumpadSubtract')) this.goalLogDist += zoomRate * fast;
+    if (this.spinning) this.goalAz += this.spinRate * dt;
     this.clampGoals();
 
     const a = 1 - Math.exp(-dt * 10);
@@ -415,12 +442,33 @@ export class CameraController {
   }
 
   /** Viewing direction (from the body toward the camera) that shows a mostly sunlit disc. */
+  /**
+   * Where the camera looks at a body from: its sunlit side, 40° round from the Sun and a little
+   * above. A galaxy, a cluster or a nebula far from the Sun is seen from our side instead, along our
+   * line of sight, so its tilt and its picture are as photographed from Earth. A moon close to a big
+   * planet (Phobos, Io, Enceladus) is seen with the planet beyond it rather than behind the camera.
+   */
   private niceDirection(id: BodyId): Vector3 {
     const p = sim.bodies[id].pos;
     if (id === 'sun' || p.lengthSq() === 0) return this.orbitDir(0.6, 0.25);
     const toSun = p.clone().negate().normalize();
+    const rec = getBody(id);
+    // (Not home's own: the Milky Way and the Local Group are seen from outside, off our line of sight.)
+    if (rec && FROM_EARTH_KINDS.has(rec.kind) && p.length() > FROM_EARTH_KM && id !== 'milky-way' && id !== 'local-group') return toSun;
     const side = new Vector3().crossVectors(UP, toSun).normalize();
-    return toSun.multiplyScalar(Math.cos(0.7)).addScaledVector(side, Math.sin(0.7)).addScaledVector(UP, 0.22).normalize();
+    const nice = toSun.multiplyScalar(Math.cos(0.7)).addScaledVector(side, Math.sin(0.7)).addScaledVector(UP, 0.22).normalize();
+    const parent = rec?.kind === 'moon' && rec.parent ? sim.bodies[rec.parent] : undefined;
+    const parentRec = parent ? getBody(rec!.parent!) : undefined;
+    if (parent && parentRec) {
+      const away = p.clone().sub(parent.pos);
+      const d = away.length();
+      // The planet more than 10° across from the moon: put the camera beyond the moon, the planet in view.
+      if (d > 0 && parentRec.physical.radiusKm / d > Math.sin((5 * Math.PI) / 180)) {
+        const dir = away.divideScalar(d).multiplyScalar(0.8).addScaledVector(nice, 0.6);
+        if (dir.lengthSq() > 0.05) return dir.normalize();
+      }
+    }
+    return nice;
   }
 
   private clampGoals(): void {
@@ -453,6 +501,7 @@ export class CameraController {
       return;
     }
     this.dragging = true;
+    this.spinRate = 0;
     this.moved = 0;
     this.lastX = this.downX = e.clientX;
     this.lastY = this.downY = e.clientY;
@@ -500,6 +549,7 @@ export class CameraController {
     // With Shift held, browsers on Windows and Linux turn a vertical wheel into a horizontal one.
     const raw = e.shiftKey && e.deltaY === 0 ? e.deltaX : e.deltaY;
     const delta = e.deltaMode === 1 ? raw * 33 : raw;
+    this.spinRate = 0;
     if (this.mode === 'free') {
       this.throttle = Math.min(1, Math.max(0, this.throttle - delta * 0.00035));
       useUI.setState({ throttleBeta: this.throttleBeta });
@@ -517,6 +567,7 @@ export class CameraController {
     // Nor behind a dialog: its arrow keys and +/− are for the dialog.
     if (ui.welcomeOpen || ui.tourStep !== null || ui.journeysOpen || ui.keysOpen || ui.searchOpen) return;
     this.keys.add(e.code);
+    if (e.code.startsWith('Arrow') || e.code === 'Equal' || e.code === 'Minus' || e.code.startsWith('Numpad')) this.spinRate = 0;
     if (this.mode === 'free' && (e.code === 'Space' || e.code.startsWith('Arrow'))) e.preventDefault();
   };
 

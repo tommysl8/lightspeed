@@ -179,7 +179,7 @@ Hipparcos went up on an Ariane rocket in August 1989, and then the motor meant t
 It also produced a famous wrong answer. Hipparcos put the Pleiades 120 parsecs away; other methods said about 133.[^melis2014] Either the models of young stars were wrong or the satellite was. In 2014 a team led by Carl Melis settled it with radio telescopes linked together as one instrument, measuring the parallaxes of individual Pleiades stars directly: 136.2 parsecs.[^melis2014] Gaia later found 135.8.[^babusiaux2018] The models were fine. For that patch of sky, Hipparcos had come up about 12% short.
 
 ::: see-it go:pleiades
-The camera glides to the Pleiades, the Seven Sisters, 136 parsecs (443 light-years) away, where radio telescopes and Gaia agree they are.
+The camera glides to the Pleiades, the Seven Sisters, about 135 parsecs (440 light-years) away, where radio telescopes and Gaia agree they are.
 :::
 
 ## Gaia: two billion stars

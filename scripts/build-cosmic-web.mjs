@@ -7,7 +7,7 @@
 //   so the derived file is CC BY 4.0 with credit to Tully et al. (2023).
 //   Ks magnitudes, axis ratios and position angles: 2MASS Extended Source Catalog (Skrutskie et al.
 //   2006, AJ 131, 1163; VizieR VII/233), matched by position with the CDS XMatch service. 2MASS data
-//   are released by NASA/IPAC with a required acknowledgement (see staging/cosmos/cosmos.md).
+//   are released by NASA/IPAC with a required acknowledgement (see docs/data/cosmos.md).
 //
 // Not used, on purpose: the 2MASS Redshift Survey (Huchra et al. 2012). Its README asks users not to
 // redistribute the catalogue files, and the ApJS tables are AAS copyright (pre-2021), so a derived

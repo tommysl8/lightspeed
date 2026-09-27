@@ -12,6 +12,11 @@ import { loadArticle, useArticles, useLibraryRevision } from '../../content/lear
 import { renderArticle } from '../../content/learn/markdown';
 import { runScene, sceneStatus } from '../../content/scenes';
 import { registryVersion, subscribeRegistry } from '../../sim/bodies';
+import { solarSystemStatus, subscribeSolarSystem } from '../../sim/solarSystem/load';
+import { starsVersion, subscribeStars } from '../../sim/stars/load';
+import { galaxyVersion, subscribeGalaxy } from '../../sim/galaxy/load';
+import { cosmosVersion, subscribeCosmos } from '../../sim/cosmos/load';
+import { exoplanetsVersion, subscribeExoplanets } from '../../sim/exoplanets/load';
 import { closeDoc, openDoc, openLearn, parseHash } from '../../state/route';
 import { useUI } from '../../state/ui';
 import { AberrationFigure } from '../docs/figures';
@@ -36,8 +41,14 @@ function scrollToElement(el: HTMLElement): void {
 /** "See it in Lightspeed": close the page and set the scene up, or say why it cannot. */
 function SeeIt({ spec }: { spec: string }) {
   useUI((s) => s.tripActive); // a flight under way blocks every scene
-  // Bodies registered after the page opened (the moons' data arriving) make scenes possible.
+  // Bodies registered after the page opened (the moons' data arriving) make scenes possible, and a
+  // loader's status changing (from "Loading…" to failed) changes what the button says.
   useSyncExternalStore(subscribeRegistry, registryVersion);
+  useSyncExternalStore(subscribeSolarSystem, solarSystemStatus);
+  useSyncExternalStore(subscribeStars, starsVersion);
+  useSyncExternalStore(subscribeGalaxy, galaxyVersion);
+  useSyncExternalStore(subscribeCosmos, cosmosVersion);
+  useSyncExternalStore(subscribeExoplanets, exoplanetsVersion);
   const status = sceneStatus(spec);
   return (
     <>

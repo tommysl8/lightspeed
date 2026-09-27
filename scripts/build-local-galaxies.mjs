@@ -1,7 +1,7 @@
 // Builds public/data/local-galaxies.json.gz (the Local Group and its neighbours out to 3 Mpc) and
-// staging/cosmos/named.json (the galaxies, clusters and record-holders the Learn articles name).
+// src/sim/cosmos/named.json (the galaxies, clusters and record-holders the Learn articles name).
 //
-// Sources (full list, licences and credit lines in staging/cosmos/cosmos.md):
+// Sources (full list, licences and credit lines in docs/data/cosmos.md):
 //   The Local Volume Database (LVDB; Pace, A. B. 2025, The Open Journal of Astrophysics 8, 142,
 //     doi:10.33232/001c.144859, arXiv:2411.07424), release v1.1.1 (12 August 2026), comb_all.ecsv from
 //     https://github.com/apace7/local_volume_database/releases/tag/v1.1.1, cached in data-raw/cosmos/lvdb/.
@@ -27,7 +27,7 @@ import { gzipSync } from 'node:zlib';
 
 const RAW = 'data-raw/cosmos';
 const OUT_LOCAL = 'public/data/local-galaxies.json.gz';
-const OUT_NAMED = 'staging/cosmos/named.json';
+const OUT_NAMED = 'src/sim/cosmos/named.json';
 const LVDB_VERSION = 'v1.1.1';
 const LVDB_FILE = `${RAW}/lvdb/lvdb_${LVDB_VERSION}_comb_all.ecsv`;
 const LVDB_URL = `https://github.com/apace7/local_volume_database/releases/download/${LVDB_VERSION}/comb_all.ecsv`;
@@ -838,7 +838,7 @@ const named = NAMED.map(describe);
 
 const BIG = { lmc: 'lmc', smc: 'smc' };
 // Local Group zero-velocity surface: radius 0.96 Mpc about the barycentre at 0.55 of the way from the
-// Milky Way to M31 (Karachentsev et al. 2009, MNRAS 393, 1265), the same rule as staging/cosmology/policy.ts.
+// Milky Way to M31 (Karachentsev et al. 2009, MNRAS 393, 1265), the same rule as src/physics/cosmology/policy.ts.
 const M31_ECL_KPC = scale(eqToEcl(unit(10.68470833, 41.26875)), M31_KPC);
 const LG_BARY_KPC = scale(M31_ECL_KPC, 0.55);
 const subgroupOf = (host, posEclKpc) => {
@@ -1033,7 +1033,7 @@ const namedDoc = {
 };
 
 mkdirSync('public/data', { recursive: true });
-mkdirSync('staging/cosmos', { recursive: true });
+mkdirSync('src/sim/cosmos', { recursive: true });
 const localJson = JSON.stringify(localDoc);
 writeFileSync(OUT_LOCAL, gzipSync(Buffer.from(localJson), { level: 9 }));
 writeFileSync(OUT_NAMED, `${JSON.stringify(namedDoc, null, 2)}\n`);

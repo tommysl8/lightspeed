@@ -34,6 +34,7 @@ import { useUI } from '../../state/ui';
 import { findDestination, nestedDestinations, searchDestinations } from '../../content/destinations';
 import { ephemerisRows } from '../../ui/instruments/ephemerisRows';
 import { radiusReading } from '../../ui/dataSheet';
+import { cpuMs } from '../../test/timing';
 
 const stars = loadStars();
 const file = loadSystems();
@@ -315,12 +316,13 @@ describe('orbit lines', () => {
 
 describe('the trail, search and flights', () => {
   it('puts the stars of a system under its name, beyond the Solar System', () => {
-    expect(locationPath('orbit', 'proxima').map((c) => c.label)).toEqual(['Solar neighbourhood', 'Alpha Centauri', 'Proxima Centauri']);
-    expect(locationPath('orbit', 'vega').map((c) => c.label)).toEqual(['Solar neighbourhood', 'Vega']);
-    // Beyond 100 light-years a star is in the Milky Way, not the neighbourhood the link frames.
-    expect(locationPath('orbit', 'betelgeuse').map((c) => c.label)).toEqual(['Milky Way', 'Betelgeuse']);
+    expect(locationPath('orbit', 'proxima').map((c) => c.label)).toEqual(['Observable universe', 'Local Universe', 'Local Group', 'Milky Way', 'Orion Arm', 'Solar neighbourhood', 'Alpha Centauri', 'Proxima Centauri']);
+    expect(locationPath('orbit', 'vega').map((c) => c.label)).toEqual(['Observable universe', 'Local Universe', 'Local Group', 'Milky Way', 'Orion Arm', 'Solar neighbourhood', 'Vega']);
+    // Beyond 100 light-years a star is in the Milky Way (and its spiral arm), not the neighbourhood the link frames.
+    expect(locationPath('orbit', 'betelgeuse').map((c) => c.label)).toEqual(['Observable universe', 'Local Universe', 'Local Group', 'Milky Way', 'Orion Arm', 'Betelgeuse']);
+    // Not a link while the Milky Way's own body is not registered (sim/galaxy registers it).
     expect(locationPath('orbit', 'betelgeuse')[0].to).toBeUndefined();
-    expect(locationPath('orbit', 'capella').map((c) => c.label)).toEqual(['Solar neighbourhood', 'Capella', getBody('capella')!.name]);
+    expect(locationPath('orbit', 'capella').map((c) => c.label)).toEqual(['Observable universe', 'Local Universe', 'Local Group', 'Milky Way', 'Orion Arm', 'Solar neighbourhood', 'Capella', getBody('capella')!.name]);
   });
 
   it('lists the stars under sub-headings, the stars of a system under the system', () => {
@@ -477,11 +479,14 @@ describe('nearby stars', () => {
     for (let k = 0; k < 20; k++) updateNearbyStars(() => false); // warm up
     // The fastest of several batches: other test files run in parallel and can steal the CPU
     // for a whole batch, which says nothing about this code's cost.
+    // The processor time of this thread, not the wall clock (other test files and programs share
+    // the cores), over batches long enough for its clock (Windows counts it in 15.6 ms ticks); the
+    // fastest batch.
     let perFrame = Infinity;
-    for (let batch = 0; batch < 5; batch++) {
-      const t0 = performance.now();
-      for (let k = 0; k < 90; k++) updateNearbyStars(() => false);
-      perFrame = Math.min(perFrame, (performance.now() - t0) / 90);
+    for (let batch = 0; batch < 3; batch++) {
+      const t0 = cpuMs();
+      for (let k = 0; k < 600; k++) updateNearbyStars(() => false);
+      perFrame = Math.min(perFrame, (cpuMs() - t0) / 600);
     }
     expect(perFrame).toBeLessThan(1);
     sim.camera.pos.set(0, 0, 0);

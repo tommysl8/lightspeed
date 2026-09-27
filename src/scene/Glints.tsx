@@ -38,8 +38,11 @@ export function Glints() {
     const color = new Float32Array(n * 3);
     const temp = new Float32Array(n).fill(SUN_TEFF_K); // reflected sunlight has the Sun's spectrum
     const limit = new Float32Array(n);
+    // Bodies a layer of their own draws (the Galaxy's clusters, the nebulae) get no point of light here.
+    const own = new Uint8Array(n);
     const sun = blackbodyRgb(SUN_TEFF_K);
     list.forEach((e, i) => {
+      if (e.record.visual?.renderer === 'layer') own[i] = 1;
       const lum = e.record.physical.luminous;
       if (lum) {
         // A star: its own blackbody spectrum, and the star field's limiting magnitude.
@@ -57,6 +60,7 @@ export function Glints() {
     g.setAttribute('aLimit', new BufferAttribute(limit, 1));
     // The registry this geometry was built from: its slots are that registry's bodies, in its order.
     g.userData.registry = registryVersion();
+    g.userData.own = own;
     return g;
     // Rebuilt when bodies are registered or removed.
   }, [version]);
@@ -81,6 +85,7 @@ export function Glints() {
     const F = fade.array as Float32Array;
     const R = rad.array as Float32Array;
     const cam = sim.camera.pos;
+    const own = geometry.userData.own as Uint8Array;
     for (let i = 0; i < list.length; i++) {
       const b = list[i].state;
       // Floating origin: camera-relative position computed in float64.
@@ -93,7 +98,7 @@ export function Glints() {
       P[3 * i] = x * k;
       P[3 * i + 1] = y * k;
       P[3 * i + 2] = z * k;
-      M[i] = b.magnitude;
+      M[i] = own[i] ? 99 : b.magnitude;
       F[i] = 1 - Math.min(1, Math.max(0, (b.radiusPx - 1.2) / 2.5));
       R[i] = b.displayRadius * k;
     }

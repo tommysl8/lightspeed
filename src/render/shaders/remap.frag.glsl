@@ -11,15 +11,22 @@
 //     split into a bounded colour matrix per D (src/physics/dopplerColor.ts) and a brightness
 //     ln L(D) from the blackbody table, which holds at any D
 //  5. the cosmic microwave background behind everything: a blackbody at T_CMB D_cmb, where
-//     D_cmb is the Doppler factor relative to the CMB's rest frame
+//     T_CMB = 2.72548 K / a(t) at the clock's time (sim/cosmicTime.ts: it cools as the universe
+//     expands) and D_cmb is the Doppler factor relative to the CMB's rest frame (the local comoving
+//     frame; inside the Local Group the Sun's own motion through it is included)
 // Every step works in rapidity and ln D: 1/D = e^-phi cos^2(theta'/2) + e^phi sin^2(theta'/2)
 // never forms 1 - beta, and brightness stays a logarithm until the final exposure, so the pass
 // is finite from phi = 0 to phi = 40 (gamma ~ 10^17).
 // The result is written premultiplied, and the cube map's alpha (surface coverage) lets
 // planets hide the analytically drawn stars (and the CMB) behind them.
+//  6. the Milky Way seen from the Sun (near the Sun only), behind every surface like the CMB: a
+//     diffuse source sampled in the rest-frame direction, recoloured and brightened with the same
+//     radiance transform as the surfaces (render/shaders/milkyway.glsl)
 #include <lightspeed_blackbody>
+#include <lightspeed_milkyway>
 
 uniform samplerCube uCube;
+uniform float uCubeLive; // 1: something is in the cube map; 0: it is empty (not read)
 uniform sampler2D uDopplerLut;
 uniform vec3 uDopplerLutRange; // ln D min, ln D max, table size
 uniform mat4 uProjInv;
@@ -37,7 +44,7 @@ uniform float uLnSunRadiance; // ln of the Sun-surface radiance the renderer use
 uniform vec3 uCmbDir;     // direction of the ship's motion through the CMB (ship frame, world axes)
 uniform float uCmbEPhi;   // e^phi_cmb
 uniform float uCmbEmPhi;  // e^-phi_cmb
-uniform float uLnTCmb;    // ln T_CMB
+uniform float uLnTCmb;    // ln T_CMB at the clock's time (T0 / a)
 uniform float uCmbGain;   // 1 while the CMB's bright spot is resolved; 0 once a point source draws it
 
 varying vec2 vUv;
@@ -90,17 +97,37 @@ void main() {
 
   // One ship pixel spans D times more of the rest-frame sky (the aberration Jacobian).
   float lod = clamp((lnD + uLnPixelOverTexel) * 1.442695, 0.0, uMaxLod);
-  vec4 src = textureLod(uCube, dRest, lod);
+  vec4 src = uCubeLive > 0.5 ? textureLod(uCube, dRest, lod) : vec4(0.0);
   vec3 rgb = src.rgb;
+  float lnL = 0.0;
   if (uDoppler > 0.5) {
-    float lnL = blackbodyLn(LN_T_SUN + lnD).a; // brightness of sunlight shifted to D T_sun
-    rgb = dopplerRgb(src.rgb, lnD) * expBrightness(lnL + uLnExposure);
+    lnL = blackbodyLn(LN_T_SUN + lnD).a; // brightness of sunlight shifted to D T_sun
+    // (An empty cube is black: its recolouring is skipped.)
+    rgb = uCubeLive > 0.5 ? dopplerRgb(src.rgb, lnD) * expBrightness(lnL + uLnExposure) : vec3(0.0);
 
     // The CMB: behind every surface, added to the point sources already drawn under this pass.
     if (uCmbGain > 0.0) {
       vec4 bb = blackbodyLn(uLnTCmb + lnDopplerShip(d, uCmbDir, uCmbEPhi, uCmbEmPhi));
       rgb += (1.0 - src.a) * uCmbGain * bb.rgb * expBrightness(bb.a + uLnSunRadiance + uLnExposure);
     }
+  }
+  // The Milky Way from the Sun, behind every surface. Its integrated starlight is close to
+  // sunlight in colour (B−V about 0.7 to 0.8 against the Sun's 0.65), so it takes the same
+  // Doppler recolouring and brightening as the surfaces: a blackbody's radiance seen with
+  // Doppler factor D is that of a blackbody at D T.
+  // (A uniform condition: the map is filtered with screen-space derivatives, which need every
+  // pixel of a quad to take the same path.)
+  if (uMwGain > 0.0) {
+    vec3 bg = vec3(0.0);
+    vec3 eye;
+    vec3 sky = milkyWayP(dRest, eye);
+    if (uDoppler > 0.5) {
+      float lnK = lnL + uLnExposure;
+      if (lnK > -60.0) bg = dopplerRgb(milkyWayDisplay(sky, eye, exp(min(lnK, 40.0))), lnD);
+    } else {
+      bg = milkyWayDisplay(sky, eye, 1.0);
+    }
+    rgb += (1.0 - src.a) * bg;
   }
   // Half-float targets overflow at 65,504: a real camera saturates long before.
   gl_FragColor = vec4(min(rgb, vec3(3.0e4)), src.a);

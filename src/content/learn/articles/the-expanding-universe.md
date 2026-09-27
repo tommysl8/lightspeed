@@ -200,7 +200,7 @@ Another of COBE's instruments looked for tiny differences in temperature between
 NASA's WMAP mapped the ripples in finer detail from 2001 to 2010, and ESA's Planck, launched on 14 May 2009, mapped them in nine frequency bands until 2013.[^wmap][^planck2018i] Planck's final 2018 results fitted over a billion map pixels with a standard model described by just six numbers, built from ordinary matter, Λ, and dark matter, which pulls by gravity but gives off no light.[^planck2018i] The map also shows the Sun moving at 370 km/s relative to the background, which makes the sky slightly warmer ahead of us and cooler behind.[^planck2018i]
 
 ::: see-it cmb-map
-The cosmic microwave background, contrast turned up enormously. The blotches differ from the average by about one part in 100,000.
+The cosmic microwave background, contrast turned up enormously. The blotches differ from the average by a few parts in 100,000, at most about 250 millionths of a kelvin.
 :::
 
 ::: numbers The universe according to Planck (2018)
@@ -255,7 +255,7 @@ The Dark Energy Spectroscopic Instrument, DESI, measures it with 5,000 robot-pos
 In July 2026 DESI's new analysis of hydrogen gas in front of distant quasars came out closer to a constant Λ, and the team wrote that the hints might fade away.[^desi2026b] The full five-year survey, with more than 47 million galaxies and quasars, should settle much of it.[^desi2026a]
 
 ::: see-it cosmic-web
-Real galaxies from redshift surveys, in three dimensions. The filaments and voids grew from the ripples in the background radiation, and the sound-wave ruler hides in their spacing.
+Real galaxies from Cosmicflows-4, a catalogue of galaxies with measured distances, in three dimensions. The filaments and voids grew from the ripples in the background radiation, and the sound-wave ruler hides in their spacing.
 :::
 
 ::: timeline The expanding universe

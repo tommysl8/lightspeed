@@ -2,13 +2,17 @@
 import type { BodyId } from '../sim/bodies';
 import { controller } from '../controls/cameraController';
 import { sim } from '../sim/sim';
-import { abortTrip, launch, planTrip, travel, type Drive } from '../sim/travel';
+import { abortTrip, launch, planTrip, travel, type Drive, type FlightOptions } from '../sim/travel';
+import { warmCosmology } from '../sim/travelCosmic';
+import { resetFlightOptions } from './flight/flightOptions';
 import { setWarp } from '../sim/clock';
 import { useUI } from '../state/ui';
 import { chronoLaunch, chronoTripEnd } from '../sim/chronometer';
 
 export function openPlanner(dest?: BodyId): void {
   const ui = useUI.getState();
+  // Flights beyond the Local Group need the cosmology's tables (built in a worker if not yet).
+  warmCosmology();
   useUI.setState({ plannerOpen: true, journeysOpen: false, searchOpen: false, plannerDest: dest ?? ui.selected ?? ui.plannerDest });
 }
 
@@ -19,6 +23,7 @@ export function openPlanner(dest?: BodyId): void {
 export function planOneG(dest: BodyId): void {
   if (useUI.getState().tripActive) return;
   useUI.setState({ plannerDrive: 'rocket' });
+  resetFlightOptions();
   openPlanner(dest);
 }
 
@@ -30,9 +35,12 @@ export function afterArrival(fn: (dest: BodyId) => void): void {
   arrivalStep = fn;
 }
 
-/** Plan and launch a trip from the current camera position. Returns false if unreachable. */
-export function startTrip(dest: BodyId, beta: number, drive?: Drive): boolean {
-  const plan = planTrip(dest, beta, sim.camera.pos.clone(), sim.astroTime, drive);
+/**
+ * Plan and launch a trip from the current camera position. Returns false if unreachable. `opts`: the
+ * rocket's acceleration and a limit on the time on board (default 1 g, no limit).
+ */
+export function startTrip(dest: BodyId, beta: number, drive?: Drive, opts?: FlightOptions): boolean {
+  const plan = planTrip(dest, beta, sim.camera.pos.clone(), sim.astroTime, drive, opts);
   if (!plan || plan.distance <= 0) return false;
   arrivalStep = null;
   launch(plan);

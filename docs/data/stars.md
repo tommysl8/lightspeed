@@ -658,9 +658,24 @@ Near the Sun only the head of the file can pass that cut, so the draw call stops
 worker bounds, for every star, how bright it could be from anywhere within 0.05 pc of the Sun within 1,000 (or
 3,000) years of J2000, with the shader's own motion and light-time, and keeps the index after the last one that
 could show (15,977 stars for ±1,000 years, 16,189 for ±3,000). What is drawn is exactly what drawing all 329,770
-shows; the draw call takes 0.2 ms instead of 1.3 ms a frame on an Intel Xe laptop. Farther out, further from 2000,
-and in the relativistic view (beaming brightens faint stars ahead) every star is drawn. The tests check the counts
+shows; the draw call takes 0.2 ms instead of 1.3 ms a frame on an Intel Xe laptop. The tests check the counts
 against the shader's arithmetic from points 0.05 pc out in every direction.
+
+Where no first stretch will do, the worker also keeps lists of the only stars that can show, in catalogue order
+(`starDrawLists`), which the star field draws through an index (`Starfield.tsx`), so what is drawn is again exactly
+what drawing them all shows. Away from the Sun: a star can be seen from r parsecs out only if
+r < p + v (10⁶ yr + p / c) + d / (1 − v / c), p its distance from the Sun, v its speed and d its reach (the shader moves
+a star by at most a million years, and draws it where its light left it, at most v/c of the distance nearer); the lists
+for 500 pc, 1, 2, 4 and 8 kpc hold 174,832, 54,282, 7,892, 1,218 and 101 stars. Near the Sun once the stars stand still
+(a million years or more from 2000, where the clock goes to watch the universe expand): each star is where the shader
+holds it, and 15,549 (before) and 15,729 (after) can show. The lists take 34 ms in the worker and 1 MB, and replace a
+26 ms pass over the catalogue that the star field used to make on the main thread when it arrived (the test of whether
+any star at all shows from outside the Milky Way). GPU time on the Intel Xe laptop: at Earth billions of years ahead
+or behind 1 to 2 ms less a frame; at the Carina Nebula (2.3 kpc) 1 ms less; at Sgr A* 0.7 to 0.9 ms less. Between 0.05 pc
+and 500 pc from the Sun, and in the relativistic view (beaming brightens faint stars ahead), every star is drawn; in
+the split view the classical half draws the short lists too. The tests check the lists against the shader's
+arithmetic from their distances in four directions, and from 0.05 pc out while the stars stand still, with and
+without the light-time correction.
 
 **Bodies** (`records.ts`). The five systems are registered as barycentres (`<system>-barycentre`, in straight-line
 motion) with their stars on the Kepler orbits of `systems.json`, one barycentre per inner pair

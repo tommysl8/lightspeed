@@ -142,11 +142,16 @@ export function labFrame(): void {
 
 /** Called on the frame a trip arrives. */
 export function labArrival(t: Trip): void {
+  // The experiments are special relativity: a flight through the expanding universe is not one of them.
+  if (t.model === 'flrw') {
+    logEvent('ARR', `${bodyName(t.dest)}: flight through the expanding universe, Δτ = ${timeText(t.shipTime)}, Δt = ${timeText(t.earthTime)} (cosmic time). Not logged.`);
+    return;
+  }
   if (t.drive === 'rocket') {
     rocketSamples(t, t.shipTime);
     const rows = useNotebook.getState().rows.filter((r) => r.exp === 'E5' && r.v.flight === sampler?.flight);
     Object.assign(lastTrial, { exp: 'E5', n: sampler?.flight ?? 0, at: travel.lastArrival?.at ?? -1 });
-    logEvent('ARR', `${bodyName(t.dest)}: 1 g flight F${sampler?.flight} complete, Δτ = ${timeText(t.shipTime)}, Δt = ${timeText(t.earthTime)}  [E5, ${rows.length} samples]`);
+    logEvent('ARR', `${bodyName(t.dest)}: ${Number(t.accelG.toPrecision(3))} g flight F${sampler?.flight} complete, Δτ = ${timeText(t.shipTime)}, Δt = ${timeText(t.earthTime)}  [E5, ${rows.length} samples]`);
     return;
   }
   if (t.drive === 'warp') {

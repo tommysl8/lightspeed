@@ -23,6 +23,32 @@ import { useTicker } from '../useTicker';
 import { rich } from '../rich';
 import { starDistanceLine, starPhysicalLine } from '../starText';
 import { exoplanetDiscoveryLine, exoplanetOrbitLine, exoplanetPhysicalLine, exoplanetStatusText } from '../exoplanetText';
+import { creditSentence, deepSkyDistanceLine } from '../deepSkyText';
+import { farEpochNote } from '../epochNote';
+import { cosmicSightLine, lightLeftAgo } from '../../sim/cosmos/sight';
+import { assetUrl } from '../../render/textures';
+import type { DeepSkyImage } from '../../sim/bodies';
+
+/**
+ * A nebula's picture, with its credit line exactly as the archive gives it and what was changed,
+ * linked to the picture's page and the licence (CC BY 4.0 asks for all of it wherever the picture
+ * is shown).
+ */
+export function PictureCredit({ image, className = '' }: { image: DeepSkyImage; className?: string }) {
+  return (
+    <p className={`whitespace-pre-line text-[10.5px] leading-snug text-fg-3 ${className}`}>
+      Picture: {creditSentence(image.credit)}{' '}
+      <span>{image.modificationNote}</span>{' '}
+      <a className="underline decoration-line-2 underline-offset-2 hover:text-fg" href={image.page} target="_blank" rel="noopener noreferrer">
+        {image.source}
+      </a>
+      {' · '}
+      <a className="underline decoration-line-2 underline-offset-2 hover:text-fg" href={image.licenceUrl} target="_blank" rel="noopener noreferrer">
+        {image.licence}
+      </a>
+    </p>
+  );
+}
 
 /** "science.nasa.gov" from a URL. */
 function host(url: string): string {
@@ -89,12 +115,18 @@ export function BodyCard() {
   if (!d || !b) return null;
   const r = qty(b.distTrue, 'length', 4);
   const lt = qty(b.distTrue / C_KM_S, 'time', 3);
+  // A galaxy in the expanding universe: when its light left, not distance / c.
+  const left = lightLeftAgo(id);
   const geo = targetReading(id);
   const moving = !!geo && geo.beta >= 1e-3;
   const here = mode === 'orbit' && focus === id;
   const origin = originLine(d) ?? (d.exoplanet ? exoplanetDiscoveryLine(d.exoplanet) : null);
   const status = statusLine(d);
   const notes = [d.positionNote, ...(d.modelNotes ?? [])].filter((n): n is string => !!n);
+  // A galaxy beyond the camera's bound structure: the light arriving now, when it left and how stretched.
+  const sight = d.deepSky ? cosmicSightLine(id, b.dopplerFactor) : null;
+  // Far from the present: home and the stars are drawn as they are today.
+  const epochNote = farEpochNote(id);
   const links = sourceLinks(d);
   return (
     <div className="panel-float appear w-[300px] max-w-full" role="region" aria-label={`${d.name}`}>
@@ -114,11 +146,14 @@ export function BodyCard() {
               <div className="text-fg-3">{exoplanetOrbitLine(d.exoplanet)}</div>
             </div>
           )}
+          {d.deepSky && deepSkyDistanceLine(d.deepSky) && <div className="mono mt-0.5 text-[10.5px] leading-[15px] text-fg-3">{deepSkyDistanceLine(d.deepSky)}</div>}
+          {sight && <div className="mt-0.5 text-[11px] leading-snug text-fg-2">{sight}</div>}
           {d.exoplanet && exoplanetStatusText(d.exoplanet) && (
             <div className="mt-0.5 text-[11px] text-hazard" title={d.exoplanet.statusNote}>
               {exoplanetStatusText(d.exoplanet)}
             </div>
           )}
+          {epochNote && <div className="mt-0.5 text-[11px] leading-snug text-hazard">{epochNote}</div>}
           {(b.regime === 'illustrative' || b.regime === 'extrapolated') && (
             <div className="mt-0.5 text-[11px] text-hazard" title={d.provider.label}>
               {b.regime === 'illustrative' ? 'Position illustrative at this date' : 'Position extrapolated beyond its data'}
@@ -132,8 +167,20 @@ export function BodyCard() {
       <div className="mono px-3.5 pb-2 text-[11px] leading-[16px] text-fg-2">
         <span className="text-fg-3">from you </span>
         {rich(r.v)} {r.u}
-        <span className="text-fg-3"> · light takes </span>
-        {lt.v} {lt.u}
+        {left === 'none' ? (
+          <span className="text-fg-3"> · none of its light has reached you</span>
+        ) : left ? (
+          <>
+            <span className="text-fg-3"> · its light left </span>
+            {left}
+            <span className="text-fg-3"> ago</span>
+          </>
+        ) : (
+          <>
+            <span className="text-fg-3"> · light takes </span>
+            {lt.v} {lt.u}
+          </>
+        )}
         {moving && (
           <div>
             <span className="text-fg-3">seen </span>
@@ -143,6 +190,19 @@ export function BodyCard() {
         )}
       </div>
       <div className="scroll max-h-[min(46vh,420px)] overflow-y-auto border-t border-line px-3.5 pb-2.5 pt-2">
+        {d.deepSky?.image && (
+          <figure className="mb-2">
+            <img
+              className="max-h-[150px] w-full rounded-sm bg-black object-contain"
+              src={assetUrl(d.deepSky.image.file)}
+              alt={`${d.name}, as seen from Earth (${d.deepSky.image.band === 'visible' ? 'visible light' : 'near-infrared light'})`}
+              loading="lazy"
+            />
+            <figcaption>
+              <PictureCredit image={d.deepSky.image} className="mt-1" />
+            </figcaption>
+          </figure>
+        )}
         {(d.facts ?? []).map((f) => (
           <p key={f} className="mb-1.5 font-serif text-[12.5px] leading-snug text-fg-2 last:mb-0">
             {f}

@@ -44,7 +44,7 @@ Kirchhoff ruled out Earth's air as the culprit: it holds far too little sodium v
 Spectrum analysis, Kirchhoff and Bunsen wrote, "opens to chemical research a hitherto completely closed region extending far beyond the limits of the earth and even of the solar system".[^kb1860]
 
 ::: see-it go:sun
-Everything the Sun's card says about what it is made of was read from dark lines in its light.
+The Sun. By mass its surface is about three-quarters hydrogen and a quarter helium, with every other element together about 1.4%, and all of that was read from dark lines in its light.[^asplund2021]
 :::
 
 ### Why every element has its own lines
@@ -118,7 +118,7 @@ In words: a star's luminosity in Suns equals its radius in Suns, squared, times 
 Sirius A has 1.714 times the Sun's radius, so the first factor is 2.94. Its temperature ratio, $9{,}845 \div 5{,}772 = 1.706$, to the fourth power is 8.47. The product is 24.9 Suns; the measured value is 24.7.[^bond2017] Betelgeuse, 764 times wider than the Sun at 3,600 K, comes out near 88,000 Suns, though its radius depends on its disputed distance.[^joyce2020] Proxima Centauri, 0.154 of the Sun's radius at 3,042 K, gives 0.0018 of the Sun's output.[^kervella2017][^segransan2003]
 
 ::: see-it go:sirius
-Sirius A is the bright white star. The faint point beside it is Sirius B, a white dwarf with slightly more than the Sun's mass in a ball about 11,300 km across, smaller than Earth. It is hotter than Sirius A but a thousand times less luminous, because it is so small.[^bond2017]
+Sirius A is the bright white star. The fainter point beside it is Sirius B, which goes round it every 50 years, between 8 and 31 au out: a white dwarf with slightly more than the Sun's mass in a ball about 11,300 km across, smaller than Earth. It is hotter than Sirius A but a thousand times less luminous, because it is so small.[^bond2017]
 :::
 
 ## A million times too much hydrogen
@@ -287,7 +287,7 @@ The very first stars formed from pure hydrogen and helium and should have been h
 **Status:** candidates, not confirmed detections; Webb and Rubin surveys continue.
 
 ::: see-it go:gn-z11
-GN-z11 is seen as it was when the universe was about 435 million years old, 3% of its present age. The helium-rich clump sits just beside it.
+GN-z11 is seen as it was when the universe was about 435 million years old, 3% of its present age. The helium-rich clump lies just beside it, too small and faint to draw here.
 :::
 
 ### The next supernova in the Milky Way

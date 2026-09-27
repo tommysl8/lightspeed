@@ -66,7 +66,7 @@ Real ones waited for 1877, when Mars looked about as big in a telescope as it ev
 Swift's moons were far too slow. Phobos orbits only 9,378 km from the centre of Mars, less than one and a half Mars diameters, and goes round in 7 hours 39 minutes; Deimos takes 30.3 hours.[^nssdcmars] Phobos goes round faster than Mars spins (a Martian day is 24.6 hours), so from the ground it rises in the west, sets in the east, and comes round again about every 11 hours.
 
 ::: see-it go:phobos
-Phobos, a dark, lumpy moon 27 km long, with the big crater Stickney at one end. Notice how much of the sky Mars fills from so close.
+Phobos, a dark, lumpy moon 27 km long, with the big crater Stickney at one end. Notice how much of the sky Mars fills from so close: about 40 degrees.
 :::
 
 ### Weighing a planet with a moon
@@ -98,7 +98,7 @@ The Moon spins once on its axis in the same 27.3 days it takes to go round Earth
 The process is still running. Our ocean bulges are carried slightly ahead of the Moon by Earth's faster spin; their pull tugs the Moon into a wider orbit while friction slows Earth down. Timing laser pulses bounced off reflectors left by the Apollo astronauts shows the Moon moving away by about 3.8 cm a year.[^nssdcmoon][^dickey1994] Tidal friction alone should lengthen the day by 2.3 milliseconds per century; ancient eclipse records show 1.8, with other effects making up the difference.[^stephenson2016]
 
 ::: see-it moon-month
-A month over Earth in about 25 seconds. Watch the dark patches on the Moon's face: they never turn away from Earth, though the Moon makes a full circle and a full spin.
+A month over Earth in about 25 seconds, seen from above. The Moon makes a full circle and a full spin in the same time, so the same face stays towards Earth all the way round; from this far its dark patches are too small to make out.
 :::
 
 Move the calculation to Jupiter. Io, 3,643 km across, orbits 421,800 km from a planet 318 times as massive as Earth. Jupiter's stretch on Io comes to $6.2\times10^{-3}$ m/s², about 5,600 times the Moon's stretch on Earth.[^nssdcjovian] Io is locked, so on a perfectly circular orbit its bulge would sit still. But Io's orbit is not quite circular, and that small flaw turned out to be the most important fact about it.
@@ -138,7 +138,7 @@ Enceladus goes round Saturn twice for each orbit of Dione, and Dione's regular t
 Resonance can also breed chaos. Hyperion, a potato about 360 by 270 by 210 km, goes round Saturn three times for every four orbits of Titan (periods of 21.28 and 15.95 days), and Titan keeps Hyperion's orbit stretched.[^nssdcsaturn][^nasahyperion] In 1984 Jack Wisdom, Stanton Peale and François Mignard showed that an elongated moon on such an orbit cannot settle into a steady spin; it should tumble unpredictably.[^wisdom1984] It does. Hyperion is also barely more than half as dense as water, probably because it is riddled with empty space, and Cassini found a surface like a sponge.[^nasahyperion][^thomas2007]
 
 ::: see-it go:hyperion
-Hyperion, the tumbling sponge, with no fixed day and no fixed pole.
+Hyperion, the tumbling sponge, with no fixed day and no fixed pole. Its shape comes from spacecraft images, but no map of its pitted surface exists, so it is shown in its measured colour.
 :::
 
 ## Oceans under the ice
@@ -184,7 +184,7 @@ The second surprise came from Enceladus, only about 500 km across and the most r
 The jets leave at about 400 m/s. Most of the ice falls back as snow, but some escapes to feed Saturn's faint, wide E ring.[^nasaenceladus] Flying through the spray, Cassini sampled an ocean it could never touch. First came salty ice grains.[^nasaenceladus] Then specks of silica only 2 to 8 nanometres (millionths of a millimetre) in radius, of a kind that forms where liquid water reacts with rock at more than about 90 °C.[^hsu2015][^nasaenceladus] Then molecular hydrogen, a sign of ongoing water–rock reactions on the sea floor.[^waite2017] Then phosphates, with phosphorus at least 100 times more concentrated than in Earth's oceans.[^postberg2023] A slight wobble in the moon's rotation showed that the ice shell floats free of the core, so the ocean is global.[^thomas2016] Water, heat, salts, organic molecules and most of the chemical ingredients of life are all there.[^nasaenceladus]
 
 ::: see-it go:enceladus
-Enceladus, small and brilliant white. Look near the south pole for the long parallel cracks, the tiger stripes, where the jets come out.
+Enceladus, small and brilliant white. Near its south pole (drag to look underneath) are the long parallel cracks, the tiger stripes, where the jets come out.
 :::
 
 Mimas, the smallest and innermost of Saturn's major moons, was supposed to be the dull one. It has a crater, Herschel, 130 km across, a third of the moon's own width, with walls 5 km high and a central peak.[^nasamimas] In 2024 Valéry Lainey and colleagues, studying tiny irregularities in Mimas's orbit, concluded that its old, cratered shell hides a global ocean 20 to 30 km down, probably less than 25 million years old.[^lainey2024]
@@ -212,7 +212,7 @@ Because Triton goes backwards, the tides it raises on Neptune drag it inwards. I
 Voyager 2 flew past Neptune on 25 August 1989 and found Triton, at −235 °C one of the coldest surfaces in the Solar System, erupting.[^nasav2][^nasatriton] Voyager caught at least four geyser-like plumes; the two best documented shot dark material about 8 km up, where the wind carried it more than 100 km sideways. One explanation the Voyager team put forward was a solid greenhouse: sunlight passes through clear nitrogen ice and warms darker material underneath, and the gas that builds up bursts out carrying dark dust. The surface is at 38 K (kelvin, degrees above absolute zero), and warming the ice by less than 4 K would be enough.[^soderblom1990]
 
 ::: see-it go:triton
-Triton, pale and icy, with few craters: its young surface has smooth plains, mounds and round pits left by icy volcanism.[^nasatriton]
+Triton, pale and icy, with few craters: its young surface has smooth plains, mounds and round pits left by icy volcanism.[^nasatriton] Voyager 2 imaged only about two-thirds of it; the rest of the map is a plain fill.
 :::
 
 ## Pluto's partner
@@ -224,7 +224,7 @@ That mass ratio was the headline. In 1930, the year Pluto was found,[^nssdcpluto
 Charon is 1,212 km across, just over half Pluto's width, with 12% of its mass; our own Moon has 1.2% of Earth's, and Titan only 0.024% of Saturn's.[^nssdcpluto][^nssdcmoon][^nssdcsaturn] The point they both circle, their centre of mass, lies about 2,100 km from Pluto's centre, outside Pluto altogether. Each has locked the other, so Pluto and Charon always keep the same faces towards each other.[^nasacharon] NASA's New Horizons flew past on 14 July 2015 and showed Charon with a reddish north polar region.[^nasacharon] Pluto's four small moons, found between 2005 and 2012, are pushed around by the swinging pair: Nix and Hydra tumble chaotically.[^jpldisc][^showalter2015]
 
 ::: see-it go:charon
-Charon, grey with a reddish north pole. From Charon's near side, Pluto hangs in the same spot in the sky, all day, every day.
+Charon, grey, with a dark cap over its north pole that New Horizons' colour images show is reddish (the map here is black and white). From Charon's near side, Pluto hangs in the same spot in the sky, all day, every day.
 :::
 
 ## Counting moons

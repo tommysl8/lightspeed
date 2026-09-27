@@ -1,9 +1,11 @@
 import { Vector3 } from 'three';
-import { AU_KM, PARSEC_KM } from '../physics/constants';
+import { AU_KM, MPC_KM, PARSEC_KM } from '../physics/constants';
 import { useUI } from '../state/ui';
 import { controller } from '../controls/cameraController';
 import { systemFramingDistance } from '../controls/framing';
-import { bodyRecords, childrenOf, getBody, registryVersion, type BodyId } from '../sim/bodies';
+import { bodyRecords, childrenOf, getBody, isBody, registryVersion, type BodyId } from '../sim/bodies';
+import { apply, GAL_TO_WORLD } from '../sim/galaxy/frames';
+import { OUTSIDE_VIEW_KM } from '../sim/galaxy/records';
 import { sim } from '../sim/sim';
 
 /** The single key that goes to a body ("6" for Saturn), from its registry record. */
@@ -81,4 +83,83 @@ export function frameNeighbourhood(): void {
   // No card over the view: the Sun is labelled "Sun (home)" from here.
   useUI.getState().select(null);
   controller.goTo('sun', { distance: 8 * PARSEC_KM, direction: OVER_THE_NEIGHBOURHOOD });
+}
+
+/**
+ * The Milky Way from outside: 100,000 light-years from its centre, above the north side of its
+ * disc and tilted a little towards the Sun's side, with its card (the model's label) showing. The
+ * Galaxy turns clockwise seen from here.
+ */
+export function frameMilkyWay(): void {
+  if (useUI.getState().tripActive || !isBody('milky-way')) return;
+  useUI.getState().select('milky-way');
+  controller.goTo('milky-way', { distance: OUTSIDE_VIEW_KM, direction: outsideDirection() });
+}
+
+/** How far out the view of the Local Group stands from its centre: 3 Mpc. */
+export const LOCAL_GROUP_VIEW_KM = 3 * MPC_KM;
+/** How far out the view of the cosmic web stands: 200 Mpc, inside the survey's reach (about 400 Mpc). */
+export const COSMIC_WEB_VIEW_KM = 200 * MPC_KM;
+/** How fast the view of the cosmic web turns: once round in about four minutes. */
+export const COSMIC_WEB_SPIN = (2 * Math.PI) / 240;
+
+/**
+ * Side-on to the line from the Milky Way to Andromeda, tipped 30° towards the Galaxy's north: the
+ * Milky Way, Andromeda and Triangulum all in the view (world axes).
+ */
+export function localGroupDirection(): Vector3 {
+  const mw = sim.bodies['milky-way']?.pos;
+  const m31 = sim.bodies.andromeda?.pos;
+  const ngp = new Vector3(...apply(GAL_TO_WORLD, [0, 0, 1]));
+  if (!mw || !m31) return ngp;
+  const axis = m31.clone().sub(mw).normalize();
+  const side = axis.clone().cross(ngp).normalize();
+  const up = side.clone().cross(axis).normalize();
+  return side.multiplyScalar(Math.cos(Math.PI / 6)).addScaledVector(up, Math.sin(Math.PI / 6)).normalize();
+}
+
+/** The Local Group from 3 Mpc out, with its card (not in flight). */
+export function frameLocalGroup(): void {
+  if (useUI.getState().tripActive || !isBody('local-group')) return;
+  useUI.getState().select('local-group');
+  controller.goTo('local-group', { distance: LOCAL_GROUP_VIEW_KM, direction: localGroupDirection() });
+}
+
+/**
+ * The local universe: the cosmic web from 200 Mpc out, above the supergalactic plane, turning
+ * slowly (not in flight). The web shows by itself out there unless it was turned off.
+ */
+export function frameCosmicWeb(): void {
+  if (useUI.getState().tripActive || !isBody('local-group')) return;
+  useUI.getState().select(null);
+  if (useUI.getState().cosmicWeb === 'off') useUI.setState({ cosmicWeb: 'auto' });
+  // The supergalactic pole (l, b) = (47.37°, 6.32°), tipped 35° off it: the Local Supercluster's plane seen at an angle.
+  const pole = new Vector3(...apply(GAL_TO_WORLD, unitLb(47.37, 6.32)));
+  const inPlane = new Vector3(...apply(GAL_TO_WORLD, unitLb(137.37, 0)));
+  const dir = pole.multiplyScalar(Math.cos((35 * Math.PI) / 180)).addScaledVector(inPlane, Math.sin((35 * Math.PI) / 180)).normalize();
+  controller.goTo('local-group', { distance: COSMIC_WEB_VIEW_KM, direction: dir });
+  controller.spin(COSMIC_WEB_SPIN);
+}
+
+/** The map of the cosmic microwave background over the sky, the view turning slowly (not in flight). */
+export function showCmbMap(): void {
+  if (useUI.getState().tripActive || !isBody('local-group')) return;
+  useUI.setState({ showCmb: true });
+  useUI.getState().select(null);
+  controller.goTo('local-group', { distance: LOCAL_GROUP_VIEW_KM, direction: localGroupDirection() });
+  controller.spin((2 * Math.PI) / 150);
+}
+
+const unitLb = (l: number, b: number): [number, number, number] => {
+  const L = (l * Math.PI) / 180;
+  const B = (b * Math.PI) / 180;
+  return [Math.cos(B) * Math.cos(L), Math.cos(B) * Math.sin(L), Math.sin(B)];
+};
+
+/** Above the north galactic pole, tipped 20° towards the Sun (world axes). */
+export function outsideDirection(): Vector3 {
+  const ngp = new Vector3(...apply(GAL_TO_WORLD, [0, 0, 1]));
+  const toSun = new Vector3(...apply(GAL_TO_WORLD, [-1, 0, 0]));
+  const tilt = (20 * Math.PI) / 180;
+  return ngp.multiplyScalar(Math.cos(tilt)).addScaledVector(toSun, Math.sin(tilt)).normalize();
 }

@@ -297,6 +297,8 @@ export function Orbits() {
           ? 2
           : (focusGroup !== undefined && e.group === focusGroup && focusGroup.id !== 'sun') ||
               (focusSystem !== undefined && kind === 'star' && e.root === focusSystem) ||
+              // Stars orbiting a body that is not a star system's node: the S-stars about Sgr A*, while it or one of them is in focus.
+              (kind === 'star' && e.root !== e && e.root.id !== 'sun' && (e.root.id === ui.focus || e.root === focusRoot)) ||
               (!onDemand && (kind === 'planet' || kind === 'dwarf-planet')) ||
               !!e.record.key
             ? 1

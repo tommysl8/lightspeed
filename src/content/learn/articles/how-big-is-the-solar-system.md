@@ -40,7 +40,7 @@ In words: at half moon, the Sun is further away than the Moon by a factor of one
 Aristarchus said the angle fell short of a right angle by one thirtieth of a right angle, which makes it 87 degrees.[^heath1913] Since $\cos 87^\circ = 0.0523$ and $1 \div 0.0523 = 19.1$, the Sun is about 19 times further away than the Moon, and he proved it lay between 18 and 20 times.[^heath1913] The geometry was flawless. The measurement was hopeless. With the Moon 384,400 km away and the Sun 149.6 million km, the true angle is 89.85 degrees and the true ratio is 389. Near a right angle the cosine is tiny and changes fast, so small errors explode: 89 degrees gives a ratio of 57, and 89.5 degrees gives 115. Worse, the Moon is exactly half lit about 17 minutes before it reaches 90 degrees from the Sun, and nobody can judge the moment of half moon by eye to within hours.
 
 ::: see-it moon-month
-A month over the Earth in about 25 seconds. Watch for the Moon at exactly half lit. That is Aristarchus's right angle, and at that moment the Moon and the Sun are less than a sixth of a degree short of 90 degrees apart.
+A month over the Earth in about 25 seconds, seen from above. Watch for the moment the line from the Moon to the Earth is square to the line from the Moon to the Sun: seen from the Earth, the Moon is then exactly half lit. That is Aristarchus's right angle, and at that moment the Moon and the Sun are less than a sixth of a degree short of 90 degrees apart.
 :::
 
 Even a Sun only 19 times further off than the Moon had to be big. Aristarchus worked out that its diameter lay between about six and seven times the Earth's, which makes it some 300 times the Earth's volume.[^heath1913] Archimedes, in *The Sand-Reckoner*, reports that Aristarchus proposed that "the earth revolves about the sun in the circumference of a circle".[^heath1913] Nobody knows what led him there. The Italian astronomer Giovanni Schiaparelli suggested it was the Sun's size: it is odd to make the much larger body circle the smaller one.[^heath1913]
@@ -165,7 +165,7 @@ Lincoln Laboratory, Jodrell Bank and Soviet radar astronomers all had echoes tha
 The number mattered at once. In 1962 JPL steered Mariner 2 to Venus using the radar value; had it used Rabe's figure from Eros, the spacecraft would have passed Venus without collecting useful data.[^butrica1996] In 1964 the International Astronomical Union, meeting in Hamburg, adopted 149,600,000 km.[^butrica1996]
 
 ::: see-it race-sunlight
-A pulse of light leaves the Sun and sweeps past the planets. It passes the Earth after 8 minutes 19 seconds, which is 499 seconds: the astronomical unit, written in light-seconds.
+A pulse of light leaves the Sun and sweeps past the planets. It passes the Earth after about 8 minutes 20 seconds, between 491 and 507 seconds depending on the time of year. Over exactly one astronomical unit it would take 499 seconds: the astronomical unit, written in light-seconds.
 :::
 
 ## Fixing the unit
@@ -243,7 +243,7 @@ Where the model should stop depends on what you count: the planets, the reach of
 **Status:** predicted, and as certain as predictions get. The next transit runs from 23:58 UT on 10 December 2117 to 05:38 UT on 11 December, and the one after that from 13:15 to 18:48 UT on 8 December 2125.[^nasaeclipse] Working from where the Sun is overhead at mid-transit, the 2117 transit favours East Asia, Australia and the western Pacific, and the 2125 transit the Americas. Nobody will need them to measure the au, but they will be the first chance to see Venus cross the Sun since 2012.
 
 ::: see-it date:2117-12-11
-The simulation date jumps to 11 December 2117. Find Venus: it sits almost exactly on the line from the Earth to the Sun, and from the Earth's day side it is a black dot crossing the Sun's face.
+The simulation date jumps to the first moments of 11 December 2117. Find Venus: it sits almost exactly on the line from the Earth to the Sun, and from the Earth's day side it is a black dot just starting across the Sun's face, a crossing that takes 5 hours 40 minutes.
 :::
 
 ### BepiColombo arrives at Mercury

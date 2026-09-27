@@ -18,6 +18,7 @@ export const KIND_RANK: Record<BodyKind, number> = {
   galaxy: 14,
   cluster: 15,
   nebula: 15,
+  'black-hole': 14,
   barycentre: 99,
 };
 

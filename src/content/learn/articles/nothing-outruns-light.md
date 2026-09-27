@@ -120,7 +120,7 @@ A flare leaves the Sun and its light reaches Earth, 149.6 million km away, 499 s
 Minkowski died of a ruptured appendix on 12 January 1909, aged 44. Einstein, at first, did not think much of his old teacher's four-dimensional repackaging.[^mactutorminkowski]
 
 ::: see-it race-sunlight
-A pulse of light leaves the Sun and sweeps past the planets. Nothing that happens on the Sun can affect the Earth until that front arrives, 8 minutes 19 seconds later; any planet it has not yet reached is still outside that moment's light cone.
+A pulse of light leaves the Sun and sweeps past the planets. Nothing that happens on the Sun can affect the Earth until that front arrives, about 8 minutes 20 seconds later; any planet it has not yet reached is still outside that moment's light cone.
 :::
 
 ## Adding speeds the new way

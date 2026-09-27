@@ -29,7 +29,8 @@ import { formatDurationShort } from '../../lib/time';
 import { useUI } from '../../state/ui';
 import { openJourneys } from '../onboarding';
 import { planOneG } from '../tripActions';
-import { dropRetries, oneGCost, type Cost } from './searchCost';
+import { dropRetries, NO_FLIGHT_MAP, oneGCost, type Cost } from './searchCost';
+import { lightLeftAgo } from '../../sim/cosmos/sight';
 import { CloseIcon, Kbd } from '../kit';
 import { Icon } from '../icons';
 import { rich } from '../rich';
@@ -77,12 +78,16 @@ function useCosts(want: readonly Destination[], active: boolean, dataVersion: st
   return cache.current;
 }
 
-/** "5.20 au · light 43 min" */
+/** "5.20 au · light 43 min"; for a galaxy in the expanding universe, "16.4 Mpc · light left 53.6 million years ago". */
 function whereText(d: Destination): string {
   const km = d.distanceKm();
   if (!Number.isFinite(km)) return '';
   if (km < 1) return 'here';
   const q = qty(km, 'length', 3);
+  const left = d.body ? lightLeftAgo(d.body, false) : null;
+  if (left === 'none') return `${q.v} ${q.u} · none of its light has arrived`;
+  if (left) return `${q.v} ${q.u} · light left ${left} ago`;
+  if (left === undefined) return `${q.v} ${q.u}`;
   return `${q.v} ${q.u} · light ${formatDurationShort(km / C_KM_S, 2)}`;
 }
 
@@ -109,7 +114,7 @@ function Row({
 }) {
   const why = d.unavailable();
   const goWhy = flying ? IN_FLIGHT : why;
-  const flyWhy = flying ? IN_FLIGHT : !d.body ? 'Flights there come in a later update' : why;
+  const flyWhy = flying ? IN_FLIGHT : !d.body ? NO_FLIGHT_MAP : why;
   return (
     <li
       id={id}
@@ -284,7 +289,7 @@ function Palette() {
           <input
             data-autofocus
             className="h-9 min-w-0 flex-1 bg-transparent font-serif text-[17px] text-fg outline-none placeholder:text-fg-3"
-            placeholder="Where to? A planet, a star, Voyager 1…"
+            placeholder="Where to? A planet, a star, a galaxy…"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={onKey}
@@ -307,7 +312,7 @@ function Palette() {
             featured.length ? (
               <Section title="Featured">{rows(featured, true)}</Section>
             ) : (
-              <p className="px-4 py-5 text-[12.5px] text-fg-2">Type the name of a planet, a moon, a spacecraft or a star.</p>
+              <p className="px-4 py-5 text-[12.5px] text-fg-2">Type the name of a planet, a moon, a spacecraft, a star, a nebula or a galaxy.</p>
             )
           ) : results.length ? (
             rows(results, false)

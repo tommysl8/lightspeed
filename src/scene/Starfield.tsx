@@ -1,12 +1,11 @@
 import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { BufferAttribute, BufferGeometry, Sphere, Vector3 } from 'three';
-import { createCmbPointMaterial, createStarMaterial, psfUniforms, starUniforms } from '../render/materials';
+import { createCmbPointMaterial, createStarMaterial, psfUniforms, relativityUniforms, starUniforms } from '../render/materials';
 import { POINTS_LAYER } from '../render/LightspeedScenePass';
-import { relView } from '../render/relativisticView';
 import { PARSEC_KM } from '../physics/constants';
 import { bodyRecords, registryVersion, subscribeRegistry } from '../sim/bodies';
-import { motionYears, nearSunDrawCount, starData, starsVersion, subscribeStars, type Stars3D } from '../sim/stars';
+import { motionYears, nearSunDrawCount, starData, starDrawList, starsVersion, subscribeStars, type Stars3D } from '../sim/stars';
 import { sim } from '../sim/sim';
 import { useUI } from '../state/ui';
 
@@ -29,6 +28,10 @@ interface Field {
   /** The magnitudes as drawn (a copy: hidden stars are overwritten). */
   absMag: Int16Array;
   hidden: Set<number>;
+  /** What the classical view draws this frame: the first `count` stars, or the `count` of an index list. */
+  classical: { count: number; index: BufferAttribute | null };
+  /** The index lists of sim/stars/visibility.ts starDrawList, made into attributes as they are first wanted. */
+  lists: Map<Uint32Array, BufferAttribute>;
 }
 
 function makeField(stars: Stars3D): Field {
@@ -45,7 +48,7 @@ function makeField(stars: Stars3D): Field {
   g.boundingSphere = new Sphere(new Vector3(), Infinity);
   const hidden = registeredStars(stars.count);
   for (const i of hidden) absMag[i] = HIDDEN;
-  return { geometry: g, stars, absMag, hidden };
+  return { geometry: g, stars, absMag, hidden, classical: { count: stars.count, index: null }, lists: new Map() };
 }
 
 /** Show and hide stars as their bodies come and go, uploading only the magnitudes that changed. */
@@ -67,6 +70,28 @@ function syncHidden(f: Field): void {
   }
   f.hidden = now;
   if (changed) attr.needsUpdate = true;
+}
+
+/** The index list as an attribute of the field's geometry. */
+function listIndex(f: Field, list: Uint32Array): BufferAttribute {
+  let a = f.lists.get(list);
+  if (!a) f.lists.set(list, (a = new BufferAttribute(list, 1)));
+  return a;
+}
+
+/**
+ * Before each draw of the field (the split view draws it once for each half): with the point
+ * uniforms of the classical view, only the stars that can be seen (field.classical); with those of
+ * the relativistic view, which brightens stars ahead, all of them.
+ */
+function chooseStars(f: Field): void {
+  const u = relativityUniforms;
+  const classical = !(u.uPhi.value > 0) && !(u.uLnExposure.value > 0);
+  const g = f.geometry;
+  const index = classical ? f.classical.index : null;
+  const count = classical ? f.classical.count : f.stars.count;
+  if (g.index !== index) g.setIndex(index);
+  if (g.drawRange.count !== count) g.setDrawRange(0, count);
 }
 
 /**
@@ -105,13 +130,19 @@ export function Starfield() {
     const years = motionYears(2000 + sim.astroTime.tt / 365.25);
     starUniforms.uYears.value = years;
     starUniforms.uRetarded.value = useUI.getState().retarded ? 1 : 0;
-    // Near the Sun only the first stars can be seen (sim/stars/visibility.ts): the rest are not
-    // drawn, which leaves the picture as it is and saves the vertex shader ~95% of its work.
-    // The relativistic view brightens stars ahead, so it draws them all.
+    // What the classical view draws (chooseStars; the relativistic view draws every star). Near the
+    // Sun only the first stars can be seen (sim/stars/visibility.ts), and away from it, or near it
+    // once the stars stand still, only those of a list (from outside the Milky Way, a hundred at
+    // most, none of which shows): the rest are not drawn, which leaves the picture as it is and saves
+    // the vertex shader most of its work.
     if (field) {
-      const near = relView.active ? null : nearSunDrawCount(field.stars.nearSun, Math.hypot(ex, ey, ez), years, psfUniforms.uMagLimit.value);
-      const n = Math.min(near ?? field.stars.count, field.stars.count);
-      if (field.geometry.drawRange.count !== n) field.geometry.setDrawRange(0, n);
+      const fromSun = Math.hypot(ex, ey, ez);
+      const magLimit = psfUniforms.uMagLimit.value;
+      const near = nearSunDrawCount(field.stars.nearSun, fromSun, years, magLimit);
+      const list = near !== null ? null : starDrawList(field.stars.drawLists, fromSun, years, magLimit);
+      const d = field.classical;
+      d.index = list ? listIndex(field, list) : null;
+      d.count = list ? list.length : Math.min(near ?? field.stars.count, field.stars.count);
     }
   });
 
@@ -123,7 +154,11 @@ export function Starfield() {
           material={material}
           frustumCulled={false}
           renderOrder={-100}
-          ref={(o) => o?.layers.set(POINTS_LAYER)}
+          ref={(o) => {
+            if (!o) return;
+            o.layers.set(POINTS_LAYER);
+            o.onBeforeRender = () => chooseStars(field);
+          }}
         />
       )}
       <CmbSpot />

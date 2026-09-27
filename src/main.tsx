@@ -5,6 +5,8 @@ import App from './App';
 import { loadSolarSystem } from './sim/solarSystem';
 import { loadStars } from './sim/stars';
 import { loadFeaturedExoplanets } from './sim/exoplanets';
+import { loadGalaxy } from './sim/galaxy';
+import { loadCosmos } from './sim/cosmos';
 
 if (import.meta.env.DEV) {
   // Debug handle for development only (tree-shaken from production builds).
@@ -26,7 +28,11 @@ if (import.meta.env.DEV) {
     import('./sim/stars'),
     import('./content/scenes'),
     import('./sim/exoplanets'),
-  ]).then(([s, c, u, fiber, trip, rel, travel, chrono, pulses, notebook, logger, solarSystem, registry, navigation, stars, scenes, exoplanets]) =>
+    import('./render/materials'),
+    import('./sim/galaxy'),
+    import('./render/galaxyLayer'),
+    import('./sim/cosmos'),
+  ]).then(([s, c, u, fiber, trip, rel, travel, chrono, pulses, notebook, logger, solarSystem, registry, navigation, stars, scenes, exoplanets, materials, galaxy, galaxyLayer, cosmos]) =>
     Object.assign(window, {
       __ls: {
         sim: s.sim,
@@ -45,6 +51,10 @@ if (import.meta.env.DEV) {
         stars,
         scenes,
         exoplanets,
+        materials,
+        galaxy,
+        galaxyLayer: galaxyLayer.galaxyLayer,
+        cosmos,
         /** Render n frames with a fixed timestep (works while the tab is hidden). */
         step(n = 60, dt = 1 / 60) {
           s.sim.debugDt = dt;
@@ -74,3 +84,12 @@ void loadStars({ idle: true });
 // The planets of other stars: the eleven featured systems once the stars are in (sim/exoplanets);
 // the archive's 6,372 planets load when they are first wanted.
 void loadFeaturedExoplanets();
+
+// The Milky Way: Sagittarius A* and its stars at once, the nebulae soon after, and the model of the
+// Galaxy and the star clusters once the stars are in (sim/galaxy).
+void loadGalaxy({ idle: true });
+
+// The galaxies beyond: the Local Group and the named galaxies, clusters and young galaxies once the
+// browser is idle, their shapes built in a worker; the cosmic web loads when it is first wanted
+// (sim/cosmos).
+void loadCosmos({ idle: true });

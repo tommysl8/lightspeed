@@ -26,6 +26,10 @@ export const LIGHT_YEAR_KM = C_KM_S * JULIAN_YEAR_S;
 export const LIGHT_DAY_KM = C_KM_S * DAY_S;
 /** Parsec, km: (648000/π) au. Exact. [IAU 2015 B2] */
 export const PARSEC_KM = (648_000 / Math.PI) * AU_KM;
+/** Kiloparsec, km. Exact. */
+export const KPC_KM = 1e3 * PARSEC_KM;
+/** Megaparsec, km (3.0856775814913673 × 10¹⁹). Exact. */
+export const MPC_KM = 1e6 * PARSEC_KM;
 /** Standard gravity g₀, m/s². Exact. [3rd CGPM, 1901] */
 export const G0_M_S2 = 9.806_65;
 /** Standard gravity g₀ in km/s². */
@@ -172,7 +176,8 @@ export const EARTH_RADIUS_KM = 6371.0;
 
 /** The built-in bodies' data (read through the registry: sim/bodies). */
 export const BODIES: Readonly<Record<CoreBodyId, BodyData>> = {
-  // [IAU 2015 B3] radius, GM; [NASA Sun Fact Sheet] rotation (Carrington sidereal period, 25.38 d)
+  // [IAU 2015 B3] radius, GM; [NASA Sun Fact Sheet] rotation (Carrington sidereal period, 25.38 d);
+  // composition: Asplund, Amarsi & Grevesse 2021, A&A 653, A141 (present-day photosphere: X = 0.7438, Y = 0.2423, Z = 0.0139)
   sun: {
     id: 'sun',
     name: 'Sun',
@@ -185,6 +190,7 @@ export const BODIES: Readonly<Record<CoreBodyId, BodyData>> = {
       'Sunlight takes about 8 minutes 19 seconds to reach Earth, and about 4 hours 10 minutes to reach Neptune.',
       'The Sun holds about 99.86% of all the mass in the Solar System.',
       'Every second it converts about 4.3 million tonnes of mass into energy: its luminosity, 3.8 × 10²⁶ W, divided by c².',
+      'By mass its surface is about 74% hydrogen and 24% helium; all the other elements together make up about 1.4% (Asplund, Amarsi & Grevesse 2021), every one of them read from dark lines in its light.',
     ],
   },
   // [NASA Mercury Fact Sheet]

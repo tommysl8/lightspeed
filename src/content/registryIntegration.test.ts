@@ -75,7 +75,7 @@ describe('a body registered later', () => {
 
   it('has a location trail, a scene target, an article, a framing distance and a flight', () => {
     registerSaturnian();
-    expect(locationPath('orbit', 'titan').map((c) => c.label)).toEqual(['Solar neighbourhood', 'Solar System', 'Saturn', 'Titan']);
+    expect(locationPath('orbit', 'titan').map((c) => c.label)).toEqual(['Observable universe', 'Local Universe', 'Local Group', 'Milky Way', 'Orion Arm', 'Solar neighbourhood', 'Solar System', 'Saturn', 'Titan']);
     expect(resolveTarget('titan')).toEqual({ kind: 'body', id: 'titan', name: 'Titan' });
     expect(sceneStatus('go:titan').ok).toBe(true);
     expect(sceneStatus('fly:titan?beta=0.5').ok).toBe(true);
@@ -118,7 +118,7 @@ describe('a body registered later', () => {
   it('can sit on a barycentre and still be listed under the body people say it orbits', () => {
     registerBodies([moon('charon', 'Charon', 'pluto', 17_536, 606, { centre: PLUTO_BARYCENTRE })]);
     updateEphemeris();
-    expect(locationPath('orbit', 'charon').map((c) => c.label)).toEqual(['Solar neighbourhood', 'Solar System', 'Pluto', 'Charon']);
+    expect(locationPath('orbit', 'charon').map((c) => c.label)).toEqual(['Observable universe', 'Local Universe', 'Local Group', 'Milky Way', 'Orion Arm', 'Solar neighbourhood', 'Solar System', 'Pluto', 'Charon']);
     const dwarfs = nestedDestinations().find((g) => g.id === 'dwarf-planets')!.items;
     expect(dwarfs.map((i) => [i.destination.id, i.depth])).toEqual([
       ['pluto', 0],

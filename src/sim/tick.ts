@@ -10,9 +10,10 @@ import { advanceTripClock, lagAtTau, tauAtEarthTime, travel, tripElapsed, update
 
 /**
  * Advance the clock by one frame of `dtReal` real seconds. A real trip plays by ship time and
- * sets the Earth clock from it; a live clock (showing the present) follows the computer's
- * clock, `nowMs`, when one is given; otherwise the clock runs at the time warp. Returns the
- * simulated (Sun-frame) seconds that passed.
+ * sets the Earth clock from it: cosmic time on a flight through the expanding universe, which
+ * runs on by millions or billions of years (sim/cosmicTime.ts follows). A live clock (showing
+ * the present) follows the computer's clock, `nowMs`, when one is given; otherwise the clock
+ * runs at the time warp. Returns the simulated (Sun-frame) seconds that passed.
  */
 export function tickClock(dtReal: number, nowMs?: number): number {
   // Anything that takes the clock off real time ends "live" (the controls clear it too).

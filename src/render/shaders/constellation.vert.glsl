@@ -2,8 +2,10 @@
 // joins two catalogue stars; it is cut into pieces whose ends are points on the straight 3D
 // segment between the stars (moved like the stars in stars.vert.glsl, relative to the camera),
 // drawn at their true places. From Earth the figures are the familiar ones; as you fly away they
-// come apart, as the stars they join do, and segments stretched across much of the sky fade out. In the relativistic view each point is aberrated like a
-// star (the figures are guides, so they get no Doppler colour).
+// come apart, as the stars they join do, and segments stretched across much of the sky fade out,
+// as does (unless the figures were turned on) a whole figure that has come apart
+// (uFigureFade, from scene/Constellations.tsx). In the relativistic view each point is aberrated
+// like a star (the figures are guides, so they get no Doppler colour).
 #include <common>
 #include <logdepthbuf_pars_vertex>
 #include <lightspeed_relativity>
@@ -12,11 +14,13 @@ attribute vec3 aVelA; // the first star's velocity (0.1 km/s steps); `position` 
 attribute vec3 aPosB; // the second star's J2000 place and velocity
 attribute vec3 aVelB;
 attribute float aT;   // where along the segment this vertex is, 0–1
+attribute float aFigure; // which figure the segment belongs to
 
 uniform vec3 uCamHi;
 uniform vec3 uCamLo;
 uniform float uYears;
 uniform float uRetarded;
+uniform float uFigureFade[96]; // CONSTELLATION_FIGURE_SLOTS
 
 varying float vAlpha;
 varying float vGap; // angle to the nearer of the two stars, radians (for the gap round each star)
@@ -39,7 +43,7 @@ void main() {
   // A segment longer than 40° on the sky no longer outlines a figure (seen from far from the Sun,
   // or from beside one of its stars): it fades out by 90°.
   float span = acos(clamp(dot(normalize(a), normalize(b)), -1.0, 1.0));
-  vAlpha = 1.0 - smoothstep(0.698, 1.571, span);
+  vAlpha = (1.0 - smoothstep(0.698, 1.571, span)) * uFigureFade[int(aFigure + 0.5)];
   vec3 p = mix(a, b, aT);
   float d = length(p);
   vec3 e = p / max(d, 1e-30);

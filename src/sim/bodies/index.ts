@@ -15,6 +15,8 @@ export type {
   BodyPhysical,
   BodyRecord,
   BodyVisual,
+  DeepSkyImage,
+  DeepSkyInfo,
   ExoplanetInfo,
   IauRotationSpec,
   OrbitLineSpec,

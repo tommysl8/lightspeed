@@ -1,7 +1,7 @@
 // Builds public/data/galaxy-particles.bin.gz: a particle rendering of the parametric Milky Way model.
 //
-// Input : staging/galaxy/model.json (or the path given as the first argument). Every parameter and its
-//         source is documented there and in staging/galaxy/galaxy.md.
+// Input : src/sim/galaxy/model.json (or the path given as the first argument). Every parameter and its
+//         source is documented there and in docs/data/galaxy.md.
 // Output: public/data/galaxy-particles.bin.gz (gzip of the binary below; decode in the browser with
 //         DecompressionStream('gzip'), because Vercel does not compress application/octet-stream).
 //
@@ -110,8 +110,8 @@ export function makeRng(seed) {
 }
 
 // ---------------------------------------------------------------------------------------------
-// Model geometry shared with staging/galaxy/src/galaxyModel.ts (keep the two in step).
-export function loadModel(path = resolve(ROOT, 'staging/galaxy/model.json')) {
+// Model geometry shared with src/sim/galaxy/model.ts (keep the two in step).
+export function loadModel(path = resolve(ROOT, 'src/sim/galaxy/model.json')) {
   return JSON.parse(readFileSync(path, 'utf8'));
 }
 
@@ -657,7 +657,7 @@ export function decode(buf) {
 }
 
 function main() {
-  const modelPath = process.argv[2] ? resolve(process.argv[2]) : resolve(ROOT, 'staging/galaxy/model.json');
+  const modelPath = process.argv[2] ? resolve(process.argv[2]) : resolve(ROOT, 'src/sim/galaxy/model.json');
   const model = loadModel(modelPath);
   const t0 = Date.now();
   const { records, parts, clamped, arms } = generate(model);

@@ -11,9 +11,10 @@
  *
  * Targets are the ids in KNOWN_TARGETS (the contract with the articles); resolveTarget turns
  * one into something the camera and the planner can use: any body in the registry
- * (sim/bodies), so a target resolves as soon as data registers its body. Later updates may add
- * resolvers for things that are not bodies, and define the named scenes not built yet. Until
- * then a spec that needs them reports "Coming in a later update" and its button is disabled.
+ * (sim/bodies), so a target resolves as soon as data registers its body. Every target and every
+ * named scene is in the app once its data have loaded (articleScenes.test.ts checks each see-it
+ * block of the articles). Until then a spec says what it is waiting for ("Loading the
+ * galaxies…"), or that its data did not load, and its button is disabled.
  */
 import { SearchRelativeLongitude, Body } from 'astronomy-engine';
 import { Vector3 } from 'three';
@@ -21,19 +22,23 @@ import { AU_KM, C_KM_S, LIGHT_YEAR_KM, PARSEC_KM } from '../physics/constants';
 import { bodyName, bodyPositionAt, childrenOf, displayRadiusKm, getBody, isBody, type BodyId } from '../sim/bodies';
 import { controller } from '../controls/cameraController';
 import { framingDistance, systemFramingDistance } from '../controls/framing';
-import { setEpoch, setPaused, setWarp } from '../sim/clock';
+import { resetToNow, setEpoch, setPaused, setWarp } from '../sim/clock';
 import { updateEphemeris } from '../sim/ephemeris';
 import { PRECISE_END_MS, PRECISE_START_MS } from '../sim/ephemerisPolicy';
 import { sim } from '../sim/sim';
 import { solarSystemStatus } from '../sim/solarSystem';
 import { starStatus } from '../sim/stars/load';
 import { featuredStatus } from '../sim/exoplanets/load';
-import { planTrip, type Drive, type TripPlan } from '../sim/travel';
-import { astroTimeAt, daysInMonth, formatSimDate, msFromAstroTime, msFromCivil } from '../lib/time';
-import { useUI } from '../state/ui';
+import { galaxyStatus, nebulaStatus } from '../sim/galaxy/load';
+import { cosmosStatus } from '../sim/cosmos/load';
+import { MILKY_WAY_MODEL_LABEL } from '../sim/galaxy/records';
+import { planFlight, planTrip, type Drive, type TripPlan } from '../sim/travel';
+import { refusalText } from '../ui/flight/tripText';
+import { astroTimeAt, daysInMonth, formatDurationShort, formatSimDate, msFromAstroTime, msFromCivil } from '../lib/time';
+import { useUI, type UIState } from '../state/ui';
 import { emitLightPulse } from '../lab/logger';
-import { goToBody, goToSystem } from '../ui/navigation';
-import { afterArrival, startTrip } from '../ui/tripActions';
+import { frameCosmicWeb, frameLocalGroup, frameMilkyWay, goToBody, goToStarSystem, goToSystem, showCmbMap } from '../ui/navigation';
+import { afterArrival, planOneG, startTrip } from '../ui/tripActions';
 import { formatIsoDate } from './learn/catalogue';
 
 // ─── Targets ────────────────────────────────────────────────────────────────────────────
@@ -149,6 +154,7 @@ const TARGET_NAMES = {
   'bullet-cluster': 'Bullet Cluster',
   'gn-z11': 'GN-z11',
   'jades-gs-z14-0': 'JADES-GS-z14-0',
+  'mom-z14': 'MoM-z14',
 } as const;
 
 export type TargetId = keyof typeof TARGET_NAMES;
@@ -295,7 +301,7 @@ export interface SceneDef {
 
 const NAMED = new Map<NamedSceneId, SceneDef>();
 
-/** Labels of the named scenes still to be built, so their buttons can say what they are. */
+/** What each named scene is, for its button before its definition is in (every one is below). */
 const PENDING_LABELS: Record<NamedSceneId, string> = {
   'race-sunlight': 'Race sunlight to Earth',
   'year-in-30s': 'A year in half a minute',
@@ -316,7 +322,7 @@ const PENDING_LABELS: Record<NamedSceneId, string> = {
   'trappist-1-worlds': 'Seven worlds of TRAPPIST-1',
 };
 
-/** Define (or replace) a named scene. Later updates use this for the scenes not built yet. */
+/** Define (or replace) a named scene. */
 export function defineScene(name: NamedSceneId, def: SceneDef): void {
   NAMED.set(name, def);
 }
@@ -331,9 +337,16 @@ export interface SceneStatus {
   label: string;
 }
 
-export const LATER = 'Coming in a later update';
+/**
+ * What a spec says when what it needs is not in the app and its data are not on the way: never
+ * for the articles' targets and scenes in the app, whose loaders all start with the page
+ * (main.tsx), so they are loading, loaded or failed.
+ */
+export const LATER = 'Not in Lightspeed yet';
 const LOADING = 'Loading the Solar System data…';
 const LOADING_STARS = 'Loading the star catalogue…';
+/** What a spec says when its data did not load. */
+const failedText = (what: string) => `${what} did not load: reload the page to try again`;
 
 /** The targets that are stars (and star systems): they resolve once the star catalogue is in (sim/stars). */
 const STAR_TARGETS: ReadonlySet<string> = new Set([
@@ -358,12 +371,79 @@ const STAR_TARGETS: ReadonlySet<string> = new Set([
   'hr-8799',
   '51-pegasi',
 ]);
-/** Hosts of the featured exoplanet systems that the star catalogue lacks: they arrive with the planets (sim/exoplanets). */
-const EXOPLANET_TARGETS: ReadonlySet<string> = new Set(['kepler-90', 'toi-700', 'kepler-16']);
+/**
+ * Hosts of the featured exoplanet systems that the star catalogue lacks, and a planet the scenes
+ * use: they arrive with the planets (sim/exoplanets).
+ */
+const EXOPLANET_TARGETS: ReadonlySet<string> = new Set(['kepler-90', 'toi-700', 'kepler-16', 'trappist-1-h']);
 const LOADING_EXOPLANETS = 'Loading the planetary systems…';
-/** Whether the featured planetary systems are still on their way. */
-const exoplanetsPending = () => featuredStatus() === 'idle' || featuredStatus() === 'loading';
+/**
+ * The Milky Way's bodies: the star clusters resolve once its data are in; the Galaxy itself, Sgr A*
+ * and the S-stars are registered as that load starts (sim/galaxy).
+ */
+const CLUSTER_TARGETS: ReadonlySet<string> = new Set(['pleiades', 'hyades', 'omega-centauri', '47-tucanae', 'milky-way', 'sgr-a-star', 's2']);
+/** The nebulae: their file is a chunk of its own, in soon after start-up (sim/galaxy). */
+const NEBULA_TARGETS: ReadonlySet<string> = new Set(['orion-nebula', 'crab-nebula', 'eagle-nebula', 'ring-nebula', 'helix-nebula', 'carina-nebula']);
+const LOADING_GALAXY = 'Loading the Milky Way…';
+/** The galaxies beyond the Milky Way and the Local Group: they resolve once the Local Group's file is in (sim/cosmos). */
+const GALAXY_TARGETS: ReadonlySet<string> = new Set([
+  'local-group',
+  'andromeda',
+  'triangulum',
+  'lmc',
+  'smc',
+  'm81',
+  'm87',
+  'centaurus-a',
+  'sombrero',
+  'whirlpool',
+  'virgo-cluster',
+  'coma-cluster',
+  'bullet-cluster',
+  'gn-z11',
+  'jades-gs-z14-0',
+  'mom-z14',
+]);
+const LOADING_GALAXIES = 'Loading the galaxies…';
 const BUSY = 'A flight is under way: finish it or abort it first';
+
+type LoadStatus = 'idle' | 'loading' | 'ready' | 'failed';
+
+/** Where a target's data come from: how far their loading has got, and what to say meanwhile. */
+interface DataSource {
+  has: (id: string) => boolean;
+  status: () => LoadStatus;
+  loading: string;
+  failed: string;
+}
+
+/** The files the targets come from, the Solar System's last (it takes every other target). */
+const SOURCES: DataSource[] = [
+  { has: (id) => STAR_TARGETS.has(id), status: starStatus, loading: LOADING_STARS, failed: failedText('The star catalogue') },
+  { has: (id) => EXOPLANET_TARGETS.has(id), status: featuredStatus, loading: LOADING_EXOPLANETS, failed: failedText('The planetary systems') },
+  { has: (id) => CLUSTER_TARGETS.has(id), status: galaxyStatus, loading: LOADING_GALAXY, failed: failedText('The Milky Way’s data') },
+  { has: (id) => NEBULA_TARGETS.has(id), status: nebulaStatus, loading: LOADING_GALAXY, failed: failedText('The nebulae') },
+  { has: (id) => GALAXY_TARGETS.has(id), status: cosmosStatus, loading: LOADING_GALAXIES, failed: failedText('The galaxies') },
+  { has: () => true, status: solarSystemStatus, loading: LOADING, failed: failedText('The Solar System data') },
+];
+
+/**
+ * Why a body the app should have is not registered: its data are loading or did not load. LATER
+ * when neither (its loader was never asked, as in tests).
+ */
+function missingReason(id: string): string {
+  const src = SOURCES.find((s) => s.has(id))!;
+  const status = src.status();
+  return status === 'loading' ? src.loading : status === 'failed' ? src.failed : LATER;
+}
+
+/** Why a scene that needs these bodies cannot run yet, or null when they are all in. */
+const needs =
+  (...ids: string[]) =>
+  (): string | null => {
+    const missing = ids.find((id) => !isBody(id));
+    return missing === undefined ? null : missingReason(missing);
+  };
 
 function labelOf(s: Scene): string {
   switch (s.kind) {
@@ -372,11 +452,11 @@ function labelOf(s: Scene): string {
     case 'date':
       return `Go to ${formatIsoDate(s.date)}`;
     case 'go':
-      return `Go to ${targetName(s.target)}`;
+      return `Go to ${theName(targetName(s.target))}`;
     case 'sky-from':
-      return `The sky from ${targetName(s.target)}`;
+      return `The sky from ${theName(targetName(s.target))}`;
     case 'fly':
-      return `Fly to ${targetName(s.target)} ${s.beta === null ? 'at 1 g' : `at ${s.beta}c`}`;
+      return `Fly to ${theName(targetName(s.target))} ${s.beta === null ? 'at 1 g' : `at ${s.beta}c`}`;
   }
 }
 
@@ -395,20 +475,20 @@ function flightTo(ref: TargetRef, beta: number | null): Flight {
 function flightBlocker(f: Flight, name: string): string | null {
   if (f.dest === 'earth') return 'Flights leave from Earth';
   if (!sim.bodies[f.dest]?.present) return `${name} is not there at the date shown`;
-  return predictFlight(f) ? null : `${name} is out of reach from Earth today`;
+  const r = planFlight(f.dest, f.beta, sim.bodies.earth.pos.clone(), sim.astroTime, f.drive);
+  if (r.ok) return null;
+  // The planner's reason in a few words ("beyond the cosmic event horizon").
+  const why = r.refusal ? refusalText(r.refusal, name).title : '';
+  return why ? `${name} cannot be reached from Earth: ${why.charAt(0).toLowerCase()}${why.slice(1)}` : `${name} is out of reach from Earth today`;
 }
 
 function blocker(s: Scene): string | null {
   // What is not in the app yet comes first: that answer does not depend on the moment.
   const def = s.kind === 'named' ? NAMED.get(s.name) : undefined;
   const ref = s.kind === 'go' || s.kind === 'fly' || s.kind === 'sky-from' ? resolveTarget(s.target) : null;
-  if (s.kind === 'named' ? !def : s.kind !== 'date' && !ref) {
-    // A Solar System target whose data are still on their way.
-    if (s.kind !== 'named' && s.kind !== 'date' && STAR_TARGETS.has(s.target) && starStatus() === 'loading') return LOADING_STARS;
-    if (s.kind !== 'named' && s.kind !== 'date' && EXOPLANET_TARGETS.has(s.target) && exoplanetsPending()) return LOADING_EXOPLANETS;
-    if (s.kind !== 'named' && s.kind !== 'date' && isKnownTarget(s.target) && solarSystemStatus() === 'loading') return LOADING;
-    return LATER;
-  }
+  if (s.kind === 'named' && !def) return LATER;
+  // A target whose data are still on their way, or did not load.
+  if (s.kind !== 'named' && s.kind !== 'date' && !ref) return isKnownTarget(s.target) ? missingReason(s.target) : LATER;
   if (useUI.getState().tripActive) return BUSY;
   switch (s.kind) {
     case 'named':
@@ -443,16 +523,40 @@ const FLIGHT_NOTES: Record<string, string> = {
     'TRAPPIST-1 is 40 light-years away. A steady push of one Earth gravity gets you there in about 7.3 years of your time while 42 years pass on Earth. Skip to arrival when you have seen enough.',
   'fly:proxima':
     'A steady push of one Earth gravity takes you to the nearest star in 3.5 years of your time while 5.9 years pass on Earth. Each second here is three weeks on board; Skip to arrival when you have seen enough.',
+  'fly:sgr-a-star':
+    'The black hole at the centre of the Galaxy is 8,277 parsecs (27,000 light-years) away. A steady push of one Earth gravity, turning round halfway to brake, gets you there in about 20 years of your time while about 27,000 years pass at home. Inside the Galaxy space is taken as static: no expansion to allow for.',
 };
 
+/** A name as a sentence uses it: "the Andromeda Galaxy", "the Sun", but "Proxima Centauri", "Bode’s Galaxy (M81)". */
+export function theName(name: string): string {
+  return /^(?:Sun|Moon|Milky Way|Pleiades|Hyades)$|^[^’']*\b(?:Galaxy|Cluster|Nebula|Cloud|Group|Telescope)$/.test(name) ? `the ${name}` : name;
+}
+
+/** The flight as planned from Earth now, or null (out of reach, or not plannable yet). */
+function plannedFlight(f: Flight): TripPlan | null {
+  try {
+    return predictFlight(f);
+  } catch {
+    return null;
+  }
+}
+
+/** What a flight through the expanding universe assumes (sim/travel.ts). */
+const EXPANDING = ' The universe expands on the way: the flight is a model, with a perfect engine and galaxies carried along by the expansion.';
+
 function flightNote(f: Flight, name: string): string {
-  if (f.drive === 'rocket')
-    return `A rocket pushing at one Earth gravity, turning round halfway to arrive at ${name} at rest. Watch your clock fall behind the one at home; Skip to arrival when you have seen enough.`;
+  const plan = plannedFlight(f);
+  const expanding = plan?.model === 'flrw' ? EXPANDING : '';
+  if (f.drive === 'rocket') {
+    const times = plan && plan.shipTime > 0 && plan.earthTime > 0 ? `: about ${formatDurationShort(plan.shipTime)} on board and ${formatDurationShort(plan.earthTime)} at home` : '';
+    const turn = plan?.model === 'flrw' ? 'turning round a little after halfway' : 'turning round halfway';
+    return `A rocket pushing at one Earth gravity, ${turn} to arrive at ${theName(name)} at rest${times}.${expanding} Watch your clock fall behind the one at home; Skip to arrival when you have seen enough.`;
+  }
   const rate = Math.sqrt(1 - f.beta * f.beta);
   const pct = rate < 0.1 ? (rate * 100).toPrecision(2) : String(Math.round(rate * 100));
   const clock = pct === '100' ? 'at almost exactly the rate of Earth’s' : `at ${pct}% of the rate of Earth’s`;
   const sky = f.beta >= 0.5 ? ' The stars gather ahead of you and turn blue; drag to look around.' : '';
-  return `A steady ${f.beta}c from Earth to ${name}. Your clock, τ, runs ${clock}, t.${sky}`;
+  return `A steady ${f.beta}c from Earth to ${theName(name)}. Your clock, τ, runs ${clock}, t.${expanding}${sky}`;
 }
 
 /** What to look for while a scene runs (null: none, as for go:). */
@@ -469,7 +573,7 @@ export function sceneNote(spec: string): string | null {
     case 'sky-from': {
       const ref = resolveTarget(s.target);
       if (ref && isStar(ref.id)) return starSkyNote(ref);
-      return `Beyond ${targetName(s.target)}, looking back towards ${ref?.id === 'sun' ? 'Earth' : 'the Sun'}. Drag to look around.`;
+      return `Beyond ${theName(targetName(s.target))}, looking back towards ${ref?.id === 'sun' ? 'Earth' : 'the Sun'}. Drag to look around.`;
     }
     case 'fly': {
       const ref = resolveTarget(s.target);
@@ -560,9 +664,19 @@ function go(ref: TargetRef): boolean {
   if (hasPlanets(ref.id)) {
     useUI.setState({ showOrbits: true, showLabels: true });
     goToSystem(ref.id);
+  } else if (hasCompanion(ref.id)) {
+    // A star in a pair (Sirius A with Sirius B): far enough out to see both.
+    useUI.setState({ showLabels: true });
+    goToStarSystem(ref.id);
   } else goToBody(ref.id);
   return true;
 }
+
+/** A star with another star in its system (its parent a barycentre with more than one star). */
+const hasCompanion = (id: BodyId): boolean => {
+  const parent = getBody(id)?.kind === 'star' ? getBody(id)?.parent : undefined;
+  return !!parent && getBody(parent)?.kind === 'barycentre' && childrenOf(parent).filter((c) => c.kind === 'star').length > 1;
+};
 
 /** A star (other than the Sun) with planets registered about it. */
 const hasPlanets = (id: BodyId): boolean => id !== 'sun' && getBody(id)?.kind === 'star' && childrenOf(id).some((c) => c.kind === 'exoplanet');
@@ -627,11 +741,33 @@ function jumpTo(ms: number, note: string): boolean {
 export function runScene(spec: string, opts: { note?: string } = {}): boolean {
   const s = parseScene(spec);
   if (!s || !sceneStatus(spec).ok) return false;
-  // A new scene replaces anything the last one still had to do.
+  // A new scene replaces anything the last one still had to do, and the views it turned on.
   cancelSceneStep();
+  restoreSceneViews();
+  // Scenes are written for the present at real time: each starts there (a date scene sets its own date,
+  // and a scene that runs time faster sets its own pace), not at the date or the pace the last one left.
+  if (s.kind !== 'date') backToPresent();
   // A scene takes over the view: nothing modal stays over it.
   useUI.setState({ welcomeOpen: false, tourStep: null, keysOpen: false, searchOpen: false });
   const note = opts.note ?? sceneNote(spec) ?? '';
+  const before = currentViews();
+  try {
+    return start(s, note);
+  } finally {
+    recordSceneViews(before);
+  }
+}
+
+/** The present at real time, unless the clock is already there (or a flight is under way, when time cannot jump). */
+function backToPresent(): void {
+  if (useUI.getState().tripActive) return;
+  if (!sim.live || sim.paused || sim.warp !== 1) {
+    resetToNow();
+    updateEphemeris(); // so the scene frames what is there now, and its note is worded for now
+  }
+}
+
+function start(s: Scene, note: string): boolean {
   switch (s.kind) {
     case 'named':
       return NAMED.get(s.name)!.run(note);
@@ -641,18 +777,60 @@ export function runScene(spec: string, opts: { note?: string } = {}): boolean {
       return go(resolveTarget(s.target)!);
     case 'sky-from':
       return skyFrom(resolveTarget(s.target)!, note);
-    case 'fly': {
-      const ref = resolveTarget(s.target)!;
-      return fly(flightTo(ref, s.beta), note);
-    }
+    case 'fly':
+      return fly(flightTo(resolveTarget(s.target)!, s.beta), note);
   }
+}
+
+/**
+ * Views a scene may turn on for itself: the CMB map over the sky, light-time correction, the
+ * relativistic view (split, or with its Doppler colours), the cosmic web. What one scene turned
+ * on, the next scene turns back (unless the visitor has changed it since), so the CMB map does
+ * not stay over Jupiter after the CMB scene.
+ */
+const SCENE_VIEWS = ['showCmb', 'retarded', 'relMode', 'relDoppler', 'cosmicWeb'] as const;
+type SceneView = (typeof SCENE_VIEWS)[number];
+type SceneViews = Partial<Pick<UIState, SceneView>>;
+
+/** What the last scene changed: each view as it was before, and as the scene left it. */
+let sceneViews: { was: SceneViews; set: SceneViews } = { was: {}, set: {} };
+
+function currentViews(): Pick<UIState, SceneView> {
+  const s = useUI.getState();
+  return { showCmb: s.showCmb, retarded: s.retarded, relMode: s.relMode, relDoppler: s.relDoppler, cosmicWeb: s.cosmicWeb };
+}
+
+/** Turn back what the last scene turned on, where the visitor has not changed it since. */
+function restoreSceneViews(): void {
+  const now = currentViews();
+  const back: SceneViews = {};
+  for (const k of SCENE_VIEWS) if (k in sceneViews.set && now[k] === sceneViews.set[k]) Object.assign(back, { [k]: sceneViews.was[k] });
+  sceneViews = { was: {}, set: {} };
+  if (Object.keys(back).length) useUI.setState(back);
+}
+
+/** Note the views a scene has just changed, to turn them back when the next scene starts. */
+function recordSceneViews(before: Pick<UIState, SceneView>): void {
+  const after = currentViews();
+  for (const k of SCENE_VIEWS)
+    if (after[k] !== before[k]) {
+      Object.assign(sceneViews.was, { [k]: before[k] });
+      Object.assign(sceneViews.set, { [k]: after[k] });
+    }
 }
 
 // ─── The scenes built today ─────────────────────────────────────────────────────────────
 
 defineScene('race-sunlight', {
   label: 'Race sunlight to Earth',
-  note: 'The growing ring is a pulse of light leaving the Sun. It reaches Earth after 8 minutes 19 seconds, Mars a few minutes later and Jupiter after 43 minutes.',
+  // Worded for the date: Earth's distance from the Sun changes the time by 17 seconds over the year.
+  get note() {
+    const s = (id: BodyId) => (sim.bodies[id]?.present ? sim.bodies[id].pos.distanceTo(sim.bodies.sun.pos) / C_KM_S : NaN);
+    const earth = Math.round(s('earth'));
+    const jupiter = Math.round(s('jupiter') / 60);
+    const toEarth = Number.isFinite(earth) ? `${Math.floor(earth / 60)} minutes ${earth % 60} seconds today (8 minutes 19 seconds on average over the year)` : 'about 8 minutes 19 seconds';
+    return `The growing ring is a pulse of light leaving the Sun. It reaches Earth after ${toEarth}, Mars a few minutes later and Jupiter after ${Number.isFinite(jupiter) ? jupiter : 'about 43'} minutes.`;
+  },
   run: (note) =>
     scene(note, () => {
       setWarp(1);
@@ -667,13 +845,14 @@ defineScene('race-sunlight', {
 
 defineScene('year-in-30s', {
   label: 'A year in half a minute',
-  note: 'Mercury laps the Sun every 88 days and Earth once in the 31 seconds a year takes here. Bodies are drawn enlarged (T for true size). Space pauses; N comes back to today.',
+  note: 'The inner planets from above. Mercury laps the Sun every 88 days, speeding up near the Sun, and Earth once in the 31 seconds a year takes here; Mars gets about half way round. Bodies are drawn enlarged (T for true size). Press Space to pause; N comes back to today.',
   run: (note) =>
     scene(note, () => {
       useUI.setState({ sizeMode: 'visible', showOrbits: true, showLabels: true });
       setWarp(1);
       setPaused(false);
-      controller.goTo('sun', { distance: 30 * AU_KM, direction: new Vector3(0.05, 1, 0.12) });
+      // Close enough that Mercury's orbit is plain to see, wide enough for Mars's (1.67 au at most).
+      controller.goTo('sun', { distance: 6 * AU_KM, direction: new Vector3(0.05, 1, 0.12) });
       afterSlew('sun', () => setWarp(1_000_000));
     }),
 });
@@ -715,6 +894,8 @@ defineScene('light-time-correction', {
 
 defineScene('mars-opposition', {
   label: 'The next opposition of Mars',
+  // The scene words its own note with the date and distance it finds; this is for the button.
+  note: 'The next opposition of Mars: Earth passes between Mars and the Sun, as it does every 26 months, and Mars is near its closest and brightest. How close depends on the opposition, from about 0.37 to 0.68 au, because Mars’s orbit is eccentric.',
   run: (fallbackNote) => {
     if (!ready()) return false;
     // The next opposition after the date shown (after today when that is outside the span
@@ -743,7 +924,7 @@ defineScene('mars-opposition', {
 
 defineScene('jupiter-moons', {
   label: 'Jupiter’s moons',
-  note: 'Io, Europa, Ganymede and Callisto circle Jupiter, seen from above with time running 10,000 times faster than real: Io laps it every 15 seconds. Their orbits are fitted to JPL Horizons; the moons are drawn enlarged (T for true size). Space pauses; N comes back to today.',
+  note: 'Io, Europa, Ganymede and Callisto circle Jupiter, seen from above with time running 10,000 times faster than real: Io laps it every 15 seconds. Their orbits are fitted to JPL Horizons; the moons are drawn enlarged (T for true size). Press Space to pause; N comes back to today.',
   run: (note) =>
     scene(note, () => {
       useUI.setState({ sizeMode: 'visible', showOrbits: true, showLabels: true, selected: 'jupiter' });
@@ -756,9 +937,6 @@ defineScene('jupiter-moons', {
 });
 
 // ─── Scenes with the Solar System data (sim/solarSystem) ────────────────────────────────
-
-/** Why a scene that needs these bodies cannot run yet (their data load after start-up). */
-const needs = (...ids: string[]) => () => (ids.every((id) => isBody(id)) ? null : LOADING);
 
 /** Voyager 2's closest approach to Neptune: 1989-08-25 03:56:36 TDB (JPL Horizons), 03:55:40 UTC. */
 const V2_NEPTUNE_MS = msFromCivil(1989, 8, 25, 3, 55, 40);
@@ -820,6 +998,43 @@ defineScene('halley-2061', {
   },
 });
 
+// ─── The Milky Way (sim/galaxy) ─────────────────────────────────────────────────────────
+
+/** A year of S2's orbit, in seconds of the view: its 16-year orbit in about half a minute. */
+export const S2_ORBIT_WARP = Math.round((16.05 * 365.25 * 86_400) / 30);
+
+defineScene('galactic-centre-orbits', {
+  label: 'Stars orbiting the centre of the Galaxy',
+  note: 'S2 whips round its 16-year orbit in about half a minute here, while S29, S38 and S55 cross at other angles. Every orbit shares one focus, the black hole Sgr A*, drawn as a black disc the size of its shadow (far too small to see from here). The orbits are GRAVITY’s (2022), turning slowly as general relativity says; other published orbits exist but are not licensed for reuse.',
+  unavailable: needs('sgr-a-star', 's2'),
+  run: (note) =>
+    scene(note, () => {
+      useUI.setState({ showOrbits: true, showLabels: true, selected: 's2' });
+      setWarp(1);
+      setPaused(false);
+      // Face-on to S2's orbit, tipped a little, far enough to see the whole ellipse.
+      const s2 = sim.bodies.s2;
+      const bh = sim.bodies['sgr-a-star'];
+      const normal = s2.pos.clone().sub(bh.pos).cross(s2.vel.clone().sub(bh.vel));
+      if (!(normal.lengthSq() > 0)) normal.copy(ABOVE);
+      normal.normalize().addScaledVector(UP, 0.25).normalize();
+      controller.goTo('sgr-a-star', { distance: 6000 * AU_KM, direction: normal });
+      afterSlew('sgr-a-star', () => setWarp(S2_ORBIT_WARP));
+    }),
+});
+
+defineScene('milky-way-outside', {
+  label: 'The Milky Way from outside',
+  note: `The Milky Way from 100,000 light-years out, above its disc, with the Sun marked about halfway from the centre to the edge. Seen from here it turns clockwise, far too slowly to notice: the Sun takes over 200 million years to go round. ${MILKY_WAY_MODEL_LABEL}`,
+  // The Galaxy is a body as soon as its data start loading; the scene needs its particle model too.
+  unavailable: () => needs('milky-way')() ?? (galaxyStatus() === 'loading' || galaxyStatus() === 'failed' ? missingReason('milky-way') : null),
+  run: (note) =>
+    scene(note, () => {
+      useUI.setState({ showLabels: true });
+      frameMilkyWay();
+    }),
+});
+
 // ─── Planets of other stars (sim/exoplanets) ────────────────────────────────────────────
 
 const TRAPPIST_FLIGHT: Flight = { dest: 'trappist-1', drive: 'rocket', beta: 0 };
@@ -846,11 +1061,7 @@ defineScene('trappist-1-worlds', {
   label: 'Seven worlds of TRAPPIST-1',
   note: FLIGHT_NOTES['fly:trappist-1'],
   flight: TRAPPIST_FLIGHT,
-  unavailable: () => {
-    if (!isBody('trappist-1')) return starStatus() === 'failed' ? LATER : LOADING_STARS;
-    if (!isBody('trappist-1-h')) return exoplanetsPending() ? LOADING_EXOPLANETS : LATER;
-    return flightBlocker(TRAPPIST_FLIGHT, 'TRAPPIST-1');
-  },
+  unavailable: () => needs('trappist-1', 'trappist-1-h')() ?? flightBlocker(TRAPPIST_FLIGHT, 'TRAPPIST-1'),
   run: (note) => {
     if (!fly(TRAPPIST_FLIGHT, note)) return false;
     afterArrival(() => {
@@ -863,4 +1074,78 @@ defineScene('trappist-1-worlds', {
     });
     return true;
   },
+});
+
+// ─── Beyond the Milky Way (sim/cosmos) ──────────────────────────────────────────────────
+
+/** Why a scene beyond the Milky Way cannot run yet. */
+const galaxiesUnavailable = needs('local-group');
+
+defineScene('local-group', {
+  label: 'The Local Group',
+  note: 'The Local Group from 3 million parsecs (10 million light-years) out: the Milky Way, Andromeda and Triangulum with more than a hundred smaller galaxies, held together by gravity. From this far the big galaxies are faint smudges and most dwarfs are too faint to see at all; the Bodies list names them all. Their shapes are models built from their measured sizes, tilts and brightness.',
+  unavailable: galaxiesUnavailable,
+  run: (note) =>
+    scene(note, () => {
+      useUI.setState({ showLabels: true });
+      frameLocalGroup();
+    }),
+});
+
+defineScene('cosmic-web', {
+  label: 'The cosmic web',
+  note: 'The galaxies around us to about 500 million parsecs (1.6 billion light-years), as points: the 55,877 with measured distances in Cosmicflows-4 (the nearest are drawn as galaxies of their own), turning slowly, 200 million parsecs out from the Local Group. They gather in walls and filaments round empty voids. Orange points are elliptical galaxies, blue ones spirals. The survey covers the northern galactic sky best and misses what lies behind the Milky Way’s disc, so emptiness there is not all real.',
+  unavailable: galaxiesUnavailable,
+  run: (note) =>
+    scene(note, () => {
+      useUI.setState({ showLabels: true });
+      frameCosmicWeb();
+    }),
+});
+
+defineScene('cmb-map', {
+  label: 'The cosmic microwave background',
+  note: 'The oldest light in the universe, released about 370,000 years after the Big Bang, mapped by WMAP over the whole sky. Blue is colder and red warmer than the average of 2.7255 K, by up to 250 millionths of a kelvin, about 1 part in 11,000: the contrast is enhanced about 10,000 times, and the sky turns slowly so all of it goes by. The View menu turns the map off.',
+  unavailable: galaxiesUnavailable,
+  run: (note) =>
+    scene(note, () => {
+      showCmbMap();
+    }),
+});
+
+// ─── Flights through the expanding universe (sim/travelCosmic.ts) ───────────────────────
+
+/** The flight of 'cmb-glow': 1 g to the Virgo cluster, looking ahead. */
+const GLOW_FLIGHT: Flight = { dest: 'virgo-cluster', drive: 'rocket', beta: 0 };
+
+defineScene('cmb-glow', {
+  label: 'The Big Bang’s glow, seen at speed',
+  get note() {
+    const plan = plannedFlight(GLOW_FLIGHT);
+    const times = plan ? ` About ${formatDurationShort(plan.shipTime)} on board and ${formatDurationShort(plan.earthTime)} at home.` : '';
+    return `Look ahead, just above this panel. The cosmic microwave background, 2.7 K and invisible at rest, is Doppler shifted by your motion to T′ = T × D ahead, with D = γ(1 + β) ≈ 2γ: past γ ≈ 500, some seven years in, it glows red, then white, then blue-white, and by the flip it is over a hundred million kelvin (the view stops down so you can still look).${times}${EXPANDING}`;
+  },
+  flight: GLOW_FLIGHT,
+  unavailable: () => needs('virgo-cluster')() ?? flightBlocker(GLOW_FLIGHT, 'Virgo Cluster'),
+  run: (note) => {
+    if (!fly(GLOW_FLIGHT, note)) return false;
+    // The glow is Doppler shift: keep it on. Face the way the ship is going, tipped down a little so the
+    // glow straight ahead shows above the flight panel.
+    useUI.setState((s) => ({ relDoppler: true, relMode: s.relMode === 'off' ? 'on' : s.relMode }));
+    controller.setTravelLook(0, -0.22);
+    return true;
+  },
+});
+
+defineScene('edge-of-reach', {
+  label: 'The edge of reach',
+  note: 'JADES-GS-z14-0 is one of the most distant galaxies known, seen as it was about 290 million years after the Big Bang. The flight planner has tried a 1 g flight there from Earth and refused it: the galaxy lies beyond the cosmic event horizon, about 16.6 billion light-years away. The expansion of the universe is speeding up, so light sent from here today will never reach it, and nothing can outrun light. Anything closer than the horizon can still be reached at 1 g in under 75 years aboard, though billions of years pass at home.',
+  unavailable: needs('jades-gs-z14-0'),
+  run: (note) =>
+    scene(note, () => {
+      // From home: flights leave from the camera.
+      controller.placeAt('earth', 26_000);
+      controller.update(0, 0);
+      planOneG('jades-gs-z14-0');
+    }),
 });

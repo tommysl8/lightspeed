@@ -30,7 +30,7 @@ function defaultRadii(r: BodyRecord): number {
   return 4;
 }
 
-/** Distance from a body's centre at which it is nicely framed (also the travel standoff). */
+/** Distance from a body's centre at which it is nicely framed (also where a flight ends, but see flightStandoff). */
 export function framingDistance(id: BodyId): number {
   const b = getBody(id);
   if (!b) return 1e4;
@@ -49,6 +49,24 @@ export function framingDistance(id: BodyId): number {
 function outerRadiusKm(b: BodyRecord): number {
   const shape = b.visual?.shape ? shapeMaxRadiusKm(b.visual.shape) : undefined;
   return Math.max(displayRadiusKm(b), b.physical.maxRadiusKm ?? 0, shape ?? 0);
+}
+
+/** Kinds with no surface to stop short of: galaxies, groups and clusters of galaxies or stars, nebulae. */
+const NO_SURFACE: ReadonlySet<BodyRecord['kind']> = new Set(['galaxy', 'cluster', 'nebula']);
+
+/**
+ * How far from a body's centre a flight to it ends, km, for a ship setting out `fromKm` from that
+ * centre. At the framing distance, except for what has no surface (galaxies, clusters, nebulae), whose
+ * framing distance is a sizeable part of the trip (a quarter of the way to Andromeda would be cut
+ * short at four of its radii): the flight to one goes all the way in, to its closest approach, so the
+ * trip's numbers are those of getting there, and the camera then pulls back to frame it
+ * (CameraController.finishTravel). A ship already within the framing distance is there already.
+ */
+export function flightStandoff(id: BodyId, fromKm: number): number {
+  const framing = framingDistance(id);
+  const b = getBody(id);
+  if (!b || !NO_SURFACE.has(b.kind) || !(fromKm > framing)) return framing;
+  return Math.min(framing, minDistance(id));
 }
 
 /** Closest the orbit camera may get to a body's centre. */
