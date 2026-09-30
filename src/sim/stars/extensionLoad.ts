@@ -36,8 +36,13 @@ export const extData = {
   files: new Map<number, BandFile>(),
   /** Files on their way. */
   loading: new Map<number, Promise<BandFile | null>>(),
-  /** Files that failed (not asked again this session). */
-  failed: new Set<number>(),
+  /** Files that failed: when each may be asked for again (performance.now() ms; see retryAfterMs). */
+  failed: new Map<number, number>(),
+  /** How many times each file has failed in a row. */
+  failures: new Map<number, number>(),
+  /** When the index may be asked for again after a failure (ms), and how many times it has failed. */
+  indexRetryAt: 0,
+  indexFailures: 0,
   /** The evaluation count at which each loaded file was last needed. */
   lastNeeded: new Map<number, number>(),
   evaluations: 0,
@@ -56,6 +61,14 @@ export function subscribeExtension(f: () => void): () => void {
   return () => listeners.delete(f);
 }
 
+/** The wait before a failed download is tried again: 2 s, doubling with each failure in a row, at most a minute. */
+export const retryAfterMs = (failures: number): number => Math.min(60_000, 1000 * 2 ** Math.max(1, failures));
+
+const now = (): number => (typeof performance !== 'undefined' ? performance.now() : Date.now());
+
+/** Whether file k failed and is still waiting to be tried again. */
+const waiting = (k: number): boolean => (extData.failed.get(k) ?? -Infinity) > now();
+
 let indexPending: Promise<StarIndex | null> | null = null;
 /** The extension's index (fetched once). */
 export function loadStarIndex(): Promise<StarIndex | null> {
@@ -65,11 +78,14 @@ export function loadStarIndex(): Promise<StarIndex | null> {
     .then((x) => {
       extData.index = x;
       extData.indexStatus = 'ready';
+      extData.indexFailures = 0;
       changed();
       return x;
     })
     .catch((err) => {
-      console.warn(`[lightspeed] the star index did not load (${err}); the head catalogue goes on alone`);
+      extData.indexFailures++;
+      extData.indexRetryAt = now() + retryAfterMs(extData.indexFailures);
+      console.warn(`[lightspeed] the star index did not load (${err}); trying again in ${retryAfterMs(extData.indexFailures) / 1000} s`);
       extData.indexStatus = 'failed';
       indexPending = null;
       return null;
@@ -101,6 +117,8 @@ export function loadBandFile(k: number): Promise<BandFile | null> {
   const p = requestStarFile<BandFile>('band', bandFilePath(k), { base: x.base[k] })
     .then((f) => {
       extData.loading.delete(k);
+      extData.failed.delete(k);
+      extData.failures.delete(k);
       extData.files.set(k, f);
       extData.lastNeeded.set(k, extData.evaluations);
       extData.loadedStars += f.stars.count;
@@ -110,8 +128,10 @@ export function loadBandFile(k: number): Promise<BandFile | null> {
     })
     .catch((err) => {
       extData.loading.delete(k);
-      extData.failed.add(k);
-      console.warn(`[lightspeed] star file ${k} did not load (${err})`);
+      const n = (extData.failures.get(k) ?? 0) + 1;
+      extData.failures.set(k, n);
+      extData.failed.set(k, now() + retryAfterMs(n));
+      console.warn(`[lightspeed] star file ${k} did not load (${err}); trying again in ${retryAfterMs(n) / 1000} s`);
       return null;
     });
   extData.loading.set(k, p);
@@ -213,7 +233,7 @@ export function updateExtensionLoading(px: number, py: number, pz: number, years
   if (!(r > NEAR_SUN_PC)) return;
   const x = extData.index;
   if (!x) {
-    if (extData.indexStatus === 'idle') void loadStarIndex();
+    if (extData.indexStatus === 'idle' || (extData.indexStatus === 'failed' && now() >= extData.indexRetryAt)) void loadStarIndex();
     return;
   }
   frames++;
@@ -223,12 +243,12 @@ export function updateExtensionLoading(px: number, py: number, pz: number, years
     extData.evaluations++;
     const need = neededFiles(x, px, py, pz, years).sort((a, b) => b[1] - a[1]);
     for (const [f] of need) if (extData.files.has(f)) extData.lastNeeded.set(f, Math.max(extData.lastNeeded.get(f) ?? 0, extData.evaluations));
-    queue = need.map(([f]) => f).filter((f) => !extData.files.has(f) && !extData.failed.has(f));
+    queue = need.map(([f]) => f).filter((f) => !extData.files.has(f) && !waiting(f));
   }
   // Keep FETCHES files on their way while the queue lasts.
   while (queue.length && extData.loading.size < FETCHES) {
     const f = queue.shift()!;
-    if (extData.files.has(f) || extData.loading.has(f) || extData.failed.has(f)) continue;
+    if (extData.files.has(f) || extData.loading.has(f) || waiting(f)) continue;
     void loadBandFile(f);
   }
 }
