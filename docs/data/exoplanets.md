@@ -602,7 +602,7 @@ Cached inputs in `data-raw/`, downloaded once on 2026-09-25 and never re-downloa
   under the CC BY-NC 3.0 IGO license" (https://www.cosmos.esa.int/web/gaia-users/license, checked 25 September
   2026): credit ESA/Gaia/DPAC, **non-commercial use**. The shipped file contains values derived from Gaia (the J2000
   positions and proper motions, and the archive's Gaia DR2-based distances), so those terms apply to it: it may be
-  used non-commercially with the Gaia credit. Lightspeed is non-commercial. No Gaia table is shipped as such.
+  used non-commercially with the Gaia credit. Skyfold is non-commercial. No Gaia table is shipped as such.
 - Hipparcos new reduction (van Leeuwen 2007, A&A 474, 653; VizieR I/311), positions and proper motions of 131
   hosts: ESA mission data, free with acknowledgement (and CDS's acknowledgement for VizieR).
 

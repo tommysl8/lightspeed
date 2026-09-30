@@ -13,7 +13,7 @@ non-thermal power-law index p is fixed per run: p = 2 (alpha = -0.5, the measure
 p = 3.5 (alpha = -1.25, Yuan et al. 2003 / Broderick & Loeb 2006). Inclination 30 deg (EHT best bet, equivalent to the
 GRAVITY flares' 155 deg seen from the other side) and 60 deg (Broderick et al. 2016).
 
-Lightspeed draws model A (the first run below). The searches that found these points are summarised in
+Skyfold draws model A (the first run below). The searches that found these points are summarised in
 docs/data/blackholes.md section 7; this script re-images the three models from those points, writes
 riaf_results.json (the band fluxes and surface brightnesses flow_tables.py copies into the app's sgraFlow.json) and the
 pictures, and runs from this folder: python fit_riaf.py [out.json] (about 10 minutes; numpy, scipy). Unchanged

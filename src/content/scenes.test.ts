@@ -119,7 +119,7 @@ describe('sceneStatus', () => {
   });
 
   it('explains specs that are not scenes and flights that go nowhere', () => {
-    expect(sceneStatus('go:atlantis')).toEqual({ ok: false, reason: 'Not a scene Lightspeed knows', label: 'go:atlantis' });
+    expect(sceneStatus('go:atlantis')).toEqual({ ok: false, reason: 'Not a scene Skyfold knows', label: 'go:atlantis' });
     expect(sceneStatus('fly:earth')).toMatchObject({ ok: false, reason: 'Flights leave from Earth' });
   });
 

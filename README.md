@@ -1,10 +1,12 @@
-<p align="center"><img src="public/og-image.png" alt="Lightspeed: explore the real universe at nearly the speed of light" width="760"></p>
+<p align="center"><img src="public/og-image.png" alt="Skyfold: explore the real universe at nearly the speed of light" width="760"></p>
 
-# Lightspeed
+# Skyfold
+
+*(Formerly Lightspeed.)*
 
 Explore the real universe at nearly the speed of light, in your browser.
 
-**[Open Lightspeed](https://lightspeed-explorer.vercel.app)**. Nothing to install, no sign-up.
+**[Open Skyfold](https://skyfold-space.vercel.app)**. Nothing to install, no sign-up.
 
 <p align="center">
   <img src="docs/images/black-hole.jpg" alt="The Milky Way bent into a ring round the black hole Gaia BH3" width="49%">
@@ -13,7 +15,7 @@ Explore the real universe at nearly the speed of light, in your browser.
   <img src="docs/images/relativity.jpg" alt="At 0.999c the whole sky crowds into a disc ahead" width="49%">
 </p>
 
-Lightspeed is a map of the universe at true scale that you can fly around. The planets are where they are today.
+Skyfold is a map of the universe at true scale that you can fly around. The planets are where they are today.
 329,770 stars sit at their measured distances. Beyond them are the Milky Way, Andromeda, 55,877 galaxies of the cosmic
 web and the afterglow of the Big Bang. Fly fast and special relativity takes over: the sky bunches up ahead of you,
 colours shift and your clock falls behind Earth's. Get close to a black hole and its gravity bends the light of the
@@ -93,7 +95,7 @@ NASA Exoplanet Archive, the Cosmicflows and Local Volume teams, the Event Horizo
 
 Made by **Tommy S. Liu** ([@tommysl8](https://github.com/tommysl8)), an Electrical and Computer Engineering student at
 the University of Illinois Urbana-Champaign. Bug reports and ideas are welcome as
-[issues](https://github.com/tommysl8/lightspeed/issues) or by email at tommysliu8@gmail.com.
+[issues](https://github.com/tommysl8/skyfold/issues) or by email at tommysliu8@gmail.com.
 
 ## Licence
 

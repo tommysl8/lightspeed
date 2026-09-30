@@ -1,5 +1,5 @@
 /**
- * Every "See it in Lightspeed" button in the Learn articles works: each see-it block, read by
+ * Every "See it in Skyfold" button in the Learn articles works: each see-it block, read by
  * the app's own renderer, names a scene that resolves in the registry once the data have loaded
  * (read from disk here, as the loaders would register them) and can run from Earth today. Every
  * target the articles may name resolves, every named scene is built, and every body's "Read"
@@ -43,7 +43,7 @@ describe('the Learn articles’ see-it blocks', () => {
       expect(SPECS.some((s) => s.spec === name), name).toBe(true);
   });
 
-  it('each name a scene Lightspeed knows', () => {
+  it('each name a scene Skyfold knows', () => {
     for (const { file, spec } of SPECS) expect(parseScene(spec), `${file}: ${spec}`).not.toBeNull();
   });
 

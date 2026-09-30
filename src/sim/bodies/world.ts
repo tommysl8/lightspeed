@@ -193,7 +193,7 @@ export function bodyAvailability(id: BodyId, ms: number): Availability {
   if (!e) return UNKNOWN;
   return e.record.provider.availability(ms);
 }
-const UNKNOWN: Availability = { available: false, reason: 'Not in Lightspeed yet', regime: 'unknown' };
+const UNKNOWN: Availability = { available: false, reason: 'Not in Skyfold yet', regime: 'unknown' };
 
 export const isBodyAvailable = (id: BodyId, ms: number = sim.timeMs): boolean => bodyAvailability(id, ms).available;
 

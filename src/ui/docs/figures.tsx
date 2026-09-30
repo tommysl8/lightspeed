@@ -75,7 +75,7 @@ export function ScreenMap() {
   const mars = orbit(116, 46, 200);
   const jup = orbit(172, 68, 118);
   return (
-    <svg viewBox="-48 -44 816 510" className="block h-auto w-full" role="img" aria-label="Diagram of the Lightspeed screen with eleven numbered parts">
+    <svg viewBox="-48 -44 816 510" className="block h-auto w-full" role="img" aria-label="Diagram of the Skyfold screen with eleven numbered parts">
       <defs>
         <clipPath id="sm-view">
           <rect x="0" y="28" width="550" height="364" />
@@ -95,7 +95,7 @@ export function ScreenMap() {
         <circle cx="52" cy="32" r="8" fill={C.accent} />
       </g>
       <T x={21} y={17.5} size={9} fill={C.fg} weight={600} spacing={1.6}>
-        LIGHTSPEED
+        SKYFOLD
       </T>
       <line x1="100" y1="8" x2="100" y2="20" stroke={C.line2} />
       {/* The date chip: amber with a dot, since time runs fast here (the RATE lamp) and so is not the present */}

@@ -1,6 +1,6 @@
 # The Milky Way layer
 
-The Galaxy in Lightspeed: a parametric model of the Milky Way with a particle rendering of it, the real Milky Way
+The Galaxy in Skyfold: a parametric model of the Milky Way with a particle rendering of it, the real Milky Way
 sky as seen from the Sun, 1,664 star clusters with measured distances, 45 nebulae with images and distances, and the
 stars orbiting the Galaxy's central black hole. Sections 1 to 11 describe the data and how they were made; section 12
 describes how the app draws them. The black hole itself (its lens, its accretion flow) and the model of the nuclear
@@ -394,7 +394,7 @@ object:
 - `credit`: the exact credit line from the image page, which must be shown with the image. It is the whole credit,
   including any team lists the page gives with it (Westerlund 2, heic1509a, continues its credit line with the
   science and Hubble Heritage teams; the first version of the file dropped that part).
-- `modificationNote`: "Image modified for Lightspeed: [cropped,] resized, black level subtracted and edges faded".
+- `modificationNote`: "Image modified for Skyfold: [cropped,] resized, black level subtracted and edges faded".
   CC BY 4.0 (section 3(a)(1)(B)) requires saying that the material was modified, so show it after the credit.
 - `licence` and a one-line `blurb`.
 

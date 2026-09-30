@@ -187,7 +187,7 @@ describe('lists, search and cards', () => {
     for (const n of nebulae.objects) {
       const img = getBody(n.id)!.deepSky!.image!;
       expect(img.credit).toBe(n.credit);
-      expect(img.modificationNote).toMatch(/^Image modified for Lightspeed: (cropped, )?resized, black level subtracted and edges faded\.$/);
+      expect(img.modificationNote).toMatch(/^Image modified for Skyfold: (cropped, )?resized, black level subtracted and edges faded\.$/);
       expect(img.licence).toBe('CC BY 4.0');
       expect(img.page).toBe(n.imageSource.page);
       // The card explains that the picture is the view from Earth, drawn as a flat card elsewhere.

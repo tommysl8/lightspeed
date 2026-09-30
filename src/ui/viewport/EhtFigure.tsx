@@ -1,6 +1,6 @@
 /**
  * The Event Horizon Telescope's picture of a black hole on its card (Sgr A* and M87*): the image and a caption that
- * says what it is and what Lightspeed's own view is not. Its credit, as CC BY 4.0 asks ("EHT Collaboration", the
+ * says what it is and what Skyfold's own view is not. Its credit, as CC BY 4.0 asks ("EHT Collaboration", the
  * licence, the page it comes from and how it was changed: resized), is under the card's Sources with the rest
  * (BodyCard.tsx, Sources.tsx PictureCreditLine).
  *

@@ -196,7 +196,7 @@ function page(data) {
   const threeUrl = pathToFileURL(join(REPO, 'node_modules/three/build/three.module.js')).href;
   return `<!doctype html>
 <meta charset="utf-8" />
-<title>Lightspeed shader compile check</title>
+<title>Skyfold shader compile check</title>
 <script type="application/json" id="data">${JSON.stringify(data).replace(/</g, '\\u003c')}</script>
 <script type="importmap">${JSON.stringify({ imports: { three: threeUrl } })}</script>
 <script type="module">

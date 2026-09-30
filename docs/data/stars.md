@@ -564,7 +564,7 @@ CC BY-SA forbids adding restrictions and CC BY-NC forbids commercial use, so the
 licence, and the files cannot be offered under CC BY-SA 4.0 alone (the first version of this document said they
 could; that was wrong). What is permitted, and what the CREDITS row below says: the files may be used and shared
 **non-commercially**, with credit to AT-HYG/David Nash and to ESA/Gaia/DPAC, and adaptations must keep the same
-terms. Lightspeed is non-commercial, so it can ship them. Any commercial reuse would need ESA's permission for the
+terms. Skyfold is non-commercial, so it can ship them. Any commercial reuse would need ESA's permission for the
 Gaia-derived values (AT-HYG itself redistributes Gaia DR3 values and carries the same tension). Hipparcos, Tycho-2 and
 SIMBAD values are ESA/CDS data free with acknowledgement and add no further restriction.
 
@@ -574,7 +574,7 @@ SIMBAD values are ESA/CDS data free with acknowledgement and add no further rest
 | --- | --- | --- |
 | `public/data/stars3d.bin.gz`, `public/data/stars3d-bright.bin.gz`, `public/data/stars3d-extra.bin.gz`, `public/data/star-names.json.gz` | Derived from [AT-HYG v4.0](https://codeberg.org/astronexus/athyg) by David Nash (astronexus), with distances and radial velocities from [Gaia DR3](https://www.cosmos.esa.int/gaia) (ESA/Gaia/DPAC), photometry and parallaxes from the Hipparcos Catalogue (ESA 1997) and its new reduction (van Leeuwen 2007) via [VizieR](https://vizier.cds.unistra.fr/), variable-star names from [HYG v4.4](https://codeberg.org/astronexus/hyg), and the [IAU list of star names](https://www.iau.org/public/themes/naming_stars/) | Non-commercial use only. The AT-HYG content is [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) (credit David Nash / astronexus; share alike); the Gaia DR3-derived values are [CC BY-NC 3.0 IGO](https://www.cosmos.esa.int/web/gaia-users/license) (credit ESA/Gaia/DPAC; non-commercial). Both sets of terms apply to these files, so they may be shared and adapted only non-commercially, with both credits, under the same terms. |
 | `public/data/constellations.json` | Constellation figures and names from [d3-celestial](https://github.com/ofrohn/d3-celestial) by Olaf Frohn (after the IAU / Sky & Telescope charts), linked to the stars above | [BSD 3-Clause](https://github.com/ofrohn/d3-celestial/blob/master/LICENSE), Copyright (c) 2015, Olaf Frohn |
-| `src/sim/stars/systems.json` (star systems and named-star parameters) | Compiled for Lightspeed from the papers cited in the file (orbits: Akeson et al. 2021, Bond et al. 2015 and 2017, Shakht et al. 2017, Torres et al. 2015; Proxima: Kervella et al. 2017 and Gaia DR3) | Values from the literature, each with its reference; the Proxima state uses Gaia DR3 (ESA/Gaia/DPAC, CC BY-NC 3.0 IGO) |
+| `src/sim/stars/systems.json` (star systems and named-star parameters) | Compiled for Skyfold from the papers cited in the file (orbits: Akeson et al. 2021, Bond et al. 2015 and 2017, Shakht et al. 2017, Torres et al. 2015; Proxima: Kervella et al. 2017 and Gaia DR3) | Values from the literature, each with its reference; the Proxima state uses Gaia DR3 (ESA/Gaia/DPAC, CC BY-NC 3.0 IGO) |
 
 Add to the "Other sources used by the code" list: the Gaia DR3 parallax zero-point of Lindegren et al. (2021) and
 radial-velocity corrections of Katz et al. (2023) and Blomme et al. (2023); the Sixth Catalog of Orbits of Visual

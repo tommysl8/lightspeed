@@ -316,7 +316,7 @@ describe('a black hole’s card', () => {
     expect(ehtCaption(sgrA.ringDiameterUas, sgrA.ringSource, FLOW_TEXTS.figureCaption)).toMatch(/51\.8 ± 2\.3 µas.*model, not this image/);
     const m87 = withImage.find((r) => r.id === 'm87-star')!.blackHole!.ehtImage!;
     expect(ehtCaption(m87.ringDiameterUas, m87.ringSource, null)).toBe(
-      'The Event Horizon Telescope’s 2017 image: a reconstruction at 1.3 mm, ring 42 ± 3 µas across. Lightspeed draws no gas round this black hole: only its shadow and the light it bends.',
+      'The Event Horizon Telescope’s 2017 image: a reconstruction at 1.3 mm, ring 42 ± 3 µas across. Skyfold draws no gas round this black hole: only its shadow and the light it bends.',
     );
   });
 

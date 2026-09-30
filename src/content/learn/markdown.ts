@@ -4,7 +4,7 @@
  *
  * Plain strings in and out, with no DOM, so it runs in the unit tests. The page fills the
  * placeholders it leaves for interactive parts: [data-scene] boxes get a "See it in
- * Lightspeed" button and [data-figure] boxes get their drawing.
+ * Skyfold" button and [data-figure] boxes get their drawing.
  *
  * Safety: raw HTML in the source is shown as text (html: false), links keep only http(s)
  * and in-app #/ targets, and images only same-site paths.

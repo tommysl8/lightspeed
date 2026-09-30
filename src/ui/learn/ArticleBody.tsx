@@ -1,6 +1,6 @@
 /**
  * The text of a Learn article: its Markdown rendered to HTML, with the interactive parts
- * (the "See it in Lightspeed" buttons and the figures) mounted into the placeholders the
+ * (the "See it in Skyfold" buttons and the figures) mounted into the placeholders the
  * renderer leaves. Loaded on first read with markdown-it and KaTeX, which the rest of the app
  * does not need.
  */
@@ -38,7 +38,7 @@ function scrollToElement(el: HTMLElement): void {
   window.setTimeout(() => el.classList.remove('learn-target'), 1600);
 }
 
-/** "See it in Lightspeed": close the page and set the scene up, or say why it cannot. */
+/** "See it in Skyfold": close the page and set the scene up, or say why it cannot. */
 function SeeIt({ spec }: { spec: string }) {
   useUI((s) => s.tripActive); // a flight under way blocks every scene
   // Bodies registered after the page opened (the moons' data arriving) make scenes possible, and a
@@ -65,7 +65,7 @@ function SeeIt({ spec }: { spec: string }) {
         <svg width="10" height="10" viewBox="0 0 12 12" aria-hidden="true">
           <path d="M3 1.8v8.4L10 6z" fill="currentColor" />
         </svg>
-        See it in Lightspeed
+        See it in Skyfold
       </button>
       <span className={`learn-seeit-what ${status.ok ? '' : 'is-off'}`}>{status.ok ? status.label : status.reason}</span>
     </>
