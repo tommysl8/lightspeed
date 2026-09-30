@@ -650,23 +650,3 @@
   }
 }
 
-/* ── The lab, at the end of the hub (for students) ─────────────────────────────────── */
-.learn-lab {
-  margin-top: 56px;
-  padding: 14px 18px 16px;
-  border: 1px solid var(--color-line-2);
-  background: var(--color-panel);
-}
-.doc .learn-lab p {
-  margin: 0 0 12px;
-  max-width: 62ch;
-  font-size: 14.5px;
-  line-height: 1.55;
-  color: var(--color-fg-2);
-}
-.doc .learn-lab .learn-lab-t {
-  margin-bottom: 6px;
-  font-size: 19px;
-  font-weight: 500;
-  color: var(--color-fg);
-}

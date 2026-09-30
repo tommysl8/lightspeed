@@ -53,16 +53,15 @@ const STARS = Array.from({ length: 80 }, (_, i) => {
 const CALLOUTS: { n: number; cx: number; cy: number; x: number; y: number }[] = [
   { n: 1, cx: 44, cy: -24, x: 44, y: 10 },
   { n: 2, cx: 150, cy: -24, x: 150, y: 8 },
-  { n: 3, cx: 486, cy: -24, x: 486, y: 6 },
-  { n: 4, cx: 554, cy: -24, x: 554, y: 10 },
-  { n: 5, cx: 602, cy: -24, x: 602, y: 10 },
-  { n: 6, cx: 640, cy: -24, x: 640, y: 10 },
-  { n: 7, cx: 684, cy: -24, x: 684, y: 10 },
-  { n: 8, cx: 250, cy: 96, x: 250, y: 96 },
-  { n: 9, cx: 56, cy: 448, x: 56, y: 420 },
-  { n: 10, cx: 200, cy: 448, x: 200, y: 420 },
-  { n: 11, cx: 706, cy: 448, x: 706, y: 420 },
-  { n: 12, cx: 748, cy: 220, x: 720, y: 220 },
+  { n: 3, cx: 514, cy: -24, x: 514, y: 6 },
+  { n: 4, cx: 582, cy: -24, x: 582, y: 10 },
+  { n: 5, cx: 630, cy: -24, x: 630, y: 10 },
+  { n: 6, cx: 684, cy: -24, x: 684, y: 10 },
+  { n: 7, cx: 250, cy: 96, x: 250, y: 96 },
+  { n: 8, cx: 56, cy: 448, x: 56, y: 420 },
+  { n: 9, cx: 200, cy: 448, x: 200, y: 420 },
+  { n: 10, cx: 706, cy: 448, x: 706, y: 420 },
+  { n: 11, cx: 748, cy: 220, x: 720, y: 220 },
 ];
 
 /** Fig. 3.1: the screen, with numbered parts (the instrument panel open on the right). */
@@ -76,7 +75,7 @@ export function ScreenMap() {
   const mars = orbit(116, 46, 200);
   const jup = orbit(172, 68, 118);
   return (
-    <svg viewBox="-48 -44 816 510" className="block h-auto w-full" role="img" aria-label="Diagram of the Lightspeed screen with twelve numbered parts">
+    <svg viewBox="-48 -44 816 510" className="block h-auto w-full" role="img" aria-label="Diagram of the Lightspeed screen with eleven numbered parts">
       <defs>
         <clipPath id="sm-view">
           <rect x="0" y="28" width="550" height="364" />
@@ -109,23 +108,20 @@ export function ScreenMap() {
         UTC ▾
       </T>
       {/* Where to? */}
-      <rect x="450" y="6" width="72" height="16" fill={C.accent} />
-      <circle cx="459" cy="13.2" r="2.8" fill="none" stroke="#1b1204" strokeWidth="1.1" />
-      <path d="M461 15.2l2 2" stroke="#1b1204" strokeWidth="1.1" />
-      <T x={468} y={17.5} size={9} fill="#1b1204" weight={600} mono={false}>
+      <rect x="478" y="6" width="72" height="16" fill={C.accent} />
+      <circle cx="487" cy="13.2" r="2.8" fill="none" stroke="#1b1204" strokeWidth="1.1" />
+      <path d="M489 15.2l2 2" stroke="#1b1204" strokeWidth="1.1" />
+      <T x={496} y={17.5} size={9} fill="#1b1204" weight={600} mono={false}>
         Where to?
       </T>
       {/* Journeys */}
-      <circle cx="534" cy="13.8" r="3.6" fill="none" stroke={C.accent} />
-      <path d="M535.8 11.9l-.9 2.6-2.6.9.9-2.6z" fill={C.accent} />
-      <T x={541} y={17.5} size={9} fill={C.fg2} mono={false}>
+      <circle cx="562" cy="13.8" r="3.6" fill="none" stroke={C.accent} />
+      <path d="M563.8 11.9l-.9 2.6-2.6.9.9-2.6z" fill={C.accent} />
+      <T x={569} y={17.5} size={9} fill={C.fg2} mono={false}>
         Journeys
       </T>
-      <T x={590} y={17.5} size={9} fill={C.fg2} mono={false}>
+      <T x={618} y={17.5} size={9} fill={C.fg2} mono={false}>
         Learn
-      </T>
-      <T x={630} y={17.5} size={9} fill={C.fg2} mono={false}>
-        Lab
       </T>
       <line x1="658" y1="8" x2="658" y2="20" stroke={C.line2} />
       <T x={666} y={17.5} size={9} fill={C.fg2} mono={false}>
@@ -389,30 +385,5 @@ export function AberrationFigure({ beta = 0.9 }: { beta?: number }) {
       {panel(165, false, 'At rest')}
       {panel(475, true, `Moving at β = ${beta}`)}
     </svg>
-  );
-}
-
-// ─── Experiment workflow ─────────────────────────────────────────────────────────────────
-
-const FLOW: [string, string][] = [
-  ['Procedure', 'Steps tick off by themselves as you complete them'],
-  ['Observations', 'The data table fills as the instruments record'],
-  ['Analysis', 'Figures and least-squares fits update as data arrive'],
-  ['Questions', 'Answer in the boxes; your text is saved as you type'],
-  ['Report', 'A printable A4 document with everything'],
-];
-
-/** Fig. 9.1: the stages of an experiment. */
-export function WorkflowFigure() {
-  return (
-    <ol className="doc-flow">
-      {FLOW.map(([t, d], i) => (
-        <li key={t}>
-          <span className="doc-flow-n">{i + 1}</span>
-          <b>{t}</b>
-          <span>{d}</span>
-        </li>
-      ))}
-    </ol>
   );
 }

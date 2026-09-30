@@ -1,11 +1,11 @@
 {
   "name": "lightspeed",
   "private": true,
-  "version": "0.2.0",
+  "version": "0.3.0",
   "type": "module",
   "description": "Explore the real universe at nearly the speed of light: the true-scale Solar System, real stars in 3D, the Milky Way and the galaxies beyond, with exact relativistic optics and flights through expanding space, in the browser.",
   "license": "MIT",
-  "author": "Tommy Liu (https://github.com/tommysl8)",
+  "author": "Tommy S. Liu (https://github.com/tommysl8)",
   "homepage": "https://lightspeed-explorer.vercel.app",
   "repository": {
     "type": "git",

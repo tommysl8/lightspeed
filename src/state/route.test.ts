@@ -10,7 +10,7 @@ describe('reading-page routes', () => {
 
   it('keep the old #/manual links opening the guide', () => {
     expect(parseHash('#/manual')).toEqual({ page: 'guide', section: undefined });
-    expect(parseHash('#/manual/lab')).toEqual({ page: 'guide', section: 'lab' });
+    expect(parseHash('#/manual/controls')).toEqual({ page: 'guide', section: 'controls' });
   });
 
   it('read Learn: the hub, an article, and an article at a section', () => {

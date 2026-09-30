@@ -5,13 +5,16 @@
  * world grid is 32 km and 2 km; a slew ending exactly at the height asked for; free flight moving by
  * α²w_r r̂ + α w_t per coordinate second and stopping at the floor; the circular geodesic orbit (0.5c past
  * the hovering observers at the innermost stable orbit, turning at √(M/r³) of home's time); the snapshot
- * at speed with its schedule and the paused clock; and leaveHoleModes.
+ * at speed with its schedule and the paused clock; and leaveHoleModes. Roam: its exact hole-relative place
+ * down to the floor (12.7 km, 27 mm) without jitter, a planet's closest approach never crossed, the refusals,
+ * and the switch to the ship and back.
  */
 import { beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { Vector3 } from 'three';
 import { C_KM_S, GM_SUN_KM3_S2, PARSEC_KM } from '../physics/constants';
 import { ALWAYS, registerBodies, type BodyRecord } from '../sim/bodies';
 import { controller, blackHoleRsKm, hoverFloorKm, HOVER_FLOOR_RS } from './cameraController';
+import { minDistance } from './framing';
 import { setPaused, setWarp } from '../sim/clock';
 import { updateEphemeris } from '../sim/ephemeris';
 import { registerGalaxyCore } from '../sim/galaxy/load';
@@ -281,5 +284,123 @@ describe('a black hole’s own modes', () => {
     controller.goTo('earth');
     expect(sim.paused).toBe(false);
     expect(controller.mode).toBe('transition');
+  });
+});
+
+describe('Roam: the camera flown by hand', () => {
+  /** Hold a key for `s` seconds of frames (the clock running at real time), checking each frame. */
+  function hold(code: string, s: number, each?: () => void): void {
+    keys.add(code);
+    for (let i = 0; i < Math.round(s * 60); i++) {
+      controller.update(1 / 60, 1 / 60);
+      each?.();
+    }
+    keys.delete(code);
+  }
+
+  it('moves its exact place relative to Sgr A* and comes to rest at the hover floor, hovering there, without jitter', () => {
+    const rs = blackHoleRsKm('sgr-a-star');
+    const floor = hoverFloorKm('sgr-a-star', rs);
+    controller.hoverAt('sgr-a-star', 20, DIR);
+    controller.update(1 / 60, 0);
+    // (The gravity state sets this each frame within 5,000 r_s: sim/gravity.ts.)
+    controller.nearHole = 'sgr-a-star';
+    expect(controller.enterRoam()).toBe(true);
+    expect(controller.mode).toBe('roam');
+    expect(useUI.getState().controlMode).toBe('roam');
+    let prev = controller.holeHeightKm;
+    // W: towards the hole (the hover looks at it). Slower as it nears the horizon, never below the floor.
+    hold('KeyW', 30, () => {
+      expect(controller.holeHeightKm).toBeLessThanOrEqual(prev);
+      expect(controller.holeHeightKm).toBeGreaterThanOrEqual(floor);
+      prev = controller.holeHeightKm;
+    });
+    expect(controller.holeHeightKm).toBe(floor);
+    const rel = new Vector3();
+    expect(controller.holeRelative(rel)).toBe('sgr-a-star');
+    // Hovering: at rest past the observers hovering there (the lens and the clocks read this).
+    expect(sim.ship.vel.equals(sim.bodies['sgr-a-star'].vel)).toBe(true);
+    // Once the keys' ease has run out (a few tenths of a second), it rests there to the last bit.
+    for (let i = 0; i < 180; i++) controller.update(1 / 60, 1 / 60);
+    controller.holeRelative(rel);
+    const at = rel.clone();
+    for (let i = 0; i < 60; i++) controller.update(1 / 60, 1 / 60);
+    controller.holeRelative(rel);
+    expect(rel.equals(at)).toBe(true);
+    // At the floor to a few float64 steps of the place itself (2 µm here, against the 32 km of a world coordinate).
+    expect(controller.holeHeightKm).toBeGreaterThanOrEqual(floor);
+    expect(controller.holeHeightKm - floor).toBeLessThan(4 * Number.EPSILON * rs);
+    controller.nearHole = null;
+  });
+
+  it('reaches 27 mm above a Gaia BH1-like hole, where one step of a world coordinate is 2 km', () => {
+    const id = BH1.id;
+    const floor = hoverFloorKm(id);
+    controller.hoverAt(id, 20, DIR);
+    controller.update(1 / 60, 0);
+    controller.nearHole = id;
+    controller.enterRoam();
+    hold('KeyW', 30);
+    expect(controller.holeHeightKm).toBe(floor);
+    expect(floor * 1e6).toBeCloseTo(27.4, 1);
+    // And back out, exactly: leaving Roam hovers there at the same height.
+    controller.exitRoam();
+    for (let i = 0; i < 60 * 7; i++) controller.update(1 / 60, 0);
+    expect(controller.mode).toBe('orbit');
+    expect(useUI.getState().focus).toBe(id);
+    expect(controller.holeHeightKm).toBe(floor);
+    controller.nearHole = null;
+  });
+
+  it('slows by itself near a planet and never goes inside its closest approach; leaving orbits it from there', () => {
+    controller.placeAt('earth', 26_000);
+    controller.update(1 / 60, 0);
+    controller.enterRoam();
+    const min = minDistance('earth');
+    const d = () => sim.camera.pos.distanceTo(sim.bodies.earth.pos);
+    hold('KeyW', 2);
+    // About 2 s: within 1,000 km or so of the closest approach, and slowing.
+    expect(d() - min).toBeLessThan(2000);
+    expect(controller.roamSpeed).toBeLessThan(4000);
+    hold('KeyW', 20, () => expect(d()).toBeGreaterThanOrEqual(min * (1 - 1e-12)));
+    controller.exitRoam();
+    expect(controller.mode).toBe('transition');
+    for (let i = 0; i < 60 * 7; i++) controller.update(1 / 60, 0);
+    expect(controller.mode).toBe('orbit');
+    expect(useUI.getState().focus).toBe('earth');
+    expect(d()).toBeGreaterThanOrEqual(min * (1 - 1e-12));
+  });
+
+  it('is refused on a trip and in a fall, as free flight is', () => {
+    // (On a trip the controller rides the ship: startTravel, which needs a page for its pointer.)
+    controller.mode = 'travel';
+    expect(controller.enterRoam()).toBe(false);
+    expect(controller.mode).toBe('travel');
+    controller.placeAt('earth');
+    controller.enterFall('sgr-a-star', DIR);
+    expect(controller.enterRoam()).toBe(false);
+    expect(controller.mode).toBe('fall');
+    controller.leaveHoleModes();
+    expect(controller.mode).toBe('orbit');
+  });
+
+  it('switches to the ship where it is, and back (Esc), and the multiplier stays in its range', () => {
+    controller.placeAt('earth', 26_000);
+    controller.update(1 / 60, 0);
+    controller.enterRoam();
+    controller.update(1 / 60, 0);
+    const at = sim.camera.pos.clone();
+    controller.roamToShip();
+    expect(controller.mode).toBe('free');
+    expect(sim.camera.pos.equals(at)).toBe(true);
+    controller.shipToRoam();
+    expect(controller.mode).toBe('roam');
+    controller.setRoamMul(1e9);
+    expect(controller.roamMul).toBe(1000);
+    controller.setRoamMul(0);
+    expect(controller.roamMul).toBe(0.001);
+    controller.setRoamMul(1);
+    controller.exitRoam();
+    for (let i = 0; i < 60 * 7; i++) controller.update(1 / 60, 0);
   });
 });

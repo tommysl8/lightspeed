@@ -43,6 +43,7 @@ import { recordSerial, registryVersion, subscribeRegistry, type BodyId, type Bod
 import { bodyEntries, entryOf, type Entry } from '../sim/bodies/registry';
 import { sim } from '../sim/sim';
 import { travel } from '../sim/travel';
+import { surroundings } from '../controls/roam';
 import { useUI } from '../state/ui';
 import { conicFromState, makeConic, orbitMu, orbitSource, segmentsFor, trailStart, viewDistance, visVivaA, type Conic, type OrbitSource } from './orbitLines';
 
@@ -152,7 +153,14 @@ function OrbitLine({ id }: { id: BodyId }) {
   const mesh = useRef<Mesh | null>(null);
   const exact = useRef(false);
   useLensVariant(mesh, { exact: () => exact.current });
-  const scratch = useMemo(() => ({ src: { rel: null as unknown as Entry, centre: null, view: null } as OrbitSource, conic: makeConic() }), []);
+  const scratch = useMemo(
+    () => ({
+      src: { rel: null as unknown as Entry, centre: null, view: null } as OrbitSource,
+      inView: { rel: null as unknown as Entry, centre: null, view: null } as OrbitSource,
+      conic: makeConic(),
+    }),
+    [],
+  );
 
   useFrame(({ camera, gl }) => {
     const e = entryOf(id);
@@ -173,8 +181,24 @@ function OrbitLine({ id }: { id: BodyId }) {
     const dist = viewDistance(src.view, sim.camera.pos, sim.bodies.sun?.distCamera ?? Infinity);
     const sizePx = (visVivaA(r, v, mu) / Math.max(dist, 1)) * pixelsPerRadian();
     const selected = ui.selected === id ? 1.35 : 1;
-    const closeUp = ui.controlMode === 'free' ? 0 : smoothstep(40, 220, sim.bodies[ui.focus]?.radiusPx ?? 0);
-    const opacity = smoothstep(4, 40, sizePx) * selected * (1 - 0.85 * closeUp);
+    // Roaming there is no focus: the nearest body Roam measures stands in for it.
+    const inView = ui.controlMode === 'roam' ? surroundings.id : ui.controlMode === 'free' ? null : ui.focus;
+    const focusPx = inView ? (sim.bodies[inView]?.radiusPx ?? 0) : 0;
+    // In a close-up the orbits round the body in view (its moons', or its partner's about their
+    // barycentre) and the selected body's are dimmed. The rest go once the camera is close to that body
+    // compared with the size of its own orbit (under a fiftieth of it): from there they pass the camera
+    // nearly edge-on and only streak across the view. Pulled back to see the system, they return.
+    const c = src.centre;
+    const around = ui.selected === id || c?.id === inView || (!!c?.isNode && c.placed.some((k) => k.id === inView));
+    let closeUp = 0;
+    if (around) closeUp = 0.85 * smoothstep(40, 220, focusPx);
+    else if (inView) {
+      const f = entryOf(inView);
+      const own = f ? orbitSource(f, scratch.inView).rel.rel.pos.length() : 0;
+      const near = sim.bodies[inView]?.distCamera ?? Infinity;
+      if (own > 0) closeUp = 1 - smoothstep(0.02, 0.1, near / own);
+    }
+    const opacity = smoothstep(4, 40, sizePx) * selected * (1 - closeUp);
     if (!(opacity > MIN_OPACITY)) return hideLine(material, mesh.current);
     u.uOpacity.value = opacity;
     if (mesh.current) mesh.current.visible = true;

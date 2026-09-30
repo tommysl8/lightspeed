@@ -1,7 +1,7 @@
 /**
  * Index of the physics sections (ids, titles and a one-sentence plain-language summary).
- * The full text, with its equations, lives in reference.tsx and loads with the lab (its Reference tab).
- * New sections are appended, so every section keeps its number (§n) in the manual and the notes.
+ * The full text, with its equations, lives in reference.tsx and loads with the physics reference (the left dock).
+ * New sections are appended, so every section keeps its number (§n) in the reference and the notes.
  */
 export type ExplainerId =
   | 'light-time'

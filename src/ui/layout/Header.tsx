@@ -1,8 +1,10 @@
 /**
  * The header: the name (it opens About), the date chip, and on the right the ways in: "Where
- * to?" (the one amber button), Journeys, Learn, the Lab for students and the View menu.
- * Everything technical (instruments, hints, layers, optics, and near a black hole its lens and the
- * accretion flow's model) lives in the View menu.
+ * to?" (the one amber button), Journeys, Learn and the View menu. Everything technical
+ * (instruments, the physics reference, hints, layers, optics, and near a black hole its lens,
+ * the accretion flow's model and whether its panel opens by itself) lives in the View menu,
+ * which also starts Roam (F) and clean full screen (Shift+F), the ways to look around with
+ * nothing in focus or nothing on screen.
  *
  * Labels give way to icons as the screen narrows, "Where to?" last. Widths were worked out
  * from the font metrics for 375 to 1920 px; see the notes by each breakpoint.
@@ -11,7 +13,6 @@ import { useMemo, useState } from 'react';
 import { Body, SearchRelativeLongitude } from 'astronomy-engine';
 import { useShallow } from 'zustand/react/shallow';
 import { EPOCH_MAX_MS, EPOCH_MIN_MS, resetToNow, setEpoch } from '../../sim/clock';
-import { logEvent } from '../../lab/events';
 import { useUI } from '../../state/ui';
 import { sim } from '../../sim/sim';
 import { fixed, julianDate } from '../../lib/sci';
@@ -21,7 +22,9 @@ import { ephemerisQuality, qualityNote } from '../../sim/ephemeris';
 import { openDoc, openLearn } from '../../state/route';
 import { Check, Kbd, Menu, MenuHeading, Seg } from '../kit';
 import { useTicker } from '../useTicker';
-import { openJourneys, openSearch, toggleLab } from '../onboarding';
+import { openJourneys, openReference, openSearch } from '../onboarding';
+import { toggleRoam } from '../navigation';
+import { enterClean } from '../cleanMode';
 import { Icon } from '../icons';
 import { constellationsShown, toggleConstellations } from '../constellations';
 import { planetHostsShown, togglePlanetHosts } from '../planetHosts';
@@ -115,7 +118,7 @@ function DateSetter() {
   const ms = parseDateInput(text);
   const inRange = Number.isFinite(ms) && ms >= EPOCH_MIN_MS && ms <= EPOCH_MAX_MS;
   const apply = () => {
-    if (inRange && setEpoch(ms)) logEvent('SYS', `Date set to ${isoText(ms)} UTC; chronometers zeroed`);
+    if (inRange) setEpoch(ms);
   };
   return (
     <div className="px-2.5 pb-2 pt-1">
@@ -233,6 +236,8 @@ function ViewMenu() {
       hints: u.hints,
       lensing: u.lensing,
       accretionFlow: u.accretionFlow,
+      holePanelAuto: u.holePanelAuto,
+      roaming: u.controlMode === 'roam' || u.controlMode === 'free',
     })),
   );
   const t = useUI.getState().toggle;
@@ -251,12 +256,43 @@ function ViewMenu() {
     >
       {(close) => (
         <>
+          <div className="flex flex-col border-b border-line px-1 pb-1">
+            {(
+              [
+                ['move', s.roaming ? 'Leave Roam' : 'Roam: fly anywhere', toggleRoam, 'F', 'The camera flown by hand, nothing in focus and no speed limit: WASD or the arrows move, a drag looks round'],
+                ['fullscreen', 'Clean full screen', enterClean, 'Shift+F', 'The view alone, full screen, with no text; every control still works. Esc leaves'],
+              ] as const
+            ).map(([icon, label, run, key, title]) => (
+              <button
+                key={icon}
+                className="btn btn-q btn-sm !h-7 !justify-start"
+                title={title}
+                onClick={() => {
+                  close();
+                  run();
+                }}
+              >
+                <Icon name={icon} />
+                {label}
+                <span className="ml-auto">
+                  <Kbd>{key}</Kbd>
+                </span>
+              </button>
+            ))}
+          </div>
           <MenuHeading>Panels</MenuHeading>
           <Check checked={s.rightOpen} onChange={() => t('rightOpen')} kbd="I" hint="Every number, live: speed, both clocks, Doppler factors, light-times, the selected body’s data">
             Instrument panel
           </Check>
           <Check checked={s.hints} onChange={() => t('hints')} hint="A note the first time something happens, such as passing 0.1c, with a link to read more">
             Physics hints
+          </Check>
+          <Check
+            checked={s.holePanelAuto}
+            onChange={() => t('holePanelAuto')}
+            hint="Near a black hole, its panel of clocks, height, thrust and tides opens by itself. Off, a small chip offers it; a black-hole scene or a fall still opens it"
+          >
+            Open the black-hole panel automatically
           </Check>
           <MenuHeading>Scene</MenuHeading>
           <Check checked={s.showOrbits} onChange={() => t('showOrbits')} kbd="O">
@@ -343,6 +379,7 @@ function ViewMenu() {
             {(
               [
                 ['book', 'Guide', () => openDoc('guide'), null],
+                ['dock-left', 'Physics reference', openReference, null],
                 ['keyboard', 'Keyboard and mouse', () => useUI.setState({ keysOpen: true }), '?'],
                 ['info', 'About Lightspeed', () => openDoc('about'), null],
               ] as const
@@ -378,15 +415,14 @@ function ViewMenu() {
  * from 1024), buttons 8–12 px padded:
  *   375 px   mark, date, then icons: search, Journeys, Learn, View. About 320 px.
  *   480 px   "Where to?" gets its label (+64 px).
- *   640 px   the name LIGHTSPEED (+104), the Lab icon (+34). About 540 px.
- *   768 px   the time on the chip (+64), "Journeys" (+57). About 700 px.
- *   900 px   "Learn", "Lab" and "View" in words (+100). About 800 px.
- *   1024 px  larger type, "UTC" on the chip. About 910 px.
+ *   640 px   the name LIGHTSPEED (+104). About 505 px.
+ *   768 px   the time on the chip (+64), "Journeys" (+57). About 665 px.
+ *   900 px   "Learn" and "View" in words (+73). About 740 px.
+ *   1024 px  larger type, "UTC" on the chip. About 850 px.
  *   1280 px  the "/" key on the search button.
  *   1760 px  the tagline beside the name.
  */
 export function Header() {
-  const leftOpen = useUI((s) => s.leftOpen);
   return (
     <header className="app-hdr flex min-w-0 items-center gap-2 border-b border-line-2 bg-panel px-3 lg:gap-3">
       <a
@@ -431,17 +467,6 @@ export function Header() {
         <button className="btn btn-q" data-tour="learn" onClick={() => openLearn()} title="Learn: long reads on the science behind the view (E)" aria-label="Learn">
           <Icon name="book" size={14} />
           <span className="max-[899px]:hidden">Learn</span>
-        </button>
-        <button
-          className="btn btn-q max-sm:hidden"
-          data-tour="lab"
-          aria-pressed={leftOpen}
-          onClick={toggleLab}
-          title="For students: five guided experiments (K)"
-          aria-label="Lab"
-        >
-          <Icon name="flask" size={14} />
-          <span className="max-[899px]:hidden">Lab</span>
         </button>
         <div className="mx-0.5 h-4 w-px shrink-0 bg-line-2 max-sm:hidden" />
         <ViewMenu />

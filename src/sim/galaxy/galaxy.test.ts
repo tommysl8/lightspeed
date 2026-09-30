@@ -244,7 +244,7 @@ describe('named scenes', () => {
 
   it('shows the Milky Way from 100,000 light-years, with the model’s label', () => {
     expect(sceneStatus('milky-way-outside').ok).toBe(true);
-    expect(sceneNote('milky-way-outside')).toMatch(/Model built from published measurements/);
+    expect(sceneNote('milky-way-outside')).toMatch(/a model built from measurements/);
     expect(runScene('milky-way-outside')).toBe(true);
     expect(useUI.getState().focus).toBe('milky-way');
     expect(useUI.getState().selected).toBe('milky-way');

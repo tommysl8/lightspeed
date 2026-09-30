@@ -7,7 +7,8 @@
  * the star systems are bodies anyway.
  *
  * The catalogue is scanned a slice per frame (CHUNK stars), so a full sweep costs about a
- * millisecond spread over nine frames, with no allocation.
+ * millisecond spread over nine frames, with no allocation. The same sweep notes the star nearest the
+ * camera (sim/stars/nearest.ts), which sets Roam's pace between the stars.
  */
 import { PARSEC_KM } from '../../physics/constants';
 import type { BodyId } from '../bodies';
@@ -16,6 +17,7 @@ import { C_PC_PER_YR, KMS_TO_PC_PER_YR } from './constants';
 import { bodyOfCatalogueStar, ensureCatalogueStar, onDemandStars, releaseCatalogueStars, starData } from './load';
 import { motionYears } from './motion';
 import { catalogueStarId } from './records';
+import { nearestStar } from './nearest';
 
 /** A catalogue star closer than this to the camera becomes a body, pc (about 20,000 au). */
 export const PROMOTE_PC = 0.1;
@@ -25,6 +27,9 @@ export const RELEASE_PC = 0.15;
 const CHUNK = 40_000;
 
 let cursor = 0;
+/** The sweep's nearest star so far: squared distance, pc², and index. */
+let sweepBest = Infinity;
+let sweepIndex = -1;
 const found: number[] = [];
 const pending = new Set<number>();
 const release: number[] = [];
@@ -46,6 +51,10 @@ export function updateNearbyStars(keep: (id: BodyId) => boolean): void {
   const V = stars.velocitiesInt16;
   const r2 = PROMOTE_PC * PROMOTE_PC;
   const end = Math.min(stars.count, cursor + CHUNK);
+  if (cursor === 0) {
+    sweepBest = Infinity;
+    sweepIndex = -1;
+  }
   for (let i = cursor; i < end; i++) {
     const px = P[3 * i];
     const py = P[3 * i + 1];
@@ -54,6 +63,12 @@ export function updateNearbyStars(keep: (id: BodyId) => boolean): void {
     const dx0 = px - cx;
     const dy0 = py - cy;
     const dz0 = pz - cz;
+    // The nearest star, from the catalogue's places (Roam's pace; the star's motion is added once, below).
+    const d0 = dx0 * dx0 + dy0 * dy0 + dz0 * dz0;
+    if (d0 < sweepBest) {
+      sweepBest = d0;
+      sweepIndex = i;
+    }
     const t = years + Math.sqrt(px * px + py * py + pz * pz) / C_PC_PER_YR;
     const reach = PROMOTE_PC + 1.03e-3 * Math.abs(t);
     if (dx0 * dx0 + dy0 * dy0 + dz0 * dz0 > reach * reach) continue;
@@ -65,6 +80,7 @@ export function updateNearbyStars(keep: (id: BodyId) => boolean): void {
   cursor = end;
   if (cursor < stars.count) return;
   cursor = 0;
+  publishNearest(stars.positions, V, kv, years);
 
   for (const i of found) {
     if (pending.has(i) || bodyOfCatalogueStar(i)) continue;
@@ -82,4 +98,22 @@ export function updateNearbyStars(keep: (id: BodyId) => boolean): void {
     if (b.pos.distanceTo(c) > far) release.push(i);
   }
   if (release.length) releaseCatalogueStars(release);
+}
+
+/** The sweep's nearest star, moved to the sweep's date as the star field moves it, in world km (sim/stars/nearest.ts). */
+function publishNearest(P: Float32Array, V: Int16Array, kv: number, years: number): void {
+  const i = sweepIndex;
+  nearestStar.index = i;
+  if (i < 0) return;
+  const px = P[3 * i];
+  const py = P[3 * i + 1];
+  const pz = P[3 * i + 2];
+  const t = years + Math.sqrt(px * px + py * py + pz * pz) / C_PC_PER_YR;
+  const x = px + V[3 * i] * kv * t;
+  const y = py + V[3 * i + 1] * kv * t;
+  const z = pz + V[3 * i + 2] * kv * t;
+  // The catalogue's (x, y, z) is the world's (x, −z, y).
+  nearestStar.x = x * PARSEC_KM;
+  nearestStar.y = z * PARSEC_KM;
+  nearestStar.z = -y * PARSEC_KM;
 }

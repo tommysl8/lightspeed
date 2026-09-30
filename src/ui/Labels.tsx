@@ -172,8 +172,10 @@ export function LabelSync() {
   const focusSystem = useRef({ focus: '', system: '' as BodyId | '' });
   useFrame(() => {
     if (!slots.length) return;
-    const { showLabels, selected, focus, journeyNote, tripActive, plannerDest } = useUI.getState();
-    const focusState = sim.bodies[focus];
+    const { showLabels, selected, focus: target, journeyNote, tripActive, plannerDest, controlMode } = useUI.getState();
+    // Roaming, no body is in focus: the one last orbited has no claim on a label.
+    const focus = controlMode === 'roam' ? '' : target;
+    const focusState = focus ? sim.bodies[focus] : undefined;
     // What covers what lies behind it: a body, a nebula's picture, a galaxy; not a cluster's sparse points.
     const focusCovers = !!focusState && getBody(focus)?.kind !== 'cluster';
     // A scene of the Solar System (a note showing, the focus in it, the camera inside it): its own labels only.

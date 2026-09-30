@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { _roots, addAfterEffect, addEffect } from '@react-three/fiber';
 import './index.css';
 import App from './App';
+import { dismissBootWhenDrawn } from './ui/boot';
 import { loadSolarSystem } from './sim/solarSystem';
 import { loadStars } from './sim/stars';
 import { loadFeaturedExoplanets } from './sim/exoplanets';
@@ -36,8 +37,6 @@ if (import.meta.env.DEV) {
     import('./sim/travel'),
     import('./sim/chronometer'),
     import('./sim/pulses'),
-    import('./lab/notebook'),
-    import('./lab/logger'),
     import('./sim/solarSystem'),
     import('./sim/bodies/registry'),
     import('./ui/navigation'),
@@ -56,7 +55,7 @@ if (import.meta.env.DEV) {
     import('./render/gpuBudget'),
     import('./dev/lensTest'),
     import('./dev/perf'),
-  ]).then(([s, c, u, fiber, trip, rel, travel, chrono, pulses, notebook, logger, solarSystem, registry, navigation, stars, scenes, exoplanets, materials, galaxy, galaxyLayer, cosmos, gravity, lens, fall, blackholes, nsc, gpuBudget, lensTest, perf]) =>
+  ]).then(([s, c, u, fiber, trip, rel, travel, chrono, pulses, solarSystem, registry, navigation, stars, scenes, exoplanets, materials, galaxy, galaxyLayer, cosmos, gravity, lens, fall, blackholes, nsc, gpuBudget, lensTest, perf]) =>
     Object.assign(window, {
       __ls: {
         sim: s.sim,
@@ -67,8 +66,6 @@ if (import.meta.env.DEV) {
         relView: rel.relView,
         chrono: chrono.chrono,
         pulses: pulses.pulses,
-        notebook: notebook.useNotebook,
-        lab: logger,
         solarSystem,
         registry,
         navigation,
@@ -111,6 +108,9 @@ createRoot(document.getElementById('root')!).render(
     <App />
   </StrictMode>,
 );
+
+// The loading screen goes once the view is drawn (ui/boot.ts).
+dismissBootWhenDrawn();
 
 // The moons, dwarf planets, comets and spacecraft: their data load in the background once the
 // first frames are up, and they join the scene, the lists and search when they arrive

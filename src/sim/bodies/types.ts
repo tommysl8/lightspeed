@@ -382,9 +382,9 @@ export interface BodyRecord {
   /** Orbit line options, or false for none (default: every orbiting body but stars and barycentres). */
   orbitLine?: OrbitLineSpec | false;
   /**
-   * Carries a detector for the light-pulse experiment (E1). Default: the planets, the dwarf
-   * planets, spacecraft and moons of 1,000 km radius or more (each detection is a notebook row,
-   * so clusters of small moons and swarms of small bodies are left out unless they say true).
+   * Carries a light-pulse detector. Default: the planets, the dwarf planets, spacecraft and moons
+   * of 1,000 km radius or more (each detection lights up the body's label, so clusters of small
+   * moons and swarms of small bodies are left out unless they say true).
    */
   detector?: boolean;
   /** Listed in "Where to?" and the Bodies list (default true). */

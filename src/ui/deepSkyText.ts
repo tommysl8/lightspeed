@@ -35,6 +35,15 @@ export function sizeText(pc: number): string {
  * stars (Kounkel et al. 2017)".
  */
 export function deepSkyDistanceLine(x: DeepSkyInfo): string | null {
+  const words = deepSkyDistanceWords(x);
+  return words === null ? null : `${words}. ${deepSkyDistanceSource(x)}`;
+}
+
+/** How the distance was measured, for the card's sources: "Distance: VLBA radio parallaxes of young stars (Kounkel et al. 2017)". */
+export const deepSkyDistanceSource = (x: DeepSkyInfo): string => `Distance: ${x.distanceSource ?? 'catalogue'}`;
+
+/** The distance alone, for the card: "1,270 light-years (1,250 to 1,280) from the Sun". */
+export function deepSkyDistanceWords(x: DeepSkyInfo): string | null {
   if (x.distancePc === undefined) return null;
   // Beyond a million light-years: "2.48 million", "33.9 billion".
   const big = x.distancePc * LY_PER_PC >= 1e6;
@@ -46,7 +55,7 @@ export function deepSkyDistanceLine(x: DeepSkyInfo): string | null {
   // "in the Large Magellanic Cloud", but "in Messier 87 (Virgo A)": a galaxy's own name takes no article.
   const where = x.hostGalaxy ? `, in ${/^(Large|Small) /.test(x.hostGalaxy) ? 'the ' : ''}${x.hostGalaxy}` : '';
   const now = x.distanceNow ? ' now' : '';
-  return `${ly(x.distancePc)} light-years${range} from the Sun${now}${where}. Distance: ${x.distanceSource ?? 'catalogue'}`;
+  return `${ly(x.distancePc)} light-years${range} from the Sun${now}${where}`;
 }
 
 /** A distance of a million light-years or more in words: "2.48 million", "33.9 billion". */

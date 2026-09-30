@@ -57,12 +57,15 @@ export function exoplanetOrbitLine(x: ExoplanetInfo): string {
   return `A year of ${periodText(x.periodD)}, ${sig(x.smaAu, 3)} au from ${x.circumbinary ? 'its stars' : 'its star'}${e}`;
 }
 
-/** "Found in 2016 by the transit method, La Silla Observatory". */
-export function exoplanetDiscoveryLine(x: ExoplanetInfo): string | null {
+/**
+ * "Found in 2016 by the transit method, La Silla Observatory", with the discovery paper in brackets unless
+ * `withReference` is false (the card keeps the paper among its sources).
+ */
+export function exoplanetDiscoveryLine(x: ExoplanetInfo, withReference = true): string | null {
   if (!x.method && !x.year) return null;
   const method = x.method ? ` by ${methodWords(x.method)}` : '';
   const facility = x.facility ? `, ${x.facility}` : '';
-  const ref = x.reference ? ` (${x.reference})` : '';
+  const ref = withReference && x.reference ? ` (${x.reference})` : '';
   return `Found${x.year ? ` in ${x.year}` : ''}${method}${facility}${ref}.`;
 }
 

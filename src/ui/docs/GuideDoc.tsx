@@ -1,14 +1,13 @@
 /**
- * The Lightspeed guide: how to explore, fly and find your way around, with a chapter for
- * students on the lab. British spelling, SI units, symbols in italics (ital() for plain
- * strings). Everything here describes the interface as the code builds it: when a control
+ * The Lightspeed guide: how to explore, fly and find your way around. British spelling, SI
+ * units, symbols in italics (ital() for plain strings). Everything here describes the interface as the code builds it: when a control
  * moves, this file moves with it.
  */
 import type { ReactNode } from 'react';
 import type { BodyId } from '../../sim/bodies';
 import { setPaused, setWarp, WARP_STEPS } from '../../sim/clock';
 import { TRIP_PLAYBACK_S } from '../../sim/travel';
-import { logEvent } from '../../lab/events';
+import { notice } from '../notices';
 import { JOURNEYS } from '../../content/journeys';
 import { FEATURED_IDS, findDestination } from '../../content/destinations';
 import { findArticle, useArticles } from '../../content/learn/library';
@@ -17,14 +16,17 @@ import { superscript } from '../../lib/sci';
 import { countWord, countWordStart } from '../../lib/words';
 import { openLearn } from '../../state/route';
 import { useUI } from '../../state/ui';
-import { frameSolarSystem, goToBody } from '../navigation';
+import { frameSolarSystem, goToBody, startRoam } from '../navigation';
+import { enterClean } from '../cleanMode';
+import { ROAM_BOOST, ROAM_RATE } from '../../controls/roamScale';
+import { rateWords } from '../flight/roamText';
 import { runScene } from '../../content/scenes';
-import { openJourneys, openLab, openSearch, resetPreferences, showWelcome, startExperiment1, startTour } from '../onboarding';
+import { openJourneys, openReference, openSearch, resetPreferences, showWelcome, startTour } from '../onboarding';
 import { KEY_GROUPS } from '../keys';
 import { Kbd } from '../kit';
 import { rich } from '../rich';
 import { GuideFlightsBeyond } from './GuideFlightsBeyond';
-import { AberrationFigure, ScreenMap, WorkflowFigure } from './figures';
+import { AberrationFigure, ScreenMap } from './figures';
 import { Callout, Chapter, Fig, H3, KeyTable, Lamp, Note, Ref, Steps, Try, type TocEntry } from './parts';
 
 export const GUIDE_TOC: TocEntry[] = [
@@ -37,7 +39,6 @@ export const GUIDE_TOC: TocEntry[] = [
   { id: 'flying', title: 'Journeys and flights' },
   { id: 'seeing', title: 'What you are seeing' },
   { id: 'readings', title: 'Readings' },
-  { id: 'lab', title: 'For students: the lab' },
   { id: 'controls', title: 'Keyboard and mouse' },
   { id: 'troubleshooting', title: 'Troubleshooting' },
   { id: 'glossary', title: 'Glossary' },
@@ -67,7 +68,7 @@ const docked =
   (fn: () => void) =>
   (): void => {
     if (useUI.getState().tripActive) {
-      logEvent('ERR', 'Not available in flight: finish or abort the trip first.');
+      notice('Not available in flight: finish or abort the trip first.');
       return;
     }
     fn();
@@ -142,9 +143,8 @@ function Welcome() {
           what comes next, with sources to go further (<Chs to={['universe', 'seeing']} />).
         </li>
         <li>
-          <b>Measure, if you want to.</b> Every number is live in the instrument panel (<Ch to="readings" />). For students, the
-          lab holds five guided experiments, each ending in a printable report (<Ch to="lab" />). Neither opens unless you ask
-          for it.
+          <b>Measure, if you want to.</b> Every number is live in the instrument panel (<Ch to="readings" />), and the physics
+          reference gives the equations behind what you see (<Ch to="seeing" />). Neither opens unless you ask for it.
         </li>
       </ul>
 
@@ -168,7 +168,7 @@ function Welcome() {
         Some things are idealised, and the program says so where it matters: the constant-speed drive starts and stops
         instantly, gravity is ignored on a flight, and flights beyond the Local Group assume a perfect engine and a destination
         that moves with the expansion of the universe. A third drive, faster than light, is outright fiction, offered only for
-        comparison. It is marked in red and none of its readings are recorded. The full list is under{' '}
+        comparison. It is marked in red wherever it appears. The full list is under{' '}
         <Ref page="about" to="limitations">
           Model limitations
         </Ref>{' '}
@@ -178,8 +178,8 @@ function Welcome() {
       <H3>How to use this guide</H3>
       <p>
         Chapters 2 and 3 are all you need to get started. Chapters 4 to {chapterNo('readings')} explain each part of the
-        program and what you are looking at, chapter {chapterNo('lab')} is for students, and chapters {chapterNo('controls')} to{' '}
-        {chapterNo('glossary')} are for looking things up. Buttons marked <b>Try it</b> close the guide and do what the text
+        program and what you are looking at, and chapters {chapterNo('controls')} to {chapterNo('glossary')} are for looking
+        things up. Buttons marked <b>Try it</b> close the guide and do what the text
         describes. The simulation pauses while the guide is open.
       </p>
       <TryRow>
@@ -190,8 +190,7 @@ function Welcome() {
 
       <Note title="What you need">
         A desktop or laptop browser with WebGL 2: a recent Chrome, Edge, Firefox or Safari. A mouse or trackpad is easiest;
-        phones work, with a simpler layout. Nothing is installed and there is no account. Anything you record stays in your
-        browser.
+        phones work, with a simpler layout. Nothing is installed and there is no account. Your settings stay in your browser.
       </Note>
     </Chapter>
   );
@@ -261,19 +260,15 @@ function QuickStart() {
           <b>Leave the Galaxy.</b> Click <b>Milky Way</b> in the trail at the bottom of the screen (on wide screens) to see the
           Galaxy from 100,000 light-years: a model built from published measurements. <b>Local Group</b> goes out to Andromeda
           and its neighbours, and <b>Where to?</b> finds any galaxy by name. A 1 g flight to Andromeda takes under 30 years by
-          your clock, and over two million at home.
+          your clock, and over two million at home. Or press <Kbd>F</Kbd> to <b>roam</b>: fly the camera yourself with{' '}
+          <Kbd>W</Kbd> <Kbd>A</Kbd> <Kbd>S</Kbd> <Kbd>D</Kbd>, at a pace that crosses from one galaxy to the next in seconds
+          (<Ch to="looking" />).
           <TryRow>
             <Try run={() => runScene('milky-way-outside')}>See the Milky Way from outside</Try>
             <Try run={() => runScene('local-group')}>See the Local Group</Try>
           </TryRow>
         </li>
       </Steps>
-      <Note title="For students">
-        The lab’s first experiment measures the speed of light in about 15 minutes, using nothing but the time controls.
-        <TryRow>
-          <Try run={startExperiment1}>Open Experiment 1</Try>
-        </TryRow>
-      </Note>
     </Chapter>
   );
 }
@@ -291,25 +286,24 @@ const SCREEN_PARTS: [number, ReactNode, ReactNode][] = [
   [3, <>Where to? <Kbd>/</Kbd></>, <>Find any place by name, from the Moon to Andromeda, and go there or fly there (<Ch to="looking" />).</>],
   [4, 'Journeys', <>{countWordStart(JOURNEYS.length)} one-click trips and scenes (<Ch to="flying" />).</>],
   [5, <>Learn <Kbd>E</Kbd></>, <>Long reads on the science behind the view, from relativity to the galaxies (<Chs to={['universe', 'seeing']} />).</>],
-  [6, <>Lab <Kbd>K</Kbd></>, <>For students: five guided experiments, in a panel on the left (<Ch to="lab" />).</>],
+  [
+    6,
+    'View',
+    'Display layers (the constellations, planet hosts, the cosmic web, the CMB map), body size and optics, with gravitational lensing and the accretion flow under the optics; the instrument panel, the physics reference and physics hints; the guide, the keys and About. Below 900 pixels it shows as an icon.',
+  ],
   [
     7,
-    'View',
-    'Display layers (the constellations, planet hosts, the cosmic web, the CMB map), body size and optics, with gravitational lensing and the accretion flow under the optics; the instrument panel and physics hints; the guide, the keys and About. Below 900 pixels it shows as an icon.',
-  ],
-  [
-    8,
     'The view',
-    'The simulation. Top left: what the camera is doing and its range to the target, and the cards of the cosmic web, the CMB map and the models round Sagittarius A* while they show. Top centre: status lamps. Top right: the card of the selected body. Bottom left: a scale bar; bottom right, the credits of the nebulae’s pictures in view. In flight, and close to a black hole, a panel along the bottom.',
+    'The simulation. Top left: what the camera is doing and its range to the target (while you roam, Roam’s panel), and the cards of the cosmic web, the CMB map and the models round Sagittarius A* while they show. Top centre: status lamps. Top right: the card of the selected body. Bottom left: a scale bar; bottom right, the credits of the nebulae’s pictures in view. In flight, a panel along the bottom; close to a black hole, a small chip there that opens one.',
   ],
-  [9, 'Time', <>Pause; slower and faster, with the rate in words; Now (<Ch to="time" />).</>],
+  [8, 'Time', <>Pause; slower and faster, with the rate in words; Now (<Ch to="time" />).</>],
   [
-    10,
+    9,
     'Where you are',
     'Where the camera is, as a trail from the observable universe down to the body in view: … › Local Group › Milky Way › Orion Arm › Solar neighbourhood › Solar System › Earth. Click a level to go there; the outer levels show on wide screens. Bodies lists everything you can visit, by kind, from the planets to the galaxies.',
   ],
-  [11, <>Keys <Kbd>?</Kbd></>, 'The keyboard and mouse on one sheet. On wide screens the status beside it says what the camera is doing.'],
-  [12, <>Instrument panel <Kbd>I</Kbd></>, <>Every number, live: speed, clocks, the target, optics and light-time (<Ch to="readings" />).</>],
+  [10, <>Keys <Kbd>?</Kbd></>, 'The keyboard and mouse on one sheet. On wide screens the status beside it says what the camera is doing.'],
+  [11, <>Instrument panel <Kbd>I</Kbd></>, <>Every number, live: speed, clocks, the target, optics and light-time (<Ch to="readings" />).</>],
 ];
 
 function Screen() {
@@ -323,7 +317,7 @@ function Screen() {
       <Fig
         n="3.1"
         wide
-        caption="The Lightspeed screen with the instrument panel open on the right (View › Instrument panel, or I). The lab, when you open it, sits on the left."
+        caption="The Lightspeed screen with the instrument panel open on the right (View › Instrument panel, or I). The physics reference, when you open it, sits on the left."
       >
         <ScreenMap />
       </Fig>
@@ -341,15 +335,15 @@ function Screen() {
         </tbody>
       </table>
       <p>
-        On narrow screens the header keeps its icons and drops their words, <b>Where to?</b> last; <b>Lab</b> leaves the header
-        below 640 pixels. Point at an icon to see its name.
+        On narrow screens the header keeps its icons and drops their words, <b>Where to?</b> last. Point at an icon to see its
+        name.
       </p>
 
       <H3>Panels</H3>
       <p>
         The instrument panel opens on the right from <b>View › Instrument panel</b>, from <b>Details</b> on a body’s card, or
-        with <Kbd>I</Kbd>. The lab opens on the left from <b>Lab</b> or <Kbd>K</Kbd>. Nothing opens either panel by itself, and
-        the lab stays closed when you reload the page. Drag the inner edge of a panel to resize it, or double-click the edge to
+        with <Kbd>I</Kbd>. The physics reference opens on the left from <b>View › Physics reference</b>. Nothing opens either
+        panel by itself, and the physics reference stays closed when you reload the page. Drag the inner edge of a panel to resize it, or double-click the edge to
         reset it; from the keyboard, Tab to the edge and use the arrow keys. On screens narrower than 900 pixels the panels open
         over the view, one at a time, and get out of the way when you plan a flight.
       </p>
@@ -366,12 +360,13 @@ function Screen() {
             'Time runs faster than real time. The view also gets an amber border.',
           ],
           [<Lamp tone="amber">1 s = 3.4 months on board</Lamp>, <>In flight: how much of your time passes each second (<Ch to="flying" />).</>],
-          [<Lamp tone="amber">Free flight</Lamp>, <>You are flying the camera by hand (<Ch to="looking" />).</>],
+          [<Lamp tone="amber">Free flight</Lamp>, <>You are flying the ship by hand, at no more than the speed of light (<Ch to="looking" />).</>],
           [
             <Lamp tone="amber">Home ×10.05</Lamp>,
             <>
-              Near a black hole: home’s clock runs this many times faster than a clock hovering here, because the hole’s
-              gravity slows time where you are. It lights from ×1.01 (<Ch to="time" />).
+              Near a black hole, while its panel is open: home’s clock runs this many times faster than a clock hovering here,
+              because the hole’s gravity slows time where you are. It lights from ×1.01 (<Ch to="time" />); with the panel
+              closed its chip says the same.
             </>,
           ],
           [
@@ -397,8 +392,7 @@ function Screen() {
       <H3>Messages and hints</H3>
       <p>
         When something you asked for cannot be done, a message says why for about 14 seconds in the top-left corner of the
-        view. Once you have opened the lab, its records appear there too: pulse detections and arrivals as they are logged.
-        If you turn on <b>View › Physics hints</b> (it starts off), a short note in the top-right corner says in a sentence
+        view. If you turn on <b>View › Physics hints</b> (it starts off), a short note in the top-right corner says in a sentence
         what is going on the first time something new happens, passing 0.1<i>c</i> say, and <b>Read more</b> opens the Learn
         article that tells the whole story. Each note appears once.
       </p>
@@ -431,9 +425,9 @@ function Looking() {
       <p>
         Round a black hole the camera <i>hovers</i>: it holds its place against the hole’s pull, as a rocket would, and
         scrolling moves it in height above the horizon rather than in distance from the centre, down to a millionth of the
-        horizon’s radius above it (12.7 km above the horizon of Sagittarius A*, 27 mm above Gaia BH1’s). Close in, a panel
-        along the bottom of the view says how much slower your clock runs than home’s, how hard the rocket must push, and how
-        strong the tides are (<Ch to="flying" />).
+        horizon’s radius above it (12.7 km above the horizon of Sagittarius A*, 27 mm above Gaia BH1’s). Close in, a small
+        chip at the bottom of the view says how much slower your clock runs than home’s; its <b>Details</b> opens a panel
+        with both clocks, how hard the rocket must push and how strong the tides are (<Ch to="flying" />).
       </p>
 
       <H3>Where to?</H3>
@@ -547,17 +541,17 @@ function Looking() {
         your next visit because of a switch you forgot.
       </p>
 
-      <H3>Free flight</H3>
+      <H3>Roam</H3>
       <p>
-        Press <Kbd>F</Kbd> to fly the camera by hand. The pointer is captured so that the mouse steers; <Kbd>Esc</Kbd> releases
-        it and ends free flight.
+        Press <Kbd>F</Kbd> (or <b>View › Roam</b>) to fly the camera anywhere yourself, with nothing in focus and no speed
+        limit. A drag turns the view (on a touch screen, one finger), and the keys move it:
       </p>
       <KeyTable
         rows={[
-          ['Mouse', 'Look'],
+          ['Drag', 'Look round (the sky follows the pointer)'],
           [
             <>
-              <Kbd>W</Kbd> <Kbd>A</Kbd> <Kbd>S</Kbd> <Kbd>D</Kbd>
+              <Kbd>W</Kbd> <Kbd>A</Kbd> <Kbd>S</Kbd> <Kbd>D</Kbd> or the arrows
             </>,
             'Forward, left, back, right',
           ],
@@ -573,15 +567,69 @@ function Looking() {
             </>,
             'Roll',
           ],
-          ['Scroll', 'Throttle, from 0.3 m/s to 0.999 99c'],
+          [<Kbd key="shift">Shift</Kbd>, `${countWordStart(ROAM_BOOST)} times faster, while held`],
+          [
+            <>
+              Scroll, <Kbd>+</Kbd> <Kbd>−</Kbd>
+            </>,
+            'Set the pace, from a thousandth to a thousand times the one your surroundings set',
+          ],
+          [
+            <>
+              <Kbd>F</Kbd> or <Kbd>Esc</Kbd>
+            </>,
+            'Leave: the camera orbits the nearest thing from where it is',
+          ],
         ]}
       />
       <p>
-        Free flight is for sightseeing. The throttle is shown in the status bar at the bottom right, and the relativistic
-        optics switch on above 0.01<i>c</i>, but only planned flights count as trips. Near a black hole the throttle is your
-        speed past observers hovering there: the engine is taken to hold the ship against the hole’s pull, and the panel
-        along the bottom gives the thrust your motion takes.
+        The pace follows your surroundings: each second the camera covers {rateWords(ROAM_RATE)} the distance to the nearest
+        thing that matters there, whether the surface of a moon, a star, the edge of a galaxy or the next group of galaxies.
+        So it slows by itself as a planet comes close and never runs into it, stars stream past a few light-years apart, and
+        the gap from the Milky Way to Andromeda takes seconds. The panel at the top left names the nearest thing and how far
+        it is, and gives the pace in plain words, <i>1.2 light-years a second</i>; past the speed of light it says so: this is
+        a camera, not a ship, so there is no relativity and no clock to fall behind. The camera keeps its place beside the
+        nearest body as time runs, and sees what an observer at rest there would. Near a black hole that is an observer
+        hovering: its lens and its clock are there as usual, and the camera stops at the same height above the horizon as
+        the orbiting camera does. Click a body to select it, or double-click to go there, as always.
       </p>
+      <p>
+        On a touch screen two arrows halfway down the right edge move the camera forward and back while you hold them. <b>Mouse look</b> on
+        the panel lets the mouse turn the view without a drag; <Kbd>Esc</Kbd> gives the pointer back. Roam is not available
+        during a trip or a fall into a black hole.
+      </p>
+      <TryRow>
+        <Try run={startRoam}>Roam from here</Try>
+      </TryRow>
+
+      <H3>Flying the ship</H3>
+      <p>
+        <b>Fly the ship</b> on Roam’s panel hands over to the ship itself: the speed of light is its limit and relativity is on.
+        The pointer is captured so that the mouse steers, <Kbd>W</Kbd> <Kbd>A</Kbd> <Kbd>S</Kbd> <Kbd>D</Kbd>,{' '}
+        <Kbd>Space</Kbd> or <Kbd>R</Kbd>, <Kbd>C</Kbd> and <Kbd>Q</Kbd> <Kbd>E</Kbd> move and roll it as in Roam, and the wheel
+        sets the throttle, from 0.3 m/s to 0.999 99<i>c</i>. <Kbd>Esc</Kbd> releases the pointer and goes back to Roam;{' '}
+        <Kbd>F</Kbd> leaves for orbit.
+      </p>
+      <p>
+        The ship is for sightseeing at real speeds. The throttle is shown on the panel and in the status bar at the bottom
+        right, and the relativistic optics switch on above 0.01<i>c</i>, but only planned flights count as trips. Near a black
+        hole the throttle is your speed past observers hovering there: the engine is taken to hold the ship against the
+        hole’s pull, and the black-hole panel gives the thrust your motion takes.
+      </p>
+
+      <H3>Clean full screen</H3>
+      <p>
+        <b>View › Clean full screen</b> (<Kbd>Shift</Kbd>+<Kbd>F</Kbd>) shows the universe alone: full screen, with every
+        piece of text and every panel hidden, the labels and names too. Everything still works: drag and scroll, Roam, the
+        keys. A hint says how to leave for two seconds: <Kbd>Esc</Kbd>, <Kbd>Shift</Kbd>+<Kbd>F</Kbd>, or the browser’s own
+        way out of full screen. Everything comes back exactly as it was. Where the browser does not allow full screen (an
+        iPhone, or Lightspeed inside another page), the interface is hidden all the same. One line stays: while a nebula’s
+        photograph is on screen, its credit, faint in the bottom corner, because the licence of the pictures (CC BY 4.0) asks
+        for it wherever they show. On a touch screen Roam’s arrows stay too.
+      </p>
+      <TryRow>
+        <Try run={enterClean}>Clean full screen</Try>
+      </TryRow>
     </Chapter>
   );
 }
@@ -908,9 +956,6 @@ function Universe() {
           <b>The classical view near a moving black hole</b> shows an observer at rest relative to the Sun, as the classical
           view does everywhere; hovering there differs by the hole’s speed, at most 0.19 % of <i>c</i> (Gaia BH3, 570 km/s).
         </li>
-        <li>
-          <b>The lab</b> takes no reading near a black hole: its experiments assume flat spacetime.
-        </li>
       </ul>
       <p>
         The full list is under{' '}
@@ -1015,7 +1060,7 @@ function Time() {
 
       <H3>Pause and Now</H3>
       <p>
-        <Kbd>Space</Kbd> or <Kbd>P</Kbd> pauses and resumes (in free flight only <Kbd>P</Kbd>, since Space is up). <b>Now</b>{' '}
+        <Kbd>Space</Kbd> or <Kbd>P</Kbd> pauses and resumes (in Roam and the ship only <Kbd>P</Kbd>, since Space is up). <b>Now</b>{' '}
         (<Kbd>N</Kbd>) returns to the present at real time and restarts both clocks on the instrument panel from zero. It is
         unavailable during a flight and during a fall into a black hole: a traveller’s clock cannot be wound back. Close to a
         black hole it still sets the present date, but the clock cannot then keep pace with the computer’s, because your
@@ -1039,9 +1084,9 @@ function Time() {
         home’s clock runs 1.054 times faster than yours; one per cent above the horizon ten times faster; at the closest the
         camera goes, a thousand times. Within 5,000 horizon radii of a black hole (424 au from Sgr A*, 140,000 km from Gaia
         BH1) the difference passes a part in ten thousand, and the rate then paces <i>your</i> clock: one per cent above
-        Sgr A*’s horizon the footer reads <i>1 s = 1 s here · 10 s at home</i>, the date turns amber, and the lamp at the
-        top of the view says how much faster home’s clock runs (<i>Home ×10.05</i>). The panel along the bottom says it in
-        words, <i>your clock runs 10.05× slower than home’s</i>, with both clocks beside it.
+        Sgr A*’s horizon the footer reads <i>1 s = 1 s here · 10 s at home</i> and the date turns amber. The chip at the
+        bottom of the view says it in words, <i>your clock 10.05× slower</i>; its panel gives both clocks, and while the panel
+        is open the lamp at the top of the view says how much faster home’s clock runs (<i>Home ×10.05</i>).
       </p>
       <p>
         On a circular orbit your clock runs slower still, by your speed as well (at the innermost stable orbit of Sgr A*,
@@ -1114,7 +1159,7 @@ function Flying() {
             <span key="w" className="!text-hazard">
               Superluminal (fiction)
             </span>,
-            'Faster than light, for comparison only. The planner and the view are hatched in red, time on board is undefined, and nothing is recorded.',
+            'Faster than light, for comparison only. The planner and the view are hatched in red and time on board is undefined.',
           ],
         ]}
       />
@@ -1167,8 +1212,13 @@ function Flying() {
 
       <H3>Near a black hole</H3>
       <p>
-        Close to a black hole a panel along the bottom of the view takes the flight panel’s place (it never shows during a
-        trip). Hovering, it gives how much slower your clock runs than home’s, both clocks, your height above the horizon,
+        Close to a black hole (within 5,000 horizon radii, where its gravity paces the clock, and never during a trip) a small
+        chip along the bottom of the view names it and says how much slower your clock runs than home’s. Its <b>Details</b>{' '}
+        opens the black-hole panel in the flight panel’s place, and <b>Hide</b> closes it again. The panel opens by itself for
+        a black-hole scene or journey you start, and during a fall (so that <b>Stop the fall</b> is always in reach); to have
+        it open by itself whenever you come close, turn on <b>View › Open the black-hole panel automatically</b> (it is
+        remembered). The lens is drawn whatever the panel does. Hovering, the panel gives how much slower your clock runs than
+        home’s, both clocks, your height above the horizon,
         the thrust hovering takes (3,806 g ten horizon radii from Sagittarius A*, 3.6 million g one per cent above its
         horizon) and the tides across a 2 m ship, with a gauge of height from the horizon to 10,000 horizon radii marked where
         light can circle the hole and at the innermost stable orbit. Where the tides would tear a ship apart it says so in
@@ -1356,9 +1406,12 @@ function Seeing() {
       </div>
       <p>
         With <b>View › Physics hints</b> on, a note in the corner points to the right article the first time each of these
-        things happens. For students, the lab’s <b>Reference</b> tab has the same physics in ten short sections with their
-        equations (<Ch to="lab" />).
+        things happens. <b>View › Physics reference</b> sets out the same physics in short sections, each with its equation,
+        in a panel on the left.
       </p>
+      <TryRow>
+        <Try run={openReference}>Open the physics reference</Try>
+      </TryRow>
     </Chapter>
   );
 }
@@ -1410,6 +1463,8 @@ function Readings() {
         rows={[
           ['Body card', 'Top right, for the selected body: what it is, its range and light-time, three facts, and Go there, Fly here, Read and Details. For a black hole, your height above its horizon instead of the range, and what it looks like from here: the shadow’s and the Einstein ring’s size, how much slower your clock runs, the thrust hovering takes. × closes it; the next selection brings it back.'],
           ['Flight panel', <>Along the bottom in flight: speed, your clock, the clock at home and the distance left (<Ch to="flying" />).</>],
+          ['Black-hole chip and panel', <>Along the bottom close to a black hole: the chip says how much slower your clock runs; its Details opens the panel of clocks, height, thrust and tides (<Ch to="flying" />).</>],
+          ['Roam’s panel', <>Top left while you roam: the nearest thing and how far it is, the pace in plain words, and the switch to the ship (<Ch to="looking" />).</>],
           ['Reticle', <>In motion, marks the centre of the view. Its spectrometer reads the angle <i>θ</i>′ from the apex and the Doppler factor <i>D</i> there.</>],
           ['APEX, ANTAPEX', 'The directions you are heading towards and away from.'],
           ['Scale bar', 'A length at the distance of the body named beside it. In the relativistic view it reads “no single scale at this speed”, and close to a black hole “no single scale near a black hole”, since the scale then varies across the sky.'],
@@ -1420,138 +1475,6 @@ function Readings() {
       <p>
         <b>View › Readouts over the view</b> (<Kbd>U</Kbd>) shows or hides the reticle, markers, scale bar and camera readout.
       </p>
-    </Chapter>
-  );
-}
-
-const EXPERIMENT_ROWS: [number, string, ReactNode, string][] = [
-  [1, 'Time of flight of a light pulse', 'The speed of light, from distance against time of flight', '15 min'],
-  [2, 'Time dilation on inertial trips', <>How ship time depends on speed: Δ<i>τ</i>/Δ<i>t</i> = (1 − <i>β</i><sup className="sup">2</sup>)<sup className="sup"><i>p</i></sup></>, '15 min'],
-  [3, 'The relativistic Doppler factor', 'Your own speed, from the Doppler factor at different angles', '20 min'],
-  [4, 'Aberration of light', 'Your speed again, from where bodies appear to be', '20 min'],
-  [5, 'Constant proper acceleration', 'The acceleration of a 1 g rocket, from its speed and its clock', '10 min'],
-];
-
-function Lab() {
-  return (
-    <Chapter
-      id="lab"
-      n={chapterNo('lab')}
-      title="For students: the lab"
-      lead="The lab turns the simulator into apparatus. Five experiments are laid out like a university lab script, and the program does the bookkeeping. Anyone else can skip this chapter: the lab never opens by itself."
-    >
-      <H3>Opening the lab</H3>
-      <p>
-        Press <b>Lab</b> in the header (on screens 640 pixels wide or more), or <Kbd>K</Kbd>; the same way closes it. It is also
-        at the end of the Learn shelves and at the foot of the welcome screen. The lab opens on the left, on its{' '}
-        <b>Experiments</b> tab. Its other tabs are <b>Notebook</b>, where your readings are kept, and <b>Reference</b>, the
-        physics behind what you see in ten short sections with equations.
-      </p>
-      <p>
-        The lab keeps every constant-speed and rocket flight as a reading, whether or not it is open. Once you have opened it,
-        the arrival card also says which experiment logged the flight, and the planner says which experiment will. Flights
-        through expanding space are not logged: the experiments are about special relativity. For the same reason no
-        reading is taken near a black hole, where spacetime is not flat; the message in the corner of the view says so.
-      </p>
-      <TryRow>
-        <Try run={() => openLab()}>Open the lab</Try>
-      </TryRow>
-
-      <H3>The experiments</H3>
-      <table className="doc-tbl">
-        <thead>
-          <tr>
-            <th>No.</th>
-            <th>Experiment</th>
-            <th>You measure</th>
-            <th>Time</th>
-          </tr>
-        </thead>
-        <tbody>
-          {EXPERIMENT_ROWS.map(([n, title, what, time]) => (
-            <tr key={n}>
-              <td className="mono text-accent">{n}</td>
-              <td className="doc-tbl-k">{title}</td>
-              <td>{what}</td>
-              <td className="mono whitespace-nowrap">{time}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <p>
-        <b>Experiment 1</b> fires a light pulse from Earth and watches it spread through the Solar System as a growing circle;
-        each body it reaches logs the time of flight, and a straight-line fit of distance against time gives <i>c</i>, as Ole
-        Rømer first did in 1676 from the eclipses of Jupiter’s moon Io. <b>Experiment 2</b> flies at five or more constant speeds
-        and compares the ship’s clock with the Sun’s on each arrival; the logarithms give a straight line whose slope is ½.{' '}
-        <b>Experiment 3</b> points the reticle at set angles from the apex in flight and records the Doppler factor; 1/<i>D</i> is
-        a straight line in cos <i>θ</i>′ whose slope and intercept give your speed. <b>Experiment 4</b> records where bodies
-        appear against where the ephemeris puts them, and an optional run repeats James Bradley’s discovery of 1725–29 from
-        Earth’s own 20 arcsecond shift. <b>Experiment 5</b> samples a 1 g flight to Proxima Centauri: the rapidity grows in
-        proportion to proper time, and <i>c</i> times the slope is the acceleration felt on board.
-      </p>
-      <p>
-        Constant-speed flights are logged by Experiment 2 and rocket flights by Experiment 5. Journeys count too. Flights with
-        the fictional drive, and flights through expanding space, are never logged.
-      </p>
-      <TryRow>
-        <Try run={startExperiment1}>Open Experiment 1</Try>
-      </TryRow>
-
-      <H3>Anatomy of an experiment</H3>
-      <p>
-        Every experiment page has the same eight sections: Aim, Background (the theory, with numbered equations), Apparatus,
-        Procedure, Observations, Analysis, Questions and Conclusion. The first three are reading. Figure {chapterNo('lab')}.1 shows how the rest
-        fit together.
-      </p>
-      <Fig n={`${chapterNo('lab')}.1`} caption="Working through an experiment, from the procedure to the report.">
-        <WorkflowFigure />
-      </Fig>
-
-      <H3>Following the procedure</H3>
-      <p>
-        Procedure steps tick themselves off when the simulation reaches the state they ask for: the right rate, a pulse emitted,
-        five speeds recorded. Many steps have a button that sets the apparatus up for you. The small boxes beside each
-        experiment in the list show how far you have got, and the <b>Next step</b> box at the top of each experiment shows the
-        one you are on. Where a step asks for a rate such as <P10 n={2} />, step the rate with <Kbd>]</Kbd> or the footer’s
-        arrows until its lamp shows that power of ten.
-      </p>
-
-      <H3>Recording data</H3>
-      <p>
-        Experiments 1, 2 and 5 record by themselves: every detector that registers a pulse (1), every constant-speed flight that
-        arrives (2), and samples along every rocket flight (5). Experiments 3 and 4 need you to take readings: open the experiment,
-        set up the view as its procedure describes, and press <b>Record</b> or <Kbd>R</Kbd>. If a reading cannot be taken, the
-        message in the corner of the view says why. Readings go into the data table under Observations; point at a row and click
-        × to delete it, or <b>Clear</b> to delete them all.
-      </p>
-
-      <H3>Uncertainty and fits</H3>
-      <p>
-        By default the instruments are perfect. Tick <i>Simulated instrument uncertainty</i> to add random errors of a stated,
-        realistic size to new readings; the table then shows ± values. The analysis fits a straight line (or a line through the
-        origin) by least squares and gives each parameter with its standard error. With uncertainties on, the fit is weighted by
-        them and also reports the reduced chi-squared, <i>χ</i>
-        <sup className="sup">2</sup>/<i>ν</i>: near 1 means the scatter of your points matches their error bars, and much larger
-        means that the model or the error bars are wrong. Point at a data point on a graph to read its values.
-      </p>
-
-      <H3>Writing up</H3>
-      <p>
-        Type your answers to the questions, and your conclusion, in the boxes; they are saved as you type. <b>Prepare lab
-        report</b> lays out the whole experiment as a printable A4 document: aim, theory, method, the data table, both figures,
-        the fitted results and your answers. Add your name, then print it, or choose <i>Save as PDF</i> in the print dialog.
-      </p>
-
-      <H3>Your data</H3>
-      <p>
-        The notebook lives in this browser’s storage. It survives a reload but not clearing your browsing data, and it does not
-        follow you to another computer. The Notebook tab exports each experiment as CSV (in fixed units: s, km, km/s and
-        degrees, named in each column header, with a 1<i>σ</i> column for each when uncertainty was on), all readings with your
-        written answers as JSON, and the session’s event log as text.
-      </p>
-      <TryRow>
-        <Try run={() => openLab('notebook')}>Open the notebook</Try>
-      </TryRow>
     </Chapter>
   );
 }
@@ -1629,6 +1552,26 @@ function Troubleshooting() {
       </>,
     ],
     [
+      'Everything on screen has gone',
+      <>
+        That is clean full screen: <Kbd>Esc</Kbd> or <Kbd>Shift</Kbd>+<Kbd>F</Kbd> brings the interface back, just as it was.
+      </>,
+    ],
+    [
+      'Where is the black-hole panel?',
+      <>
+        Close to a black hole it waits behind the small chip at the bottom of the view: press <b>Details</b> there. To have it
+        open by itself, turn on <b>View › Open the black-hole panel automatically</b>.
+      </>,
+    ],
+    [
+      'Roam is too slow, or too fast',
+      <>
+        Scroll, or press <Kbd>+</Kbd> and <Kbd>−</Kbd>, to change the pace (the panel shows it, ×1 by default); hold{' '}
+        <Kbd>Shift</Kbd> for {countWord(ROAM_BOOST)} times the pace for a moment.
+      </>,
+    ],
+    [
       'I can’t stop falling',
       <>
         Press <b>Stop the fall</b> on the panel at the bottom of the view; <Kbd>Esc</Kbd> does not end a fall. You are put
@@ -1660,8 +1603,8 @@ function Troubleshooting() {
       'I’m lost',
       <>
         <Kbd>H</Kbd> takes the camera back to Earth, <b>Solar System</b> at the bottom of the screen shows the whole system, and{' '}
-        <Kbd>N</Kbd> sets the clock back to the present. <Kbd>Esc</Kbd> leaves free flight. A journey always starts from a
-        known place.
+        <Kbd>N</Kbd> sets the clock back to the present. <Kbd>Esc</Kbd> (or <Kbd>F</Kbd>) leaves Roam, and the camera orbits the
+        nearest thing. A journey always starts from a known place.
       </>,
     ],
     [
@@ -1678,38 +1621,6 @@ function Troubleshooting() {
         the flight panel.
       </>,
     ],
-    [
-      'A procedure step won’t tick',
-      <>
-        Each step waits for a particular state, so read it again. Step 2 of Experiment 1, for example, needs a rate of{' '}
-        <P10 n={2} /> or more with the clock running. Many steps have a button that does it for you, and the <b>Next step</b>{' '}
-        box at the top of each experiment shows the one you are on.
-      </>,
-    ],
-    [
-      'Pressing R does nothing',
-      <>
-        Readings by hand belong to Experiments 3 and 4, so one of them must be open under Lab › Experiments. Experiment 3 needs
-        you to be moving, which means in flight. Experiment 4 needs a selected body and a moving observer: a flight, or an orbit
-        round a planet, which carries you with it (not the Sun, which is at rest). In free flight <Kbd>R</Kbd> moves you up
-        instead, and it does nothing while keyboard shortcuts are off; use the <b>Record</b> button. The message in the top-left
-        corner of the view says what is missing.
-      </>,
-    ],
-    [
-      'Printing a lab report',
-      <>
-        Use <b>Prepare lab report</b>, then <b>Print / Save as PDF</b>. The report is laid out for A4; in the print dialog, turn
-        off the browser’s headers and footers for a clean page.
-      </>,
-    ],
-    [
-      'Where is my data?',
-      <>
-        In this browser’s local storage (<Ch to="lab" />). Export it before clearing your browsing data or moving
-        to another computer.
-      </>,
-    ],
   ];
   return (
     <Chapter id="troubleshooting" n={chapterNo('troubleshooting')} title="Troubleshooting" lead="Common problems and what to do about them.">
@@ -1721,14 +1632,13 @@ function Troubleshooting() {
       ))}
       <H3>Starting again</H3>
       <p>
-        The button below resets the layout, the display settings and the welcome screen, and reloads the page. It keeps your
-        notebook; to delete readings as well, use <b>Clear notebook</b> in the lab’s Notebook tab.
+        The button below resets the layout, the display settings and the welcome screen, and reloads the page.
       </p>
       <TryRow>
         <button
           className="btn"
           onClick={() => {
-            if (window.confirm('Reset the layout and preferences and reload? Your notebook is kept.')) resetPreferences();
+            if (window.confirm('Reset the layout and preferences and reload?')) resetPreferences();
           }}
         >
           Reset layout and preferences
@@ -1773,7 +1683,7 @@ const GLOSSARY: [ReactNode, ReactNode][] = [
   ['Raindrop', 'An observer falling freely into a black hole from rest far away. Its view stays regular through the horizon; Lightspeed shows a fall from its frame, and home’s clock on its clocks.'],
   [<>Rapidity, <i>φ</i> (phi)</>, <>artanh <i>β</i>: a measure of speed that adds simply for successive boosts along a line, and grows in proportion to proper time at constant acceleration.</>],
   [<>Redshift, <i>z</i></>, <>How much light has been stretched on its way: 1 + <i>z</i> is the wavelength received over the wavelength sent. For distant galaxies most of it is the expansion of space.</>],
-  [<>Reduced chi-squared, <i>χ</i><sup className="sup">2</sup>/<i>ν</i></>, 'The sum of squared residuals, each divided by its variance, over the degrees of freedom. About 1 for a good fit with honest error bars.'],
+  ['Roam', 'The camera flown by hand, with nothing in focus and no speed limit: its pace is the distance to the nearest thing that matters, per second. A camera, not a ship: no relativity applies to its motion.'],
   [<>Scale factor, <i>a</i></>, 'How far space has stretched: distances between galaxies far apart grow in proportion to it. It is 1 today.'],
   ['Shadow (of a black hole)', 'The dark patch a black hole makes on the sky: the directions from which no light can reach you, because light aimed there falls in. Seen from far away it is 2.6 times the size of the horizon.'],
   ['Simulation rate', <>Simulated seconds per real second, from 1 to {rich(`10${superscript(Math.round(Math.log10(WARP_STEPS[WARP_STEPS.length - 1])))}`)}.</>],
@@ -1813,7 +1723,6 @@ export default function GuideDoc() {
         <h1>Exploring with Lightspeed</h1>
         <p>
           How to look around, fly and find your way, from the Moon to the cosmic web, and what everything on the screen does.
-          Chapter {chapterNo('lab')} is for students using the lab.
         </p>
       </header>
       <Welcome />
@@ -1825,7 +1734,6 @@ export default function GuideDoc() {
       <Flying />
       <Seeing />
       <Readings />
-      <Lab />
       <Controls />
       <Troubleshooting />
       <Glossary />

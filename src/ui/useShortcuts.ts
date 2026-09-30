@@ -1,17 +1,47 @@
+/**
+ * The single-key shortcuts (the keys sheet, ui/keys.tsx, lists them; the camera's own keys, WASD, the
+ * arrows, + and −, are the controller's). While flying by hand (Roam, or the ship) W A S D Q E R C steer and
+ * Space is up, so P pauses. Esc steps back one thing at a time (escapeStep): out of clean full screen first,
+ * then closes what is open, then leaves Roam (the ship goes back to Roam). F is Roam, Shift+F clean full
+ * screen; in clean full screen a key that opens something brings the interface back first (keyLeavesClean).
+ */
 import { useEffect } from 'react';
 import { controller, isTyping } from '../controls/cameraController';
 import { resetToNow, togglePause } from '../sim/clock';
 import { stepRate } from '../sim/travel';
-import { useUI } from '../state/ui';
-import { recordManual } from '../lab/logger';
-import { bodyForKey, goToBody } from './navigation';
+import { useUI, type UIState } from '../state/ui';
+import { bodyForKey, goToBody, toggleRoam } from './navigation';
+import { cleanJustEnded, leaveClean, toggleClean } from './cleanMode';
 import { openPlanner } from './tripActions';
-import { openSearch, toggleLab } from './onboarding';
+import { openSearch } from './onboarding';
 import { closeDoc, docRoute, openLearn } from '../state/route';
 import { toggleConstellations } from './constellations';
 
 /** Controls that Space activates, or that use the arrow keys, when focused from the keyboard. */
 const OWN_KEYS = 'button, a[href], summary, [role="radio"], [role="tab"], [role="slider"], [role="separator"], [tabindex]';
+
+/** Keys that open something on screen: in clean full screen they bring the interface back first. */
+const OPENS_INTERFACE = new Set(['?', '/', 'e', 'i', 'g']);
+/** Letters that steer while flying by hand (Roam, the ship): not shortcuts then. */
+const FLIGHT_LETTERS = 'wasdqerc';
+
+/** Whether key `k` brings the interface back from clean full screen first (not a letter that steers while flying). */
+export const keyLeavesClean = (k: string, flying: boolean): boolean => OPENS_INTERFACE.has(k) && !(flying && FLIGHT_LETTERS.includes(k));
+
+/** What one press of Esc does, the first that applies: clean full screen, the planner, a note, the selection, a journey's note, Roam, the ship. */
+export type EscapeStep = 'clean' | 'planner' | 'note' | 'selection' | 'journey' | 'roam' | 'ship' | null;
+
+export function escapeStep(ui: Pick<UIState, 'clean' | 'plannerOpen' | 'noteTopic' | 'selected' | 'journeyNote' | 'tripActive' | 'controlMode'>): EscapeStep {
+  if (ui.clean) return 'clean';
+  if (ui.plannerOpen) return 'planner';
+  if (ui.noteTopic) return 'note';
+  if (ui.selected) return 'selection';
+  if (ui.journeyNote && !ui.tripActive) return 'journey';
+  // Out of Roam, orbiting the nearest body; the ship (its pointer not locked) goes back to Roam.
+  if (ui.controlMode === 'roam') return 'roam';
+  if (ui.controlMode === 'free') return 'ship';
+  return null;
+}
 
 
 export function useShortcuts() {
@@ -28,8 +58,9 @@ export function useShortcuts() {
           useUI.setState({ searchOpen: false });
           return;
         }
-        if (docRoute() || u.reportFor || u.welcomeOpen || u.tourStep !== null || u.journeysOpen || u.keysOpen) return;
+        if (docRoute() || u.welcomeOpen || u.tourStep !== null || u.journeysOpen || u.keysOpen) return;
         e.preventDefault();
+        leaveClean();
         openSearch();
         return;
       }
@@ -38,7 +69,8 @@ export function useShortcuts() {
       if (e.repeat && !'[],.'.includes(e.key)) return;
       if ((e.target as HTMLElement | null)?.tagName === 'SELECT') return;
       const ui = useUI.getState();
-      const flying = ui.controlMode === 'free';
+      // Flying by hand: Roam, or the ship.
+      const flying = ui.controlMode === 'free' || ui.controlMode === 'roam';
       const k = e.key.toLowerCase();
 
       // Pages and dialogs that handle their own keys
@@ -46,12 +78,15 @@ export function useShortcuts() {
         if (e.key === 'Escape') closeDoc();
         return;
       }
-      if (ui.reportFor || ui.welcomeOpen || ui.tourStep !== null || ui.journeysOpen || ui.keysOpen || ui.searchOpen) return;
+      if (ui.welcomeOpen || ui.tourStep !== null || ui.journeysOpen || ui.keysOpen || ui.searchOpen) return;
       if (!ui.shortcuts && e.key !== 'Escape') return;
       // Space presses a button that was reached with Tab; it pauses only otherwise.
       const t = e.target as HTMLElement | null;
       if (e.code === 'Space' && t?.closest?.(OWN_KEYS) && t.matches(':focus-visible')) return;
 
+      // The Esc with which the browser left full screen, or released the pointer, has done its work already.
+      if (e.key === 'Escape' && (cleanJustEnded() || controller.justUnlocked)) return;
+      if (ui.clean && keyLeavesClean(k, flying)) leaveClean();
       if (e.key === '?') {
         useUI.setState({ keysOpen: true });
         return;
@@ -61,13 +96,33 @@ export function useShortcuts() {
         openSearch();
         return;
       }
-      // Esc closes panels and releases the pointer; it never ends a trip or a fall into a black hole
-      // (nothing leaves one: the HUD's "Stop the fall" puts the camera back where it let go).
+      // Esc leaves clean full screen first (everything is hidden there), then closes panels, then leaves Roam;
+      // it never ends a trip or a fall into a black hole (nothing leaves one: the HUD's "Stop the fall" puts
+      // the camera back where it let go).
       if (e.key === 'Escape') {
-        if (ui.plannerOpen) useUI.setState({ plannerOpen: false });
-        else if (ui.noteTopic) useUI.setState({ noteTopic: null });
-        else if (ui.selected) ui.select(null);
-        else if (ui.journeyNote && !ui.tripActive) useUI.setState({ journeyNote: null });
+        switch (escapeStep(ui)) {
+          case 'clean':
+            leaveClean();
+            break;
+          case 'planner':
+            useUI.setState({ plannerOpen: false });
+            break;
+          case 'note':
+            useUI.setState({ noteTopic: null });
+            break;
+          case 'selection':
+            ui.select(null);
+            break;
+          case 'journey':
+            useUI.setState({ journeyNote: null });
+            break;
+          case 'roam':
+            controller.exitRoam();
+            break;
+          case 'ship':
+            controller.shipToRoam();
+            break;
+        }
         return;
       }
       // Time
@@ -89,25 +144,19 @@ export function useShortcuts() {
       }
 
       if (k === 'f') {
-        // Not during a fall (the controller refuses it too); a circular orbit or a snapshot ends first.
-        if (ui.controlMode === 'fall') return;
-        if (flying) controller.exitFreeFlight();
-        else controller.enterFreeFlight();
+        // Shift+F: clean full screen, on and off.
+        if (e.shiftKey) {
+          toggleClean();
+          return;
+        }
+        // Roam on and off (refused, with a message, on a trip and in a fall; a circular orbit or a snapshot ends first).
+        toggleRoam();
         return;
       }
       // Letters used for flying are not shortcuts while in flight.
-      if (flying && 'wasdqerc'.includes(k)) return;
+      if (flying && FLIGHT_LETTERS.includes(k)) return;
       if (k === 'e') {
         openLearn();
-        return;
-      }
-      // R records a lab reading, and only for someone using the lab: a stray R (next to WASD)
-      // must not bring up lab messages for anyone else.
-      if (k === 'r') {
-        const byHand = ui.experiment === 'E3' || ui.experiment === 'E4';
-        if (!ui.leftOpen && !(ui.labUsed && byHand)) return;
-        e.preventDefault();
-        recordManual();
         return;
       }
       if (k === 'g' && !ui.tripActive) {
@@ -146,9 +195,6 @@ export function useShortcuts() {
           break;
         case 'y':
           toggleConstellations();
-          break;
-        case 'k':
-          toggleLab();
           break;
         case 'i':
           ui.toggle('rightOpen');

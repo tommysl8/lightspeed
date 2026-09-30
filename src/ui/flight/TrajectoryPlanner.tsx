@@ -103,8 +103,6 @@ function Planner() {
   const beta = useUI((s) => s.plannerBeta);
   const drive = useUI((s) => s.plannerDrive);
   const warpFactor = useUI((s) => s.plannerWarpFactor);
-  // The lab's bookkeeping is mentioned only to those who have opened the lab.
-  const labUsed = useUI((s) => s.labUsed);
   const accelG = useFlightOptions((s) => s.accelG);
   const maxShipYears = useFlightOptions((s) => s.maxShipYears);
   const [result, setResult] = useState<FlightResult | undefined>(undefined);
@@ -201,7 +199,7 @@ function Planner() {
             </Field>
 
             {drive === 'rocket' ? (
-              <div className="prose-lab !text-[12.5px]">
+              <div className="prose-panel !text-[12.5px]">
                 <p>
                   Constant proper acceleration <Sym>a</Sym> = {accelG === 1 ? <><Sym>g</Sym>₀ = 9.806 65 m/s² (the crew feels Earth gravity)</> : <>{Number(accelG.toPrecision(3))} <Sym>g</Sym>₀ = {sig(accelG * 9.80665, 5)} m/s²</>}.{' '}
                   {flrw ? (
@@ -216,7 +214,6 @@ function Planner() {
                       and never reaches <Sym>c</Sym>.
                     </>
                   )}
-                  {labUsed && !flrw && ' Experiment 5 logs these flights.'}
                 </p>
               </div>
             ) : (
@@ -372,7 +369,6 @@ function Planner() {
             </p>
           ) : drive === 'rocket' ? (
             <p className="flex-1 text-[11.5px] leading-snug text-fg-3">
-              {labUsed && !flrw && 'Logged by Experiment 5. '}
               <button className="underline decoration-fg-4 underline-offset-2 hover:text-fg" onClick={() => void readMore('rocket')}>
                 How a 1 g rocket works
               </button>
@@ -380,7 +376,6 @@ function Planner() {
           ) : (
             <p className="flex-1 text-[11.5px] leading-snug text-fg-3">
               {flrw ? `Speeds up at ${gText(accelG)}, holds the speed against the expansion, then brakes at ${gText(accelG)}.` : 'Instant boost and stop (idealised).'}
-              {labUsed && !flrw && ' Logged by Experiment 2 on arrival.'}
             </p>
           )}
           <button className="btn" onClick={close}>

@@ -11,7 +11,6 @@ type Name =
   | 'book'
   | 'info'
   | 'tour'
-  | 'flask'
   | 'orbit'
   | 'compass'
   | 'keyboard'
@@ -26,6 +25,10 @@ type Name =
   | 'sliders'
   | 'chevron-left'
   | 'chevron-right'
+  | 'chevron-up'
+  | 'chevron-down'
+  | 'move'
+  | 'fullscreen'
   | 'gauge';
 
 const PATHS: Record<Name, ReactNode> = {
@@ -65,12 +68,6 @@ const PATHS: Record<Name, ReactNode> = {
     <>
       <circle cx="6" cy="6" r="4.8" />
       <path d="M7.9 4.1L6.9 6.9 4.1 7.9l1-2.8z" />
-    </>
-  ),
-  flask: (
-    <>
-      <path d="M4.5 1.5h3M5 1.5v3.2L2 9.6c-.4.7.1 1.4.9 1.4h6.2c.8 0 1.3-.7.9-1.4L7 4.7V1.5" />
-      <path d="M3.4 7.5h5.2" />
     </>
   ),
   orbit: (
@@ -131,6 +128,12 @@ const PATHS: Record<Name, ReactNode> = {
   ),
   'chevron-left': <path d="M7.5 2.5L4 6l3.5 3.5" />,
   'chevron-right': <path d="M4.5 2.5L8 6l-3.5 3.5" />,
+  'chevron-up': <path d="M2.5 7.5L6 4l3.5 3.5" />,
+  'chevron-down': <path d="M2.5 4.5L6 8l3.5-3.5" />,
+  // Four ways out from the middle: Roam
+  move: <path d="M6 1.5v9M1.5 6h9M4.6 2.9L6 1.5l1.4 1.4M4.6 9.1L6 10.5l1.4-1.4M2.9 4.6L1.5 6l1.4 1.4M9.1 4.6L10.5 6 9.1 7.4" />,
+  // The four corners of the screen: full screen
+  fullscreen: <path d="M1.5 4.2V1.5h2.7M7.8 1.5h2.7v2.7M10.5 7.8v2.7H7.8M4.2 10.5H1.5V7.8" />,
   // A dial with its needle: the instrument panel
   gauge: (
     <>

@@ -8,6 +8,7 @@ import { blackHoleRsKm } from '../controls/cameraController';
 import { apply, GAL_TO_WORLD } from '../sim/galaxy/frames';
 import { OUTSIDE_VIEW_KM } from '../sim/galaxy/records';
 import { sim } from '../sim/sim';
+import { notice } from './notices';
 
 /** The single key that goes to a body ("6" for Saturn), from its registry record. */
 export const bodyKey = (id: BodyId): string | undefined => getBody(id)?.key;
@@ -178,4 +179,30 @@ export function outsideDirection(): Vector3 {
   const toSun = new Vector3(...apply(GAL_TO_WORLD, [-1, 0, 0]));
   const tilt = (20 * Math.PI) / 180;
   return ngp.multiplyScalar(Math.cos(tilt)).addScaledVector(toSun, Math.sin(tilt)).normalize();
+}
+
+// ─── Roam ────────────────────────────────────────────────────────────────────────────────
+
+/** Why Roam cannot start now (a trip or a fall under way, as for free flight), in a sentence, or null. */
+export function roamRefusal(): string | null {
+  const ui = useUI.getState();
+  if (ui.fallActive || ui.controlMode === 'fall') return 'Not during a fall: nothing leaves a black hole. Stop the fall first; it puts you back where you let go.';
+  if (ui.tripActive || ui.controlMode === 'travel') return 'Not during a trip: Roam waits until you arrive (or Skip to arrival, or Abort).';
+  return null;
+}
+
+/** Start Roam (F, View › Roam), or say why not in the view's message corner. */
+export function startRoam(): void {
+  const why = roamRefusal();
+  if (why || !controller.enterRoam()) {
+    notice(why ?? 'Roam is not available here.');
+  }
+}
+
+/** F: into Roam from anywhere; out of Roam or the ship, orbiting the nearest body from where the camera is. */
+export function toggleRoam(): void {
+  const mode = useUI.getState().controlMode;
+  if (mode === 'roam') controller.exitRoam();
+  else if (mode === 'free') controller.exitFreeFlight();
+  else startRoam();
 }

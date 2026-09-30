@@ -23,7 +23,7 @@ const RELEASE_MS = 8000;
 
 /**
  * The pictures drawn in the view, largest first, each of which must carry its credit (the
- * viewport's credit lines read it: ui/viewport/PictureCredits.tsx). A picture counts from the
+ * view's Credits button lists them: ui/viewport/PictureCredits.tsx). A picture counts from the
  * moment any of it is drawn: its card at least MIN_PX across, some of it in the view, and not
  * seen so nearly edge-on that it has faded out.
  */

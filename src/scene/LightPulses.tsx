@@ -1,5 +1,5 @@
 /**
- * Light-pulse wavefronts (Experiment 1). Each pulse is a sphere of radius c(t − t₀) about its
+ * Light-pulse wavefronts. Each pulse is a sphere of radius c(t − t₀) about its
  * emission point. Two circles show it:
  *   - its cross-section with the ecliptic plane, where the planets are;
  *   - its outline on the sky, the circle where lines of sight graze the sphere

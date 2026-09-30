@@ -1,11 +1,10 @@
 /**
- * The lab's readings (lab/measure.ts) far from black holes and near one, against the formulas themselves:
+ * The instruments' readings (sim/measure.ts) far from black holes and near one, against the formulas themselves:
  *  - with no hole every reading is the flat-spacetime one of the Sun's frame, number for number;
  *  - near a hole the motion is the ship's past the local observers (gravity.relPhi, relVelDir), so hovering is
  *    at rest; the spectrometer's D is the kinematic factor times the hole's g (the hovering observers' blueshift
  *    whatever the direction; inside the horizon the raindrop's, by the light's angle from the hole); a hole's
- *    angular diameter is its shadow's (holeView); a lensed body is read at its primary image;
- *  - the lab records nothing near a hole (lab/logger.ts), where it would record the same reading far away.
+ *    angular diameter is its shadow's (holeView); a lensed body is read at its primary image.
  */
 import { afterEach, beforeAll, describe, expect, it } from 'vitest';
 import { Matrix4, Vector3 } from 'three';
@@ -13,14 +12,11 @@ import { registerUniverse } from '../test/universe';
 import { C_KM_S } from '../physics/constants';
 import { cosRestFromShip, dopplerFromShipAngle } from '../physics/relativity';
 import { edgeAngle, lnGRain, lnGStatic } from '../physics/schwarzschild';
-import { getBody } from '../sim/bodies';
-import { gravity } from '../sim/gravity';
-import { setSimTime, sim } from '../sim/sim';
-import { updateEphemeris } from '../sim/ephemeris';
-import { useUI } from '../state/ui';
-import { useNotebook } from './notebook';
-import { recordManual } from './logger';
-import { angularDiameterDeg, apexDirection, nearBlackHole, observerBeta, reticleDirection, reticleReading, targetReading } from './measure';
+import { getBody } from './bodies';
+import { gravity } from './gravity';
+import { setSimTime, sim } from './sim';
+import { updateEphemeris } from './ephemeris';
+import { angularDiameterDeg, apexDirection, observerBeta, reticleDirection, reticleReading, targetReading } from './measure';
 
 const DEG = 180 / Math.PI;
 
@@ -84,12 +80,11 @@ afterEach(() => {
   sim.ship.phi = 0;
   sim.camera.pos.set(0, 0, 0);
   sim.camera.quat.identity();
-  useUI.setState({ experiment: null });
 });
 
 describe('far from black holes', () => {
   it('reads the motion, the spectrometer and the goniometer in the Sun’s frame, as always', () => {
-    expect(nearBlackHole()).toBe(false);
+    expect(gravity.hole).toBeNull();
     sim.ship.vel.set(0.6 * C_KM_S, 0, 0);
     expect(observerBeta()).toBe(Math.min(sim.ship.vel.length() / C_KM_S, 0.999_999_999_999));
     expect(apexDirection()!.toArray()).toEqual([1, 0, 0]);
@@ -112,7 +107,7 @@ describe('near a black hole', () => {
 
   it('is at rest while hovering: no apex and no spectrometer reading, whatever the Sun’s frame says', () => {
     nearSgrA(new Vector3(0, 0, 10 * rsSgrA));
-    expect(nearBlackHole()).toBe(true);
+    expect(gravity.hole).not.toBeNull();
     sim.ship.vel.set(0.3 * C_KM_S, 0, 0); // (ignored near a hole: the motion is gravity.relPhi's)
     expect(observerBeta()).toBe(0);
     expect(apexDirection()).toBeNull();
@@ -194,22 +189,5 @@ describe('near a black hole', () => {
     // the hole itself: its own direction from the camera (the exact hole-relative one)
     const h = targetReading('sgr-a-star')!;
     expect(h.thetaDeg).toBeCloseTo(0, 12);
-  });
-
-  it('takes no reading there: the lab’s experiments assume flat spacetime', () => {
-    useUI.setState({ experiment: 'E3' });
-    // far away, moving: a reading is recorded
-    const before = useNotebook.getState().rows.length;
-    sim.ship.vel.set(0.5 * C_KM_S, 0, 0);
-    look(new Vector3(1, 1, 0).normalize());
-    expect(recordManual()).toBe(true);
-    expect(useNotebook.getState().rows.length).toBe(before + 1);
-    // near Sgr A*, moving past the hovering observers just as fast: refused, nothing recorded
-    nearSgrA(new Vector3(0, 0, 10 * rsSgrA));
-    gravity.relPhi = Math.atanh(0.5);
-    gravity.relVelDir.set(1, 0, 0);
-    expect(reticleReading()).not.toBeNull();
-    expect(recordManual()).toBe(false);
-    expect(useNotebook.getState().rows.length).toBe(before + 1);
   });
 });

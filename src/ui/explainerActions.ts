@@ -2,12 +2,10 @@ import type { ExplainerId } from '../content/explainers';
 import type { ArticleMeta } from '../content/learn/catalogue';
 import { openLearn } from '../state/route';
 import { useUI } from '../state/ui';
-import { openLab } from './onboarding';
 
-/** Open a reference section in the lab manual (from inside the lab). */
+/** Open a section of the physics reference (left dock). */
 export function openExplainer(id: ExplainerId): void {
-  openLab('reference');
-  useUI.setState({ refTopic: id, noteTopic: null });
+  useUI.setState({ leftOpen: true, refTopic: id, noteTopic: null });
   markSeen(id);
 }
 
@@ -35,9 +33,9 @@ export const EXPLAINER_ARTICLES: Record<ExplainerId, { slug: string; section?: s
 
 /**
  * "Read more" and "Why": the matching Learn article, at its section. When the article has not
- * been written (or Learn could not load) the Learn hub opens instead: never the lab, which
- * opens only when asked for. (The article index loads with Learn, not with the app, hence the
- * wait.)
+ * been written (or Learn could not load) the Learn hub opens instead: never the physics
+ * reference, which opens only when asked for. (The article index loads with Learn, not with
+ * the app, hence the wait.)
  */
 export async function readMore(id: ExplainerId): Promise<void> {
   const target = EXPLAINER_ARTICLES[id];

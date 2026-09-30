@@ -27,8 +27,8 @@ import { sim } from '../../sim/sim';
 import { lagAtTau, travel, tripElapsed, tripShipTime } from '../../sim/travel';
 import { formatSimDate } from '../../lib/time';
 import { useUI, type ScopeChannel } from '../../state/ui';
-import { angularDiameterDeg, eclipticLonLat, observerBeta, rangeRate, reticleReading, targetReading } from '../../lab/measure';
-import { emitLightPulse } from '../../lab/logger';
+import { angularDiameterDeg, eclipticLonLat, observerBeta, rangeRate, reticleReading, targetReading } from '../../sim/measure';
+import { emitPulse } from '../../sim/pulses';
 import { goToBody } from '../navigation';
 import { openPlanner } from '../tripActions';
 import { Check, CloseIcon, DockResizer, Ro, Sec, Seg, Sym } from '../kit';
@@ -320,7 +320,6 @@ function StarRows({ star }: { star: StarInfo }) {
 function Target() {
   const id = useUI((s) => s.selected);
   const tripActive = useUI((s) => s.tripActive);
-  const labUsed = useUI((s) => s.labUsed);
   if (!id) {
     return (
       <Sec id="tgt" idx="C" title="Target">
@@ -446,7 +445,7 @@ function Target() {
         <button className="btn" disabled={tripActive} onClick={() => openPlanner(id)} title="Plan a trip at a chosen speed (G)">
           Plan trajectory…
         </button>
-        <button className="btn" onClick={() => emitLightPulse(id)} title={`Emit a light pulse from this body’s current position${labUsed ? ' (Experiment 1)' : ''}`}>
+        <button className="btn" onClick={() => emitPulse(id)} title="Emit a light pulse from this body’s current position">
           Emit pulse
         </button>
       </div>

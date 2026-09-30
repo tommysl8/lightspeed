@@ -13,7 +13,6 @@ import { updateGravity } from '../sim/gravity';
 import { lensProgramsReady, updateLens } from '../render/lens/lensState';
 import { updateShipKinematics } from '../sim/shipKinematics';
 import { updatePulses } from '../sim/pulses';
-import { labArrival, labFrame } from '../lab/logger';
 import { useUI } from '../state/ui';
 import { psfUniforms } from '../render/materials';
 import { updateRelativisticView } from '../render/relativisticView';
@@ -95,15 +94,11 @@ export function SimDriver() {
     }
     // Trip and chronometers (both exact at any frame length)
     const arrived = tickTrip(dtSim);
-    if (arrived) {
-      labArrival(arrived);
-      onArrival(arrived.dest);
-    }
+    if (arrived) onArrival(arrived.dest);
 
     // Bodies that do not exist at this date (Voyager 1 before 1980) cannot stay targeted.
     if (!sim.bodies[ui.focus]?.present && controller.mode !== 'travel') controller.goTo('earth');
     if (ui.selected && !sim.bodies[ui.selected]?.present) ui.select(null);
-    labFrame();
     updatePulses();
 
     // Camera (floating origin: the three.js camera never leaves the origin)
@@ -127,7 +122,8 @@ export function SimDriver() {
     // Its lens: tables, zones, boxes and uniforms (render/lens/lensState.ts)
     updateLens();
     updateRelativisticView(ui.relMode, ui.splitX, ui.relDoppler, !!travel.trip?.warp);
-    updateDerived(cam, ui.focus, ui.selected);
+    // Roaming, no body is in focus (the one last orbited keeps no label from afar, nor a lensed image of its own).
+    updateDerived(cam, ui.controlMode === 'roam' ? undefined : ui.focus, ui.selected);
     if (sim.frame - earthLight.frame >= 12) updateEarthLight();
     psfUniforms.uPixelRatio.value = gl.getPixelRatio();
     sim.frame++;

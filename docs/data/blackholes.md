@@ -90,8 +90,9 @@ lensCheck.report()` runs the checks of the lens on the GPU against the reference
   starlight (§6); the orbital elements marked assumed; the companions drawn without dust; one donor's radius taken as
   its Roche lobe's, another's temperature estimated from its type (§5).
 
-The labels, and where the app shows each (a black hole's card carries at most three one-line notes; the rest are on
-its data sheet, which the card's **What is modelled here** opens, beside the Guide's section):
+The labels, and where the app shows each (a black hole's card carries at most three one-line notes, under its
+Sources, closed until asked for; the rest are on its data sheet, which the card's **What is modelled here**, always in
+view, opens, beside the Guide's section):
 
 | # | Label | Shown in the app |
 | --- | --- | --- |
@@ -119,7 +120,6 @@ its data sheet, which the card's **What is modelled here** opens, beside the Gui
 | 22 | **Contested masses**: Cygnus X-1 21.2 or 17.5 M☉; M87* 6.5 × 10⁹ (EHT) with stellar dynamics 5.4–8.7 × 10⁹; Gaia BH1 9.27 (9.62 in the discovery paper); Sgr A*'s mass 7.5 % lower in the Keck group's fit (Do et al. 2019) | each one's card (the mass line) and data sheet |
 | 23 | **Hovering where tides would tear a ship apart** is allowed (the physics of hovering holds there); the panel says so in red | the panel near a hole; Guide |
 | 24 | **The classical view near a moving hole** shows an observer at rest relative to the Sun, as the classical view does everywhere (hovering there differs by the hole's speed, at most 0.19 % of c: Gaia BH3, 570 km/s) | the split view's label; Guide |
-| 25 | **The lab near a hole**: its experiments assume flat spacetime, so no reading is taken there | the lab's refusal; Guide |
 
 Labels 1, 2, 10, 12, 13, 14, 18 and 22 are also in the captions and text of the Learn article *Black holes*
 (`src/content/learn/articles/black-holes.md`), where the lensing hint's **Read more** leads.
@@ -690,8 +690,7 @@ companion's gravity on the light), and only the one with the largest lens bends 
 another's is 10 % larger); the others' lenses are then far below a pixel. Only the black hole's own gravity is
 included, and only where r_s/r ≥ 5 × 10⁻¹⁰ (beyond 823 pc of Sgr A* and 366 au of Gaia BH1 every clock and every light
 path is exactly the app's flat one). A fall ends 0.03 s before the centre, where general relativity stops working;
-home's clock during a fall is a convention (label 10). The flight planner ignores gravity (label 11), and the lab takes
-no reading near a hole (label 25).
+home's clock during a fall is a convention (label 10). The flight planner ignores gravity (label 11).
 
 **The rendering.** Diffuse light near the ring is resampled from quarter-resolution pictures as if from far away,
 which the nuclear cluster's glow partly is not (label 4); in flight it is recoloured with an approximate spectral
@@ -851,7 +850,12 @@ observers.
   readout. The instruments' section A adds whom your motion is measured against, the height, α, the thrust (none on a
   circular orbit) and the tides; section D the exposure once it moves by a twentieth of a stop. Lamps: "Home ×N" (from
   ×1.01) and "Falling". The split view's halves read HOVERING (FALLING FROM REST in a fall, AT REST (SUN) beside a
-  moving hole) and SHIP.
+  moving hole) and SHIP. Since the Roam release the panel is closed by default: in its place a chip ("Sagittarius A* ·
+  your clock 1.054× slower · Details") opens it, and Hide closes it; it opens by itself for a black-hole scene or a fall
+  (and always during one, for "Stop the fall"), or everywhere with View › Open the black-hole panel automatically (saved,
+  off by default). The choice lasts until the camera leaves the hole; the "Home ×N" lamp shows only with the panel open
+  (`holeStripForm`, tested). Roam near a hole (within 5,000 r_s) moves the exact hole-relative place, hovers wherever it
+  stops, and stops at the same floor; its face reads "Roaming near …", without "Let go".
 
 ### The interface
 
@@ -871,7 +875,7 @@ observers.
   falling in (label 12), each opening to say more.
 - **Physics hints** (`content/explainers.ts`, appended so no section changes its number): the blueshift and slow
   clocks, doubled stars, and the shadow's size, each shown once near a hole with physics hints on, with its section in
-  the lab's Reference tab.
+  the physics reference (View › Physics reference).
 - **The Guide** (What is out there › Black holes; Time › Near a black hole; Journeys and flights › Near a black hole;
   What you are seeing › The lens; What is a model; the lamps, the readings, troubleshooting and nine glossary entries)
   and **About** (the principles, the references [29]–[33] and [40], Model limitations 1–3).
