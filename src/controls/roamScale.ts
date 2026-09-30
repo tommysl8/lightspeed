@@ -43,9 +43,14 @@ export const ROAM_RATE = 1.5;
 export const ROAM_BOOST = 4;
 /** A catalogue star that is not a body counts at this many times its distance: a point to pass among many. */
 export const POINT_FACTOR = 3;
-/** The edge of the map, km from the Sun (as far as the orbit camera goes), and the pace it keeps there: a twentieth of it. */
-export const EDGE_KM = 1e24;
-export const EDGE_FLOOR_KM = 0.05 * EDGE_KM;
+/**
+ * The edge of the observable universe, km from the Sun: today's comoving particle horizon for Planck 2018,
+ * 14,165 Mpc or 46 billion light-years (physics/cosmology; roamScale.test.ts checks it). Light from farther
+ * has not reached us yet, so there is nothing to show beyond it and Roam stops there. Near it the pace
+ * keeps a hundredth of it, so the edge is reached in a few seconds and left as quickly.
+ */
+export const EDGE_KM = 4.3707845e23;
+export const EDGE_FLOOR_KM = 0.01 * EDGE_KM;
 /** The multiplier's range (the wheel and + −). */
 export const ROAM_MUL_MIN = 1e-3;
 export const ROAM_MUL_MAX = 1e3;

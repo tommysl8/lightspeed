@@ -1,8 +1,8 @@
 /**
- * The loading screen (index.html, #boot), where the mark's circles come together while the app
+ * The loading screen (index.html, #boot), where the mark is drawn like a polar plot while the app
  * loads. It stays until the first frame of the view is drawn, so the page never shows an empty
  * canvas, and then fades. If the app was ready before the screen had faded in (a warm cache), it
- * goes at once, unseen; otherwise it waits for the circles to meet, so the mark is never cut off
+ * goes at once, unseen; otherwise it waits for the circles to close, so the mark is never cut off
  * half-drawn.
  */
 import { _roots, addAfterEffect } from '@react-three/fiber';
@@ -10,8 +10,8 @@ import { _roots, addAfterEffect } from '@react-three/fiber';
 /** Before this (ms after the page began) the screen has not faded in yet (index.html: 0.25 s delay). */
 const UNSEEN_MS = 250;
 
-/** When the circles have met: the apex, last to arrive, starts at 0.45 s and takes 1.1 s. */
-const MET_MS = 1550;
+/** When the mark is whole: both circles are traced from 0.55 s for 2 s. */
+const MET_MS = 2600;
 
 /** The screen goes this long after the app starts whatever happens (no WebGL, a very slow first compile). */
 const GIVE_UP_MS = 10_000;

@@ -7,7 +7,7 @@
  * as a sentence does; the instrument panel keeps the exact figures.
  */
 import { AU_KM, C_KM_S, LIGHT_YEAR_KM } from '../../physics/constants';
-import type { RoamClass } from '../../controls/roamScale';
+import { EDGE_KM, type RoamClass } from '../../controls/roamScale';
 
 /** A number to `digits` significant figures, as words write it: "12,300", "3.2", "0.045". */
 export function plainNumber(x: number, digits = 2): string {
@@ -50,7 +50,7 @@ export const FASTER_THAN_LIGHT = 'faster than light: this is a camera, not a shi
  */
 export function roamPlaceWords(cls: RoamClass, distKm: number, radiusKm: number): string {
   if (cls === 'hole') return `${distanceWords(distKm)} above the horizon`;
-  if (cls === 'edge') return `${distanceWords(distKm)} on; Roam goes no farther`;
+  if (cls === 'edge') return distKm < 1e-3 * EDGE_KM ? 'here: light from farther has not reached us yet' : `${distanceWords(distKm)} on`;
   if (cls === 'solid' && radiusKm > 0 && distKm < 3 * radiusKm) return `${distanceWords(Math.max(0, distKm - radiusKm))} above the surface`;
   if (cls === 'extended' && distKm < radiusKm) return `inside it, ${distanceWords(distKm)} from its centre`;
   return `${distanceWords(distKm)} away`;
