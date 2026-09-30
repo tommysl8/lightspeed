@@ -99,8 +99,8 @@ good pull request looks like and the rules for adding data. Please also read the
 
 ## Author
 
-Made by **Tommy S. Liu** ([@tommysl8](https://github.com/tommysl8)), an Electrical and Computer Engineering student at
-the University of Illinois Urbana-Champaign. Bug reports and ideas are welcome as
+Made by **Tommy S. Liu** ([GitHub](https://github.com/tommysl8), [LinkedIn](https://www.linkedin.com/in/tommysliu/)), who is
+currently studying Electrical and Computer Engineering Honors at the University of Illinois Urbana-Champaign. Bug reports and ideas are welcome as
 [issues](https://github.com/tommysl8/skyfold/issues) or by email at tommysliu8@gmail.com.
 
 ## Licence

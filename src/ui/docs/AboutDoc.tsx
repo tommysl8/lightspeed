@@ -134,6 +134,11 @@ function Author() {
               GitHub
               <span className="mono text-fg-3">github.com/{AUTHOR.handle}</span>
             </a>
+            <a className="btn" href={AUTHOR.linkedin} target="_blank" rel="noreferrer">
+              <Icon name="external" size={11} />
+              LinkedIn
+              <span className="mono text-fg-3">linkedin.com/in/tommysliu</span>
+            </a>
             <a className="btn" href={`mailto:${AUTHOR.email}?subject=Skyfold`}>
               <Icon name="mail" size={11} />
               Email
