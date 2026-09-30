@@ -18,10 +18,8 @@ import { chrono } from '../../sim/chronometer';
 import { sim } from '../../sim/sim';
 import { SHIP_RATE_MIN, cosmicReadings, jumpToArrival, stepRate, travel, tripElapsed, tripPace, tripState, type ArrivalSummary, type Trip } from '../../sim/travel';
 import { useUI } from '../../state/ui';
-import { lastTrial } from '../../lab/logger';
 import { stopTrip } from '../tripActions';
 import { readMore } from '../explainerActions';
-import { openExperiment } from '../onboarding';
 import { Chevron, CloseIcon, Sym, useLocalState } from '../kit';
 import { Icon } from '../icons';
 import { useTicker } from '../useTicker';
@@ -29,6 +27,7 @@ import { theName } from '../../content/scenes';
 import { OpticsSeg } from '../layout/Header';
 import { rich } from '../rich';
 import { keepCreditsClear } from '../viewport/PictureCredits';
+import { Sources } from '../viewport/Sources';
 import { FLRW_MODEL_NOTE, gText, arrivalCosmicText, arrivalText, homeClockText, lightYearsParts, redshiftText, speedText, yearsParts } from './tripText';
 
 const DAY_S = 86_400;
@@ -192,7 +191,7 @@ function Recorder({ t, elapsed, tau, remD, gamma, progress }: { t: Trip; elapsed
       )}
       {!t.warp && (
         <div className="flex flex-wrap items-center gap-2 border-t border-line px-3 py-1.5">
-          <span className="cap">Optics</span>
+          <span className="text-[11px] text-fg-3">Optics</span>
           <OpticsSeg />
           <span className="text-[11px] text-fg-3 max-md:hidden">X splits the screen: the sky without relativity on the left</span>
         </div>
@@ -232,7 +231,7 @@ function InFlight({ t }: { t: Trip }) {
   return (
     <div ref={keepCreditsClear} className={`panel-float appear absolute bottom-3 z-20 w-[780px] max-w-[calc(100%-24px)] ${stripPlace(cardOpen, 780)} ${t.warp ? '!border-hazard/50' : ''}`}>
       <div className={`flex items-center gap-2 px-3 pb-1 pt-2 ${t.warp ? 'hatch' : ''}`}>
-        <span className={`cap shrink-0 ${t.warp ? '!text-hazard' : '!text-data'}`}>In flight</span>
+        <span className={`shrink-0 text-[12px] font-medium ${t.warp ? 'text-hazard' : 'text-data'}`}>In flight</span>
         <span className="min-w-0 truncate text-[13px] text-fg">
           → {bodyName(t.dest)}
           <span className="text-fg-3">
@@ -246,8 +245,7 @@ function InFlight({ t }: { t: Trip }) {
         <div className={`h-full ${t.warp ? 'bg-hazard' : 'bg-data'}`} style={{ width: `${progress * 100}%` }} />
       </div>
       {note && (
-        <div className="mt-1.5 flex items-start gap-2.5 border-y border-line bg-accent/[0.04] px-3 py-1.5">
-          <span className="cap mt-[3px] shrink-0 !text-accent">Look for</span>
+        <div className="mt-1.5 flex items-start gap-2.5 border-y border-line px-3 py-1.5" role="note" aria-label="Look for">
           <span className="font-serif text-[12.5px] leading-snug text-fg-2">{note}</span>
         </div>
       )}
@@ -284,7 +282,7 @@ function InFlight({ t }: { t: Trip }) {
           </button>
         </span>
         <span className="flex items-center gap-1">
-          <span className="cap mr-0.5">Look</span>
+          <span className="mr-0.5 text-[11px] text-fg-3">Look</span>
           <button className="btn btn-sm" onClick={() => controller.setTravelLook(0)} title="Look along the direction of travel">
             Ahead
           </button>
@@ -323,7 +321,7 @@ function CosmicReport({ a }: { a: ArrivalSummary }) {
   return (
     <>
       <p className="mt-1 font-serif text-[14px] leading-snug text-fg-2">{more}</p>
-      <button className="cap mt-2 flex items-center gap-1 hover:text-fg" aria-expanded={open} onClick={() => setOpen(!open)}>
+      <button className="mt-2 flex items-center gap-1 text-[12px] text-fg-3 hover:text-fg" aria-expanded={open} onClick={() => setOpen(!open)}>
         At home now
         <Chevron className={open ? 'rotate-180' : ''} />
       </button>
@@ -337,27 +335,32 @@ function CosmicReport({ a }: { a: ArrivalSummary }) {
           ))}
         </dl>
       )}
-      <p className="mt-1.5 text-[10.5px] leading-snug text-fg-3">
-        {FLRW_MODEL_NOTE} The home clock quotes published models: the Sun’s future from Schröder & Connon Smith (2008), the Milky Way and Andromeda
-        from Sawala et al. (2025), whose study stops 10 billion years from now.
-      </p>
+      <p className="mt-1.5 text-[11px] leading-snug text-fg-3">{COSMIC_MODEL_LINE}</p>
+      {/* Keyed by the arrival: the next card starts with its sources closed. */}
+      <Sources key={a.at} className="mt-1">
+        <p>{FLRW_MODEL_NOTE}</p>
+        <p>
+          The home clock quotes published models: the Sun’s future from Schröder & Connon Smith (2008), the Milky Way and Andromeda from Sawala et al.
+          (2025), whose study stops 10 billion years from now.
+        </p>
+      </Sources>
     </>
   );
 }
 
+/** The arrival card's one line on what is a model after a flight through the expanding universe (FLRW_MODEL_NOTE in full is under Sources). */
+const COSMIC_MODEL_LINE = 'A model: the standard model of cosmology and a perfect engine; the galaxies’ own motions are left out.';
+
 function Report() {
   const a = travel.lastArrival!;
-  const labUsed = useUI((s) => s.labUsed);
   const cardOpen = useCardOpen();
   const text = arrivalText({ destName: theName(bodyName(a.dest)), earthTime: a.earthTime, shipTime: a.shipTime, warp: a.warp, endMs: a.endMs });
-  // The lab's bookkeeping is mentioned only to those who have opened the lab.
-  const logged = labUsed && !a.warp && lastTrial.at === a.at ? lastTrial : null;
   return (
     <div ref={keepCreditsClear} className={`absolute bottom-3 z-20 ${a.cosmic ? 'w-[620px]' : 'w-[540px]'} max-w-[calc(100%-24px)] ${stripPlace(cardOpen, a.cosmic ? 620 : 540)}`}>
       <div className={`panel-float appear ${a.warp ? '!border-hazard/50' : ''}`}>
         <div className="flex items-start gap-3 py-2.5 pl-4 pr-2.5">
           <div className="min-w-0 flex-1" role="status">
-            <div className={`cap ${a.warp ? '!text-hazard' : '!text-ok'}`}>Arrived</div>
+            <div className={`text-[12px] font-medium ${a.warp ? 'text-hazard' : 'text-ok'}`}>Arrived</div>
             <p className="mt-1 font-serif text-[16px] leading-snug text-fg">{text.headline}</p>
             {a.cosmic ? <CosmicReport a={a} /> : text.more && <p className="mt-1 font-serif text-[14px] leading-snug text-fg-2">{text.more}</p>}
           </div>
@@ -365,31 +368,12 @@ function Report() {
             <CloseIcon />
           </button>
         </div>
-        {(a.warp || logged) && (
+        {a.warp && (
           <div className="flex items-center gap-2 border-t border-line px-4 py-1.5 text-[11.5px] text-fg-2">
-            {a.warp ? (
-              <>
-                <span className="text-hazard">Fiction, so nothing was recorded.</span>
-                <button className="btn btn-sm ml-auto" onClick={() => void readMore('ftl')}>
-                  Why
-                </button>
-              </>
-            ) : (
-              logged && (
-                <>
-                  <span>
-                    Logged as Experiment {logged.exp.slice(1)}, {logged.exp === 'E5' ? `flight F${logged.n}` : `reading ${logged.n}`}.
-                  </span>
-                  <button
-                    className="btn btn-sm ml-auto"
-                    onClick={() => openExperiment(logged.exp)}
-                    title="The lab keeps every flight as a reading"
-                  >
-                    Open Experiment {logged.exp.slice(1)}
-                  </button>
-                </>
-              )
-            )}
+            <span className="text-hazard">Fiction: nothing can travel faster than light.</span>
+            <button className="btn btn-sm ml-auto" onClick={() => void readMore('ftl')}>
+              Why
+            </button>
           </div>
         )}
       </div>

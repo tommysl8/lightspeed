@@ -1,5 +1,5 @@
 /**
- * Reference sections of the lab manual: the physics behind what the simulator shows, with
+ * The physics reference's sections: the physics behind what the simulator shows, with
  * the key equation, a short derivation or discussion, what the model simplifies, and further
  * reading. Numerical values follow from the constants in src/physics (the unit tests check
  * the key ones). The last three are about black holes: the blueshift and slow clocks near one,

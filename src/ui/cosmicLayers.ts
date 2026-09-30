@@ -41,7 +41,8 @@ export function toggleCosmicWeb(): void {
 /** What the cosmic web layer is, for its card, the View menu and the Guide. */
 export const COSMIC_WEB_CARD = {
   title: 'The cosmic web',
-  line: 'The 55,877 galaxies with measured distances of Cosmicflows-4 (Tully et al. 2023), where they are now, the nearest drawn as galaxies of their own: a map, not what the eye would see.',
+  // The survey's paper is in `credit`, under the card's Sources.
+  line: 'The 55,877 galaxies with measured distances of Cosmicflows-4, where they are now, the nearest drawn as galaxies of their own: a map, not what the eye would see.',
   key: 'Orange: elliptical and lenticular galaxies (measured by the Fundamental Plane or surface-brightness fluctuations). Blue: spirals and irregulars (the Tully–Fisher relation). Grey: either. Bigger and brighter points are more luminous in infrared light (2MASS). The colours are then shifted as the light arrives: redder and dimmer as the expansion of space stretches it (and bluer ahead of a fast ship), so at other times the map reddens, dims and spreads out, while each group keeps its size.',
   caveat:
     'A survey, not a census: most galaxies are in the northern galactic sky that the SDSS covered, almost none lie behind the Milky Way’s disc (the zone of avoidance), and single distances are 15–25% uncertain. Inside 30 Mpc galaxies sit at their groups’ measured distances, beyond 60 Mpc at their groups’ redshift distances (Planck 2018), and between the two a blend of both.',

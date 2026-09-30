@@ -14,17 +14,16 @@
  * gravitational blueshift g of the light as well (for light from a source at rest far away in the
  * hole's own frame: at the moving stellar holes a source at rest in the Sun's frame differs by the
  * hole's Doppler factor, at most 0.19 %: Gaia BH3 moves 570 km/s relative to the Sun); a hole's angular diameter is its shadow's as the view
- * shows it (holeView). With no hole every reading is today's, bit for bit. The lab takes no
- * reading near a hole: its experiments assume flat spacetime (lab/logger.ts).
+ * shows it (holeView). With no hole every reading is today's, bit for bit.
  */
 import { Vector3 } from 'three';
 import { C_KM_S } from '../physics/constants';
 import { edgeAngle, lnGRain, type LensObserver } from '../physics/schwarzschild';
-import { displayRadiusKm, getBody, type BodyId } from '../sim/bodies';
+import { displayRadiusKm, getBody, type BodyId } from './bodies';
 import { cosRestFromShip, cosShipFromRest, dopplerFromShipAngle, gamma } from '../physics/relativity';
-import { gravity } from '../sim/gravity';
-import { holeView, type HoleView } from '../sim/lensBodies';
-import { sim } from '../sim/sim';
+import { gravity } from './gravity';
+import { holeView, type HoleView } from './lensBodies';
+import { sim } from './sim';
 
 const DEG = 180 / Math.PI;
 
@@ -40,9 +39,6 @@ export interface ApexGeometry {
 }
 
 const clampCos = (c: number) => Math.max(-1, Math.min(1, c));
-
-/** Whether the camera is where a black hole's gravity is modelled: readings are then in the local frame, and the lab refuses. */
-export const nearBlackHole = (): boolean => gravity.hole !== null;
 
 /** Observer speed as a fraction of c (Sun's frame; near a black hole, past the local observers). */
 export const observerBeta = (): number =>

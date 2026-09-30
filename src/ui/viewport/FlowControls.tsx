@@ -27,9 +27,9 @@ export function FlowControls() {
   const flow = useUI((s) => s.accretionFlow);
   const lensing = useUI((s) => s.lensing);
   return (
-    <div className="mb-2 rounded-sm border border-line px-2 pb-1.5 pt-1.5" role="group" aria-label="The accretion flow’s model">
+    <div className="mb-2" role="group" aria-label="The accretion flow’s model">
       <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-        <span className="cap">Draw the gas in</span>
+        <span className="text-[11px] text-fg-3">Draw the gas in</span>
         <Seg<AccretionBand>
           label="Band the accretion flow is drawn in"
           value={band}

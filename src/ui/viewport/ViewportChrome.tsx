@@ -1,13 +1,16 @@
 /**
  * Static viewport furniture: viewfinder corners, view information, annunciator lamps, the
  * event console, the split-view divider, the body card and physics notes, journey notes,
- * and the warning band shown while the fictional warp is engaged.
+ * and the warning band shown while the fictional warp is engaged. The top left is one column:
+ * what the camera is doing (the view readout, or Roam's panel while flying by hand), the
+ * messages, then the layers' cards.
  *
  * Near a black hole: the range to it is its height above the horizon (exact, sim/gravity.ts), the
  * lamps say how much faster home's clock runs ("Home ×N") and when a fall is under way, and the split
  * view's halves are named for who sees them (an observer hovering there, or a raindrop in a fall, and
  * the ship), since the left half is no longer free of Doppler shifts: the hole's lens and its blueshift
- * show at rest too.
+ * show at rest too. The Home ×N lamp follows the black-hole panel: it lights while the panel is open (or
+ * with View › Open the black-hole panel automatically on), not by itself beside the chip.
  */
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { bodyName } from '../../sim/bodies';
@@ -17,12 +20,13 @@ import { heightParts } from '../deepSkyText';
 import { relView } from '../../render/relativisticView';
 import { lens } from '../../render/lens/lensState';
 import { gravity } from '../../sim/gravity';
-import { holeStripShown, timesText } from '../flight/HoleStrip';
+import { holeChipShown, holeStripShown, timesText } from '../flight/HoleStrip';
+import { RoamPanel } from '../flight/RoamPanel';
 import { pulses } from '../../sim/pulses';
 import { sim } from '../../sim/sim';
 import { travel, tripPace } from '../../sim/travel';
 import { useUI } from '../../state/ui';
-import { useLabEvents, type EventKind } from '../../lab/events';
+import { useNotices } from '../notices';
 import { readMore } from '../explainerActions';
 import { CloseIcon, Kbd } from '../kit';
 import { useTicker } from '../useTicker';
@@ -49,7 +53,8 @@ function ViewInfo() {
   const mode = useUI((s) => s.controlMode);
   const focus = useUI((s) => s.focus);
   const show = useUI((s) => s.showOverlays);
-  if (!show) return null;
+  // Flying by hand, Roam's panel says what the camera is doing.
+  if (!show || mode === 'roam' || mode === 'free') return null;
   const f = sim.bodies[focus];
   if (!f) return null;
   // A black hole's range is the height above its horizon (exact: the distance to its centre is 32 km coarse at Sgr A*),
@@ -66,20 +71,18 @@ function ViewInfo() {
       ? 'ORBIT'
       : mode === 'transition'
         ? 'SLEW'
-        : mode === 'free'
-          ? 'FREE'
-          : mode === 'fall'
-            ? 'FALL'
-            : mode === 'hold'
-              ? 'SNAPSHOT'
-              : 'TRANSIT';
+        : mode === 'fall'
+          ? 'FALL'
+          : mode === 'hold'
+            ? 'SNAPSHOT'
+            : 'TRANSIT';
   return (
-    <div className="mono pointer-events-none absolute left-4 top-3 space-y-px text-[10px] leading-[14px] text-fg-3 [text-shadow:0_0_3px_#000]">
+    <div className="mono space-y-px pl-1 text-[10px] leading-[14px] text-fg-3 [text-shadow:0_0_3px_#000]">
       <div>
         <span className="inline-block w-11">VIEW</span>
         <span className="text-fg-2">
           {label}
-          {mode !== 'free' && mode !== 'travel' && ` · ${bodyName(focus).toUpperCase()}`}
+          {mode !== 'travel' && ` · ${bodyName(focus).toUpperCase()}`}
         </span>
       </div>
       {mode !== 'travel' && (
@@ -115,8 +118,10 @@ function Annunciators() {
   // A real trip plays by ship time, whatever the time warp is set to.
   const paced = travel.trip?.pacing === 'ship' ? tripPace(travel.trip) : null;
   const falling = mode === 'fall';
-  // Deep in a black hole's gravity: how much faster home's clock runs than a clock here (from 1 %).
-  const home = !falling && gravity.hole && gravity.alpha > 0 ? 1 / gravity.alpha : 1;
+  const panelAuto = useUI((s) => s.holePanelAuto);
+  // Deep in a black hole's gravity: how much faster home's clock runs than a clock here (from 1 %), while the
+  // black-hole panel is open (its chip says it otherwise).
+  const home = !falling && gravity.hole && gravity.alpha > 0 && (panelAuto || holeStripShown()) ? 1 / gravity.alpha : 1;
   return (
     <div className="pointer-events-none absolute inset-x-0 top-3 flex flex-wrap justify-center gap-1.5 px-40 max-md:px-4">
       {paused && <Lamp tone="white">Paused</Lamp>}
@@ -149,74 +154,34 @@ function Annunciators() {
   );
 }
 
-const KIND_COLOR: Record<EventKind, string> = {
-  DET: 'text-data',
-  EMIT: 'text-data',
-  REC: 'text-accent',
-  ARR: 'text-ok',
-  SYS: 'text-fg-3',
-  ERR: 'text-hazard',
-};
-
 function fmtSimTime(ms: number) {
   return Number.isFinite(ms) ? formatSimDate(ms, 'time') : '';
 }
 
-/**
- * The events shown: most are the lab's bookkeeping ("P1 → Earth … [E1 #1]"), so until the lab
- * has been opened only errors appear, which say why something asked for did not happen.
- */
-function useShownEvents() {
-  const events = useLabEvents();
-  const labUsed = useUI((s) => s.labUsed);
-  return labUsed ? events : events.filter((e) => e.kind === 'ERR');
-}
-
-/**
- * What a screen reader hears: every event except detector hits, which come in bursts and are
- * counted instead. Errors (a reading that could not be taken) are announced at once.
- */
-function EventAnnouncer() {
-  const events = useShownEvents();
-  const last = events.at(-1);
-  let text = '';
-  if (last?.kind === 'DET') {
-    let n = 0;
-    for (let i = events.length - 1; i >= 0 && events[i].kind === 'DET'; i--) n++;
-    text = `${n} detector reading${n === 1 ? '' : 's'} logged`;
-  } else if (last) text = last.text;
+/** What a screen reader hears: each notice (why something asked for did not happen), at once. */
+function NoticeAnnouncer() {
+  const last = useNotices().at(-1);
   return (
-    <>
-      <div className="sr-only" role="log" aria-live="polite">
-        {last && last.kind !== 'ERR' ? text : ''}
-      </div>
-      <div className="sr-only" role="alert">
-        {last?.kind === 'ERR' ? last.text : ''}
-      </div>
-    </>
+    <div className="sr-only" role="alert">
+      {last?.text ?? ''}
+    </div>
   );
 }
 
-/** The last few lab events, fading out after 14 s. */
-function EventConsole() {
-  const events = useShownEvents();
-  const overlays = useUI((s) => s.showOverlays);
+/** The last few notices, fading out after 14 s. */
+function NoticeConsole() {
+  const events = useNotices();
   const now = performance.now();
   const live = events.length > 0 && now - events[events.length - 1].at < 14_000;
   useTicker(2, live);
   const recent = events.filter((e) => now - e.at < 14_000).slice(-5);
   if (!recent.length) return null;
   return (
-    <div
-      className={`mono pointer-events-none absolute left-4 max-w-[min(620px,calc(100%-32px))] space-y-px text-[10.5px] leading-[15px] [text-shadow:0_0_3px_#000,0_0_2px_#000] ${
-        overlays ? 'top-[46px]' : 'top-4'
-      }`}
-      aria-hidden
-    >
+    <div className="mono max-w-[min(620px,calc(100vw-32px))] space-y-px pl-1 text-[10.5px] leading-[15px] [text-shadow:0_0_3px_#000,0_0_2px_#000]" aria-hidden>
       {recent.map((e) => (
         <div key={e.id} className="truncate" style={{ opacity: Math.min(1, (14_000 - (now - e.at)) / 3000) }}>
           <span className="text-fg-3">{fmtSimTime(e.simMs)} </span>
-          <span className={`${KIND_COLOR[e.kind]} inline-block w-10`}>{e.kind}</span>
+          <span className="inline-block w-10 text-hazard">ERR</span>
           <span className="text-fg-2">{rich(e.text)}</span>
         </div>
       ))}
@@ -301,7 +266,7 @@ function NoteToast() {
   return (
     <div className="panel-float appear px-3 pb-2 pt-2">
       <div className="flex items-center gap-2">
-        <span className="cap !text-accent">Physics note</span>
+        <span className="shrink-0 text-[11px] text-accent">Physics note</span>
         <span className="min-w-0 truncate font-serif text-[13px] text-fg">{e.title}</span>
         <button className="btn btn-q btn-sq ml-auto !h-5 !w-5" onClick={() => useUI.setState({ noteTopic: null })} aria-label="Dismiss">
           <CloseIcon />
@@ -334,13 +299,12 @@ function JourneyBanner() {
   const note = useUI((s) => s.journeyNote);
   const tripActive = useUI((s) => s.tripActive);
   const plannerOpen = useUI((s) => s.plannerOpen);
-  // Near a black hole the HUD holds the note (ui/flight/HoleStrip.tsx).
+  // Near a black hole the HUD holds the note (ui/flight/HoleStrip.tsx); beside its chip the note sits above it.
   useTicker(2, !!note);
   if (!note || tripActive || plannerOpen || holeStripShown()) return null;
   return (
-    <div className="absolute inset-x-0 bottom-10 z-10 flex justify-center px-4">
-      <div ref={keepCreditsClear} className="panel-float appear flex max-w-[640px] items-start gap-3 py-2 pl-3.5 pr-1.5">
-        <span className="cap mt-[3px] shrink-0 !text-accent">Journey</span>
+    <div className={`absolute inset-x-0 z-10 flex justify-center px-4 ${holeChipShown() ? 'bottom-[52px]' : 'bottom-10'}`}>
+      <div ref={keepCreditsClear} className="panel-float appear flex max-w-[640px] items-start gap-3 py-2 pl-3.5 pr-1.5" role="note" aria-label="Journey">
         <span className="font-serif text-[13px] leading-snug text-fg-2">{note}</span>
         <button className="btn btn-q btn-sq -mt-0.5 shrink-0" onClick={() => useUI.setState({ journeyNote: null })} aria-label="Dismiss">
           <CloseIcon />
@@ -448,17 +412,20 @@ export function ViewportChrome() {
     <>
       {!paused && warp > 1 && <div className="pointer-events-none absolute inset-0 z-10 shadow-[inset_0_0_0_1px_rgba(240,167,58,0.55)]" />}
       <Corners />
-      <ViewInfo />
+      <div className="pointer-events-none absolute left-3 top-3 z-10 flex max-w-[calc(100%-24px)] flex-col items-start gap-1.5">
+        <ViewInfo />
+        <RoamPanel />
+        <NoticeConsole />
+        <LayerCards />
+      </div>
       <Annunciators />
       <WarpBand />
       <SplitDivider />
-      <EventConsole />
-      <EventAnnouncer />
+      <NoticeAnnouncer />
       <RightStack />
       <JourneyBanner />
       <FirstHint />
       <PictureCredits />
-      <LayerCards />
     </>
   );
 }

@@ -5,7 +5,7 @@
  * is always the cosmic event horizon, never a black hole's.
  */
 import type { BodyId } from '../../sim/bodies';
-import { logEvent } from '../../lab/events';
+import { notice } from '../notices';
 import { useUI } from '../../state/ui';
 import { runScene } from '../../content/scenes';
 import { planOneG } from '../tripActions';
@@ -18,7 +18,7 @@ const TryRow = ({ children }: { children: ReactNode }) => <div className="doc-tr
 function planFromHome(dest: BodyId): () => void {
   return () => {
     if (useUI.getState().tripActive) {
-      logEvent('ERR', 'Not available in flight: finish or abort the trip first.');
+      notice('Not available in flight: finish or abort the trip first.');
       return;
     }
     planOneG(dest);

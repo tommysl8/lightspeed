@@ -4,15 +4,23 @@ import { deferredStorage } from '../lib/persistStorage';
 import type { BodyId } from '../sim/bodies';
 import type { SizeMode } from '../sim/sim';
 import type { ExplainerId } from '../content/explainers';
-import type { ExperimentId } from '../lab/notebook';
 import type { AccretionBand } from '../sim/blackholes/accretion';
 
 /**
- * What the camera is doing: orbiting a target, free flight, a slew, a trip; and near a black hole a fall
- * ('fall'), a circular geodesic orbit ('circular') or a snapshot at speed with its schedule ('hold').
+ * What the camera is doing: orbiting a target, roaming (the camera flown by hand, no speed limit: 'roam'),
+ * flying the ship by hand (light-speed limit, relativity on: 'free'), a slew, a trip; and near a black hole
+ * a fall ('fall'), a circular geodesic orbit ('circular') or a snapshot at speed with its schedule ('hold').
  */
-export type ControlMode = 'orbit' | 'free' | 'transition' | 'travel' | 'fall' | 'circular' | 'hold';
-export type ManualTab = 'experiments' | 'notebook' | 'reference';
+export type ControlMode = 'orbit' | 'roam' | 'free' | 'transition' | 'travel' | 'fall' | 'circular' | 'hold';
+
+/**
+ * The black-hole panel's state near one hole, chosen by the visitor (the chip's Details, the panel's Hide) or by
+ * what they started (a black-hole scene, a fall): open or not, for that hole, until the camera leaves it.
+ */
+export interface HolePanelChoice {
+  hole: BodyId;
+  open: boolean;
+}
 export type ScopeChannel = 'beta' | 'gamma' | 'range' | 'dopplerFwd' | 'dtau';
 
 export interface UIState {
@@ -66,6 +74,11 @@ export interface UIState {
   showFps: boolean;
   /** Free-flight throttle as a fraction of c (mirrors the controller). */
   throttleBeta: number;
+  /**
+   * Clean full screen: every piece of text and chrome hidden, the view alone (ui/cleanMode.ts); the
+   * controls keep working. Never saved: a reload always shows the interface.
+   */
+  clean: boolean;
 
   /** Mirrors of the simulation clock, for rendering controls. */
   warp: number;
@@ -81,21 +94,13 @@ export interface UIState {
   /** Include Doppler shift and beaming (off: aberration only). */
   relDoppler: boolean;
 
-  /** Docked panels: the lab (left) and the instruments (right). */
+  /** Docked panels: the physics reference (left) and the instruments (right). */
   leftOpen: boolean;
   rightOpen: boolean;
-  /**
-   * The lab has been opened at least once. Until then nothing in the interface mentions it
-   * (no "Logged as Experiment 2" on arrival): the lab is for those who go looking for it.
-   */
-  labUsed: boolean;
   /** Dock widths, CSS px (resizable). */
   leftWidth: number;
   rightWidth: number;
-  manualTab: ManualTab;
-  /** Experiment open in the lab manual (null: the list). */
-  experiment: ExperimentId | null;
-  /** Reference section open in the manual. */
+  /** Section open in the physics reference. */
   refTopic: ExplainerId;
   /** A reference section suggested by what just happened (shown as a margin note). */
   noteTopic: ExplainerId | null;
@@ -105,8 +110,6 @@ export interface UIState {
    */
   hints: boolean;
   scopeChannel: ScopeChannel;
-  /** Experiment whose lab report is open (print preview). */
-  reportFor: ExperimentId | null;
 
   /** Flight planner. */
   plannerOpen: boolean;
@@ -130,6 +133,13 @@ export interface UIState {
   ehtBlur: boolean;
   /** A fall into a black hole is under way (set with tripActive, so every trip's gate holds). */
   fallActive: boolean;
+  /**
+   * View › Open the black-hole panel automatically (saved; off by default). Off, near a black hole a small chip
+   * offers the panel, which opens by itself only for a black-hole scene or a fall (ui/flight/HoleStrip.tsx).
+   */
+  holePanelAuto: boolean;
+  /** The visitor's (or a scene's) choice for the panel near the hole the camera is at; null: the default. Not saved. */
+  holePanel: HolePanelChoice | null;
 
   select: (id: BodyId | null) => void;
   toggle: (
@@ -147,65 +157,24 @@ export interface UIState {
       | 'shortcuts'
       | 'hints'
       | 'lensing'
-      | 'accretionFlow',
+      | 'accretionFlow'
+      | 'holePanelAuto',
   ) => void;
   setSizeMode: (m: SizeMode) => void;
 }
 
 export const WELCOME_KEY = 'lightspeed.welcome';
 
-/**
- * Whether a saved lab notebook shows that someone worked in the lab: a reading taken by hand
- * (Experiments 3 and 4), written answers, a name for the reports, or simulated uncertainty
- * turned on. Automatic rows do not count: every flight and light pulse writes them, whether
- * or not the lab was ever opened.
- */
-export function notebookShowsLabUse(raw: string | null): boolean {
-  if (!raw) return false;
-  try {
-    const st = (JSON.parse(raw) as { state?: unknown })?.state as
-      | { rows?: unknown; answers?: unknown; student?: unknown; noise?: unknown }
-      | undefined;
-    if (!st || typeof st !== 'object') return false;
-    const rows = Array.isArray(st.rows) ? st.rows : [];
-    if (rows.some((r) => (r as { src?: unknown } | null)?.src === 'manual')) return true;
-    const answers = st.answers && typeof st.answers === 'object' ? Object.values(st.answers) : [];
-    if (answers.some((a) => typeof a === 'string' && a.trim() !== '')) return true;
-    if (typeof st.student === 'string' && st.student.trim() !== '') return true;
-    return st.noise === true;
-  } catch {
-    return false;
-  }
-}
-
-function savedNotebookShowsLabUse(): boolean {
-  try {
-    return notebookShowsLabUse(localStorage.getItem('lightspeed.notebook'));
-  } catch {
-    return false;
-  }
-}
-
-/**
- * Whether preferences saved by an earlier version show the lab in use: an experiment opened, or
- * one of the lab's own tabs chosen (from version 3 the panel opened on its explanations, so
- * "experiments" there was a click too).
- */
-function prefsShowLabUse(old: Partial<UIState>, version: number): boolean {
-  if (old.experiment) return true;
-  return old.manualTab === 'notebook' || (version >= 3 && old.manualTab === 'experiments');
-}
-
 /** Bring preferences saved by an earlier version up to date (see the persist options below). */
-export function migrateUI(old: unknown, version: number, notebookUsed: () => boolean = savedNotebookShowsLabUse): Partial<UIState> {
-  const saved = (old ?? {}) as Partial<UIState>;
-  let s = saved;
-  if (version < 2) s = { ...s, leftOpen: false, rightOpen: false };
-  if (version < 3) s = { ...s, manualTab: 'reference' };
+export function migrateUI(old: unknown, version: number): Partial<UIState> {
+  let s = (old ?? {}) as Partial<UIState>;
+  // v4 added the physics margin notes, off; v5 closed the docks again, so neither appears by itself.
   if (version < 4) s = { ...s, hints: false };
-  if (version < 5) {
-    const labUsed = prefsShowLabUse(saved, version) || notebookUsed();
-    s = { ...s, leftOpen: false, rightOpen: false, manualTab: 'experiments', labUsed };
+  if (version < 5) s = { ...s, rightOpen: false };
+  // v6 keeps only what it saves: a key nothing reads any more must not linger in the store.
+  if (version < 6) {
+    const kept = new Set(Object.keys(savedPrefs({} as UIState)));
+    s = Object.fromEntries(Object.entries(s).filter(([k]) => kept.has(k))) as Partial<UIState>;
   }
   return s;
 }
@@ -225,18 +194,17 @@ export const savedPrefs = (s: UIState) => ({
   planetHosts: s.planetHosts,
   cosmicWeb: s.cosmicWeb,
   showFps: s.showFps,
-  // Not leftOpen: the lab opens only when asked for, never on a reload.
+  // Not leftOpen: the physics reference opens only when asked for, never on a reload.
   rightOpen: s.rightOpen,
-  labUsed: s.labUsed,
   leftWidth: s.leftWidth,
   rightWidth: s.rightWidth,
-  manualTab: s.manualTab,
-  experiment: s.experiment,
   refTopic: s.refTopic,
   scopeChannel: s.scopeChannel,
   relDoppler: s.relDoppler,
   shortcuts: s.shortcuts,
   hints: s.hints,
+  // New in this version with its default (off) for everyone: a saved state without it keeps the default, so no migration.
+  holePanelAuto: s.holePanelAuto,
 });
 
 function welcomed(): boolean {
@@ -273,6 +241,7 @@ export const useUI = create<UIState>()(
       shortcuts: true,
       showFps: false,
       throttleBeta: 0,
+      clean: false,
       warp: 1,
       paused: false,
       retarded: false,
@@ -282,17 +251,12 @@ export const useUI = create<UIState>()(
       // Both panels start closed: a first visit opens on the view alone.
       leftOpen: false,
       rightOpen: false,
-      labUsed: false,
       leftWidth: 384,
       rightWidth: 312,
-      // The lab opens on its experiments (the Lab button and K set this too).
-      manualTab: 'experiments',
-      experiment: null,
       refTopic: 'light-time',
       noteTopic: null,
       hints: false,
       scopeChannel: 'beta',
-      reportFor: null,
       plannerOpen: false,
       plannerDrive: 'cruise',
       plannerWarpFactor: 10,
@@ -304,6 +268,8 @@ export const useUI = create<UIState>()(
       accretionBand: 'visible',
       ehtBlur: false,
       fallActive: false,
+      holePanelAuto: false,
+      holePanel: null,
       // Selecting a body brings its card back if it was closed.
       select: (id) => set((s) => ({ selected: id, bodyCard: id ? true : s.bodyCard })),
       toggle: (key) => set((s) => ({ [key]: !s[key] }) as Partial<UIState>),
@@ -311,13 +277,9 @@ export const useUI = create<UIState>()(
     }),
     {
       name: 'lightspeed.ui',
-      version: 5,
+      version: 6,
       storage: deferredStorage,
-      // v2 introduced the welcome screen and closed panels by default; v3 opens the physics
-      // panel on its explanations rather than on the experiments; v4 adds the physics margin
-      // notes as an option, off; v5 is the fun-first layout: both docks closed again (the lab
-      // is no longer remembered as open, so it never appears by itself), the lab opening on its
-      // experiments, and the labUsed flag, set only for those who really worked in the lab.
+      // Earlier versions' preferences are brought up to date by migrateUI.
       migrate: (old, version) => migrateUI(old, version) as UIState,
       // Only preferences persist; the simulation always starts fresh.
       partialize: savedPrefs,

@@ -21,6 +21,16 @@ export function starPhysicalLine(s: StarInfo): string {
 
 /** "8.61 light-years from the Sun. Distance: the published model of its system, better than 1%". */
 export function starDistanceLine(s: StarInfo): string {
+  return `${starDistanceWords(s)}. ${starDistanceSource(s)}`;
+}
+
+/** The distance alone, for the card: "8.61 light-years from the Sun". */
+export function starDistanceWords(s: StarInfo): string {
   const ly = (s.distancePc * PARSEC_KM) / LIGHT_YEAR_KM;
-  return `${sig(ly, ly < 100 ? 3 : 4)} light-years from the Sun. Distance: ${s.distanceSource}, ${s.distancePrecision}`;
+  return `${sig(ly, ly < 100 ? 3 : 4)} light-years from the Sun`;
+}
+
+/** How it was measured, for the card's sources: "Distance: the published model of its system, better than 1%". */
+export function starDistanceSource(s: StarInfo): string {
+  return `Distance: ${s.distanceSource}, ${s.distancePrecision}`;
 }

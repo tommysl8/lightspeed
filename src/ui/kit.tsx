@@ -203,6 +203,7 @@ export function Menu({
   ariaLabel,
   width = 260,
   buttonClassName = 'btn btn-q',
+  chevron = true,
   tour,
   className = '',
 }: {
@@ -215,6 +216,8 @@ export function Menu({
   ariaLabel?: string;
   width?: number;
   buttonClassName?: string;
+  /** The chevron after the label (not for a label that is a word in a corner, the pictures' Credits). */
+  chevron?: boolean;
   /** Anchor for the guided tour (data-tour). */
   tour?: string;
   className?: string;
@@ -279,7 +282,7 @@ export function Menu({
         title={title}
       >
         {label}
-        <Chevron />
+        {chevron && <Chevron />}
       </button>
       {open && (
         <div

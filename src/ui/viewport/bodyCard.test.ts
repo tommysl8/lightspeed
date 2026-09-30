@@ -9,7 +9,9 @@ import katex from 'katex';
 import { createElement, Fragment } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { fixedOffsetProvider, type BodyRecord } from '../../sim/bodies';
-import { originLine, sourceLinks, statusLine } from './BodyCard';
+import { cardFact, cardModelLine, GALAXY_MODEL_LINE, originLine, sourceLinks, statusLine } from './BodyCard';
+import { NO_IMAGE_NOTE } from '../../sim/exoplanets/records';
+import { MILKY_WAY_MODEL_LABEL } from '../../sim/galaxy/records';
 import { edgeAngle, einsteinAngle, shadowAngle, raindropDarkRadius } from '../../physics/schwarzschild';
 import { hoverAccelKmS2 } from '../../physics/geodesics';
 import { C_KM_S, G0_KM_S2, GM_SUN_KM3_S2, PARSEC_KM, AU_KM } from '../../physics/constants';
@@ -27,6 +29,8 @@ import { KEY_GROUPS } from '../keys';
 import { fileExists, readText, REPO_ROOT } from '../../test/files';
 import {
   deepSkyDistanceLine,
+  deepSkyDistanceSource,
+  deepSkyDistanceWords,
   ehtCaption,
   heightParts,
   heightText,
@@ -74,6 +78,26 @@ describe('the body card’s lines', () => {
       { url: 'https://doi.org/10.1/x', label: 'doi.org' },
       { url: 'https://www.science.nasa.gov/b', label: 'science.nasa.gov 2' },
     ]);
+  });
+
+  it('shows a fact without its author–year brackets (its Sources link the papers), and keeps every other bracket', () => {
+    expect(cardFact('An ocean formed within the last 25 million years (Lainey et al. 2024).')).toBe('An ocean formed within the last 25 million years.');
+    expect(cardFact('Salts and organic molecules (Postberg et al. 2023). Phosphorus is one of the elements life needs.')).toBe(
+      'Salts and organic molecules. Phosphorus is one of the elements life needs.',
+    );
+    expect(cardFact('Its rings are tilted (Showalter & Hamilton 2015).')).toBe('Its rings are tilted.');
+    expect(cardFact('Bright spots of salt (De Sanctis et al. 2016).')).toBe('Bright spots of salt.');
+    expect(cardFact('Two telescopes saw it (Cordiner et al. 2020; Bodewits et al. 2020).')).toBe('Two telescopes saw it.');
+    expect(cardFact('Voyager 2 passed Uranus (January 1986) and Neptune (August 1989).')).toBe('Voyager 2 passed Uranus (January 1986) and Neptune (August 1989).');
+    expect(cardFact('Very dark (albedo 0.03 to 0.05), named by Messier (Messier, 1764).')).toBe('Very dark (albedo 0.03 to 0.05), named by Messier (Messier, 1764).');
+  });
+
+  it('keeps one short line in view where what is drawn is a model, and nothing where it is not', () => {
+    expect(cardModelLine({ ...base, modelNotes: [NO_IMAGE_NOTE, 'Its orbit is assumed circular.'] })).toBe(NO_IMAGE_NOTE);
+    expect(cardModelLine({ ...base, modelNotes: [MILKY_WAY_MODEL_LABEL] })).toBe(GALAXY_MODEL_LINE);
+    expect(GALAXY_MODEL_LINE).not.toMatch(/et al\.|\d{4}/);
+    expect(cardModelLine({ ...base, modelNotes: ['Rotation: the IAU’s model.'] })).toBeNull();
+    expect(cardModelLine(base)).toBeNull();
   });
 });
 
@@ -258,6 +282,12 @@ describe('a black hole’s card', () => {
     expect(deepSkyDistanceLine({ type: 'Black hole', distancePc: 16.8e6, hostGalaxy: 'Messier 87 (Virgo A)', distanceSource: 'its galaxy’s' })).toMatch(
       /from the Sun, in Messier 87 \(Virgo A\)\. Distance: its galaxy’s$/,
     );
+    // The card shows the distance alone and keeps how it was measured under Sources.
+    const orion = { type: 'Nebula', distancePc: 390, distanceSource: 'VLBA radio parallaxes (Kounkel et al. 2017)' };
+    expect(deepSkyDistanceWords(orion)).toBe('1,270 light-years from the Sun');
+    expect(deepSkyDistanceSource(orion)).toBe('Distance: VLBA radio parallaxes (Kounkel et al. 2017)');
+    expect(deepSkyDistanceLine(orion)).toBe(`${deepSkyDistanceWords(orion)}. ${deepSkyDistanceSource(orion)}`);
+    expect(deepSkyDistanceWords({ type: 'Galaxy' })).toBeNull();
   });
 
   it('shows an EHT picture only where the file ships, and lists exactly the files in public/images/eht/', () => {
@@ -298,6 +328,11 @@ describe('a black hole’s card', () => {
     expect(FLOW_LAYER_CARD.caveat).toMatch(/Never seen in visible light/);
     expect(FLOW_LAYER_CARD.more.join(' ')).toMatch(/flickers/);
     expect(NSC_LAYER_CARD.caveat).toMatch(/none is a real individual star except S2, S29, S38 and S55/);
+    // The references go under the cards' Sources, not into the words they show.
+    for (const card of [FLOW_LAYER_CARD, NSC_LAYER_CARD]) {
+      expect([card.line, card.caveat, ...card.more].join(' '), card.title).not.toMatch(/et al\.|\(\d{4}/);
+      expect(card.sources.join(' '), card.title).toMatch(/\(20\d\d/);
+    }
     const view = KEY_GROUPS.find((g) => g.title === 'The view')!.rows.find((r) => r[0] === 'View menu')!;
     expect(view[1]).toMatch(/gravitational lensing and the accretion flow/);
   });
@@ -314,7 +349,7 @@ describe('a black hole’s card', () => {
 
 const NEW_NOTES = ['gravitational-blueshift', 'double-images', 'shadow-size'] as const;
 
-/** A reference section's text, as the lab manual renders it (KaTeX's markup included). */
+/** A reference section's text, as the physics reference renders it (KaTeX's markup included). */
 const sectionText = (id: (typeof NEW_NOTES)[number]): string => {
   const r = REFERENCE[id];
   return renderToStaticMarkup(createElement(Fragment, null, r.body, r.note)).replace(/&#x27;|&#39;/g, '’');

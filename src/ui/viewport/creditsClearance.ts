@@ -1,23 +1,19 @@
 /**
- * Where the picture credits (ui/viewport/PictureCredits.tsx) go beside a panel along the bottom of
- * the view (the flight panel, the arrival card, a journey's note): at the bottom right as usual when
- * the panel leaves them room, narrowed to fit beside it when it leaves less, and above it when it
- * leaves too little.
+ * Where the pictures' Credits button (ui/viewport/PictureCredits.tsx) goes beside a panel along the bottom
+ * of the view (the flight panel, the arrival card, a journey's note): in the bottom-right corner as usual
+ * when the panel leaves it room beside it, and above the panel when it does not. The button is small, so
+ * it never has to narrow: it stays or it moves up.
  */
 
-/** The box's widest (CSS px), its gaps from the view's right and bottom edges, and from a panel beside or below it. */
-export const CREDITS_MAX_W = 460;
+/** The button's widest (CSS px: "Credits" at 10 px with its padding is about 50), its gaps from the view's right and bottom edges, and from a panel beside or below it. */
+export const CREDITS_W = 64;
 export const CREDITS_RIGHT = 12;
 export const CREDITS_BOTTOM = 8;
 export const CREDITS_GAP = 8;
-/** Narrower than this beside a panel, the box goes above it instead. */
-export const CREDITS_MIN_W = 240;
 
 export interface Clearance {
-  /** How far up the box's usual place it must sit (CSS px). */
+  /** How far up its usual place the button must sit (CSS px). */
   lift: number;
-  /** How wide it may be (CSS px). */
-  room: number;
 }
 
 interface Rect {
@@ -27,21 +23,16 @@ interface Rect {
   width: number;
 }
 
-/** The box's clearance from one panel, from the view's and the panel's client rectangles. */
+/** The button's clearance from one panel, from the view's and the panel's client rectangles. */
 export function creditsClearance(view: Rect, panel: Rect): Clearance {
   const free = Math.floor(view.right - panel.right) - CREDITS_RIGHT - CREDITS_GAP;
-  if (panel.width <= 0 || free >= CREDITS_MAX_W) return { lift: 0, room: CREDITS_MAX_W };
-  if (free >= CREDITS_MIN_W) return { lift: 0, room: free };
-  return { lift: Math.max(0, Math.ceil(view.bottom - panel.top) + CREDITS_GAP - CREDITS_BOTTOM), room: CREDITS_MAX_W };
+  if (panel.width <= 0 || free >= CREDITS_W) return { lift: 0 };
+  return { lift: Math.max(0, Math.ceil(view.bottom - panel.top) + CREDITS_GAP - CREDITS_BOTTOM) };
 }
 
-/** The clearance from every panel on screen at once: above the tallest that needs it, as narrow as the narrowest. */
+/** The clearance from every panel on screen at once: above the tallest that needs it. */
 export function combineClearances(all: Iterable<Clearance>): Clearance {
   let lift = 0;
-  let room = CREDITS_MAX_W;
-  for (const c of all) {
-    lift = Math.max(lift, c.lift);
-    room = Math.min(room, c.room);
-  }
-  return { lift, room };
+  for (const c of all) lift = Math.max(lift, c.lift);
+  return { lift };
 }

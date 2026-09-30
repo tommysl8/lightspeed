@@ -39,6 +39,9 @@ describe('locationPath', () => {
     expect(labels(locationPath('travel', 'earth', 'saturn'))).toEqual(['Observable universe', 'Local Universe', 'Local Group', 'Milky Way', 'Orion Arm', 'Solar neighbourhood', 'Solar System', 'Flying to Saturn']);
     expect(labels(locationPath('travel', 'earth', 'proxima'))).toEqual(['Observable universe', 'Local Universe', 'Local Group', 'Milky Way', 'Orion Arm', 'Solar neighbourhood', 'Flying to Proxima Centauri']);
     expect(labels(locationPath('free', 'mars'))).toEqual(['Observable universe', 'Local Universe', 'Local Group', 'Milky Way', 'Orion Arm', 'Solar neighbourhood', 'Solar System', 'Free flight']);
+    // Roaming, the trail follows the nearest thing that matters (null: a star of the catalogue that is not a body).
+    expect(labels(locationPath('roam', 'mars'))).toEqual(['Observable universe', 'Local Universe', 'Local Group', 'Milky Way', 'Orion Arm', 'Solar neighbourhood', 'Solar System', 'Roaming near Mars']);
+    expect(labels(locationPath('roam', null))).toEqual(['Observable universe', 'Local Universe', 'Local Group', 'Milky Way', 'Roaming among the stars']);
   });
 
   it('marks the Galaxy’s levels, which the footer leaves out where room is short', () => {

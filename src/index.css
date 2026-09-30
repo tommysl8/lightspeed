@@ -9,7 +9,7 @@
  * Design system: an instrument panel, not a consumer app.
  *  - Flat, opaque panels with 1 px rules; 2 px corners at most; no blur, no glow.
  *  - Sans (IBM Plex) for controls, mono (JetBrains Mono) for every number, serif
- *    (Source Serif 4) for the lab manual's prose and for italic math symbols.
+ *    (Source Serif 4) for the physics reference's prose and for italic math symbols.
  *  - One interactive accent (amber). Cyan marks measured data, light grey marks theory,
  *    red marks anything non-physical.
  */
@@ -161,6 +161,34 @@ button {
   overflow: hidden;
   background: #000;
 }
+/* A finger on the view turns it (orbit, or Roam's look); the page itself never pans or zooms under it. */
+.app-canvas {
+  touch-action: none;
+}
+
+/* Clean full screen (ui/cleanMode.ts): the view alone, over the whole window. Everything else is hidden,
+   not closed, so leaving shows it all again as it was; [data-clean-keep] marks the exceptions (the hint on
+   entering, the pictures' credits button while one shows, and Roam's arrows on a touch screen). */
+.app-clean {
+  grid-template-rows: 0 minmax(0, 1fr) 0;
+  grid-template-columns: 0 minmax(0, 1fr) 0;
+}
+.app-clean > :not(.app-view):not([data-clean-keep]),
+.app-clean .app-view > :not(.app-canvas):not([data-clean-keep]) {
+  display: none !important;
+}
+.clean-hint {
+  animation: clean-hint 2.5s ease-in forwards;
+}
+@keyframes clean-hint {
+  0%,
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
 .dock {
   grid-row: 2;
   min-height: 0;
@@ -217,12 +245,10 @@ button {
     font-size: 1.1em;
     line-height: 1;
   }
+  /* A small section label, as written (sentence case). */
   .cap {
-    font-family: var(--font-mono);
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 500;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
     color: var(--color-fg-3);
   }
   .lbl {
@@ -265,11 +291,8 @@ button {
     background: var(--color-panel-2);
     border-bottom: 1px solid var(--color-line);
     text-align: left;
-    font-family: var(--font-mono);
-    font-size: 10px;
+    font-size: 11.5px;
     font-weight: 500;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
     color: var(--color-fg-2);
   }
   .sec-h:hover {
@@ -737,73 +760,55 @@ button {
     );
   }
 
-  /* ── Lab manual prose ───────────────────────────────────────────────────────────── */
+  /* ── Panel prose (the physics reference, the flight planner's notes) ────────────── */
 
-  .prose-lab {
+  .prose-panel {
     font-family: var(--font-serif);
     font-size: 13.5px;
     line-height: 1.55;
     color: #cdd2d9;
     font-optical-sizing: auto;
   }
-  .prose-lab p {
+  .prose-panel p {
     margin: 0 0 0.65em;
   }
-  .prose-lab p:last-child {
+  .prose-panel p:last-child {
     margin-bottom: 0;
   }
-  .prose-lab b,
-  .prose-lab strong {
+  .prose-panel b,
+  .prose-panel strong {
     font-weight: 600;
     color: #e6e9ed;
   }
-  .prose-lab ul,
-  .prose-lab ol {
+  .prose-panel ul,
+  .prose-panel ol {
     margin: 0 0 0.65em;
     padding-left: 1.3em;
   }
-  .prose-lab ul {
+  .prose-panel ul {
     list-style: square;
   }
-  .prose-lab ol {
+  .prose-panel ol {
     list-style: decimal;
   }
-  .prose-lab li {
+  .prose-panel li {
     margin: 0.2em 0;
   }
-  .prose-lab li::marker {
+  .prose-panel li::marker {
     color: var(--color-fg-4);
   }
-  .prose-lab a {
+  .prose-panel a {
     color: var(--color-fg);
     text-decoration: underline;
     text-decoration-color: var(--color-fg-4);
     text-underline-offset: 2px;
   }
-  .prose-lab a:hover {
+  .prose-panel a:hover {
     text-decoration-color: var(--color-accent);
   }
-  .prose-lab .tbl {
+  .prose-panel .tbl {
     margin: 0.4em 0 0.8em;
   }
-  .man-h {
-    display: flex;
-    align-items: baseline;
-    gap: 8px;
-    margin: 18px 0 8px;
-    padding-bottom: 4px;
-    border-bottom: 1px solid var(--color-line-2);
-    font-family: var(--font-mono);
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--color-fg-2);
-  }
-  .man-h .n {
-    color: var(--color-accent);
-  }
-
   /* Numbered display equation */
   .eqn {
     display: grid;
@@ -850,11 +855,8 @@ button {
   .note .note-t {
     display: block;
     margin-bottom: 2px;
-    font-family: var(--font-mono);
-    font-size: 9.5px;
+    font-size: 11px;
     font-weight: 600;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
     color: var(--color-fg-3);
   }
 
@@ -987,7 +989,7 @@ button {
   .body-label[data-selected='true'] .body-name {
     left: max(var(--offset, 10px), 14px);
   }
-  /* Detector hit (Experiment 1): the marker lights up in the data colour. */
+  /* Detector hit (a light pulse reaching a body): the marker lights up in the data colour. */
   .body-label[data-flash='true'] .body-marker {
     opacity: 1;
     border-color: var(--color-data);
@@ -1641,55 +1643,6 @@ button {
     color: var(--color-fg-3);
   }
 
-  /* Experiment workflow */
-  .doc-flow {
-    display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 12px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-  .doc .doc-flow li {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    margin: 0;
-    padding: 11px 11px 12px;
-    border: 1px solid var(--color-line-2);
-    background: var(--color-panel-2);
-    font-family: var(--font-sans);
-    font-size: 12px;
-    line-height: 1.45;
-    color: var(--color-fg-2);
-  }
-  .doc-flow li:not(:last-child)::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    right: -12px;
-    width: 11px;
-    height: 1px;
-    background: var(--color-accent);
-  }
-  .doc-flow b {
-    font-size: 13px;
-  }
-  .doc-flow-n {
-    font-family: var(--font-mono);
-    font-size: 10px;
-    color: var(--color-accent);
-  }
-  @media (max-width: 720px) {
-    .doc-flow {
-      grid-template-columns: minmax(0, 1fr);
-    }
-    .doc-flow li::after {
-      display: none;
-    }
-  }
-
   /* About */
   .doc-principles {
     display: grid;
@@ -1837,74 +1790,6 @@ button {
 
 }
 
-/* ── Lab report: the same components, re-inked for paper ─────────────────────────── */
-
-.report-paper {
-  --color-fg: #111111;
-  --color-fg-2: #2b2b2b;
-  --color-fg-3: #555555;
-  --color-fg-4: #7a7a7a;
-  --color-line: #dddddd;
-  --color-line-2: #bbbbbb;
-  --color-line-3: #999999;
-  --color-panel-2: #f2f2f2;
-  --color-well: #ffffff;
-  --color-accent: #b35c00;
-  --color-data: #0b6ea8;
-  color-scheme: light;
-}
-.report-paper .prose-lab {
-  color: #1a1a1a;
-  font-size: 14px;
-}
-.report-paper .prose-lab b,
-.report-paper .prose-lab strong {
-  color: #000;
-}
-.report-paper .note {
-  background: #f6f6f6;
-  color: #333;
-}
-.report-paper .eqn,
-.report-paper .eqn .eqn-no {
-  color: #111;
-}
-.report-paper .tbl th {
-  position: static;
-  background: #f2f2f2;
-}
-.report-paper .tbl tbody tr:hover td {
-  background: transparent;
-}
-.report-paper .kbd {
-  background: #f2f2f2;
-  color: #333;
-}
-
-.answer {
-  display: block;
-  width: 100%;
-  min-height: 58px;
-  margin-top: 6px;
-  padding: 6px 8px;
-  border: 1px solid var(--color-line-2);
-  border-radius: 2px;
-  background: var(--color-well);
-  color: var(--color-fg);
-  font-family: var(--font-serif);
-  font-size: 13px;
-  line-height: 1.45;
-  resize: vertical;
-  outline: none;
-}
-.answer:focus {
-  border-color: var(--color-accent);
-}
-.answer::placeholder {
-  color: var(--color-fg-3);
-  font-style: italic;
-}
-
 @media print {
   @page {
     size: A4;
@@ -1920,29 +1805,6 @@ button {
   .app {
     display: none !important;
   }
-  .report-overlay {
-    position: static !important;
-    overflow: visible !important;
-    background: none !important;
-  }
-  .report-toolbar {
-    display: none !important;
-  }
-  .report-paper {
-    width: auto !important;
-    max-width: none !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    box-shadow: none !important;
-  }
-  .report-section,
-  .report-paper figure {
-    break-inside: avoid;
-  }
-  .report-paper h2 {
-    break-after: avoid;
-  }
-
   /* Reading pages print in ink on white, one chapter per page */
   .doc-overlay {
     --color-bg: #fff;
@@ -1996,6 +1858,7 @@ button {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .clean-hint,
   .appear,
   .tbl tr.row-new td,
   .body-label[data-flash='true'] .body-marker {

@@ -108,7 +108,7 @@ export interface BodyImage {
   magLensed: number;
   /** Unit direction of the image in the frame the glints are drawn in: the Sun's (outside a fall), the lens frame (in a fall). */
   dir: Vector3;
-  /** Unit direction of the image in the lens frame (hovering, or falling from rest), world axes: the lab's readings. */
+  /** Unit direction of the image in the lens frame (hovering, or falling from rest), world axes: the instruments' readings (sim/measure.ts). */
   dirLens: Vector3;
   /** Share of the image drawn as a point: 1, less while the ring of a near-perfect alignment fades in (z 3.5 → 2.5). */
   share: number;

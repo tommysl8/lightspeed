@@ -58,12 +58,11 @@ import { starStatus } from '../sim/stars/load';
 import { featuredStatus } from '../sim/exoplanets/load';
 import { galaxyStatus, nebulaStatus } from '../sim/galaxy/load';
 import { cosmosStatus } from '../sim/cosmos/load';
-import { MILKY_WAY_MODEL_LABEL } from '../sim/galaxy/records';
 import { planFlight, planTrip, type Drive, type TripPlan } from '../sim/travel';
 import { refusalText } from '../ui/flight/tripText';
 import { astroTimeAt, daysInMonth, formatDurationShort, formatSimDate, msFromAstroTime, msFromCivil } from '../lib/time';
 import { useUI, type UIState } from '../state/ui';
-import { emitLightPulse } from '../lab/logger';
+import { emitPulse } from '../sim/pulses';
 import { frameCosmicWeb, frameLocalGroup, frameMilkyWay, goToBody, goToStarSystem, goToSystem, showCmbMap } from '../ui/navigation';
 import { afterArrival, planOneG, startTrip } from '../ui/tripActions';
 import { formatIsoDate } from './learn/catalogue';
@@ -661,7 +660,7 @@ export function flightOf(spec: string): Flight | null {
 // ─── Running ────────────────────────────────────────────────────────────────────────────
 
 /**
- * Leave orbit and free flight behind, and a black hole's own modes (a circular orbit or a snapshot
+ * Leave orbit, Roam and free flight behind, and a black hole's own modes (a circular orbit or a snapshot
  * at speed ends with the camera hovering where it is); false when a trip or a fall is under way (a
  * fall holds tripActive). The card of the last fall's end goes too: it would hide the new scene's note.
  */
@@ -669,6 +668,7 @@ function ready(): boolean {
   const ui = useUI.getState();
   if (ui.tripActive) return false;
   if (ui.controlMode === 'free') controller.exitFreeFlight();
+  if (ui.controlMode === 'roam') controller.exitRoam();
   controller.leaveHoleModes();
   fall.lastEnd = null;
   return true;
@@ -968,7 +968,7 @@ defineScene('race-sunlight', {
       setPaused(false);
       controller.goTo('sun', { distance: 13 * AU_KM, direction: ABOVE });
       afterSlew('sun', () => {
-        emitLightPulse('sun');
+        emitPulse('sun');
         setWarp(100);
       });
     }),
@@ -1156,7 +1156,7 @@ defineScene('galactic-centre-orbits', {
 
 defineScene('milky-way-outside', {
   label: 'The Milky Way from outside',
-  note: `The Milky Way from 100,000 light-years out, above its disc, with the Sun marked about halfway from the centre to the edge. Seen from here it turns clockwise, far too slowly to notice: the Sun takes over 200 million years to go round. ${MILKY_WAY_MODEL_LABEL}`,
+  note: `The Milky Way from 100,000 light-years out, above its disc, with the Sun marked about halfway from the centre to the edge. Seen from here it turns clockwise, far too slowly to notice: the Sun takes over 200 million years to go round. The Galaxy here is a model built from measurements; its far side is extrapolated.`,
   // The Galaxy is a body as soon as its data start loading; the scene needs its particle model too.
   unavailable: () => needs('milky-way')() ?? (galaxyStatus() === 'loading' || galaxyStatus() === 'failed' ? missingReason('milky-way') : null),
   run: (note) =>
@@ -1304,10 +1304,12 @@ export const FLOW_OFF = 'The glowing gas is hidden here so the bent starlight sh
 /**
  * What a black-hole scene turns on for itself (the next scene turns it back): the lens always (with it
  * off a black hole cannot be seen at all); the flow as the scene wants it, in visible light when on;
- * and, for the scenes about motion, the relativistic view, as a flight turns it on.
+ * and, for the scenes about motion, the relativistic view, as a flight turns it on. The hole's panel
+ * opens too: the visitor asked for the scene (ui/flight/HoleStrip.tsx; it stays closed otherwise).
  */
-function holeViews(o: { flow?: boolean; moving?: boolean }): void {
+function holeViews(hole: BodyId, o: { flow?: boolean; moving?: boolean }): void {
   useUI.setState((s) => ({
+    holePanel: { hole, open: true },
     lensing: true,
     ...(o.flow === undefined ? {} : o.flow ? { accretionFlow: true, accretionBand: 'visible' as const } : { accretionFlow: false }),
     ...(o.moving && s.relMode === 'off' ? { relMode: 'on' as const } : {}),
@@ -1341,7 +1343,7 @@ defineScene('sgr-a-star-shadow', {
   unavailable: needs(SGR_A),
   run: (note) =>
     scene(note, () => {
-      holeViews({ flow: false });
+      holeViews(SGR_A, { flow: false });
       useUI.setState({ selected: SGR_A });
       toHole(SGR_A, 20, IN_THE_PLANE, hoverStep(SGR_A, 20, IN_THE_PLANE));
     }),
@@ -1356,7 +1358,7 @@ defineScene('photon-ring', {
   unavailable: needs(SGR_A),
   run: (note) =>
     scene(note, () => {
-      holeViews({ flow: false });
+      holeViews(SGR_A, { flow: false });
       toHole(SGR_A, 6, IN_THE_PLANE, hoverStep(SGR_A, 6, IN_THE_PLANE, PHOTON_RING_LOOK));
     }),
 });
@@ -1367,7 +1369,7 @@ defineScene('sgr-a-star-einstein-ring', {
   unavailable: needs(SGR_A),
   run: (note) =>
     scene(note, () => {
-      holeViews({ flow: false });
+      holeViews(SGR_A, { flow: false });
       useUI.setState({ selected: SGR_A });
       toHole(SGR_A, 100, IN_THE_PLANE, hoverStep(SGR_A, 100, IN_THE_PLANE));
     }),
@@ -1379,7 +1381,7 @@ defineScene('hover-at-the-horizon', {
   unavailable: needs(SGR_A),
   run: (note) =>
     scene(note, () => {
-      holeViews({ flow: false });
+      holeViews(SGR_A, { flow: false });
       toHole(SGR_A, 2.02, IN_THE_PLANE, hoverStep(SGR_A, 2.02, IN_THE_PLANE, IN_THE_PLANE));
     }),
 });
@@ -1393,7 +1395,7 @@ defineScene('isco-orbit', {
   unavailable: needs(SGR_A),
   run: (note) =>
     scene(note, () => {
-      holeViews({ flow: false, moving: true });
+      holeViews(SGR_A, { flow: false, moving: true });
       useUI.setState({ selected: SGR_A });
       toHole(SGR_A, 6, IN_THE_PLANE, () => {
         controller.hoverAt(SGR_A, 6, IN_THE_PLANE);
@@ -1411,7 +1413,7 @@ defineScene('fall-into-sgr-a-star', {
   unavailable: needs(SGR_A),
   run: (note) =>
     scene(note, () => {
-      holeViews({ flow: false });
+      holeViews(SGR_A, { flow: false });
       toHole(SGR_A, 20, IN_THE_PLANE, () => {
         // Falling with no black hole drawn would show nothing: hover at the start until the lens can draw it.
         let waited = false;
@@ -1445,7 +1447,7 @@ defineScene('dive-and-climb', {
   unavailable: needs(SGR_A),
   run: (note) =>
     scene(note, () => {
-      holeViews({ flow: false, moving: true });
+      holeViews(SGR_A, { flow: false, moving: true });
       toHole(SGR_A, 20, IN_THE_PLANE, () => {
         controller.hoverAt(SGR_A, 20, IN_THE_PLANE);
         controller.holdWithVelocity(SGR_A, DIVE_AND_CLIMB, DIVE_AND_CLIMB_PERIOD_S);
@@ -1462,7 +1464,7 @@ defineScene('sgr-a-star-flyby', {
   unavailable: needs(SGR_A),
   run: (note) =>
     scene(note, () => {
-      holeViews({ flow: false, moving: true });
+      holeViews(SGR_A, { flow: false, moving: true });
       toHole(SGR_A, 10, IN_THE_PLANE, () => {
         // Galactic north up: the hole lies level with the view's centre, to the left, so the whole shadow fits across it.
         controller.hoverAt(SGR_A, 10, IN_THE_PLANE, ACROSS_THE_PLANE, GALACTIC_NORTH);
@@ -1569,7 +1571,7 @@ defineScene('s2-behind-sgr-a-star', {
     updateEphemeris();
     setWarp(1);
     setPaused(true);
-    holeViews({ flow: false });
+    holeViews(SGR_A, { flow: false });
     useUI.setState({ journeyNote: note, journeysOpen: false, showLabels: true, showOrbits: true, selected: 's2' });
     toHole(SGR_A, at.rM, at.dirOut, () => {
       controller.hoverAt(SGR_A, at.rM, at.dirOut);
@@ -1590,7 +1592,7 @@ defineScene('sgr-a-star-flow', {
   unavailable: needs(SGR_A),
   run: (note) =>
     scene(note, () => {
-      holeViews({ flow: true });
+      holeViews(SGR_A, { flow: true });
       useUI.setState({ selected: SGR_A });
       const dir = sunward(SGR_A);
       toHole(SGR_A, 20, dir, hoverStep(SGR_A, 20, dir));
@@ -1606,7 +1608,7 @@ defineScene('m87-star-close', {
   unavailable: needs(M87_STAR),
   run: (note) =>
     scene(note, () => {
-      holeViews({});
+      holeViews(M87_STAR, {});
       useUI.setState({ selected: M87_STAR });
       const dir = sunward(M87_STAR);
       const rM = (M87_CLOSE_AU * AU_KM) / holeMKm(M87_STAR);
@@ -1736,7 +1738,7 @@ function skyFromHole(ref: TargetRef, note: string): boolean {
     const rel = alignBehind(id, 'sun', dKm, new Vector3());
     if (!rel) return;
     const snapshot = ringHoldsS(id, sim.timeMs, SUN_RADIUS_KM / Math.max(1, sim.bodies[id].pos.distanceTo(sim.bodies.sun.pos))) < RING_HOLDS_RUNNING_S;
-    holeViews(hasFlow(id) ? { flow: false } : {});
+    holeViews(id, hasFlow(id) ? { flow: false } : {});
     setWarp(1);
     useUI.setState({ showLabels: true, selected: id });
     toHole(id, rM, rel.normalize(), () => {

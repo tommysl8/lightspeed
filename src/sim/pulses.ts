@@ -1,5 +1,5 @@
 /**
- * Light pulses for the time-of-flight experiment.
+ * Light pulses: a flash of light leaving a body, and the moments its front reaches the others.
  *
  * A pulse leaves a fixed point in the Sun's rest frame (where its source was at emission) and
  * its front is a sphere of radius c(t − t₀). Bodies carry detectors (below). When a front
@@ -8,8 +8,8 @@
  *
  * Which bodies carry detectors: the planets, the dwarf planets, spacecraft and the large moons
  * (1,000 km in radius or more), plus the Sun and Proxima Centauri and any record that says so.
- * Every detection is a row in the notebook, so the dozens of small moons and small bodies are
- * left out by default: a pulse from Earth logs one row per world rather than a cluster per planet.
+ * Every detection lights up the body's label, so the dozens of small moons and small bodies are
+ * left out by default: a pulse from Earth lights one label per world rather than a cluster per planet.
  *
  * Time warp: pulses are kept, and kept exact, at any warp. However long a frame is (up to
  * 3 × 10¹⁴ s at the fastest warp), each crossing is solved inside it, so a pulse fired at
@@ -71,7 +71,7 @@ const DETECTING_KINDS = new Set(['planet', 'dwarf-planet', 'spacecraft']);
 /** Moons at least this large (mean radius, km) carry one too: the Moon, the Galileans, Titan, Triton. */
 export const DETECTOR_MOON_MIN_RADIUS_KM = 1000;
 
-/** Whether a body carries a detector for the light-pulse experiment (E1). */
+/** Whether a body carries a light-pulse detector. */
 export const hasDetector = (r: BodyRecord): boolean =>
   r.detector ?? (DETECTING_KINDS.has(r.kind) || (r.kind === 'moon' && r.physical.radiusKm >= DETECTOR_MOON_MIN_RADIUS_KM));
 

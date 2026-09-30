@@ -4,7 +4,7 @@
  * component inside the Canvas (OverlaySync) writes their DOM directly, as the labels do.
  *
  * Near a black hole the apex, the antapex and the reticle's reading are the observer's motion
- * past the local observers (lab/measure.ts), and while the lens bends the whole view the scale
+ * past the local observers (sim/measure.ts), and while the lens bends the whole view the scale
  * bar says there is no single scale (a length at a distance no longer has one size on screen).
  */
 import { useRef } from 'react';
@@ -16,7 +16,7 @@ import { scaleBarLength } from './scaleBar';
 import { relView } from '../../render/relativisticView';
 import { sim } from '../../sim/sim';
 import { useUI } from '../../state/ui';
-import { apexDirection, observerBeta, reticleReading } from '../../lab/measure';
+import { apexDirection, observerBeta, reticleReading } from '../../sim/measure';
 import { lens } from '../../render/lens/lensState';
 
 type Key = 'apex' | 'antapex' | 'reticleText' | 'scaleBar' | 'scaleText' | 'triad' | 'triadX' | 'triadY' | 'triadZ' | 'triadXl' | 'triadYl' | 'triadZl' | 'reticle';

@@ -149,11 +149,14 @@ function orbitsPair(r: BodyRecord): boolean {
 
 /**
  * The breadcrumb for the camera's state: its target and what it orbits in orbit; the target's
- * surroundings in free flight; the destination in flight; near a black hole, the fall into it, the
- * circular orbit round it or the snapshot held above it.
+ * surroundings in free flight; in Roam, the surroundings of the nearest thing that matters (`focus` is
+ * then that thing, or null for a star of the catalogue that is not a body); the destination in flight;
+ * near a black hole, the fall into it, the circular orbit round it or the snapshot held above it.
  */
-export function locationPath(mode: ControlMode, focus: BodyId, dest: BodyId | null = null): Crumb[] {
+export function locationPath(mode: ControlMode, focus: BodyId | null, dest: BodyId | null = null): Crumb[] {
   if (mode === 'travel' && dest) return [...region(dest), { label: `Flying to ${bodyName(dest)}` }];
+  if (mode === 'roam') return focus ? [...region(focus), { label: `Roaming near ${bodyName(focus)}` }] : [...cosmicCrumbs('local-group'), milkyWay(), { label: 'Roaming among the stars' }];
+  if (!focus) return [];
   if (mode === 'free') return [...region(focus), { label: 'Free flight' }];
   if (mode === 'fall') return [...region(focus), { label: `Falling into ${bodyName(focus)}` }];
   if (mode === 'circular') return [...region(focus), { label: `In orbit round ${bodyName(focus)}` }];

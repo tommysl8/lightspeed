@@ -1,9 +1,10 @@
 /**
- * The black-hole HUD's words and which face it shows (ui/flight/HoleStrip.tsx), and the footer's rate near a hole
- * (ui/layout/Footer.tsx): pure functions of the state they are given, so no scene is needed.
+ * The black-hole HUD's words, which face it shows and whether as the whole panel or the chip that opens it
+ * (ui/flight/HoleStrip.tsx), and the footer's rate near a hole (ui/layout/Footer.tsx): pure functions of the
+ * state they are given, so no scene is needed.
  */
 import { describe, expect, it } from 'vitest';
-import { END_CARD_MS, holeStripFace, isInnermostStable, snapshotDeg, timesText, type HoleStripInputs } from './HoleStrip';
+import { END_CARD_MS, holeChipText, holeStripFace, holeStripForm, isInnermostStable, snapshotDeg, timesText, type HoleStripInputs } from './HoleStrip';
 import { stripPlace } from './FlightStrip';
 import { hoverPaceText, moonsOrBodies } from '../layout/Footer';
 
@@ -15,6 +16,8 @@ describe('which face the black-hole HUD shows', () => {
     expect(holeStripFace(hover)).toBe('hovering');
     expect(holeStripFace({ ...hover, focus: 's2' })).toBe('beside');
     expect(holeStripFace({ ...hover, mode: 'free' })).toBe('free');
+    expect(holeStripFace({ ...hover, mode: 'roam' })).toBe('roam');
+    expect(holeStripFace({ ...hover, mode: 'roam', paced: false })).toBeNull();
     expect(holeStripFace({ ...hover, mode: 'circular' })).toBe('circular');
     expect(holeStripFace({ ...hover, mode: 'hold' })).toBe('snapshot');
     // Slewing through, or beyond the hole's pacing: nothing.
@@ -35,6 +38,39 @@ describe('which face the black-hole HUD shows', () => {
     // Gone with the camera: at another hole, or at Earth (no hole at all).
     expect(holeStripFace({ ...ended, hole: 'm87-star', focus: 'm87-star' })).toBe('hovering');
     expect(holeStripFace({ ...ended, hole: null, paced: false })).toBeNull();
+  });
+});
+
+describe('the panel or its chip', () => {
+  it('is closed by default: a chip in its place', () => {
+    expect(holeStripForm(hover)).toBe('chip');
+    expect(holeStripForm({ ...hover, mode: 'roam' })).toBe('chip');
+    expect(holeStripForm({ ...hover, mode: 'circular' })).toBe('chip');
+    // No face, no chip.
+    expect(holeStripForm({ ...hover, paced: false })).toBeNull();
+    expect(holeStripForm({ ...hover, flight: true })).toBeNull();
+  });
+
+  it('opens by itself with the View menu’s option, and when opened (the chip, a scene, a fall) for this hole', () => {
+    expect(holeStripForm({ ...hover, panelAuto: true })).toBe('panel');
+    expect(holeStripForm({ ...hover, choice: { hole: 'sgr-a-star', open: true } })).toBe('panel');
+    // A choice made for another hole does not count here.
+    expect(holeStripForm({ ...hover, choice: { hole: 'm87-star', open: true } })).toBe('chip');
+    // Hidden by the visitor: the chip, even with the option on.
+    expect(holeStripForm({ ...hover, panelAuto: true, choice: { hole: 'sgr-a-star', open: false } })).toBe('chip');
+    expect(holeStripForm({ ...hover, panelAuto: true, choice: { hole: 'm87-star', open: false } })).toBe('panel');
+  });
+
+  it('always shows a fall whole, so Stop the fall stays in reach, and the card after it', () => {
+    expect(holeStripForm({ ...hover, falling: true, choice: { hole: 'sgr-a-star', open: false } })).toBe('panel');
+    expect(holeStripForm({ ...hover, lastEnd: { hole: 'sgr-a-star', agoMs: 5_000 } })).toBe('panel');
+  });
+
+  it('says on the chip what and where, and how much slower your clock runs', () => {
+    expect(holeChipText('hovering', 'Sagittarius A*', '1.054×')).toBe('Sagittarius A* · your clock 1.054× slower');
+    expect(holeChipText('roam', 'Gaia BH1', '0.013 %')).toBe('Gaia BH1 · your clock 0.013 % slower');
+    expect(holeChipText('circular', 'Sagittarius A*', '1.414×')).toBe('In orbit round Sagittarius A* · your clock 1.414× slower');
+    expect(holeChipText('snapshot', 'Sagittarius A*', '1.054×')).toBe('Snapshot above Sagittarius A*');
   });
 });
 

@@ -6,8 +6,7 @@
 import { lazy, Suspense, useCallback, type MouseEvent, type ReactNode } from 'react';
 import { formatIsoDate, NOTES_ID, readingMinutes, SHELVES, type ArticleMeta } from '../../content/learn/catalogue';
 import { neighbours, shelves, useArticles } from '../../content/learn/library';
-import { closeDoc, openLearn } from '../../state/route';
-import { openLab } from '../onboarding';
+import { openLearn } from '../../state/route';
 import { Icon } from '../icons';
 import type { TocEntry } from '../docs/parts';
 import { setRead, useReadMarks } from './readMarks';
@@ -97,36 +96,7 @@ export function LearnHub() {
           )}
         </section>
       ))}
-      <LabCard />
     </>
-  );
-}
-
-/** The way into the lab from Learn, at the end of the shelves, for students who want it. */
-function LabCard() {
-  return (
-    <aside className="learn-lab" aria-labelledby="learn-lab-t">
-      <div className="learn-box-t">For students</div>
-      <p id="learn-lab-t" className="learn-lab-t">
-        The lab
-      </p>
-      <p>
-        Five guided experiments in special relativity, set out like a university lab script. Time a pulse of light across the
-        Solar System, compare clocks after fast flights, and work out your own speed from the Doppler shift and from where the
-        planets appear. Lightspeed keeps the notebook and lays out a printable report.
-      </p>
-      <button
-        type="button"
-        className="learn-seeit-btn"
-        onClick={() => {
-          closeDoc();
-          openLab();
-        }}
-      >
-        <Icon name="flask" size={13} />
-        Open the lab
-      </button>
-    </aside>
   );
 }
 

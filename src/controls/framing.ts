@@ -3,6 +3,7 @@
  * sixteen for spacecraft, whose model is mostly booms; a record may say otherwise, as Saturn
  * does for its rings), and for a whole system, from the orbits of its moons.
  */
+import { C_KM_S } from '../physics/constants';
 import { shapeMaxRadiusKm } from '../render/shapes';
 import { childrenOf, displayRadiusKm, getBody, type BodyId, type BodyRecord } from '../sim/bodies';
 import { sim } from '../sim/sim';
@@ -67,6 +68,19 @@ export function flightStandoff(id: BodyId, fromKm: number): number {
   const b = getBody(id);
   if (!b || !NO_SURFACE.has(b.kind) || !(fromKm > framing)) return framing;
   return Math.min(framing, minDistance(id));
+}
+
+/**
+ * A black hole's horizon radius r_s = 2GM/c², km, from its record (its own value when the record
+ * gives one, else from GM); 0 when the body is not a black hole. (Re-exported by the camera controller.)
+ */
+export function blackHoleRsKm(id: BodyId): number {
+  const r = getBody(id);
+  if (!r || r.kind !== 'black-hole') return 0;
+  const own = r.blackHole?.rsKm;
+  if (own && own > 0) return own;
+  const gm = r.blackHole?.gmKm3S2 ?? r.physical.gmKm3S2 ?? 0;
+  return (2 * gm) / (C_KM_S * C_KM_S);
 }
 
 /** Closest the orbit camera may get to a body's centre. */

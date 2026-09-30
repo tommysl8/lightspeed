@@ -101,7 +101,7 @@ export interface GravityState {
   frameVelDir: Vector3;
   /**
    * The ship's rapidity and direction relative to the local static observer (outside) or raindrop (inside),
-   * for the HUD, instruments and lab readings ("speed past hovering observers").
+   * for the HUD and the instruments ("speed past hovering observers").
    */
   relPhi: number;
   relVelDir: Vector3;

@@ -251,7 +251,8 @@ export const nscGlowShare = (dPc: number): number => fade(dPc, NSC_GLOW_FADE_PC)
 
 /**
  * The field's layer card (docs/data/blackholes.md §3, label 14), for the interface's layer cards (ui/viewport/LayerCards.tsx):
- * shown while the field is drawn, nuclear.w > 0. Its sources and numbers: docs/data/blackholes.md §6.
+ * shown while the field is drawn, nuclear.w > 0. `sources` goes under the card's Sources, closed. Its sources and numbers
+ * in full: docs/data/blackholes.md §6.
  */
 export const NSC_LAYER_CARD = {
   title: 'The stars round Sgr A*',
@@ -259,9 +260,11 @@ export const NSC_LAYER_CARD = {
   caveat:
     'Their numbers, brightness and colours follow published fits, but none is a real individual star except S2, S29, S38 and S55; the glow holds the stars fainter than those drawn and any within 0.01 pc of you.',
   more: [
-    'The cluster follows the light profile Schödel and colleagues measured (2014, 2018), the disc the Galaxy model’s own law; the stars’ ages, brightness and colours come from the star-formation histories of Schödel et al. (2020) and Nogueras-Lara et al. (2020) with the MIST stellar models, and the young stars of the central half parsec from Lu et al. (2013) and Yelda et al. (2014).',
     'From near the hole the whole sky is some ten thousand times as bright as all the stars of Earth’s night sky together (V −17 against −6.5): the cluster’s millions of stars all round.',
     'No dust is drawn inside the cluster. Most of the 30 magnitudes that hide it from Earth lie in the Galaxy’s disc on the way.',
+  ],
+  sources: [
+    'The cluster follows the light profile Schödel and colleagues measured (2014, 2018), the disc the Galaxy model’s own law; the stars’ ages, brightness and colours come from the star-formation histories of Schödel et al. (2020) and Nogueras-Lara et al. (2020) with the MIST stellar models, and the young stars of the central half parsec from Lu et al. (2013) and Yelda et al. (2014).',
   ],
 } as const;
 

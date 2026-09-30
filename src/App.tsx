@@ -28,13 +28,16 @@ import { HoverSync, HoverTagLayer } from './ui/HoverTag';
 import { ConstellationNameSync, ConstellationNamesLayer } from './ui/ConstellationNames';
 import { Header } from './ui/layout/Header';
 import { Footer } from './ui/layout/Footer';
-import { ManualDock } from './ui/manual/ManualDock';
+import { ReferenceDock } from './ui/reference/ReferenceDock';
 import { InstrumentsDock } from './ui/instruments/InstrumentsDock';
 import { OverlaySync, ViewportInstruments } from './ui/viewport/Overlays';
 import { ViewportChrome } from './ui/viewport/ViewportChrome';
 import { TrajectoryPlanner } from './ui/flight/TrajectoryPlanner';
 import { FlightStrip } from './ui/flight/FlightStrip';
 import { HoleStrip } from './ui/flight/HoleStrip';
+import { RoamTouchPad } from './ui/flight/RoamPanel';
+import { CleanHint } from './ui/viewport/CleanHint';
+import { appClass, leaveClean } from './ui/cleanMode';
 import { Welcome } from './ui/overlays/Welcome';
 import { Tour } from './ui/overlays/Tour';
 import { Journeys } from './ui/overlays/Journeys';
@@ -45,8 +48,7 @@ import { useExplainerTriggers } from './ui/useExplainerTriggers';
 import { useUI } from './state/ui';
 import { useDocRoute } from './state/route';
 
-// The lab report and the reading pages (with KaTeX) load on first use.
-const LabReport = lazy(() => import('./ui/manual/LabReport'));
+// The reading pages (with KaTeX) load on first use.
 const DocView = lazy(() => import('./ui/docs/DocView'));
 
 /**
@@ -68,18 +70,28 @@ function useNarrowDocks() {
   );
 }
 
+/** A reading page or a dialog over the view brings the interface back from clean full screen. */
+function useCleanLeaves(covered: boolean) {
+  useEffect(() => {
+    if (covered) leaveClean();
+  }, [covered]);
+}
+
 export default function App() {
   useShortcuts();
   useExplainerTriggers();
   useNarrowDocks();
   const leftOpen = useUI((s) => s.leftOpen);
   const rightOpen = useUI((s) => s.rightOpen);
-  const reportFor = useUI((s) => s.reportFor);
+  const clean = useUI((s) => s.clean);
+  const dialog = useUI((s) => s.welcomeOpen || s.tourStep !== null || s.journeysOpen || s.searchOpen || s.keysOpen);
   const doc = useDocRoute();
+  useCleanLeaves(!!doc || dialog);
   return (
-    <div className="app">
+    // Clean full screen hides everything but the view's canvas (index.css, .app-clean): nothing is closed, so all comes back as it was.
+    <div className={appClass(clean)}>
       <Header />
-      {leftOpen && <ManualDock />}
+      {leftOpen && <ReferenceDock />}
       <main className="app-view select-none" aria-label="Simulation view" data-tour="view">
         <Canvas
           // While a reading page covers the screen the simulation pauses and nothing is drawn.
@@ -97,7 +109,7 @@ export default function App() {
           // spreads its 24 bits over log2(10²⁵) = 83 octaves of distance: a relative depth
           // resolution of 3.4 × 10⁻⁶ (34 m at 10,000 km, 3,400 km at a billion km).
           camera={{ fov: 50, near: 0.001, far: 1e25, position: [0, 0, 0] }}
-          className="!absolute inset-0"
+          className="app-canvas !absolute inset-0"
         >
           <SimDriver />
           <MilkyWayBackground />
@@ -135,6 +147,8 @@ export default function App() {
         <TrajectoryPlanner />
         <FlightStrip />
         <HoleStrip />
+        <RoamTouchPad />
+        <CleanHint />
       </main>
       {rightOpen && <InstrumentsDock />}
       <Footer />
@@ -143,11 +157,6 @@ export default function App() {
       <Journeys />
       <Search />
       <KeysSheet />
-      {reportFor && (
-        <Suspense fallback={null}>
-          <LabReport exp={reportFor} />
-        </Suspense>
-      )}
       {doc && (
         <Suspense fallback={<div className="fixed inset-0 z-[60] bg-bg" />}>
           <DocView route={doc} />

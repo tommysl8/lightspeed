@@ -59,7 +59,7 @@ const PRINCIPLES: [string, string][] = [
   ['Exact relativity', 'Aberration, Doppler shift, beaming and time dilation follow from the Lorentz transformation, not from low-speed approximations. Near a black hole, the bending of light and the slowing of clocks follow exactly from general relativity, for a black hole that does not spin.'],
   ['Expanding space', 'Beyond the Local Group space expands, and the program models it: the clock keeps cosmic time, and flights out there cross the expanding universe of the Planck 2018 model rather than zooming.'],
   ['Models labelled', 'Where the measurements run out, a model built from published measurements takes over (the Milky Way seen from outside, the shapes of other galaxies, the stars and the gas round the black hole at its centre), and its card says so.'],
-  ['Fiction labelled', 'The one non-physical feature, faster-than-light travel, is marked in red and never enters the notebook.'],
+  ['Fiction labelled', 'The one non-physical feature, faster-than-light travel, is marked in red wherever it appears.'],
 ];
 
 function Overview() {
@@ -73,10 +73,8 @@ function Overview() {
       </p>
       <p>
         It is for anyone who has wondered what the sky would look like from a starship, and how long the trip would really
-        take. The numbers are always a click away, and Learn tells the science behind it. For students and teachers there
-        is also a lab: five guided experiments in special relativity that use the simulation as apparatus, with a notebook and
-        printable reports. It runs in a web browser, needs no installation or account, and keeps anything you record on your
-        own computer.
+        take. The numbers are always a click away, and Learn tells the science behind it. It runs in a web browser and needs
+        no installation or account.
       </p>
       <div className="doc-principles">
         {PRINCIPLES.map(([t, d], i) => (
@@ -148,7 +146,7 @@ function Author() {
         <p key={p.slice(0, 16)}>{p}</p>
       ))}
       <p>
-        Lightspeed was designed and built by {AUTHOR.name}. Corrections, bug reports and ideas for new journeys or experiments are
+        Lightspeed was designed and built by {AUTHOR.name}. Corrections, bug reports and ideas for new journeys or places to visit are
         welcome by email, or as an issue on the project’s <Ext href={`${AUTHOR.repo}/issues`}>GitHub page</Ext>.
       </p>
     </Chapter>
@@ -523,10 +521,6 @@ function Sources() {
             274: ion tails along the solar wind. Both in simplified form for the comet tails.
           </>,
           <>
-            J. R. Taylor, An Introduction to Error Analysis, 2nd ed. (1997); P. R. Bevington, D. K. Robinson, Data Reduction and
-            Error Analysis, 3rd ed. (2003): least-squares fits and uncertainties in the lab.
-          </>,
-          <>
             E. F. Taylor, J. A. Wheeler, Spacetime Physics, 2nd ed. (1992); W. Rindler, Relativity: Special, General, and
             Cosmological, 2nd ed. (2006).
           </>,
@@ -540,8 +534,7 @@ function Limitations() {
   return (
     <Chapter id="limitations" title="Model limitations">
       <p>
-        Lightspeed simplifies in the following ways, and says so on screen where it matters. None of them affects the lab’s
-        experiments as designed.
+        Lightspeed simplifies in the following ways, and says so on screen where it matters.
       </p>
       <ol className="doc-list-num">
         <li>
@@ -551,8 +544,8 @@ function Limitations() {
           gravitational time dilation is applied. The other black holes’ lenses are then far below a pixel. Only the black
           hole’s own gravity is included (the Sun’s and the Galaxy’s, parts in 10⁸ and 10⁶, are left out), and only where it
           passes 5 parts in 10¹⁰; near a hole the time warp paces a clock hovering there, and home’s clock is one far from
-          every mass. The flight planner ignores gravity, so it refuses to leave from within 30 horizon radii of a black hole,
-          and the lab takes no reading near one.
+          every mass. The flight planner ignores gravity, so it refuses to leave from within 30 horizon radii of a black
+          hole.
         </li>
         <li>
           Every black hole is drawn without spin, since none is measured well enough to draw (Sagittarius A*: estimates from
@@ -682,9 +675,8 @@ function Privacy() {
     <Chapter id="privacy" title="Privacy">
       <p>
         Lightspeed runs entirely in your browser. There are no accounts, cookies, advertising or analytics, and nothing you do is
-        sent anywhere. Your preferences, and any readings and written answers from the lab, are kept in this browser’s local
-        storage. The Notebook tab in the lab exports them and clears the readings; clearing this site’s data in your browser
-        removes everything. The site is served as static files; the web host may keep ordinary request logs, but Lightspeed
+        sent anywhere. Your preferences are kept in this browser’s local storage; clearing this site’s data in your browser
+        removes them. The site is served as static files; the web host may keep ordinary request logs, but Lightspeed
         itself collects nothing.
       </p>
     </Chapter>

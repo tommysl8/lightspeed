@@ -181,7 +181,8 @@ export function startFall(opts: { hole: BodyId; r0: number; e: number; dirOut?: 
   chronoLaunch();
   sim.live = false;
   controller.enterFall(hole, dirOut);
-  useUI.setState({ fallActive: true, tripActive: true, plannerOpen: false });
+  // The black-hole panel opens (the visitor asked for the fall), and stays open after it, back where it let go.
+  useUI.setState({ fallActive: true, tripActive: true, plannerOpen: false, holePanel: { hole, open: true } });
   updateFall();
   return { ok: true };
 }

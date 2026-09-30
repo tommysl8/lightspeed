@@ -1,83 +1,80 @@
 import { describe, expect, it } from 'vitest';
-import { migrateUI, notebookShowsLabUse, savedPrefs, useUI } from './ui';
+import { migrateUI, savedPrefs, useUI } from './ui';
 
 describe('the preferences store', () => {
-  it('starts with both panels closed, hints off and the lab unused', () => {
+  it('starts with both panels closed and hints off', () => {
     const s = useUI.getState();
     expect(s.leftOpen).toBe(false);
     expect(s.rightOpen).toBe(false);
     expect(s.hints).toBe(false);
-    expect(s.labUsed).toBe(false);
     expect(s.searchOpen).toBe(false);
   });
 
-  it('does not remember the lab as open, so it never appears by itself on a reload', () => {
-    useUI.setState({ leftOpen: true, rightOpen: true, labUsed: true });
+  it('starts with the black-hole panel closed until asked for, the interface shown, and the camera in orbit', () => {
+    const s = useUI.getInitialState();
+    expect(s.holePanelAuto).toBe(false);
+    expect(s.holePanel).toBeNull();
+    expect(s.clean).toBe(false);
+    expect(s.controlMode).toBe('orbit');
+  });
+
+  it('remembers whether the black-hole panel opens by itself, but not clean full screen nor a choice made near one hole', () => {
+    useUI.setState({ holePanelAuto: true, clean: true, holePanel: { hole: 'sgr-a-star', open: true }, controlMode: 'roam' });
+    try {
+      const saved = savedPrefs(useUI.getState()) as Record<string, unknown>;
+      expect(saved.holePanelAuto).toBe(true);
+      expect(saved).not.toHaveProperty('clean');
+      expect(saved).not.toHaveProperty('holePanel');
+      expect(saved).not.toHaveProperty('controlMode');
+    } finally {
+      useUI.setState({ holePanelAuto: false, clean: false, holePanel: null, controlMode: 'orbit' });
+    }
+  });
+
+  it('gives preferences saved before the option its default, off, with no migration (the store merges the saved state over its defaults)', () => {
+    const before = { showOrbits: false, hints: true, rightOpen: true };
+    const migrated = migrateUI(before, 6);
+    expect(migrated).toEqual(before);
+    expect({ ...useUI.getInitialState(), ...migrated }.holePanelAuto).toBe(false);
+    expect({ ...useUI.getInitialState(), ...migrateUI({ ...before, holePanelAuto: true }, 6) }.holePanelAuto).toBe(true);
+  });
+
+  it('does not remember the physics reference as open, so it never appears by itself on a reload', () => {
+    useUI.setState({ leftOpen: true, rightOpen: true, refTopic: 'doppler' });
     try {
       const saved = savedPrefs(useUI.getState()) as Record<string, unknown>;
       expect(saved).not.toHaveProperty('leftOpen');
       expect(saved.rightOpen).toBe(true);
-      expect(saved.labUsed).toBe(true);
+      expect(saved.refTopic).toBe('doppler');
     } finally {
-      useUI.setState({ leftOpen: false, rightOpen: false, labUsed: false });
+      useUI.setState({ leftOpen: false, rightOpen: false, refTopic: 'light-time' });
     }
   });
 });
 
 describe('migrateUI', () => {
-  it('closes both docks and opens the lab on its experiments when coming from version 4', () => {
-    const old = { leftOpen: true, rightOpen: true, manualTab: 'reference', hints: true, showOrbits: false };
-    expect(migrateUI(old, 4, () => false)).toEqual({
-      leftOpen: false,
-      rightOpen: false,
-      manualTab: 'experiments',
-      hints: true,
-      showOrbits: false,
-      labUsed: false,
-    });
+  // A version 5 save, with keys for a panel this version no longer has.
+  const v5 = { showOrbits: false, rightOpen: true, hints: true, leftWidth: 420, refTopic: 'lorentz', labUsed: true, manualTab: 'notebook', experiment: 'E3' };
+
+  it('drops what this version no longer saves, and keeps the rest', () => {
+    expect(migrateUI(v5, 5)).toEqual({ showOrbits: false, rightOpen: true, hints: true, leftWidth: 420, refTopic: 'lorentz' });
   });
 
-  it('counts someone whose notebook shows lab work as a lab user', () => {
-    expect(migrateUI({}, 4, () => true).labUsed).toBe(true);
+  it('gives a store with no trace of the dropped keys once merged over the defaults, as persist does', () => {
+    const s = { ...useUI.getInitialState(), ...migrateUI(v5, 5) } as unknown as Record<string, unknown>;
+    expect(s.showOrbits).toBe(false);
+    expect(s.refTopic).toBe('lorentz');
+    expect(s.leftOpen).toBe(false);
+    for (const k of ['labUsed', 'manualTab', 'experiment']) expect(s, k).not.toHaveProperty(k);
   });
 
-  it('counts an experiment opened, or the notebook tab chosen, as lab use', () => {
-    expect(migrateUI({ experiment: 'E3', manualTab: 'reference' }, 3, () => false).labUsed).toBe(true);
-    expect(migrateUI({ manualTab: 'notebook' }, 2, () => false).labUsed).toBe(true);
-    expect(migrateUI({ manualTab: 'experiments' }, 3, () => false).labUsed).toBe(true);
-    // Before version 3 the panel opened on its experiments by default: not a sign of use.
-    expect(migrateUI({ manualTab: 'experiments', experiment: null }, 2, () => false).labUsed).toBe(false);
-  });
-
-  it('turns hints off for anyone from before they existed', () => {
-    expect(migrateUI({ hints: true }, 3, () => false).hints).toBe(false);
+  it('closes the instrument panel and turns hints off for anyone from before those changes', () => {
+    expect(migrateUI({ rightOpen: true, hints: true }, 3)).toEqual({ rightOpen: false, hints: false });
+    expect(migrateUI({ rightOpen: true, hints: true }, 4)).toEqual({ rightOpen: false, hints: true });
   });
 
   it('leaves current preferences alone', () => {
-    const now = { leftOpen: false, rightOpen: true, labUsed: true, manualTab: 'notebook' as const };
-    expect(migrateUI(now, 5)).toEqual(now);
-  });
-});
-
-describe('notebookShowsLabUse', () => {
-  const saved = (state: object) => JSON.stringify({ state, version: 1 });
-  const autoRow = { id: 'E2-1-x', exp: 'E2', n: 1, simMs: 0, v: {}, src: 'auto' };
-
-  it('ignores the rows every flight and pulse writes by itself', () => {
-    expect(notebookShowsLabUse(saved({ rows: [autoRow, { ...autoRow, exp: 'E5' }], answers: {}, student: '', noise: false }))).toBe(false);
-  });
-
-  it('sees readings by hand, answers, a name or simulated uncertainty', () => {
-    expect(notebookShowsLabUse(saved({ rows: [autoRow, { ...autoRow, exp: 'E3', src: 'manual' }] }))).toBe(true);
-    expect(notebookShowsLabUse(saved({ rows: [], answers: { 'E2.q1': 'Slower.' } }))).toBe(true);
-    expect(notebookShowsLabUse(saved({ rows: [], answers: { 'E2.q1': '  ' } }))).toBe(false);
-    expect(notebookShowsLabUse(saved({ rows: [], student: 'A. Student' }))).toBe(true);
-    expect(notebookShowsLabUse(saved({ rows: [], noise: true }))).toBe(true);
-  });
-
-  it('copes with nothing saved or something unreadable', () => {
-    expect(notebookShowsLabUse(null)).toBe(false);
-    expect(notebookShowsLabUse('{not json')).toBe(false);
-    expect(notebookShowsLabUse('null')).toBe(false);
+    const now = { rightOpen: true, refTopic: 'doppler' as const, hints: true };
+    expect(migrateUI(now, 6)).toEqual(now);
   });
 });

@@ -1,16 +1,19 @@
 /**
- * The card for the selected body: what it is, a few facts with their sources, who found it (or
- * when it was launched and how it is doing), how far to trust its position and what else is a
- * model, its distance and light-time, and the things to do with it: go there, fly there, read
- * about it, or open its full data sheet in the instrument panel.
+ * The card for the selected body: what it is, its few key numbers, a few facts, who found it (or
+ * when it was launched and how it is doing), its distance and light-time, one short line where what
+ * is drawn is a model rather than data, and the things to do with it: go there, fly there, read
+ * about it, or open its full data sheet in the instrument panel. Where each thing comes from (the
+ * links behind the facts, how the distance was measured, how far to trust its position, the notes
+ * on what is modelled, its picture's credit) is folded away under Sources at the bottom (Sources.tsx),
+ * closed each time the card opens; the facts' own author–year brackets are left out on the card.
  *
  * A black hole's card gives, near it, its height above the horizon instead of a distance
  * (exact, from sim/lensBodies.ts holeView and the gravity state: the heliocentric difference is
  * kilometres coarse near a hole; far away its distance and light-time like any body's), a "From here" line (the shadow, the Einstein ring, your clock
- * against home's, the thrust it takes to stay), its mass with the published uncertainties, at most
- * three one-line notes of what is a model with a "What is modelled here" link to the rest (the data
- * sheet, ui/dataSheet.ts sheetNotes, and the Guide), and for Sgr A* and M87* the Event Horizon
- * Telescope's picture (EhtFigure) with, for Sgr A*, the accretion flow's switches (FlowControls).
+ * against home's, the thrust it takes to stay), its mass with the published uncertainties, a "What is
+ * modelled here" link to its notes (the data sheet, ui/dataSheet.ts sheetNotes, and the Guide; its first
+ * three are under Sources too), and for Sgr A* and M87* the Event Horizon Telescope's picture (EhtFigure)
+ * with, for Sgr A*, the accretion flow's switches (FlowControls).
  * Cost: holeView's closed forms three times a second while the card shows (nothing allocated).
  */
 import { C_KM_S } from '../../physics/constants';
@@ -19,7 +22,7 @@ import { longDate } from '../../sim/solarSystem';
 import { fixed, qty, sig } from '../../lib/sci';
 import { sim } from '../../sim/sim';
 import { useUI } from '../../state/ui';
-import { targetReading } from '../../lab/measure';
+import { targetReading } from '../../sim/measure';
 import { goToBody } from '../navigation';
 import { planOneG } from '../tripActions';
 import { articleForBody } from '../../content/bodyArticles';
@@ -30,9 +33,9 @@ import { CloseIcon } from '../kit';
 import { Icon } from '../icons';
 import { useTicker } from '../useTicker';
 import { rich } from '../rich';
-import { starDistanceLine, starPhysicalLine } from '../starText';
+import { starDistanceSource, starDistanceWords, starPhysicalLine } from '../starText';
 import { exoplanetDiscoveryLine, exoplanetOrbitLine, exoplanetPhysicalLine, exoplanetStatusText } from '../exoplanetText';
-import { creditSentence, deepSkyDistanceLine } from '../deepSkyText';
+import { deepSkyDistanceSource, deepSkyDistanceWords } from '../deepSkyText';
 import { farEpochNote } from '../epochNote';
 import { cosmicSightLine, lightLeftAgo } from '../../sim/cosmos/sight';
 import { assetUrl } from '../../render/textures';
@@ -41,9 +44,12 @@ import { gravity } from '../../sim/gravity';
 import { fall } from '../../sim/fall';
 import { holeView, type HoleView } from '../../sim/lensBodies';
 import { FLOW_TEXTS } from '../../sim/blackholes/accretion';
+import { NO_IMAGE_NOTE } from '../../sim/exoplanets/records';
+import { MILKY_WAY_MODEL_LABEL } from '../../sim/galaxy/records';
 import { holeFromHere, holeHeightLine, holeMassText, MODELLED_HERE, type HoleHere } from '../deepSkyText';
-import { EhtFigure } from './EhtFigure';
+import { EHT_SHIPPED, EhtFigure } from './EhtFigure';
 import { FlowControls } from './FlowControls';
+import { PictureCreditLine, SourceLinks, Sources } from './Sources';
 import type { ControlMode } from '../../state/ui';
 
 /** The camera modes in which it is at a body it is centred on (a black hole's own modes included). */
@@ -77,24 +83,42 @@ function holeHere(id: string, mode: ControlMode): HoleHere {
 }
 
 /**
- * A nebula's picture, with its credit line exactly as the archive gives it and what was changed,
- * linked to the picture's page and the licence (CC BY 4.0 asks for all of it wherever the picture
- * is shown).
+ * A nebula's picture's credit as a line of its own (the data sheet's, beside the picture's entry): the credit
+ * exactly as the archive gives it and what was changed, linked to the picture's page and the licence (CC BY 4.0
+ * asks for all of it wherever the picture is shown). The card keeps the same line under its Sources.
  */
 export function PictureCredit({ image, className = '' }: { image: DeepSkyImage; className?: string }) {
   return (
-    <p className={`whitespace-pre-line text-[10.5px] leading-snug text-fg-3 ${className}`}>
-      Picture: {creditSentence(image.credit)}{' '}
-      <span>{image.modificationNote}</span>{' '}
-      <a className="underline decoration-line-2 underline-offset-2 hover:text-fg" href={image.page} target="_blank" rel="noopener noreferrer">
-        {image.source}
-      </a>
-      {' · '}
-      <a className="underline decoration-line-2 underline-offset-2 hover:text-fg" href={image.licenceUrl} target="_blank" rel="noopener noreferrer">
-        {image.licence}
-      </a>
+    <p className={`text-[10.5px] leading-snug text-fg-3 ${className}`}>
+      Picture: <PictureCreditLine image={image} />
     </p>
   );
+}
+
+/**
+ * An author–year citation in brackets, as the facts carry them: "(Lainey et al. 2024)", "(Showalter & Hamilton
+ * 2015)", "(Cordiner et al. 2020; Bodewits et al. 2020)". Only "et al." or two names count, so "(January 1986)"
+ * stays.
+ */
+const CITE = String.raw`[A-ZÀ-Þ][^()&;\d]*?(?: et al\.| (?:&|and) [A-ZÀ-Þ][^()&;\d]*?) \d{4}[a-z]?`;
+const INLINE_CITATION = new RegExp(String.raw`\s*\(${CITE}(?:; ${CITE})*\)`, 'g');
+
+/** A fact as the card shows it: without its author–year brackets (the card's Sources link the papers). */
+export const cardFact = (text: string): string => text.replace(INLINE_CITATION, '');
+
+/** The Galaxy's model in one line for its card (the whole label, with its sources, is under Sources). */
+export const GALAXY_MODEL_LINE = 'A model built from published measurements: its points are not real stars, and its far side is extrapolated.';
+
+/**
+ * The one line a card keeps in view to say that what is drawn is a model rather than data, short and without
+ * references (every note in full is under Sources): an exoplanet's illustrative colour, the Galaxy's model. A
+ * black hole's card links to its notes instead (MODELLED_HERE), and the layers' cards say it of the layers.
+ */
+export function cardModelLine(r: BodyRecord): string | null {
+  const notes = r.modelNotes ?? [];
+  if (notes.includes(NO_IMAGE_NOTE)) return NO_IMAGE_NOTE;
+  if (notes.includes(MILKY_WAY_MODEL_LABEL)) return GALAXY_MODEL_LINE;
+  return null;
 }
 
 /** "science.nasa.gov" from a URL. */
@@ -168,21 +192,32 @@ export function BodyCard() {
   const geo = targetReading(id);
   const moving = !!geo && geo.beta >= 1e-3;
   const here = AT_TARGET.includes(mode) && focus === id;
-  const origin = originLine(d) ?? (d.exoplanet ? exoplanetDiscoveryLine(d.exoplanet) : null);
+  // An exoplanet's discovery paper is among the sources, not on the line.
+  const ownOrigin = originLine(d);
+  const origin = ownOrigin ?? (d.exoplanet ? exoplanetDiscoveryLine(d.exoplanet, false) : null);
   const status = statusLine(d);
   // A black hole: its height above the horizon and what it looks like from here (null: not in the scene).
   const hole = d.kind === 'black-hole' ? d.blackHole : undefined;
   const hv = hole ? holeView(id, holeScratch) : null;
   const hh = hv ? holeHere(id, mode) : null;
   const mass = hole ? holeMassText(hole) : null;
-  // Its card keeps at most three one-line notes (the position and the rest are on the data sheet).
-  const notes = hole ? (d.modelNotes ?? []).slice(0, 3) : [d.positionNote, ...(d.modelNotes ?? [])].filter((n): n is string => !!n);
+  const modelLine = hole ? null : cardModelLine(d);
+  // Under Sources: a black hole's first three notes (the position and the rest are on the data sheet), any
+  // other body's position and every note, but the one already in view.
+  const notes = (hole ? (d.modelNotes ?? []).slice(0, 3) : [d.positionNote, ...(d.modelNotes ?? [])]).filter((n): n is string => !!n && n !== modelLine);
   // A galaxy beyond the camera's bound structure: the light arriving now, when it left and how stretched. Not beside
   // a black hole whose gravity paces the clock: its light left it hours or days ago, not ages (M87* from 6,288 au).
   const sight = d.deepSky && !hh?.near ? cosmicSightLine(id, b.dopplerFactor) : null;
   // Far from the present: home and the stars are drawn as they are today.
   const epochNote = farEpochNote(id);
   const links = sourceLinks(d);
+  const deepSkyDistance = d.deepSky ? deepSkyDistanceWords(d.deepSky) : null;
+  const distanceSource = d.star ? starDistanceSource(d.star) : deepSkyDistance && d.deepSky ? deepSkyDistanceSource(d.deepSky) : null;
+  const discoveryPaper = d.exoplanet?.reference && !ownOrigin ? `Discovery: ${d.exoplanet.reference}` : null;
+  const image = d.deepSky?.image;
+  // The EHT's picture is credited only where a copy is shown (else the figure links to it).
+  const eht = hole?.ehtImage && EHT_SHIPPED.has(hole.ehtImage.file) ? hole.ehtImage : null;
+  const anySources = !!(hole?.massNote || distanceSource || discoveryPaper || notes.length || image || eht || links.length);
   return (
     <div className="panel-float appear w-[300px] max-w-full" role="region" aria-label={`${d.name}`}>
       <div className="flex items-start gap-2 px-3.5 pb-1 pt-2.5">
@@ -200,7 +235,7 @@ export function BodyCard() {
           {d.star && (
             <div className="mono mt-0.5 text-[10.5px] leading-[15px] text-fg-2">
               <div>{starPhysicalLine(d.star)}</div>
-              <div className="text-fg-3">{starDistanceLine(d.star)}</div>
+              <div className="text-fg-3">{starDistanceWords(d.star)}</div>
             </div>
           )}
           {d.exoplanet && (
@@ -209,7 +244,7 @@ export function BodyCard() {
               <div className="text-fg-3">{exoplanetOrbitLine(d.exoplanet)}</div>
             </div>
           )}
-          {d.deepSky && deepSkyDistanceLine(d.deepSky) && <div className="mono mt-0.5 text-[10.5px] leading-[15px] text-fg-3">{deepSkyDistanceLine(d.deepSky)}</div>}
+          {deepSkyDistance && <div className="mono mt-0.5 text-[10.5px] leading-[15px] text-fg-3">{deepSkyDistance}</div>}
           {sight && <div className="mt-0.5 text-[11px] leading-snug text-fg-2">{sight}</div>}
           {d.exoplanet && exoplanetStatusText(d.exoplanet) && (
             <div className="mt-0.5 text-[11px] text-hazard" title={d.exoplanet.statusNote}>
@@ -269,65 +304,60 @@ export function BodyCard() {
       </div>
       {/* On a phone the card shares the height with the panel along the bottom: its body scrolls in a quarter of it. */}
       <div className="scroll max-h-[min(46vh,420px)] overflow-y-auto border-t border-line px-3.5 pb-2.5 pt-2 max-sm:max-h-[24vh]">
-        {d.deepSky?.image && (
-          <figure className="mb-2">
-            <img
-              className="max-h-[150px] w-full rounded-sm bg-black object-contain"
-              src={assetUrl(d.deepSky.image.file)}
-              alt={`${d.name}, as seen from Earth (${d.deepSky.image.band === 'visible' ? 'visible light' : 'near-infrared light'})`}
-              loading="lazy"
-            />
-            <figcaption>
-              <PictureCredit image={d.deepSky.image} className="mt-1" />
-            </figcaption>
-          </figure>
+        {image && (
+          <img
+            className="mb-2 max-h-[150px] w-full rounded-sm bg-black object-contain"
+            src={assetUrl(image.file)}
+            alt={`${d.name}, as seen from Earth (${image.band === 'visible' ? 'visible light' : 'near-infrared light'})`}
+            loading="lazy"
+          />
         )}
-        {/* Another published mass (the mass line's own figures are the adopted ones): here, so the header stays short. */}
-        {hole?.massNote && <p className="mb-1.5 text-[11px] leading-snug text-fg-3">Mass: {`${hole.massNote[0].toLowerCase()}${hole.massNote.slice(1)}`.replace(/([^.])$/, '$1.')}</p>}
         {hole?.ehtImage && <EhtFigure image={hole.ehtImage} name={d.name} flowCaption={hole.flow ? FLOW_TEXTS.figureCaption : null} />}
         {hole?.flow && <FlowControls />}
         {(d.facts ?? []).map((f) => (
           <p key={f} className="mb-1.5 font-serif text-[12.5px] leading-snug text-fg-2 last:mb-0">
-            {f}
+            {cardFact(f)}
           </p>
         ))}
-        {d.exoplanet?.statusNote && <p className="mb-1.5 text-[11.5px] leading-snug text-fg-2">{d.exoplanet.statusNote}</p>}
-        {origin && <p className="mt-2 text-[11.5px] leading-snug text-fg-2">{origin}</p>}
+        {d.exoplanet?.statusNote && <p className="mb-1.5 text-[11.5px] leading-snug text-fg-2">{cardFact(d.exoplanet.statusNote)}</p>}
+        {origin && <p className="mt-2 text-[11.5px] leading-snug text-fg-2">{cardFact(origin)}</p>}
         {status && <p className="mt-1 text-[11.5px] leading-snug text-fg-2">{status}</p>}
-        {(notes.length > 0 || links.length > 0 || hole) && (
-          <div className="mt-2 border-t border-line pt-1.5 text-[10.5px] leading-snug text-fg-3">
+        {modelLine && <p className="mt-2 text-[11px] leading-snug text-fg-3">{modelLine}</p>}
+        {hole && (
+          // The notes are on the data sheet; what each model is, in the Guide.
+          <p className="mt-2 text-[11px] leading-snug text-fg-3">
+            <span>{MODELLED_HERE}: </span>
+            <button className="underline decoration-line-2 underline-offset-2 hover:text-fg" onClick={() => useUI.setState({ rightOpen: true })} title="Every note, on the data sheet in the instrument panel (I)">
+              the data sheet
+            </button>
+            {' · '}
+            <button className="underline decoration-line-2 underline-offset-2 hover:text-fg" onClick={() => openDoc('guide', 'hole-models')} title="The Guide: what is a model near the black holes">
+              the Guide
+            </button>
+          </p>
+        )}
+        {anySources && (
+          // Keyed by the body: another body's card starts with its sources closed.
+          <Sources key={id} className="mt-2">
+            {/* Another published mass (the mass line's own figures are the adopted ones). */}
+            {hole?.massNote && <p>Mass: {`${hole.massNote[0].toLowerCase()}${hole.massNote.slice(1)}`.replace(/([^.])$/, '$1.')}</p>}
+            {distanceSource && <p>{distanceSource.replace(/([^.])$/, '$1.')}</p>}
+            {discoveryPaper && <p>{discoveryPaper.replace(/([^.])$/, '$1.')}</p>}
             {notes.map((n) => (
-              <p key={n} className="mb-1 last:mb-0">
-                {n}
-              </p>
+              <p key={n}>{n}</p>
             ))}
-            {hole && (
-              // The notes the card leaves out are on the data sheet; what each model is, in the Guide.
-              <p className="mt-1.5">
-                <span>{MODELLED_HERE}: </span>
-                <button className="underline decoration-line-2 underline-offset-2 hover:text-fg" onClick={() => useUI.setState({ rightOpen: true })} title="Every note, on the data sheet in the instrument panel (I)">
-                  the data sheet
-                </button>
-                {' · '}
-                <button className="underline decoration-line-2 underline-offset-2 hover:text-fg" onClick={() => openDoc('guide', 'hole-models')} title="The Guide: what is a model near the black holes">
-                  the Guide
-                </button>
+            {image && (
+              <p>
+                Picture: <PictureCreditLine image={image} />
               </p>
             )}
-            {links.length > 0 && (
-              <p className="mt-1.5">
-                <span>Sources: </span>
-                {links.map((l, i) => (
-                  <span key={l.url}>
-                    {i > 0 && ' · '}
-                    <a className="underline decoration-line-2 underline-offset-2 hover:text-fg" href={l.url} target="_blank" rel="noopener noreferrer" title={l.url}>
-                      {l.label}
-                    </a>
-                  </span>
-                ))}
+            {eht && (
+              <p>
+                The Event Horizon Telescope’s picture: <PictureCreditLine image={eht} />
               </p>
             )}
-          </div>
+            <SourceLinks links={links} />
+          </Sources>
         )}
       </div>
       <div className="flex flex-wrap gap-1 border-t border-line px-3.5 py-2">

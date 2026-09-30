@@ -2,469 +2,100 @@
 
 # Lightspeed
 
-**Explore the real universe at nearly the speed of light.**
+Explore the real universe at nearly the speed of light, in your browser.
 
-**Try it in your browser: [lightspeed-explorer.vercel.app](https://lightspeed-explorer.vercel.app)**
+**[Open Lightspeed](https://lightspeed-explorer.vercel.app)**. Nothing to install, no sign-up.
 
-Every planet sits where it really is today, every distance is to scale, and light takes real time to cross
-them: 8 minutes 19 seconds from the Sun to Earth, 5.5 hours to Pluto, almost a full day to Voyager 1. Beyond the
-planets are 329,770 real stars, each at its own distance, and the planets found around them. Beyond the stars is the
-Milky Way: its real glow as seen from the Sun, a model of the whole Galaxy to see from outside, its star clusters and
-nebulae, and the black hole at its centre with the stars that orbit it. Beyond that are Andromeda and the rest of the
-Local Group, the nearby galaxies and clusters, 55,877 galaxies of the cosmic web, the most distant galaxies known and
-the map of the cosmic microwave background. You can go to any of them. Fly at nearly the speed of light and the sky
-crowds ahead of you, colours shift, and your clock falls behind Earth's, exactly as special relativity says; go far
-enough and the universe expands while you travel. Go close to one of eleven real black holes and its gravity bends the
-light of the whole sky round its shadow and slows your clock, exactly as general relativity says; hover just above
-its horizon, or fall in. The numbers are always a click away, Learn tells the science behind it, and for students
-there is a lab with five guided experiments.
+<p align="center">
+  <img src="docs/images/black-hole.jpg" alt="The Milky Way bent into a ring round the black hole Gaia BH3" width="49%">
+  <img src="docs/images/milky-way.jpg" alt="The Milky Way seen from outside" width="49%">
+  <img src="docs/images/saturn.jpg" alt="Saturn and its rings at true scale" width="49%">
+  <img src="docs/images/relativity.jpg" alt="At 0.999c the whole sky crowds into a disc ahead" width="49%">
+</p>
 
-Built with Vite, React, TypeScript and three.js (React Three Fiber). It is a static site with no backend.
+Lightspeed is a map of the universe at true scale that you can fly around. The planets are where they are today.
+329,770 stars sit at their measured distances. Beyond them are the Milky Way, Andromeda, 55,877 galaxies of the cosmic
+web and the afterglow of the Big Bang. Fly fast and special relativity takes over: the sky bunches up ahead of you,
+colours shift and your clock falls behind Earth's. Get close to a black hole and its gravity bends the light of the
+whole sky.
 
-By [Tommy Liu](https://github.com/tommysl8).
+It started as a way to see what relativity actually looks like, and grew from there.
 
-## First visit
+## Things to try
 
-The screen opens on the view alone: a date, **Where to?**, the journeys, Learn and simple time controls. A welcome
-screen offers three ways in: a one-minute **guided tour** that points at each part of the screen, **Where to?**, or
-the **journeys**. Everything else is one click away:
+- **Take a journey.** One-click trips: race sunlight to Earth, ride to Saturn at 0.9c, catch up with Voyager 1, fly to
+  the seven planets of TRAPPIST-1, or fall into the black hole at the centre of the Galaxy.
+- **Roam.** Press `F` and fly anywhere, from low over the Moon to the edge of the cosmic web. Your speed scales with how
+  close things are: about 15 seconds gets you out of the Solar System, and holding Shift gets you out of the Milky Way
+  in about three.
+- **Go anywhere by name.** Press `/` and type: Europa, Betelgeuse, K2-18 b, the Orion Nebula, Andromeda.
+- **Visit a black hole.** Eleven real ones, from Sagittarius A\* and M87\* to Gaia BH1. The lensing is exact general
+  relativity. Hover just above the horizon and watch your clock slow, or fall in.
+- **Just look.** `Shift+F` hides everything but the view.
+- **Read about it.** Learn has longer reads on the science behind what you're seeing, with their sources.
 
-- **Where to?** (header, `/` or `Ctrl+K`): find any place by name, from the Moon to Andromeda (a planet or moon, any of
-  the 329,770 stars, a planet of another star, a star cluster, a nebula, a black hole, a galaxy), with how far away it
-  is, how old its light is and what a 1 g flight there would take for you and at home. Enter goes there; Shift+Enter
-  plans the flight.
-  Before you type it offers eight places, from the Moon out to the Galactic Centre and Andromeda, with their 1 g costs.
-- **Journeys** (header): eleven set pieces, one click each. Race a pulse of sunlight to Earth, ride to Saturn at
-  0.9c, see the sky at 0.999c on a split screen, catch up with Voyager 1, push to Proxima Centauri at 1 g, fly to
-  the seven worlds of TRAPPIST-1, watch a year pass in half a minute or a month over Earth, ride Voyager 2 past
-  Neptune in 1989, see Halley's Comet come back in 2061, or fall into Sagittarius A*, the black hole at the centre of
-  the Galaxy, through its horizon. Flights leave from Earth, play in about a minute, and each journey says what to look
-  for.
-- **Body cards**: click a planet, a star, a nebula or a galaxy and a card says what it is, how far away it is, how old
-  its light is, three things worth knowing (with their sources), who found it or when it was launched, and how far to
-  trust its position and what else is a model, with buttons to go there, fly there at 1 g, read about it and open its
-  data sheet.
-- **Where you are** (footer): a trail from the body in view out to the observable universe. Click a level (Solar
-  System, Solar neighbourhood, Milky Way, Local Group, Local Universe) to see it whole. **Bodies** lists every place
-  by kind, moons under their planets and planets under their stars, then the star clusters, nebulae and galaxies.
-- **Learn** (header, `E`): long reads on the science behind the view at `#/learn`, from light and relativity to the
-  stars, the galaxies, black holes and the expanding universe, with their sources.
-- **View** (header): display layers (constellations, planet hosts, the cosmic web, the CMB map), optics with
-  **gravitational lensing** and the **accretion flow** (both on at every visit), the **instrument panel** (`I`, every
-  number several times a second) and **physics hints** (off by default), the guide, the keys and About.
-- **Lab** (header, `K`): for students, five guided experiments. It never opens by itself.
-- **Guide** and `?`: a thirteen-chapter guide at `#/guide` (chapters can be linked, such as `#/guide/universe`, and
-  printed), and the keyboard and mouse on one sheet.
-- **About** (`#/about`): what the project is, the author, how to cite it, and its sources, methods and limitations.
+## Controls
 
-## For students: the lab
+| Key | What it does |
+| --- | --- |
+| Drag, scroll | Look around, zoom in and out |
+| Click, double-click | Select something (a short card), go there |
+| `/` or `Ctrl+K` | Where to? Search anything by name |
+| `F` | Roam: fly anywhere. `F` or `Esc` to stop |
+| `W` `A` `S` `D` or arrows | Move while roaming. `Space`/`R` up, `C` down, `Q` `E` roll |
+| `Shift`, scroll or `+` `−` | Roam faster; set the pace |
+| `Shift+F` | Clean full screen: the view and nothing else |
+| `H` | Back to Earth |
+| `G` | Plan a flight |
+| `P`, `[` `]`, `N` | Pause, slow down or speed up time, back to now |
+| `Z`, `X` | Relativistic optics on and off, split screen |
+| `E`, `I` | Learn, the instrument panel |
+| `T` `O` `L` `B` `J` `Y` | True scale, orbits, labels, small bodies, grid, constellations |
+| `?` | Every key on one sheet |
 
-The lab (the **Lab** button, or `K`) turns the simulator into apparatus. Five experiments, each with a
-procedure that ticks itself off, a data table filled by the instruments, and a least-squares analysis:
+On a touch screen, drag to look around and hold the arrows at the right edge to move.
 
-| # | Experiment | What you measure |
-| --- | --- | --- |
-| 1 | Time of flight of a light pulse | Detector times across the Solar System; *c* from a straight-line fit |
-| 2 | Time dilation on inertial trips | Ship and Earth clocks on arrival; the exponent p in Δτ = Δt (1 − β²)^p |
-| 3 | The relativistic Doppler factor | D against angle from the apex; β from the linearised fit |
-| 4 | Aberration of light | Observed against catalogue angles; β from cos θ′ − cos θ = β(1 − cos θ cos θ′), down to Bradley's 20″ from Earth's own motion |
-| 5 | Constant proper acceleration | A logged 1 g flight; the proper acceleration from the rapidity, a = c dφ/dτ |
+## What's real
 
-- **Data.** Readings persist in the browser and export as CSV (base units, with 1σ columns). Optional simulated
-  instrument uncertainty lets you practise error analysis. Fits are weighted least squares (effective variance
-  where both axes carry error) with standard errors and χ²/ν.
-- **Lab reports.** Each question has an answer box, and each experiment a conclusion. "Prepare lab report"
-  lays out aim, theory, method, data table, both figures, fitted results and answers on a printable A4 page
-  (print or save as PDF).
+Almost everything you see comes from real measurements:
 
-## Simulation
+- **Solar System:** positions from Astronomy Engine and JPL Horizons.
+- **Stars:** AT-HYG with Gaia DR3 distances and motions.
+- **Planets of other stars:** the NASA Exoplanet Archive.
+- **Galaxies:** the Local Volume Database and Cosmicflows-4.
+- **Black holes:** published measurements.
 
-- **True scale, floating origin.** Positions are float64 kilometres. The camera never leaves the origin, and orbit
-  lines are computed on the GPU relative to each body, so they stay exact from 1 m to 50 AU and beyond. A
-  logarithmic depth buffer covers metres to light-years; the Galaxy's layers reach the GPU in kiloparsecs and the
-  galaxies beyond in megaparsecs, relative to the camera, so single precision holds out to the observable universe.
-- **Real sky and real bodies.** Positions of the Sun, the 8 planets, the Pluto–Charon barycentre and the Moon come
-  from Astronomy Engine, which also supplies the IAU rotation models, so Earth's day side is correct for the current
-  moment. The scene also has Saturn's rings (with shadows both ways), ~32,000 real asteroids, Jupiter Trojans and
-  Kuiper-belt objects from JPL, and the stars.
-- **The stars in 3D.** 329,770 stars (every star to V ≈ 10, and every catalogued star within 100 light-years) from
-  AT-HYG v4.0 with Gaia DR3 distances and velocities, each at its own distance, moving in a straight line with its
-  measured space velocity (good for about a million years either side of 2000; the stars are held still beyond), as
-  bright as it looks from wherever the camera is and coloured by temperature. From Earth the sky is the familiar
-  one, to the eye's limit of magnitude 6.5; fly away and the 88 constellation figures come apart. Alpha Centauri
-  (with Proxima), Sirius, Procyon, 61 Cygni and Capella orbit on their published orbits about barycentres that move
-  with the systems; of the 37 named stars and members of those systems, 36 have sizes and 32 temperatures from their
-papers (the cards label the others as estimates or colour temperatures); any star within a third of a light-year
-  becomes a sphere you can orbit. Search finds any star by name or catalogue number (Betelgeuse, α Ori, HIP 27989).
-- **The complete Solar System.** 25 moons (the Galilean four included) and Pluto about its barycentre follow orbit
-  models fitted to JPL Horizons over 1981–2199, within 0.6 km (Pluto) to 1,500 km (Nereid, on its long, eccentric
-  orbit); each card gives the figure.
-  Ceres, Vesta, the dwarf planets and large trans-Neptunian objects, Arrokoth, four comets (with dust and ion tails
-  from a simple physical model), the three interstellar visitors, and Voyager 1 and 2, New Horizons, Pioneer 10,
-  Parker Solar Probe and JWST follow Chebyshev fits to JPL Horizons (spacecraft within 25 km, and under a km near
-  their flybys). Moons are textured with USGS and NASA mosaics and turn by the IAU rotation models; eight
-  irregular bodies, 67P and Arrokoth among them, use real shape models, and Nix, Hydra and Haumea their measured
-  ellipsoids; Jupiter, Uranus, Neptune, Haumea and Quaoar
-  have their rings. Where the data end or no model exists (a rotation, a surface map, a ring plane), the card says so.
-- **Planets of other stars.** All 6,372 confirmed planets of the NASA Exoplanet Archive can be found by name (K2-18 b,
-  51 Pegasi b) and visited: each goes round its star on a Kepler orbit, timed so that, seen from the Sun, transiting
-  planets cross their stars at the published times. Eleven systems are built from their papers: TRAPPIST-1's seven planets, Proxima b
-  and d, Barnard's Star, 51 Pegasi b, HR 8799's four giants on their measured orbit plane, Kepler-90, TOI-700,
-  Kepler-16's two suns, ε Eridani b, the τ Ceti candidates and the candidate around α Centauri A. Nobody has seen
-  their surfaces, so their colours are illustrative, chosen by a stated rule from size and temperature; where an
-  orbit's orientation or a planet's place along it is not measured, the card says it is assumed. Stars with known
-  planets carry a small ring once you are among the stars.
-- **The Milky Way.** From near the Sun the glow behind the stars is the real sky (NASA SVS, from Gaia, with the light of
-  the catalogue's stars too faint to draw added from the star files), with its dust lanes where they are, drawn as
-  bright for its size as the faint stars are and aberrated and Doppler shifted in flight. A few hundred parsecs out it
-  hands over to a model of the whole Galaxy built from published measurements (Reid et al. 2019 arms, Wegg et al. bar,
-  Drimmel and Spergel dust): 200,000 particles dimmed by the dust along each line of sight, with a smooth glow worked
-  out from the same laws near the camera, a barred spiral seen from 100,000 light-years, labelled as a model (its far
-  side is extrapolated). 1,664 star clusters (1,500 open clusters with Gaia DR3 distances; 164 globulars glowing with
-  their measured brightness), 45 nebulae as their
-  photographs at their measured distances and true sizes (each credited on its card and on screen; seen from anywhere
-  but Earth they are flat cards), and Sagittarius A*, the black hole at the centre (below), with the four stars whose
-  published orbits are openly licensed (S2 every 16 years, with general relativity's precession). The trail names
-  the spiral arm you are in where the arms are measured. A 1 g flight to the centre takes about 20 years aboard and
-  27,000 at home.
-- **Black holes.** Sagittarius A* (4.3 million solar masses, GRAVITY 2022), M87* (6.5 billion, at the centre of M87),
-  Gaia BH1, BH2 and BH3, Cygnus X-1, V404 Cygni, A0620-00, MAXI J1820+070 and XTE J1118+480 with their companion stars
-  on their published orbits, and OGLE-2011-BLG-0462, found alone by microlensing. Each is an exact Schwarzschild
-  black hole (drawn without spin, since none is measured well enough): its lens bends the light of everything in view,
-  stars, the Milky Way's glow, galaxies, the cosmic web, nebulae and bodies, into its shadow, its Einstein ring and
-  the thin photon ring, with each star's second image (and, close to the shadow's edge, its third and fourth) and rings
-  of light where a body lines up behind it, in the classical and the relativistic view alike. Near a black hole
-  clocks slow (home runs 1.054 times faster than you ten horizon radii from Sgr A*, a thousand times at the closest you
-  can hover), the camera hovers in height above the horizon down to a millionth of its radius, and a panel gives the
-  thrust hovering takes and the tides; scenes add a circular orbit and snapshots at 0.9c, and you can fall into Sgr A*
-  or M87* through the horizon to where tides would tear a ship apart, with home's clock kept on the free-fallers'
-  clocks. Round Sgr A* two
-  labelled models fill in what cannot be seen from Earth: the hot gas falling in (a fitted accretion-flow model, ray
-  traced along exact light paths, bright as a point from afar and a lopsided ring close in; its card offers the same
-  model at 1.3 mm to compare with the Event Horizon Telescope's picture) and a statistical nuclear star cluster of
-  60,000 stars and a glow. Eleven scenes show the shadow, the Einstein and photon rings, hovering at the horizon, the
-  innermost stable orbit, the same place at three speeds, a fly-by at 0.9c, S2 passing behind the hole, the gas, the
-  fall and M87* from 1,000 au. `docs/data/blackholes.md` writes it all up, with the checks.
-- **Beyond the Milky Way.** The 169 galaxies of the Local Group and its surroundings out to 3 Mpc (the CC0 Local
-  Volume Database), M81, M87, Centaurus A, the Sombrero and the Whirlpool, the Virgo, Coma and Bullet clusters, and
-  three of the most distant galaxies confirmed (GN-z11, JADES-GS-z14-0 and MoM-z14, the record at redshift 14.44), each
-  at its measured place. Every galaxy is drawn as a model: a few thousand particles following the light of its type
-  (spiral, barred, Magellanic, irregular, dwarf spheroidal, elliptical, the Sombrero as a lenticular), scaled to its
-  measured size and brightness and tilted as it lies, with its own dust; from Earth Andromeda is a 3°-long oval at
-  its real position angle, from above a spiral. The young galaxies stand where they are now, their cards explaining
-  that what you would see there is their light of 13.5 billion years ago. The cosmic web shows the 55,877 galaxies of
-  Cosmicflows-4 as a map (coloured by kind, sized by infrared luminosity, with the survey's gaps on its card), and a
-  layer of the sky shows the cosmic microwave background (WMAP), contrast enhanced about 10,000 times. The trail goes
-  up to the Local Group, the local universe and the observable universe.
-- **Flights across expanding space.** Inside the Local Group, which gravity holds together, space is static and a
-  flight is special relativity: a 1 g flight to Andromeda takes 28.6 years aboard and 2.5 million years at home.
-  Beyond it the expansion of the universe is modelled, not zoomed through: flights cross a flat ΛCDM universe with the
-  Planck 2018 parameters, the destination recedes while you travel, billions of years can pass at home, and galaxies
-  beyond the edge of reach can never be reached at all. These flights assume a perfect engine and a destination that
-  moves with the expansion. A flight to a galaxy or a cluster goes in almost to its centre, and the view then pulls
-  back to show the whole of it.
-- **Two size modes.** *True scale* shows specks, as reality does (planets still shine at their real apparent
-  magnitude). *Enlarged* draws bodies at least a few pixels across while keeping every distance true.
-- **Travel.** Enter β exactly, or use a logit-scaled fader (0.00001c to 0.99999c) and presets (Voyager 1, Parker
-  Solar Probe's record, 0.1c … 0.9999c). The course intercepts where the destination *will* be. The planner
-  predicts Δt, Δτ and the contracted length and previews the worldline. The flight recorder shows both clocks and
-  the distance left in both frames.
-- **1 g rocket.** A realistic flip-and-burn at constant proper acceleration. To Proxima Centauri: 3.54 years
-  aboard, 5.87 years on Earth, peak 0.95c.
-- **Time.** Real time by default. The simulation rate runs from 10⁰ to 10¹⁶ (320 million years a second), plus
-  pause. Above 1 an annunciator lights and the viewport is framed. Click the date to go to any instant from
-  10,000 BCE to 9999 CE, with presets for the next oppositions of Mars, Jupiter and Saturn. The clock is cosmic time
-  at home: the universe's age, how far space has stretched and the temperature of the background radiation follow
-  from it (`src/sim/cosmicTime.ts`), so running it billions of years ahead expands the universe, with or without a
-  flight.
-- **Light pulses.** Emit a pulse from any body. Its wavefront is drawn in the ecliptic and on the sky, and every
-  body's detector records the exact crossing time, solved from the ephemeris.
-- **Light delay.** The age of Earth's image and the signal time to Earth, plus an optional mode that draws every
-  body at its light-delayed (retarded) position.
-- **Relativistic optics.** Aberration, Doppler shift and beaming, with a split screen that compares the classical
-  and relativistic views.
-- **Superluminal drive (fiction).** Faster-than-light travel, marked non-physical throughout. The relativistic
-  optics are switched off, τ is flagged undefined, and a physics section explains why it would break causality.
-- **Readouts.** Observer kinematics (v, β, γ, rapidity, dτ/dt); a pair of chronometers (coordinate time t and
-  proper time τ, with their difference kept to sub-nanosecond precision); a data sheet for the selected body;
-  relativistic-optics readouts; light-time; a live spacetime diagram of the current trip; an ephemeris table; a
-  strip-chart recorder; and in the view a reticle whose spectrometer reads θ′ and D, APEX and ANTAPEX markers, a
-  scale bar, an ecliptic axis triad, annunciator lamps and an event log.
+Where something has to be a model, such as the Milky Way seen from outside, the gas around Sagittarius A\* or the
+colours of exoplanets nobody has seen, the app says so. [How it works](docs/technical.md) covers the physics and every
+data set, and [docs/data](docs/data/) has how each one was built.
 
-## Run it
+## Run it yourself
 
-Requires Node 22.12+ or 24.
+Needs Node 22.12+ or 24.
 
 ```bash
 npm install
-npm run dev        # http://localhost:5173
-npm test           # unit tests: physics, statistics, formatting (vitest)
-npm run build      # type-check + static build to dist/
-npm run preview    # serve the production build
+npm run dev      # http://localhost:5173
+npm test         # unit tests (vitest)
+npm run build    # static build to dist/
 ```
 
-**Deploying to Vercel:** import the repository. Vercel detects Vite, runs `npm run build` and serves `dist/`.
-No configuration is needed.
+It is a static site with no backend: Vite, React, TypeScript and three.js through React Three Fiber. To deploy on
+Vercel, import the repository; no configuration is needed.
 
-### Controls
+## Credits
 
-| Key | Action |
-| --- | --- |
-| Drag / scroll, arrow keys, `+` `−` | Orbit / range (log scale, from metres to the cosmic web); look around in transit |
-| Click, double-click, `0`–`9`, `M`, `V` | Select a planet, star, nebula or galaxy (its card); take the camera there (Sun, planets, Pluto, Moon, Voyager 1); in transit, select only |
-| The trail (footer) | Click a level to see it whole: Solar System, Solar neighbourhood, Milky Way, Local Group, Local Universe |
-| `H` | Return to Earth |
-| `G` | Flight planner |
-| `F` | Free flight (WASD, Space/R up, C down, Q/E roll, scroll = throttle, Esc to exit) |
-| `Space` / `P`, `[` `]` (or `,` `.`), `N` | Pause, simulation rate down/up (to 320 million years a second), back to now (zeroes the chronometers) |
-| `Z`, `X` | Relativistic ↔ classical optics, split screen |
-| `R` | Record a reading (Experiments 3 and 4; not in free flight) |
-| `/` or `Ctrl+K` | Where to? (search anything, from the Moon to Andromeda) |
-| `E`, `I`, `K` | Learn, instrument panel, the lab |
-| `T`, `O`, `L`, `B`, `U`, `J`, `Y` | True scale ↔ enlarged, orbits, labels, small bodies, readouts over the view, ecliptic grid, constellations |
-| View menu | Planet hosts, the cosmic web, the CMB map, gravitational lensing, the accretion flow |
-| `?` | Keyboard and mouse on one sheet |
-
-Single-key shortcuts can be switched off under View › Single-key shortcuts. Panels, menus, dialogs and the guide work from
-the keyboard alone (Tab, arrow keys, Esc).
-
-## How it works
-
-**Floating origin.** All simulation state lives in float64 (plain JS numbers) in a heliocentric frame aligned with
-the J2000 ecliptic. Each frame, every object's render position is `world − camera`, subtracted in float64 before
-anything reaches the GPU. Near objects therefore get sub-metre precision, and far objects only lose precision far
-below a pixel. Orbit lines use an anomaly offset from the body (`r(E₀+ΔE) − r(E₀)`, written with half-angle
-identities) so they pass exactly through each planet at any zoom. The belts solve Kepler's equation per point in
-the vertex shader.
-
-**Relativistic rendering** (`src/render/LightspeedScenePass.ts`) replaces the usual scene render before bloom and
-tone mapping:
-
-1. Everything except point sources is rendered into an HDR cube map from the ship's position. Alpha records
-   surface coverage.
-2. Stars, planet glints and belt objects are drawn directly in the ship frame. Each gets its exact aberrated
-   direction and its Doppler-shifted blackbody temperature T′ = D·T, from a Planck/CIE lookup, with the matching
-   change in visible brightness.
-3. A full-screen pass takes each pixel's ship-frame direction θ′, finds the rest-frame direction with
-   `tan(θ/2) = k tan(θ′/2)`, where `k = √((1+β)/(1−β))`, and samples the cube map. That is the same law as
-   `cos θ = (cos θ′ − β)/(1 − β cos θ′)`, but stable in float32 up to 0.99999c. The sample uses a mip level set by
-   the aberration Jacobian, and the result is recoloured for Doppler shift and beaming.
-4. Bloom and AgX tone mapping are applied last, in the observer's frame, with automatic exposure.
-
-**Black holes** (`src/physics/schwarzschild.ts`, `src/render/lens/`, `docs/data/blackholes.md`). A ray near a
-Schwarzschild black hole stays in a plane through it, so the whole lens is one function: the azimuth a backward ray
-sweeps against its angle from the hole, for the camera's distance and frame. Whenever that distance changes, the CPU
-tabulates it in float64 (512 nodes, from Carlson's elliptic integral R_F, in about 0.3 ms and without allocating),
-with an inverse table for the images of orders 0 to 3; the GPU reads both with `texelFetch` and its own accurate
-arctangent (Chrome's built-in one is too coarse here). Diffuse light is lensed per pixel in a box round the hole: the
-Galaxy layer's targets (and, for sources off the screen, a sky cube built on the way in) resampled at each ray's
-source, with the photon ring's band in a pass of its own with several rays a pixel. Point sources are lensed per
-vertex in `LENS` variants of their shaders, compiled in the background and used only while a lens is drawn, so far
-from every black hole every shader runs its old program. Bodies near the hole are solved exactly on the CPU, so labels,
-picking and the hover tag sit on the drawn images. A GPU-time controller steps the lens's quality rungs, and then the
-pixel ratio, when frames take over 8.5 ms.
-
-## Physics notes
-
-- Constants and body data live in `src/physics/constants.ts`, each with its source. All physics is pure,
-  unit-tested TypeScript in `src/physics/`: Lorentz factor, time dilation, aberration, Doppler, beaming,
-  light-time solvers, Kepler and universal-variable propagation, the relativistic rocket, blackbody colour and
-  the Doppler colour matrices. `src/physics/cosmology/` is the expanding universe (flat ΛCDM, Planck 2018, with the
-  massive neutrino integrated exactly): ages and distances, horizons, the rocket's equations of motion in expanding
-  space, what a traveller sees, and what has happened at home by the time they arrive; `docs/data/cosmology.md`
-  writes it up, with its checks against an independent implementation and astropy. `schwarzschild.ts`,
-  `schwarzschildTables.ts`, `lensPoint.ts` and `geodesics.ts` are the black holes' general relativity (the paths and
-  images of light, the shadow, clocks, hovering, orbits and falls), checked against an independent reference in 30–50
-  digit arithmetic (`scripts/schwarzschild/`, mpmath) through committed fixtures, and the lens on the GPU against the
-  same reference pixel by pixel (`scripts/lens-check/`; `docs/data/blackholes.md`).
-- **Beaming:** radiance (surface brightness) scales as D⁴. A point source's flux, seen by a *moving observer*,
-  scales as D², because aberration also compresses its solid angle. The tests check this against the textbook
-  energy-density boost γ²(1+β²/3) of an isotropic radiation field. The rendered brightness is visible-band: the
-  shifted Planck curve seen through the CIE observer.
-- **Approximations** (also noted in the app):
-  - Planets and other rendered surfaces use an approximate spectral model for Doppler colour: sunlight times a
-    smooth reflectance. Stars are exact blackbodies.
-  - Constant-speed trips boost and stop instantly.
-  - Stars move in straight lines (the Galaxy's pull is left out: good for about a million years); interstellar dust
-    is not modelled, so distant stars look slightly too bright when approached; sizes of stars without a measured
-    radius are estimated from their brightness and colour; most double stars are one point.
-  - Planets are lit without 1/r² dimming, as if your eyes adapt.
-  - Spacetime is curved only near one black hole at a time: near the black hole whose lens matters most, light is
-    bent exactly (Schwarzschild) and clocks slow; everywhere else, and for every other black hole at the same moment,
-    gravity bends neither light nor flights (apart from the expansion of the universe and the S-stars' precession),
-    and no other gravitational time dilation is applied. Only the black hole's own gravity is included.
-  - Trips ignore gravity, so the planner will not leave from within 30 horizon radii of a black hole. Beyond the Local
-    Group they follow the expanding universe, with a perfect engine and a destination that moves with the expansion.
-  - Every black hole is drawn without spin (none is measured well enough to draw; at the angle we see Sgr A* from, a
-    spin of 0.9–0.94 would make its shadow about 5–7 % smaller and shift it by about half its horizon's radius). The gas
-    falling into Sgr A* is a fitted model, its visible light uncertain by about three times and steady where the real
-    flow flickers; the stars round it are a statistical model of the nuclear star cluster; M87's own light is a smooth
-    model of its profile. The cards and `docs/data/blackholes.md` §3 list every such label.
-  - The Milky Way seen from outside is a model built from published measurements, its spiral arms extrapolated beyond
-    the parallax data; other galaxies' shapes are modelled from their measured size and orientation, with the near
-    side of a disc assumed where it is not known; the cosmic web is a survey with an uneven footprint; the CMB map is
-    contrast enhanced. The cards say so.
-- **Voyager 1** follows its JPL Horizons trajectory from launch to 2099 (a Chebyshev fit, within 25 km), then a
-  two-body hyperbola around the Solar System's total mass. Around 18 November 2026 it becomes one light-day from
-  Earth.
-
-## Data and credits
-
-| What | Source | Licence |
-| --- | --- | --- |
-| Planet, Moon, Pluto positions and rotation | [Astronomy Engine](https://github.com/cosinekitty/astronomy) (Don Cross) | MIT |
-| Physical data | [NASA Planetary Fact Sheets](https://nssdc.gsfc.nasa.gov/planetary/factsheet/) | US Government work |
-| Voyager 1 state vectors | [JPL Horizons](https://ssd.jpl.nasa.gov/horizons/) | NASA/JPL-Caltech |
-| Moon orbit models (`public/data/moons.json`) | Fitted to [JPL Horizons](https://ssd.jpl.nasa.gov/horizons/) satellite ephemerides (MAR099, JUP365, SAT441, URA182/URA184, NEP097/NEP105, PLU060) and the [JPL satellite mean elements](https://ssd.jpl.nasa.gov/sats/elem/) | NASA/JPL-Caltech |
-| Trajectories of dwarf planets, comets, interstellar objects and spacecraft (`public/data/tracks.bin`, `tracks.json`) | Fitted to [JPL Horizons](https://ssd.jpl.nasa.gov/horizons/) (spacecraft ephemerides from NASA/JPL, NASA/JHUAPL/SwRI and NASA/GSFC) | NASA/JPL-Caltech |
-| Physical data, rotation models, facts and rings (`public/data/bodies.json`, `rings.json`) | JPL Solar System Dynamics and Small-Body Database; IAU WGCCRE 2015 rotation models (Archinal et al. 2018) via NAIF `pck00011.tpc`; PDS Small Bodies Node and Rings Node; NASA and ESA mission pages; the papers cited in each file | US Government works and published values |
-| Moon, Ceres and Vesta maps (`public/textures/{io,europa,ganymede,callisto,enceladus,tethys,dione,rhea,iapetus,titan,triton,charon,ceres,vesta,phobos,mimas,deimos}.jpg`) | Global mosaics from [USGS Astrogeology](https://astrogeology.usgs.gov/) (Voyager, Galileo, Cassini, New Horizons, Dawn and Viking data: NASA/JPL-Caltech, SSI, DLR, JHUAPL/SwRI, UCLA/MPS/IDA, LPI; Mimas by T. Roatsch, DLR; Triton by P. Schenk; Phobos and Deimos by P. Stooke) | Public domain / no use constraints |
-| Uranian moon maps (`public/textures/{miranda,ariel,umbriel,titania,oberon}.jpg`) | Voyager 2 maps from [NASA 3D Resources](https://github.com/nasa/NASA-3D-Resources) | NASA, free and without copyright |
-| Shape models (`public/models/{phobos,deimos,hyperion,proteus,halley,arrokoth,vesta}.bin`) | Gaskell (Phobos), Thomas (Deimos, Hyperion) and Stooke (Proteus, Halley) models from the PDS Small Bodies Node; Porter et al. 2024 (Arrokoth); DLR Dawn terrain model (Vesta, via USGS Astrogeology) | NASA PDS, public; Vesta public domain |
-| Ellipsoids of Nix, Hydra and Haumea (`public/models/{nix,hydra,haumea}.bin`) | Generated from the triaxial sizes of Weaver et al. 2016 and Ortiz et al. 2017 | Generated; MIT with the source code |
-| Comet 67P shape (`public/models/churyumov-gerasimenko.bin`) | SHAP5 model by R. Gaskell, L. Jorda et al. (ESA/Rosetta/MPS for OSIRIS Team) | **[CC BY-SA 3.0 IGO](https://creativecommons.org/licenses/by-sa/3.0/igo/)**; this derived file is CC BY-SA 3.0 IGO too |
-| Asteroids, Trojans, TNOs (`public/data/belts.bin`) | [JPL Small-Body Database](https://ssd-api.jpl.nasa.gov/doc/sbdb_query.html) | NASA/JPL-Caltech |
-| Stars (`public/data/stars3d.bin.gz`, `stars3d-bright.bin.gz`, `stars3d-extra.bin.gz`, `star-names.json.gz`) | [AT-HYG v4.0](https://codeberg.org/astronexus/athyg) (David Nash) with [Gaia DR3](https://www.cosmos.esa.int/gaia) distances and radial velocities (ESA/Gaia/DPAC), Hipparcos photometry and parallaxes (ESA 1997; van Leeuwen 2007), [HYG v4.4](https://codeberg.org/astronexus/hyg) variable-star names and the [IAU star names](https://www.iau.org/public/themes/naming_stars/) | **Non-commercial use only**: AT-HYG is [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), the Gaia-derived values [CC BY-NC 3.0 IGO](https://www.cosmos.esa.int/web/gaia-users/license); both apply (see `CREDITS.md`) |
-| Constellation figures (`public/data/constellations.json`) | [d3-celestial](https://github.com/ofrohn/d3-celestial) (Olaf Frohn), after the IAU / Sky & Telescope charts | [BSD 3-Clause](https://github.com/ofrohn/d3-celestial/blob/master/LICENSE) |
-| Star systems and named stars (`src/sim/stars/systems.json`) | Orbits and stellar parameters from the papers cited in the file (Akeson et al. 2021, Kervella et al. 2017, Bond et al. 2015 and 2017, Shakht et al. 2017, Torres et al. 2015 and others) and Gaia DR3 | Published values, each with its reference |
-| Exoplanets (`public/data/exoplanets.json.gz`) | [NASA Exoplanet Archive](https://exoplanetarchive.ipac.caltech.edu/), Planetary Systems Composite Parameters (doi:[10.26133/NEA13](https://doi.org/10.26133/NEA13); Christiansen et al. 2025), retrieved 25 September 2026: "This research has made use of the NASA Exoplanet Archive, which is operated by the California Institute of Technology, under contract with the National Aeronautics and Space Administration under the Exoplanet Exploration Program." Host positions at J2000 from Gaia DR3 (ESA/Gaia/DPAC) and the Hipparcos new reduction | NASA/Caltech-IPAC data, freely available with that acknowledgement; **non-commercial use only** because of the Gaia-derived positions ([CC BY-NC 3.0 IGO](https://www.cosmos.esa.int/web/gaia-users/license)) |
-| Eleven featured planetary systems (`public/data/exoplanets-featured.json.gz`) | Orbital solutions from the papers cited in the file (Agol et al. 2021, Suárez Mascareño et al. 2025, Basant et al. 2025, Cont et al. 2026, Wang et al. 2018, Cabrera et al. 2014, Shaw et al. 2025, Pass et al. 2026, Doyle et al. 2011, Thompson et al. 2025, Feng et al. 2017, Beichman et al. 2025 and others), plus NASA Exoplanet Archive values; sizes from masses by Chen & Kipping (2017) | Published values, each with its reference; host positions from Gaia DR3 (non-commercial, with credit) |
-| Planet, Sun and ring textures | [Solar System Scope](https://www.solarsystemscope.com/textures/) (INOVE) | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
-| Pluto map | [NASA/JHUAPL/SwRI](https://www.nasa.gov/image-article/pluto-global-color-map/) (New Horizons) | NASA media, public domain |
-| Proxima Centauri (before the star catalogue loads) | Gaia DR3 (distance), Boyajian et al. 2012 (radius), Ségransan et al. 2003 (temperature) | — |
-| Star sizes estimated from brightness | Bolometric corrections of Flower (1996) as corrected by Torres (2010); M_V of the Sun from Willmer (2018) | — |
-| Colour science | CIE 1931 fit by Wyman, Sloan & Shirley (2013); B−V→T by Ballesteros (2012) | — |
-| Milky Way background (`public/textures/milkyway-bg.jpg`, `milkyway-bg-2k.jpg`, `milkyway-bg.json`) | [NASA/Goddard Space Flight Center Scientific Visualization Studio](https://svs.gsfc.nasa.gov/4851), Deep Star Maps 2020 (Gaia DR2: ESA/Gaia/DPAC) | Public domain (NASA SVS), with that credit |
-| Light of the faint stars (`public/textures/faint-stars.png`) | Built from the star files above: the catalogue's stars too faint to draw one by one (V 6.5 to about 10), seen from the Sun, in the Milky Way background's projection. Derived from [AT-HYG v4.0](https://codeberg.org/astronexus/athyg) (David Nash) and [Gaia DR3](https://www.cosmos.esa.int/gaia) (ESA/Gaia/DPAC) | **Non-commercial use only**, as the star files: [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) and [CC BY-NC 3.0 IGO](https://www.cosmos.esa.int/web/gaia-users/license), with both credits |
-| Milky Way model (`public/data/galaxy-particles.bin.gz`, `src/sim/galaxy/model.json`) | Generated from published parameters (GRAVITY Collaboration 2022, Bland-Hawthorn & Gerhard 2016, Reid et al. 2019 and others; see `CREDITS.md`) | Part of this project (MIT) |
-| Sagittarius A* and the S-stars (`src/sim/galaxy/sstars.json`) | [GRAVITY Collaboration 2022](https://doi.org/10.1051/0004-6361/202142465) (mass, distance, orbits of S2, S29, S38, S55); Reid & Brunthaler 2004 (position) | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
-| Black holes and their companion stars (`src/sim/blackholes/blackholes.json`) | Masses, distances, orbits and companions from the papers cited in the file (GRAVITY Collaboration 2022, EHT Collaboration 2019 and 2022, El-Badry et al. 2023, Nagarajan et al. 2024, Gaia Collaboration 2024, Miller-Jones et al. 2021, Sahu et al. 2025 and others); positions and proper motions of five systems from Gaia DR3 (ESA/Gaia/DPAC), via SIMBAD | Published values, each with its reference; **non-commercial use only** because of the Gaia DR3 astrometry ([CC BY-NC 3.0 IGO](https://www.cosmos.esa.int/web/gaia-users/license)), with the Gaia credit |
-| Sgr A*'s accretion flow (`src/sim/blackholes/sgraFlow.json`, `scripts/sgra-flow/ref/`) | A model of the Broderick & Loeb (2006) type fitted for Lightspeed to published fluxes (EHT Collaboration 2022, Bower et al. 2019, GRAVITY Collaboration 2020, Paugnat et al. 2024), traced by `scripts/sgra-flow/` | Part of this project (MIT); the measured fluxes are quoted with citation |
-| The stars round Sgr A* (`public/data/nsc-stars.bin.gz`, `src/sim/galaxy/nuclearGlow.json`) | A statistical model generated by `scripts/build-nsc.py` from published fits (Schödel et al. 2014, 2018, 2020, Gallego-Cano et al. 2018, Launhardt et al. 2002, Paumard et al. 2006, Lu et al. 2013 and others) with MIST v1.2 isochrones (Choi et al. 2016, Dotter 2016; not redistributed); M87's light profile from Ferrarese et al. 2006 and Kormendy et al. 2009 | Part of this project (MIT); the fits are quoted with citation |
-| Black-hole physics fixtures (`src/physics/__fixtures__/schwarzschild.json`, `scripts/lens-check/ref/`) | Computed by the project's own reference in 30–50 digit arithmetic (`scripts/schwarzschild/`, with mpmath) | Part of this project (MIT) |
-| Nebula positions and distances (`src/sim/galaxy/nebulae.json`) | SIMBAD (CDS); Hunt & Reffert 2024, Bailer-Jones et al. 2021 and the papers named in each entry | Facts quoted with citation |
-| Star clusters (`public/data/clusters.json.gz`) | Open clusters: [Hunt & Reffert 2023, 2024](https://doi.org/10.1051/0004-6361/202348662) (Gaia DR3). Globular clusters: Vasiliev & Baumgardt 2021, Baumgardt & Vasiliev 2021, and the [Harris catalogue](https://physics.mcmaster.ca/~harris/mwgc.dat) (2010 edition) | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/); the Harris catalogue free of charge, with a reference to its website |
-| Nebula images (`public/images/nebulae/*.jpg`, 45) | ESA/Hubble, ESA/Webb, ESO and NSF NOIRLab; each image's credit line is in `CREDITS.md`. Modified: resized, black level subtracted, edges faded (three cropped) | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
-| Galaxies of the cosmic web (`public/data/cosmic-web.bin.gz`) | [Cosmicflows-4](https://doi.org/10.3847/1538-4357/ac94d8) (Tully et al. 2023) via CDS/VizieR, with the [2MASS Extended Source Catalog](https://irsa.ipac.caltech.edu/Missions/2mass.html) (UMass/IPAC-Caltech, NASA, NSF) | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), with the 2MASS acknowledgement |
-| Nearby galaxies (`public/data/local-galaxies.json.gz`) | [Local Volume Database](https://github.com/apace7/local_volume_database) v1.1.1 (Pace 2025), with the papers cited per row | [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/); added values quoted with citation |
-| Cosmic microwave background (`public/textures/cmb.png`, `cmb-data.png`) | [WMAP 9-year ILC map](https://lambda.gsfc.nasa.gov/product/wmap/dr5/ilc_map_get.html), NASA / WMAP Science Team | NASA data, public domain |
-| Named galaxies, clusters and young galaxies (`src/sim/cosmos/named.json`) | SIMBAD (CDS) positions; distances, redshifts, disc angles and sizes from the papers cited in each entry and RC3 | Facts quoted with citation |
-| Cosmology and the home clock (`src/physics/cosmology/`, `future.json`) | Planck 2018 parameters (Planck Collaboration 2020) and the CMB temperature of Fixsen (2009); the future of the Sun, the Milky Way, Andromeda and the universe from Schröder & Connon Smith (2008), van der Marel et al. (2012), [Sawala et al. (2025)](https://doi.org/10.1038/s41550-025-02563-1) (survival curve read from their figure 3), Cautun et al. (2019), Loeb (2002), Krauss & Scherrer (2007), Adams & Laughlin (1997) and the others cited in the file | Facts quoted with citation; the Sawala et al. figure is [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
-| Typefaces | IBM Plex Sans (IBM), JetBrains Mono (JetBrains), Source Serif 4 (Adobe) | SIL OFL 1.1 |
-
-
-Libraries: three.js, React Three Fiber and postprocessing (pmndrs), zustand, KaTeX, Tailwind CSS, Vite, Vitest.
-
-### Regenerating the data files
-
-```bash
-# Stars (docs/data/stars.md): downloads its inputs into data-raw/ with --fetch, then builds the star files,
-# the constellation figures and the naked-eye subset
-node scripts/build-stars3d.mjs --fetch
-npm run data:stars
-# Minor bodies: queries the JPL SBDB API (cached in data-raw/)
-npm run data:belts
-# Exoplanets (docs/data/exoplanets.md): from the NASA Exoplanet Archive table in data-raw/ (the download command is in
-# the script's header; --fetch downloads the Gaia DR3 host astrometry once), then the eleven featured systems
-node scripts/build-exoplanets.mjs --fetch
-npm run data:exoplanets-featured
-# Moons and tracks: fitted to JPL Horizons (responses cached in data-raw/; docs/data/moons.md, tracks.md)
-node scripts/build-moons.mjs
-node scripts/build-tracks.mjs
-# Maps, shapes and body data (docs/data/assets.md): needs sharp and manifold-3d in a tools folder
-LIGHTSPEED_TOOLS=<tools folder> node scripts/build-shapes.mjs
-LIGHTSPEED_TOOLS=<tools folder> node scripts/build-textures.mjs
-node scripts/build-bodies.mjs
-# The Milky Way (docs/data/galaxy.md): particles, clusters, the sky from the Sun, the faint stars' light (from the
-# star files) and the nebulae
-node scripts/build-galaxy.mjs
-node scripts/build-clusters.mjs
-python scripts/build-milkyway-bg.py
-node scripts/build-faint-stars.mjs
-python scripts/build-nebulae.py
-# Galaxies beyond the Milky Way, the cosmic web and the CMB map (docs/data/cosmos.md): raw inputs cached in data-raw/cosmos/
-npm run data:cosmic-web
-npm run data:local-galaxies
-npm run data:cmb
-# Cosmology (docs/data/cosmology.md): the home clock's literature values, and the reference values for the tests
-node scripts/build-cosmology-future.mjs
-python scripts/cosmology-fixtures.py
-# Black holes (docs/data/blackholes.md): the records (from the table in the script), the stars round Sgr A*
-# (downloads the MIST isochrones once into data-raw/nsc/; numpy), the accretion flow's tables and references (numpy,
-# scipy; about 33 minutes), and the physics fixtures (mpmath; about 4 minutes)
-node scripts/build-blackholes.mjs
-npm run data:nsc
-python scripts/sgra-flow/flow_tables.py
-npm run data:blackhole-fixtures
-# Checks on the GPU (a development server on port 5190): every shader compiled cold in a headless Chrome, and the
-# standard views' frame times; the lens's pictures against the references are scripts/lens-check/lens-check.js, run
-# in a tab (docs/data/blackholes.md §11)
-npm run check:shaders
-node scripts/lens-check/run-perf.mjs
-```
-
-How each data set was made, from the Solar System to the cosmic web, and how accurate it is, is written up in
-`docs/data/`; how bodies are added to the app is in `docs/bodies.md`.
-
-## Project layout
-
-```
-src/physics/   pure, unit-tested physics (constants, relativity, light time, Kepler, rocket, colour, black holes)
-src/physics/cosmology/ the expanding universe: ages, distances, the rocket in expanding space, the home clock
-src/sim/       simulation core: clock, chronometers, cosmic time, ephemeris, Voyager, trips, light pulses, light delay
-src/sim/bodies/ the body registry: every body's record, position provider, rotation, and the per-frame pass
-src/sim/solarSystem/ the moons, dwarf planets, comets, interstellar objects and spacecraft, from their data files
-src/sim/stars/ the 3D star catalogue, star systems, star names and constellations (decoded in a worker)
-src/sim/exoplanets/ planets of other stars: the archive's catalogue, eleven featured systems, Kepler orbits on the sky
-src/sim/galaxy/ the Milky Way: its model, the sky from the Sun, star clusters, nebulae, Sgr A* and its stars, the
-               nuclear star cluster
-src/sim/blackholes/ the black holes' records and the accretion flow's model; src/sim/gravity.ts, fall.ts and
-               lensBodies.ts: the hole's gravity each frame, falls, and bodies seen through the lens
-src/sim/cosmos/ beyond it: the Local Group and named galaxies, their particle templates, the cosmic web, the CMB map
-src/lab/       the lab: experiment protocols and analysis, lab text, data loggers, notebook, instrument readings
-src/lib/       number formatting (significant figures, SI grouping, units) and least-squares statistics
-src/render/    shaders, materials, the relativistic scene pass, post-processing, adaptive quality; render/lens/ the
-               black hole's lens and render/flow/ the accretion flow's map
-src/scene/     React Three Fiber scene components (bodies, stars, constellations, belts, orbits, glints)
-src/controls/  camera: orbit, free flight, smooth zoom-and-pan flights
-src/ui/        interface: header and footer, body card, journeys, panels, instruments, plots, planner, recorder
-src/ui/docs/   the guide and About pages, and their figures
-src/content/   journeys, destinations, scenes, Learn articles, physics sections, author and version details
-scripts/       data builders; the independent references (schwarzschild/, sgra-flow/) and the GPU checks (lens-check/)
-docs/          how bodies are added (bodies.md); how each data set was made, from the moons to the cosmic web (data/)
-```
+The data, maps and pictures come from NASA, JPL, ESA (Gaia, Hubble, Webb), ESO, NOIRLab, the AT-HYG catalogue, the
+NASA Exoplanet Archive, the Cosmicflows and Local Volume teams, the Event Horizon Telescope and many papers.
+[CREDITS.md](CREDITS.md) lists every source with its licence.
 
 ## Author
 
-**Tommy Liu** ([@tommysl8](https://github.com/tommysl8), tommysliu8@gmail.com) is studying Electrical and Computer
-Engineering at the University of Illinois Urbana-Champaign. Corrections, bug reports and ideas for new journeys or
-experiments are welcome, by email or as an [issue](https://github.com/tommysl8/lightspeed/issues).
-
-## Citing
-
-If you use Lightspeed in teaching or written work:
-
-> Liu, T. (2026). *Lightspeed: A relativistic explorer of the real universe* (Version 0.2.0) [Computer software].
-> https://lightspeed-explorer.vercel.app
-
-```bibtex
-@software{liu_lightspeed_2026,
-  author  = {Liu, Tommy},
-  title   = {Lightspeed: A Relativistic Explorer of the Real Universe},
-  year    = {2026},
-  version = {0.2.0},
-  url     = {https://lightspeed-explorer.vercel.app}
-}
-```
-
-The About page in the app gives the same citation with the address of the site it is served from.
+Made by **Tommy S. Liu** ([@tommysl8](https://github.com/tommysl8)), an Electrical and Computer Engineering student at
+the University of Illinois Urbana-Champaign. Bug reports and ideas are welcome as
+[issues](https://github.com/tommysl8/lightspeed/issues) or by email at tommysliu8@gmail.com.
 
 ## Licence
 
-Code: [MIT](LICENSE), © 2026 Tommy Liu. The star catalogue, maps, shape models and other data keep their own
-licences, listed above and in [CREDITS.md](CREDITS.md). In particular, the star and exoplanet files, the map of the
-faint stars' light built from them and the black holes' file are for **non-commercial use only**, because of their Gaia
-DR3 values (CC BY-NC 3.0 IGO; the star files are also CC BY-SA 4.0); the 67P shape model is CC BY-SA 3.0 IGO; the Solar System Scope
-textures, the nebula images, the star clusters (the Harris catalogue apart), the S-stars' orbits, the Cosmicflows-4 galaxies and the figure read
-from Sawala et al. (2025) are CC BY 4.0; the Local Volume Database is CC0; the Pluto map, the NASA SVS sky and the
-WMAP map are NASA public domain.
+The code is [MIT](LICENSE). The data keep their own licences, listed in [CREDITS.md](CREDITS.md). The star, exoplanet
+and black-hole files use Gaia DR3 values, so they are for non-commercial use only (CC BY-NC 3.0 IGO).

@@ -1,11 +1,19 @@
 /**
  * Near a black hole, a readout along the bottom of the view (where the flight strip sits on a trip):
  * while hovering, how much slower your clock runs than home's, both clocks, the height above the
- * horizon, the thrust it takes to hover and the tides, with a gauge of the height and "Let go"; in free
- * flight, or at rest beside another body near the hole (orbiting S2), the same with the thrust the present
- * motion takes and no "Let go"; in a circular orbit and a snapshot at speed, their own numbers; in a fall,
- * your clock, home's, the radius and the time left, the pace, and "Stop the fall"; after a fall, a card
- * saying how it ended (a reset, not a journey), until the camera leaves that hole or a scene brings a note.
+ * horizon, the thrust it takes to hover and the tides, with a gauge of the height and "Let go"; roaming,
+ * the same (the camera hovers wherever it stops) without "Let go"; in free flight, or at rest beside
+ * another body near the hole (orbiting S2), the same with the thrust the present motion takes and no
+ * "Let go"; in a circular orbit and a snapshot at speed, their own numbers; in a fall, your clock, home's,
+ * the radius and the time left, the pace, and "Stop the fall"; after a fall, a card saying how it ended (a
+ * reset, not a journey), until the camera leaves that hole or a scene brings a note.
+ *
+ * Closed by default: in its place a small chip ("Sagittarius A* · your clock 1.054× slower · Details")
+ * opens it, and Hide on the panel closes it again. It opens by itself when View › Open the black-hole panel
+ * automatically is on, when the visitor starts a black-hole scene or a fall (content/scenes.ts, sim/fall.ts
+ * set the choice), during a fall (Stop the fall must stay in reach) and for the card after one. The choice
+ * lasts until the camera leaves the hole (the panel's face goes, other than for a slew). holeStripForm
+ * decides (pure, tested).
  *
  * How: every number comes from sim/gravity.ts (exact, float64) and physics/geodesics.ts, or from the
  * fall's closed forms (sim/fall.ts fallReadings); the shadow's size in a snapshot from sim/lensBodies.ts
@@ -25,7 +33,7 @@
  * (the Observer section reads holeNumbers), ui/deepSkyText.ts (the card's forms of the same numbers: height,
  * thrust, clock).
  */
-import { useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { G0_KM_S2 } from '../../physics/constants';
 import { properAccelKmS2, tidalEndRadiusKm, tidalStretchMS2 } from '../../physics/geodesics';
 import { bodyName, getBody, type BodyId } from '../../sim/bodies';
@@ -40,8 +48,8 @@ import { lensProgramsReady } from '../../render/lens/lensState';
 import { setPaused } from '../../sim/clock';
 import { sim } from '../../sim/sim';
 import { controller } from '../../controls/cameraController';
-import { useUI, type ControlMode } from '../../state/ui';
-import { CloseIcon } from '../kit';
+import { useUI, type ControlMode, type HolePanelChoice } from '../../state/ui';
+import { Chevron, CloseIcon } from '../kit';
 import { Icon } from '../icons';
 import { useSimValue, useTicker } from '../useTicker';
 import { rich } from '../rich';
@@ -167,8 +175,11 @@ export const isInnermostStable = (rM: number): boolean => Math.abs(rM - 6) < 1e-
 
 // ─── Which face shows ───────────────────────────────────────────────────────────────────
 
-/** The HUD's faces: a fall, the card after one, a circular orbit, a snapshot, hovering, and moving near the hole. */
-export type HoleStripFace = 'falling' | 'end' | 'circular' | 'snapshot' | 'hovering' | 'free' | 'beside';
+/** The HUD's faces: a fall, the card after one, a circular orbit, a snapshot, hovering, roaming, and moving near the hole. */
+export type HoleStripFace = 'falling' | 'end' | 'circular' | 'snapshot' | 'hovering' | 'roam' | 'free' | 'beside';
+
+/** How a face shows: the whole panel, or the chip that opens it. */
+export type HoleStripForm = 'panel' | 'chip';
 
 /** What decides the face (holeStripInputs reads it from the live state). */
 export interface HoleStripInputs {
@@ -187,6 +198,10 @@ export interface HoleStripInputs {
   lastEnd: { hole: BodyId; agoMs: number } | null;
   /** A journey's or scene's note is showing (a scene started after the fall brings one). */
   note: boolean;
+  /** View › Open the black-hole panel automatically. */
+  panelAuto?: boolean;
+  /** The visitor's (or a scene's, or a fall's) choice for the panel, and the hole it was made for. */
+  choice?: HolePanelChoice | null;
 }
 
 /**
@@ -203,9 +218,29 @@ export function holeStripFace(s: HoleStripInputs): HoleStripFace | null {
   if (s.lastEnd && s.lastEnd.hole === s.hole && s.lastEnd.agoMs < END_CARD_MS && !s.note) return 'end';
   // Hovering or under power (not while the camera slews through).
   if (!s.paced) return null;
+  if (s.mode === 'roam') return 'roam';
   if (s.mode === 'free') return 'free';
   if (s.mode === 'orbit') return s.focus === s.hole ? 'hovering' : 'beside';
   return null;
+}
+
+/**
+ * Whether the face shows as the whole panel or as the chip, or nothing (no face). A fall, and the card after
+ * one, always show whole (Stop the fall must stay in reach); otherwise the choice made for this hole, else
+ * the View menu's option (off: the chip).
+ */
+export function holeStripForm(s: HoleStripInputs): HoleStripForm | null {
+  const face = holeStripFace(s);
+  if (face === null) return null;
+  if (face === 'falling' || face === 'end') return 'panel';
+  const chosen = s.choice && s.choice.hole === s.hole ? s.choice.open : null;
+  return (chosen ?? !!s.panelAuto) ? 'panel' : 'chip';
+}
+
+/** The chip's words: what and where ("Sagittarius A*", "In orbit round Sagittarius A*"), and how slow your clock runs. */
+export function holeChipText(face: HoleStripFace, name: string, times: string): string {
+  const what = face === 'circular' ? `In orbit round ${name}` : face === 'snapshot' ? `Snapshot above ${name}` : name;
+  return face === 'snapshot' ? what : `${what} · your clock ${times} slower`;
 }
 
 /** The inputs from the live state. */
@@ -221,14 +256,26 @@ function holeStripInputs(): HoleStripInputs {
     focus: ui.focus,
     lastEnd: e ? { hole: e.hole, agoMs: performance.now() - e.at } : null,
     note: !!ui.journeyNote,
+    panelAuto: ui.holePanelAuto,
+    choice: ui.holePanel,
   };
 }
 
 /** The face showing now, or null. */
 export const holeStripFaceNow = (): HoleStripFace | null => holeStripFace(holeStripInputs());
 
-/** Whether the HUD is showing (the journey banner hides meanwhile). */
-export const holeStripShown = (): boolean => holeStripFaceNow() !== null;
+/** The face and its form now, as one value for the shared clock ("hovering:chip"), or null. */
+function holeStripNow(): string | null {
+  const i = holeStripInputs();
+  const face = holeStripFace(i);
+  return face === null ? null : `${face}:${holeStripForm(i)}`;
+}
+
+/** Whether the whole panel is showing (it holds the journey's note: the journey banner hides meanwhile). */
+export const holeStripShown = (): boolean => holeStripForm(holeStripInputs()) === 'panel';
+
+/** Whether the chip is showing in the panel's place (the journey banner sits above it). */
+export const holeChipShown = (): boolean => holeStripForm(holeStripInputs()) === 'chip';
 
 // ─── Pieces ─────────────────────────────────────────────────────────────────────────────
 
@@ -236,10 +283,26 @@ export const holeStripShown = (): boolean => holeStripFaceNow() !== null;
 const ENGINE_NOTE =
   'The engine holds the ship: near a black hole its motion is measured against observers hovering there; falling, against observers falling from rest far away. Only the black hole’s gravity is included.';
 
-function Shell({ tone, title, right, children }: { tone: 'data' | 'hazard' | 'accent'; title: ReactNode; right?: ReactNode; children: ReactNode }) {
+/** Hide the panel near this hole (the chip brings it back). */
+const hidePanel = (hole: BodyId) => useUI.setState({ holePanel: { hole, open: false } });
+
+function Shell({
+  tone,
+  title,
+  right,
+  hole,
+  children,
+}: {
+  tone: 'data' | 'hazard' | 'accent';
+  title: ReactNode;
+  right?: ReactNode;
+  /** The hole whose panel this is, when it can be hidden (not in a fall). */
+  hole?: BodyId;
+  children: ReactNode;
+}) {
   const note = useUI((s) => s.journeyNote);
   const cardOpen = useUI((s) => s.bodyCard && !!s.selected);
-  const c = tone === 'hazard' ? '!text-hazard' : tone === 'accent' ? '!text-accent' : '!text-data';
+  const c = tone === 'hazard' ? 'text-hazard' : tone === 'accent' ? 'text-accent' : 'text-data';
   return (
     <div
       ref={keepCreditsClear}
@@ -248,13 +311,18 @@ function Shell({ tone, title, right, children }: { tone: 'data' | 'hazard' | 'ac
     >
       {/* On a phone the controls wrap under the title, so Stop the fall stays on screen. */}
       <div className="flex flex-wrap items-center gap-x-2 gap-y-1 px-3 pb-1 pt-2">
-        <span className={`cap ${c}`}>{title}</span>
+        <span className={`text-[12px] font-medium ${c}`}>{title}</span>
         <span className="min-w-0 flex-1" />
         {right}
+        {hole && (
+          <button className="btn btn-q btn-sm -mr-1 shrink-0" onClick={() => hidePanel(hole)} title="Hide the panel: a small chip stays in its place (View › Open the black-hole panel automatically)">
+            Hide
+            <Chevron />
+          </button>
+        )}
       </div>
       {note && (
-        <div className="mt-0.5 flex items-start gap-2.5 border-y border-line bg-accent/[0.04] py-1.5 pl-3 pr-1.5">
-          <span className="cap mt-[3px] shrink-0 !text-accent">Look for</span>
+        <div className="mt-0.5 flex items-start gap-2.5 border-y border-line py-1.5 pl-3 pr-1.5" role="note" aria-label="Look for">
           {/* In a narrow strip (a phone, or beside a body card) the note scrolls in a fifth of the height. */}
           <span className="scroll min-w-0 flex-1 font-serif text-[12.5px] leading-snug text-fg-2 @max-[480px]:max-h-[22vh] @max-[480px]:overflow-y-auto">{note}</span>
           <button className="btn btn-q btn-sq btn-sm -mt-0.5 shrink-0" onClick={() => useUI.setState({ journeyNote: null })} aria-label="Dismiss the note" title="Dismiss the note">
@@ -358,7 +426,7 @@ function LetGo({ hole }: { hole: BodyId }) {
  * Hovering above the hole; flying under power near it; or centred on another body near it (orbiting S2), moving
  * with that body past the hovering observers. Only hovering offers "Let go" (a fall from rest here).
  */
-function Hovering({ n, how }: { n: HoleNumbers; how: 'hovering' | 'free' | 'beside' }) {
+function Hovering({ n, how }: { n: HoleNumbers; how: 'hovering' | 'roam' | 'free' | 'beside' }) {
   const name = bodyName(n.hole);
   const focus = useUI((s) => s.focus);
   const h = heightParts(n.heightKm);
@@ -366,12 +434,14 @@ function Hovering({ n, how }: { n: HoleNumbers; how: 'hovering' | 'free' | 'besi
   const rec = getBody(n.hole);
   const tearKm = tearRadiusKm();
   const tearRs = tearKm !== null ? tearKm / n.rsKm - 1 : null;
-  const hovering = how === 'hovering';
-  const canFall = hovering && rec?.blackHole?.fallAllowed !== false && !(tearRs !== null && tearRs > 0);
+  // Roaming, the camera hovers wherever it stops (no "Let go": that is the hover's, centred on the hole).
+  const hovering = how === 'hovering' || how === 'roam';
+  const canFall = how === 'hovering' && rec?.blackHole?.fallAllowed !== false && !(tearRs !== null && tearRs > 0);
   const thrust = n.thrustG === null ? '—' : thrustText(n.thrustG);
-  const title = how === 'free' ? `Free flight near ${name}` : how === 'beside' ? `At ${bodyName(focus)}, near ${name}` : `Hovering above ${name}`;
+  const title =
+    how === 'free' ? `Free flight near ${name}` : how === 'beside' ? `At ${bodyName(focus)}, near ${name}` : how === 'roam' ? `Roaming near ${name}` : `Hovering above ${name}`;
   return (
-    <Shell tone="data" title={title} right={canFall ? <LetGo hole={n.hole} /> : undefined}>
+    <Shell tone="data" title={title} right={canFall ? <LetGo hole={n.hole} /> : undefined} hole={n.hole}>
       <Grid>
         <Big label="Your clock runs slower" value={timesText(n.homePerYours, n.homePerYoursMinus1)} sub={hovering ? 'than home’s: gravity' : 'than home’s: gravity, speed'} tone="data" />
         <Big label="Your clock" value={formatClock(chrono.tau)} sub="since zeroed" tone="data" />
@@ -417,7 +487,7 @@ function Circular({ n }: { n: HoleNumbers }) {
   // Your clock runs at √(1 − 3M/r) against home's.
   const periodYours = periodHome * Math.sqrt(1 - 3 / c.rM);
   return (
-    <Shell tone="data" title={`In orbit round ${name}`}>
+    <Shell tone="data" title={`In orbit round ${name}`} hole={n.hole}>
       <Grid>
         <Big label="Your clock runs slower" value={timesText(n.homePerYours, n.homePerYoursMinus1)} sub="than home’s: gravity, speed" tone="data" />
         <Big label="Speed past hovering observers" value={sig(c.v, 3)} unit="c" sub={isInnermostStable(c.rM) ? 'the innermost stable orbit' : 'on a circular orbit'} />
@@ -452,7 +522,7 @@ function Snapshot({ n }: { n: HoleNumbers }) {
   hv.v = holeView(n.hole, hv.v ?? undefined);
   const view = hv.v;
   return (
-    <Shell tone="accent" title={`Snapshot above ${name}`}>
+    <Shell tone="accent" title={`Snapshot above ${name}`} hole={n.hole}>
       <Grid>
         <Big label="Speed past hovering observers" value={b === 0 ? '0' : sig(b, 3)} unit="c" sub={how} />
         <Big label="Shadow across" value={view ? snapshotDeg(2 * view.shadowRadius) : '—'} sub="the dark patch, as this ship sees it" />
@@ -546,7 +616,7 @@ function FallEndCard() {
       <div className="panel-float appear">
         <div className="flex items-start gap-3 py-2.5 pl-4 pr-2.5">
           <div className="min-w-0 flex-1" role="status">
-            <div className="cap !text-hazard">{e.why === 'ended' ? 'The end of the fall' : 'Fall stopped'}</div>
+            <div className="text-[12px] font-medium text-hazard">{e.why === 'ended' ? 'The end of the fall' : 'Fall stopped'}</div>
             <p className="mt-1 font-serif text-[15px] leading-snug text-fg">{head}</p>
             <p className="mt-1 font-serif text-[13.5px] leading-snug text-fg-2">
               You fell for {formatDurationShort(e.tau, 3)} by your clock{inside}; home’s clock moved on {formatDurationShort(e.homeT, 3)} (counted on the free-fallers’ clocks, a
@@ -564,15 +634,48 @@ function FallEndCard() {
 
 // ─── The strip ──────────────────────────────────────────────────────────────────────────
 
+/** In the panel's place while it is closed: the hole, how slow your clock runs, and Details to open the panel. */
+function Chip({ n, face }: { n: HoleNumbers; face: HoleStripFace }) {
+  const cardOpen = useUI((s) => s.bodyCard && !!s.selected);
+  const text = holeChipText(face, bodyName(n.hole), timesText(n.homePerYours, n.homePerYoursMinus1));
+  return (
+    <button
+      ref={keepCreditsClear}
+      className={`panel-float appear absolute bottom-3 z-20 flex h-7 max-w-[calc(100%-24px)] items-center gap-2 rounded-full pl-3 pr-2 text-[11.5px] text-fg-2 hover:text-fg ${stripPlace(cardOpen, 540)}`}
+      onClick={() => useUI.setState({ holePanel: { hole: n.hole, open: true } })}
+      title="Open the black-hole panel: both clocks, the height above the horizon, the thrust and the tides"
+      aria-label={`${text}. Open the black-hole panel`}
+    >
+      <span className="h-[6px] w-[6px] shrink-0 rounded-full bg-data" aria-hidden />
+      <span className="min-w-0 truncate">{rich(text)}</span>
+      <span className="flex shrink-0 items-center gap-0.5 text-accent">
+        Details
+        <Chevron className="rotate-180" />
+      </span>
+    </button>
+  );
+}
+
 export function HoleStrip() {
-  // Which face, read on the shared clock: while none shows, no render at all.
-  const face = useSimValue(holeStripFaceNow);
+  // Which face and form, read on the shared clock: while none shows, no render at all.
+  const now = useSimValue(holeStripNow);
+  const mode = useUI((s) => s.controlMode);
+  const face = now === null ? null : (now.slice(0, now.indexOf(':')) as HoleStripFace);
+  const form = now === null ? null : (now.slice(now.indexOf(':') + 1) as HoleStripForm);
   useTicker(face === 'falling' ? 10 : 4, face !== null);
+  // The choice made for a hole lasts while the camera is there: once the panel's face has gone (other than for
+  // a slew, which a scene starts), the next visit starts from the default again.
+  useEffect(() => {
+    if (face !== null) return;
+    const ui = useUI.getState();
+    if (ui.holePanel && ui.controlMode !== 'transition') useUI.setState({ holePanel: null });
+  }, [face, mode]);
   if (face === null) return null;
   if (face === 'falling') return <Falling />;
   if (face === 'end') return <FallEndCard />;
   const n = holeNumbers();
   if (!n) return null;
+  if (form === 'chip') return <Chip n={n} face={face} />;
   if (face === 'circular') return <Circular n={n} />;
   if (face === 'snapshot') return <Snapshot n={n} />;
   return <Hovering n={n} how={face} />;

@@ -27,6 +27,8 @@ import { locationPath } from '../location';
 import { Kbd, Menu } from '../kit';
 import { Icon } from '../icons';
 import { useSimValue, useTicker } from '../useTicker';
+import { surroundings } from '../../controls/roam';
+import { roamSpeedWords } from '../flight/roamText';
 
 const capFirst = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
@@ -66,7 +68,8 @@ function usePace() {
   if (!tripActive && gravity.paced && gravity.alpha > 0) {
     return {
       prefix: '1 s = ',
-      text: hoverPaceText(warp, gravity.alpha, gravity.oneMinusAlpha, mode === 'orbit' && focus === gravity.hole),
+      // Hovering over the hole, or roaming near it (the camera hovers wherever it stops), the camera is that clock.
+      text: hoverPaceText(warp, gravity.alpha, gravity.oneMinusAlpha, (mode === 'orbit' && focus === gravity.hole) || mode === 'roam'),
       title:
         'The time warp is the rate of a clock hovering here; home’s clock, far from every mass, runs faster by 1/α. Only the black hole’s gravity is included (the Sun’s and the Galaxy’s, parts in 10⁸ and 10⁶, are left out), and only where it passes 5 parts in 10¹⁰. [ and ] change the warp.',
       slower: warp > WARP_STEPS[0],
@@ -269,12 +272,17 @@ function BodiesMenu() {
   );
 }
 
+/** The nearest thing Roam measures, while roaming (a body's id; '' for a star of the catalogue), else null. */
+const roamNear = (): string | null => (useUI.getState().controlMode === 'roam' ? (surroundings.id ?? '') : null);
+
 /** "Solar System › Earth › Moon": where the camera is. Each level is a link. */
 function Location() {
   const mode = useUI((s) => s.controlMode);
   const focus = useUI((s) => s.focus);
   const tripActive = useUI((s) => s.tripActive);
-  const path = locationPath(mode, focus, tripActive ? (travel.trip?.dest ?? null) : null);
+  // Roaming, the trail follows the nearest thing (read on the shared clock; it re-renders only when that changes).
+  const near = useSimValue(roamNear);
+  const path = locationPath(mode, mode === 'roam' ? near || null : focus, tripActive ? (travel.trip?.dest ?? null) : null);
   return (
     <nav className="flex min-w-0 flex-1 items-center gap-1.5" aria-label="Where you are" data-tour="location">
       <ol className="flex min-w-0 items-center max-sm:hidden">
@@ -347,34 +355,33 @@ function Status() {
   const showFps = useUI((s) => s.showFps);
   const throttle = useUI((s) => s.throttleBeta);
   let text: React.ReactNode;
-  if (mode === 'free') {
+  if (mode === 'roam') {
     text = (
       <>
-        <span className="text-accent">FREE FLIGHT</span>
-        <span className="text-fg-3 max-2xl:hidden">
-          {' '}
-          <Kbd>W</Kbd>
-          <Kbd>A</Kbd>
-          <Kbd>S</Kbd>
-          <Kbd>D</Kbd> <Kbd>Q</Kbd>
-          <Kbd>E</Kbd> · wheel throttle ·{' '}
-        </span>
-        <span className="text-fg-2"> thr {rich(sci(throttle || controller.throttleBeta, 2))} c</span>
+        <span className="text-fg">Roaming</span>
+        <span className="text-fg-2"> · {roamSpeedWords(controller.roamSpeed).text}</span>
       </>
     );
-  } else if (mode === 'travel') text = <span className="text-data">IN TRANSIT</span>;
-  else if (mode === 'fall') text = <span className="text-hazard">FALLING · {bodyName(focus).toUpperCase()}</span>;
-  else if (mode === 'circular') text = <span className="text-fg-2">ORBIT · {bodyName(focus).toUpperCase()}</span>;
-  else if (mode === 'hold') text = <span className="text-accent">SNAPSHOT · {bodyName(focus).toUpperCase()}</span>;
-  else if (mode === 'transition') text = <span className="text-fg-2">SLEWING → {bodyName(focus).toUpperCase()}</span>;
-  else text = <span className="text-fg-2">ORBIT · {bodyName(focus).toUpperCase()}</span>;
+  } else if (mode === 'free') {
+    text = (
+      <>
+        <span className="text-fg">Flying the ship</span>
+        <span className="text-fg-2"> · throttle {rich(sci(throttle || controller.throttleBeta, 2))} c</span>
+      </>
+    );
+  } else if (mode === 'travel') text = <span className="text-data">In transit</span>;
+  else if (mode === 'fall') text = <span className="text-hazard">Falling into {bodyName(focus)}</span>;
+  else if (mode === 'circular') text = <span className="text-fg-2">In orbit round {bodyName(focus)}</span>;
+  else if (mode === 'hold') text = <span className="text-fg-2">Snapshot at {bodyName(focus)}</span>;
+  else if (mode === 'transition') text = <span className="text-fg-2">Moving to {bodyName(focus)}</span>;
+  else text = <span className="text-fg-2">Orbiting {bodyName(focus)}</span>;
   // The breadcrumb already says where the camera is, so the status shows only on wide screens
-  // (and in free flight, where it carries the throttle).
-  const hide = mode === 'free' || showFps ? 'max-md:hidden' : 'max-[1535px]:hidden';
+  // (and flying by hand, where it carries the pace or the throttle).
+  const hide = mode === 'free' || mode === 'roam' || showFps ? 'max-md:hidden' : 'max-[1535px]:hidden';
   return (
     <>
       <div className={`h-4 w-px shrink-0 bg-line-2 ${hide}`} />
-      <div className={`mono flex shrink-0 items-center gap-3 whitespace-nowrap text-[12px] tracking-[0.06em] ${hide}`}>
+      <div className={`flex shrink-0 items-center gap-3 whitespace-nowrap text-[12px] ${hide}`}>
         <span>{text}</span>
         {showFps && (
           <span className="text-fg-3" title="Frames per second · device pixel ratio · multisampling · relativistic cube-map face size">

@@ -20,8 +20,9 @@ the most distant galaxies known (`src/sim/cosmos/`, below), and the other black 
 | Location trail | "Observable universe › Local Universe › Local Group › Milky Way › Orion Arm › Solar neighbourhood › Solar System › Saturn › Titan"; "… › Milky Way › Orion Arm › Solar neighbourhood › Alpha Centauri › Proxima Centauri"; "… › Milky Way › Orion Arm › Betelgeuse" beyond 100 light-years; the spiral arm only where the arms are measured (`src/sim/galaxy/arms.ts`); a planet on its star's barycentre (circumbinary) straight under the system; "… › Milky Way › Large Magellanic Cloud › Tarantula Nebula" for a body whose `deepSky.hostGalaxy` is another galaxy; a galaxy or a cluster of galaxies under the level of the universe it is in (the Local Group within its zero-velocity surface, the local universe to redshift 0.1, the observable universe beyond: `ui/location.ts`) |
 | Scenes | `go:`, `fly:` and `sky-from:` resolve its id (`KNOWN_TARGETS` stays the contract list) |
 | Flights | the planner's searchable destination list; the standoff is its framing distance, except for a galaxy, a cluster or a nebula, where the flight goes all the way in to its closest approach and the view then pulls back (`controls/framing.ts` `flightStandoff`); beyond the Local Group flights cross expanding space (`docs/data/cosmology.md` section 12) |
+| Roam | a say in the pace of the camera flown by hand (F), by its kind (`controls/roamScale.ts` `roamClassOf`): a body with a surface slows it towards its closest approach (`framing.minKm`, which Roam never crosses), a black hole towards its hover floor, a galaxy, star cluster or nebula towards its edge and then its centre, a group or cluster of galaxies (`kindText` saying "galaxies") only from outside; the readout names it when it is the nearest thing that matters, and leaving Roam orbits it |
 | Body card and instruments | name, kind, facts, the data sheet from whatever physical fields it has, the ephemeris table while its system is in focus |
-| Lab | a light-pulse detector (E1) if it is a planet, a dwarf planet, a spacecraft or a moon of 1,000 km or more (`detector: true` for others); the goniometer (E4) when selected |
+| Light pulses | a detector (its label lights up as a pulse passes) if it is a planet, a dwarf planet, a spacecraft or a moon of 1,000 km or more (`detector: true` for others) |
 
 Import from `src/sim/bodies` (the index), never from `registry.ts` directly: the index registers
 the built-in bodies before anyone can ask for them.
@@ -116,7 +117,7 @@ Record fields (`src/sim/bodies/types.ts` has them all, documented):
 | `labelRank` | label priority (lower wins; the Sun is 0, Proxima 12). Default: by kind, bigger bodies first |
 | `framing` | `{ radii }` (default 4, stars 5, spacecraft 16), `{ distanceKm }`, `{ minKm }` for the closest approach (default 1.015 × the largest radius; spacecraft 2.2 radii, clear of the probe model) |
 | `orbitLine` | `false`, or `{ muKm3S2, trailFromMs, onDemand }` (a hyperbola drawn back to a date, or to the latest of several dates before the one shown; `onDemand`: drawn only while selected, in focus or flown to) |
-| `detector` | light-pulse detector; default on for planets, dwarf planets, spacecraft and moons of 1,000 km radius or more (each detection is a notebook row: small moons and small bodies say `true` to have one) |
+| `detector` | light-pulse detector; default on for planets, dwarf planets, spacecraft and moons of 1,000 km radius or more (each detection lights up its label: small moons and small bodies say `true` to have one) |
 | `destination` | `false` keeps it out of Where to? and the Bodies list |
 | `onDemand` | registered on demand and released again (a catalogue star found in search or approached, an archive host): listed under "Found in search or nearby", left out of the ephemeris table unless it is the target, and its planets keep the archive's names |
 | `article` | Learn article slug (moons default to `worlds-around-worlds`, exoplanets and stars with known planets to `other-worlds`) |
@@ -348,9 +349,9 @@ float32 parsecs relative to the camera (near the Sun only the first ~16,000, the
   label behind the body in focus, within its disc on screen, is left out, and so is anything beyond the Solar System
   while a scene of the Solar System runs; with the Local Group in focus its galaxies are labelled down to V = 11.
 - Every nebula's picture carries its credit line, unaltered, and its modification note (`deepSky.image`); the card
-  shows them with the picture, and `ui/viewport/PictureCredits.tsx` in the corner of the view for every picture drawn
-  in the view (in flight, aberrated and 1/D times its size: `apparentCard`), one entry each, whatever the readouts
-  setting.
+  keeps them under its Sources, one click from the picture, and `ui/viewport/PictureCredits.tsx` puts a small Credits
+  button in the corner of the view that lists every picture drawn in the view (in flight, aberrated and 1/D times its
+  size: `apparentCard`), one entry each, whatever the readouts setting.
 
 ### Galaxies beyond the Milky Way (`src/sim/cosmos/`, docs/data/cosmos.md)
 
@@ -545,7 +546,7 @@ longitudes, so the app keeps them rather than pointing the moons at the planet.
   models, light-time per system, the barycentric Pluto system.
 - `perf.test.ts`: the 500-moon benchmark.
 - `src/content/registryIntegration.test.ts`: a body registered later reaches search, the Bodies
-  list, the trail, scenes, flights, framing and the lab.
+  list, the trail, scenes, flights, framing and the light-pulse detectors.
 - `checks.test.ts`: what the registry refuses (a taken key, a destination without a radius) and
   the camera limits of spacecraft and irregular bodies.
 - `adapters.test.ts` and `providers/moonState.test.ts`: the one-pass paths of the adapters, and

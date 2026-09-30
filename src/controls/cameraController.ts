@@ -7,10 +7,21 @@
  *                faster), motion is damped. Zoom runs from just above the surface out to
  *                10²⁴ km, 100 billion light-years: continuously from a planet to the scale of
  *                the observable universe. Orbiting a black hole is hovering over it (below).
- *  - free:       free flight with pointer lock. WASD moves, Space/C go up and down,
- *                Q/E roll, the mouse looks around, and the wheel sets the throttle (0.3 m/s
- *                to 0.99999c on a logit scale). Motion is relative to the last body you
- *                orbited, combined with relativistic velocity addition.
+ *  - roam:       the camera flown by hand, with no body in focus and no speed limit (F). WASD
+ *                or the arrows move, Space/R and C go up and down, Q/E roll, a drag looks
+ *                round (or the mouse, locked on request). The pace is the distance to the
+ *                nearest thing that matters here, one and a half times a second (controls/
+ *                roam.ts, roamScale.ts), times a multiplier (the wheel, + and −) and four while
+ *                Shift is held: the keys ease the camera in and out through a smoothed input, and
+ *                it slows by itself near a planet and crosses between galaxies in seconds. It
+ *                rides along with the nearest body as time runs, and sees as an observer at
+ *                rest in the Sun's frame (near a black hole, hovering there): its own speed
+ *                is a camera's, and makes no relativistic optics.
+ *  - free:       flying the ship by hand (from Roam): pointer lock, WASD moves, Space/C go up
+ *                and down, Q/E roll, the mouse looks around, and the wheel sets the throttle
+ *                (0.3 m/s to 0.99999c on a logit scale). Motion is relative to the last body
+ *                you orbited (or the one Roam rode along with), combined with relativistic
+ *                velocity addition. Releasing the pointer (Esc) goes back to roaming.
  *  - transition: a smooth zoom-and-pan flight to a body (van Wijk & Nuij).
  *  - travel:     riding a trip, looking along the course with free look.
  *  - fall:       a radial fall into a black hole: the camera rides the fall's exact position
@@ -29,13 +40,16 @@
  * horizon, holeHeightKm, exact), and the rest of the scene gets the hole's position plus it.
  * Orbiting a hole zooms in ln(height above the horizon), so the horizon is approached smoothly and
  * the floor r_s(1 + 10⁻⁶) is reached without overshoot (α = 10⁻³ there: home's clock runs a
- * thousand times faster). Free flight with a hole as the reference body takes the throttle as the
- * speed past the observers hovering there (the engine holds the ship against gravity: a stated
- * model) and moves by the exact coordinate displacement α²w_r r̂ + α w_t per coordinate second;
- * it stops at the same floor. Only a fall goes through.
+ * thousand times faster). Roam near a hole (within 5,000 r_s, where its clock paces time) moves
+ * the hole-relative position itself, hovers wherever it stops and stops at the same floor. Free
+ * flight with a hole as the reference body takes the throttle as the speed past the observers
+ * hovering there (the engine holds the ship against gravity: a stated model) and moves by the
+ * exact coordinate displacement α²w_r r̂ + α w_t per coordinate second; it stops at the same
+ * floor. Only a fall goes through.
  *
  * Cost: a few float64 operations a frame; near a hole nothing is allocated but the relativistic
- * velocity composition (addVelocities returns a fresh object), as free flight has always done.
+ * velocity composition (addVelocities returns a fresh object), as free flight has always done. Roam
+ * measures its surroundings, a pass over the registered bodies (≈ 20 µs), and allocates nothing.
  *
  * Twins: sim/gravity.ts reads holeRelative and holeHeightKm (its camRelHoleKm is the only camera
  * the lens, the bodies' images, the cluster and the flow read near a hole); sim/fall.ts drives the
@@ -51,9 +65,11 @@ import { sim } from '../sim/sim';
 import { docRoute } from '../state/route';
 import { useUI, type ControlMode } from '../state/ui';
 import { easeInOut, zoomPanPath, type ZoomPanPath } from './zoomPan';
-import { framingDistance, minDistance } from './framing';
+import { blackHoleRsKm, framingDistance, minDistance } from './framing';
+import { scanSurroundings, surroundings } from './roam';
+import { EDGE_KM, ROAM_BOOST, clampMul, followScale, riseRate, roamSpeedKmS, roamStepKm, wheelMul } from './roamScale';
 
-export { framingDistance };
+export { blackHoleRsKm, framingDistance };
 
 const UP = new Vector3(0, 1, 0);
 /** The up direction when looking straight up or down (world-up would be degenerate). */
@@ -67,6 +83,14 @@ const ZERO = new Vector3();
 export const MAX_DIST_KM = 1e24;
 /** Wheel and +/− zoom speed-up with Shift held: 46 e-folds separate a planet from the universe. */
 const FAST_ZOOM = 5;
+/** Roam: radians of turn per pixel dragged (the sky follows the pointer), and per pixel of the locked mouse. */
+const ROAM_DRAG_RAD = 0.0035;
+const ROAM_MOUSE_RAD = 0.0022;
+/** Roam: the input eases in over this time, s, and out over the next. */
+const ROAM_EASE_IN_S = 0.18;
+const ROAM_EASE_OUT_S = 0.3;
+/** Roam: + and − change the multiplier this many e-folds a second (4.5 times). */
+const ROAM_MUL_RATE = 1.5;
 const FREE_LOGIT_MIN = -9; // ~0.3 m/s
 const FREE_LOGIT_MAX = 5; // 0.99999c
 
@@ -76,19 +100,6 @@ const FREE_LOGIT_MAX = 5; // 0.99999c
  * above Sgr A*'s horizon, 27 mm above Gaia BH1's). Hovering, orbiting and free flight stop here.
  */
 export const HOVER_FLOOR_RS = 1e-6;
-
-/**
- * A black hole's horizon radius r_s = 2GM/c², km, from its record (its own value when the record
- * gives one, else from GM); 0 when the body is not a black hole.
- */
-export function blackHoleRsKm(id: BodyId): number {
-  const r = getBody(id);
-  if (!r || r.kind !== 'black-hole') return 0;
-  const own = r.blackHole?.rsKm;
-  if (own && own > 0) return own;
-  const gm = r.blackHole?.gmKm3S2 ?? r.physical.gmKm3S2 ?? 0;
-  return (2 * gm) / (C_KM_S * C_KM_S);
-}
 
 /**
  * The lowest height above a black hole's horizon the camera hovers at, km: r_s·10⁻⁶ (the record's closest
@@ -248,6 +259,28 @@ export class CameraController implements ControllerHoleApi {
   /** Where the reference body was last frame, so free flight rides along its curved path. */
   private frameBodyPrev = new Vector3();
   private frameBodyPrevId: BodyId | null = null;
+
+  // Roam
+  /** Roam's multiplier on the pace its surroundings set (the wheel, + and −). */
+  roamMul = 1;
+  /** The pace's length this frame, km: the surroundings' scale, followed (roamScale.ts followScale). */
+  roamScaleKm = NaN;
+  /** The speed at full input this frame, km/s (Shift's boost included), and the speed now. */
+  roamSpeed = 0;
+  roamSpeedNow = 0;
+  /** A held on-screen control (touch): +1 forward, −1 back, 0 none. */
+  roamTouch = 0;
+  /** The input, eased: world axes, |u| ≤ 1. */
+  private roamU = new Vector3();
+  /** Turns waiting to be applied, rad (a drag, or the locked mouse). */
+  private roamLook = { x: 0, y: 0 };
+  /** The body Roam rides along with, and where it was last frame. */
+  private roamRide: BodyId | null = null;
+  private roamRidePrev = new Vector3();
+  /** The black hole Roam moves relative to (exactly, through `rel`), or null. */
+  private roamHole: BodyId | null = null;
+  /** Frames since Roam began. */
+  private roamFrames = 0;
 
   // Travel: free look relative to the direction of motion.
   private lookYaw = 0;
@@ -420,23 +453,105 @@ export class CameraController implements ControllerHoleApi {
     return this.mode === 'circular' && this.circ ? this.circ.hole : null;
   }
 
-  enterFreeFlight(): void {
+  /**
+   * Fly the ship by hand (light-speed limit, relativity on), relative to `frame` (default: the last body
+   * orbited; from Roam, the body it rode along with, or the black hole it moved about, exactly).
+   */
+  enterFreeFlight(frame?: BodyId): void {
     // Not on a trip, nor in a fall (nothing leaves a black hole).
     if (this.mode === 'travel' || this.mode === 'fall') return;
     if (this.mode === 'circular' || this.mode === 'hold') this.toHover();
     this.moves++;
     if (this.mode === 'transition') this.finishTransition();
-    this.frameBody = this.target;
+    this.frameBody = frame && sim.bodies[frame]?.present ? frame : this.target;
     this.frameRs = blackHoleRsKm(this.frameBody);
     this.frameBodyPrevId = null;
     this.setMode('free');
-    this.dom?.requestPointerLock?.();
+    this.requestLock();
+  }
+
+  /**
+   * Roam: the camera flown by hand, no body in focus, no speed limit (F). Refused, as free flight is, on a
+   * trip and in a fall; a circular orbit or a snapshot ends first, and a slew stops where the camera is. From
+   * the ship it takes over where the ship is. False when refused.
+   */
+  enterRoam(): boolean {
+    if (this.mode === 'travel' || this.mode === 'fall') return false;
+    if (this.mode === 'roam') return true;
+    const fromShip = this.mode === 'free';
+    if (this.mode === 'circular' || this.mode === 'hold') this.toHover();
+    // Mid-slew: roam from where the camera is (the slew's hole-relative place, if it was bound for a black hole).
+    this.tr = null;
+    this.moves++;
+    this.spinRate = 0;
+    // About a black hole already (hovering, or the ship's reference): keep the exact place relative to it.
+    this.roamHole = fromShip ? (this.frameRs > 0 ? this.frameBody : null) : this.relHole;
+    this.roamRide = null;
+    this.roamU.set(0, 0, 0);
+    this.roamLook.x = this.roamLook.y = 0;
+    this.roamScaleKm = NaN;
+    this.roamTouch = 0;
+    this.roamFrames = 0;
+    if (typeof document !== 'undefined' && document.pointerLockElement) document.exitPointerLock?.();
+    this.setMode('roam');
+    return true;
+  }
+
+  /**
+   * Leave Roam and orbit, from where the camera is, the nearest thing that matters (the black hole it moves
+   * about, or the body that sets its pace; failing that, the nearest body, as leaving free flight does).
+   */
+  exitRoam(): void {
+    if (this.mode !== 'roam') return;
+    if (typeof document !== 'undefined' && document.pointerLockElement) document.exitPointerLock?.();
+    this.roamTouch = 0;
+    // (The surroundings are this visit's once a frame has measured them.)
+    const near = this.roamFrames > 0 ? surroundings.id : null;
+    const id = this.roamHole ?? (near && sim.bodies[near]?.present ? near : this.nearestBody());
+    this.goTo(id, { keepDistance: true, keepDirection: true });
+  }
+
+  /** From Roam, fly the ship where the camera is: relative to the body Roam rode along with (if slow), or its black hole. */
+  roamToShip(): void {
+    if (this.mode !== 'roam') return;
+    const ride = this.roamRide ? sim.bodies[this.roamRide] : undefined;
+    // A body that moves fast in the Sun's frame (a galaxy far off in the expanding universe) would lend the ship its speed.
+    const slow = !!ride && ride.vel.length() < 1e-3 * C_KM_S;
+    this.roamTouch = 0;
+    this.enterFreeFlight(this.roamHole ?? (slow ? this.roamRide! : undefined));
+  }
+
+  /** From the ship (its pointer released, Esc, or the panel's switch), roam from where it is. */
+  shipToRoam(): void {
+    if (this.mode !== 'free') return;
+    this.enterRoam();
+  }
+
+  /** Roam's mouse look: lock the pointer, so the mouse turns the view without a drag (Esc releases it). */
+  roamLockPointer(): void {
+    if (this.mode === 'roam') this.requestLock();
+  }
+
+  /** Capture the pointer for mouse look; a refusal (no user gesture, a frame without permission) leaves it free, silently. */
+  private requestLock(): void {
+    const asked: unknown = this.dom?.requestPointerLock?.();
+    if (asked instanceof Promise) asked.catch(() => {});
+  }
+
+  /** Whether the pointer is locked to the view (the ship's mouse look, or Roam's). */
+  get pointerLocked(): boolean {
+    return typeof document !== 'undefined' && !!this.dom && document.pointerLockElement === this.dom;
+  }
+
+  /** Set Roam's multiplier, kept in its range (its panel reads it on the shared clock). */
+  setRoamMul(mul: number): void {
+    this.roamMul = clampMul(mul);
   }
 
   /** Leave free flight and orbit the nearest body from where we are. */
   exitFreeFlight(): void {
     if (this.mode !== 'free') return;
-    if (document.pointerLockElement) document.exitPointerLock();
+    if (typeof document !== 'undefined' && document.pointerLockElement) document.exitPointerLock();
     const id = this.nearestBody();
     this.goTo(id, { keepDistance: true, keepDirection: true });
   }
@@ -522,6 +637,7 @@ export class CameraController implements ControllerHoleApi {
     else if (this.mode === 'fall') this.updateFall(dtReal);
     else if (this.mode === 'circular') this.updateCircular(dtReal, dtSim);
     else if (this.mode === 'hold') this.updateHold(dtReal);
+    else if (this.mode === 'roam') this.updateRoam(dtReal);
     else this.updateFree(dtReal, dtSim);
     if (!this.relWritten) this.relHole = null;
   }
@@ -875,6 +991,110 @@ export class CameraController implements ControllerHoleApi {
   }
 
   /**
+   * Roam: turn by the drag (or the locked mouse) and Q/E; + and − set the multiplier; the keys ease the
+   * input in and out; the step is the pace (the surroundings' scale per second, times the multiplier, and
+   * Shift's boost) along the input, never more than half the way to the nearest thing. Near a black hole
+   * whose clock paces time the camera moves its exact place relative to the hole and stops at the hover
+   * floor, hovering there (at rest past the observers hovering there); elsewhere it rides along with the
+   * nearest body and stays out of the nearest surface, at rest in the Sun's frame for the optics.
+   */
+  private updateRoam(dt: number): void {
+    this.roamFrames++;
+    const q = sim.camera.quat;
+    const k = this.keys;
+    const look = this.roamLook;
+    if (look.x || look.y) {
+      q.multiply(qa.setFromAxisAngle(v1.set(0, 1, 0), look.x)).multiply(qb.setFromAxisAngle(v2.set(1, 0, 0), look.y));
+      look.x = look.y = 0;
+    }
+    const roll = (k.has('KeyQ') ? 1 : 0) - (k.has('KeyE') ? 1 : 0);
+    if (roll) q.multiply(qa.setFromAxisAngle(v1.set(0, 0, 1), roll * 1.2 * dt));
+    q.normalize();
+    // The multiplier: + (Shift+= on the main keyboard) and −, held.
+    const up = k.has('Equal') || k.has('NumpadAdd');
+    const down = k.has('Minus') || k.has('NumpadSubtract');
+    if (up !== down) this.setRoamMul(this.roamMul * Math.exp((up ? 1 : -1) * ROAM_MUL_RATE * dt));
+
+    // Near a black hole whose clock paces time: move relative to it, exactly, from now on.
+    const near = this.nearHole && sim.bodies[this.nearHole]?.present ? this.nearHole : null;
+    if (near !== this.roamHole) {
+      if (near) {
+        if (this.relHole !== near) this.rel.copy(sim.camera.pos).sub(sim.bodies[near].pos);
+        this.holeHeightKm = this.rel.length() - blackHoleRsKm(near);
+      }
+      this.roamHole = near;
+    }
+    const hole = this.roamHole;
+
+    // The surroundings, and the pace.
+    const s = scanSurroundings(sim.camera.pos, hole, this.rel, this.holeHeightKm, hole ?? this.roamRide);
+    const boost = k.has('ShiftLeft') || k.has('ShiftRight') ? ROAM_BOOST : 1;
+    this.roamScaleKm = followScale(this.roamScaleKm, s.scaleKm, dt, riseRate(this.roamMul, boost));
+    this.roamSpeed = roamSpeedKmS(this.roamScaleKm, this.roamMul, boost);
+
+    // The input, in the view's axes, eased in and out in world axes.
+    const input = v1.set(
+      (k.has('KeyD') || k.has('ArrowRight') ? 1 : 0) - (k.has('KeyA') || k.has('ArrowLeft') ? 1 : 0),
+      (k.has('KeyR') || k.has('Space') ? 1 : 0) - (k.has('KeyC') ? 1 : 0),
+      (k.has('KeyS') || k.has('ArrowDown') ? 1 : 0) - (k.has('KeyW') || k.has('ArrowUp') ? 1 : 0) - this.roamTouch,
+    );
+    const pressed = input.lengthSq() > 0;
+    if (pressed) input.normalize().applyQuaternion(q);
+    this.roamU.lerp(input, 1 - Math.exp(-dt / (pressed ? ROAM_EASE_IN_S : ROAM_EASE_OUT_S)));
+    if (!pressed && this.roamU.lengthSq() < 1e-8) this.roamU.set(0, 0, 0);
+    const u = this.roamU.length();
+    const step = u > 0 ? roamStepKm(this.roamSpeed * u, dt, this.roamScaleKm) : 0;
+    this.roamSpeedNow = dt > 0 ? step / dt : 0;
+    const dir = v2.copy(this.roamU);
+    if (u > 0) dir.divideScalar(u);
+
+    if (hole) {
+      const b = sim.bodies[hole];
+      const rs = blackHoleRsKm(hole);
+      const floor = hoverFloorKm(hole, rs);
+      if (step > 0) this.rel.addScaledVector(dir, step);
+      const r = this.rel.length();
+      if (r < rs + floor) {
+        if (r > 0) this.rel.multiplyScalar((rs + floor) / r);
+        else this.rel.set(0, 0, rs + floor);
+        this.holeHeightKm = floor;
+      } else this.holeHeightKm = r - rs;
+      this.markRel(hole);
+      sim.camera.pos.copy(b.pos).add(this.rel);
+      // Hovering wherever it stops: at rest past the observers hovering there.
+      sim.ship.vel.copy(b.vel);
+      this.roamRide = hole;
+      this.roamRidePrev.copy(b.pos);
+      return;
+    }
+
+    // Ride along with the nearest body: follow its displacement this frame (a time warp of years a frame would otherwise leave the camera behind).
+    const ride = s.ride;
+    const rb = ride ? sim.bodies[ride] : undefined;
+    if (ride !== this.roamRide) {
+      this.roamRide = ride;
+      if (rb) this.roamRidePrev.copy(rb.pos);
+    }
+    if (rb) {
+      sim.camera.pos.add(v3.copy(rb.pos).sub(this.roamRidePrev));
+      this.roamRidePrev.copy(rb.pos);
+    }
+    if (step > 0) sim.camera.pos.addScaledVector(dir, step);
+    // Never beyond the edge of the map, nor inside the nearest surface (its closest approach, as the orbit camera's).
+    const far = sim.camera.pos.length();
+    if (far > EDGE_KM) sim.camera.pos.multiplyScalar(EDGE_KM / far);
+    const solid = s.solid ? sim.bodies[s.solid] : undefined;
+    if (solid) {
+      const m = minDistance(s.solid!);
+      const off = v3.copy(sim.camera.pos).sub(solid.pos);
+      const d = off.length();
+      if (d < m) sim.camera.pos.copy(solid.pos).addScaledVector(d > 0 ? off.divideScalar(d) : off.set(0, 0, 1), m);
+    }
+    // A camera, not a ship: at rest in the Sun's frame for the optics.
+    sim.ship.vel.set(0, 0, 0);
+  }
+
+  /**
    * Free flight with a black hole as the reference body: the thrust w is the speed past the observers
    * hovering there, and a coordinate second moves the camera by α²w_r r̂ + α w_t (exact for the
    * static frame: proper radial length is dr/α and the hovering observers' clocks run at α). Stops at
@@ -1198,9 +1418,11 @@ export class CameraController implements ControllerHoleApi {
   private onPointerDown = (e: PointerEvent): void => {
     if (e.button !== 0 && e.button !== 2) return;
     if (this.mode === 'free') {
-      if (!document.pointerLockElement) this.dom?.requestPointerLock?.();
+      if (!document.pointerLockElement) this.requestLock();
       return;
     }
+    // Roam's locked mouse only looks (the pointer is not where it points: no click selects).
+    if (this.mode === 'roam' && this.pointerLocked) return;
     // A touch of the controls ends a snapshot: the camera hovers there, and the drag turns it.
     if (this.mode === 'hold') this.leaveHoleModes();
     this.dragging = true;
@@ -1216,7 +1438,13 @@ export class CameraController implements ControllerHoleApi {
       this.look.y += e.movementY;
       return;
     }
-    if (!this.dragging) return;
+    if (this.mode === 'roam' && document.pointerLockElement === this.dom) {
+      this.roamLook.x -= e.movementX * ROAM_MOUSE_RAD;
+      this.roamLook.y -= e.movementY * ROAM_MOUSE_RAD;
+      return;
+    }
+    // One finger drags (a second one on a touch screen would make the view jump between them).
+    if (!this.dragging || !e.isPrimary) return;
     const dx = e.clientX - this.lastX;
     const dy = e.clientY - this.lastY;
     this.lastX = e.clientX;
@@ -1230,6 +1458,10 @@ export class CameraController implements ControllerHoleApi {
     } else if (this.mode === 'travel' || this.mode === 'fall' || this.mode === 'circular') {
       this.lookYaw += dx * 0.004;
       this.lookPitch = Math.max(-1.55, Math.min(1.55, this.lookPitch + dy * 0.004));
+    } else if (this.mode === 'roam') {
+      // The sky follows the pointer, as in the other free-look modes.
+      this.roamLook.x += dx * ROAM_DRAG_RAD;
+      this.roamLook.y += dy * ROAM_DRAG_RAD;
     }
   };
 
@@ -1259,6 +1491,8 @@ export class CameraController implements ControllerHoleApi {
     if (this.mode === 'free') {
       this.throttle = Math.min(1, Math.max(0, this.throttle - delta * 0.00035));
       useUI.setState({ throttleBeta: this.throttleBeta });
+    } else if (this.mode === 'roam') {
+      this.setRoamMul(wheelMul(this.roamMul, delta));
     } else if (this.mode === 'orbit') {
       if (this.holeRs > 0) {
         this.goalLogHeight += delta * 0.0022 * (e.shiftKey ? FAST_ZOOM : 1);
@@ -1272,7 +1506,7 @@ export class CameraController implements ControllerHoleApi {
 
   private onKeyDown = (e: KeyboardEvent): void => {
     const ui = useUI.getState();
-    if (e.defaultPrevented || isTyping(e) || ui.reportFor || docRoute()) return;
+    if (e.defaultPrevented || isTyping(e) || docRoute()) return;
     // Nor behind a dialog: its arrow keys and +/− are for the dialog.
     if (ui.welcomeOpen || ui.tourStep !== null || ui.journeysOpen || ui.keysOpen || ui.searchOpen) return;
     this.keys.add(e.code);
@@ -1280,7 +1514,7 @@ export class CameraController implements ControllerHoleApi {
     if (viewKey) this.spinRate = 0;
     // A view key ends a snapshot (the camera then hovers there and the key works as usual).
     if (viewKey && this.mode === 'hold') this.leaveHoleModes();
-    if (this.mode === 'free' && (e.code === 'Space' || e.code.startsWith('Arrow'))) e.preventDefault();
+    if ((this.mode === 'free' || this.mode === 'roam') && (e.code === 'Space' || e.code.startsWith('Arrow'))) e.preventDefault();
   };
 
   private onKeyUp = (e: KeyboardEvent): void => {
@@ -1290,8 +1524,19 @@ export class CameraController implements ControllerHoleApi {
   private onBlur = (): void => this.keys.clear();
 
   private onPointerLockChange = (): void => {
-    if (!document.pointerLockElement && this.mode === 'free') this.exitFreeFlight();
+    if (document.pointerLockElement) return;
+    this.unlockedAt = performance.now();
+    // The ship's pointer released (Esc): back to roaming, where the ship is. Roam's own lock just ends.
+    if (this.mode === 'free') this.shipToRoam();
   };
+
+  /** When the pointer was last released, ms (performance.now()). */
+  private unlockedAt = -Infinity;
+
+  /** Whether the pointer was released a moment ago: the Esc that released it must not also leave Roam (browsers differ). */
+  get justUnlocked(): boolean {
+    return performance.now() - this.unlockedAt < 250;
+  }
 }
 
 const motionQuery = typeof window !== 'undefined' ? window.matchMedia?.('(prefers-reduced-motion: reduce)') : undefined;

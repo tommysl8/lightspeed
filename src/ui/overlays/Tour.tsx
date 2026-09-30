@@ -99,9 +99,10 @@ const STEPS: Step[] = [
     title: 'Everything else',
     body: (
       <>
-        The View menu holds the display layers (the constellations, the cosmic web, the map of the oldest light), the optics,
-        the guide and the keys, and the instrument panel with every number live. Beside it, <b>Lab</b> (on a phone, at the end
-        of Learn) has five guided experiments for students. Both are there for those who want them.
+        The View menu starts <b>Roam</b> (<Kbd>F</Kbd>: fly the camera anywhere yourself) and a clean full screen with nothing
+        but the view, and holds the display layers (the constellations, the cosmic web, the map of the oldest light), the
+        optics, the guide and the keys, the physics reference with its equations, and the instrument panel with every number
+        live.
       </>
     ),
   },

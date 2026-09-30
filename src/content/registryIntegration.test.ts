@@ -98,7 +98,7 @@ describe('a body registered later', () => {
     expect(plan.distance).toBeGreaterThan(1e9);
   });
 
-  it('carries a detector for the light-pulse experiment', () => {
+  it('carries a light-pulse detector', () => {
     registerSaturnian();
     clearPulses();
     const hits = new Map<string, Detection>();
