@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+message: "If you use Skyfold in teaching or written work, please cite it as below."
+title: "Skyfold: A relativistic explorer of the real universe"
+type: software
+authors:
+  - family-names: Liu
+    given-names: Tommy S.
+    email: tommysliu8@gmail.com
+version: 0.3.0
+date-released: 2026-09-30
+license: MIT
+url: "https://skyfold-space.vercel.app"
+repository-code: "https://github.com/tommysl8/skyfold"
+keywords:
+  - astronomy
+  - special relativity
+  - general relativity
+  - black holes
+  - cosmology
+  - visualization

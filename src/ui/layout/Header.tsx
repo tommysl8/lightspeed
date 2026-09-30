@@ -425,11 +425,11 @@ function ViewMenu() {
 /*
  * Widths, from IBM Plex Sans and JetBrains Mono metrics (12 px type below 1024 px, 13.5 px
  * from 1024), buttons 8–12 px padded:
- *   375 px   mark, date, then icons: search, Journeys, Learn, View. About 320 px.
+ *   375 px   mark, date, then icons: search, Journeys, Learn, About, View. About 350 px.
  *   480 px   "Where to?" gets its label (+64 px).
  *   640 px   the name SKYFOLD (+104). About 505 px.
  *   768 px   the time on the chip (+64), "Journeys" (+57). About 665 px.
- *   900 px   "Learn" and "View" in words (+73). About 740 px.
+ *   900 px   "Learn", "About" and "View" in words (+118). About 815 px.
  *   1024 px  larger type, "UTC" on the chip. About 850 px.
  *   1280 px  the "/" key on the search button.
  *   1760 px  the tagline beside the name.
@@ -479,6 +479,10 @@ export function Header() {
         <button className="btn btn-q" data-tour="learn" onClick={() => openLearn()} title="Learn: long reads on the science behind the view (E)" aria-label="Learn">
           <Icon name="book" size={14} />
           <span className="max-[899px]:hidden">Learn</span>
+        </button>
+        <button className="btn btn-q" onClick={() => openDoc('about')} title="About Skyfold: what it is, who made it, its sources and how to cite it" aria-label="About">
+          <Icon name="info" size={14} />
+          <span className="max-[899px]:hidden">About</span>
         </button>
         <div className="mx-0.5 h-4 w-px shrink-0 bg-line-2 max-sm:hidden" />
         <ViewMenu />

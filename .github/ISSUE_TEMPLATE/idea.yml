@@ -1,0 +1,16 @@
+name: Idea or data correction
+description: A new feature, journey or data set, or a number that should be different.
+labels: [idea]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: The idea
+      description: What should change, and why would it make Skyfold better?
+    validations:
+      required: true
+  - type: textarea
+    id: sources
+    attributes:
+      label: Sources
+      description: For data or physics, a paper, catalogue or other source (and its licence, for new data).
