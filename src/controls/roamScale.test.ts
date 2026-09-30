@@ -5,10 +5,12 @@
  * Andromeda (seconds, not millions of years).
  */
 import { describe, expect, it } from 'vitest';
-import { PARSEC_KM } from '../physics/constants';
+import { MPC_KM, PARSEC_KM } from '../physics/constants';
+import { planck18 } from '../physics/cosmology/cosmology';
 import {
   CORE_SHARE,
   EDGE_FLOOR_KM,
+  EDGE_KM,
   INSIDE_SHARE,
   POINT_FACTOR,
   RISE_RATE,
@@ -81,7 +83,11 @@ describe('how Roam counts each kind of thing', () => {
     expect(thingScaleKm('group', 0.5 * R, 0, R)).toBe(Infinity);
   });
 
-  it('passes a catalogue star as a point, and keeps the edge of the map a wall that does not trap', () => {
+  it('stops at the edge of the observable universe: today’s particle horizon', () => {
+    expect(EDGE_KM / (planck18().particleHorizonMpc() * MPC_KM)).toBeCloseTo(1, 6);
+  });
+
+  it('passes a catalogue star as a point, and keeps the edge a wall that does not trap', () => {
     expect(thingScaleKm('point', 1.3 * PARSEC_KM, 0, 0)).toBeCloseTo(POINT_FACTOR * 1.3 * PARSEC_KM, 0);
     expect(thingScaleKm('edge', 0, 0, 0)).toBe(EDGE_FLOOR_KM);
     expect(thingScaleKm('none', 1, 1, 1)).toBe(Infinity);

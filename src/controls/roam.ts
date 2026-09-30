@@ -159,7 +159,7 @@ export function scanSurroundings(cam: Vector3, hole: BodyId | null, holeRel: Vec
       other = 'point';
     }
   }
-  // The edge of the map.
+  // The edge of the observable universe.
   const edge = EDGE_KM - cam.length();
   const edgeE = thingScaleKm('edge', edge, 0, 0);
   if (edgeE < best) {

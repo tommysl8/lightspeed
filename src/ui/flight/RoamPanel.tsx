@@ -58,7 +58,7 @@ function nearName(): string | null {
     void loadStarNames();
     return 'A star';
   }
-  if (s.cls === 'edge') return 'The edge of the map';
+  if (s.cls === 'edge') return 'The edge of the observable universe';
   return null;
 }
 

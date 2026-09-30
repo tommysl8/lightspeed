@@ -43,7 +43,8 @@ describe('Roam’s words', () => {
     expect(roamPlaceWords('point', 4.2 * LIGHT_YEAR_KM, 0)).toBe('4.2 light-years away');
     expect(roamPlaceWords('extended', 26_000 * LIGHT_YEAR_KM, 49_000 * LIGHT_YEAR_KM)).toBe('inside it, 26,000 light-years from its centre');
     expect(roamPlaceWords('extended', 2.5e6 * LIGHT_YEAR_KM, 7e4 * LIGHT_YEAR_KM)).toBe('2.5 million light-years away');
-    expect(roamPlaceWords('edge', 2e9 * LIGHT_YEAR_KM, 0)).toBe('2 billion light-years on; Roam goes no farther');
+    expect(roamPlaceWords('edge', 2e9 * LIGHT_YEAR_KM, 0)).toBe('2 billion light-years on');
+    expect(roamPlaceWords('edge', 0, 0)).toBe('here: light from farther has not reached us yet');
   });
 
   it('says the rate in words for the guide', () => {
