@@ -1,6 +1,7 @@
 /**
  * Index of the physics sections (ids, titles and a one-sentence plain-language summary).
  * The full text, with its equations, lives in reference.tsx and loads with the lab (its Reference tab).
+ * New sections are appended, so every section keeps its number (§n) in the manual and the notes.
  */
 export type ExplainerId =
   | 'light-time'
@@ -12,7 +13,11 @@ export type ExplainerId =
   | 'doppler'
   | 'mass-limit'
   | 'ftl'
-  | 'rocket';
+  | 'rocket'
+  // Near a black hole (appended, so the sections above keep their numbers).
+  | 'gravitational-blueshift'
+  | 'double-images'
+  | 'shadow-size';
 
 export interface ExplainerIndexEntry {
   id: ExplainerId;
@@ -71,6 +76,21 @@ export const EXPLAINERS: ExplainerIndexEntry[] = [
     id: 'rocket',
     title: 'The relativistic rocket',
     blurb: 'A ship that keeps pushing at one Earth gravity feels normal on board, yet nears the speed of light within a year.',
+  },
+  {
+    id: 'gravitational-blueshift',
+    title: 'Gravitational blueshift and slow clocks',
+    blurb: 'Why is the sky bluer here? Light falling towards a black hole gains energy, so to you, hovering, every star looks bluer and brighter, and home’s clock runs faster than yours by the same factor.',
+  },
+  {
+    id: 'double-images',
+    title: 'Gravitational lensing',
+    blurb: 'Why do stars appear twice? Light from a star behind the black hole passes it on both sides: one image outside the Einstein ring, a fainter, mirrored one inside it, and fainter ones still at the shadow’s edge.',
+  },
+  {
+    id: 'shadow-size',
+    title: 'The size of a black hole’s shadow',
+    blurb: 'Light aimed within 2.6 horizon radii of a black hole is swallowed, so from far away its shadow looks 2.6 times the horizon’s size; up close it grows, to half the sky at 1.5 horizon radii.',
   },
 ];
 

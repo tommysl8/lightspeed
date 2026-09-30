@@ -10,6 +10,9 @@
  *
  * With "simulated instrument uncertainty" on, each reading gets Gaussian noise of a stated σ
  * (independent draws from one pseudo-random stream per session) and the σ is stored alongside it.
+ *
+ * Near a black hole (wherever its gravity is modelled, lab/measure.ts nearBlackHole) no manual reading
+ * is taken: the experiments' formulas are those of flat spacetime.
  */
 import { C_KM_S } from '../physics/constants';
 import { bodyName, type BodyId } from '../sim/bodies';
@@ -23,7 +26,7 @@ import { travel, tripShipTime, type Trip } from '../sim/travel';
 import { useUI } from '../state/ui';
 import { relView } from '../render/relativisticView';
 import { logEvent } from './events';
-import { reticleReading, targetReading } from './measure';
+import { nearBlackHole, reticleReading, targetReading } from './measure';
 import { useNotebook, type ExperimentId, type Value } from './notebook';
 
 /** The notebook entry made for the most recent arrival (read by the trial report). */
@@ -182,6 +185,10 @@ export function recordManual(): boolean {
   }
   if (travel.trip?.warp) {
     logEvent('ERR', 'No valid reading: the observer is in a non-physical superluminal state.');
+    return false;
+  }
+  if (nearBlackHole()) {
+    logEvent('ERR', 'The lab’s experiments assume flat spacetime: no reading is taken near a black hole.');
     return false;
   }
   if (exp === 'E3') {

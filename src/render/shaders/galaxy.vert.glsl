@@ -8,6 +8,20 @@
 // the difference keeps its precision anywhere in the Galaxy; float32 kilometres would overflow.
 // The particles are drawn into a smaller target (render/galaxyLayer.ts) and added to the view:
 // sizes here are in that target's pixels (the large splats' coarser one scales them at the end).
+//
+// Most of this shader's time is the dust along each particle's line of sight, so a particle whose splat
+// lies wholly off the view is dropped before it, and before the rest of the work past its size (a frustum
+// test of its centre with the splat's whole reach, 4σ, and two pixels to spare: the picture is unchanged).
+// Measured on the target laptop by whole frames, A/B interleaved (2,048 × 1,320, pixel ratio 2, 10 rounds):
+// 0.44 ms less at 4.24 au from Sgr A* and 0.45 at 4,000 au, the frames the same but for one pixel in two
+// million by 1/255; the particles it leaves cost 0.63 ms there in all. The sky cube's faces
+// (render/lens/skyCube.ts) draw these particles too and gain the same way. Not lensed per vertex: the
+// Galaxy's light is lensed per pixel, from its targets (render/lens/lensComposite.ts). Near Sgr A* the
+// nuclear cluster's and disc's particles give way to the nuclear star cluster's own field (its glow,
+// galaxyGlow.frag.glsl, and within 60 pc its points, scene/NuclearCluster.tsx) as uNuclearFade.x, the
+// field's share of their light (sim/galaxy/nuclearCluster.ts nscGlowShare), rises from 0 at 1 kpc to 1 at 500 pc.
+//
+// Twins: sim/galaxy/model.ts (columnAV), sim/galaxy/glow.ts (the glow's crossover).
 #include <common>
 #include <lightspeed_relativity>
 #include <lightspeed_psf>
@@ -44,6 +58,9 @@ uniform float uFluxCut;    // patch flux below which a splat's tail is not drawn
 // s0 and all of it beyond s1. x, y: the discs' s0, s1; z, w: the young arm stars' (kpc).
 uniform vec4 uGlowRange;
 uniform float uGlowOn;     // 1 while the glow is drawn
+// x: the nuclear star cluster's field's share w near Sgr A* (sim/galaxy/nuclearCluster.ts): the model's
+// nuclear disc and cluster particles are drawn × (1 − w); y, z, w unused.
+uniform vec4 uNuclearFade;
 
 varying vec3 vColor;
 varying float vPeak;
@@ -58,6 +75,8 @@ const int POP_THIN_DISC = 0;
 const int POP_YOUNG = 1;
 const int POP_HII = 2;
 const int POP_THICK_DISC = 3;
+const int POP_NUCLEAR_DISC = 7;
+const int POP_NUCLEAR_CLUSTER = 8;
 const int POP_GLOBULAR = 11;
 const int MAX_DUST_PIECES = 8;
 // Far from the midplane the dust layers (heights of 0.1 to 0.3 kpc) hold nothing: a piece wholly
@@ -136,6 +155,7 @@ void main() {
     if (pop == POP_THIN_DISC || pop == POP_THICK_DISC) keep = smoothstep(uGlowRange.x, uGlowRange.y, d);
     else if (pop == POP_YOUNG) keep = smoothstep(uGlowRange.z, uGlowRange.w, d);
   }
+  if (pop == POP_NUCLEAR_DISC || pop == POP_NUCLEAR_CLUSTER) keep *= 1.0 - uNuclearFade.x;
   if (keep <= 0.0) {
     cull();
     return;
@@ -163,6 +183,18 @@ void main() {
     cull();
     return;
   }
+  float sigmaT = max(max(sigmaPsf, sigmaExt), 0.6);
+  // Off the view: dropped before the rest of the work and the dust. The splat reaches at most 4σ + 1 of its
+  // target's pixels from its centre (vSize below, whose reach is at most 4), 4σ + 1/s of the finer target's,
+  // and one pixel more is kept; the target is at least uPxPerRad / P[0][0] of those pixels across each half of
+  // the view (rounded up).
+  vec4 clip = projectionMatrix * vec4(mat3(viewMatrix) * dShip, 1.0);
+  float s = large && uBigPass > 0.5 ? uBigScale : 1.0;
+  vec2 reachNdc = ((4.0 * sigmaT + 2.0 / s) / uPxPerRad) * vec2(projectionMatrix[0][0], projectionMatrix[1][1]);
+  if (clip.w <= 0.0 || abs(clip.x) > clip.w * (1.0 + reachNdc.x) || abs(clip.y) > clip.w * (1.0 + reachNdc.y)) {
+    cull();
+    return;
+  }
   bool big = sigmaExt > uSigmaBudget && !single;
   // Large splats overlap by the hundred near the camera (inside the bulge): each is drawn with
   // probability (budget / σ)², as bright as that many of them, so the pixels they cover stay about
@@ -179,7 +211,6 @@ void main() {
     }
     near *= w / (0.875 * thr);
   }
-  float sigmaT = max(max(sigmaPsf, sigmaExt), 0.6);
 
   // magnitude: M_V + 5 log10(d / 10 pc), then the dust, the Doppler shift and the exposure
   // uLumScale: the share of the (shuffled) particles drawn; the single objects come first and are all drawn.
@@ -226,10 +257,9 @@ void main() {
 
   vColor = c / lumC;
   vPeak = peak;
-  // In the coarser target the splat has the same shape and peak, in its pixels.
-  float s = large && uBigPass > 0.5 ? uBigScale : 1.0;
+  // In the coarser target the splat has the same shape and peak, in its pixels (s, above).
   vSigma = sigmaT * s;
   vSize = 2.0 * sigmaT * s * reach + 2.0;
-  gl_Position = projectionMatrix * vec4(mat3(viewMatrix) * dShip, 1.0);
+  gl_Position = clip;
   gl_PointSize = vSize;
 }

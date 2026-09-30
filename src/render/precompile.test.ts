@@ -8,7 +8,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import type { Camera, Object3D, Scene, WebGLRenderer, WebGLRenderTarget } from 'three';
 import { OrthographicCamera, PerspectiveCamera, Scene as ThreeScene } from 'three';
 import cosmicWebVert from './shaders/cosmicWeb.vert.glsl?raw';
-import { LATER_MATERIALS, cosmicWebMaterialWithTable, precompileLater } from './precompile';
+import { LATER_MATERIALS, LENS_WAITS_FOR, OUTWARD_LATER, cosmicWebMaterialWithTable, lensPassesReady, precompileLater } from './precompile';
 import { updateSkyUniforms, withEmission } from './materials';
 import { cosmicSky, type SkyTable } from '../sim/cosmos/expansion';
 
@@ -19,14 +19,14 @@ function fakeRenderer() {
   let target: WebGLRenderTarget | null = null;
   let inFlight = 0;
   let mostInFlight = 0;
-  const compiled: { scene: Scene; camera: Camera; target: WebGLRenderTarget | null }[] = [];
+  const compiled: { scene: Scene; camera: Camera; target: WebGLRenderTarget | null; lensReady: boolean }[] = [];
   const renderer = {
     getRenderTarget: () => target,
     setRenderTarget: (t: WebGLRenderTarget | null) => {
       target = t;
     },
     compileAsync: (scene: Scene, camera: Camera) => {
-      compiled.push({ scene, camera, target });
+      compiled.push({ scene, camera, target, lensReady: lensPassesReady() });
       mostInFlight = Math.max(mostInFlight, ++inFlight);
       return new Promise<Scene>((resolve) =>
         setTimeout(() => {
@@ -67,19 +67,25 @@ describe('background shader compiles', () => {
     const { renderer, compiled, current, mostInFlight } = fakeRenderer();
     const camera = new PerspectiveCamera();
     const extra: [Scene, Camera] = [new ThreeScene(), new OrthographicCamera()];
+    expect(lensPassesReady()).toBe(false);
     await precompileLater(renderer, camera, [extra]);
     expect(current()).toBeNull();
-    // The later materials, the extra scene, then the cosmic web.
+    // The outward materials, the extra scene (the relativistic view's remap), the lens's list, then the cosmic web.
+    expect(LATER_MATERIALS.length).toBe(OUTWARD_LATER.length + LENS_WAITS_FOR.length);
     expect(compiled.length).toBe(LATER_MATERIALS.length + 2);
     expect(mostInFlight()).toBe(1);
     for (const c of compiled) expect(c.target).not.toBeNull();
-    for (const c of [...compiled.slice(0, LATER_MATERIALS.length), compiled[compiled.length - 1]]) {
+    const n0 = OUTWARD_LATER.length;
+    for (const c of [...compiled.slice(0, n0), ...compiled.slice(n0 + 1, compiled.length)]) {
       const objects = drawn(c.scene);
       expect(objects.length).toBe(1);
       expect((objects[0] as unknown as { geometry: { attributes: Record<string, unknown> } }).geometry.attributes.position).toBeDefined();
     }
-    expect(compiled[LATER_MATERIALS.length].scene).toBe(extra[0]);
-    expect(compiled[LATER_MATERIALS.length].camera).toBe(extra[1]);
+    expect(compiled[n0].scene).toBe(extra[0]);
+    expect(compiled[n0].camera).toBe(extra[1]);
+    // The lens waits for the remap and its whole list (a fall runs the relativistic path): not ready while any compiles.
+    for (let i = 0; i <= n0 + LENS_WAITS_FOR.length; i++) expect(compiled[i].lensReady, `compile ${i}`).toBe(false);
+    expect(lensPassesReady()).toBe(true);
     const web = drawn(compiled[compiled.length - 1].scene)[0] as unknown as { material: { vertexShader: string } };
     expect(web.material.vertexShader).toContain('return 0.5 * chiMpc;');
     // Once only.

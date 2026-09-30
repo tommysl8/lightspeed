@@ -489,6 +489,7 @@ the bodies are in.
 | Label rank | the brightest first; dwarfs fainter than M_V = −8 after everything else, so they do not crowd the view from Earth |
 | Cards | facts with sources (hand-written for the big and named ones; for the dwarfs from the database, with the dark-matter share from the stars' speeds, M½ ≈ 930 σ² R_e, Wolf et al. 2010); a model note on every galaxy; distances in millions and billions of light-years; the young galaxies' distance "now" (`deepSky.distanceNow`) with the lookback time, the age of the universe then and the distance when the light set out, as seen from the Solar System at the present; and, for every galaxy beyond the camera's own bound structure, a line computed for the camera's place and the clock's time (`sight.ts`): how long ago the light arriving now left it, the universe's age then, how much space stretched it, and with the ship's motion the frequency it arrives at |
 | Articles | galaxies, the Bullet Cluster and the Local Group: island-universes; Virgo and Coma, the cosmic web and the CMB map (their cards' Read): the-expanding-universe; GN-z11, JADES-GS-z14-0 and MoM-z14: the-edge-of-reach |
+| M87* | the black hole at M87's centre (`m87-star`, kind `black-hole`, renderer `lens`, parent `m87`), registered at the end of `registerCosmos` by `src/sim/blackholes/` with the EHT's mass, 6.5 × 10⁹ M☉ (stellar dynamics give 5.4–8.7 × 10⁹, on its card). It is given M87's anchor in the expanding universe, so its light-time, redshift and drawn place are its galaxy's; framed from 50 horizon radii (6,400 au), hovered over down to 19,196 km above its horizon, and a fall into it is offered (`docs/data/blackholes.md`). Search: "M87" finds the galaxy, "M87*" the hole |
 
 ### The galaxies as models
 
@@ -528,6 +529,15 @@ is drawn with a particle template of its type, scaled, tilted and brightened to 
   (fully from 6 px); below that it is one splat holding all its light, as wide as its half-light radius. One
   instanced draw per template and one for the single splats; each galaxy's centre and axes are sent per frame, in
   kiloparsecs relative to the camera, worked out in float64 (float32 kilometres overflow at these distances).
+- **M87's own starlight.** Inside M87 its template's particles near the camera fade out as their splats grow (they
+  would be seen from inside), which would leave the sky round M87* dark and make its lens's Einstein disc read as a
+  shadow twice its true size. A spherical model of M87's V-band light (the core-Sérsic fit of Ferrarese et al. 2006
+  inside 25″, the Sérsic fit of Kormendy et al. 2009 outside, deprojected) fills in exactly the light those particles
+  no longer draw, as part of the Milky Way layer's glow: from M87* at 1,000 au its sky is μ_V 14.0 mag/arcsec² all
+  round and the shadow reads at its true radius, 18.1°. It costs 0.04 ms there (`docs/data/blackholes.md` §6).
+- **Near a black hole** the galaxies are not bent one by one: their light, in the Milky Way layer's target, is
+  resampled through the lens per pixel (`docs/data/blackholes.md` §10). Each keeps the look it has unbent, a single
+  splat or its template, while its light is moved and magnified.
 - **The sky map.** The Milky Way's sky from the Sun (NASA SVS, from Gaia DR2) holds the light of the Milky Way's
   satellites whose stars Gaia saw: measured on the map, the LMC comes out at V ≈ −0.4, the SMC 1.3 and Fornax 7.7,
   while M31 is absent (V ≈ 9 of excess) and M33 mostly so. The satellites (subgroup `MW`) are therefore faded in with
@@ -558,6 +568,11 @@ are one run of the file: `memberRange`), and the web's card with them. The web i
 tried again, 20 s later at the earliest, when next wanted. Its card (`ui/viewport/LayerCards.tsx`)
 says it is a map, what the colours mean, and the survey's footprint: the northern galactic sky best covered, the zone
 of avoidance, 15–25% errors on single distances, the two distance scales.
+
+Near a black hole the web is bent point by point (a `LENS` variant of its shader, used only while a lens is drawn):
+each galaxy at its primary image, magnified, with the gravitational blueshift in its colour. While the hole's Einstein
+ring is more than 2° in radius (near M87*) a second draw of the same points shows their images bent round the far side
+of the hole, so that the ring is filled with the web behind it rather than left dark.
 
 ### The CMB map
 
@@ -650,6 +665,10 @@ under their galaxy.
 - The cosmic web is a survey, not a census, drawn as a map; its distances are Cosmicflows-4's.
 - The CMB map is contrast enhanced about 10,000 times.
 - The Bullet Cluster's galaxies are illustrative.
+- M87* is drawn without spin (not measured; a fast spin would make its shadow a few per cent smaller and shift it by
+  about half its horizon's radius at the angle we see it from); its jet is not drawn; M87's own starlight round it is a smooth model of its
+  measured light profile, not stars. Near a black hole the web follows its main image (and its second near M87*), and
+  galaxies keep their unbent look while their light is bent.
 
 ### Performance
 
@@ -689,3 +708,13 @@ shaders drawn later are compiled in the background (`src/render/precompile.ts`).
 view 100 to 500 pc from the Sun, where the sky map and the model hand over and both are drawn with every star (the
 Pleiades, Betelgeuse, Rigel, the Helix and Orion nebulae: 9.3 to 10.3 ms warm), and the first seconds of a flight in
 the split view (8.2 to 9.3 ms warm).
+
+With the black holes (29 September 2026; 2,048 × 1,320 px, pixel ratio 2, no multisampling, medians of batch medians,
+the processor 20–40 % busy; `docs/data/blackholes.md` §11): Earth 5.2 ms; hovering 1,000 au from M87*, its lens, the
+web's second image and M87's starlight drawn, 5.6 ms (6.5 busier; M87 from 284.5 pc the evening before, 4.4), of which
+the lens is 2.95 ms and M87's starlight 0.04; 480 pc from the Sun in the handover 7.0 (9.2 the evening before; 8.7 to
+9.0 busier); the start of the 1 g flight's split view 7.5 (8.5 before; 8.2 to 8.8 busier), inside 8 ms on a quiet
+machine and over it under load, for reasons outside the lens (every star drawn in both halves, the remap and the sky
+map). The Pleiades end of the handover no longer draws the model below 1 % of the sky (2.5 to 2.9 ms saved); at the
+other end the sky map is still drawn for its last 1 %, and drawing it at half resolution, which would save 0.6 to 2.1
+ms anywhere near the Sun, is proposed there and not done.

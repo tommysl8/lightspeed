@@ -2,6 +2,10 @@
  * Viewport instruments drawn over the 3D view: reticle with spectrometer readout, apex and
  * antapex markers, scale bar and an ecliptic axis triad. They move every frame, so a
  * component inside the Canvas (OverlaySync) writes their DOM directly, as the labels do.
+ *
+ * Near a black hole the apex, the antapex and the reticle's reading are the observer's motion
+ * past the local observers (lab/measure.ts), and while the lens bends the whole view the scale
+ * bar says there is no single scale (a length at a distance no longer has one size on screen).
  */
 import { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
@@ -13,6 +17,7 @@ import { relView } from '../../render/relativisticView';
 import { sim } from '../../sim/sim';
 import { useUI } from '../../state/ui';
 import { apexDirection, observerBeta, reticleReading } from '../../lab/measure';
+import { lens } from '../../render/lens/lensState';
 
 type Key = 'apex' | 'antapex' | 'reticleText' | 'scaleBar' | 'scaleText' | 'triad' | 'triadX' | 'triadY' | 'triadZ' | 'triadXl' | 'triadYl' | 'triadZl' | 'reticle';
 const els: Partial<Record<Key, HTMLElement | SVGElement>> = {};
@@ -59,10 +64,13 @@ function place(el: HTMLElement | SVGElement | undefined, p: { x: number; y: numb
   if (p && visible) (el as HTMLElement).style.transform = `translate3d(${p.x.toFixed(1)}px, ${p.y.toFixed(1)}px, 0)`;
 }
 
+/** Control modes that keep the camera about its focus (a black hole's fall, orbit and snapshot among them). */
+const ABOUT_FOCUS = new Set(['orbit', 'transition', 'fall', 'circular', 'hold']);
+
 /** Body the scale bar refers to: the orbit target, else the selection, else the nearest. */
 function scaleBody(): BodyId {
   const ui = useUI.getState();
-  if (ui.controlMode === 'orbit' || ui.controlMode === 'transition') return ui.focus;
+  if (ABOUT_FOCUS.has(ui.controlMode)) return ui.focus;
   if (ui.selected) return ui.selected;
   let best: BodyId = 'sun';
   let bestD = Infinity;
@@ -104,7 +112,8 @@ export function OverlaySync() {
     // Reticle readout (a few times a second is plenty for text)
     if (frame % 6 === 0 && els.reticleText) {
       const g = moving ? reticleReading() : null;
-      els.reticleText.textContent = g ? `θ′ ${fixed(g.thetaShipDeg, 2)}°  θ ${fixed(g.thetaDeg, 2)}°  D ${sig(g.D, 5)}` : '';
+      // (D is NaN where the reticle looks into a black hole's shadow: no light arrives from there)
+      els.reticleText.textContent = g ? `θ′ ${fixed(g.thetaShipDeg, 2)}°  θ ${fixed(g.thetaDeg, 2)}°  D ${Number.isFinite(g.D) ? sig(g.D, 5) : '—'}` : '';
     }
 
     // Scale bar at the reference body's distance (meaningless in the aberrated view)
@@ -112,8 +121,10 @@ export function OverlaySync() {
       const id = scaleBody();
       const d = sim.bodies[id]?.distCamera ?? NaN;
       const kmPerPx = (2 * d * Math.tan((cam.fov * Math.PI) / 360)) / Math.max(1, sim.viewport.height);
-      if (relView.active || !Number.isFinite(kmPerPx) || kmPerPx <= 0) {
-        setScale(els.scaleBar as HTMLElement, els.scaleText, '0px', relView.active ? 'no single scale at this speed' : '');
+      const bent = lens.active && lens.view[1].full;
+      if (bent || relView.active || !Number.isFinite(kmPerPx) || kmPerPx <= 0) {
+        const why = bent ? 'no single scale near a black hole' : relView.active ? 'no single scale at this speed' : '';
+        setScale(els.scaleBar as HTMLElement, els.scaleText, '0px', why);
       } else {
         const s = scaleBarLength(kmPerPx);
         setScale(els.scaleBar as HTMLElement, els.scaleText, `${s.px.toFixed(1)}px`, `${s.label}  at ${bodyName(id)}`);

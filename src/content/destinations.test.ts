@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { BODY_ORDER } from '../physics/constants';
+import { fixedOffsetProvider, fixedStarProvider, getBody, registerBodies, unregisterBodies, type BodyRecord } from '../sim/bodies';
 import {
   allDestinations,
+  bodyGroup,
   bodyKindText,
   destinationsChanged,
   destinationsVersion,
@@ -11,6 +13,7 @@ import {
   findDestination,
   groupedDestinations,
   matchScore,
+  nestedDestinations,
   normalise,
   registerDestinations,
   searchDestinations,
@@ -137,6 +140,17 @@ describe('searchDestinations', () => {
     expect(top('merc')).toBe('mercury');
   });
 
+  it('scores a name ending in * as an alias unless the query ends in * too ("M87" is the galaxy, "M87*" its black hole)', () => {
+    // The hole first in the list: the rule, not the order, decides.
+    const list = [fake('m87-star', 'M87*', 'galaxies'), fake('m87', 'Messier 87 (Virgo A)', 'galaxies', ['M87', 'NGC 4486'])];
+    const first = (q: string) => searchDestinations(q, list)[0]?.destination.id;
+    expect(first('M87')).toBe('m87');
+    expect(first('m87')).toBe('m87');
+    expect(first('M87*')).toBe('m87-star');
+    expect(first('m87 *')).toBe('m87-star');
+    expect(searchDestinations('M87', list).map((m) => m.destination.id)).toEqual(['m87', 'm87-star']);
+  });
+
   it('returns nothing for an empty query or nonsense', () => {
     expect(searchDestinations('')).toEqual([]);
     expect(searchDestinations('   ')).toEqual([]);
@@ -186,5 +200,54 @@ describe('registerDestinations', () => {
     destinationsChanged();
     expect(heard).toBe(3);
     expect(destinationsVersion()).toBe(v0 + 4);
+  });
+});
+
+describe('black holes in the Bodies list', () => {
+  const at = fixedOffsetProvider(0, 0, 0);
+  const hole = (id: string, parent: string | null, extra: Partial<BodyRecord> = {}): BodyRecord => ({
+    id,
+    name: id,
+    kind: 'black-hole',
+    kindText: 'Stellar-mass black hole',
+    parent,
+    centre: parent ?? undefined,
+    physical: { radiusKm: 30, colour: '#000000' },
+    provider: parent ? at : fixedStarProvider(270, -30, 3e16),
+    ...extra,
+  });
+  const records: BodyRecord[] = [
+    { id: 'test-galaxy', name: 'Test Galaxy', kind: 'galaxy', parent: null, physical: { radiusKm: 1e17, colour: '#ffffff' }, provider: fixedStarProvider(180, 10, 1e20) },
+    hole('test-galaxy-hole', 'test-galaxy', { kindText: 'Supermassive black hole', physical: { radiusKm: 2e10, colour: '#000000' } }),
+    { id: 'test-pair-barycentre', name: 'Test pair', kind: 'barycentre', parent: null, destination: false, physical: { radiusKm: 0, colour: '#ffffff' }, provider: fixedStarProvider(20, 20, 1e16) },
+    hole('test-pair-hole', 'test-pair-barycentre'),
+    { id: 'test-pair-star', name: 'Test pair’s star', kind: 'star', parent: 'test-pair-barycentre', centre: 'test-pair-barycentre', physical: { radiusKm: 7e5, colour: '#ffffff' }, provider: at },
+    hole('test-lone-hole', null),
+  ];
+  const ids = records.map((r) => r.id);
+
+  it('lists each by its placement: alone under The Milky Way, in a binary under its system’s row there, at a galaxy’s centre with the galaxy', () => {
+    registerBodies(records);
+    try {
+      expect(bodyGroup(getBody('test-lone-hole')!)).toBe('milky-way');
+      expect(bodyGroup(getBody('test-pair-hole')!)).toBe('milky-way');
+      expect(bodyGroup(getBody('test-galaxy-hole')!)).toBe('galaxies');
+      expect(findDestination('test-galaxy-hole')?.parent).toBe('test-galaxy');
+      const row = findDestination('test-pair-barycentre')!;
+      expect(row).toMatchObject({ kind: 'Black hole and star', group: 'milky-way', body: 'test-pair-star' });
+      const mw = nestedDestinations().find((g) => g.id === 'milky-way')!.items;
+      const i = mw.findIndex((x) => x.destination.id === 'test-pair-barycentre');
+      expect(mw.slice(i, i + 3).map((x) => [x.destination.id, x.depth])).toEqual([
+        ['test-pair-barycentre', 0],
+        ['test-pair-hole', 1],
+        ['test-pair-star', 1],
+      ]);
+      expect(mw.find((x) => x.destination.id === 'test-lone-hole')?.depth).toBe(0);
+      const gal = nestedDestinations().find((g) => g.id === 'galaxies')!.items;
+      expect(gal.find((x) => x.destination.id === 'test-galaxy-hole')?.depth).toBe(1);
+    } finally {
+      unregisterBodies(ids);
+    }
+    expect(findDestination('test-pair-barycentre')).toBeUndefined();
   });
 });

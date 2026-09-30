@@ -79,8 +79,9 @@ function WelcomeCard() {
           </h1>
           <p id="welcome-desc" className="mt-3 max-w-[58ch] font-serif text-[15px] leading-relaxed text-fg-2">
             Every planet is where it really is at this moment, at true scale, with light travelling at its real speed. Beyond them
-            are the real stars, each at its measured distance, then the Milky Way and the galaxies out to the cosmic web. Fly among
-            them at nearly the speed of light, watch the sky warp around you, and see what happens to your clock.
+            are the real stars, each at its measured distance, then the Milky Way and the galaxies out to the cosmic web, and real
+            black holes that bend the light around them. Fly among them at nearly the speed of light, watch the sky warp around
+            you, and see what happens to your clock.
           </p>
           <div className="mt-5 grid gap-2 sm:grid-cols-3">
             <Choice n="01" icon="tour" title="Take the tour" primary onClick={() => close(startTour)}>
@@ -90,7 +91,7 @@ function WelcomeCard() {
               Name a planet, a star or a galaxy (Saturn, Proxima Centauri, Andromeda) and go there.
             </Choice>
             <Choice n="03" icon="compass" title="Take a journey" onClick={() => close(openJourneys)}>
-              {countWordStart(JOURNEYS.length)} one-click trips, from a pulse of sunlight to Proxima Centauri at 1 g.
+              {countWordStart(JOURNEYS.length)} one-click trips, from a pulse of sunlight to a fall into a black hole.
             </Choice>
           </div>
         </div>

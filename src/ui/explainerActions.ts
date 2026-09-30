@@ -26,6 +26,11 @@ export const EXPLAINER_ARTICLES: Record<ExplainerId, { slug: string; section?: s
   aberration: { slug: 'seeing-near-light-speed', section: 'the-sky-folds-forward' },
   doppler: { slug: 'seeing-near-light-speed', section: 'dopplers-coloured-stars' },
   rocket: { slug: 'rockets-to-the-stars', section: 'flip-and-burn' },
+  // Near a black hole: clocks in gravity, the derivation of the shadow's size (Our galaxy), and lensing in the
+  // article on black holes.
+  'gravitational-blueshift': { slug: 'time-dilation', section: 'gravity-joins-in' },
+  'double-images': { slug: 'black-holes', section: 'what-a-black-hole-looks-like' },
+  'shadow-size': { slug: 'our-galaxy', section: 'a-shadow-the-size-of-a-doughnut-on-the-moon' },
 };
 
 /**
@@ -63,6 +68,8 @@ function readSeen(): Set<string> {
   }
 }
 const seen = readSeen();
+/** Whether a section has been suggested or opened before (so a trigger can pass on to the next one). */
+export const seenBefore = (id: ExplainerId): boolean => seen.has(id);
 function markSeen(id: ExplainerId): void {
   seen.add(id);
   try {

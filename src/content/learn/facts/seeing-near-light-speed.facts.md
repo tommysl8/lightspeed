@@ -134,7 +134,7 @@ Fact-check pass of 25 September 2026: every claim below was re-checked against t
 - "the glowing patch is about one and a half times the width of the full Moon" | -> the half-temperature patch is 1.5 Moon widths, and "the part hot enough to glow is smaller still" (at the moment the centre reaches 798 K only the centre is at the Draper point; the >798 K patch never exceeds about 0.2 deg in radius, reached at gamma ~ 293) | computed | corrected
 - Power on a forward-facing square metre from the CMB | 0.36 W at gamma 146; 18.7 W at gamma 1,059 (log-grid integral of I D^4 cos over the forward hemisphere = u c gamma^2 (1 + beta^2/3)); sunlight at Saturn 14.8-15.0 W/m^2 | computed | verified
 - Peak CMB temperature ahead on 1 g flip-and-burn flights | galactic centre (26,670 ly): gamma 13,767, D 27,533, 75,040 K; Andromeda (2.5 Mly): gamma 1.29e6, D 2.58e6, 7.0e6 K | computed | verified
-- 1 g flip-and-burn ship times | Proxima 3.54 yr; galactic centre 19.8 yr; Andromeda 28.6 yr | computed; matches project brief | verified
+- 1 g flip-and-burn ship times | Proxima 3.54 yr; galactic centre 19.8 yr; Andromeda 28.6 yr | computed; matches the table in rockets-to-the-stars.md | verified
 
 ## What comes next
 

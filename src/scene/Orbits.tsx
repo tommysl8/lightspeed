@@ -10,6 +10,13 @@
  * then the largest on screen. Asteroids, comets and interstellar objects get a line only when
  * selected, in focus or flown to. The relativistic view leaves guides out, so no line is kept
  * while it is on (not split).
+ *
+ * Near a black hole each line draws with a lensed variant (render/lensVariants.ts): every point at its
+ * primary image, tier 1, or for the lines of bodies within 10⁵ M of the hole (the S-stars round Sgr A*, a
+ * companion round its hole) the exact tier-2 program, whose flat twin would put S2's line 2 px off in front of
+ * the hole, once that program has compiled in the background (about 0.6 s cold: tier 1 until
+ * then; and tier 1 in a fall's raindrop frame or within 3M, where the exact solver does not apply). The body's place
+ * relative to the hole (uBodyHoleM) is worked out here in float64.
  */
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { useFrame } from '@react-three/fiber';
@@ -22,10 +29,13 @@ import {
   type PerspectiveCamera,
   type ShaderMaterial,
   WebGLCubeRenderTarget,
+  Vector3,
   type WebGLRenderer,
 } from 'three';
 import { solveKepler, solveKeplerHyperbolic } from '../physics/kepler';
 import { createOrbitMaterial } from '../render/materials';
+import { exactVariant, lensDrawn, useLensVariant, variantCompiled } from '../render/lensVariants';
+import { lens } from '../render/lens/lensState';
 import { GUIDES_LAYER } from '../render/LightspeedScenePass';
 import { relView } from '../render/relativisticView';
 import { pixelsPerRadian, solarSystemHidden } from '../sim/derived';
@@ -58,6 +68,8 @@ const ON_DEMAND: ReadonlySet<BodyKind> = new Set<BodyKind>(['asteroid', 'comet',
  * discarded, and the brightest part of a line, its trail, has alpha 0.62 × opacity): don't draw it.
  */
 const MIN_OPACITY = 0.003 / 0.62;
+/** Lines of bodies nearer the lensing hole than this, in its M, are drawn by the exact program. */
+export const EXACT_LENS_WITHIN_M = 1e5;
 
 function segmentGeometry(): InstancedBufferGeometry {
   const g = new InstancedBufferGeometry();
@@ -123,7 +135,12 @@ function OrbitLine({ id }: { id: BodyId }) {
   const geometry = useMemo(segmentGeometry, []);
   const entry = entryOf(id);
   const colour = entry?.record.physical.colour ?? '#cfd8ea';
-  const material = useMemo<ShaderMaterial>(() => createOrbitMaterial(new Color(colour).lerp(new Color('#cfd8ea'), 0.55)), [colour]);
+  const material = useMemo<ShaderMaterial>(() => {
+    const m = createOrbitMaterial(new Color(colour).lerp(new Color('#cfd8ea'), 0.55));
+    // The body relative to the lensing hole (units of M): read only by the lensed variants, which share it.
+    m.uniforms.uBodyHoleM = { value: new Vector3() };
+    return m;
+  }, [colour]);
   // R3F disposes neither a geometry nor a material handed to a mesh as props.
   useEffect(
     () => () => {
@@ -133,6 +150,8 @@ function OrbitLine({ id }: { id: BodyId }) {
     [geometry, material],
   );
   const mesh = useRef<Mesh | null>(null);
+  const exact = useRef(false);
+  useLensVariant(mesh, { exact: () => exact.current });
   const scratch = useMemo(() => ({ src: { rel: null as unknown as Entry, centre: null, view: null } as OrbitSource, conic: makeConic() }), []);
 
   useFrame(({ camera, gl }) => {
@@ -147,7 +166,8 @@ function OrbitLine({ id }: { id: BodyId }) {
     const v = src.rel.rel.vel;
 
     // Fade orbits that are tiny on screen (e.g. the Moon's orbit seen from Neptune), and dim
-    // them in close-ups, where distant orbits only cross the view as edge-on streaks. The size
+    // them in close-ups, where distant orbits only cross the view as edge-on streaks (hovering over a
+    // black hole, orbiting it, in a snapshot or falling in, as when orbiting a body). The size
     // comes from the vis-viva semi-major axis, before any other work: hidden lines cost little.
     const ui = useUI.getState();
     const dist = viewDistance(src.view, sim.camera.pos, sim.bodies.sun?.distCamera ?? Infinity);
@@ -161,6 +181,16 @@ function OrbitLine({ id }: { id: BodyId }) {
 
     const o = conicFromState(r, v, mu, scratch.conic);
     u.uBodyPos.value.copy(b.apparentPos).sub(sim.camera.pos);
+    // Near a black hole: the body from the hole, units of M (float64 here, so it keeps its precision there).
+    const hole = lens.hole ? sim.bodies[lens.hole] : undefined;
+    if (lensDrawn() && hole && lens.mKm > 0) {
+      const h = u.uBodyHoleM.value as Vector3;
+      h.copy(b.apparentPos).sub(hole.pos).divideScalar(lens.mKm);
+      // The exact program once it has compiled in the background (its first request starts it); tier 1 till then, and
+      // wherever the exact solver does not apply (in a fall's raindrop frame, or within 3M), where it draws straight.
+      const exactApplies = lens.obs.frame === 'static' && lens.obs.r > 3;
+      exact.current = exactApplies && h.length() < EXACT_LENS_WITHIN_M && variantCompiled(gl, camera, exactVariant(material), 'quad');
+    } else exact.current = false;
     u.uP.value.copy(o.P);
     u.uQ.value.copy(o.Q);
     u.uA.value = Math.abs(o.a);

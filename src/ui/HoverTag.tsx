@@ -3,6 +3,10 @@
  * star with known planets (most of those stars are not bodies, so they have no label). Over
  * anything a click would select, the pointer becomes a hand. Mouse only: a touch has no hover.
  * Written straight into the DOM each frame, like the labels.
+ *
+ * Near a black hole a body can show two or three images of itself (sim/lensBodies.ts): the label sits
+ * on the first, and any other image always gets its own tag, where it is, saying what it is ("S2 ·
+ * second image, bent round Sagittarius A*"), since nothing else names it.
  */
 import { useEffect, useRef } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
@@ -11,6 +15,7 @@ import { pickAt, type Picked } from '../scene/picking';
 import { bodyName, getBody, isBody } from '../sim/bodies';
 import { exoplanetData, greekBayer, hostBodyId } from '../sim/exoplanets';
 import { starData, starDisplayName } from '../sim/stars';
+import { lensingHole } from '../sim/lensBodies';
 import { sim } from '../sim/sim';
 import { useUI } from '../state/ui';
 import { labelShown, labelText } from './Labels';
@@ -40,10 +45,13 @@ function hostText(h: number): { name: string; sub: string } {
   return { name, sub: `${n} known planet${n === 1 ? '' : 's'}` };
 }
 
+/** The words for an image bent round a black hole. */
+const IMAGE_WORDS = ['', 'second image', 'third image'] as const;
+
 function show(t: Tag, p: Picked | null): void {
   const selected = useUI.getState().selected;
-  // A body whose label shows, or the selected one, is named already.
-  const named = !p || (p.kind === 'body' && (p.id === selected || labelShown(p.id)));
+  // A body whose label shows, or the selected one, is named already (not its other images).
+  const named = !p || (p.kind === 'body' && !p.image && (p.id === selected || labelShown(p.id)));
   if (named) {
     if (t.key) {
       t.key = '';
@@ -53,7 +61,20 @@ function show(t: Tag, p: Picked | null): void {
   }
   let x: number;
   let y: number;
-  if (p.kind === 'body') {
+  if (p.kind === 'body' && p.image) {
+    // An image bent round a black hole: tagged where it is.
+    x = p.x ?? 0;
+    y = p.y ?? 0;
+    const key = `b:${p.id}:${p.image}`;
+    if (t.key !== key) {
+      t.key = key;
+      const r = getBody(p.id);
+      const hole = lensingHole();
+      t.name.textContent = r ? labelText(r) : p.id;
+      t.sub.textContent = hole ? `${IMAGE_WORDS[p.image]}, bent round ${bodyName(hole)}` : IMAGE_WORDS[p.image];
+      t.sub.style.display = '';
+    }
+  } else if (p.kind === 'body') {
     const b = sim.bodies[p.id];
     x = b.screen.x;
     y = b.screen.y;

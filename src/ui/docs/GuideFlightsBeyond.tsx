@@ -1,7 +1,8 @@
 /**
  * The Guide's section on flights beyond the Local Group, through the expanding universe (sim/travel.ts,
  * sim/travelCosmic.ts, physics/cosmology). Kept in a file of its own; GuideDoc.tsx places it in the
- * chapter on flights. Numbers are the cosmology module's (docs/data/cosmology.md, section 6).
+ * chapter on flights. Numbers are the cosmology module's (docs/data/cosmology.md, section 6). The horizon here
+ * is always the cosmic event horizon, never a black hole's.
  */
 import type { BodyId } from '../../sim/bodies';
 import { logEvent } from '../../lab/events';
@@ -54,7 +55,7 @@ export function GuideFlightsBeyond() {
           ['The Virgo Cluster, 53.5 million light-years', '34.5 years · 54 million years'],
           ['A galaxy seen at redshift 0.5, 6.3 billion light-years now', '44.3 years · 8.2 billion years'],
           ['A galaxy seen at redshift 1, 11.1 billion light-years now', '46.0 years · 18.9 billion years'],
-          ['A galaxy seen at redshift 3, 21.2 billion light-years now', 'Out of reach: beyond the event horizon'],
+          ['A galaxy seen at redshift 3, 21.2 billion light-years now', 'Out of reach: beyond the cosmic event horizon'],
         ]}
       />
       <p>
@@ -108,7 +109,7 @@ export function GuideFlightsBeyond() {
         The flights assume a perfect engine that never runs out (a real photon rocket to a galaxy at redshift 1 would need a
         starting mass about 4 × 10<sup>20</sup> times its final mass), galaxies carried along by the expansion or held in their
         group or cluster (their own motions of a few hundred km/s are left out) and an exactly smooth universe along the way. The Planck parameters carry
-        uncertainties: the event horizon is known to about 1%. The Local Group’s boundary is sharp in the code and fuzzy in
+        uncertainties: the cosmic event horizon is known to about 1%. The Local Group’s boundary is sharp in the code and fuzzy in
         nature, but changing model there changes flight times by 1 part in 100,000 at most. The home clock quotes published
         models: the Sun’s future from Schröder and Connon Smith (2008), and the Milky Way and Andromeda from Sawala and
         colleagues (2025), whose study stops 10 billion years from now.

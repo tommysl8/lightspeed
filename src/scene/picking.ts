@@ -1,8 +1,15 @@
+/**
+ * What is under the pointer, in screen space: a body's disc or marker (any of its images near a black hole,
+ * a hole by the exact circle of its shadow), or the ring of a star with known planets. With true-scale
+ * specks, pick radii of a few pixels work far better than ray casts. Run on a click and a few times a second
+ * for the hover tag: one pass over the bodies (and their images), no allocation but the result.
+ */
 import { Vector3, type PerspectiveCamera } from 'three';
 import { getBody, type BodyId } from '../sim/bodies';
 import { sim, type ScreenPoint } from '../sim/sim';
 import { PARSEC_KM } from '../physics/constants';
 import { screenOf } from '../sim/derived';
+import { holeShadow, pointerInShadow } from '../sim/lensBodies';
 import { ensureHost, exoplanetData } from '../sim/exoplanets';
 import { C_PC_PER_YR, KMS_TO_PC_PER_YR, motionYears, starData } from '../sim/stars';
 import { HOST_RING_FAR_PC, HOST_RING_NEAR_PC } from '../render/materials';
@@ -20,40 +27,101 @@ const PX_PER_MAGNITUDE = 0.2;
 const ON_TARGET_PX = 2;
 
 /**
+ * Which image of the body pickBody last returned: 0 its primary (or a body the lens leaves alone), 1 or 2 an
+ * image bent round a black hole (sim/lensBodies.ts), with that image's screen point (CSS px).
+ */
+export const pickedImage = { image: 0 as 0 | 1 | 2, x: 0, y: 0 };
+
+/**
  * Screen-space picking: the body whose disc (or, when tiny, its marker) is under the pointer.
  * With true-scale specks, pick radii of a few pixels work far better than ray casts.
  *
  * Every registered body can be picked. A resolved disc under the pointer wins; among specks,
  * the nearest to the pointer, with brighter ones preferred where the pointer is about as near
  * to several (Jupiter over its moons from afar), then the nearest to the camera.
+ *
+ * Near a black hole: a body bent round it is picked on any of its images (which one is
+ * in pickedImage); the hole itself by the exact circle of its shadow as drawn in the half under the pointer
+ * (the angle between the pointer's direction and the circle's centre against its radius), which holds at any
+ * size and inside the horizon, where the small-angle radiusPx is 31 px short at 10 M or meaningless.
  */
 export function pickBody(x: number, y: number): BodyId | null {
   let best: BodyId | null = null;
   let bestScore = Infinity;
+  let bestImage: 0 | 1 | 2 = 0;
+  let bestX = 0;
+  let bestY = 0;
+  // Inside the active hole's shadow: a disc under the pointer, whatever the shadow's size or where its centre is.
+  const inShadow = pointerInShadow(x, y);
   const list = sim.bodyList;
   for (let i = 0; i < list.length; i++) {
     const b = list[i];
-    if (!b.present || !b.screen.inFront) continue;
+    if (!b.present) continue;
+    if (b.id === inShadow) {
+      const d = Math.min(Math.hypot(b.screen.x - x, b.screen.y - y), b.radiusPx);
+      const score = d / Math.max(b.radiusPx, PICK_REACH_PX, 1e-9) + b.distCamera * 1e-15;
+      if (score < bestScore) {
+        bestScore = score;
+        best = b.id;
+        bestImage = 0;
+        bestX = b.screen.x;
+        bestY = b.screen.y;
+      }
+      continue;
+    }
+    // The active hole outside its shadow: only a small shadow's marker can still be picked.
+    if (b.id === holeShadow.hole && b.radiusPx > PICK_REACH_PX) continue;
     // Not what the camera is inside (the Milky Way, a nebula flown into): its centre is not under the pointer.
     if (b.distCamera <= b.displayRadius) continue;
-    const reach = Math.max(b.radiusPx, PICK_REACH_PX);
-    const dx = b.screen.x - x;
-    const dy = b.screen.y - y;
-    if (dx > reach || dx < -reach || dy > reach || dy < -reach) continue;
-    const d = Math.hypot(dx, dy);
-    if (d > reach) continue;
-    // Prefer a resolved disc under the cursor; among markers, the nearest to the cursor, with
-    // brighter ones preferred where the pointer is about as near to several (magnitudes clamped
-    // to −5…25), then the nearest to the camera.
-    const disc = b.radiusPx > PICK_REACH_PX && d < b.radiusPx;
-    const faint = disc ? 0 : PX_PER_MAGNITUDE * (Math.max(-5, Math.min(25, b.magnitude)) + 5) * Math.min(1, d / ON_TARGET_PX);
-    const score = (disc ? 0 : 1) + (d + faint) / reach + b.distCamera * 1e-15;
-    if (score < bestScore) {
-      bestScore = score;
-      best = b.id;
+    if (b.screen.inFront) {
+      const reach = Math.max(b.radiusPx, PICK_REACH_PX);
+      const s = scoreAt(b.screen, x, y, reach, b.radiusPx, b.magnitude, b.distCamera);
+      if (s < bestScore) {
+        bestScore = s;
+        best = b.id;
+        bestImage = 0;
+        bestX = b.screen.x;
+        bestY = b.screen.y;
+      }
+    }
+    // Its other images through the lens (wherever its first is: behind the camera, say): markers, each with its
+    // own brightness.
+    const L = b.lens;
+    if (L) {
+      for (let k = 1; k < L.count; k++) {
+        const img = L.images[k];
+        if (!img.screen.inFront || !img.screen.onScreen) continue;
+        const si = scoreAt(img.screen, x, y, PICK_REACH_PX, 0, img.magnitude, b.distCamera);
+        if (si < bestScore) {
+          bestScore = si;
+          best = b.id;
+          bestImage = img.order >= 2 ? 2 : 1;
+          bestX = img.screen.x;
+          bestY = img.screen.y;
+        }
+      }
     }
   }
+  pickedImage.image = bestImage;
+  pickedImage.x = bestX;
+  pickedImage.y = bestY;
   return best;
+}
+
+/**
+ * A marker's (or a resolved disc's) score at the pointer, Infinity out of reach: a resolved disc under the
+ * cursor first; among markers, the nearest to the cursor, with brighter ones preferred where the pointer is
+ * about as near to several (magnitudes clamped to −5…25), then the nearest to the camera.
+ */
+function scoreAt(p: ScreenPoint, x: number, y: number, reach: number, radiusPx: number, magnitude: number, distCamera: number): number {
+  const dx = p.x - x;
+  const dy = p.y - y;
+  if (dx > reach || dx < -reach || dy > reach || dy < -reach) return Infinity;
+  const d = Math.hypot(dx, dy);
+  if (d > reach) return Infinity;
+  const disc = radiusPx > PICK_REACH_PX && d < radiusPx;
+  const faint = disc ? 0 : PX_PER_MAGNITUDE * (Math.max(-5, Math.min(25, magnitude)) + 5) * Math.min(1, d / ON_TARGET_PX);
+  return (disc ? 0 : 1) + (d + faint) / reach + distCamera * 1e-15;
 }
 
 /** A ring fainter than this (of its full strength) cannot be picked. */
@@ -128,8 +196,17 @@ export function pickHostRing(x: number, y: number, camera: PerspectiveCamera): {
   return host >= 0 ? { host, x: bx, y: by, px: best } : null;
 }
 
-/** What is under the pointer: a body, or the ring of a star with planets that is not a body yet. */
-export type Picked = { kind: 'body'; id: BodyId } | { kind: 'host'; host: number; x: number; y: number };
+/**
+ * What is under the pointer: a body, or the ring of a star with planets that is not a body yet. For an image of a
+ * body bent round a black hole other than its primary, which image and where it is (CSS px); these fields are
+ * there only then, so a plain pick stays `{ kind: 'body', id }`.
+ */
+export type Picked = { kind: 'body'; id: BodyId; image?: 1 | 2; x?: number; y?: number } | { kind: 'host'; host: number; x: number; y: number };
+
+/** The body pick with its image, when a secondary image was picked. */
+function bodyPick(id: BodyId): Picked {
+  return pickedImage.image > 0 ? { kind: 'body', id, image: pickedImage.image as 1 | 2, x: pickedImage.x, y: pickedImage.y } : { kind: 'body', id };
+}
 
 const DEEP_SKY: ReadonlySet<string> = new Set(['cluster', 'nebula', 'galaxy']);
 
@@ -142,12 +219,15 @@ const DEEP_SKY: ReadonlySet<string> = new Set(['cluster', 'nebula', 'galaxy']);
 export function pickAt(x: number, y: number, camera: PerspectiveCamera): Picked | null {
   const id = pickBody(x, y);
   const ring = pickHostRing(x, y, camera);
-  if (!ring) return id ? { kind: 'body', id } : null;
+  if (!ring) return id ? bodyPick(id) : null;
   if (id) {
     const b = sim.bodies[id];
-    const d = Math.hypot(b.screen.x - x, b.screen.y - y);
-    const disc = b.radiusPx > PICK_REACH_PX && d < b.radiusPx;
-    if (disc ? !DEEP_SKY.has(getBody(id)?.kind ?? '') : d <= ring.px + 0.5) return { kind: 'body', id };
+    // (the image picked: a secondary image's own point)
+    const bx = pickedImage.image > 0 ? pickedImage.x : b.screen.x;
+    const by = pickedImage.image > 0 ? pickedImage.y : b.screen.y;
+    const d = Math.hypot(bx - x, by - y);
+    const disc = pickedImage.image === 0 && b.radiusPx > PICK_REACH_PX && d < b.radiusPx;
+    if (disc ? !DEEP_SKY.has(getBody(id)?.kind ?? '') : d <= ring.px + 0.5) return bodyPick(id);
   }
   return { kind: 'host', host: ring.host, x: ring.x, y: ring.y };
 }

@@ -15,6 +15,10 @@ import { Orbits } from './scene/Orbits';
 import { Belts } from './scene/Belts';
 import { CometTails } from './scene/CometTails';
 import { Glints } from './scene/Glints';
+import { NuclearCluster } from './scene/NuclearCluster';
+import { LensRings } from './scene/LensRings';
+import { AccretionFlow } from './scene/AccretionFlow';
+import { BlackHoleLens } from './scene/BlackHoleLens';
 import { LightPulses } from './scene/LightPulses';
 import { EclipticGrid } from './scene/EclipticGrid';
 import { RenderPipeline } from './render/RenderPipeline';
@@ -30,6 +34,7 @@ import { OverlaySync, ViewportInstruments } from './ui/viewport/Overlays';
 import { ViewportChrome } from './ui/viewport/ViewportChrome';
 import { TrajectoryPlanner } from './ui/flight/TrajectoryPlanner';
 import { FlightStrip } from './ui/flight/FlightStrip';
+import { HoleStrip } from './ui/flight/HoleStrip';
 import { Welcome } from './ui/overlays/Welcome';
 import { Tour } from './ui/overlays/Tour';
 import { Journeys } from './ui/overlays/Journeys';
@@ -101,6 +106,7 @@ export default function App() {
           <Galaxies />
           <Nebulae />
           <Starfield />
+          <NuclearCluster />
           <CosmicWeb />
           <Constellations />
           <PlanetHosts />
@@ -110,6 +116,9 @@ export default function App() {
           <CometTails />
           <Belts />
           <Glints />
+          <LensRings />
+          <AccretionFlow />
+          <BlackHoleLens />
           <LightPulses />
           <LabelSync />
           <HoverSync />
@@ -125,6 +134,7 @@ export default function App() {
         <ViewportChrome />
         <TrajectoryPlanner />
         <FlightStrip />
+        <HoleStrip />
       </main>
       {rightOpen && <InstrumentsDock />}
       <Footer />

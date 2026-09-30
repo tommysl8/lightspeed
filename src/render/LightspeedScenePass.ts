@@ -20,6 +20,17 @@
  * body is wider than a pixel, it is cleared once and left alone, and the remap pass is skipped
  * while the CMB is not drawn per pixel either (remapAddsNothing). After the relativistic view has
  * been off for half a minute its memory (about 88 MiB at 1024 px a face) is given back.
+ *
+ * Near a black hole (render/lens/lensState.ts) each half draws with its own lens view beside its point
+ * uniforms (setLensView: the lens box, the shadow's circle, the diffuse zone in that half's observer's
+ * frame), the Galaxy layer of a half over its own columns and the lens box's, and the surfaces drawn
+ * directly (planets, the Sun) with the classical view's exposure (materials.ts surfaceUniforms; 0 for the
+ * relativistic cube, whose remap applies its own). The remap lenses the Milky Way from the Sun and the CMB (with its
+ * material's LENS variant, drawn only while a lens is: far from holes the remap's program is exactly as it was).
+ * During a fall the relativistic path runs throughout (relativisticView.ts). The lens's debug skies
+ * (dev/lensTest.ts) draw only the lens's passes (LENS_DEBUG_LAYER), for comparison with the reference
+ * pictures; with no hole every render is exactly as before. Near a hole the frame is then metered for the sky's
+ * own glare (render/lens/skyMeter.ts), which sets the next frames' exposure.
  */
 import {
   CubeCamera,
@@ -49,9 +60,13 @@ import {
 import { Pass } from 'postprocessing';
 import { buildDopplerLut, DOPPLER_LUT_LN_MAX, DOPPLER_LUT_LN_MIN, DOPPLER_LUT_SIZE } from '../physics/dopplerColor';
 import { LN_SUN_SURFACE_RADIANCE, relView, setPointUniforms } from './relativisticView';
-import { blackbodyRange, blackbodyTexture, milkyWayUniforms } from './materials';
+import { blackbodyRange, blackbodyTexture, milkyWayUniforms, surfaceUniforms } from './materials';
+import { lens, lensOverride, setLensView } from './lens/lensState';
+import { lensUniforms } from './lens/lensUniforms';
 import { quality } from './quality';
 import { GALAXY_GLOW_LAYER, GALAXY_LAYER, galaxyLayer } from './galaxyLayer';
+import { meterSky } from './lens/skyMeter';
+import { lensedVariant } from './lensVariants';
 import remapVert from './shaders/remap.vert.glsl?raw';
 import remapFrag from './shaders/remap.frag.glsl?raw';
 
@@ -91,6 +106,11 @@ export const GUIDES_LAYER = 2;
  * draws the same sky in its remap pass, aberrated and Doppler shifted, so it leaves this out.
  */
 export const BACKGROUND_LAYER = 3;
+/**
+ * Layer of the lens's own passes when a debug sky is drawn (dev/lensTest.ts): only they are drawn then, straight to
+ * the screen (render/RenderPipeline.tsx leaves out bloom and tone mapping), to compare with the reference pictures.
+ */
+export const LENS_DEBUG_LAYER = 6;
 
 export class LightspeedScenePass extends Pass {
   private readonly world: Scene;
@@ -100,6 +120,10 @@ export class LightspeedScenePass extends Pass {
   private quadScene = new Scene();
   private quadCamera = new OrthographicCamera(-1, 1, 1, -1, 0, 1);
   private remap: ShaderMaterial;
+  /** The remap's LENS variant (every uniform shared), drawn while a black hole's lens is; its own scene, to compile it. */
+  private remapLensed: ShaderMaterial;
+  private remapQuad: Mesh;
+  private lensedQuadScene = new Scene();
   private clearColor = new Color();
   faceSize: number;
   /** The cube holds something drawn since it was last cleared. */
@@ -127,6 +151,10 @@ export class LightspeedScenePass extends Pass {
     this.remap = new ShaderMaterial({
       uniforms: {
         ...milkyWayUniforms,
+        ...lensUniforms,
+        uCmbHoleDir: { value: new Vector3(0, 0, -1) },
+        uCmbHoleEPhi: { value: 1 },
+        uCmbHoleEmPhi: { value: 1 },
         uCube: { value: this.cubeRT.texture },
         uCubeLive: { value: 1 },
         uDopplerLut: { value: lut },
@@ -163,6 +191,11 @@ export class LightspeedScenePass extends Pass {
     const quad = new Mesh(new PlaneGeometry(2, 2), this.remap);
     quad.frustumCulled = false;
     this.quadScene.add(quad);
+    this.remapQuad = quad;
+    this.remapLensed = lensedVariant(this.remap);
+    const lensedQuad = new Mesh(quad.geometry, this.remapLensed);
+    lensedQuad.frustumCulled = false;
+    this.lensedQuadScene.add(lensedQuad);
   }
 
   private static makeCubeTarget(size: number): WebGLCubeRenderTarget {
@@ -178,6 +211,11 @@ export class LightspeedScenePass extends Pass {
   /** The remap's own scene and camera, to compile its shader ahead of the first flight (precompile.ts). */
   get remapScene(): readonly [Scene, OrthographicCamera] {
     return [this.quadScene, this.quadCamera];
+  }
+
+  /** The same with the remap's LENS variant, which the lens waits for (precompile.ts lensPassesReady). */
+  get remapLensedScene(): readonly [Scene, OrthographicCamera] {
+    return [this.lensedQuadScene, this.quadCamera];
   }
 
   /** The view's layers: every one but the Galaxy's own (its particles and glow: galaxyLayer.ts). */
@@ -201,6 +239,13 @@ export class LightspeedScenePass extends Pass {
 
   render(renderer: WebGLRenderer, inputBuffer: WebGLRenderTarget | null): void {
     const target = this.renderToScreen ? null : inputBuffer;
+    this.renderScene(renderer, target);
+    // Near a black hole the sky's glare sets the exposure (render/lens/skyMeter.ts): metered on this frame's linear
+    // light, before bloom and tone mapping. Far from holes it only eases a leftover stop-down back to 0.
+    if (target) meterSky(renderer, target, relView.lnExposure);
+  }
+
+  private renderScene(renderer: WebGLRenderer, target: WebGLRenderTarget | null): void {
     if (quality.cubeFace !== this.faceSize) this.resizeCube(quality.cubeFace);
     const scene = this.world;
     const camera = this.viewCam;
@@ -210,6 +255,29 @@ export class LightspeedScenePass extends Pass {
 
     // Everything but the Galaxy's particles and glow, which are drawn into their own targets (galaxyLayer.ts).
     LightspeedScenePass.viewLayers(camera);
+
+    // A debug sky of the lens's checks: only the lens's own passes, each half with its observer.
+    if (lensOverride.debug > 0 && lens.active) {
+      const dw = target ? target.width : renderer.domElement.width;
+      const dh = target ? target.height : renderer.domElement.height;
+      renderer.setClearColor(0x000000, 1);
+      renderer.setRenderTarget(target);
+      renderer.clear();
+      renderer.autoClear = false;
+      camera.layers.set(LENS_DEBUG_LAYER);
+      const xs = Math.round(relView.splitX * dw);
+      for (const rel of relView.split ? [false, true] : [relView.active]) {
+        setPointUniforms(rel);
+        setLensView(rel);
+        if (relView.split) this.setScissor(renderer, target, rel ? xs : 0, 0, rel ? dw - xs : xs, dh, true);
+        renderer.render(scene, camera);
+      }
+      if (relView.split) this.setScissor(renderer, target, 0, 0, dw, dh, false);
+      LightspeedScenePass.viewLayers(camera);
+      renderer.setClearColor(this.clearColor, clearAlpha);
+      renderer.autoClear = autoClear;
+      return;
+    }
 
     if (!relView.active) {
       const now = performance.now();
@@ -221,6 +289,8 @@ export class LightspeedScenePass extends Pass {
         this.cubeDirty = true;
       }
       setPointUniforms(false);
+      setLensView(false);
+      surfaceUniforms.uLnExposureSurface.value = relView.lnExposureClassical;
       galaxyLayer.render(renderer, scene, camera, target, target ? target.width : renderer.domElement.width, target ? target.height : renderer.domElement.height);
       renderer.autoClear = true;
       renderer.setRenderTarget(target);
@@ -234,6 +304,8 @@ export class LightspeedScenePass extends Pass {
     // 1. Cube map of the rest-frame scene (no point sources), transparent background. Nothing
     // in it (no body a pixel wide): cleared once, then left as it is.
     const content = anyVisibleOn(scene, CUBE_LAYER_MASK);
+    // The cube holds the surfaces at rest, unexposed: the remap applies the exposure.
+    surfaceUniforms.uLnExposureSurface.value = 0;
     if (content || this.cubeDirty) {
       renderer.autoClear = true;
       renderer.setClearColor(0x000000, 0);
@@ -254,6 +326,8 @@ export class LightspeedScenePass extends Pass {
     let x0 = 0;
     if (relView.split) {
       setPointUniforms(false);
+      setLensView(false);
+      surfaceUniforms.uLnExposureSurface.value = relView.lnExposureClassical;
       galaxyLayer.render(renderer, scene, camera, target, w, h, 0, relView.splitX);
       x0 = Math.round(relView.splitX * w);
       this.setScissor(renderer, target, 0, 0, x0, h, true);
@@ -264,6 +338,7 @@ export class LightspeedScenePass extends Pass {
 
     // 2. Point sources in the ship frame (the Galaxy's particles first, into their own target).
     setPointUniforms(true);
+    setLensView(true);
     galaxyLayer.render(renderer, scene, camera, target, w, h, relView.split ? relView.splitX : 0, 1);
     renderer.clear();
     camera.layers.set(POINTS_LAYER);
@@ -295,6 +370,13 @@ export class LightspeedScenePass extends Pass {
     u.uCmbEmPhi.value = Math.exp(-cmb.motion.phi);
     u.uLnTCmb.value = Math.log(cmb.temperature);
     u.uCmbGain.value = cmbGain;
+    // Near a black hole: the hole frame's own motion through the CMB (the lensed pixels read it at their escape direction).
+    const hm = cmb.holeMotion;
+    u.uCmbHoleDir.value.set(hm.dir.x, hm.dir.y, hm.dir.z);
+    u.uCmbHoleEPhi.value = Math.exp(hm.phi);
+    u.uCmbHoleEmPhi.value = Math.exp(-hm.phi);
+    // The lens's program only while a lens is drawn (it is compiled by then); the plain one, as before, otherwise.
+    this.remapQuad.material = lensUniforms.uLensOn.value > 0.5 ? this.remapLensed : this.remap;
     renderer.render(this.quadScene, this.quadCamera);
 
     if (relView.split) this.setScissor(renderer, target, 0, 0, w, h, false);
@@ -324,6 +406,7 @@ export class LightspeedScenePass extends Pass {
   dispose(): void {
     this.cubeRT.dispose();
     this.remap.dispose();
+    this.remapLensed.dispose();
     super.dispose();
   }
 }

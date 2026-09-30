@@ -35,10 +35,11 @@ beforeAll(() => {
 
 describe('the Learn articles’ see-it blocks', () => {
   it('are all found', () => {
-    expect(RENDERED.length).toBeGreaterThanOrEqual(16);
+    expect(RENDERED.length).toBeGreaterThanOrEqual(17);
     expect(SPECS.length).toBeGreaterThan(90);
-    // Each named scene the articles use, at least once.
-    for (const name of ['race-sunlight', 'year-in-30s', 'moon-month', 'split-0.999c', 'light-time-correction', 'mars-opposition', 'jupiter-moons', 'galactic-centre-orbits', 'milky-way-outside', 'local-group', 'cosmic-web', 'cmb-map', 'cmb-glow', 'edge-of-reach'])
+    // Each named scene the articles use, at least once (the black holes' in Black holes).
+    for (const name of ['race-sunlight', 'year-in-30s', 'moon-month', 'split-0.999c', 'light-time-correction', 'mars-opposition', 'jupiter-moons', 'galactic-centre-orbits', 'milky-way-outside', 'local-group', 'cosmic-web', 'cmb-map', 'cmb-glow', 'edge-of-reach',
+      'sgr-a-star-shadow', 'photon-ring', 'sgr-a-star-einstein-ring', 'hover-at-the-horizon', 'isco-orbit', 'fall-into-sgr-a-star', 'dive-and-climb', 'sgr-a-star-flyby', 's2-behind-sgr-a-star', 'sgr-a-star-flow', 'm87-star-close'])
       expect(SPECS.some((s) => s.spec === name), name).toBe(true);
   });
 
@@ -84,7 +85,7 @@ describe('every target and named scene', () => {
     // The flights hand the camera to the ship, which leaves pointer lock (there is no page here).
     if (typeof document === 'undefined') vi.stubGlobal('document', { pointerLockElement: null, exitPointerLock: () => {} });
     try {
-      useUI.setState({ showCmb: false, retarded: false, relMode: 'on', relDoppler: false });
+      useUI.setState({ showCmb: false, retarded: false, relMode: 'on', relDoppler: false, lensing: true, accretionFlow: true, accretionBand: 'visible' });
       for (const name of NAMED_SCENES) {
         expect(runScene(name), name).toBe(true);
         cancelSceneStep();
@@ -97,7 +98,8 @@ describe('every target and named scene', () => {
       expect(runScene('cmb-map')).toBe(true);
       expect(useUI.getState().showCmb).toBe(true);
       expect(runScene('go:jupiter')).toBe(true);
-      expect(useUI.getState()).toMatchObject({ showCmb: false, retarded: false, relMode: 'on', relDoppler: false });
+      // The black-hole scenes' lens and flow switches too (a lens scene turns the flow off; the next puts it back).
+      expect(useUI.getState()).toMatchObject({ showCmb: false, retarded: false, relMode: 'on', relDoppler: false, lensing: true, accretionFlow: true, accretionBand: 'visible' });
     } finally {
       cancelSceneStep();
       vi.unstubAllGlobals();

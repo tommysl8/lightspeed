@@ -5,7 +5,8 @@
  *     within the first second;
  *  2. stars3d.bin.gz (5.3 MB): all 329,770 stars, which replace the subset (star i is the same
  *     star in both, so nothing moves or flickers), then the star systems and named stars of
- *     systems.json join the body registry (Proxima's built-in record is replaced by its orbit);
+ *     systems.json join the body registry (Proxima's built-in record is replaced by its orbit),
+ *     and with them the black holes in binaries and the lone one (sim/blackholes);
  *  3. constellations.json (50 kB) for the constellation figures.
  *
  * The names (star-names.json.gz, 1.2 MB) load when "Where to?" opens or a star needs a name, and
@@ -23,6 +24,8 @@ import type { ConstellationsFile } from './constellations';
 import { catalogueStarId, catalogueStarRecord, mergeCoreProxima, starRecords } from './records';
 import type { StarWorkerReply, StarWorkerRequest } from './worker';
 import { nearSunCounts, starDrawLists } from './visibility';
+import { registerBinaryHoles, registerIsolatedHoles } from '../blackholes/load';
+import { holeCompanionIndices } from '../blackholes/records';
 
 export type StarStatus = 'idle' | 'loading' | 'ready' | 'failed';
 
@@ -125,6 +128,11 @@ export function registerStars(file: SystemsFile, stars: Stars3D): void {
   if (replace.length) replaceBodies(replace);
   if (!added.length) added = add.map((r) => r.id);
   starData.systems = file;
+  // The black holes in binaries and the lone one (sim/blackholes), with ids of their own (not in starIds):
+  // Cygnus X-1's companion is catalogue star 111021, which a search may have registered on demand.
+  releaseCatalogueStars(holeCompanionIndices());
+  registerBinaryHoles(stars);
+  registerIsolatedHoles();
 }
 
 /** Ids of the star bodies registered from systems.json. */

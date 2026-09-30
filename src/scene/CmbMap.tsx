@@ -8,7 +8,8 @@
  * (cmb-data.png, 0.3 MB, one channel) and colours them itself, dark at the mean temperature so the
  * stars still show; the texture loads when the map is first shown and is let go when it is off.
  * The pattern is the one seen from the Solar System at the present: away from here or from now the
- * sky shows another shell of the early universe, so the map fades out (sim/cosmos/cmb.ts).
+ * sky shows another shell of the early universe, so the map fades out (sim/cosmos/cmb.ts). Near a
+ * black hole it is drawn with its material's LENS variant, seen through the lens (render/lensVariants.ts).
  */
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
@@ -16,6 +17,7 @@ import { PlaneGeometry, type Mesh, type PerspectiveCamera, type Texture } from '
 import { createCmbMapMaterial } from '../render/materials';
 import { BACKGROUND_LAYER } from '../render/LightspeedScenePass';
 import { acquireTexture, releaseTexture } from '../render/textures';
+import { useLensVariant } from '../render/lensVariants';
 import { CMB_DATA_TEXTURE, cmbPatternShare } from '../sim/cosmos/cmb';
 import { WORLD_TO_GAL } from '../sim/galaxy/frames';
 import { useUI } from '../state/ui';
@@ -51,6 +53,7 @@ export function CmbMap() {
   const camera = useThree((s) => s.camera) as PerspectiveCamera;
   const tex = useCmbTexture(show);
   const mesh = useRef<Mesh>(null);
+  useLensVariant(mesh);
   useEffect(() => () => geometry.dispose(), [geometry]);
   useEffect(() => () => material.dispose(), [material]);
   useEffect(() => {

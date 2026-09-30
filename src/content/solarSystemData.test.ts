@@ -218,7 +218,7 @@ describe('meshes', () => {
 });
 
 describe('rings.json', () => {
-  it('has the requested systems, with sources and sane values', () => {
+  it('has the expected systems, with sources and sane values', () => {
     const parents = rings.systems.map((s: { parent: string }) => s.parent);
     for (const p of ['jupiter', 'uranus', 'neptune', 'haumea', 'quaoar']) expect(parents).toContain(p);
     const uranus = rings.systems.find((s: { parent: string }) => s.parent === 'uranus')!;

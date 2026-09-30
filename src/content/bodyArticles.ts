@@ -9,7 +9,14 @@ import { bodyRecords, childrenOf, getBody, type BodyId, type BodyKind } from '..
 const KIND_ARTICLES: Partial<Record<BodyKind, string>> = {
   moon: 'worlds-around-worlds',
   exoplanet: 'other-worlds',
+  // Every black hole, Sagittarius A* included (the S-stars keep Our galaxy through their records).
+  'black-hole': 'black-holes',
 };
+
+/** The article for a whole kind of body, or undefined (every black hole follows its kind). */
+export function kindArticle(kind: BodyKind): string | undefined {
+  return KIND_ARTICLES[kind];
+}
 
 /** The article named by each registered body's record. */
 export const BODY_ARTICLES: Readonly<Record<BodyId, string>> = new Proxy({} as Record<BodyId, string>, {

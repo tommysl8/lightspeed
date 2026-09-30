@@ -205,3 +205,7 @@ Numbers shared with other Learn articles were compared across all 16 articles; c
 
 - Jupiter light-time in the opening | 'between half an hour and 54 minutes' -> 'between 33 and 54 minutes' | the article's own table: 32 min 43 s to 53 min 51 s (NSSDC closest/farthest distances) | corrected for internal consistency
 - Cross-links added to How big is the Solar System? (au history) and The edges of the Solar System (Voyager 1) | n/a | n/a | note
+
+## Captions that follow the date (29 September 2026)
+
+- race-sunlight: "pass Mercury after about 3 minutes" -> "after 3 to 4 minutes": Mercury is 0.307-0.467 au from the Sun, 2.6-3.9 light-minutes (3 min 52 s near aphelion in late September 2026) | computed | corrected

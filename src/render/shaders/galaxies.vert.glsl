@@ -17,6 +17,10 @@
 // Positions: the template in its own units; per instance the galaxy's centre relative to the
 // camera in kiloparsecs, worked out in float64 on the CPU each frame (a float32 kilometre would
 // overflow at these distances), and its axes already scaled to kiloparsecs.
+//
+// A particle whose splat lies wholly off the view is dropped before its dust is worked out (the same
+// conservative frustum test as galaxy.vert.glsl: no pixel changes). Not lensed per vertex: near a black
+// hole the Galaxy's targets are lensed per pixel (render/lens/lensComposite.ts).
 #include <common>
 #include <lightspeed_relativity>
 #include <lightspeed_psf>
@@ -110,6 +114,16 @@ void main() {
     cull();
     return;
   }
+  float sigmaT = max(max(sigmaPsf, sigmaExt), 0.6);
+  // Off the view: dropped before the rest of the work and the dust (as galaxy.vert.glsl: the splat's whole
+  // reach, 4σ + 1/s of the finer target's pixels, and one more).
+  vec4 clip = projectionMatrix * vec4(mat3(viewMatrix) * dShip, 1.0);
+  float s = large && uBigPass > 0.5 ? uBigScale : 1.0;
+  vec2 reachNdc = ((4.0 * sigmaT + 2.0 / s) / uPxPerRad) * vec2(projectionMatrix[0][0], projectionMatrix[1][1]);
+  if (clip.w <= 0.0 || abs(clip.x) > clip.w * (1.0 + reachNdc.x) || abs(clip.y) > clip.w * (1.0 + reachNdc.y)) {
+    cull();
+    return;
+  }
   // Large splats are drawn by lot, each as bright as the ones left out (as galaxy.vert.glsl).
   if (sigmaExt > uSigmaBudget) {
     float thr = (uSigmaBudget * uSigmaBudget) / (sigmaExt * sigmaExt);
@@ -120,7 +134,6 @@ void main() {
     }
     near *= w / (0.875 * thr);
   }
-  float sigmaT = max(max(sigmaPsf, sigmaExt), 0.6);
 
   float lum = iLum.x * aAttr.x * near;
   float mag = M_V_SUN - 1.0857362 * log(lum) + 2.1714724 * log(d * 100.0) - MAG_PER_LN * uLnExposure;
@@ -160,9 +173,8 @@ void main() {
 
   vColor = c / lumC;
   vPeak = peak;
-  float s = large && uBigPass > 0.5 ? uBigScale : 1.0;
   vSigma = sigmaT * s;
   vSize = 2.0 * sigmaT * s * reach + 2.0;
-  gl_Position = projectionMatrix * vec4(mat3(viewMatrix) * dShip, 1.0);
+  gl_Position = clip;
   gl_PointSize = vSize;
 }

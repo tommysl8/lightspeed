@@ -13,6 +13,7 @@ import { bodyRecords, childrenOf, getBody, isBody, isPlaced, kindText, registryV
 import { PARSEC_KM } from '../physics/constants';
 import { sim } from '../sim/sim';
 import { frameCosmicWeb, goToBody, goToPlanetarySystem, goToStarSystem, showCmbMap } from '../ui/navigation';
+import { systemFramingDistance } from '../controls/framing';
 import { cosmicLevel } from '../ui/location';
 import { ARTICLE_EDGE } from '../sim/cosmos/records';
 
@@ -139,7 +140,7 @@ export function groupedDestinations(list: readonly Destination[] = allDestinatio
  * Groups whose members are listed under what they orbit when that is listed too: moons under
  * their planet, planets under their star, the stars of a system under the system.
  */
-const NESTED_GROUPS: ReadonlySet<DestinationGroup> = new Set(['moons', 'exoplanets', 'stars', 'nebulae', 'galaxies']);
+const NESTED_GROUPS: ReadonlySet<DestinationGroup> = new Set(['moons', 'exoplanets', 'stars', 'milky-way', 'nebulae', 'galaxies']);
 
 /** Sub-headings of the Stars, in order (starSection). */
 export const STAR_SECTIONS = ['Within 16 light-years', 'Stars with planets', 'Bright stars', 'Found in search or nearby'] as const;
@@ -172,7 +173,9 @@ export function nestedDestinations(list: readonly Destination[] = allDestination
   for (const d of list) {
     if (!nests(d)) continue;
     const arr = under.get(d.parent!) ?? [];
-    arr.push(d);
+    // A black hole in a binary (the one body The Milky Way nests) leads the star it is known by.
+    if (d.group === 'milky-way') arr.unshift(d);
+    else arr.push(d);
     under.set(d.parent!, arr);
   }
   const placed = new Set<string>();
@@ -233,12 +236,22 @@ export function bodyGroup(r: BodyRecord): DestinationGroup {
     case 'nebula':
       return 'nebulae';
     case 'black-hole':
-      return 'milky-way';
+      return holeGroup(r);
     case 'galaxy':
       return r.id === 'milky-way' ? 'milky-way' : 'galaxies';
     default:
       return 'stars';
   }
+}
+
+/**
+ * Where a black hole is listed: at a galaxy's centre (M87*) with its galaxy; in the Milky Way (Sgr A*, a lone
+ * hole) under The Milky Way, and so is a binary with a black hole, the hole and its star listed under the
+ * system's row.
+ */
+function holeGroup(r: BodyRecord): DestinationGroup {
+  const host = r.parent ? getBody(r.parent) : undefined;
+  return host?.kind === 'galaxy' ? bodyGroup(host) : 'milky-way';
 }
 
 /** A group or cluster of galaxies (not of stars). */
@@ -303,23 +316,36 @@ function primaryOf(stars: readonly BodyRecord[]): BodyRecord {
 
 /**
  * A star system (Alpha Centauri, Sirius, Kepler-16) as a row of its own, its stars listed under
- * it. Going there frames its brightest star with the star it pairs with.
+ * it. Going there frames its brightest star with the star it pairs with. A binary with a black hole
+ * (Gaia BH1) is listed under The Milky Way with the other black holes, and going there frames its star
+ * with the hole in view.
  */
-function systemDestination(root: BodyRecord, stars: readonly BodyRecord[]): Destination {
+function systemDestination(root: BodyRecord, members: readonly BodyRecord[]): Destination | null {
+  const stars = members.filter((m) => m.kind === 'star');
+  const holes = members.filter((m) => m.kind === 'black-hole');
+  if (!stars.length) return null;
   const primary = primaryOf(stars);
   const p = bodyDestination(primary);
   return {
     id: root.id,
     name: root.name,
     aliases: root.aliases ?? [],
-    kind: `System of ${stars.length} stars`,
-    group: 'stars',
-    section: starSection(primary, stars),
+    kind: holes.length ? `Black hole and ${stars.length === 1 ? 'star' : `${stars.length} stars`}` : `System of ${stars.length} stars`,
+    group: holes.length ? 'milky-way' : 'stars',
+    section: holes.length ? undefined : starSection(primary, stars),
     body: primary.id,
     distanceKm: p.distanceKm,
     unavailable: p.unavailable,
-    go: () => goToStarSystem(primary.id),
+    go: () => (holes.length ? goToPair(primary.id, holes[0].id) : goToStarSystem(primary.id)),
   };
+}
+
+/** Frame a star with the black hole it orbits: from far enough to hold both (three times their separation). */
+function goToPair(star: BodyId, hole: BodyId): void {
+  const a = sim.bodies[star];
+  const b = sim.bodies[hole];
+  const reach = a && b ? a.pos.distanceTo(b.pos) : 0;
+  goToBody(star, { distance: Math.max(systemFramingDistance(star), reach * 3) });
 }
 
 function bodyDestination(r: BodyRecord): Destination {
@@ -354,18 +380,21 @@ function bodyDestinations(): readonly Destination[] {
     const list = bodyRecords()
       .filter((r) => r.destination !== false)
       .map(bodyDestination);
-    // A row for each star system, ahead of its stars.
+    // A row for each star system, ahead of its stars (and its black hole).
     const systems = new Map<BodyRecord, BodyRecord[]>();
     for (const r of bodyRecords()) {
-      const root = r.kind === 'star' && r.parent ? systemRoot(r.parent) : undefined;
+      const root = (r.kind === 'star' || r.kind === 'black-hole') && r.parent ? systemRoot(r.parent) : undefined;
       if (root) systems.set(root, [...(systems.get(root) ?? []), r]);
     }
-    for (const [root, stars] of systems) {
-      const d = systemDestination(root, stars);
-      const at = list.findIndex((x) => stars.some((s) => s.id === x.id));
+    for (const [root, members] of systems) {
+      const d = systemDestination(root, members);
+      if (!d) continue;
+      const at = list.findIndex((x) => members.some((s) => s.id === x.id));
       list.splice(at < 0 ? list.length : at, 0, d);
     }
-    fromRegistry.list = list;
+    // The Milky Way's rows: the Galaxy, then Sgr A*, then the other black holes, whatever loaded first.
+    const later = list.filter((d) => d.group === 'milky-way' && d.id !== 'milky-way' && d.id !== 'sgr-a-star');
+    fromRegistry.list = [...list.filter((d) => !later.includes(d)), ...later];
     fromRegistry.version = v;
   }
   return fromRegistry.list;
@@ -522,6 +551,12 @@ export interface DestinationMatch {
 /** A whole-name match typed in the name's own case beats any other ("kepler-16 b", the planet, over the star Kepler-16 B). */
 const SAME_CASE_BONUS = 15;
 
+/**
+ * A name ending in "*" (M87*, Sagittarius A*) scores as an alias, a shade below one that matches as well,
+ * unless the query ends in "*" too: "M87" is the galaxy, "M87*" its black hole.
+ */
+const STAR_NAME_PENALTY = 10.5;
+
 /** The destinations matching a query, best first (names count a little more than aliases). */
 export function searchDestinations(query: string, list: readonly Destination[] = allDestinations(), limit = 30): DestinationMatch[] {
   const q = normalise(query);
@@ -532,9 +567,11 @@ export function searchDestinations(query: string, list: readonly Destination[] =
     if (s <= 0) return 0;
     return s - penalty + (s === 1000 && sameCase(query, text) ? SAME_CASE_BONUS : 0);
   };
+  const starred = /\*\s*$/.test(query);
+  const namePenalty = (name: string, base: number) => (!starred && /\*$/.test(name.trim()) ? STAR_NAME_PENALTY : base);
   for (const d of list) {
-    let score = scoreOf(d.name, 0);
-    if (d.shortName) score = Math.max(score, scoreOf(d.shortName, 1));
+    let score = scoreOf(d.name, namePenalty(d.name, 0));
+    if (d.shortName) score = Math.max(score, scoreOf(d.shortName, namePenalty(d.shortName, 1)));
     for (const a of d.aliases) score = Math.max(score, scoreOf(a, 10));
     if (score > 0) out.push({ destination: d, score });
   }

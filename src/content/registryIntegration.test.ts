@@ -3,20 +3,28 @@
  * body registered later (here Titan and its sibling, and a Pluto moon) turns up in search, in
  * the Bodies list under its planet, in the location trail, as a scene target, as a flight
  * destination, with a framing distance and a light-pulse detector, and goes again when removed.
+ * And so does a black hole, in each of its four placements (registered with the rest of the
+ * universe, as the loaders do): on its own at the Galaxy's centre (Sgr A*), at another galaxy's
+ * centre (M87*), in a binary (Gaia BH1) and alone (OGLE-2011-BLG-0462).
  */
 import { afterEach, beforeAll, describe, expect, it } from 'vitest';
 import { framingDistance, minDistance, systemFramingDistance } from '../controls/framing';
 import { msFromCivil } from '../lib/time';
-import { PLUTO_BARYCENTRE, bodyIds, keplerProvider, registerBodies, unregisterBodies, type BodyRecord } from '../sim/bodies';
+import { PLUTO_BARYCENTRE, bodyIds, getBody, keplerProvider, registerBodies, unregisterBodies, type BodyRecord } from '../sim/bodies';
 import { updateEphemeris } from '../sim/ephemeris';
 import { clearPulses, emitPulse, onDetection, updatePulses, type Detection } from '../sim/pulses';
 import { setSimTime, sim } from '../sim/sim';
 import { planTrip } from '../sim/travel';
 import { locationPath } from '../ui/location';
 import { bodyForKey } from '../ui/navigation';
-import { articleForBody } from './bodyArticles';
+import { articleForBody, kindArticle } from './bodyArticles';
 import { allDestinations, findDestination, nestedDestinations, searchDestinations } from './destinations';
 import { LATER, resolveTarget, sceneStatus } from './scenes';
+import { registerUniverse } from '../test/universe';
+import { AU_KM } from '../physics/constants';
+import { holeLabelled } from '../ui/Labels';
+import { UNRESOLVED_PX, unresolvedPairs, type PairLabels } from '../ui/labelPairs';
+import type { Entry } from '../sim/bodies/registry';
 
 const T0 = msFromCivil(2026, 9, 25, 12);
 const SATURN_GM = 37_931_000;
@@ -157,5 +165,118 @@ describe('navigation keys', () => {
     expect(bodyForKey('m')).toBe('moon');
     expect(bodyForKey('q')).toBeUndefined();
     expect(bodyIds()).toHaveLength(13);
+  });
+});
+
+describe('a black hole, in each placement', () => {
+  beforeAll(() => {
+    registerUniverse();
+    setSimTime(T0);
+    updateEphemeris();
+  });
+  const top = (q: string) => searchDestinations(q)[0]?.destination.id;
+  const trail = (id: string) => locationPath('orbit', id).map((c) => c.label);
+  const rs = (id: string) => getBody(id)!.blackHole!.rsKm;
+
+  it('lists them under The Milky Way after the Galaxy and Sgr A*, M87* under its galaxy', () => {
+    const mw = nestedDestinations().find((g) => g.id === 'milky-way')!.items;
+    expect(mw.filter((i) => i.depth === 0).map((i) => i.destination.id).slice(0, 2)).toEqual(['milky-way', 'sgr-a-star']);
+    const at = mw.findIndex((i) => i.destination.id === 'gaia-bh1-system-barycentre');
+    expect(mw[at]).toMatchObject({ depth: 0, children: 2, destination: { name: 'Gaia BH1 system', kind: 'Black hole and star', body: 'gaia-bh1-star' } });
+    expect(mw.slice(at + 1, at + 3).map((i) => [i.destination.id, i.depth])).toEqual([
+      ['gaia-bh1', 1],
+      ['gaia-bh1-star', 1],
+    ]);
+    expect(mw.find((i) => i.destination.id === 'ogle-2011-blg-0462')?.depth).toBe(0);
+    expect(mw.find((i) => i.destination.id === 'hde-226868')?.depth).toBe(1);
+    expect(findDestination('m87-star')).toMatchObject({ parent: 'm87', group: 'galaxies' });
+    // No star system's row claims a black hole's star as its own.
+    expect(nestedDestinations().find((g) => g.id === 'stars')!.items.some((i) => i.destination.id === 'gaia-bh1-star')).toBe(false);
+  });
+
+  it('finds, trails, targets and frames each of them', () => {
+    expect(top('Sagittarius A*')).toBe('sgr-a-star');
+    expect(top('M87*')).toBe('m87-star');
+    expect(top('Gaia BH1')).toBe('gaia-bh1');
+    expect(top('OGLE-2011-BLG-0462')).toBe('ogle-2011-blg-0462');
+    expect(trail('sgr-a-star')).toEqual(['Observable universe', 'Local Universe', 'Local Group', 'Milky Way', 'Sagittarius A*']);
+    expect(trail('m87-star')).toEqual(['Observable universe', 'Local Universe', 'Virgo Cluster', 'Messier 87 (Virgo A)', 'M87*']);
+    expect(trail('gaia-bh1').slice(0, 4)).toEqual(['Observable universe', 'Local Universe', 'Local Group', 'Milky Way']);
+    expect(trail('gaia-bh1').slice(-2)).toEqual(['Gaia BH1 system', 'Gaia BH1']);
+    expect(trail('ogle-2011-blg-0462').at(-1)).toBe('OGLE-2011-BLG-0462');
+    for (const id of ['sgr-a-star', 'm87-star', 'gaia-bh1', 'ogle-2011-blg-0462']) {
+      expect(resolveTarget(id), id).toMatchObject({ kind: 'body', id });
+      expect(sceneStatus(`go:${id}`).ok, id).toBe(true);
+      expect(articleForBody(id), id).toBe(kindArticle('black-hole'));
+      expect(minDistance(id), id).toBeGreaterThan(rs(id));
+    }
+    expect(framingDistance('gaia-bh1')).toBeCloseTo(1e4 * rs('gaia-bh1'), 6);
+    expect(minDistance('gaia-bh1')).toBeCloseTo(rs('gaia-bh1') * (1 + 1e-6), 9);
+    expect(framingDistance('m87-star')).toBeCloseTo(50 * rs('m87-star'), 3);
+    expect(framingDistance('sgr-a-star')).toBe(4000 * AU_KM);
+    expect(framingDistance('ogle-2011-blg-0462')).toBeCloseTo(1e4 * rs('ogle-2011-blg-0462'), 6);
+  });
+
+  it('is labelled when it matters: a binary’s hole with its star, a lone one within a parsec, M87* from inside M87', () => {
+    const hidden = new Set<string>();
+    const state = (id: string) => sim.bodies[id];
+    const star = state('gaia-bh1-star');
+    const keep = { magnitude: star.magnitude, present: star.present, onScreen: star.screen.onScreen };
+    try {
+      star.present = true;
+      star.screen.onScreen = true;
+      star.magnitude = 5;
+      expect(holeLabelled(getBody('gaia-bh1')!, state('gaia-bh1'), hidden)).toBe(true);
+      star.magnitude = 12;
+      expect(holeLabelled(getBody('gaia-bh1')!, state('gaia-bh1'), hidden)).toBe(false);
+      star.magnitude = 5;
+      // Unresolved from here: the star carries the pair's label, the hole's name.
+      hidden.add('gaia-bh1');
+      expect(holeLabelled(getBody('gaia-bh1')!, state('gaia-bh1'), hidden)).toBe(false);
+    } finally {
+      Object.assign(star, { magnitude: keep.magnitude, present: keep.present });
+      star.screen.onScreen = keep.onScreen;
+    }
+    expect(holeLabelled(getBody('ogle-2011-blg-0462')!, { distTrue: 0.5 * 3.0857e13 }, hidden)).toBe(true);
+    expect(holeLabelled(getBody('ogle-2011-blg-0462')!, { distTrue: 2 * 3.0857e13 }, hidden)).toBe(false);
+    expect(holeLabelled(getBody('sgr-a-star')!, { distTrue: 1e20 }, hidden)).toBe(true);
+    const m87 = state('m87');
+    const was = { d: m87.distCamera, r: m87.displayRadius };
+    try {
+      m87.displayRadius = getBody('m87')!.physical.radiusKm;
+      m87.distCamera = 0.5 * m87.displayRadius;
+      expect(holeLabelled(getBody('m87-star')!, state('m87-star'), hidden)).toBe(true);
+      m87.distCamera = 2 * m87.displayRadius;
+      expect(holeLabelled(getBody('m87-star')!, state('m87-star'), hidden)).toBe(false);
+    } finally {
+      m87.distCamera = was.d;
+      m87.displayRadius = was.r;
+    }
+  });
+
+  it('shares one label with its star while the pair is unresolved: the hole’s name', () => {
+    const node = { id: 'p-barycentre', isNode: true, record: { name: 'Gaia BH1 system', kind: 'barycentre' }, parent: null, placed: [] as Entry[] } as unknown as Entry;
+    const member = (id: string, kind: string, name: string, x: number, magnitude: number) => {
+      const e = { id, isNode: false, record: { id, name, kind }, parent: node, placed: [], state: { present: true, magnitude, screen: { x, y: 100, onScreen: true } } } as unknown as Entry;
+      node.placed.push(e);
+      return e;
+    };
+    const h = member('gaia-bh1', 'black-hole', 'Gaia BH1', 100, 99);
+    const st = member('gaia-bh1-star', 'star', 'Gaia BH1’s star', 102, 13);
+    const out: PairLabels = { hide: new Set(), text: new Map() };
+    unresolvedPairs([h, st], out);
+    expect(out.text.get('gaia-bh1-star')).toBe('Gaia BH1');
+    expect(out.hide.has('gaia-bh1')).toBe(true);
+    (st.state.screen as { x: number }).x = 100 + UNRESOLVED_PX + 5;
+    unresolvedPairs([h, st], out);
+    expect(out.text.size).toBe(0);
+    expect(out.hide.size).toBe(0);
+  });
+
+  it('can be flown to, and has no light-pulse detector', () => {
+    const plan = planTrip('gaia-bh1', 0.5, sim.bodies.earth.pos.clone(), sim.astroTime, 'cruise')!;
+    expect(plan.dest).toBe('gaia-bh1');
+    expect(plan.distance / 3.0857e13).toBeGreaterThan(470);
+    for (const id of ['sgr-a-star', 'm87-star', 'gaia-bh1', 'ogle-2011-blg-0462']) expect(getBody(id)!.detector, id).toBe(false);
   });
 });

@@ -3,11 +3,12 @@
  * the cost of a trip in the search list; for flights through the expanding universe also the
  * planner's summary, the reasons a flight is refused and the home clock on arrival.
  */
-import { fmtBeta, fmtGamma, sci, sig, superscript } from '../../lib/sci';
+import { fmtBeta, fmtGamma, qty, sci, sig, superscript } from '../../lib/sci';
 import { civilFromMs, formatDurationShort, formatSimDate, isDistantYear } from '../../lib/time';
 import { LIGHT_YEAR_KM } from '../../physics/constants';
 import { appearance, MPC_KM, planck18, type HomeReport } from '../../physics/cosmology';
 import type { HomeLight, Refusal, TripPlan } from '../../sim/travel';
+import { bodyName } from '../../sim/bodies';
 
 /**
  * 1 − β from the rapidity φ: 2/(e^{2φ} + 1), which is 1 − tanh φ without cancellation. Near c,
@@ -198,7 +199,7 @@ export function refusalText(r: Refusal, name: string): { title: string; text: st
     }
     case 'beyond-reach':
       return {
-        title: 'Too close to the event horizon',
+        title: 'Too close to the cosmic event horizon',
         text: `${cap(name)} is ${d} away, just inside the cosmic event horizon (${h} away). A ship that sets out from rest falls behind a flash of light sent at the same moment, and at ${g} it stays at least ${lightYearsText(Math.max(0, r.horizonKm - r.maxKm) * r.aDep)} behind for ever: it can never get closer to the horizon than that, even with unlimited time.`,
       };
     case 'ship-time-limit':
@@ -218,9 +219,27 @@ export function refusalText(r: Refusal, name: string): { title: string; text: st
       };
     case 'recedes':
       return { title: 'Out of reach at this speed', text: `${cap(name)} recedes faster than the ship can close.` };
+    case 'gravity-well':
+      return { title: 'Climb out first', text: gravityWellText(r) };
     default:
       return { title: 'No flight', text: `The flight could not be worked out: ${r.detail}` };
   }
+}
+
+/**
+ * Why the planner will not set out from deep in a black hole's gravity (under the title "Climb out first"): it
+ * leaves gravity out, which within 30 times the horizon's radius would be wrong.
+ */
+export function gravityWellText(r: Pick<Refusal, 'hole' | 'wellKm'>): string {
+  const hole = r.hole ? bodyName(r.hole) : 'the black hole';
+  const far = r.wellKm && Number.isFinite(r.wellKm) ? ` (${distanceWords(r.wellKm)} from its centre)` : '';
+  return `The planner leaves out gravity, which within 30 horizon radii of ${hole}${far} would be wrong. Move the camera farther out and plan the flight from there.`;
+}
+
+/** A distance for a sentence: "2.5 au", "19 million km", "3.1 light-years". */
+function distanceWords(km: number): string {
+  const q = qty(km, 'length', 2);
+  return `${q.v} ${q.u}`;
 }
 
 /** The home clock on arrival, in sentences: the Sun, the Earth, the Local Group, the sky from home, the universe. */
@@ -254,9 +273,10 @@ function skyFromHome(home: HomeReport): string {
       `Home can still see ${list(inside.map((v) => ({ ...v, name: `${v.name} (z = ${zShort(v.redshiftSeen)})` })))}, all still inside the cosmic event horizon. ${cap(next.name)} will be first to slip over it, in about ${yearsText(left * 1e9, 2)}.`,
     );
   }
+  // The horizon meant is the cosmic one (not a black hole's): named so in the sentence before.
   if (crossed.length)
     parts.push(
-      `${cap(list(crossed.map((v) => ({ ...v, name: `${v.name} (z = ${zShort(v.redshiftSeen)})` }))))} ${crossed.length === 1 ? 'has' : 'have'} crossed the event horizon: home still receives ${crossed.length === 1 ? 'its' : 'their'} old light, ever redder and fainter, but nothing ${crossed.length === 1 ? 'it sends' : 'they send'} now will ever arrive.`,
+      `${inside.length ? '' : 'The nearby groups and clusters are all beyond the cosmic event horizon now. '}${cap(list(crossed.map((v) => ({ ...v, name: `${v.name} (z = ${zShort(v.redshiftSeen)})` }))))} ${crossed.length === 1 ? 'has' : 'have'} crossed the event horizon: home still receives ${crossed.length === 1 ? 'its' : 'their'} old light, ever redder and fainter, but nothing ${crossed.length === 1 ? 'it sends' : 'they send'} now will ever arrive.`,
     );
   return parts.join(' ');
 }

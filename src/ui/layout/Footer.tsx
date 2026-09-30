@@ -2,30 +2,77 @@
  * The footer: time on the left (pause, slower and faster with the rate in words, Now), where
  * you are in the middle (a breadcrumb, and the Bodies list), and on wide screens what the
  * camera is doing, with the keys sheet at the right.
+ *
+ * Near a black hole the time warp paces a clock hovering there (sim/tick.ts): the rate reads
+ * "1 s = 1 s here · N s at home" (within a thousandth of 1, "home 0.013 % faster"; not hovering, "hovering
+ * here"), and Now says why the clock cannot follow the computer's there. In a fall the rate is the fall's
+ * pace ("1 s = 41 s aboard"), stepped by the same buttons. The rate re-renders only while it changes by
+ * itself (a trip, a fall, a hole's pacing).
  */
 import { Fragment, useState } from 'react';
 import { nestedDestinations, type NestedItem } from '../../content/destinations';
 import { bodyName, systemOf } from '../../sim/bodies';
-import { sci, superscript } from '../../lib/sci';
+import { sci, sig, superscript } from '../../lib/sci';
 import { rich } from '../rich';
 import { controller } from '../../controls/cameraController';
 import { quality } from '../../render/quality';
 import { WARP_STEPS, resetToNow, setPaused, warpLabel } from '../../sim/clock';
 import { SHIP_RATE_MIN, stepRate, travel, tripPace } from '../../sim/travel';
+import { canStepFallPace, fall } from '../../sim/fall';
+import { gravity } from '../../sim/gravity';
+import { formatDurationShort } from '../../lib/time';
 import { useUI } from '../../state/ui';
 import { frameCosmicWeb, frameLocalGroup, frameMilkyWay, frameNeighbourhood, frameSolarSystem, goToBody, goToSystem } from '../navigation';
 import { locationPath } from '../location';
 import { Kbd, Menu } from '../kit';
 import { Icon } from '../icons';
-import { useTicker } from '../useTicker';
+import { useSimValue, useTicker } from '../useTicker';
 
 const capFirst = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+
+/** Whether the rate's words change by themselves: in a fall, or where a black hole paces the clock. */
+const paceLive = (): boolean => !!fall.trip || gravity.paced;
+
+/**
+ * "1 s = 1 s here · 1.054 s at home": the warp is a hovering clock's rate, home's runs 1/α times as fast; within a
+ * thousandth of 1 as a share ("home 0.013 % faster"), so 30 minutes do not read the same twice. `hovering`:
+ * whether the camera is that hovering clock (else it is named: on an orbit your own clock runs slower still).
+ */
+export function hoverPaceText(warp: number, alpha: number, oneMinusAlpha: number, hovering: boolean): string {
+  const here = `${warp === 1 ? '1 s' : formatDurationShort(warp, 2)} ${hovering ? 'here' : 'hovering here'}`;
+  if (oneMinusAlpha < 1e-3) return `${here} · home ${sig((100 * oneMinusAlpha) / alpha, 2)} % faster`;
+  return `${here} · ${formatDurationShort(warp / alpha, 3)} at home`;
+}
 
 /** The pace of time in words, and whether it can go slower or faster. */
 function usePace() {
   const warp = useUI((s) => s.warp);
   const tripActive = useUI((s) => s.tripActive);
-  useTicker(4, tripActive); // the ship rate lives outside React
+  const mode = useUI((s) => s.controlMode);
+  const focus = useUI((s) => s.focus);
+  // The ship rate, the fall's pace and a black hole's pacing live outside React: polled only while one applies.
+  const live = useSimValue(paceLive);
+  useTicker(tripActive ? 4 : 2, tripActive || live);
+  const f = fall.trip;
+  if (f) {
+    return {
+      prefix: '1 s = ',
+      text: `${formatDurationShort(f.rate, 2)} aboard`,
+      title: 'The fall plays by your own clock: to 2 r_s in 20 s, the last stretch in 80 s whatever the mass. [ and ] change the pace; the readings stay exact.',
+      slower: canStepFallPace(-1),
+      faster: canStepFallPace(1),
+    };
+  }
+  if (!tripActive && gravity.paced && gravity.alpha > 0) {
+    return {
+      prefix: '1 s = ',
+      text: hoverPaceText(warp, gravity.alpha, gravity.oneMinusAlpha, mode === 'orbit' && focus === gravity.hole),
+      title:
+        'The time warp is the rate of a clock hovering here; home’s clock, far from every mass, runs faster by 1/α. Only the black hole’s gravity is included (the Sun’s and the Galaxy’s, parts in 10⁸ and 10⁶, are left out), and only where it passes 5 parts in 10¹⁰. [ and ] change the warp.',
+      slower: warp > WARP_STEPS[0],
+      faster: warp < WARP_STEPS[WARP_STEPS.length - 1],
+    };
+  }
   const trip = travel.trip;
   if (tripActive && trip?.pacing === 'ship') {
     const p = tripPace(trip);
@@ -95,13 +142,27 @@ function Transport() {
         className={`btn ${tripActive ? 'max-sm:hidden' : ''}`}
         onClick={resetToNow}
         disabled={tripActive}
-        title={tripActive ? 'Not in flight: time cannot run backwards' : 'Back to the present, in real time; both clocks restart from zero (N)'}
+        title={
+          tripActive
+            ? fall.trip
+              ? 'Not in a fall: time cannot run backwards'
+              : 'Not in flight: time cannot run backwards'
+            : gravity.paced
+              ? 'Back to the present date (N). Your clock runs slow here, so the date cannot then keep pace with the computer’s clock.'
+              : 'Back to the present, in real time; both clocks restart from zero (N)'
+        }
       >
         Now
       </button>
     </div>
   );
 }
+
+/**
+ * What is folded under a parent in the Bodies list: moons under the Sun's planets, the dwarf planets and the
+ * asteroids (only moons nest there); elsewhere bodies (a star's planets, a black hole's system, a galaxy's clusters).
+ */
+export const moonsOrBodies = (groupId: string): string => (groupId === 'sun-planets' || groupId === 'dwarf-planets' || groupId === 'small-bodies' ? 'moons' : 'bodies');
 
 /** Parents with at most this many moons listed show them without being opened (Earth's Moon). */
 const OPEN_UP_TO = 1;
@@ -191,7 +252,7 @@ function BodiesMenu() {
                       <button
                         className="mono h-full shrink-0 px-2 text-[10.5px] text-fg-3 hover:text-fg"
                         aria-expanded={!folded}
-                        title={folded ? `Show the ${it.children} ${g.id === 'stars' ? 'bodies' : 'moons'} under ${d.name}` : `Hide what is under ${d.name}`}
+                        title={folded ? `Show the ${it.children} ${moonsOrBodies(g.id)} under ${d.name}` : `Hide what is under ${d.name}`}
                         onClick={() => toggle(d.id)}
                       >
                         {it.children} {folded ? '▸' : '▾'}
@@ -302,6 +363,9 @@ function Status() {
       </>
     );
   } else if (mode === 'travel') text = <span className="text-data">IN TRANSIT</span>;
+  else if (mode === 'fall') text = <span className="text-hazard">FALLING · {bodyName(focus).toUpperCase()}</span>;
+  else if (mode === 'circular') text = <span className="text-fg-2">ORBIT · {bodyName(focus).toUpperCase()}</span>;
+  else if (mode === 'hold') text = <span className="text-accent">SNAPSHOT · {bodyName(focus).toUpperCase()}</span>;
   else if (mode === 'transition') text = <span className="text-fg-2">SLEWING → {bodyName(focus).toUpperCase()}</span>;
   else text = <span className="text-fg-2">ORBIT · {bodyName(focus).toUpperCase()}</span>;
   // The breadcrumb already says where the camera is, so the status shows only on wide screens

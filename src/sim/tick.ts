@@ -1,10 +1,18 @@
 /**
  * One frame of simulated time, split in the two steps the simulation driver runs around the
  * ephemeris update. Kept out of the React component so the tests can fly whole trips.
+ *
+ * Near a black hole (sim/gravity.ts: 1 − α > 10⁻⁴, within 5,000 r_s) the time warp paces the proper
+ * time of an observer hovering there: each real second, warp seconds pass on that observer's clock and
+ * warp/α on home's (the clock, sim.timeMs), so "the present" cannot be kept and live mode ends. A fall
+ * paces the faller's own proper time and sets home's clock from its closed form (sim/fall.ts). Trips
+ * pace the crew's time as before; everywhere else this is today's code, line for line.
  */
 import { astroTimeAt } from '../lib/time';
 import { chronoIntegrate, chronoTrip, chronoTripEnd } from './chronometer';
 import { advanceClock, followWallClock } from './clock';
+import { advanceFallClock, fall } from './fall';
+import { gravity } from './gravity';
 import { sim } from './sim';
 import { advanceTripClock, lagAtTau, tauAtEarthTime, travel, tripElapsed, updateTrip, type Trip } from './travel';
 
@@ -17,10 +25,18 @@ import { advanceTripClock, lagAtTau, tauAtEarthTime, travel, tripElapsed, update
  */
 export function tickClock(dtReal: number, nowMs?: number): number {
   // Anything that takes the clock off real time ends "live" (the controls clear it too).
-  if (sim.live && (sim.paused || sim.warp !== 1 || travel.trip)) sim.live = false;
+  if (sim.live && (sim.paused || sim.warp !== 1 || travel.trip || fall.trip || gravity.paced)) sim.live = false;
   const running = sim.paused ? 0 : dtReal;
   const tripDt = advanceTripClock(running);
-  const dtSim = tripDt ?? (sim.live && nowMs !== undefined ? followWallClock(nowMs) : advanceClock(running * sim.warp));
+  const fallDt = tripDt ?? advanceFallClock(running);
+  const dtSim =
+    fallDt ??
+    (gravity.paced
+      ? // The warp is the rate of a clock hovering here: home's runs 1/α faster (the previous frame's gravity).
+        advanceClock((running * sim.warp) / gravity.alpha)
+      : sim.live && nowMs !== undefined
+        ? followWallClock(nowMs)
+        : advanceClock(running * sim.warp));
   sim.astroTime = astroTimeAt(sim.timeMs);
   return dtSim;
 }
@@ -34,7 +50,10 @@ export function tickClock(dtReal: number, nowMs?: number): number {
 export function tickTrip(dtSim: number): Trip | null {
   const trip = travel.trip;
   if (!trip) {
-    chronoIntegrate(dtSim);
+    // A fall hands the chronometers its own τ, home's T (on the free-fallers' clocks) and T − τ.
+    const f = fall.trip;
+    if (f) chronoTrip(f.state.T, f.lag, f.state.tau);
+    else chronoIntegrate(dtSim);
     return null;
   }
   const arrived = updateTrip();

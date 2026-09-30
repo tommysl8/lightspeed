@@ -133,7 +133,7 @@ Seeing stars around it took the infrared, where 30 magnitudes of dust shrink to 
 The clinching star is S2 (S0-2 to the American team), on a long, thin ellipse. In 2002 Genzel's group followed it through its closest approach and published an orbit of 15.2 years; the modern value is 16.05, and both teams have now watched it go all the way round.[^schodel2002][^gravity2020]
 
 ::: see-it galactic-centre-orbits
-S2 whips round its 16-year orbit while the other S-stars cross at every angle. Every orbit shares one focus, and no star sits there.
+S2 whips round its 16-year orbit while the other S-stars, picked out by their labels, cross at every angle. Every orbit shares one focus, and no star sits there: the bright point at the centre is a model of the gas falling into the black hole.
 :::
 
 ### Weighing a black hole with Kepler
@@ -197,9 +197,15 @@ Light passing close to a black hole bends so much that some of it circles the ho
 
 $$\theta \approx \frac{2\sqrt{27}\,GM}{c^2 D}$$
 
-In words: the shadow's angular size, in radians, is about ten times $GM/c^2$ divided by the black hole's distance from us. Spin makes the shadow smaller, but by less than about 8%.[^eht2022]
+In words: the shadow's angular size, in radians, is about ten times $GM/c^2$ divided by the black hole's distance from us. Spin makes the shadow smaller on average, but by less than about 8%.[^eht2022] Seen about 25° from its axis, as the flares round Sgr A\* suggest we see it, a spin of 0.9 to 0.94 of the maximum would make the shadow about 5 to 7% smaller and shift it sideways by about $GM/c^2$; a fast-spinning black hole seen edge-on looks up to about 12% narrower in one direction, though only about 5% smaller on average.[^gravity2023][^kerrshadow]
 
 For Sgr A\*, $GM/c^2 = 6.35$ million km, so the shadow is $10.39 \times 6.35 \times 10^6 = 6.6 \times 10^7$ km across, about 0.44 au. Dividing by $D = 8{,}178$ parsecs $= 2.52 \times 10^{17}$ km gives $2.61 \times 10^{-10}$ radians, and at 206,265 arcseconds to the radian that is 54 microarcseconds. The EHT measured $48.7 \pm 7.0$.[^eht2022] Stars orbiting 1,000 au out predicted the size of something less than half an astronomical unit across, and the radio picture agreed. In 2024 the collaboration added the view in polarised light, which shows ordered magnetic fields spiralling near the edge, much like those round M87\*.[^eht2024][^eso2406]
+
+Close in, that far-away formula gives way to an exact one, and the whole sky bends into rings round the shadow. [Black holes](#/learn/black-holes) works out what you would see there, and how the other black holes were found.
+
+::: see-it sgr-a-star-shadow
+Ten horizon radii from Sgr A\*, 0.85 au from its centre, the shadow is no longer a speck but 28.5° across, and the stars of the central cluster crowd round its edge, where the bent sky is squeezed.
+:::
 
 ## A galaxy built from wreckage
 
@@ -365,6 +371,8 @@ With current measurements it is close to a coin toss. In 2025 Till Sawala and co
 [^eso2208]: ESO, "Astronomers reveal first image of the black hole at the heart of our galaxy", press release eso2208-eht-mw (12 May 2022). https://www.eso.org/public/news/eso2208-eht-mw/
 [^eht2024]: Event Horizon Telescope Collaboration, "First Sagittarius A\* Event Horizon Telescope results. VII. Polarization of the ring", Astrophysical Journal Letters 964, L25 (2024). https://doi.org/10.3847/2041-8213/ad2df0
 [^eso2406]: ESO, press release eso2406 (27 March 2024), on the EHT image of Sgr A\* in polarised light. https://www.eso.org/public/news/eso2406/
+[^gravity2023]: GRAVITY Collaboration, "Polarimetry and astrometry of NIR flares as event horizon scale, dynamical probes for the mass of Sgr A\*", Astronomy & Astrophysics 677, L10 (2023): the flares' orbit, inclined 154.9° to the sky, about 25° from face-on. https://doi.org/10.1051/0004-6361/202347416
+[^kerrshadow]: P. V. P. Cunha and C. A. R. Herdeiro, "Shadows and strong gravitational lensing: a brief review", General Relativity and Gravitation 50, 42 (2018), section 3: the outline of a spinning black hole's shadow, first worked out by J. M. Bardeen in 1973; the percentages here are computed from it. https://doi.org/10.1007/s10714-018-2361-9 (open access at https://arxiv.org/abs/1801.00860)
 [^belokurov2018]: V. Belokurov, D. Erkal, N. W. Evans, S. E. Koposov and A. J. Deason, "Co-formation of the disc and the stellar halo", Monthly Notices of the Royal Astronomical Society 478, 611-619 (2018). https://doi.org/10.1093/mnras/sty982
 [^helmi2018]: A. Helmi, C. Babusiaux, H. H. Koppelman, D. Massari, J. Veljanoski and A. G. A. Brown, "The merger that led to the formation of the Milky Way's inner stellar halo and thick disk", Nature 563, 85-88 (2018), including the Methods note on the name. https://doi.org/10.1038/s41586-018-0625-x
 [^haberle2024]: M. Häberle, N. Neumayer, A. Seth, A. Bellini et al., "Fast-moving stars around an intermediate-mass black hole in ω Centauri", Nature 631, 285-288 (2024). https://doi.org/10.1038/s41586-024-07511-z

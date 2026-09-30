@@ -4,6 +4,7 @@ import { useUI } from '../state/ui';
 import { controller } from '../controls/cameraController';
 import { systemFramingDistance } from '../controls/framing';
 import { bodyRecords, childrenOf, getBody, isBody, registryVersion, type BodyId } from '../sim/bodies';
+import { blackHoleRsKm } from '../controls/cameraController';
 import { apply, GAL_TO_WORLD } from '../sim/galaxy/frames';
 import { OUTSIDE_VIEW_KM } from '../sim/galaxy/records';
 import { sim } from '../sim/sim';
@@ -26,7 +27,22 @@ export function goToBody(id: BodyId, opts: { distance?: number } = {}) {
   // A body that does not exist at this date (Voyager 1 before 1980) cannot be targeted.
   if (!sim.bodies[id]?.present) return;
   useUI.getState().select(id);
-  controller.goTo(id, opts.distance ? { distance: opts.distance } : {});
+  const beyond = opts.distance ? null : beyondFromCompanion(id);
+  controller.goTo(id, opts.distance ? { distance: opts.distance } : beyond ? { direction: beyond } : {});
+}
+
+/**
+ * A black hole in a binary is framed from beyond it, on the line from its companion star through it, so
+ * the companion's light bends round the hole in the view (world axes, from the hole to the camera); null
+ * for anything else.
+ */
+export function beyondFromCompanion(id: BodyId): Vector3 | null {
+  const companion = getBody(id)?.blackHole?.companion;
+  const hole = sim.bodies[id];
+  const star = companion ? sim.bodies[companion] : undefined;
+  if (!companion || !hole || !star?.present || !(blackHoleRsKm(id) > 0)) return null;
+  const d = hole.pos.clone().sub(star.pos);
+  return d.lengthSq() > 0 ? d.normalize() : null;
 }
 
 /** Go to a body far enough out to see the orbits of its moons (Jupiter with Callisto's orbit in view). */

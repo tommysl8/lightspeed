@@ -154,6 +154,8 @@ In June 1976 Gravity Probe A carried a hydrogen maser, an atomic clock based on 
 
 That record stood for 42 years, and an accident beat it. In 2014 two satellites of Europe's Galileo navigation system were launched into the wrong, stretched-out orbits, so their clocks rise and fall in Earth's gravity on every orbit. Two teams turned the mistake into an experiment; one, with 1,008 days of data, confirmed the gravitational redshift to 2.5 parts in 100,000, 5.6 times better than the 140 parts per million usually quoted for Gravity Probe A.[^delva2018][^herrmann2018]
 
+Near a black hole the same effect has no limit: a clock hovering 1% above the horizon runs ten times slower than one far away, and closer still it can run a thousand times slower. [Black holes](#/learn/black-holes) follows a clock down to the horizon and through it.
+
 ## GPS, or relativity on a budget
 
 Every GPS satellite carries atomic clocks and broadcasts its time. A receiver that hears four satellites can work out where it is and what time it is, because each signal says when it left, and light covers about 30 cm per nanosecond. That makes clock errors expensive: a microsecond of error is 300 m of distance.[^ashby2003] ([Light takes time](#/learn/light-takes-time) has more on this.)

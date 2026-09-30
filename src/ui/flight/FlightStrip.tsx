@@ -4,7 +4,8 @@
  * left), with the buttons a trip needs; beyond the Local Group two more, the universe's age and
  * the redshift of home. "Details" opens the full flight recorder. After arrival, a card sums the
  * trip up in words, and after a flight through the expanding universe says what has become of
- * home meanwhile (the home clock).
+ * home meanwhile (the home clock). With a body card open on a screen too narrow for both side by
+ * side, the strip and its card move to the left (stripPlace, shared with the black-hole HUD).
  */
 import type { ReactNode } from 'react';
 import { C_KM_S } from '../../physics/constants';
@@ -32,14 +33,39 @@ import { FLRW_MODEL_NOTE, gText, arrivalCosmicText, arrivalText, homeClockText, 
 
 const DAY_S = 86_400;
 
+/**
+ * Where a panel along the bottom sits (this strip, its arrival card, and the black-hole HUD's, HoleStrip.tsx): centred;
+ * with a body card open (300 px at the right, 16 px in, and 8 px clear), at the left and narrower wherever the two
+ * would overlap, below 2 × (half its width + 324) px: 1,428 for the 780 px strips, 1,268 for 620, 1,208 for 560 and
+ * 1,188 for 540. Phones keep it full width: the card scrolls instead. (The class names are written out whole so
+ * the style sheet's scan finds them.)
+ */
+export function stripPlace(cardOpen: boolean, width: 780 | 620 | 560 | 540): string {
+  if (!cardOpen) return 'left-1/2 -translate-x-1/2';
+  const left = 'left-1/2 -translate-x-1/2 sm:left-3 sm:translate-x-0 sm:max-w-[calc(100%-340px)]';
+  switch (width) {
+    case 780:
+      return `${left} min-[1428px]:left-1/2 min-[1428px]:-translate-x-1/2 min-[1428px]:max-w-[calc(100%-24px)]`;
+    case 620:
+      return `${left} min-[1268px]:left-1/2 min-[1268px]:-translate-x-1/2 min-[1268px]:max-w-[calc(100%-24px)]`;
+    case 560:
+      return `${left} min-[1208px]:left-1/2 min-[1208px]:-translate-x-1/2 min-[1208px]:max-w-[calc(100%-24px)]`;
+    default:
+      return `${left} min-[1188px]:left-1/2 min-[1188px]:-translate-x-1/2 min-[1188px]:max-w-[calc(100%-24px)]`;
+  }
+}
+
+/** Whether a body card is open (the panels along the bottom make room for it). */
+const useCardOpen = (): boolean => useUI((s) => s.bodyCard && !!s.selected);
+
 /** A factor for the big readouts: "3.42", "1.2 × 10⁷". */
 const bigFactor = (x: number): string => (x < 1e4 ? sig(x, 3) : sci(x, 2));
 const YEAR_S = 365.25 * DAY_S;
 
 // ─── The compact readout ────────────────────────────────────────────────────────────────
 
-/** One of the four big numbers. */
-function Big({ label, value, unit, sub, tone }: { label: ReactNode; value: string; unit?: string; sub: string; tone?: 'data' | 'hazard' }) {
+/** One of the four big numbers (also the black-hole HUD's, ui/flight/HoleStrip.tsx). */
+export function Big({ label, value, unit, sub, tone }: { label: ReactNode; value: string; unit?: string; sub: string; tone?: 'data' | 'hazard' }) {
   const c = tone === 'data' ? 'text-data' : tone === 'hazard' ? 'text-hazard' : 'text-fg';
   return (
     <div className="min-w-0 px-3 py-1.5">
@@ -76,7 +102,8 @@ function PaceStepper({ t }: { t: Trip }) {
 
 // ─── The full recorder (Details) ────────────────────────────────────────────────────────
 
-function Cell({ l, v, u, tone }: { l: ReactNode; v: string; u?: string; tone?: 'data' | 'hazard' | 'dim' }) {
+/** One cell of the full recorder (also the black-hole HUD's). */
+export function Cell({ l, v, u, tone }: { l: ReactNode; v: string; u?: string; tone?: 'data' | 'hazard' | 'dim' }) {
   const c = tone === 'data' ? 'text-data' : tone === 'hazard' ? 'text-hazard' : tone === 'dim' ? 'text-fg-3' : 'text-fg';
   return (
     <div className="min-w-0 border-l border-line px-2.5 first:border-l-0">
@@ -186,6 +213,7 @@ function cosmicPhase(t: Trip, tau: number): string {
 
 function InFlight({ t }: { t: Trip }) {
   const note = useUI((s) => s.journeyNote);
+  const cardOpen = useCardOpen();
   const [details, setDetails] = useLocalState('lightspeed.flightDetails', false);
   const s = tripState(t);
   const elapsed = tripElapsed(t);
@@ -202,7 +230,7 @@ function InFlight({ t }: { t: Trip }) {
   // Cosmic time at home: the clock's hours and days at first, then years, then millions and billions.
   const home = cr ? (elapsed < YEAR_S ? { v: formatClock(elapsed), u: undefined } : yearsParts(elapsed / YEAR_S)) : null;
   return (
-    <div ref={keepCreditsClear} className={`panel-float appear absolute bottom-3 left-1/2 z-20 w-[780px] max-w-[calc(100%-24px)] -translate-x-1/2 ${t.warp ? '!border-hazard/50' : ''}`}>
+    <div ref={keepCreditsClear} className={`panel-float appear absolute bottom-3 z-20 w-[780px] max-w-[calc(100%-24px)] ${stripPlace(cardOpen, 780)} ${t.warp ? '!border-hazard/50' : ''}`}>
       <div className={`flex items-center gap-2 px-3 pb-1 pt-2 ${t.warp ? 'hatch' : ''}`}>
         <span className={`cap shrink-0 ${t.warp ? '!text-hazard' : '!text-data'}`}>In flight</span>
         <span className="min-w-0 truncate text-[13px] text-fg">
@@ -320,11 +348,12 @@ function CosmicReport({ a }: { a: ArrivalSummary }) {
 function Report() {
   const a = travel.lastArrival!;
   const labUsed = useUI((s) => s.labUsed);
+  const cardOpen = useCardOpen();
   const text = arrivalText({ destName: theName(bodyName(a.dest)), earthTime: a.earthTime, shipTime: a.shipTime, warp: a.warp, endMs: a.endMs });
   // The lab's bookkeeping is mentioned only to those who have opened the lab.
   const logged = labUsed && !a.warp && lastTrial.at === a.at ? lastTrial : null;
   return (
-    <div ref={keepCreditsClear} className={`absolute bottom-3 left-1/2 z-20 ${a.cosmic ? 'w-[620px]' : 'w-[540px]'} max-w-[calc(100%-24px)] -translate-x-1/2`}>
+    <div ref={keepCreditsClear} className={`absolute bottom-3 z-20 ${a.cosmic ? 'w-[620px]' : 'w-[540px]'} max-w-[calc(100%-24px)] ${stripPlace(cardOpen, a.cosmic ? 620 : 540)}`}>
       <div className={`panel-float appear ${a.warp ? '!border-hazard/50' : ''}`}>
         <div className="flex items-start gap-3 py-2.5 pl-4 pr-2.5">
           <div className="min-w-0 flex-1" role="status">
@@ -370,6 +399,12 @@ function Report() {
 
 /** How long an arrival card stays (ms): longer after a flight through the expanding universe, which has the home clock to read. */
 const cardLife = (a: ArrivalSummary): number => (a.cosmic ? 300_000 : 60_000);
+
+/** Whether the arrival card is showing (the black-hole HUD, which sits in the same place, waits for it). */
+export function arrivalCardShown(): boolean {
+  const a = travel.lastArrival;
+  return !!a && !useUI.getState().plannerOpen && performance.now() - a.at < cardLife(a);
+}
 
 export function FlightStrip() {
   const active = useUI((s) => s.tripActive);

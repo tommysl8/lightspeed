@@ -639,7 +639,7 @@ const NAMED_EXTRA: Record<string, Facts> = {
   m87: {
     facts: [
       'The giant elliptical at the heart of the Virgo Cluster, 16.8 million parsecs (55 million light-years) away.',
-      'In 2019 the Event Horizon Telescope showed the shadow of its central black hole, 6.5 billion times the mass of the Sun.',
+      'In 2019 the Event Horizon Telescope showed the shadow of its central black hole, M87*, 6.5 billion times the mass of the Sun.',
       'Hubble watched knots in its jet appear to move at up to about six times the speed of light: an illusion of matter moving at close to c almost towards us.',
     ],
     sources: [adsUrl('2019ApJ...875L...6E'), adsUrl('2019ApJ...875L...6E'), adsUrl('1999ApJ...520..621B')],

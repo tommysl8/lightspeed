@@ -15,6 +15,7 @@ import {
   Vector3,
   type Mesh,
   type PerspectiveCamera,
+  type Material,
   type Object3D,
   type ShaderMaterial,
 } from 'three';
@@ -22,13 +23,18 @@ import { createClusterRingMaterial, createGalaxyGlowMaterial, createGalaxyMateri
 import { useUI } from '../state/ui';
 import { BACKGROUND_LAYER, POINTS_LAYER } from '../render/LightspeedScenePass';
 import { GALAXY_GLOW_LAYER, GALAXY_LAYER, galaxyLayer } from '../render/galaxyLayer';
+import { useLensVariant } from '../render/lensVariants';
 import { PARSEC_KM } from '../physics/constants';
 import { modelShare } from '../sim/galaxy/background';
 import { GAL_TO_G_ROT, GAL_TO_WORLD, galToG, SUN_G, WORLD_TO_GAL, type Mat3 } from '../sim/galaxy/frames';
 import { CLUSTER_SIZE_OCTAVES, isFamousCluster } from '../sim/galaxy/clusters';
 import { DUST_EXTENT_KPC, DUST_RES, GALAXY_MODEL_JSON, type GalaxyData } from '../sim/galaxy/galaxyData';
 import { galaxyState, galaxyVersion, subscribeGalaxy } from '../sim/galaxy/load';
-import { GLOW_DISC_RANGE_KPC, populationColour } from '../sim/galaxy/glow';
+import { GLOW_DISC_RANGE_KPC, populationColour, templateSplats, type M87TemplateNear } from '../sim/galaxy/glow';
+import { nscGlowUniforms, updateNuclear } from '../sim/galaxy/nuclearCluster';
+import { SGR_A_ID } from '../sim/galaxy/records';
+import { cosmosState } from '../sim/cosmos/load';
+import { gravity } from '../sim/gravity';
 import { sim } from '../sim/sim';
 import { quality } from '../render/quality';
 import { relView } from '../render/relativisticView';
@@ -137,12 +143,65 @@ function setModelConstants(): void {
 }
 
 const cam = new Vector3();
+const camSgrKm = new Vector3();
+const camM87Km = new Vector3();
+
+/** M87's id, and that of the black hole at its centre. */
+const M87_ID = 'm87';
+const M87_STAR_ID = 'm87-star';
+
+/** What M87's model galaxy draws near the camera (sim/galaxy/glow.ts M87TemplateNear), made once its template and shape are in. */
+let m87Near: M87TemplateNear | null = null;
+let m87NearFor: unknown = null;
+
+function m87TemplateNear(): M87TemplateNear | null {
+  const templates = cosmosState.templates;
+  if (m87NearFor === templates && m87Near) return m87Near;
+  const t = templates?.find((x) => x.id === 'elliptical');
+  const shape = cosmosState.shapes.find((s) => s.id === M87_ID);
+  if (!t || !shape || shape.template !== 'elliptical') return null;
+  const stretch = shape.axes.reduce((p, a) => p * Math.hypot(a[0], a[1], a[2]), 1);
+  m87Near = { ...templateSplats(t.position, t.attrs, t.count), unitPc: shape.scaleKpc * 1000, splatPc: shape.scaleKpc * Math.cbrt(stretch) * 1000, pxPerRad: 1, sigmaMax: 1 };
+  m87NearFor = templates;
+  return m87Near;
+}
+
+/**
+ * The nuclear star cluster's field near Sgr A* and M87's own starlight inside M87 (sim/galaxy/nuclearCluster.ts):
+ * the camera relative to each, exact near the hole the lens is about (the gravity state's), and the field's
+ * share u of the nuclear disc's and cluster's light into the model's particles of them (drawn × (1 − u)). Returns u.
+ */
+function updateNuclearFields(): number {
+  const sgr = sim.bodies[SGR_A_ID];
+  let camSgr: Vector3 | null = null;
+  if (gravity.hole === SGR_A_ID) camSgr = camSgrKm.copy(gravity.camRelHoleKm);
+  else if (sgr?.present) camSgr = camSgrKm.copy(sim.camera.pos).sub(sgr.pos);
+  let m87: { camKm: Vector3; near: M87TemplateNear } | null = null;
+  const m87Body = sim.bodies[M87_ID];
+  const near = m87Body?.present ? m87TemplateNear() : null;
+  if (near) {
+    // M87* sits at M87's centre: near it, the lens's own exact camera.
+    if (gravity.hole === M87_STAR_ID) camM87Km.copy(gravity.camRelHoleKm);
+    else camM87Km.copy(sim.camera.pos).sub(m87Body.apparentPos);
+    near.pxPerRad = galaxyUniforms.uPxPerRad.value;
+    near.sigmaMax = galaxyUniforms.uSigmaMax.value;
+    m87 = { camKm: camM87Km, near };
+  }
+  const u = updateNuclear(camSgr, quality.lensRung, m87);
+  galaxyUniforms.uNuclearFade.value.x = u;
+  return u;
+}
 
 /**
  * The model of the Milky Way built from published measurements (sim/galaxy): its particles, the
  * globular clusters' clumps and, near the camera, the smooth glow of its discs and young arm stars
  * (sim/galaxy/glow.ts), drawn into the Galaxy's own target (render/galaxyLayer.ts) and added to the
  * view. It takes over from the real sky as the camera leaves the Sun's neighbourhood.
+ *
+ * Near Sgr A* its nuclear cluster and disc give way to the nuclear star cluster's own field (sim/galaxy/
+ * nuclearCluster.ts: its glow is drawn by this component's glow quad, its stars by scene/NuclearCluster.tsx),
+ * and inside M87 the same quad draws M87's own starlight near the camera. The open clusters' rings follow the
+ * black hole's lens (render/lensVariants.ts).
  */
 export function GalaxyModel() {
   const version = useSyncExternalStore(subscribeGalaxy, galaxyVersion);
@@ -154,7 +213,8 @@ export function GalaxyModel() {
   const glowQuad = useMemo(() => new PlaneGeometry(2, 2), []);
   const glowMesh = useRef<Object3D | null>(null);
   const camera = useThree((s) => s.camera) as PerspectiveCamera;
-  const rings = useRef<Object3D | null>(null);
+  const rings = useRef<(Object3D & { material: Material | Material[] }) | null>(null);
+  useLensVariant(rings);
   // The model's particles and clumps: left out of the Galaxy's target while the model has no share
   // of the sky (near the Sun), where other galaxies may still be drawn into it.
   const modelPoints = useRef<Object3D | null>(null);
@@ -193,13 +253,16 @@ export function GalaxyModel() {
   useFrame(({ gl }) => {
     const u = galaxyUniforms;
     // The model's share of the view (the rest is the sky map): its light is drawn in full, and the
-    // Galaxy layer's composite blends the picture with it and the picture without it.
+    // Galaxy layer's composite blends the picture with it and the picture without it. Below a share of 1 %
+    // (within about 124 pc of the Sun) it is left out: that changes no pixel by more than 1/255 at 0.66 %,
+    // and saves its whole pass, 2.5–2.9 ms at the Pleiades (docs/data/blackholes.md §11).
     const share = modelShare(sim.camera.pos.length());
-    galaxyLayer.wants.milkyWay = !!geo && share > 1e-3;
+    galaxyLayer.wants.milkyWay = !!geo && share >= 0.01;
     galaxyLayer.modelShare = share;
     if (modelPoints.current) modelPoints.current.visible = galaxyLayer.wants.milkyWay;
     if (clumpPoints.current) clumpPoints.current.visible = galaxyLayer.wants.milkyWay;
     u.uLumGain.value = galaxyLayer.wants.milkyWay ? 1 : 0;
+    const fieldShare = updateNuclearFields();
     if (!geo) {
       if (glowMesh.current) glowMesh.current.visible = false;
       u.uGlowOn.value = 0;
@@ -218,10 +281,14 @@ export function GalaxyModel() {
     ringMat.uniforms.uPxPerRad.value = sim.viewport.height / 2 / tanHalf;
     if (rings.current) rings.current.visible = ro.value > 0.001;
     const g = galToG([cam.x, cam.y, cam.z]);
-    // The discs' and the young arm stars' light near the camera: a smooth glow (sim/galaxy/glow.ts).
-    const glowOn = galaxyLayer.wants.milkyWay && glowWanted(g, geo.data.glow);
+    // The discs' and the young arm stars' light near the camera: a smooth glow (sim/galaxy/glow.ts); the same
+    // quad draws the nuclear field's glow near Sgr A* and M87's starlight inside M87.
+    const discs = galaxyLayer.wants.milkyWay && glowWanted(g, geo.data.glow);
+    const glowOn = discs || (galaxyLayer.wants.milkyWay && fieldShare > 0) || nscGlowUniforms.uNscGlowOn.value.y > 0;
     if (glowMesh.current) glowMesh.current.visible = glowOn;
-    u.uGlowOn.value = glowOn ? 1 : 0;
+    u.uGlowOn.value = discs ? 1 : 0;
+    nscGlowUniforms.uNscGlowOn.value.z = discs ? 1 : 0;
+    if (!galaxyLayer.wants.milkyWay) nscGlowUniforms.uNscGlowOn.value.x = nscGlowUniforms.uNscGlowOn.value.w = 0;
     if (!galaxyLayer.wants.milkyWay) return;
     // The single objects (the H II regions, first) are all drawn; of the rest, a share.
     const share0 = quality.integrated ? INTEGRATED_DRAW_SHARE * (relView.split ? 0.5 : 1) : 1;

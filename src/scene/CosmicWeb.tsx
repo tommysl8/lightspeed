@@ -10,11 +10,20 @@
  * At the clock's time the space between groups has grown by a(t) while groups keep their size, and
  * each point's light is redshifted and dimmed by the expansion and shifted by the ship's motion
  * (sim/cosmos/expansion.ts); before the earliest galaxies seen there is no web to show.
+ *
+ * Near a black hole the web draws with its lensed variant (render/lensVariants.ts: each point at its primary
+ * image), once that program, with the emission lookup the web has now, has compiled in the background; and while
+ * the hole's Einstein angle is over 2° (from near M87*, whose Einstein ring is tens of degrees across) a second
+ * draw of the same points shows their images bent round the far side of the hole (order 1: an estimated 0.18 ms of
+ * GPU for all 55,877 points). The web is a map, so these are a map's images too (docs/data/blackholes.md §3,
+ * label 7).
  */
 import { useEffect, useMemo, useRef, useSyncExternalStore } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { BufferAttribute, BufferGeometry, Sphere, Vector3, type Object3D, type PerspectiveCamera } from 'three';
+import { BufferAttribute, BufferGeometry, Sphere, Vector3, type Material, type Object3D, type PerspectiveCamera } from 'three';
 import { createCosmicWebMaterial, updateSkyUniforms, withEmission } from '../render/materials';
+import { imageOrderVariant, lensDrawn, lensedVariant, useLensVariant, variantCompiled } from '../render/lensVariants';
+import { lens } from '../render/lens/lensState';
 import cosmicWebVert from '../render/shaders/cosmicWeb.vert.glsl?raw';
 import { cosmicSky } from '../sim/cosmos/expansion';
 import { POINTS_LAYER } from '../render/LightspeedScenePass';
@@ -26,6 +35,9 @@ import { cosmicWebShare, WEB_LOAD_KM, webMembersShown } from '../ui/cosmicLayers
 import { memberRange, type WebBuffers } from '../sim/cosmos/cosmicWeb';
 
 const cam = new Vector3();
+
+/** The web's second image is drawn while the hole's Einstein angle (the ring's radius) is larger than this, rad (2°). */
+export const WEB_ORDER1_THETA_E = (2 * Math.PI) / 180;
 
 /** Past this a − 1 the web is not drawn: its shader's positions (a − 1 times the anchor, Mpc) would overflow float32. */
 export const WEB_MAX_AM1 = 1e30;
@@ -43,7 +55,12 @@ function clusterMembers(web: WebBuffers): [number, number] | null {
 export function CosmicWeb() {
   const version = useSyncExternalStore(subscribeCosmos, cosmosVersion);
   const material = useMemo(createCosmicWebMaterial, []);
-  const points = useRef<Object3D | null>(null);
+  const points = useRef<(Object3D & { material: Material | Material[] }) | null>(null);
+  const order1 = useRef<Object3D | null>(null);
+  // The lensed variant waits for its own program (with the emission lookup it has now) as well as the lens.
+  const lensReady = useRef(false);
+  useLensVariant(points, { ready: () => lensReady.current });
+  const order1Material = useMemo(() => imageOrderVariant(lensedVariant(material), 1), [material]);
   const web = cosmosState.web;
   const geometry = useMemo(() => {
     if (!web) return null;
@@ -81,6 +98,7 @@ export function CosmicWeb() {
     if (Math.abs(want - u.uOpacity.value) < 0.002) u.uOpacity.value = want;
     const shown = !!geometry && u.uOpacity.value > 0.002;
     if (points.current) points.current.visible = shown;
+    if (order1.current) order1.current.visible = false;
     if (!shown) return;
     // The cosmology module's emission lookup replaces the stub once its table is built (one recompile;
     // the sky uniforms first, so the web's first frame already has it, and the stub is never compiled
@@ -100,20 +118,39 @@ export function CosmicWeb() {
     cam.copy(sim.camera.pos).divideScalar(MPC_KM);
     const hi = u.uCamHi.value.set(Math.fround(cam.x), Math.fround(cam.y), Math.fround(cam.z));
     u.uCamLo.value.set(cam.x - hi.x, cam.y - hi.y, cam.z - hi.z);
+    // Near a black hole: the lensed program once compiled (for next frame's swap), and the second image.
+    const lensOn = lensDrawn();
+    lensReady.current = lensOn && variantCompiled(gl, camera, lensedVariant(material), 'points');
+    if (order1.current) order1.current.visible = lensReady.current && lens.thetaE > WEB_ORDER1_THETA_E;
+    // The second image's program follows the web's source (the emission lookup) as the variant does.
+    if (lensOn) imageOrderVariant(lensedVariant(material), 1);
   });
 
   if (!geometry) return null;
   return (
-    <points
-      ref={(o) => {
-        points.current = o;
-        o?.layers.set(POINTS_LAYER);
-      }}
-      geometry={geometry}
-      material={material}
-      frustumCulled={false}
-      renderOrder={-95}
-      visible={false}
-    />
+    <>
+      <points
+        ref={(o) => {
+          points.current = o;
+          o?.layers.set(POINTS_LAYER);
+        }}
+        geometry={geometry}
+        material={material}
+        frustumCulled={false}
+        renderOrder={-95}
+        visible={false}
+      />
+      <points
+        ref={(o) => {
+          order1.current = o;
+          o?.layers.set(POINTS_LAYER);
+        }}
+        geometry={geometry}
+        material={order1Material}
+        frustumCulled={false}
+        renderOrder={-95}
+        visible={false}
+      />
+    </>
   );
 }

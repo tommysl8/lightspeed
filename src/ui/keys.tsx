@@ -32,14 +32,14 @@ export const KEY_GROUPS: KeyGroup[] = [
       [<Kbd key="h">H</Kbd>, 'Back to Earth'],
       [<Kbd key="g">G</Kbd>, 'Plan a flight to the selected body'],
       [<>Arrows · <Kbd>+</Kbd> <Kbd>−</Kbd></>, 'Orbit (in flight: look around) · move in and out (Shift+−: faster)'],
-      [<Kbd key="esc">Esc</Kbd>, 'Close things; clear the selection; leave free flight'],
+      [<Kbd key="esc">Esc</Kbd>, 'Close things; clear the selection; leave free flight (not a fall: use Stop the fall)'],
     ],
   },
   {
     title: 'Time',
     rows: [
       [<><Kbd>Space</Kbd> <Kbd>P</Kbd></>, 'Pause and resume (P in free flight)'],
-      [<><Kbd>[</Kbd> <Kbd>]</Kbd> or <Kbd>,</Kbd> <Kbd>.</Kbd></>, `Slower, faster, up to ${FASTEST} a second (in flight: the pace of the trip)`],
+      [<><Kbd>[</Kbd> <Kbd>]</Kbd> or <Kbd>,</Kbd> <Kbd>.</Kbd></>, `Slower, faster, up to ${FASTEST} a second (in flight: the pace of the trip; in a fall, its pace)`],
       [<Kbd key="n">N</Kbd>, 'Back to the present'],
     ],
   },
@@ -53,7 +53,7 @@ export const KEY_GROUPS: KeyGroup[] = [
       [<Kbd key="u">U</Kbd>, 'Readouts over the view'],
       [<Kbd key="z">Z</Kbd>, 'Relativistic or classical sky'],
       [<Kbd key="x">X</Kbd>, 'Split screen'],
-      ['View menu', 'Planet hosts, the cosmic web and the CMB map'],
+      ['View menu', 'Planet hosts, the cosmic web, the CMB map, gravitational lensing and the accretion flow'],
     ],
   },
   {

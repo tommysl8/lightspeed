@@ -1,0 +1,178 @@
+{
+ "format": "lightspeed.sgra-flow-refs",
+ "version": 1,
+ "model": "A",
+ "frequenciesHz": [
+  545000000000000.0,
+  150000000000.0,
+  230000000000.0,
+  345000000000.0,
+  545000000000000.0
+ ],
+ "channels": [
+  "V, power-law electrons only (as drawn)",
+  "150 GHz",
+  "230 GHz",
+  "345 GHz",
+  "V, all electrons"
+ ],
+ "far": [
+  {
+   "name": "far_i30",
+   "files": {
+    "V": "far_i30_V.npy",
+    "230": "far_i30_230.npy"
+   },
+   "units": {
+    "V": "Jy/sr",
+    "230": "erg/s/cm2/Hz/sr"
+   },
+   "camera": "infinity (rays from z = 1500 M, parallel)",
+   "inclinationDeg": 30,
+   "imagePlaneM": [
+    -30,
+    30,
+    200
+   ],
+   "layout": "image[row = y index, col = x index], the axis projected towards +y; I_inf"
+  }
+ ],
+ "near": [
+  {
+   "name": "near_r20_static_i30",
+   "file": "near_r20_static_i30.npy",
+   "rM": 20.0,
+   "frame": "static",
+   "inclinationDeg": 30.0,
+   "alpha": {
+    "from": 8.673617379884035e-19,
+    "to": 3.1415926535897936,
+    "n": 360,
+    "at": "cell centres, radians"
+   },
+   "omega": {
+    "n": 32,
+    "at": "2 pi (k + 1/2) / n from the axis projection towards axis x ref"
+   },
+   "shape": [
+    360,
+    32,
+    5
+   ],
+   "units": "Jy/sr, I_inf, frequencies as frequenciesHz",
+   "steps": 1002,
+   "summary": {
+    "fluxInfJy": 1988483411112718.5,
+    "fluxCamJy": 2391099126084372.5,
+    "vMagCam": -29.544934265436048,
+    "ringRadiusDeg": 14.684051546973894,
+    "peakJySr": 1.6504424323236038e+16,
+    "peakAlphaDeg": 14.749999999999998,
+    "peakOmegaDeg": 275.625,
+    "thermalShareOfV": 3.5041319454616235e-05
+   }
+  },
+  {
+   "name": "near_r6_static_i60",
+   "file": "near_r6_static_i60.npy",
+   "rM": 6.0,
+   "frame": "static",
+   "inclinationDeg": 60.0,
+   "alpha": {
+    "from": 8.673617379884035e-19,
+    "to": 3.1415926535897936,
+    "n": 360,
+    "at": "cell centres, radians"
+   },
+   "omega": {
+    "n": 32,
+    "at": "2 pi (k + 1/2) / n from the axis projection towards axis x ref"
+   },
+   "shape": [
+    360,
+    32,
+    5
+   ],
+   "units": "Jy/sr, I_inf, frequencies as frequenciesHz",
+   "steps": 1067,
+   "summary": {
+    "fluxInfJy": 2.4365921647667696e+16,
+    "fluxCamJy": 4.953846514642429e+16,
+    "vMagCam": -32.83579668033346,
+    "ringRadiusDeg": 45.37506021830233,
+    "peakJySr": 6.515619090769695e+16,
+    "peakAlphaDeg": 45.25,
+    "peakOmegaDeg": 264.375,
+    "thermalShareOfV": 0.0012684523382006081
+   }
+  },
+  {
+   "name": "near_r2.02_static_i30",
+   "file": "near_r2.02_static_i30.npy",
+   "rM": 2.02,
+   "frame": "static",
+   "inclinationDeg": 30.0,
+   "alpha": {
+    "from": 2.443460952792061,
+    "to": 3.141592653589793,
+    "n": 320,
+    "at": "cell centres, radians"
+   },
+   "omega": {
+    "n": 32,
+    "at": "2 pi (k + 1/2) / n from the axis projection towards axis x ref"
+   },
+   "shape": [
+    320,
+    32,
+    5
+   ],
+   "units": "Jy/sr, I_inf, frequencies as frequenciesHz",
+   "steps": 1160,
+   "summary": {
+    "fluxInfJy": 3387635737869459.0,
+    "fluxCamJy": 1.0900818532199799e+19,
+    "vMagCam": -38.69208808844711,
+    "ringRadiusDeg": 179.9375,
+    "peakJySr": 9.354322120467666e+16,
+    "peakAlphaDeg": 174.1875,
+    "peakOmegaDeg": 275.625,
+    "thermalShareOfV": 0.09384696880200212
+   }
+  },
+  {
+   "name": "near_r1_rain_i30",
+   "file": "near_r1_rain_i30.npy",
+   "rM": 1.0,
+   "frame": "rain",
+   "inclinationDeg": 30.0,
+   "alpha": {
+    "from": 8.673617379884035e-19,
+    "to": 3.1415926535897936,
+    "n": 360,
+    "at": "cell centres, radians"
+   },
+   "omega": {
+    "n": 32,
+    "at": "2 pi (k + 1/2) / n from the axis projection towards axis x ref"
+   },
+   "shape": [
+    360,
+    32,
+    5
+   ],
+   "units": "Jy/sr, I_inf, frequencies as frequenciesHz",
+   "steps": 885,
+   "summary": {
+    "fluxInfJy": 1.908481993944711e+17,
+    "fluxCamJy": 1.9979185677470172e+18,
+    "vMagCam": -36.84988477122442,
+    "ringRadiusDeg": 179.75000000000003,
+    "peakJySr": 6.9058395288019624e+16,
+    "peakAlphaDeg": 79.25,
+    "peakOmegaDeg": 298.125,
+    "thermalShareOfV": 0.04540849608094723
+   }
+  }
+ ]
+}

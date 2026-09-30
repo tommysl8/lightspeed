@@ -3,6 +3,8 @@
  * a scene spec (content/scenes.ts sets it up) with a title and a line on where and how;
  * what to look for comes with the scene. Flights leave from Earth and play by ship time,
  * about a minute each whatever their length (see sim/travel.ts); scenes set the time warp.
+ * The fall into Sagittarius A* plays by the faller's own clock (sim/fall.ts): 20 s to two
+ * horizon radii, then the last 80 s of proper time at real speed.
  */
 import { flightOf, runScene, sceneNote, type Flight } from './scenes';
 
@@ -78,5 +80,12 @@ export const JOURNEYS: Journey[] = [
     sub: 'Its 2061 return to the Sun, tails streaming away from it',
     scene: 'halley-2061',
     clock: 'July 2061 · 1 s here = 2.8 hours',
+  }),
+  journey({
+    id: 'black-hole',
+    title: 'Fall into a black hole',
+    sub: 'Sagittarius A*, from ten horizon radii out, through the horizon',
+    scene: 'fall-into-sgr-a-star',
+    clock: 'Your clock: 813 s in 20 s, then the last 80 s in real time',
   }),
 ];

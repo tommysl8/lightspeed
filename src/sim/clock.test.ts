@@ -20,6 +20,7 @@ import { setSimTime, sim } from './sim';
 import { tickClock } from './tick';
 import { launch, planTrip, travel } from './travel';
 import { updateEphemeris } from './ephemeris';
+import { useUI } from '../state/ui';
 
 beforeEach(() => {
   setPaused(false);
@@ -155,6 +156,17 @@ describe('the present', () => {
     setPaused(false);
     tickClock(0.1, NOW + 300_000);
     expect(sim.timeMs).toBe(NOW + 100);
+    resetToNow();
+  });
+
+  it('refuses Now and a new date during a fall into a black hole (time cannot run backwards there either)', () => {
+    setSimTime(NOW);
+    useUI.setState({ fallActive: true, tripActive: true });
+    resetToNow();
+    expect(sim.timeMs).toBe(NOW);
+    expect(setEpoch(msFromCivil(1969, 7, 20))).toBe(false);
+    expect(sim.timeMs).toBe(NOW);
+    useUI.setState({ fallActive: false, tripActive: false });
     resetToNow();
   });
 

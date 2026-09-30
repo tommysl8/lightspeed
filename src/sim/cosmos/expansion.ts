@@ -12,7 +12,10 @@
  *
  * What the camera sees (docs/data/cosmology.md, section 4). The camera's own comoving place is
  * home while it is inside the Local Group (the whole group is one bound structure, and the flight
- * planner flies there in static space), otherwise p / a(t). For a galaxy whose anchor lies χ
+ * planner flies there in static space); the cluster's anchor while it is inside a galaxy cluster's
+ * core (setBoundSpheres: the sphere holding half its measured galaxies, well inside the region
+ * gravity holds together, so from M87 or beside M87* the Virgo Cluster's galaxies are seen with no
+ * expansion in between, their light simply distance / c old); otherwise p / a(t). For a galaxy whose anchor lies χ
  * (comoving) from the camera's, the light arriving now left it when the universe had scale factor
  * a_e, with η(a_e) = η(a_o) − χ: its cosmological redshift is 1 + z = a_o / a_e, its surface
  * brightness is dimmed by (1 + z)⁻⁴ (Tolman), and a black body at T is seen at T / (1 + z). The
@@ -70,6 +73,42 @@ export const LOCAL_GROUP_SPHERE = (() => {
 /** Whether a world position (km, proper, at the clock's time) lies inside the Local Group's zero-velocity surface. */
 export const insideLocalGroup = (p: Vector3): boolean => p.distanceTo(LOCAL_GROUP_SPHERE.centreKm) <= LOCAL_GROUP_SPHERE.radiusKm;
 
+/**
+ * A bound structure beyond the Local Group that the camera can be inside (a galaxy cluster): its anchor, the comoving
+ * place its members share (world axes, km at a = 1), and the proper radius within which the camera counts as inside
+ * it, km. A bound structure does not grow with space: at the clock's time its centre is at a(t) × anchor and its
+ * size is the same.
+ */
+export interface BoundSphere {
+  id: string;
+  anchorKm: Vector3;
+  radiusKm: number;
+}
+
+const boundSpheres: BoundSphere[] = [];
+
+/** Give the clusters the camera can be inside (sim/cosmos/load.ts: once, with the galaxies' anchors). */
+export function setBoundSpheres(list: readonly { id: string; anchorWorldKm: Readonly<Vec3>; radiusKm: number }[]): void {
+  for (const b of list) {
+    const old = boundSpheres.find((x) => x.id === b.id);
+    if (old) {
+      old.anchorKm.set(b.anchorWorldKm[0], b.anchorWorldKm[1], b.anchorWorldKm[2]);
+      old.radiusKm = b.radiusKm;
+    } else boundSpheres.push({ id: b.id, anchorKm: new Vector3(b.anchorWorldKm[0], b.anchorWorldKm[1], b.anchorWorldKm[2]), radiusKm: b.radiusKm });
+  }
+}
+
+const centreNow = new Vector3();
+
+/** The bound structure (beyond the Local Group) a world position (km, proper) lies inside at scale factor a, or null. */
+export function boundSphereAt(p: Vector3, a: number): BoundSphere | null {
+  for (let i = 0; i < boundSpheres.length; i++) {
+    const b = boundSpheres[i];
+    if (centreNow.copy(b.anchorKm).multiplyScalar(a).distanceTo(p) <= b.radiusKm) return b;
+  }
+  return null;
+}
+
 /** The camera, the epoch and the galaxies' light this frame (updateCosmicSky). */
 export const cosmicSky = {
   /** The emission table (null until the cosmos worker has built it). */
@@ -82,6 +121,8 @@ export const cosmicSky = {
   anchorKm: new Vector3(),
   /** The camera is inside the Local Group's zero-velocity surface. */
   inLocalGroup: true,
+  /** The galaxy cluster the camera is inside (its anchor is the camera's), or null (setBoundSpheres). */
+  boundTo: null as string | null,
   /** Particle and event horizons of the camera's epoch, comoving Mpc, and ln a as the table gives it. */
   etaMpc: NaN,
   chiEHMpc: NaN,
@@ -166,7 +207,10 @@ export function updateCosmicSky(retarded: boolean): void {
   s.galaxiesShown = c.ageGyr >= EARLIEST_GALAXIES_GYR;
   const p = sim.camera.pos;
   s.inLocalGroup = insideLocalGroup(p);
+  const bound = s.inLocalGroup ? null : boundSphereAt(p, c.a);
+  s.boundTo = bound ? bound.id : null;
   if (s.inLocalGroup) s.anchorKm.set(0, 0, 0);
+  else if (bound) s.anchorKm.copy(bound.anchorKm);
   else s.anchorKm.copy(p).divideScalar(c.a);
   const t = s.table;
   if (t && c.lnA !== horizonLnA) {
@@ -181,7 +225,7 @@ export function updateCosmicSky(retarded: boolean): void {
     sep.copy(m.anchorKm).sub(s.anchorKm);
     const chi = sep.length() / MPC_KM;
     m.chiMpc = chi;
-    // Inside the camera's own bound structure (the Local Group seen from home): no expansion between.
+    // Inside the camera's own bound structure (the Local Group seen from home, a cluster from inside it): no expansion between.
     const L = chi > 1e-9 ? ln1pzAt(chi) : 0;
     m.ln1pz = L;
     if (retarded && L > 0 && L < Infinity) {

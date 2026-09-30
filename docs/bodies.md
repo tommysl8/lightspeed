@@ -8,7 +8,8 @@ once that has loaded (`src/sim/solarSystem/`, below), and so are the star system
 (`src/sim/stars/`, below), and so are the planets of other stars (`src/sim/exoplanets/`, below) and the Milky Way's
 bodies: the Galaxy itself, Sagittarius A* and its stars, the nebulae and the famous star clusters (`src/sim/galaxy/`,
 below), and so are the galaxies beyond it: the Local Group and its neighbours, the named galaxies and clusters and
-the most distant galaxies known (`src/sim/cosmos/`, below). The rest of the app picks them up by itself:
+the most distant galaxies known (`src/sim/cosmos/`, below), and the other black holes with their companion stars
+(`src/sim/blackholes/`, below). The rest of the app picks them up by itself:
 
 | Where | What a new body gets without further work |
 | --- | --- |
@@ -328,8 +329,9 @@ float32 parsecs relative to the camera (near the Sun only the first ~16,000, the
 ### The Milky Way (`src/sim/galaxy/`, docs/data/galaxy.md)
 
 - **At start-up** `loadGalaxy` registers the Milky Way itself (`milky-way`, kind `galaxy`, renderer `layer`, framed
-  from 100,000 light-years: `frameMilkyWay`), Sagittarius A* (`sgr-a-star`, kind `black-hole`: a black sphere the size
-  of its shadow) and the four S-stars of GRAVITY 2022 on their orbits about it (`sStarProvider`: allocation-free,
+  from 100,000 light-years: `frameMilkyWay`), Sagittarius A* (`sgr-a-star`, kind `black-hole`, renderer `lens`: no
+  mesh, its radius the horizon's, drawn by its lens; see the black holes below) and the four S-stars of GRAVITY 2022
+  on their orbits about it (`sStarProvider`: allocation-free,
   evaluated a light-time after the date, general relativity's precession included, `illustrative` away from the
   epochs of the data). The 45 nebulae follow from their own chunk (`nebulae.json`), and once the stars are in, the
   particle model and the clusters load in a worker; the 60 famous open clusters and the named globulars then join the
@@ -371,6 +373,39 @@ float32 parsecs relative to the camera (near the Sun only the first ~16,000, the
   the-expanding-universe; the young galaxies → the-edge-of-reach.
 - The cosmic web (`scene/CosmicWeb.tsx`) and the CMB map (`scene/CmbMap.tsx`) are layers, not bodies: the View menu
   turns them on, their cards show while they do (`ui/viewport/LayerCards.tsx`), and "Where to?" finds them.
+
+### Black holes (`src/sim/blackholes/`, docs/data/blackholes.md)
+
+- **Registration.** `src/sim/blackholes/load.ts` registers, synchronously at the end of `registerStars`, the eight
+  binaries (a `barycentre`, the hole and its companion star, placed with the stars' own `orbitStarProvider` on the
+  published orbit evaluated a light-time on) and the lone OGLE-2011-BLG-0462 (held fixed at its measured place), and
+  at the end of `registerCosmos` M87* (`m87-star`, child of `m87` at its centre, given M87's anchor in the expanding
+  universe so its light-time and drawn place are its galaxy's). Sagittarius A* stays the Galaxy's (`sgr-a-star`,
+  above). The holes' ids are kept in their own list (`blackHoleIds`), out of the stars' `added`; `blackHoleStatus`
+  gives scenes their loading state.
+- **The record.** Kind `black-hole` (`kindText` "Supermassive black hole" or "Stellar-mass black hole"), renderer
+  `lens` (no mesh and no point of light: the lens draws it), `physical.radiusKm` the horizon r_s = 2GM/c², closest
+  approach r_s(1 + 10⁻⁶), framing 10⁴ r_s for a stellar hole and 50 r_s for M87*, no `article` (the kind decides:
+  `content/bodyArticles.ts`), and a `blackHole` block (`BlackHoleInfo`: mass with its uncertainties and note, GM, r_s,
+  spin, whether a fall is offered, the companion, the assumed elements, the EHT's picture, at most three card notes
+  and the notes for the data sheet).
+- **What a new black hole gets.** Any registered body of kind `black-hole` with a horizon is a candidate for the lens
+  (`sim/gravity.ts` `blackHoles()`, re-read when the registry changes): the one with the largest r_s/r becomes the lens
+  from x = r_s/r ≥ 5 × 10⁻¹⁰, with 10 % hysteresis, and brings its clocks, hovering, the HUD and the card's "From here"
+  line with it. Each frame `sim/lensBodies.ts` gives the bodies near the lens's axis their images (`BodyState.lens`:
+  orders 0–2, screen points, magnitudes, rings), so glints, labels, picking and the hover tag sit on the drawn images,
+  and the active hole's shadow is an exact circle on screen (`holeView`) for its label and picking. A body in
+  `lens.spheres` (a companion seen near the axis) is drawn by the lensed spheres' pass instead of its mesh.
+- **Labels** (`ui/Labels.tsx`): a stellar-mass hole is a label candidate only when in focus, selected, the destination,
+  or when its companion's label would show (the pair shares one label while unresolved, `ui/labelPairs.ts`); a lone
+  hole within 1 pc or when chosen; M87* from inside M87. A selected hole's sub-line is its height above the horizon.
+- **Lists and search** (`content/destinations.ts`): a binary with a hole is a "Black hole and star" row under The
+  Milky Way, the hole first; OGLE-2011-BLG-0462 after Sgr A*; M87* under M87. A name ending in `*` scores just below an
+  equally good alias unless the query ends in `*` ("M87" finds the galaxy, "M87*" the hole); only Sgr A* answers to a
+  bare "black hole".
+- **Adding one**: add its row to the table in `scripts/build-blackholes.mjs` (every value with its reference key), run
+  it, and run `npx vitest run src/sim/blackholes`; a hole in a binary needs its companion's radius and temperature and
+  the orbit in the stars' conventions (`src/sim/stars/systems.json`).
 
 ## Rotation
 
@@ -423,7 +458,9 @@ longitudes, so the app keeps them rather than pointing the moons at the planet.
   radius: `visual.craft` `probe`, Voyager's shape with its antenna to Earth; `jwst` and `parker`,
   their shields to the Sun), `point` (a point of light only) or `layer` (drawn by a layer of its own, never as a mesh
   or a point of light: the Milky Way's model, the star clusters and the nebulae's pictures, `src/sim/galaxy/`; the
-  galaxies beyond it, `src/sim/cosmos/` and `scene/Galaxies.tsx`).
+  galaxies beyond it, `src/sim/cosmos/` and `scene/Galaxies.tsx`) or `lens` (a black hole: no mesh and no point of
+  its own, drawn by its lens, `render/lens/` and `scene/BlackHoleLens.tsx`; its glint slot carries the accretion
+  flow's point when there is one).
 
 ## A whole system
 
@@ -473,7 +510,16 @@ longitudes, so the app keeps them rather than pointing the moons at the planet.
   in its split view (docs/data/cosmos.md; 0.5 to 1 ms more while the processor is busy). With the faint stars' map
   and the model's glow (evening review, warm GPU): 6.5 to 7.0 ms at Earth, 7.6 to 7.9 at the start of a 1 g flight,
   8.2 to 9.3 at the start of one in the split view, and 9.3 to 10.3 in the classical view 100 to 500 pc from the Sun,
-  where the sky map and the model hand over (docs/data/cosmos.md, Performance; docs/data/galaxy.md §12). A new large
+  where the sky map and the model hand over (docs/data/cosmos.md, Performance; docs/data/galaxy.md §12). With the
+  black holes (29 September 2026, 2,048 × 1,320 px, pixel ratio 2, no multisampling, GPU timer queries, medians of
+  batch medians with the processor 20–40 % busy, the lens's quality rung 0; docs/data/blackholes.md §11): 5.2 ms at
+  Earth; from Sgr A* 5.8 at 4,000 au, 6.8 at 1,000 au, 7.3 at 500 au, 8.0 at 100 M (4.2 au) with the accretion flow
+  off and 9.0 with it on (7.4 at rung 1, which the GPU-time controller takes), 7.4 at 20 M; arriving at 4,050 au 6.7
+  (8.2 in the split view, which starts at rung 1: 6.7); free flight at 0.1c 500 au out 8.6 (7.7 at rung 1); falling,
+  at 6 M 9.5 (8.5 at rung 1, 8.1 at rung 2) and inside the horizon 6.7; beside Gaia BH1 and its star 6.8; M87* from
+  1,000 au 5.6; 480 pc from the Sun, no hole in view, 7.0; the start of the 1 g flight's split view 7.5. Busier, the
+  close views read 8 to 12 ms, and the controller's pixel-ratio steps hold them. The lens itself costs 0.7 ms at
+  4,000 au and 2.7 to 3.5 ms close in; far from a black hole every shader runs its old program. A new large
   geometry needs a bounding sphere set by hand, or three.js computes one over every vertex on its first frame (34 ms
   for the star field).
 - A shader's first compile stops the frame that first draws it: 100 to 270 ms each for the stars, the galaxies, the
@@ -482,7 +528,10 @@ longitudes, so the app keeps them rather than pointing the moons at the planet.
   its glow, the CMB map, the relativistic remap, the cosmic web once its table is in) in the background, one at a
   time, 8 s after start-up (KHR_parallel_shader_compile); compiled during start-up they held up its own compiles
   (0.95 s of stopped frames instead of 0.75 s, every program compiled afresh). Give it any new large material that
-  first shows on demand.
+  first shows on demand. The black holes' 28 lensed programs are there too (17 in the background list: 6 s cold on a
+  quiet machine, 25–28 s busy; the exact orbit-line program, 17–37 s, only when first wanted), and the lens is drawn
+  only once they have compiled, so none compiles mid-flight and none is in start-up (its first 30 frames took 990 and
+  996 ms, against a median of 1,394 ms the evening before this work; `npm run check:shaders`).
 - Register a system in one `registerBodies` call: every call rebuilds the orders and re-renders
   the scene's lists (500 single calls take 60 ms; one call of 500 takes 2 ms).
 - Everything stays float64 until the camera's position is subtracted (the floating origin).
@@ -529,6 +578,16 @@ longitudes, so the app keeps them rather than pointing the moons at the planet.
   places and parents, the Local Group's barycentre, Andromeda a 3°-long oval at position angle 37.7° from Earth with
   its arms trailing its spin, the trail up to the observable universe, the lists and search, the articles, the young
   galaxies' cards, the clusters' sizes from their members, and the named scenes.
+- The black holes: `src/physics/schwarzschild.test.ts`, `schwarzschildTables.test.ts`, `lensPoint.test.ts` and
+  `geodesics.test.ts` (the physics against the committed fixtures of the independent reference), `lensMirror32.test.ts`
+  (the shaders' float32 arithmetic, with this GPU's own arctangent error); `src/sim/gravity.test.ts` (the hole chosen,
+  and at Earth with every hole registered a year of clocks byte-identical to the flat code), `fall.test.ts`,
+  `lensBodies.test.ts`; `src/sim/blackholes/records.test.ts` (every record against its JSON, Kepler, the donors in front
+  at conjunction) and `accretion.test.ts`; `src/sim/galaxy/nuclearCluster.test.ts`; `src/render/shaderIncludes.test.ts`
+  (every material's shaders expanded, no declaration twice), `lensVariants.test.ts`, `gpuBudget.test.ts`,
+  `lens/lensState.test.ts`, `flow/flowRay.test.ts`; `src/sim/stars/lensCandidates.test.ts`;
+  `src/content/blackHoleScenes.test.ts` (each scene's numbers against `holeView` with the Galaxy registered);
+  `src/controls/cameraController.test.ts`; `src/ui/viewport/bodyCard.test.ts`.
 - `src/sim/stars/*.test.ts`: the star files (layout, sorting, distances, velocities, the bright subset, the sky
   from Earth against the catalogue it replaced), motion and light-time, the Sixth Orbit Catalog ephemerides and HST
   measurements, magnitudes and estimated sizes, names and search, constellations, and (`stars.test.ts`) the star

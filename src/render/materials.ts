@@ -23,11 +23,14 @@ import {
   Vector4,
 } from 'three';
 import { blackbodyLut, blackbodyRgb, bvToTemperature } from '../physics/blackbody';
+import { buildDopplerLut, DOPPLER_LUT_LN_MAX, DOPPLER_LUT_LN_MIN, DOPPLER_LUT_SIZE } from '../physics/dopplerColor';
 import { MPC_KM, SATURN_RING_INNER_KM, SATURN_RING_OUTER_KM, SUN_TEFF_K } from '../physics/constants';
 import { cosmicSky, type SkyTable } from '../sim/cosmos/expansion';
 import { STAR_MAG_LIMIT } from '../sim/stars/visibility';
 import { MW_MU_FADE } from '../sim/galaxy/background';
 import { GLOW_DISC_RANGE_KPC, GLOW_YOUNG_RANGE_KPC } from '../sim/galaxy/glow';
+import { nscGlowUniforms } from '../sim/galaxy/nuclearCluster';
+import { lensUniforms } from './lens/lensUniforms';
 
 import blackbodyGlsl from './shaders/blackbody.glsl?raw';
 import relativityGlsl from './shaders/relativity.glsl?raw';
@@ -62,6 +65,11 @@ import nebulaFrag from './shaders/nebula.frag.glsl?raw';
 import galaxiesVert from './shaders/galaxies.vert.glsl?raw';
 import cosmicWebVert from './shaders/cosmicWeb.vert.glsl?raw';
 import cmbMapFrag from './shaders/cmbMap.frag.glsl?raw';
+import lensGlsl from './shaders/lens.glsl?raw';
+import lensExactGlsl from './shaders/lensExact.glsl?raw';
+import dopplerColourGlsl from './shaders/dopplerColour.glsl?raw';
+import galaxyCompositeGlsl from './shaders/galaxyComposite.glsl?raw';
+import flowLookupGlsl from './shaders/flowLookup.glsl?raw';
 
 // Register custom chunks so shaders can `#include <lightspeed_…>`.
 const chunks = ShaderChunk as unknown as Record<string, string>;
@@ -69,6 +77,14 @@ chunks.lightspeed_blackbody = blackbodyGlsl;
 chunks.lightspeed_relativity = relativityGlsl;
 chunks.lightspeed_psf = psfGlsl;
 chunks.lightspeed_milkyway = milkyWayGlsl;
+// The black hole's lens (render/lens/), its exact form for sources near the hole, the recolouring of diffuse
+// light and the Galaxy layer's display law shared by the plain and lensed composites, and the accretion
+// flow's map read by the lens passes (render/flow/).
+chunks.lightspeed_lens = lensGlsl;
+chunks.lightspeed_lens_exact = lensExactGlsl;
+chunks.lightspeed_dopplercolour = dopplerColourGlsl;
+chunks.lightspeed_galaxycomposite = galaxyCompositeGlsl;
+chunks.lightspeed_flowlookup = flowLookupGlsl;
 
 /**
  * Blackbody lookup texture shared by the point-source shaders and the remap pass. Float32 with
@@ -91,6 +107,40 @@ export function blackbodyRange(): Vector4 {
   const lut = blackbodyLut();
   return new Vector4(lut.lnTMin, lut.lnTMax, lut.size, lut.wienK);
 }
+
+/**
+ * The Doppler colour table of the chunk lightspeed_dopplercolour (physics/dopplerColor.ts), for the passes that
+ * recolour diffuse light near a black hole (the lens's passes, the Milky Way from the Sun), made once when first
+ * wanted. (The relativistic remap keeps its own copy.)
+ */
+let dopplerTexture: DataTexture | null = null;
+export function dopplerLutTexture(): DataTexture {
+  if (!dopplerTexture) {
+    dopplerTexture = new DataTexture(buildDopplerLut(DOPPLER_LUT_SIZE), DOPPLER_LUT_SIZE, 3, RGBAFormat, FloatType);
+    dopplerTexture.minFilter = NearestFilter;
+    dopplerTexture.magFilter = NearestFilter;
+    dopplerTexture.needsUpdate = true;
+  }
+  return dopplerTexture;
+}
+
+/** The uniforms of lightspeed_dopplercolour (its table is made when a material first takes them). */
+export function dopplerLutUniforms(): { uDopplerLut: { value: DataTexture }; uDopplerLutRange: { value: Vector3 } } {
+  return {
+    uDopplerLut: { value: dopplerLutTexture() },
+    uDopplerLutRange: { value: new Vector3(DOPPLER_LUT_LN_MIN, DOPPLER_LUT_LN_MAX, DOPPLER_LUT_SIZE) },
+  };
+}
+
+/**
+ * The exposure of lit and luminous surfaces drawn directly in the view (the planets, the Sun and the other stars'
+ * discs), as a natural log: near a black hole the classical view has an exposure too (render/relativisticView.ts),
+ * which render/LightspeedScenePass.ts sets for each render (0 for the relativistic cube map, whose
+ * remap applies the exposure itself; 0 far from holes, where the surfaces are drawn exactly as before).
+ */
+export const surfaceUniforms = {
+  uLnExposureSurface: { value: 0 },
+};
 
 /** Colour of sunlight (5772 K blackbody, white-balanced to 6500 K, luminance 1). */
 export const SUN_COLOR = new Color(...blackbodyRgb(SUN_TEFF_K));
@@ -185,9 +235,17 @@ function shared() {
   return { ...relativityUniforms, ...psfUniforms };
 }
 
+/**
+ * What every point material shares: the relativity and PSF uniforms, and the black hole lens's
+ * (render/lens/lensUniforms.ts), read only by a material's lensed variant (render/lensVariants.ts).
+ */
+function pointShared() {
+  return { ...shared(), ...lensUniforms };
+}
+
 export function createCmbPointMaterial(): ShaderMaterial {
   return new ShaderMaterial({
-    uniforms: { ...shared(), ...cmbPointUniforms },
+    uniforms: { ...pointShared(), ...cmbPointUniforms },
     vertexShader: cmbVert,
     fragmentShader: pointFrag,
     blending: AdditiveBlending,
@@ -199,7 +257,7 @@ export function createCmbPointMaterial(): ShaderMaterial {
 
 export function createStarMaterial(): ShaderMaterial {
   return new ShaderMaterial({
-    uniforms: { ...shared(), ...starUniforms },
+    uniforms: { ...pointShared(), ...starUniforms },
     vertexShader: starsVert,
     fragmentShader: pointFrag,
     blending: AdditiveBlending,
@@ -237,6 +295,7 @@ export function createConstellationMaterial(): ShaderMaterial {
     uniforms: {
       ...relativityUniforms,
       ...starUniforms,
+      ...lensUniforms,
       uColor: { value: new Color('#6f8cc4') },
       uOpacity: { value: 0 },
       uGap: { value: 0 },
@@ -283,6 +342,7 @@ export function createHostRingMaterial(): ShaderMaterial {
     uniforms: {
       ...relativityUniforms,
       ...starUniforms,
+      ...lensUniforms,
       uPixelRatio: psfUniforms.uPixelRatio,
       uColor: { value: new Color('#7fd0b8') },
       uOpacity: { value: 0 },
@@ -301,7 +361,7 @@ export function createHostRingMaterial(): ShaderMaterial {
 
 export function createGlintMaterial(): ShaderMaterial {
   return new ShaderMaterial({
-    uniforms: shared(),
+    uniforms: pointShared(),
     vertexShader: glintsVert,
     fragmentShader: pointFrag,
     blending: AdditiveBlending,
@@ -341,6 +401,7 @@ export function createBeltMaterial(): ShaderMaterial {
 export function createOrbitMaterial(color: Color): ShaderMaterial {
   return new ShaderMaterial({
     uniforms: {
+      ...lensUniforms,
       uBodyPos: { value: new Vector3() },
       uP: { value: new Vector3(1, 0, 0) },
       uQ: { value: new Vector3(0, 0, -1) },
@@ -419,6 +480,7 @@ export function createPlanetMaterial(o: PlanetMaterialOptions): ShaderMaterial {
       uCenterW: { value: new Vector3() },
       uRingInner: { value: 1 },
       uRingOuter: { value: 2 },
+      ...surfaceUniforms,
     },
     vertexShader: planetVert,
     fragmentShader: planetFrag,
@@ -433,6 +495,7 @@ export function createSunMaterial(color: Color = SUN_COLOR): ShaderMaterial {
       uSunColor: { value: color },
       uIntensity: { value: SUN_CENTRE_RADIANCE },
       uLimbU: { value: LIMB_DARKENING_U },
+      ...surfaceUniforms,
     },
     vertexShader: planetVert,
     fragmentShader: sunFrag,
@@ -499,12 +562,25 @@ export const milkyWayUniforms = {
 
 /**
  * The classical background: a quad over the whole view, drawn first (it replaces the clear
- * colour), on a layer of its own that the relativistic cube map and point pass leave out.
+ * colour), on a layer of its own that the relativistic cube map and point pass leave out. Near a
+ * black hole it is seen through the lens (shaders/milkyway.frag.glsl), with the half's observer
+ * and exposure (the relativity uniforms, shared) and the recolouring of lightspeed_dopplercolour.
  */
 export function createMilkyWayBackgroundMaterial(): ShaderMaterial {
+  const r = relativityUniforms;
+  r.uBlackbody.value = blackbodyTexture();
+  r.uBbRange.value.copy(blackbodyRange());
   return new ShaderMaterial({
     uniforms: {
       ...milkyWayUniforms,
+      ...lensUniforms,
+      ...dopplerLutUniforms(),
+      uVelDir: r.uVelDir,
+      uEPhi: r.uEPhi,
+      uEmPhi: r.uEmPhi,
+      uLnExposure: r.uLnExposure,
+      uBlackbody: r.uBlackbody,
+      uBbRange: r.uBbRange,
       uProjInv: { value: new Matrix4() },
       uCamWorld: { value: new Matrix4() },
     },
@@ -549,6 +625,11 @@ export const galaxyUniforms = {
   uGlowRange: { value: new Vector4(GLOW_DISC_RANGE_KPC[0], GLOW_DISC_RANGE_KPC[1], GLOW_YOUNG_RANGE_KPC[0], GLOW_YOUNG_RANGE_KPC[1]) },
   /** 1 while the glow is drawn (scene/GalaxyModel.tsx). */
   uGlowOn: { value: 0 },
+  /**
+   * x: the nuclear star cluster's field share w near Sgr A* (sim/galaxy/nuclearCluster.ts): the model's
+   * nuclear cluster and disc particles are drawn × (1 − w); y, z, w reserved.
+   */
+  uNuclearFade: { value: new Vector4() },
 };
 
 /** A material for Galaxy particles with positions in units of kpcPerUnit and sizes from 2^(−sizeOctaves) pc up. */
@@ -585,6 +666,7 @@ export function createGalaxyGlowMaterial(): ShaderMaterial {
   return new ShaderMaterial({
     uniforms: {
       ...shared(),
+      ...nscGlowUniforms,
       uCamG: g.uCamG,
       uGalToWorld: g.uGalToWorld,
       uGalToG: g.uGalToG,
@@ -631,6 +713,7 @@ export function createNebulaMaterial(): ShaderMaterial {
     uniforms: {
       ...relativityUniforms,
       ...nebulaUniforms,
+      ...lensUniforms,
       uMap: { value: null as Texture | null },
       uRel: { value: new Vector3() },
       uRight: { value: new Vector3() },
@@ -669,6 +752,7 @@ export function createClusterRingMaterial(): ShaderMaterial {
   return new ShaderMaterial({
     uniforms: {
       ...relativityUniforms,
+      ...lensUniforms,
       uCamHi: galaxyUniforms.uCamHi,
       uCamLo: galaxyUniforms.uCamLo,
       uGalToWorld: galaxyUniforms.uGalToWorld,
@@ -804,6 +888,7 @@ export function createCosmicWebMaterial(): ShaderMaterial {
     uniforms: {
       ...relativityUniforms,
       ...skyUniforms,
+      ...lensUniforms,
       uCamHi: { value: new Vector3() },
       uCamLo: { value: new Vector3() },
       uOpacity: { value: 0 },
@@ -824,10 +909,19 @@ export function createCosmicWebMaterial(): ShaderMaterial {
   });
 }
 
-/** The CMB map as a layer of the sky (shaders/cmbMap.frag.glsl), added over the Milky Way from the Sun. */
+/**
+ * The CMB map as a layer of the sky (shaders/cmbMap.frag.glsl), added over the Milky Way from the Sun; near a
+ * black hole seen through the lens, with the half's observer and exposure (the relativity uniforms, shared).
+ */
 export function createCmbMapMaterial(): ShaderMaterial {
+  const r = relativityUniforms;
   return new ShaderMaterial({
     uniforms: {
+      ...lensUniforms,
+      uVelDir: r.uVelDir,
+      uEPhi: r.uEPhi,
+      uEmPhi: r.uEmPhi,
+      uLnExposure: r.uLnExposure,
       uCmbTex: { value: null as Texture | null },
       uWorldToGal: { value: new Matrix3() },
       uProjInv: { value: new Matrix4() },

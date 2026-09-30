@@ -1,5 +1,6 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import { _roots, addAfterEffect, addEffect } from '@react-three/fiber';
 import './index.css';
 import App from './App';
 import { loadSolarSystem } from './sim/solarSystem';
@@ -9,6 +10,21 @@ import { loadGalaxy } from './sim/galaxy';
 import { loadCosmos } from './sim/cosmos';
 
 if (import.meta.env.DEV) {
+  // When the first frame begins and each of the first 30 ends, for __ls.perf.compiles() (dev/perf.ts):
+  // the start-up total, which shader compiles stop. Recorded here because the debug modules load too late.
+  const startup = { firstStartMs: NaN, endsMs: [] as number[] };
+  Object.assign(window, { __lsStartup: startup });
+  const stopStart = addEffect(() => {
+    if (_roots.size === 0) return; // no canvas yet: nothing is drawn
+    startup.firstStartMs = performance.now();
+    stopStart();
+  });
+  const stopEnds = addAfterEffect(() => {
+    if (Number.isNaN(startup.firstStartMs)) return;
+    startup.endsMs.push(performance.now());
+    if (startup.endsMs.length >= 30) stopEnds();
+  });
+
   // Debug handle for development only (tree-shaken from production builds).
   Promise.all([
     import('./sim/sim'),
@@ -32,7 +48,15 @@ if (import.meta.env.DEV) {
     import('./sim/galaxy'),
     import('./render/galaxyLayer'),
     import('./sim/cosmos'),
-  ]).then(([s, c, u, fiber, trip, rel, travel, chrono, pulses, notebook, logger, solarSystem, registry, navigation, stars, scenes, exoplanets, materials, galaxy, galaxyLayer, cosmos]) =>
+    import('./sim/gravity'),
+    import('./render/lens/lensState'),
+    import('./sim/fall'),
+    import('./sim/blackholes'),
+    import('./sim/galaxy/nuclearCluster'),
+    import('./render/gpuBudget'),
+    import('./dev/lensTest'),
+    import('./dev/perf'),
+  ]).then(([s, c, u, fiber, trip, rel, travel, chrono, pulses, notebook, logger, solarSystem, registry, navigation, stars, scenes, exoplanets, materials, galaxy, galaxyLayer, cosmos, gravity, lens, fall, blackholes, nsc, gpuBudget, lensTest, perf]) =>
     Object.assign(window, {
       __ls: {
         sim: s.sim,
@@ -55,6 +79,22 @@ if (import.meta.env.DEV) {
         galaxy,
         galaxyLayer: galaxyLayer.galaxyLayer,
         cosmos,
+        /** The black hole that matters from here (sim/gravity.ts). */
+        gravity: gravity.gravity,
+        /** The lens this frame (render/lens/lensState.ts). */
+        lens: lens.lens,
+        /** A fall into a black hole (sim/fall.ts). */
+        fall,
+        /** The real black holes besides Sgr A* (sim/blackholes). */
+        blackholes,
+        /** The nuclear star cluster's field and glow (sim/galaxy/nuclearCluster.ts). */
+        nsc,
+        /** The GPU-time controller (render/gpuBudget.ts). */
+        gpuBudget: gpuBudget.gpuBudget,
+        /** The lens's checks on the GPU (dev/lensTest.ts). */
+        lensTest: lensTest.lensTest,
+        /** Whole-frame GPU timing (dev/perf.ts). */
+        perf: perf.perf,
         /** Render n frames with a fixed timestep (works while the tab is hidden). */
         step(n = 60, dt = 1 / 60) {
           s.sim.debugDt = dt;

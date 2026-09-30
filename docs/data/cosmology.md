@@ -356,6 +356,13 @@ target (a few hundred km/s), which shift a trip by hours to days.
 
 ## 4. What the traveller sees (`appearance.ts`)
 
+The camera's own comoving place (`src/sim/cosmos/expansion.ts`) is home while it is inside the Local Group; the
+cluster's anchor while it is inside a galaxy cluster's core, the sphere holding half the cluster's measured galaxies
+(Cosmicflows-4: Virgo 0.91 Mpc, Coma 1.36 Mpc, the Bullet Cluster about 1 Mpc; `CLUSTER_RADIUS_MPC` in
+`src/sim/cosmos/records.ts`), well inside the region gravity holds together, so from M87 or beside M87* the
+cluster's members show no cosmological redshift or look-back and their light is simply distance / c old; otherwise
+its position divided by a(t).
+
 For an observer at scale factor a_o and a comoving galaxy at comoving separation chi (from the ship's current
 comoving position; flat space, so separations are Euclidean in comoving coordinates):
 

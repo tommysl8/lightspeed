@@ -15,13 +15,40 @@
  * named scene is in the app once its data have loaded (articleScenes.test.ts checks each see-it
  * block of the articles). Until then a spec says what it is waiting for ("Loading the
  * galaxies…"), or that its data did not load, and its button is disabled.
+ *
+ * Black holes (the last section): exact Schwarzschild holes, so a scene near one is set up in the
+ * hole's own terms. The camera slews to the hole and is then placed exactly from float64 relative to
+ * it (controller.hoverAt: a world coordinate is 32 km coarse at Sgr A*'s distance), hovering, in a
+ * circular orbit, in a snapshot at speed or falling (the controller's hole modes, sim/fall.ts).
+ * sky-from:<black hole> hovers on the line along which the Sun's light reaches the hole
+ * (sim/lensBodies.ts alignBehind: at a moving hole the straight line is off by the aberration of that
+ * light), where the Sun's Einstein ring has the Moon's apparent radius; a hole in a binary swings off
+ * that line within seconds (its orbital velocity changes the aberration), so there the clock is paused
+ * at the alignment and the note says for how long the ring would hold. The notes of the named scenes
+ * are fixed strings, each at a fixed radius, and blackHoleScenes.test.ts runs every scene and checks
+ * each number against the physics (physics/) and what the card and the HUD show there (holeView).
+ * The scenes made to show the lens switch the accretion flow off and say so; the next scene puts it
+ * back (SCENE_VIEWS). Cost: when a scene starts, the S2 scene's search for a pericentre (about 600
+ * orbit evaluations, 0.3 ms) and the sky from a hole's ring timing (about 100 state evaluations, 0.1 ms);
+ * nothing per frame.
+ *
+ * Twins: sim/lensBodies.ts holeView (the card's and the HUD's numbers, which the notes quote),
+ * content/journeys.ts (the fall's journey), src/content/blackHoleScenes.test.ts.
  */
 import { SearchRelativeLongitude, Body } from 'astronomy-engine';
 import { Vector3 } from 'three';
-import { AU_KM, C_KM_S, LIGHT_YEAR_KM, PARSEC_KM } from '../physics/constants';
-import { bodyName, bodyPositionAt, childrenOf, displayRadiusKm, getBody, isBody, type BodyId } from '../sim/bodies';
-import { controller } from '../controls/cameraController';
+import { AU_KM, C_KM_S, LIGHT_YEAR_KM, SUN_RADIUS_KM } from '../physics/constants';
+import { einsteinAngle } from '../physics/schwarzschild';
+import { bodyName, bodyPositionAt, bodyStateAt, childrenOf, displayRadiusKm, getBody, isBody, type BodyId } from '../sim/bodies';
+import { blackHoleRsKm, controller, type HoldStep } from '../controls/cameraController';
 import { framingDistance, systemFramingDistance } from '../controls/framing';
+import { galacticToWorld } from '../sim/frames';
+import { blackHoleStatus } from '../sim/blackholes';
+import { SGRA_FLOW } from '../sim/blackholes/accretion';
+import { fall, startFall } from '../sim/fall';
+import { alignBehind } from '../sim/lensBodies';
+import { lensProgramsReady } from '../render/lens/lensState';
+import { apparentMagnitude } from '../sim/derived';
 import { resetToNow, setEpoch, setPaused, setWarp } from '../sim/clock';
 import { updateEphemeris } from '../sim/ephemeris';
 import { PRECISE_END_MS, PRECISE_START_MS } from '../sim/ephemerisPolicy';
@@ -130,6 +157,11 @@ const TARGET_NAMES = {
   'kepler-16': 'Kepler-16',
   'sgr-a-star': 'Sagittarius A*',
   s2: 'S2',
+  'gaia-bh1': 'Gaia BH1',
+  'gaia-bh2': 'Gaia BH2',
+  'gaia-bh3': 'Gaia BH3',
+  'cyg-x-1': 'Cygnus X-1',
+  'ogle-2011-blg-0462': 'OGLE-2011-BLG-0462',
   'orion-nebula': 'Orion Nebula',
   'crab-nebula': 'Crab Nebula',
   'eagle-nebula': 'Eagle Nebula',
@@ -146,6 +178,7 @@ const TARGET_NAMES = {
   smc: 'Small Magellanic Cloud',
   m81: 'Bode’s Galaxy (M81)',
   m87: 'M87',
+  'm87-star': 'M87*',
   'centaurus-a': 'Centaurus A',
   sombrero: 'Sombrero Galaxy',
   whirlpool: 'Whirlpool Galaxy',
@@ -219,6 +252,17 @@ export const NAMED_SCENES = [
   'voyager2-neptune',
   'halley-2061',
   'trappist-1-worlds',
+  'sgr-a-star-shadow',
+  'photon-ring',
+  'sgr-a-star-einstein-ring',
+  'hover-at-the-horizon',
+  'isco-orbit',
+  'fall-into-sgr-a-star',
+  'dive-and-climb',
+  'sgr-a-star-flyby',
+  's2-behind-sgr-a-star',
+  'sgr-a-star-flow',
+  'm87-star-close',
 ] as const;
 export type NamedSceneId = (typeof NAMED_SCENES)[number];
 
@@ -320,6 +364,17 @@ const PENDING_LABELS: Record<NamedSceneId, string> = {
   'voyager2-neptune': 'Ride Voyager 2 past Neptune',
   'halley-2061': 'Halley comes back',
   'trappist-1-worlds': 'Seven worlds of TRAPPIST-1',
+  'sgr-a-star-shadow': 'The shadow of Sgr A*',
+  'photon-ring': 'The photon ring',
+  'sgr-a-star-einstein-ring': 'Sgr A*’s Einstein ring',
+  'hover-at-the-horizon': 'Hovering at the horizon',
+  'isco-orbit': 'The innermost stable orbit',
+  'fall-into-sgr-a-star': 'Fall into Sgr A*',
+  'dive-and-climb': 'Same place, three speeds',
+  'sgr-a-star-flyby': 'Flying past Sgr A*',
+  's2-behind-sgr-a-star': 'S2 behind the black hole',
+  'sgr-a-star-flow': 'The gas round Sgr A*',
+  'm87-star-close': 'M87* from 1,000 au',
 };
 
 /** Define (or replace) a named scene. */
@@ -405,14 +460,22 @@ const GALAXY_TARGETS: ReadonlySet<string> = new Set([
   'mom-z14',
 ]);
 const LOADING_GALAXIES = 'Loading the galaxies…';
+/**
+ * The black holes besides Sgr A* (sim/blackholes): the ones in the Milky Way arrive with the star
+ * catalogue, M87* with the galaxies (blackHoleStatus says which).
+ */
+const STELLAR_HOLE_TARGETS: ReadonlySet<string> = new Set(['gaia-bh1', 'gaia-bh2', 'gaia-bh3', 'cyg-x-1', 'ogle-2011-blg-0462']);
+const GALAXY_HOLE_TARGETS: ReadonlySet<string> = new Set(['m87-star']);
 const BUSY = 'A flight is under way: finish it or abort it first';
+/** A fall into a black hole holds tripActive as a flight does, but is stopped rather than aborted. */
+const FALLING = 'A fall into a black hole is under way: stop it (Stop the fall) or let it end first';
 
 type LoadStatus = 'idle' | 'loading' | 'ready' | 'failed';
 
 /** Where a target's data come from: how far their loading has got, and what to say meanwhile. */
 interface DataSource {
   has: (id: string) => boolean;
-  status: () => LoadStatus;
+  status: (id: string) => LoadStatus;
   loading: string;
   failed: string;
 }
@@ -424,6 +487,8 @@ const SOURCES: DataSource[] = [
   { has: (id) => CLUSTER_TARGETS.has(id), status: galaxyStatus, loading: LOADING_GALAXY, failed: failedText('The Milky Way’s data') },
   { has: (id) => NEBULA_TARGETS.has(id), status: nebulaStatus, loading: LOADING_GALAXY, failed: failedText('The nebulae') },
   { has: (id) => GALAXY_TARGETS.has(id), status: cosmosStatus, loading: LOADING_GALAXIES, failed: failedText('The galaxies') },
+  { has: (id) => STELLAR_HOLE_TARGETS.has(id), status: blackHoleStatus, loading: LOADING_STARS, failed: failedText('The star catalogue') },
+  { has: (id) => GALAXY_HOLE_TARGETS.has(id), status: blackHoleStatus, loading: LOADING_GALAXIES, failed: failedText('The galaxies') },
   { has: () => true, status: solarSystemStatus, loading: LOADING, failed: failedText('The Solar System data') },
 ];
 
@@ -433,7 +498,7 @@ const SOURCES: DataSource[] = [
  */
 function missingReason(id: string): string {
   const src = SOURCES.find((s) => s.has(id))!;
-  const status = src.status();
+  const status = src.status(id);
   return status === 'loading' ? src.loading : status === 'failed' ? src.failed : LATER;
 }
 
@@ -489,7 +554,8 @@ function blocker(s: Scene): string | null {
   if (s.kind === 'named' && !def) return LATER;
   // A target whose data are still on their way, or did not load.
   if (s.kind !== 'named' && s.kind !== 'date' && !ref) return isKnownTarget(s.target) ? missingReason(s.target) : LATER;
-  if (useUI.getState().tripActive) return BUSY;
+  const ui = useUI.getState();
+  if (ui.tripActive) return ui.fallActive ? FALLING : BUSY;
   switch (s.kind) {
     case 'named':
       return def?.unavailable?.() ?? null;
@@ -524,7 +590,7 @@ const FLIGHT_NOTES: Record<string, string> = {
   'fly:proxima':
     'A steady push of one Earth gravity takes you to the nearest star in 3.5 years of your time while 5.9 years pass on Earth. Each second here is three weeks on board; Skip to arrival when you have seen enough.',
   'fly:sgr-a-star':
-    'The black hole at the centre of the Galaxy is 8,277 parsecs (27,000 light-years) away. A steady push of one Earth gravity, turning round halfway to brake, gets you there in about 20 years of your time while about 27,000 years pass at home. Inside the Galaxy space is taken as static: no expansion to allow for.',
+    'The black hole at the centre of the Galaxy is 8,277 parsecs (27,000 light-years) away. A steady push of one Earth gravity, turning round halfway to brake, gets you there in about 20 years of your time while about 27,000 years pass at home. Inside the Galaxy space is taken as static: no expansion to allow for. You stop 4,000 au out, where the black hole is far too small to see but bends the light from behind it into a ring 0.75° across.',
 };
 
 /** A name as a sentence uses it: "the Andromeda Galaxy", "the Sun", but "Proxima Centauri", "Bode’s Galaxy (M81)". */
@@ -573,6 +639,7 @@ export function sceneNote(spec: string): string | null {
     case 'sky-from': {
       const ref = resolveTarget(s.target);
       if (ref && isStar(ref.id)) return starSkyNote(ref);
+      if (ref && isHole(ref.id)) return holeSkyNote(ref);
       return `Beyond ${theName(targetName(s.target))}, looking back towards ${ref?.id === 'sun' ? 'Earth' : 'the Sun'}. Drag to look around.`;
     }
     case 'fly': {
@@ -593,16 +660,25 @@ export function flightOf(spec: string): Flight | null {
 
 // ─── Running ────────────────────────────────────────────────────────────────────────────
 
-/** Leave orbit and free flight behind; false when a trip is under way. */
+/**
+ * Leave orbit and free flight behind, and a black hole's own modes (a circular orbit or a snapshot
+ * at speed ends with the camera hovering where it is); false when a trip or a fall is under way (a
+ * fall holds tripActive). The card of the last fall's end goes too: it would hide the new scene's note.
+ */
 function ready(): boolean {
   const ui = useUI.getState();
   if (ui.tripActive) return false;
   if (ui.controlMode === 'free') controller.exitFreeFlight();
+  controller.leaveHoleModes();
+  fall.lastEnd = null;
   return true;
 }
 
 /** The one scene step waiting for a slew to end (cancelled by the next scene). */
 let pendingStep: (() => void) | null = null;
+
+/** Where a camera at rest can be: in orbit, or about a black hole in one of the hole's own modes. */
+const SETTLED_MODES: ReadonlySet<string> = new Set(['orbit', 'circular', 'hold', 'fall']);
 
 /** Drop a scene step still waiting for its slew. */
 export function cancelSceneStep(): void {
@@ -615,13 +691,15 @@ export function cancelSceneStep(): void {
  * just started (at once if it is already there). If the visitor moves the camera first, the
  * step is dropped: time must not jump to a million times faster over Mars because a Sun scene
  * was left mid-slew. Only one step waits at a time, so starting a scene again does not run it
- * twice.
+ * twice. About a black hole the camera may rest in one of the hole's own modes rather than in
+ * orbit (a circular orbit, a snapshot, a fall): that counts as settled too, as long as nothing has
+ * moved the camera since.
  */
 export function afterSlew(target: BodyId, fn: () => void): void {
   cancelSceneStep();
   const move = controller.moves;
   const settled = (s: { controlMode: string; focus: BodyId }) =>
-    s.controlMode === 'orbit' && s.focus === target && controller.moves === move;
+    SETTLED_MODES.has(s.controlMode) && s.focus === target && controller.moves === move;
   const now = useUI.getState();
   if (now.controlMode !== 'transition') {
     if (settled(now)) fn();
@@ -633,6 +711,36 @@ export function afterSlew(target: BodyId, fn: () => void): void {
     if (settled(s)) fn();
   });
   pendingStep = unsub;
+}
+
+/** How often a scene step waiting for the lens's programs looks again, ms. */
+const LENS_POLL_MS = 250;
+
+/**
+ * Run a scene's step once every lensed program has compiled (render/lens/lensState.ts lensProgramsReady: until
+ * then no black hole is drawn at all): at once when they have, which is usual. Right after the app opens they
+ * may still be compiling in the background (a minute on a slow machine), and the step waits, looking again
+ * every quarter second, while the camera hovers where the slew left it; `waiting` runs once if it has to. Like
+ * afterSlew's, the step is dropped if the visitor moves the camera or another scene starts first.
+ */
+function whenLensReady(fn: () => void, waiting?: () => void): void {
+  cancelSceneStep();
+  if (lensProgramsReady()) {
+    fn();
+    return;
+  }
+  waiting?.();
+  const move = controller.moves;
+  const timer = setInterval(() => {
+    if (controller.moves !== move || useUI.getState().tripActive) {
+      cancelSceneStep();
+      return;
+    }
+    if (!lensProgramsReady()) return;
+    cancelSceneStep();
+    fn();
+  }, LENS_POLL_MS);
+  pendingStep = () => clearInterval(timer);
 }
 
 const ABOVE = new Vector3(0.18, 1, 0.32);
@@ -684,12 +792,16 @@ const hasPlanets = (id: BodyId): boolean => id !== 'sun' && getBody(id)?.kind ==
 /** A star other than the Sun: its sky is seen from beside it, looking back at the Sun. */
 const isStar = (id: BodyId): boolean => id !== 'sun' && getBody(id)?.kind === 'star';
 
+/** A black hole: its sky is seen from exactly behind it, with the Sun's light bent into a ring. */
+const isHole = (id: BodyId): boolean => getBody(id)?.kind === 'black-hole' && blackHoleRsKm(id) > 0;
+
 /** What the Sun looks like from a star: its distance and magnitude. */
 function starSkyNote(ref: TargetRef): string {
   const d = sim.bodies[ref.id]?.pos.length() ?? 0;
   if (!(d > 0)) return `At ${ref.name}, looking back at the Sun. Drag to look around.`;
   const ly = d / LIGHT_YEAR_KM;
-  const vSun = 4.81 + 5 * Math.log10(d / PARSEC_KM / 10);
+  // The Sun as the card shows it from where the scene puts the camera.
+  const vSun = apparentMagnitude('sun', skyFromStarKm(ref));
   const lyText = ly < 100 ? ly.toFixed(ly < 10 ? 2 : 1) : Math.round(ly).toLocaleString('en-GB');
   const seen = vSun < 6 ? `the star in the middle, at magnitude ${vSun.toFixed(1)}` : `too faint to see without a telescope (magnitude ${vSun.toFixed(1)}), in the middle of the view`;
   return `At ${ref.name}, ${lyText} light-years out, looking back: the Sun is ${seen}. The constellations are those seen from here. Drag to look around.`;
@@ -704,15 +816,22 @@ function starSkyNote(ref: TargetRef): string {
 function skyFromStar(ref: TargetRef, note: string): boolean {
   return scene(note, () => {
     const at = sim.bodies[ref.id]!.pos;
-    const rec = getBody(ref.id)!;
-    const beside = Math.max(100 * displayRadiusKm(rec), AU_KM);
     useUI.setState({ showLabels: true, selected: ref.id });
-    controller.goTo('sun', { distance: Math.max(at.length() - beside, 0.5 * at.length()), direction: at.clone().normalize() });
+    controller.goTo('sun', { distance: skyFromStarKm(ref), direction: at.clone().normalize() });
   });
+}
+
+/** How far from the Sun the sky from a star is seen, km: beside the star (100 of its radii, at least 1 au) on the Sun's side. */
+function skyFromStarKm(ref: TargetRef): number {
+  const d = sim.bodies[ref.id]!.pos.length();
+  const rec = getBody(ref.id);
+  const beside = Math.max(rec ? 100 * displayRadiusKm(rec) : 0, AU_KM);
+  return Math.max(d - beside, 0.5 * d);
 }
 
 function skyFrom(ref: TargetRef, note: string): boolean {
   if (isStar(ref.id)) return skyFromStar(ref, note);
+  if (isHole(ref.id)) return skyFromHole(ref, note);
   return scene(note, () => {
     const at = sim.bodies[ref.id]!.pos;
     const home = ref.id === 'sun' ? sim.bodies.earth.pos : sim.bodies.sun.pos;
@@ -784,11 +903,13 @@ function start(s: Scene, note: string): boolean {
 
 /**
  * Views a scene may turn on for itself: the CMB map over the sky, light-time correction, the
- * relativistic view (split, or with its Doppler colours), the cosmic web. What one scene turned
- * on, the next scene turns back (unless the visitor has changed it since), so the CMB map does
- * not stay over Jupiter after the CMB scene.
+ * relativistic view (split, or with its Doppler colours), the cosmic web, and near a black hole
+ * its lens, the accretion flow and the flow's band and blur (the scenes made to show the lens
+ * switch the flow off). What one scene turned on, the next scene turns back (unless the visitor
+ * has changed it since), so the CMB map does not stay over Jupiter after the CMB scene, nor the
+ * flow stay hidden after a lens scene.
  */
-const SCENE_VIEWS = ['showCmb', 'retarded', 'relMode', 'relDoppler', 'cosmicWeb'] as const;
+const SCENE_VIEWS = ['showCmb', 'retarded', 'relMode', 'relDoppler', 'cosmicWeb', 'lensing', 'accretionFlow', 'accretionBand', 'ehtBlur'] as const;
 type SceneView = (typeof SCENE_VIEWS)[number];
 type SceneViews = Partial<Pick<UIState, SceneView>>;
 
@@ -797,7 +918,17 @@ let sceneViews: { was: SceneViews; set: SceneViews } = { was: {}, set: {} };
 
 function currentViews(): Pick<UIState, SceneView> {
   const s = useUI.getState();
-  return { showCmb: s.showCmb, retarded: s.retarded, relMode: s.relMode, relDoppler: s.relDoppler, cosmicWeb: s.cosmicWeb };
+  return {
+    showCmb: s.showCmb,
+    retarded: s.retarded,
+    relMode: s.relMode,
+    relDoppler: s.relDoppler,
+    cosmicWeb: s.cosmicWeb,
+    lensing: s.lensing,
+    accretionFlow: s.accretionFlow,
+    accretionBand: s.accretionBand,
+    ehtBlur: s.ehtBlur,
+  };
 }
 
 /** Turn back what the last scene turned on, where the visitor has not changed it since. */
@@ -1005,7 +1136,7 @@ export const S2_ORBIT_WARP = Math.round((16.05 * 365.25 * 86_400) / 30);
 
 defineScene('galactic-centre-orbits', {
   label: 'Stars orbiting the centre of the Galaxy',
-  note: 'S2 whips round its 16-year orbit in about half a minute here, while S29, S38 and S55 cross at other angles. Every orbit shares one focus, the black hole Sgr A*, drawn as a black disc the size of its shadow (far too small to see from here). The orbits are GRAVITY’s (2022), turning slowly as general relativity says; other published orbits exist but are not licensed for reuse.',
+  note: 'S2 whips round its 16-year orbit in about half a minute here, while S29, S38 and S55 cross at other angles. Every orbit shares one focus, the black hole Sgr A*: from 6,000 au its shadow is far below a pixel, but its lens bends the light of stars passing behind it within about 0.3° of it, and the bright point at the centre is a model of the gas falling in. The orbits are GRAVITY’s (2022), turning slowly as general relativity says; other published orbits exist but are not licensed for reuse.',
   unavailable: needs('sgr-a-star', 's2'),
   run: (note) =>
     scene(note, () => {
@@ -1149,3 +1280,520 @@ defineScene('edge-of-reach', {
       planOneG('jades-gs-z14-0');
     }),
 });
+
+// ─── Black holes (sim/gravity.ts, sim/fall.ts, sim/lensBodies.ts) ───────────────────────
+
+const SGR_A: BodyId = 'sgr-a-star';
+
+/** M = GM/c² of a black hole, km (half its horizon radius r_s); 0 for anything else. */
+const holeMKm = (id: BodyId): number => blackHoleRsKm(id) / 2;
+
+/**
+ * "In the plane": from Sgr A* towards galactic longitude 90°, latitude 0 (world axes). Looking back at the
+ * hole from there, the band of the Milky Way runs straight through the view behind it.
+ */
+export const IN_THE_PLANE: Readonly<Vector3> = galacticToWorld(90, 0);
+/** The north galactic pole (world axes): the normal of the innermost stable orbit's plane. */
+export const GALACTIC_NORTH: Readonly<Vector3> = galacticToWorld(0, 90);
+/** Across the line of sight in the plane (towards galactic longitude 180° from Sgr A*): the flyby's course. */
+export const ACROSS_THE_PLANE: Readonly<Vector3> = new Vector3().crossVectors(GALACTIC_NORTH, IN_THE_PLANE).normalize();
+
+/** How the notes of the scenes made to show the lens end: they switch the flow off, whose glare would hide the bent starlight. */
+export const FLOW_OFF = 'The glowing gas is hidden here so the bent starlight shows (View › Accretion flow brings it back).';
+
+/**
+ * What a black-hole scene turns on for itself (the next scene turns it back): the lens always (with it
+ * off a black hole cannot be seen at all); the flow as the scene wants it, in visible light when on;
+ * and, for the scenes about motion, the relativistic view, as a flight turns it on.
+ */
+function holeViews(o: { flow?: boolean; moving?: boolean }): void {
+  useUI.setState((s) => ({
+    lensing: true,
+    ...(o.flow === undefined ? {} : o.flow ? { accretionFlow: true, accretionBand: 'visible' as const } : { accretionFlow: false }),
+    ...(o.moving && s.relMode === 'off' ? { relMode: 'on' as const } : {}),
+  }));
+}
+
+/**
+ * Slew to a black hole, to r (units of M) from its centre along dirOut (world axes, from the hole), and
+ * once there run `then`, which places the camera exactly (the slew ends within a few float64 steps of it)
+ * and starts any mode of the hole's own. If the visitor moves the camera first, `then` is dropped.
+ */
+function toHole(hole: BodyId, rM: number, dirOut: Readonly<Vector3>, then: () => void): void {
+  controller.goTo(hole, { distance: rM * holeMKm(hole), direction: dirOut.clone() });
+  afterSlew(hole, then);
+}
+
+/** Unit vector from a black hole towards the Sun (world axes), for the scenes seen at our own angle. */
+function sunward(hole: BodyId): Vector3 {
+  const d = sim.bodies.sun.pos.clone().sub(sim.bodies[hole].pos);
+  return d.lengthSq() > 0 ? d.normalize() : IN_THE_PLANE.clone();
+}
+
+/** A hover as a scene step, looking at the hole or along `look`. */
+const hoverStep = (hole: BodyId, rM: number, dirOut: Readonly<Vector3>, look?: Readonly<Vector3>) => () => {
+  controller.hoverAt(hole, rM, dirOut, look);
+};
+
+defineScene('sgr-a-star-shadow', {
+  label: 'The shadow of Sgr A*',
+  note: `Hovering ten horizon radii (0.85 au) from Sagittarius A*, in the plane of the Galaxy. The shadow is 28.5° across, two and a half times what the horizon would cover if light went straight. Light from straight behind the hole arrives in an Einstein ring 59.7° across, and inside it the whole sky appears again, mirrored, down to 14.61° from the centre, just outside the shadow’s edge (14.27°); here the central cluster’s stars fill the sky almost evenly, so look for them crowding and doubling near the edge rather than for a bright ring. Your clock runs at 0.9487 of home’s, starlight arrives 1.054 times bluer, and hovering here takes a thrust of 3,806 g. ${FLOW_OFF}`,
+  unavailable: needs(SGR_A),
+  run: (note) =>
+    scene(note, () => {
+      holeViews({ flow: false });
+      useUI.setState({ selected: SGR_A });
+      toHole(SGR_A, 20, IN_THE_PLANE, hoverStep(SGR_A, 20, IN_THE_PLANE));
+    }),
+});
+
+/** The photon ring's view: 45° from the hole towards galactic north, at the shadow's edge. */
+export const PHOTON_RING_LOOK: Readonly<Vector3> = IN_THE_PLANE.clone().negate().add(GALACTIC_NORTH).normalize();
+
+defineScene('photon-ring', {
+  label: 'The photon ring',
+  note: `Three horizon radii (0.25 au) from Sagittarius A*, looking at the edge of its shadow, 45.00° from the centre. Just outside it, a band only 0.64° wide (out to 45.64°) holds light that has gone round the hole at least once: a whole copy of the sky, squeezed, and inside it more copies, the next within 0.03° of the edge (45.027°), and so on without end. ${FLOW_OFF}`,
+  unavailable: needs(SGR_A),
+  run: (note) =>
+    scene(note, () => {
+      holeViews({ flow: false });
+      toHole(SGR_A, 6, IN_THE_PLANE, hoverStep(SGR_A, 6, IN_THE_PLANE, PHOTON_RING_LOOK));
+    }),
+});
+
+defineScene('sgr-a-star-einstein-ring', {
+  label: 'Sgr A*’s Einstein ring',
+  note: `Fifty horizon radii (4.24 au) from Sagittarius A*, in the plane of the Galaxy. Light from straight behind the black hole closes into a ring 24.6° across. Inside the ring lies a mirror image of the whole sky, down to 3.035° from the centre; below that, in a sliver above the shadow’s edge at 2.949°, more copies made by light that went all the way round. Here the central cluster’s stars fill the sky almost evenly, so the ring shows in the stars it crowds and doubles, not as a bright band. ${FLOW_OFF}`,
+  unavailable: needs(SGR_A),
+  run: (note) =>
+    scene(note, () => {
+      holeViews({ flow: false });
+      useUI.setState({ selected: SGR_A });
+      toHole(SGR_A, 100, IN_THE_PLANE, hoverStep(SGR_A, 100, IN_THE_PLANE));
+    }),
+});
+
+defineScene('hover-at-the-horizon', {
+  label: 'Hovering at the horizon',
+  note: `One per cent above the horizon of Sagittarius A* (127,000 km up), looking straight up. The black hole fills the whole sky but a disc 14.8° in radius overhead, where everything else is crowded in, ten times bluer. Every hour here is ten hours at home (your clock runs at 0.0995 of home’s), and the rocket holding you up pushes at 3.6 million g. ${FLOW_OFF}`,
+  unavailable: needs(SGR_A),
+  run: (note) =>
+    scene(note, () => {
+      holeViews({ flow: false });
+      toHole(SGR_A, 2.02, IN_THE_PLANE, hoverStep(SGR_A, 2.02, IN_THE_PLANE, IN_THE_PLANE));
+    }),
+});
+
+/** The orbit's view at the start: halfway between the direction of motion and the hole. */
+export const ISCO_LOOK: Readonly<Vector3> = ACROSS_THE_PLANE.clone().sub(IN_THE_PLANE).normalize();
+
+defineScene('isco-orbit', {
+  label: 'The innermost stable orbit',
+  note: `In orbit three horizon radii (0.25 au) from Sagittarius A*, the closest a circular orbit can be and stay stable. No engine is needed: you move at half the speed of light past the observers hovering here and go round in 23.0 minutes by your own clock, 32.6 minutes by a distant one (your clock runs at 0.7071 of home’s). Looking 45° from the hole towards where you are going, the shadow is 81.8° across and pulled 22.2° forward of the hole’s direction. ${FLOW_OFF}`,
+  unavailable: needs(SGR_A),
+  run: (note) =>
+    scene(note, () => {
+      holeViews({ flow: false, moving: true });
+      useUI.setState({ selected: SGR_A });
+      toHole(SGR_A, 6, IN_THE_PLANE, () => {
+        controller.hoverAt(SGR_A, 6, IN_THE_PLANE);
+        controller.startCircularOrbit(SGR_A, 6, GALACTIC_NORTH, ISCO_LOOK);
+      });
+    }),
+});
+
+/** What the fall's note says while it waits for the lens (whenLensReady). */
+export const FALL_WAITS = 'The fall starts as soon as the black hole can be drawn: the graphics card is still preparing it.';
+
+defineScene('fall-into-sgr-a-star', {
+  label: 'Fall into Sgr A*',
+  note: `Falling into Sagittarius A* from ten horizon radii (0.85 au), as if dropped from rest far away. It takes 864 s by your clock to reach the horizon: the first 813 s play in 20 s, the last 80 s of the fall in real time. Nothing marks the crossing: the dark patch ahead is 84.2° across, wider than the view, but the rest of the sky is still there round it (drag to look), and the tides are only 1.1 × 10⁻³ m/s². From the horizon the end is 28.2 s away; halfway to the centre, 18 s after the horizon, the dark patch is 107° across. The fall ends where the tides reach 1,000 m/s², 0.03 s before the centre. Home’s clock, shown on the clocks of observers falling freely beside you (a convention: hovering observers would say you never cross), keeps your pace; seen overhead it runs at half speed as you cross. ${FLOW_OFF}`,
+  unavailable: needs(SGR_A),
+  run: (note) =>
+    scene(note, () => {
+      holeViews({ flow: false });
+      toHole(SGR_A, 20, IN_THE_PLANE, () => {
+        // Falling with no black hole drawn would show nothing: hover at the start until the lens can draw it.
+        let waited = false;
+        whenLensReady(
+          () => {
+            // After a wait the visitor may have dragged round the hole: fall from where the camera is.
+            startFall({ hole: SGR_A, r0: 20, e: 1, dirOut: waited ? undefined : IN_THE_PLANE, rate: 'auto' });
+            if (waited) useUI.setState({ journeyNote: note });
+          },
+          () => {
+            waited = true;
+            controller.hoverAt(SGR_A, 20, IN_THE_PLANE);
+            useUI.setState({ journeyNote: `${FALL_WAITS} ${note}` });
+          },
+        );
+      });
+    }),
+});
+
+/** The snapshot's three speeds past the hovering observers, 10 s each: hovering, 0.9c inward, 0.9c outward. */
+export const DIVE_AND_CLIMB: readonly HoldStep[] = [
+  { atS: 0, betaVec: { x: 0, y: 0, z: 0 } },
+  { atS: 10, betaVec: { x: -0.9 * IN_THE_PLANE.x, y: -0.9 * IN_THE_PLANE.y, z: -0.9 * IN_THE_PLANE.z } },
+  { atS: 20, betaVec: { x: 0.9 * IN_THE_PLANE.x, y: 0.9 * IN_THE_PLANE.y, z: 0.9 * IN_THE_PLANE.z } },
+];
+export const DIVE_AND_CLIMB_PERIOD_S = 30;
+
+defineScene('dive-and-climb', {
+  label: 'Same place, three speeds',
+  note: `Ten horizon radii from Sagittarius A*, one moment (the clock is paused) seen at three speeds, 10 s each. Hovering, the shadow is 28.5° across; diving in at 0.9c it shrinks to 6.6°; climbing out at 0.9c it swells to 114°, wider than the view. Moving changes nothing about the hole, only the directions its light arrives from. Any touch of the controls ends the snapshot. ${FLOW_OFF}`,
+  unavailable: needs(SGR_A),
+  run: (note) =>
+    scene(note, () => {
+      holeViews({ flow: false, moving: true });
+      toHole(SGR_A, 20, IN_THE_PLANE, () => {
+        controller.hoverAt(SGR_A, 20, IN_THE_PLANE);
+        controller.holdWithVelocity(SGR_A, DIVE_AND_CLIMB, DIVE_AND_CLIMB_PERIOD_S);
+      });
+    }),
+});
+
+/** The flyby: 0.9c across the line to the hole, looking ahead. */
+export const FLYBY: readonly HoldStep[] = [{ atS: 0, betaVec: { x: 0.9 * ACROSS_THE_PLANE.x, y: 0.9 * ACROSS_THE_PLANE.y, z: 0.9 * ACROSS_THE_PLANE.z } }];
+
+defineScene('sgr-a-star-flyby', {
+  label: 'Flying past Sgr A*',
+  note: `Sweeping past Sagittarius A* at 0.9c, five horizon radii (0.42 au) from it, looking ahead with the hole to your left (the clock is paused). Hovering here the shadow would be 55.4° across, square to your path at 90°; at this speed it is 25.8° across and centred 28.7° from straight ahead, in front of you rather than beside you. ${FLOW_OFF}`,
+  unavailable: needs(SGR_A),
+  run: (note) =>
+    scene(note, () => {
+      holeViews({ flow: false, moving: true });
+      toHole(SGR_A, 10, IN_THE_PLANE, () => {
+        // Galactic north up: the hole lies level with the view's centre, to the left, so the whole shadow fits across it.
+        controller.hoverAt(SGR_A, 10, IN_THE_PLANE, ACROSS_THE_PLANE, GALACTIC_NORTH);
+        controller.holdWithVelocity(SGR_A, FLYBY);
+      });
+    }),
+});
+
+/** A Julian year, ms. */
+const YEAR_MS = 365.25 * 86_400_000;
+/** The S2 scene: time at 30 minutes a second, starting a minute of real time before the alignment. */
+export const S2_BEHIND_WARP = 1800;
+export const S2_LEAD_S = 60;
+/** The camera's distance from Sgr A* and how far the line from it through the hole passes from S2, au. */
+export const S2_CAMERA_AU = 300;
+export const S2_MISS_AU = 1;
+
+/**
+ * The time of S2's pericentre in the app's own positions nearest `ms` (within ±9 years; its period is 16):
+ * a scan every 0.05 years for the closest samples, each refined by golden-section search to a second (to
+ * within the two minutes that the 32-km grid of heliocentric positions leaves S2's distance flat there).
+ * (The registry holds where S2 is now, a light-time of 27,000 years ahead of the epochs its orbit was
+ * measured at, so its pericentres here are not May 2018's.) Null when S2 or Sgr A* is not registered.
+ */
+export function s2PericentreNear(ms: number): number | null {
+  if (!isBody('s2') || !isBody(SGR_A)) return null;
+  const a = new Vector3();
+  const b = new Vector3();
+  const sep = (t: number) => bodyPositionAt('s2', astroTimeAt(t), a).distanceTo(bodyPositionAt(SGR_A, astroTimeAt(t), b));
+  const step = 0.05 * YEAR_MS;
+  const g = (Math.sqrt(5) - 1) / 2;
+  const refine = (lo: number, hi: number): number => {
+    let c = hi - g * (hi - lo);
+    let d = lo + g * (hi - lo);
+    let fc = sep(c);
+    let fd = sep(d);
+    while (hi - lo > 1000) {
+      if (fc < fd) {
+        hi = d;
+        d = c;
+        fd = fc;
+        c = hi - g * (hi - lo);
+        fc = sep(c);
+      } else {
+        lo = c;
+        c = d;
+        fc = fd;
+        d = lo + g * (hi - lo);
+        fd = sep(d);
+      }
+    }
+    return (lo + hi) / 2;
+  };
+  let best: number | null = null;
+  // On a grid fixed in time (not started at ms), so every search near one pericentre finds it to the same bit.
+  const start = Math.floor((ms - 9 * YEAR_MS) / step) * step;
+  let prev2 = sep(start - step);
+  let prev = sep(start);
+  for (let t = start + step; t <= ms + 9 * YEAR_MS + step; t += step) {
+    const d = sep(t);
+    if (prev < prev2 && prev <= d) {
+      const tp = refine(t - 2 * step, t);
+      if (best === null || Math.abs(tp - ms) < Math.abs(best - ms)) best = tp;
+    }
+    prev2 = prev;
+    prev = d;
+  }
+  return best;
+}
+
+/**
+ * Where the S2 scene puts the camera for S2's pericentre at `tp` (ms): hovering 300 au from Sgr A* on the far
+ * side from S2 (the direction from the hole, world axes, and r in units of M), its line through the hole
+ * passing 1 au from S2 across S2's orbit (so S2 is closest to the line at the pericentre itself); and the
+ * time to start at, a minute of real time before, at 30 minutes a second of the hovering clock (home's runs
+ * 1/α faster there).
+ */
+export function s2BehindSetUp(tp: number): { dirOut: Vector3; rM: number; startMs: number } | null {
+  const m = holeMKm(SGR_A);
+  if (!(m > 0) || !isBody('s2')) return null;
+  const t = astroTimeAt(tp);
+  const s2 = bodyStateAt('s2', t);
+  const hole = bodyStateAt(SGR_A, t);
+  const h = s2.pos.sub(hole.pos);
+  const n = h.clone().cross(s2.vel.sub(hole.vel));
+  if (!(h.lengthSq() > 0) || !(n.lengthSq() > 0)) return null;
+  const sinE = (S2_MISS_AU * AU_KM) / h.length();
+  // From the camera through the hole: along S2's direction, tipped 1 au (at S2) across its orbit.
+  const through = h.normalize().multiplyScalar(Math.sqrt(1 - sinE * sinE)).addScaledVector(n.normalize(), sinE);
+  const rM = (S2_CAMERA_AU * AU_KM) / m;
+  const alpha = Math.sqrt(1 - 2 / rM);
+  return { dirOut: through.negate(), rM, startMs: tp - (S2_LEAD_S * S2_BEHIND_WARP * 1000) / alpha };
+}
+
+defineScene('s2-behind-sgr-a-star', {
+  label: 'S2 behind the black hole',
+  note: `S2 at its closest to Sagittarius A*, 120 au behind it, seen from 300 au out on the far side. Its light comes round both sides of the hole: two images, 0.81° and 0.68° from the centre, together 5.4 times brighter than S2 alone, either side of the ring 0.74° in radius where S2 would appear exactly behind. Time runs at 30 minutes a second, and the line to the hole passes 1 au from S2 a minute after the start. S2 then moves at 7,750 km/s, and its clock loses 60 s a day. The date moves to the nearest of S2’s closest approaches where the app places S2 now, its orbit carried on through the 27,000 years its light takes to reach us (the one we saw was in May 2018). ${FLOW_OFF}`,
+  unavailable: needs(SGR_A, 's2'),
+  run: (note) => {
+    if (!ready()) return false;
+    const tp = s2PericentreNear(sim.timeMs);
+    const at = tp === null ? null : s2BehindSetUp(tp);
+    if (!at || !setEpoch(at.startMs)) return false;
+    updateEphemeris();
+    setWarp(1);
+    setPaused(true);
+    holeViews({ flow: false });
+    useUI.setState({ journeyNote: note, journeysOpen: false, showLabels: true, showOrbits: true, selected: 's2' });
+    toHole(SGR_A, at.rM, at.dirOut, () => {
+      controller.hoverAt(SGR_A, at.rM, at.dirOut);
+      setWarp(S2_BEHIND_WARP);
+      setPaused(false);
+    });
+    return true;
+  },
+});
+
+/** The flow scene's numbers, computed by the flow's reference ray tracer for its camera (sgraFlow.json). */
+const FLOW_SCENE = SGRA_FLOW.scenes['sgr-a-star-flow'];
+const minus = (s: string) => s.replace('-', '−');
+
+defineScene('sgr-a-star-flow', {
+  label: 'The gas round Sgr A*',
+  note: `Ten horizon radii (0.85 au) from Sagittarius A*, on the line to the Sun: the gas falling into the hole at our own viewing angle, two billion times closer than Earth. The glow is a model of that hot, thin gas, fitted to its radio-to-infrared spectrum; its visible light has never been seen. Bent round the hole, it makes a ring ${FLOW_SCENE.ringRadiusDeg.toFixed(2)}° in radius just outside the shadow’s edge (${FLOW_SCENE.shadowRadiusDeg.toFixed(2)}°), brightest where the gas comes towards you, and shines at magnitude ${minus(FLOW_SCENE.vMag.toFixed(1))} in all, brighter than the Sun from Earth. On the card, switch to 1.3 mm, as the Event Horizon Telescope sees it, and compare with its picture.`,
+  unavailable: needs(SGR_A),
+  run: (note) =>
+    scene(note, () => {
+      holeViews({ flow: true });
+      useUI.setState({ selected: SGR_A });
+      const dir = sunward(SGR_A);
+      toHole(SGR_A, 20, dir, hoverStep(SGR_A, 20, dir));
+    }),
+});
+
+const M87_STAR: BodyId = 'm87-star';
+export const M87_CLOSE_AU = 1000;
+
+defineScene('m87-star-close', {
+  label: 'M87* from 1,000 au',
+  note: 'Hovering 1,000 au from M87*, on our side of it, 7.8 horizon radii out: its horizon alone would reach three times Pluto’s distance from the Sun. The shadow is 36.3° across; light from straight behind it would close into a ring 69° across, but M87’s own starlight glows so evenly all round that the lens barely changes it. Your clock runs at 0.9336 of home’s, the tides are far too weak to feel, and hovering takes only 4.2 g (1 g from 2,015 au). A model of M87’s own starlight glows all round; the galaxy’s jet is not drawn.',
+  unavailable: needs(M87_STAR),
+  run: (note) =>
+    scene(note, () => {
+      holeViews({});
+      useUI.setState({ selected: M87_STAR });
+      const dir = sunward(M87_STAR);
+      const rM = (M87_CLOSE_AU * AU_KM) / holeMKm(M87_STAR);
+      toHole(M87_STAR, rM, dir, hoverStep(M87_STAR, rM, dir));
+    }),
+});
+
+// ─── The sky from a black hole ──────────────────────────────────────────────────────────
+
+/** The Moon's mean apparent radius, rad (0.259°, 15.5′). */
+const MOON_RADIUS_RAD = (0.259 * Math.PI) / 180;
+/** Sgr A*'s sky is seen from 10,000 au (the Moon's rule would give 8,303 au; the Learn article uses 10,000). */
+const SGR_A_SKY_FROM_KM = 10_000 * AU_KM;
+/** A ring that holds longer than this with the clock running is shown with the clock running (a day). */
+const RING_HOLDS_RUNNING_S = 86_400;
+/**
+ * How fast Sgr A* really moves across our line of sight to it, km/s: its apparent motion, 6.411 mas/yr (Reid &
+ * Brunthaler 2020, ApJ 892, 39: the reflex of the Sun's orbit round the Galaxy), at 8.277 kpc. The app holds it at
+ * rest relative to the Sun, so its sky-from note says what that leaves out.
+ */
+const SGR_A_ACROSS_KM_S = 252;
+
+/**
+ * How far beyond a black hole its sky is seen from, km: where the Sun's Einstein ring has the Moon's apparent
+ * radius (D = 4M/θ², the Sun far behind): 2.68 million km beyond Gaia BH1; Sgr A* from 10,000 au.
+ */
+export function skyFromHoleKm(id: BodyId): number {
+  return id === SGR_A ? SGR_A_SKY_FROM_KM : (4 * holeMKm(id)) / (MOON_RADIUS_RAD * MOON_RADIUS_RAD);
+}
+
+const skyA = new Vector3();
+const skyB = new Vector3();
+
+/**
+ * The direction the Sun's light comes from as black hole `id` sees it at time `ms` (unit, world axes): the
+ * direction to the Sun aberrated by the hole's velocity relative to it (exact at any speed). A camera hovering
+ * by the hole sees the Sun exactly behind the hole when it sits on the line through the hole along this.
+ */
+function sunFromHole(id: BodyId, ms: number, out: Vector3): Vector3 {
+  const t = astroTimeAt(ms);
+  const h = bodyStateAt(id, t);
+  const s = bodyStateAt('sun', t);
+  const n = s.pos.sub(h.pos).normalize();
+  const b = h.vel.sub(s.vel).divideScalar(C_KM_S);
+  const bb = b.lengthSq();
+  if (!(bb > 0)) return out.copy(n);
+  const g = 1 / Math.sqrt(1 - bb);
+  const nb = n.dot(b);
+  return out
+    .copy(n)
+    .addScaledVector(b, ((g - 1) * nb) / bb + g)
+    .divideScalar(g * (1 + nb))
+    .normalize();
+}
+
+/** The angle between two unit vectors, from their chord (no cancellation at tiny angles). */
+const chordAngle = (a: Vector3, b: Vector3): number => 2 * Math.atan2(skyB.subVectors(a, b).length(), Math.sqrt(Math.max(0, 4 - skyB.lengthSq())));
+
+/**
+ * How long after `ms` a camera hovering exactly behind hole `id` keeps the Sun within its own radius of the line
+ * (z = 1: the ring then starts to open into two arcs), s; Infinity for a hole at rest relative to the Sun. The Sun's
+ * direction as the hole sees it drifts with the hole's motion across the line and, far faster for a hole in a
+ * binary, with the aberration of its changing orbital velocity: the Sun is 4.7 × 10⁻¹¹ rad across from Gaia BH1, so
+ * a change of 1.4 cm/s in the hole's velocity is enough, about 5 s of its orbit, and a millisecond at an X-ray
+ * binary. Found by doubling then bisection over the providers' own states.
+ */
+function ringHoldsS(id: BodyId, ms: number, sunRadiusRad: number): number {
+  const d0 = sunFromHole(id, ms, new Vector3());
+  const off = (s: number) => chordAngle(sunFromHole(id, ms + 1000 * s, skyA), d0);
+  let hi = 1e-3;
+  while (off(hi) < sunRadiusRad) {
+    hi *= 2;
+    if (hi > 1e9) return Infinity;
+  }
+  let lo = hi / 2;
+  for (let i = 0; i < 40; i++) {
+    const mid = 0.5 * (lo + hi);
+    if (off(mid) < sunRadiusRad) lo = mid;
+    else hi = mid;
+  }
+  return 0.5 * (lo + hi);
+}
+
+/** The numbers of the sky from a black hole (its note's, and the scene tests'). */
+export interface HoleSky {
+  /** How far the Sun is behind the hole, and the camera beyond it, km. */
+  sunBehindKm: number;
+  cameraKm: number;
+  /** The Sun's Einstein ring's radius, rad (exact for the static observer; the Sun's finite distance to first order). */
+  ringRad: number;
+  /** The ring's V magnitude at perfect alignment: a uniform disc through a point lens, μ = √(1 + 4/ρ²); no dust. */
+  ringMag: number;
+  /** How long the ring stays closed with the clock running, s (Infinity: for good). */
+  ringHoldsS: number;
+}
+
+/** What the Sun looks like from behind black hole `id` now (null when the hole or the Sun is missing). */
+export function holeSky(id: BodyId): HoleSky | null {
+  const hole = sim.bodies[id];
+  const sun = sim.bodies.sun;
+  const m = holeMKm(id);
+  if (!hole || !sun || !(m > 0)) return null;
+  const cameraKm = skyFromHoleKm(id);
+  const sunBehindKm = hole.pos.distanceTo(sun.pos);
+  if (!(sunBehindKm > 0)) return null;
+  const toSunKm = sunBehindKm + cameraKm;
+  const ringRad = einsteinAngle({ frame: 'static', r: cameraKm / m }) * Math.sqrt(sunBehindKm / toSunKm);
+  const rho = SUN_RADIUS_KM / toSunKm / ringRad;
+  const ringMag = apparentMagnitude('sun', toSunKm) - 2.5 * Math.log10(Math.sqrt(1 + 4 / (rho * rho)));
+  return { sunBehindKm, cameraKm, ringRad, ringMag, ringHoldsS: ringHoldsS(id, sim.timeMs, SUN_RADIUS_KM / sunBehindKm) };
+}
+
+/**
+ * The sky from a black hole: hovering exactly behind it as the Sun's light reaches it (alignBehind: the Sun's
+ * image closes into a ring only within a few kilometres of that line at Sgr A*, 13 cm at Gaia BH1), at
+ * skyFromHoleKm, looking back at the hole and the Sun behind it. The line is found again when the slew ends. A
+ * hole at rest relative to the Sun (Sgr A*, M87*, OGLE-2011-BLG-0462 as drawn) keeps the ring: the clock runs at
+ * real time. A hole in a binary swings off the line within seconds (ringHoldsS): the clock is paused at the
+ * alignment, a snapshot, and the note says so. Where a flow is drawn (Sgr A*) it is switched off, as in the lens
+ * scenes: from 10,000 au its point (V −8.9) would drown the Sun's ring 6 device px from it.
+ */
+function skyFromHole(ref: TargetRef, note: string): boolean {
+  return scene(note, () => {
+    const id = ref.id;
+    const dKm = skyFromHoleKm(id);
+    const rM = dKm / holeMKm(id);
+    const rel = alignBehind(id, 'sun', dKm, new Vector3());
+    if (!rel) return;
+    const snapshot = ringHoldsS(id, sim.timeMs, SUN_RADIUS_KM / Math.max(1, sim.bodies[id].pos.distanceTo(sim.bodies.sun.pos))) < RING_HOLDS_RUNNING_S;
+    holeViews(hasFlow(id) ? { flow: false } : {});
+    setWarp(1);
+    useUI.setState({ showLabels: true, selected: id });
+    toHole(id, rM, rel.normalize(), () => {
+      const now = alignBehind(id, 'sun', dKm, new Vector3());
+      if (now) controller.hoverAt(id, rM, now.normalize());
+      if (snapshot) setPaused(true);
+    });
+  });
+}
+
+/** Whether a black hole has an accretion flow drawn (Sgr A*'s model). */
+const hasFlow = (id: BodyId): boolean => !!getBody(id)?.blackHole?.flow;
+
+/** A distance as a note gives it: "1,570 light-years", "54.5 million light-years". */
+function lightYearsText(km: number): string {
+  const ly = km / LIGHT_YEAR_KM;
+  if (ly >= 1e6) return `${Number((ly / 1e6).toPrecision(3)).toLocaleString('en-GB')} million light-years`;
+  return `${Number(ly.toPrecision(3)).toLocaleString('en-GB')} light-years`;
+}
+
+/** A hover's distance: "2.68 million km", "10,000 au", "199 light-years". */
+function hoverDistanceText(km: number): string {
+  if (km < 1e9) return `${Number((km / 1e6).toPrecision(3))} million km`;
+  if (km < 1e5 * AU_KM) return `${Math.round(km / AU_KM).toLocaleString('en-GB')} au`;
+  return lightYearsText(km);
+}
+
+/** A short span as a note gives it: "5 s", "4 minutes", "3.1 hours", "a millisecond". */
+function spanText(s: number): string {
+  if (s < 0.0015) return 'a millisecond';
+  if (s < 1) return `${Number((s * 1000).toPrecision(2))} milliseconds`;
+  if (s < 120) return `${Math.round(s)} s`;
+  if (s < 7200) return `${Math.round(s / 60)} minutes`;
+  return `${Number((s / 3600).toPrecision(2))} hours`;
+}
+
+/** The note of the sky from a black hole, worded for the moment (the hole's motion, the Sun's distance). */
+function holeSkyNote(ref: TargetRef): string {
+  const sky = holeSky(ref.id);
+  if (!sky) return `Beyond ${ref.name}, looking back towards the Sun.`;
+  const deg = (sky.ringRad * 360) / Math.PI;
+  const across = deg < 1 ? deg.toPrecision(3) : deg.toFixed(1);
+  const moon = ref.id === SGR_A ? '' : ', the size of the full Moon in our sky';
+  const dust = ref.id === SGR_A ? ' (in visible light that dust takes away about 30 magnitudes)' : '';
+  // A hole drawn at rest relative to the Sun (Sgr A*, M87*, OGLE-2011-BLG-0462) is a model there: really it moves
+  // across the line at v, and the ring opens once the line has moved the Sun's radius, R☉ / v later.
+  const held =
+    sky.ringHoldsS < RING_HOLDS_RUNNING_S
+      ? ` The clock is paused at the alignment: running, the hole’s motion would carry that line off the Sun within ${spanText(sky.ringHoldsS)}, and the ring would open into two arcs, then two points fading as they part.`
+      : ref.id === SGR_A
+        ? ` The hole is held at rest relative to the Sun here, so the ring holds with the clock running; really the Sun’s orbit round the Galaxy carries it across that line at ${SGR_A_ACROSS_KM_S} km/s, and the ring would open into two arcs within ${spanText(SUN_RADIUS_KM / SGR_A_ACROSS_KM_S)}.`
+        : ' Here the hole is drawn with no motion across that line relative to the Sun, so the ring holds with the clock running; really its motion and the Sun’s carry the line off the Sun, and the ring would open into two arcs within hours.';
+  // The full Moon's size at the scenes' 50° field of view: a few pixels.
+  const point = ' At this field of view a ring that size is only a few pixels across, so it shows as a bright point.';
+  // Near Sgr A* the view is stopped down for the cluster's glare (render/lens/skyMeter.ts): the ring shows only a few
+  // levels above the sky (measured 29 September 2026: 135 against 130 out of 255).
+  const glare = ref.id === SGR_A ? ' Here the light of the stars round the centre fills the sky, and the view is stopped down for its glare, so the ring can barely be picked out in it.' : '';
+  const flow = hasFlow(ref.id) ? ` ${FLOW_OFF}` : '';
+  return `The Sun, ${lightYearsText(sky.sunBehindKm)} behind ${theName(ref.name)}, bent round it into a ring ${across}° across${moon}, shining at magnitude ${minus(sky.ringMag.toFixed(1))} without the dust in between${dust}. You hover ${hoverDistanceText(sky.cameraKm)} beyond the hole, on the line along which the Sun’s light reaches it.${point}${glare}${held}${flow}`;
+}

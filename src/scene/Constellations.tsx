@@ -11,6 +11,7 @@ import { useFrame } from '@react-three/fiber';
 import { BufferGeometry, Float32BufferAttribute, Sphere, Vector3, type LineSegments } from 'three';
 import { CONSTELLATION_FIGURE_SLOTS, createConstellationMaterial } from '../render/materials';
 import { POINTS_LAYER } from '../render/LightspeedScenePass';
+import { useLensVariant } from '../render/lensVariants';
 import { PARSEC_KM } from '../physics/constants';
 import {
   C_PC_PER_YR,
@@ -158,6 +159,8 @@ export function Constellations() {
   useSyncExternalStore(subscribeStars, starsVersion);
   const material = useMemo(createConstellationMaterial, []);
   const lines = useRef<LineSegments>(null);
+  // Near a black hole the figures follow the stars' primary images (the lensed variant: render/lensVariants.ts).
+  useLensVariant(lines);
   const file = starData.constellations;
   const stars = starData.stars;
   // The figures only use naked-eye stars, which the bright subset has too: they are ready early.

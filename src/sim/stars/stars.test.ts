@@ -225,7 +225,7 @@ describe('cards', () => {
   });
 
   it('leave out a catalogue spectral type that contradicts the star’s colour or brightness', () => {
-    // The reviewers' cases: a companion's type on the primary, and catalogue slips.
+    // Known cases: a companion's type on the primary, and catalogue slips.
     expect(plausibleSpectralType('F7V comp', 4600, -1.01)).toBeUndefined(); // Dubhe, a K0 giant
     expect(plausibleSpectralType('B8V', 4000, -3.23)).toBeUndefined(); // Almach
     expect(plausibleSpectralType('F8/G0 V', 3220, -1.98)).toBeUndefined(); // 19 Psc, a carbon star
@@ -490,7 +490,8 @@ describe('nearby stars', () => {
     }
     expect(perFrame).toBeLessThan(1);
     sim.camera.pos.set(0, 0, 0);
-  });
+    // The limit is on wall-clock time, which a busy machine stretches; the check above is on processor time.
+  }, 60_000);
 
   it('keeps a star it is told to keep (the focus, the selection, a destination)', async () => {
     const i = findStar(names, 'Achernar')[0];

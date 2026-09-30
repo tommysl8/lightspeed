@@ -61,6 +61,8 @@ export function useShortcuts() {
         openSearch();
         return;
       }
+      // Esc closes panels and releases the pointer; it never ends a trip or a fall into a black hole
+      // (nothing leaves one: the HUD's "Stop the fall" puts the camera back where it let go).
       if (e.key === 'Escape') {
         if (ui.plannerOpen) useUI.setState({ plannerOpen: false });
         else if (ui.noteTopic) useUI.setState({ noteTopic: null });
@@ -87,6 +89,8 @@ export function useShortcuts() {
       }
 
       if (k === 'f') {
+        // Not during a fall (the controller refuses it too); a circular orbit or a snapshot ends first.
+        if (ui.controlMode === 'fall') return;
         if (flying) controller.exitFreeFlight();
         else controller.enterFreeFlight();
         return;

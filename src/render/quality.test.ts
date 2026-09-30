@@ -56,3 +56,31 @@ describe('the quality ladder', () => {
     expect(q.msaa).toBe(0);
   });
 });
+
+describe('the quality ladder near a black hole', () => {
+  const fresh = (over: Partial<Quality> = {}): Quality => ({ ...quality, fps: 0, dpr: 2, maxDpr: 2, cubeFace: 768, msaa: 4, integrated: true, ...over });
+
+  it('is the same ladder by default (a lens not drawn): every existing call keeps its steps', () => {
+    const a = fresh();
+    const b = fresh();
+    for (let i = 0; i < 8; i++) expect(stepDown(a, true)).toBe(stepDown(b, true, false));
+    expect(a).toEqual(b);
+  });
+
+  it('leaves the pixel ratio to the GPU-time controller while a lens is drawn, down and up', () => {
+    const q = fresh();
+    expect(stepDown(q, false, true)).toBe('msaa');
+    expect(stepDown(q, false, true)).toBeNull();
+    expect(q.dpr).toBe(2);
+    expect(stepDown(q, true, true)).toBe('cube');
+    const r = fresh({ dpr: 1.5, msaa: 0, cubeFace: 1024 });
+    expect(stepUp(r, true, true)).toBeNull();
+    expect(r.dpr).toBe(1.5);
+    expect(stepUp(r, true, false)).toBe('dpr');
+  });
+
+  it("starts at rung 0 with bloom's luminance at full resolution", () => {
+    expect(quality.lensRung).toBe(0);
+    expect(quality.bloomHalfLuminance).toBe(false);
+  });
+});

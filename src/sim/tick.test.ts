@@ -9,6 +9,10 @@ import { updateApparentPositions } from './lightDelay';
 import { clearPulses, emitPulse, pulses, updatePulses } from './pulses';
 import { setSimTime, sim } from './sim';
 import { tickClock, tickTrip } from './tick';
+import { controller } from '../controls/cameraController';
+import { registerGalaxyCore } from './galaxy/load';
+import { gravity, updateGravity } from './gravity';
+import { updateShipKinematics } from './shipKinematics';
 import {
   defaultShipRate,
   earthTimeAtTau,
@@ -171,6 +175,43 @@ describe('flights paced by ship time', () => {
     // The pulse told every detector, then went past everything and was retired.
     expect(pulses.list.length).toBe(0);
     setWarp(1);
+  });
+
+  it('pace a clock hovering near a black hole: 1.0001 r_s over Sgr A*, a second here is 100.005 s at home', () => {
+    registerGalaxyCore();
+    setSimTime(T0);
+    updateEphemeris();
+    expect(controller.hoverAt('sgr-a-star', 2 * 1.0001, { x: 0, y: 1, z: 0 })).toBe(true);
+    controller.update(0, 0);
+    updateShipKinematics();
+    updateGravity();
+    expect(gravity.paced).toBe(true);
+    zeroChrono();
+    sim.live = true;
+    const start = sim.timeMs;
+    for (let i = 0; i < FPS; i++) {
+      const dt = tickClock(1 / FPS, Date.now());
+      updateEphemeris();
+      controller.update(1 / FPS, dt);
+      updateShipKinematics();
+      updateGravity();
+      tickTrip(dt);
+    }
+    // Live mode ends: the clock cannot follow the computer's here.
+    expect(sim.live).toBe(false);
+    // Your clock: exactly the second that passed; home's: 1/α = √10001 = 100.004 999 875 times more.
+    expect(chronoTau()).toBeCloseTo(1, 13);
+    expect(chrono.t / Math.sqrt(10001)).toBeCloseTo(1, 12);
+    expect((chrono.t - chronoTau() - chrono.lag) / chrono.t).toBeCloseTo(0, 13);
+    // The clock itself to its own resolution (a float64 of milliseconds in 2026: 2.4 × 10⁻⁴ ms).
+    expect((sim.timeMs - start) / 1000 / Math.sqrt(10001)).toBeCloseTo(1, 8);
+    // Back far away: today's line again (no hole selected).
+    controller.placeAt('earth', 26_000);
+    controller.update(0, 0);
+    updateShipKinematics();
+    updateGravity();
+    expect(gravity.hole).toBeNull();
+    expect(tickClock(1 / FPS)).toBe(1 / FPS);
   });
 
   it('play by ship time far from the present too', () => {

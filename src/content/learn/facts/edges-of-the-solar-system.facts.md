@@ -253,3 +253,8 @@ Re-verified against the primary or official source (read directly this pass):
 Numbers shared with other Learn articles were compared across all 16 articles; changes made here for agreement are listed below.
 
 - Gliese 710 closest approach | 14,000 au (90% 10,700-17,400 au, Gaia DR2) -> about 13,000 au, a fifth of a light-year (90% about 12,300-14,000 au, Gaia DR3) | C. A. L. Bailer-Jones, ApJL 935, L9 (2022), median 0.0636 pc (90% 0.0595-0.0678 pc), https://doi.org/10.3847/2041-8213/ac816a (new footnote [^bj2022]) | corrected: How far are the stars? already used the DR3 value; DR3 supersedes DR2. The 'hardest shove' sentence keeps its Bailer-Jones et al. 2018 citation; Berski and Dybczynski 2016 kept for the ~1.3 Myr timing
+
+## Captions that follow the date (29 September 2026)
+
+- go:voyager1: "172 au from the Earth" and "23 hours 51 minutes" were 25 September's values (Horizons) and grow by about 3.6 au and 30 minutes a year (one light-day on 18 November 2026), so the caption now says "more than 170 au" and "about a day" | computed | corrected
+- go:atlas-3i: "At the end of September 2026 ... 11.7 au" -> "on 25 September 2026 ... 11.6 au" (Horizons, 11.62 au; moving out about 0.034 au a day, it is 11.8 au by 30 September), and the card gives today's distance | Horizons, computed | corrected

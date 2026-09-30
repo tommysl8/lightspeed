@@ -1,6 +1,6 @@
 /**
  * The planets of other stars in the body registry, from the shipped files: the eleven featured
- * systems about the star team's stars (and the three hosts they bring), exactly where the
+ * systems about the stars sim/stars registers (and the three hosts they bring), exactly where the
  * evaluator puts them; transits seen from the Sun at their published times; HR 8799's planets on
  * their measured orbit plane; the labels, colours and notes of the cards; the archive catalogue
  * matched to the star catalogue, its planets given to the star bodies, and any planet found by
@@ -96,7 +96,7 @@ beforeAll(() => {
 const shownPlanets = () => featured.systems.flatMap((s) => s.planets.filter(featuredShown).map((p) => ({ s, p, id: featuredPlanetId(s, p) })));
 
 describe('the featured systems', () => {
-  it('are registered about their hosts: the star team’s stars, and Kepler-90, TOI-700 and the Kepler-16 pair', () => {
+  it('are registered about their hosts: the stars of sim/stars, and Kepler-90, TOI-700 and the Kepler-16 pair', () => {
     const planets = shownPlanets();
     expect(planets).toHaveLength(36); // 38 less Proxima c (disputed, hidden) and Tau Ceti e (refuted)
     for (const { s, id } of planets) {
@@ -116,7 +116,7 @@ describe('the featured systems', () => {
     expect(featuredBodyIds()).toHaveLength(36 + 5);
   });
 
-  it('use the star team’s Alpha Centauri A and B, adding only the candidate S1 about A', () => {
+  it('use the Alpha Centauri A and B of sim/stars, adding only the candidate S1 about A', () => {
     const s1 = getBody('alpha-centauri-a-s1')!;
     expect(s1.parent).toBe('alpha-centauri-a');
     expect(s1.kindText).toBe('Candidate planet of Alpha Centauri A');
