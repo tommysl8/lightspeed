@@ -1,17 +1,22 @@
 # 3D stars, star systems and constellations
 
 What the star files contain, their byte layouts, frames and units, how every number was made, how accurate it is,
-where it came from, and (§11) how the app uses them.
+where it came from, and (§11) how the app uses them. §12 is the catalogue's extension: 3,421,099 more stars in band
+files fetched as the camera goes, and 3,972 pinned stars appended to the core (3,754,841 stars in all).
 
 | File | Size | What it is |
 | --- | --- | --- |
 | `public/data/stars3d.bin.gz` | 5,262,589 B (7,914,544 B raw) | 329,770 stars: 3D position, space velocity, absolute magnitude, temperature, quality flags |
 | `public/data/stars3d-extra.bin.gz` | 641,325 B (989,374 B raw) | Per-star spectral type and constellation, for body cards (load lazily) |
-| `public/data/star-names.json.gz` | 1,154,208 B (3,179,647 B raw) | Proper names (IAU flagged), Bayer, Flamsteed, variable-star, Gliese, HR, HIP and HD designations; spectral-type and constellation dictionaries (load when search opens) |
+| `public/data/star-names.json.gz` | 1,625,107 B | Proper names (IAU flagged), Bayer, Flamsteed, variable-star, Gliese, HR, HIP and HD designations of every star, the extension's included (§12.6); spectral-type and constellation dictionaries (load when search opens) |
 | `public/data/constellations.json` | 50,461 B (14.7 kB gzipped by the host) | 88 IAU constellations; stick figures as polylines of `stars3d` indices |
 | `src/sim/stars/systems.json` | 56,284 B | Alpha Centauri (A, B, Proxima), Sirius, Procyon, 61 Cygni and Capella as orbiting systems; the measured radius, temperature, luminosity and mass (whichever the papers give) of 38 stars, the Sun among them, each value with its reference |
 | `src/sim/stars/*.ts` | | Decoders and evaluators (positions at any epoch, retarded positions for any observer, Kepler orbits, magnitudes, name search), the registry records and the loader, with their tests |
 | `public/data/stars3d-bright.bin.gz` | 171,542 B (239,088 B raw) | The first 9,959 stars of `stars3d.bin.gz` (V ≤ 6.6), in the same layout: the sky for the first second |
+| `public/data/stars3d-head.bin.gz` | 74,077 B | 3,972 pinned stars appended to the core in the app (indices 329,770–333,741): §12.4 |
+| `public/data/stars3d-index.bin.gz` | 192,844 B | The extension's 1,074 band files and their 22,600 cells: §12.5 |
+| `public/data/stars3d/NNNN.bin.gz` | 53,417,944 B in 1,074 files (median 32 kB, largest 252 kB) | The extension's 3,421,099 stars by absolute-magnitude band and place, in cells sorted by M_V: §12.5 |
+| `scripts/build-stars3d-ext.mjs`, `scripts/star-ext-sources.mjs` | | The extension's build and its inputs (§12.8) |
 | `scripts/build-stars3d.mjs`, `scripts/star-literature.mjs`, `scripts/build-constellations.mjs`, `scripts/build-stars3d-bright.mjs` | | Build scripts (Node 24) |
 | `docs/data/stars-build-log.txt`, `docs/data/stars-tycho-calibration.json` | | Build diagnostics and the photometric calibration actually used |
 
@@ -57,9 +62,10 @@ everything: 305 stars lie within 10 pc, where the census of Reylé et al. (2021,
 brown dwarfs and exoplanets in 339 systems. Missing are most brown dwarfs, many white dwarfs and a share of the
 faintest M dwarfs. Counts by distance: 58 within 5 pc, 305 within 10, 1,779 within 20, 4,219 within 100 ly
 (30.66 pc), 30,512 within 100 pc, 226,898 within 500 pc, 308,554 within 1 kpc; the farthest points are tens of kpc
-away and have poor parallaxes (flagged). When flying far from the Sun, the thinning of stars with distance is a
-selection effect of this catalogue, not a feature of the Galaxy; the Milky Way particle model elsewhere in the app
-is what should carry the Galaxy's appearance at those distances.
+away and have poor parallaxes (flagged). The extension (§12) fills in what this selection leaves out: the rest of
+Tycho-2, every star of the Gaia Catalogue of Nearby Stars within 100 pc, and the Galaxy's luminous stars to several
+kpc. With it, 377 stars lie within 10 pc, 301,430 within 100 pc, 1,384,420 within 500 pc, 2,255,044 within 1 kpc and
+3,669,082 within 5 kpc.
 
 ---
 
@@ -435,6 +441,7 @@ verified for this file; the catalogue colour temperature applies to them.
 | `orbits.ts` | `solveKepler`, `orbitRelativeState`, `barycentreAt`, `systemMembersAt`, `systemMembersAtCoordinateTime`, `systemMembersSeenFrom`, `orbitEllipse`, types for `systems.json` |
 | `names.ts` | `buildNameTable`, `findStar`, `searchStars`, `starLabels`, `starDisplayName`, `catalogueNumber`, `normalizeName` |
 | `frames.ts`, `constants.ts` | frame rotations (`eclipticToWorld` etc.), sky bases, units and epochs |
+| `cells.ts`, `extension.ts`, `extensionLoad.ts`, `catalogueDecode.ts`, `workerClient.ts` | the catalogue's extension (§12): cells and their prefixes, the index and band-file decoders, the loader, the head's decoding in the worker, the worker's client |
 | `records.ts`, `facts.ts`, `load.ts`, `worker.ts`, `nearby.ts`, `constellations.ts`, `visibility.ts` | the app's side: registry records and providers, facts with sources, loading in a worker, nearby-star promotion, constellation segments, the near-Sun draw counts (§11) |
 
 Run the tests with `npx vitest run src/sim/stars` (they read the shipped files). They check, among
@@ -494,11 +501,14 @@ float64 on the CPU) from the star's position before converting to float32.
   V = 10); split pairs ±0.2 mag. Variable stars have catalogue mean values (Betelgeuse 0.0–1.6, Mira 2–10).
 - **Temperatures:** colour temperatures; ±100–200 K for FGK stars from the B−V errors, plus the difference between
   colour and effective temperature (large for O/B stars and cool giants).
-- **No interstellar extinction** anywhere. Seen from the Sun the catalogue is exact by construction; approached
-  closely, a star that is dimmed by dust (typically 0.5–1 mag per kpc in the disc) will look too faint and too red.
+- **No interstellar extinction** anywhere: every magnitude and colour is as seen from the Sun, with the dust in
+  between (the cards say so for stars beyond 100 pc). Seen from the Sun the catalogue is exact by construction;
+  approached closely, a star that is dimmed by dust (typically 0.5–1 mag per kpc in the disc, more in the arms) will
+  look too faint and too red. The extension (§12) reaches 2–8 kpc, where this shows most.
 - **Binaries:** most unresolved pairs are one point (RUWE flag marks 65,114 stars whose astrometry suggests a
   companion). Only the five systems above are modelled with orbits.
-- **Brown dwarfs, white dwarfs, faint M dwarfs:** largely missing even nearby (see §1).
+- **Brown dwarfs, white dwarfs, faint M dwarfs:** within 100 pc now as complete as Gaia makes them (GCNS, §12);
+  brown dwarfs later than about L5 without a measured V are left out (100 of the 10-pc census's objects).
 - **Radial-velocity zero point:** spectroscopic velocities include gravitational redshift and convective shifts
   (≲ 0.6 km/s for main-sequence stars).
 - **ξ UMa A and B:** see §4.1 (position ~0.3″, motion ~0.8 km/s).
@@ -525,6 +535,13 @@ float64 on the CPU) from the star's position before converting to float32.
 | d3-celestial (Olaf Frohn), `data/constellations.lines.json`, `data/constellations.json`, https://github.com/ofrohn/d3-celestial | Constellation figures, names, genitives, English meanings, label positions | **BSD 3-Clause** (verified: repository LICENSE, GitHub licence metadata). Figures after the IAU/Sky & Telescope charts with modifications by Frohn. The copyright notice must be reproduced (below) |
 | Sixth Catalog of Orbits of Visual Binary Stars (Hartkopf, Mason, Matson et al.; https://www.astro.gsu.edu/wds/orb6.html), orbits and ephemerides retrieved 2026-09-25 | 61 Cygni orbit listing; ξ UMa AB orbit (Izmailov 2019, Astron. Lett. 45, 30, as listed in ORB6); test ephemerides | Catalogue of published orbits; each orbit is credited to its paper |
 | Papers in `systems.json` → `refs` (Akeson 2021; Kervella 2016, 2017, 2008; Bond 2015, 2017; Irwin 1992; Shakht 2017; Torres 2015; Heiter 2015; Mann 2015 via VizieR J/ApJ/804/64; Ségransan 2003; Monnier 2007, 2012; Che 2011; Joyce 2020; Levesque & Massey 2020; Harper 2017; Ohnaka 2013; Schiller & Przybilla 2008; Mamajek 2012; Ramírez & Allende Prieto 2011; Tkachenko 2016; Domiciano de Souza 2021; Evans 2024; de Almeida 2022; Teixeira 2009; Ribas 2018; Agol 2021; Costa 2006; Boyajian 2013 via VizieR J/ApJ/771/40; Baines 2012; Soubiran 2018; IAU 2015 B3) | Orbits, barycentres, stellar parameters | Facts from the literature, cited per value |
+| AT-HYG v4.0, the whole catalogue (`athyg_40.csv.gz`) | The extension's Tycho-2 stars (§12) | **CC BY-SA 4.0**, as above |
+| Gaia Catalogue of Nearby Stars (Gaia Collaboration, Smart et al. 2021, A&A 649, A6; CDS J/A+A/649/A6) | The extension's stars within 100 pc | Gaia data, **CC BY-NC 3.0 IGO**; cite the paper and ESA/Gaia/DPAC |
+| The 10 parsec sample (Reylé et al. 2021, A&A 650, A201, update of 2023; CDS J/A+A/650/A201) | Nearby objects Gaia lacks | Values from the literature; cite the paper |
+| Zari et al. (2021, A&A 650, A112; CDS J/A+A/650/A112), filtered sample | Which luminous hot stars to include | The selection is the authors'; values are Gaia DR3 |
+| Hunt & Reffert (2023, A&A 673, A114; VizieR J/A+A/673/A114) | Which open-cluster members to include | CC BY 4.0 article; values are Gaia DR3 |
+| NASA Exoplanet Archive hosts with Gaia DR3 ids (`gaia_dr3_exoplanet_hosts_2026-09-25.csv.gz`, cached by the exoplanet build) | Every planet host pinned in the head | As the exoplanet files |
+| Riello et al. (2021, A&A 649, A3), Table C.2 | V from Gaia G and BP−RP | Published formula |
 | Ballesteros (2012, EPL 97, 34008) | B−V → temperature | Published formula |
 | Willmer (2018, ApJS 236, 47) | M_V of the Sun = 4.81 | Published value |
 
@@ -564,7 +581,7 @@ CC BY-SA forbids adding restrictions and CC BY-NC forbids commercial use, so the
 licence, and the files cannot be offered under CC BY-SA 4.0 alone (the first version of this document said they
 could; that was wrong). What is permitted, and what the CREDITS row below says: the files may be used and shared
 **non-commercially**, with credit to AT-HYG/David Nash and to ESA/Gaia/DPAC, and adaptations must keep the same
-terms. Lightspeed is non-commercial, so it can ship them. Any commercial reuse would need ESA's permission for the
+terms. Skyfold is non-commercial, so it can ship them. Any commercial reuse would need ESA's permission for the
 Gaia-derived values (AT-HYG itself redistributes Gaia DR3 values and carries the same tension). Hipparcos, Tycho-2 and
 SIMBAD values are ESA/CDS data free with acknowledgement and add no further restriction.
 
@@ -572,7 +589,7 @@ SIMBAD values are ESA/CDS data free with acknowledgement and add no further rest
 
 | Files | Source | Licence |
 | --- | --- | --- |
-| `public/data/stars3d.bin.gz`, `public/data/stars3d-bright.bin.gz`, `public/data/stars3d-extra.bin.gz`, `public/data/star-names.json.gz` | Derived from [AT-HYG v4.0](https://codeberg.org/astronexus/athyg) by David Nash (astronexus), with distances and radial velocities from [Gaia DR3](https://www.cosmos.esa.int/gaia) (ESA/Gaia/DPAC), photometry and parallaxes from the Hipparcos Catalogue (ESA 1997) and its new reduction (van Leeuwen 2007) via [VizieR](https://vizier.cds.unistra.fr/), variable-star names from [HYG v4.4](https://codeberg.org/astronexus/hyg), and the [IAU list of star names](https://www.iau.org/public/themes/naming_stars/) | Non-commercial use only. The AT-HYG content is [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) (credit David Nash / astronexus; share alike); the Gaia DR3-derived values are [CC BY-NC 3.0 IGO](https://www.cosmos.esa.int/web/gaia-users/license) (credit ESA/Gaia/DPAC; non-commercial). Both sets of terms apply to these files, so they may be shared and adapted only non-commercially, with both credits, under the same terms. |
+| `public/data/stars3d.bin.gz`, `public/data/stars3d-bright.bin.gz`, `public/data/stars3d-extra.bin.gz`, `public/data/stars3d-head.bin.gz`, `public/data/stars3d-index.bin.gz`, `public/data/stars3d/*.bin.gz`, `public/data/star-names.json.gz` | Derived from [AT-HYG v4.0](https://codeberg.org/astronexus/athyg) by David Nash (astronexus), with distances, motions and photometry from [Gaia DR3](https://www.cosmos.esa.int/gaia) (ESA/Gaia/DPAC), the Gaia Catalogue of Nearby Stars (Gaia Collaboration, Smart et al. 2021), the 10 parsec sample (Reylé et al. 2021), the luminous hot stars of Zari et al. (2021), the open-cluster members of Hunt & Reffert (2023) and the exoplanet hosts of the NASA Exoplanet Archive, photometry and parallaxes from the Hipparcos Catalogue (ESA 1997) and its new reduction (van Leeuwen 2007) via [VizieR](https://vizier.cds.unistra.fr/) (CDS, Strasbourg), variable-star names from [HYG v4.4](https://codeberg.org/astronexus/hyg), and the [IAU list of star names](https://www.iau.org/public/themes/naming_stars/) | Non-commercial use only. The AT-HYG content is [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) (credit David Nash / astronexus; share alike); the Gaia DR3-derived values are [CC BY-NC 3.0 IGO](https://www.cosmos.esa.int/web/gaia-users/license) (credit ESA/Gaia/DPAC; non-commercial). Both sets of terms apply to these files, so they may be shared and adapted only non-commercially, with both credits, under the same terms. |
 | `public/data/constellations.json` | Constellation figures and names from [d3-celestial](https://github.com/ofrohn/d3-celestial) by Olaf Frohn (after the IAU / Sky & Telescope charts), linked to the stars above | [BSD 3-Clause](https://github.com/ofrohn/d3-celestial/blob/master/LICENSE), Copyright (c) 2015, Olaf Frohn |
 | `src/sim/stars/systems.json` (star systems and named-star parameters) | Compiled for Lightspeed from the papers cited in the file (orbits: Akeson et al. 2021, Bond et al. 2015 and 2017, Shakht et al. 2017, Torres et al. 2015; Proxima: Kervella et al. 2017 and Gaia DR3) | Values from the literature, each with its reference; the Proxima state uses Gaia DR3 (ESA/Gaia/DPAC, CC BY-NC 3.0 IGO) |
 
@@ -589,6 +606,8 @@ node scripts/build-stars3d.mjs --fetch   # downloads missing inputs into data-ra
 node scripts/build-stars3d.mjs           # writes stars3d*.bin.gz, star-names.json.gz, src/sim/stars/systems.json
 node scripts/build-constellations.mjs    # after the above: writes public/data/constellations.json
 node scripts/build-stars3d-bright.mjs    # after the above: writes public/data/stars3d-bright.bin.gz
+node --max-old-space-size=10000 scripts/build-stars3d-ext.mjs --fetch   # the extension (§12.8)
+node scripts/build-faint-stars.mjs       # the faint stars' glow, which counts the extension's stars to V = 11
 npx vitest run src/sim/stars
 ```
 
@@ -637,8 +656,9 @@ the following, all fixed here (details in the sections named):
 
 **Loading** (`src/sim/stars/load.ts`, `worker.ts`). Once the first frames are up, a worker fetches, decompresses
 (DecompressionStream) and decodes `stars3d-bright.bin.gz` (the 9,959 stars to V = 6.6, 172 kB), then
-`stars3d.bin.gz`; the typed arrays come back without copying. The subset is the head of the full file, so the swap
-changes nothing on screen. `constellations.json` follows the subset (its figures use naked-eye stars only).
+`stars3d.bin.gz` with `stars3d-head.bin.gz` appended (the pinned stars, §12.4; the head's cells are made then too,
+about 0.2 s in the worker); the typed arrays come back without copying. The subset is the head of the full file, so
+the swap changes nothing on screen. The extension's index and band files follow as the camera goes (§12.5). `constellations.json` follows the subset (its figures use naked-eye stars only).
 `star-names.json.gz` is fetched and indexed in the worker when "Where to?" first opens (or a star needs a name),
 and `stars3d-extra.bin.gz` when a catalogue star is registered or its data sheet opens.
 
@@ -672,7 +692,8 @@ holds it, and 15,549 (before) and 15,729 (after) can show. The lists take 34 ms 
 26 ms pass over the catalogue that the star field used to make on the main thread when it arrived (the test of whether
 any star at all shows from outside the Milky Way). GPU time on the Intel Xe laptop: at Earth billions of years ahead
 or behind 1 to 2 ms less a frame; at the Carina Nebula (2.3 kpc) 1 ms less; at Sgr A* 0.7 to 0.9 ms less. Between 0.05 pc
-and 500 pc from the Sun, and in the relativistic view (beaming brightens faint stars ahead), every star is drawn; in
+and 500 pc from the Sun, and in the relativistic view (beaming brightens faint stars ahead), the head is now drawn
+through its cells (§12.7) wherever they draw fewer stars than these (all 333,742 before; 19,000–30,000 now); in
 the split view the classical half draws the short lists too. The tests check the lists against the shader's
 arithmetic from their distances in four directions, and from 0.05 pc out while the stars stand still, with and
 without the light-time correction.
@@ -713,14 +734,15 @@ of light at the same magnitude and colour, and a limb-darkened blackbody sphere 
   worker), instead of the Sun's 5,772 K, and the card says the temperature is borrowed. A companion can differ
   from its primary (Avior B is a hot B star beside a cool giant): the pair's colour is only the best measure the
   catalogue has.
-- *Nearby stars* (`nearby.ts`). The catalogue is scanned 40,000 stars a frame; a star within 0.1 pc (about
-  20,000 au) of the camera is registered (`star-<index>`, named from the names table) so it is placed in float64
+- *Nearby stars* (`nearby.ts`). The catalogue is scanned 40,000 stars a frame, and the extension's loaded files
+  through the cells whose box comes within 0.1 pc; a star within 0.1 pc (about 20,000 au) of the camera is registered (`star-<index>`, named from the names table) so it is placed in float64
   and drawn as a sphere; past 0.15 pc it is released, unless it is the focus, the selection or a flight's
   destination. Stars found by search become bodies the same way when chosen.
 
 **Search** (`src/content/starDestinations.ts`). "Where to?" searches the names table as you type (proper names,
 Bayer, Flamsteed, variable-star and Gliese designations by prefix; HR, HIP and HD numbers exactly), after the
-registry's own matches. A star that is a body already comes back as that body.
+registry's own matches. A star that is a body already comes back as that body; a star of the extension is registered
+once its band file has arrived (a fraction of a second).
 
 **Constellations** (`src/scene/Constellations.tsx`, `src/ui/ConstellationNames.tsx`). Each figure segment is cut
 into twelve pieces along the straight 3D segment between its two stars, each drawn at its true place, so figures
@@ -734,3 +756,213 @@ turn them on or off for good; `sky-from:<star>` turns them on.
 **The sky from a star.** `sky-from:<star>` puts the camera beside the star on the Sun's side (100 radii or 1 au,
 whichever is larger), looking back at the Sun, which is labelled "Sun (home)" once the Solar System is under a pixel.
 
+---
+
+## 12. The catalogue's extension
+
+3,425,071 stars beyond the 329,770 above (3,754,841 in all), chosen as the stars that matter most to an explorer:
+the rest of the Tycho-2 sky, every known star within 100 pc, the Galaxy's luminous stars to several kiloparsecs,
+the members of the nearby open clusters and every exoplanet host. The core file is not touched: its stars keep their
+indices, names, figures, systems and lists. 3,972 of the new stars are pinned to the core (the head, loaded with it);
+the rest are in 1,074 band files that are fetched as the camera comes near them.
+
+### 12.1 Which stars
+
+| Group | Source | Rule | New stars |
+| --- | --- | --- | --- |
+| The Tycho-2 sky | AT-HYG v4.0, the rows beyond the core (2,226,476) | a usable parallax; distance error under 20% unless the star has a name or an HD, HIP or Gliese number (20,185 dropped); not implausibly luminous | 2,181,093 |
+| Every known star within 100 pc | Gaia Catalogue of Nearby Stars (Gaia Collaboration, Smart et al. 2021): its 300,567 objects with a median distance ≤ 100 pc | parallax/error ≥ 5 after the zero-point (§4.2) | 249,488 (16,287 of them white dwarf candidates) |
+| … and what Gaia lacks | The 10 parsec sample (Reylé et al. 2021): 456 stars and brown dwarfs | a V measured or tabulated for its type (brown dwarfs later than about L5 have none: 100 left out) | 16 |
+| Young luminous stars | Zari et al. (2021), filtered sample (417,535 OBA stars chosen with colours dust does not change) | parallax/error ≥ 5 | 302,952 |
+| Luminous stars to 5–8 kpc | Gaia DR3: M_G < 0 as seen from the Sun within 5 kpc, or M_G < −1 with parallax/error ≥ 10 within 8 kpc; all with parallax/error ≥ 5 and RUWE < 1.4 (883,627 rows) | as for the others | 589,901 |
+| Open-cluster members | Hunt & Reffert (2023): members with probability ≥ 0.7 of the 1,603 open clusters within 1 kpc (119,326) | parallax/error ≥ 5 | 99,068 (the Pleiades gain 439, Praesepe 345, α Persei 273) |
+| Exoplanet hosts | The 4,413 hosts of the NASA Exoplanet Archive with Gaia DR3 astrometry (`data-raw/gaia_dr3_exoplanet_hosts_2026-09-25.csv.gz`) | any positive parallax | 2,550 (and 863 found in the groups above; all pinned) |
+| Black-hole companions | The visible stars of Gaia BH1, BH2 and BH3 | any positive parallax | 3 (pinned) |
+
+Why these: measured as the share of the naked-eye sky (G < 6.5 from the viewpoint, every Gaia DR3 star with
+parallax/error ≥ 3 as the truth) that the catalogue holds, the core alone holds 98.6% of it 100 pc from the Sun but
+80% at the Orion Nebula, 33% at Cygnus X (1.4 kpc), 15% at the Carina Nebula (2.3 kpc) and 7% 3 kpc toward the inner
+Galaxy; with the extension 99.7%, 91%, 86%, 64% and 57%. The Tycho-2 sky is the big step out to 2 kpc, the Gaia
+luminous stars fill 2–4 kpc, and the hot stars trace the spiral arms (chosen by colours dust does not change, so the
+reddened ones of the arms are in); GCNS adds nothing to distant views but completes the neighbourhood (the nearest
+stars, red and white dwarfs, Roam's pace, search). What is still missing far away is mostly cluster members fainter
+than Tycho-2 in crowded, nebulous fields.
+
+Duplicates (each rule counted in `stars-ext-build-log.txt`): by Gaia DR3 source id against AT-HYG's links and between
+the groups (the first group keeps a star); by position for new Gaia stars brighter than V = 12.5 from the Sun: within
+3″ (plus 16 years of proper motion) of a catalogue star with V within 1.5 mag it is the same star under another id and
+is dropped (817), a fainter neighbour is kept as a resolved companion (origin bit 0x40); and any new star brighter than
+V = 7.52 from the Sun is dropped as a probable duplicate (6: Tycho-2 is complete far fainter). 1,045 AT-HYG rows repeat
+a Gaia id already used; 24,152 have no usable parallax.
+
+### 12.2 Values
+
+As the core's (§4), with these differences:
+
+- **Positions:** where Gaia DR3 has the star, its J2016.0 place carried back to J2000 along the star's own motion
+  (Gaia's positions are better than Tycho-2's at these magnitudes); otherwise AT-HYG's J2000 place.
+- **Distances:** Gaia DR3 parallaxes with the Lindegren et al. (2021) zero-point (§4.2); Hipparcos where more
+  precise; a Gaia DR2 distance (from AT-HYG) only for designated stars without any other.
+- **V and colour:** for AT-HYG stars fainter than V_T = 10.5, where Tycho-2's photometry grows noisy, V from Gaia G and
+  BP−RP (Riello et al. 2021, Table C.2; for BP−RP > 2.75 the G−V of the Pecaut & Mamajek dwarf sequence) and B−V
+  from BP−RP, calibrated in the build on 538,862 AT-HYG stars with 10 < V_T < 11 (the median Tycho-2 B−V per 0.05 mag
+  of BP−RP, 81 knots; beyond them the dwarf sequence). Where Gaia's V and Tycho-2's differ by 0.75 mag or more (35,123
+  stars: the linked Gaia source is a blend or a neighbour) Tycho-2's are kept. On 208,475 stars with 9 < V_T < 10.5, V
+  from Tycho-2 minus V from Gaia: median −0.006 mag, MAD 0.044. Hipparcos V only where it agrees with the Tycho-2 star
+  to 1 mag (a faint companion can carry its primary's HIP number). Gaia-only stars take V and B−V from Gaia; 2,058
+  GCNS stars without BP/RP from G and 2MASS Ks along the dwarf sequence, 3,398 others without a colour get V = G and
+  no temperature (flagged).
+- **Dust:** as in the core, every magnitude and colour is as seen from the Sun, with the dust in between (§7).
+- **Velocities:** Gaia DR3 radial velocities with the Katz and Blomme corrections (§4.5), else GCNS's adopted one,
+  else AT-HYG's.
+- **Flags:** as §3.2 (bit 14: not in AT-HYG); what they have no room for is in the origin byte (§12.3).
+
+### 12.3 The origin byte
+
+Low 4 bits, the group: 0 core, 1 AT-HYG, 2 GCNS, 3 10-pc census, 4 Zari et al., 5 Gaia luminous, 6 cluster member,
+7 exoplanet host, 8 black-hole companion. Bits: 0x10 V from Gaia photometry, 0x20 colour from Gaia BP−RP, 0x40 a
+fainter star within 3″ of a brighter catalogue star (its light may be in that star's V too), 0x80 GCNS white dwarf
+candidate (probability > 0.5). `originText` in `catalogue.ts` puts it into words for the card's data line.
+
+### 12.4 The head: `stars3d-head.bin.gz`
+
+3,972 stars in the core's LSS3 layout (§3.1) plus three sections: origin (uint8), spectral type (uint16, index into
+`star-names.json`'s `spectralTypes`, byte-shuffled) and constellation (uint8, as `stars3d-extra.bin`). The worker
+appends them to the core (`appendStars3D`), so they are stars 329,770–333,741 of `starData.stars`, sorted by V from
+the Sun. They are every exoplanet host of the groups above (3,413), so the exoplanet module's matcher finds them among
+the catalogue's stars as it always has; the 16 census objects; the 227 Gliese-numbered AT-HYG stars; the 3 black-hole
+companions (`blackholes.json` points at them: the build writes their indices there); and the 315 new stars that can be
+seen from within 0.05 pc of the Sun at some date within ±1 Myr (the closest approach of each star's straight-line
+path, the shader's light-time allowance and 0.5 mag of margin), so the Sun's sky at any date needs no band file. None
+of them can be seen from near the Sun within ±3,000 years, so the near-Sun counts (§11) are unchanged (a test checks
+it).
+
+### 12.5 Band files and their index
+
+**Band files** `stars3d/NNNN.bin.gz` (magic `LSB1`, the core's 64-byte header layout): the stars of one
+absolute-magnitude band in one region. Bands of M_V: below −3, −3 to 0, 0 to 3, 3 to 6, 6 to 9, 9 and fainter (a
+band's stars reach from the camera over at most a factor 4 in distance). Regions: an octree over each band's stars with
+at most 16,384 stars a leaf (a file); inside each file an octree with at most 512 stars a leaf (a **cell**), each cell
+sorted by M_V, brightest first. Sections: the cells' star counts (uint16), then positions (float32, 19-bit mantissa
+as §3.1), velocities (int16 × 0.1 km/s), M_V (int16 × 0.01, delta-coded within each cell: the first absolute, then the
+differences), temperature (uint16), flags (uint16), all byte-shuffled; origin (uint8); spectral type (uint16,
+shuffled); constellation (uint8; 0 for Gaia-only stars). `decodeBandFile` (`extension.ts`) decodes one and works out
+its cells' boxes (§12.7). The global index of a file's star k is the file's base + k.
+
+| Band (M_V) | Stars | Files | Bytes |
+| --- | --- | --- | --- |
+| below −3 | 521 | 1 | 11,271 |
+| −3 to 0 | 302,577 | 118 | 4,834,732 |
+| 0 to 3 | 1,798,922 | 520 | 28,156,006 |
+| 3 to 6 | 963,199 | 284 | 15,015,676 |
+| 6 to 9 | 83,006 | 42 | 1,291,994 |
+| 9 and fainter | 272,874 | 109 | 4,108,265 |
+| all | 3,421,099 | 1,074 (22,600 cells) | 53,417,944 (15.6 B a star; median file 32 kB, largest 252 kB) |
+
+**Index** `stars3d-index.bin.gz` (magic `LSI1`, a 128-byte header: at 8 the number of files, at 24 the number of
+sections and from 28 their offsets, at 72 the head's star count, at 76 the total, at 80 the number of cells, at 84 the
+core's count). Sections: per file its base index, star count, cell count and gzipped size (uint32, shuffled), band
+(uint8), brightest M_V (int16 × 0.01, rounded down), fastest star (float32, km/s) and three boxes (float32 × 18,
+rounded outward: lo x y z, hi x y z at J2000 with each star's light-time motion, then at +1 Myr and −1 Myr); per cell,
+files in order, its brightest M_V (int16 × 0.01, rounded down), star count (uint16) and box at J2000, quantised outward
+to 8 bits a coordinate inside its file's box (uint8 × 6). `decodeStarIndex` checks that the counts add up.
+
+**Loading** (`extensionLoad.ts`): nothing while the camera is within 0.05 pc of the Sun (the head holds every star
+that can be seen there at any date). Elsewhere the index is fetched once, then each file one of whose cells passes
+M_min + 5 log10(d_min / 10 pc) < 7.02 + 0.5 (the shader's cut and a prefetch margin), d_min the distance to the cell's
+box at the date (the index's J2000 box grown by the file's fastest star's travel; beyond 20,000 years from 2000 the
+file's own boxes, exact at any date), or one of whose cells lies within 2 pc of the camera (so nearby promotion and
+Roam's nearest star see every star around). Brightest first, four at a time; the loader looks again when the camera
+has moved 0.2% of its distance from the Sun, or every 30 frames. Beyond 1,500,000 loaded stars the files least
+recently needed are dropped. A search or a flight that asks for a star fetches its file (`ensureCatalogueStar`).
+In the app, reached in turn: 15 files (62,118 stars) at Sirius, 34 (194,000) at the Orion Nebula, 55 (292,000) at
+Carina. Modelled before the build: arriving anywhere in the disc within 3 kpc needs 0.8–2.6 MB (median 0.9); a flight
+from the Sun to Carina about 9 MB in all.
+
+### 12.6 Names
+
+`star-names.json.gz` holds the core's entries as before (`coreCount` 329,770, `coreSpectralTypes`), then the new
+stars' HD, HIP and Gliese numbers, HYG's variable-star names and the census objects' names (349,825 HD, 117,705 HIP,
+3,774 Gliese and 5,729 variable names in all); `count` is 3,754,841. Search finds them as it finds the core's (§11);
+an extension star becomes a body once its file has arrived.
+
+### 12.7 Drawing: cells
+
+`cells.ts`. Every star of a cell is at least as far from the camera as the nearest point of the cell's box, so of a
+cell sorted by M_V only the first stars, those with M_V ≤ cut − 5 log10(d_min / 10 pc), can pass the shader's cut
+(the eye's limit + 0.52, raised by any brightening): the rest are never drawn, and what is drawn is exactly what
+drawing all of them shows. The box moves with the date as the shader moves the stars: with linear motion each
+coordinate at a date is the same blend of its values at J2000 and at ±1 Myr, so the box at any date lies within the
+same blend of the two boxes (exact bounds from three boxes a cell); d_min is shrunk by the cell's fastest v/c for the
+light-time correction from the camera. The tests check, by the shader's own arithmetic, that no star that shows from
+eight places (the Sun to the Galactic Centre) at five dates (to ±3 Myr), with and without the light-time correction
+and with the cut raised by 3 mag, is left out, over the head and over band files of every band.
+
+- **The head** has cells too (2,345, built in the worker, about 0.2 s): the star field draws through them where they
+  draw fewer stars than the near-Sun stretch, a far list or all of them (§11). From 0.05 to 500 pc from the Sun that
+  was every star, 333,742; now 19,000–30,000. Not while a black hole's lens is drawn (its order-0 list merges with the
+  plain lists).
+- **Each loaded band file** is one points object with the star material and its lensed variant (primary images are
+  exact; near a hole each cell's cut is raised by the magnification bound at the cell's least angle from the lens axis
+  and by the Doppler and gravity bound, as in the shader's pre-cull). Far-side images (orders 1–3) come from the head
+  only.
+- **Index buffers** are made again only when a cell's count changes (two per catalogue, one for each half of the split
+  view).
+- **Budget:** 600,000 stars a frame at most (about 2.3 ms of vertex work on the target laptop; a half and a third of
+  that on the GPU-time controller's lower lens rungs). Over it, the cut is lowered by the same amount for every cell
+  until the draws fit: the faintest brightened stars go first. At rest it is never approached.
+
+Stars drawn a frame (head + extension) and the star field's GPU time on the target laptop (Intel Graphics, ANGLE
+D3D11, 2,048 × 1,320 at pixel ratio 2, no multisampling; whole frames with and without the star field, interleaved,
+`__ls.perf.ab`, 7 rounds, spreads 0.1–0.9 ms), before (the core drawn as before the cells) and now:
+
+| Camera | Drawn before | Drawn now | GPU before | GPU now |
+| --- | --- | --- | --- | --- |
+| Earth | 15,977 | 15,977 + 0 | 0.05 ms | 0.05 ms |
+| Sirius (2.6 pc) | 333,742 (all) | 29,811 + 2,500 | 0.49 ms | 0.06 ms |
+| Orion Nebula (380 pc) | 333,742 (all) | 19,780 + 9,267 | 0.30 ms | 0.17 ms |
+| Carina Nebula (2.2 kpc) | 7,970 | 7,970 + 12,351 | 0.18 ms | 0.20 ms |
+| 3 kpc toward l = 30° | 7,970 | 7,970 + 4,097 | ~0 | ~0 |
+| Flying from the Sun toward Carina at 0.999c (rapidity 3.8) | up to 333,742 | 280,000–320,000 + 100,000–170,000 | | under the budget |
+
+### 12.8 Rebuilding
+
+```
+node --max-old-space-size=10000 scripts/build-stars3d-ext.mjs --fetch   # after build-stars3d.mjs; about 5 minutes
+node scripts/build-faint-stars.mjs
+npx vitest run src/sim/stars src/sim/galaxy/faintStars.test.ts src/sim/blackholes
+```
+
+`--fetch` downloads what is missing (resumably): the whole AT-HYG from Codeberg LFS, the CDS tables, Hunt & Reffert's
+members through TAPVizieR, Gaia DR3 columns for every candidate by IN lists of 5,000 ids (592 queries, about an hour),
+and the luminous stars in 48 slices of the sky by source id (synchronous queries of a few seconds each: the archive's
+asynchronous jobs could wait in its queue for hours). The build needs the core's outputs (`stars3d.bin.gz`,
+`star-names.json.gz`, `stars-tycho-calibration.json`); it writes the head, the index, the band files (the old ones
+removed first), the names file (the core's entries as they are; an earlier extension stripped first), the black-hole
+companions' indices in `src/sim/blackholes/blackholes.json` and `stars-ext-build-log.txt`. It is deterministic and
+needs about 4 GB of memory.
+
+| Input (`data-raw/`) | Bytes | sha256 | Origin |
+| --- | --- | --- | --- |
+| `athyg_40.csv.gz` | 199,688,001 | 69ad04dd33d7c7bb4f5e1b4682798075811547ea9fb8d0e802e5b319c46818a6 | AT-HYG v4.0, Codeberg LFS `data/athyg_40.csv.gz` |
+| `gcns_table1c.dat.gz` | 75,193,892 | 299f7c15025780df96d5f73fc299e89c81b76fe3de2231981d92ffde11f20ab1 | CDS J/A+A/649/A6 |
+| `reyle2021_tablea1.dat.gz` | 78,205 | 934d2af754d2792ca1142fd63233b7292c2374c5fc6144167337f3d36746216c | CDS J/A+A/650/A201 (update of 2023-08-25) |
+| `zari2021_filtered.dat.gz` | 78,176,297 | eaeda2661771eef8c3a4633147ac5d1e259c40b84b5a744f6784401ef6129971 | CDS J/A+A/650/A112 |
+| `hr23_members_1kpc.csv.gz` | 3,454,779 | ff328d554b9a9b83b84195916931c7a7b6f047b9506b1b08bbb3238208885516 | TAPVizieR, J/A+A/673/A114 members joined to clusters (the query is in `star-ext-sources.mjs`) |
+| `gaia_dr3_luminous.csv.gz` | 93,790,084 | 7f5cbb43d0b1e04f6737cad6d1d7c20257b06d7bc2991accfb9c1a494575f80d | Gaia archive, 883,627 rows |
+| `gaia_dr3_ext_columns.csv.gz` | 306,952,342 | c6319613a8b68aa49e68e075a7b766c5136d933cbd092c5993ac3184f77678a5 | Gaia archive, 2,958,229 rows (several gzip members) |
+
+Licences and credits: §8 (the new sources add citations, not restrictions; everything stays non-commercial, with the
+AT-HYG and Gaia credits). VizieR asks for: "This research has made use of the VizieR catalogue access tool, CDS,
+Strasbourg Astronomical Observatory, France (DOI: 10.26093/cds/vizier)."
+
+### 12.9 Known limits
+
+- Every magnitude and colour is as seen from the Sun (§7): a reddened star 2 kpc away stays faint and yellow when flown
+  to.
+- Parallaxes far away: at 0.2 mas a 0.015 mas zero-point residual is 7.5% of the distance, and 1/ϖ at parallax/error 5
+  is biased by about 4%; the precision class says so.
+- Tycho-2 is incomplete in crowded, nebulous fields; only the Gaia groups fill those.
+- A resolved companion's light may also be inside the Tycho-2 V of its primary (not subtracted).
+- Brown dwarfs later than about L5 without a measured V are not in (they would show only from a few hundred au).
+- Far-side lensed images come from the head's stars only.

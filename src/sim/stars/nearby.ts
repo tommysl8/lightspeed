@@ -8,7 +8,9 @@
  *
  * The catalogue is scanned a slice per frame (CHUNK stars), so a full sweep costs about a
  * millisecond spread over nine frames, with no allocation. The same sweep notes the star nearest the
- * camera (sim/stars/nearest.ts), which sets Roam's pace between the stars.
+ * camera (sim/stars/nearest.ts), which sets Roam's pace between the stars. The extension's loaded band
+ * files (extensionLoad.ts, which this also drives once a frame) are searched through their cells at the end
+ * of each sweep: only cells whose box comes near the camera are read.
  */
 import { PARSEC_KM } from '../../physics/constants';
 import type { BodyId } from '../bodies';
@@ -18,6 +20,9 @@ import { bodyOfCatalogueStar, ensureCatalogueStar, onDemandStars, releaseCatalog
 import { motionYears } from './motion';
 import { catalogueStarId } from './records';
 import { nearestStar } from './nearest';
+import { cellDistance } from './cells';
+import { extData, updateExtensionLoading } from './extensionLoad';
+import type { BandFile } from './extension';
 
 /** A catalogue star closer than this to the camera becomes a body, pc (about 20,000 au). */
 export const PROMOTE_PC = 0.1;
@@ -46,6 +51,7 @@ export function updateNearbyStars(keep: (id: BodyId) => boolean): void {
   const cy = -c.z / PARSEC_KM;
   const cz = c.y / PARSEC_KM;
   const years = motionYears(2000 + sim.astroTime.tt / 365.25);
+  updateExtensionLoading(cx, cy, cz, years);
   const kv = stars.velocityUnitKms * KMS_TO_PC_PER_YR;
   const P = stars.positions;
   const V = stars.velocitiesInt16;
@@ -80,7 +86,39 @@ export function updateNearbyStars(keep: (id: BodyId) => boolean): void {
   cursor = end;
   if (cursor < stars.count) return;
   cursor = 0;
-  publishNearest(stars.positions, V, kv, years);
+  // The extension's loaded files: stars to promote, and a nearer star than the head's (moved to the date).
+  let extBest = Infinity;
+  let extIndex = -1;
+  let extFile: BandFile | null = null;
+  const bestHead = Math.sqrt(sweepBest);
+  for (const file of extData.files.values()) {
+    const C = file.cells;
+    const FP = file.stars.positions;
+    const FV = file.stars.velocitiesInt16;
+    const fkv = file.stars.velocityUnitKms * KMS_TO_PC_PER_YR;
+    for (let c = 0; c < C.count; c++) {
+      const d = cellDistance(C, c, cx, cy, cz, years);
+      if (d > PROMOTE_PC && d > Math.min(bestHead, Math.sqrt(extBest))) continue;
+      for (let q = C.start[c]; q < C.start[c + 1]; q++) {
+        const px = FP[3 * q];
+        const py = FP[3 * q + 1];
+        const pz = FP[3 * q + 2];
+        const t = years + Math.sqrt(px * px + py * py + pz * pz) / C_PC_PER_YR;
+        const dx = px + FV[3 * q] * fkv * t - cx;
+        const dy = py + FV[3 * q + 1] * fkv * t - cy;
+        const dz = pz + FV[3 * q + 2] * fkv * t - cz;
+        const d2 = dx * dx + dy * dy + dz * dz;
+        if (d2 < r2) found.push(file.base + q);
+        if (d2 < extBest) {
+          extBest = d2;
+          extIndex = q;
+          extFile = file;
+        }
+      }
+    }
+  }
+  if (extFile && extBest < sweepBest) publishNearest(extFile.stars.positions, extFile.stars.velocitiesInt16, extFile.stars.velocityUnitKms * KMS_TO_PC_PER_YR, years, extIndex, extFile.base + extIndex);
+  else publishNearest(stars.positions, V, kv, years, sweepIndex, sweepIndex);
 
   for (const i of found) {
     if (pending.has(i) || bodyOfCatalogueStar(i)) continue;
@@ -101,9 +139,8 @@ export function updateNearbyStars(keep: (id: BodyId) => boolean): void {
 }
 
 /** The sweep's nearest star, moved to the sweep's date as the star field moves it, in world km (sim/stars/nearest.ts). */
-function publishNearest(P: Float32Array, V: Int16Array, kv: number, years: number): void {
-  const i = sweepIndex;
-  nearestStar.index = i;
+function publishNearest(P: Float32Array, V: Int16Array, kv: number, years: number, i: number, globalIndex: number): void {
+  nearestStar.index = globalIndex;
   if (i < 0) return;
   const px = P[3 * i];
   const py = P[3 * i + 1];

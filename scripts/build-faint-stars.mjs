@@ -6,11 +6,14 @@
  * stars fainter than about V = 11: the brighter ones were left out of it because the app draws
  * them as points. But the app draws only those brighter than the eye's limit (the star field fades
  * out between V = 6 and 7: src/render/shaders/psf.glsl, STAR_MAG_LIMIT = 6.5), so the light of the
- * catalogue's stars from V = 6.5 to its limit (V ≈ 10) was in neither: about an eighth of all the
- * starlight, and more than a third of the glow at high galactic latitudes. This map holds it, in the
- * sky map's projection and encoding, and the shader adds it to the sky map (shaders/milkyway.glsl).
+ * catalogue's stars from V = 6.5 to about V = 11 was in neither: about an eighth of all the starlight,
+ * and more than a third of the glow at high galactic latitudes. This map holds it, in the sky map's
+ * projection and encoding, and the shader adds it to the sky map (shaders/milkyway.glsl).
  *
- * Input: public/data/stars3d.bin.gz (the star catalogue: AT-HYG v4.0 with Gaia DR3; CREDITS.md).
+ * Input: the star catalogue (AT-HYG v4.0 with Gaia DR3; CREDITS.md): public/data/stars3d.bin.gz, and
+ * the stars of its extension brighter than V = 11 from the Sun (the sky map's own cut: fainter ones
+ * are in it already) from public/data/stars3d-head.bin.gz and the band files of
+ * public/data/stars3d-index.bin.gz (docs/data/stars.md §12).
  * For each star, V as seen from the Sun (M_V + 5 log10(d / 10 pc), from the file), weighted by
  * smoothstep(6, 7, V): the share of its light the star field does not draw (1 − the fade of
  * psf.glsl, so the two add up to the star's light at every V). Each star's light is spread over the
@@ -74,8 +77,78 @@ export function readStars(path = resolve(ROOT, 'public/data/stars3d.bin.gz')) {
   return { count: n, positions, absMag: Float32Array.from(absMag, (m) => m * absMagUnit) };
 }
 
+/** The sky map (NASA SVS) holds the light of stars fainter than this, V: brighter extension stars go into the glow. */
+export const SVS_CUT_V = 11;
+
+/**
+ * The extension's stars brighter than maxV from the Sun: the head's pinned stars (after the core) and the band
+ * files (src/sim/stars/extension.ts decodeBandFile). Empty when the extension is not built.
+ */
+export function readExtensionStars(maxV = SVS_CUT_V) {
+  const pos = [];
+  const mag = [];
+  const keep = (P, M, n, unit) => {
+    for (let i = 0; i < n; i++) {
+      const r = Math.hypot(P[3 * i], P[3 * i + 1], P[3 * i + 2]);
+      const m = M[i] * unit;
+      if (m + 5 * Math.log10(r / 10) >= maxV) continue;
+      pos.push(P[3 * i], P[3 * i + 1], P[3 * i + 2]);
+      mag.push(m);
+    }
+  };
+  const open = (path) => {
+    const raw = gunzipSync(readFileSync(path));
+    const buf = raw.buffer.slice(raw.byteOffset, raw.byteOffset + raw.byteLength);
+    const dv = new DataView(buf);
+    const offsets = [];
+    for (let k = 0; k < dv.getUint32(24, true); k++) offsets.push(dv.getUint32(28 + 4 * k, true));
+    const unshuffle = (offset, count, width) => {
+      const src = new Uint8Array(buf, offset, count * width);
+      const out = new Uint8Array(count * width);
+      for (let k = 0; k < width; k++) for (let i = 0; i < count; i++) out[i * width + k] = src[k * count + i];
+      return out.buffer;
+    };
+    return { buf, dv, n: dv.getUint32(8, true), unit: dv.getFloat32(20, true), offsets, unshuffle };
+  };
+  let head;
+  try {
+    head = open(resolve(ROOT, 'public/data/stars3d-head.bin.gz'));
+  } catch {
+    return { count: 0, positions: new Float32Array(0), absMag: new Float32Array(0) };
+  }
+  keep(new Float32Array(head.unshuffle(head.offsets[0], 3 * head.n, 4)), new Int16Array(head.unshuffle(head.offsets[2], head.n, 2)), head.n, head.unit);
+  const index = open(resolve(ROOT, 'public/data/stars3d-index.bin.gz'));
+  for (let k = 0; k < index.n; k++) {
+    const b = open(resolve(ROOT, `public/data/stars3d/${String(k).padStart(4, '0')}.bin.gz`));
+    const o = b.offsets;
+    const counts = new Uint16Array(b.buf.slice(o[0], o[1]));
+    const M = new Int16Array(b.unshuffle(o[3], b.n, 2));
+    // M_V is delta-coded within each cell.
+    let q = 0;
+    for (let c = 0; c < counts.length && q < b.n; c++) {
+      for (let j = 1; j < counts[c]; j++) M[q + j] += M[q + j - 1];
+      q += counts[c];
+    }
+    keep(new Float32Array(b.unshuffle(o[1], 3 * b.n, 4)), M, b.n, b.unit);
+  }
+  return { count: mag.length, positions: Float32Array.from(pos), absMag: Float32Array.from(mag) };
+}
+
+/** The core and the extension's stars brighter than the sky map's cut, as one list. */
+export function readAllStars() {
+  const a = readStars();
+  const b = readExtensionStars();
+  const positions = new Float32Array(3 * (a.count + b.count));
+  positions.set(a.positions);
+  positions.set(b.positions, 3 * a.count);
+  const absMag = new Float32Array(a.count + b.count);
+  absMag.set(a.absMag);
+  absMag.set(b.absMag, a.count);
+  return { count: a.count + b.count, positions, absMag, extension: b.count };
+}
+
 /** The glow map: p per texel (row 0 at the top, as the image), and what went into it. */
-export function faintStarMap(stars = readStars()) {
+export function faintStarMap(stars = readAllStars()) {
   const flux = new Float64Array(W * H);
   const sigma = SIGMA_DEG * DEG;
   const reach = 3 * sigma;

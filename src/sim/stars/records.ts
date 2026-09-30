@@ -21,6 +21,7 @@ import {
   distanceSource,
   colourSource,
   ColourSource,
+  originText,
   teffIsBorrowed,
   velocityNote,
   type Stars3D,
@@ -290,6 +291,8 @@ interface StarBasis {
   id: string;
   name: string;
   index: number | null;
+  /** Where the star's row is in `stars` when that is not `index` (a band file of the catalogue's extension). */
+  local?: number;
   json: StarJson | null;
   parent: string | null;
   centre?: string;
@@ -305,7 +308,7 @@ interface StarBasis {
 
 /** The physical side of a star record, from the catalogue row and (for the named stars) the literature. */
 function starRecord(stars: Stars3D, b: StarBasis): BodyRecord {
-  const i = b.index;
+  const i = b.index === null ? null : (b.local ?? b.index);
   const j = b.json;
   const flags = i !== null ? stars.flags[i] : 0;
   const pos: Vec3 = i !== null ? [stars.positions[3 * i], stars.positions[3 * i + 1], stars.positions[3 * i + 2]] : [0, 0, 0];
@@ -351,12 +354,12 @@ function starRecord(stars: Stars3D, b: StarBasis): BodyRecord {
   if (j?.distancePc) notes.push(`Placed at its catalogue distance, ${round(distancePc, 4)} pc; the paper behind its size and luminosity adopts ${j.distancePc} pc.`);
   const vNote = i !== null ? velocityNote(flags) : null;
   if (vNote) notes.push(vNote);
-  if (distancePc > 100) notes.push('Its brightness assumes no interstellar dust (dust dims distant stars by up to about a magnitude per kiloparsec).');
+  if (distancePc > 100) notes.push('Its brightness and colour are as seen from the Sun, with the dust in between.');
   if (j?.id === 'spica') notes.push('Spica is a close pair drawn as one star; its companion is left out.');
 
   const refs = j ? [...new Set(Object.values(j.refs))].map((k) => b.refs[k] ?? k) : undefined;
   const star: StarInfo = {
-    catalogueIndex: i ?? undefined,
+    catalogueIndex: b.index ?? undefined,
     spectralType,
     teffK,
     teffSource,
@@ -401,7 +404,7 @@ function starRecord(stars: Stars3D, b: StarBasis): BodyRecord {
     facts: facts?.facts,
     factSources: facts?.sources,
     factSourceLabels: facts?.labels,
-    dataSource: `AT-HYG v4.0 catalogue with Gaia DR3 and Hipparcos distances${lineageRefs}`,
+    dataSource: `${originText(i !== null && stars.origin ? stars.origin[i] : 0)}${lineageRefs}`,
     positionNote: b.positionNote,
     modelNotes: notes,
     provider: b.provider,
@@ -580,22 +583,24 @@ export function mergeCoreProxima(records: BodyRecord[], core: BodyRecord): BodyR
  * straight-line motion, its size estimated from its brightness and colour, named from the names
  * table when that has loaded.
  */
-export function catalogueStarRecord(stars: Stars3D, i: number, names: StarNameTable | null, extra: Stars3DExtra | null): BodyRecord {
-  const pos: Vec3 = [stars.positions[3 * i], stars.positions[3 * i + 1], stars.positions[3 * i + 2]];
-  const vel: Vec3 = [0, 1, 2].map((k) => stars.velocitiesInt16[3 * i + k] * stars.velocityUnitKms) as Vec3;
+export function catalogueStarRecord(stars: Stars3D, i: number, names: StarNameTable | null, extra: Stars3DExtra | null, local = i): BodyRecord {
+  const L = local;
+  const pos: Vec3 = [stars.positions[3 * L], stars.positions[3 * L + 1], stars.positions[3 * L + 2]];
+  const vel: Vec3 = [0, 1, 2].map((k) => stars.velocitiesInt16[3 * L + k] * stars.velocityUnitKms) as Vec3;
   const labels = names ? starLabels(names, i) : [];
   const name = names ? starDisplayName(names, i) : `Star ${i.toLocaleString('en-GB')} of the catalogue`;
-  const spectral = extra && names ? names.spectralTypes[extra.spectralType[i]] || undefined : undefined;
-  const con = extra && names && extra.constellation[i] ? names.constellations[extra.constellation[i] - 1]?.[1] : undefined;
+  const spectral = extra && names ? names.spectralTypes[extra.spectralType[L]] || undefined : undefined;
+  const con = extra && names && extra.constellation[L] ? names.constellations[extra.constellation[L] - 1]?.[1] : undefined;
   const hip = names ? catalogueNumber(names, 'hip', i) : null;
   const rec = starRecord(stars, {
     id: catalogueStarId(i),
     name,
     index: i,
+    local: L,
     json: null,
     parent: null,
     provider: linearStarProvider(pos, vel, 'Straight-line motion from the AT-HYG v4.0 / Gaia DR3 catalogue'),
-    positionNote: `${LINEAR_NOTE}; ${distanceWords(stars, i)}.`,
+    positionNote: `${LINEAR_NOTE}; ${distanceWords(stars, L)}.`,
     aliases: labels.slice(1),
     spectralType: spectral,
     designations: labels.length ? labels : hip !== null ? [`HIP ${hip}`] : undefined,

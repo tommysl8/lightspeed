@@ -12,6 +12,7 @@
  */
 
 import type { NearSunCounts, StarDrawLists } from './visibility';
+import type { StarCells } from './cells';
 
 export interface Stars3D {
   /** Number of stars (the Sun is not included). */
@@ -43,6 +44,50 @@ export interface Stars3D {
    * the loader sets it), ascending.
    */
   teffBorrowed?: Int32Array;
+  /**
+   * Where each star comes from (the head file's and the band files' origin byte; 0 for the core's stars): low 4
+   * bits the group (Origin), then the ORIGIN_* bits. Absent for the core file alone.
+   */
+  origin?: Uint8Array;
+  /** Stars of stars3d.bin.gz (the core); the pinned stars of stars3d-head.bin.gz follow (the loader sets it). */
+  coreCount?: number;
+  /** Spectral type and constellation of the stars after the core (the head file's own sections; the loader sets it). */
+  headExtra?: Stars3DExtra;
+  /** The head's cells (cells.ts; the loader sets it, for drawing). */
+  cells?: StarCells;
+}
+
+/** Where a star comes from: the low 4 bits of its origin byte (docs/data/stars.md §12). */
+export const Origin = { core: 0, athyg: 1, gcns: 2, census: 3, zari: 4, luminous: 5, cluster: 6, host: 7, bhCompanion: 8 } as const;
+/** Its V is from Gaia G, BP and RP (Riello et al. 2021), not from Tycho-2 or Hipparcos. */
+export const ORIGIN_V_GAIA = 0x10;
+/** Its colour is from Gaia BP − RP. */
+export const ORIGIN_BV_GAIA = 0x20;
+/** A fainter star within 3″ of a brighter catalogue star (its light may be in the brighter one's V too). */
+export const ORIGIN_COMPANION = 0x40;
+/** A white dwarf candidate (GCNS). */
+export const ORIGIN_WHITE_DWARF = 0x80;
+
+/** What a star's data come from, in words (the card's data line). */
+export function originText(o: number): string {
+  switch (o & 15) {
+    case Origin.gcns:
+      return 'Gaia Catalogue of Nearby Stars (Gaia DR3)';
+    case Origin.census:
+      return 'the 10 parsec census of Reylé et al. (2021)';
+    case Origin.zari:
+      return 'Gaia DR3; a luminous hot star of Zari et al. (2021)';
+    case Origin.luminous:
+      return 'Gaia DR3 (luminous stars within 8 kpc)';
+    case Origin.cluster:
+      return 'Gaia DR3; a member of an open cluster (Hunt & Reffert 2023)';
+    case Origin.host:
+      return 'Gaia DR3; a planet host of the NASA Exoplanet Archive';
+    case Origin.bhCompanion:
+      return 'Gaia DR3; the companion of a black hole';
+    default:
+      return 'AT-HYG v4.0 catalogue with Gaia DR3 and Hipparcos distances';
+  }
 }
 
 export interface Stars3DExtra {
@@ -101,7 +146,47 @@ export function decodeStars3D(buf: ArrayBuffer): Stars3D {
   const [epochJy, velocityUnitKms, absMagUnit] = h.floats;
   const absMag = new Float32Array(n);
   for (let i = 0; i < n; i++) absMag[i] = absMagInt16[i] * absMagUnit;
-  return { count: n, epochJy, positions, velocitiesInt16, velocityUnitKms, absMagInt16, absMagUnit, absMag, teff, flags };
+  const out: Stars3D = { count: n, epochJy, positions, velocitiesInt16, velocityUnitKms, absMagInt16, absMagUnit, absMag, teff, flags };
+  // The head file (stars3d-head.bin.gz) adds three sections: origin, spectral type, constellation.
+  if (h.offsets.length >= 8) {
+    out.origin = new Uint8Array(buf.slice(h.offsets[5], h.offsets[5] + n));
+    out.headExtra = {
+      count: n,
+      spectralType: new Uint16Array(unshuffle(buf, h.offsets[6], n, 2)),
+      constellation: new Uint8Array(buf.slice(h.offsets[7], h.offsets[7] + n)),
+    };
+  }
+  return out;
+}
+
+/**
+ * The core followed by the head's pinned stars, as one catalogue (the star worker; indices of the core unchanged).
+ * `headExtra` becomes the pinned stars' spectral types and constellations, indexed from the core's count.
+ */
+export function appendStars3D(core: Stars3D, head: Stars3D): Stars3D {
+  const n = core.count + head.count;
+  const cat = <T extends Float32Array | Int16Array | Uint16Array | Uint8Array>(a: T, b: T, Ctor: new (n: number) => T, per: number): T => {
+    const out = new Ctor(n * per);
+    out.set(a);
+    out.set(b, core.count * per);
+    return out;
+  };
+  if (head.velocityUnitKms !== core.velocityUnitKms || head.absMagUnit !== core.absMagUnit) throw new Error('stars3d-head: units differ from the core');
+  return {
+    count: n,
+    epochJy: core.epochJy,
+    positions: cat(core.positions, head.positions, Float32Array, 3),
+    velocitiesInt16: cat(core.velocitiesInt16, head.velocitiesInt16, Int16Array, 3),
+    velocityUnitKms: core.velocityUnitKms,
+    absMagInt16: cat(core.absMagInt16, head.absMagInt16, Int16Array, 1),
+    absMagUnit: core.absMagUnit,
+    absMag: cat(core.absMag, head.absMag, Float32Array, 1),
+    teff: cat(core.teff, head.teff, Uint16Array, 1),
+    flags: cat(core.flags, head.flags, Uint16Array, 1),
+    origin: cat(new Uint8Array(core.count), head.origin ?? new Uint8Array(head.count), Uint8Array, 1),
+    coreCount: core.count,
+    headExtra: head.headExtra,
+  };
 }
 
 /** Decode an already-decompressed stars3d-extra.bin. */
@@ -119,6 +204,13 @@ export function stars3DTransfer(s: Stars3D): ArrayBuffer[] {
   const out = [s.positions.buffer, s.velocitiesInt16.buffer, s.absMagInt16.buffer, s.absMag.buffer, s.teff.buffer, s.flags.buffer] as ArrayBuffer[];
   if (s.teffBorrowed) out.push(s.teffBorrowed.buffer as ArrayBuffer);
   if (s.drawLists) for (const l of [...s.drawLists.far, ...s.drawLists.frozen]) out.push(l.buffer as ArrayBuffer);
+  if (s.origin) out.push(s.origin.buffer as ArrayBuffer);
+  if (s.headExtra) out.push(s.headExtra.spectralType.buffer as ArrayBuffer, s.headExtra.constellation.buffer as ArrayBuffer);
+  if (s.cells) {
+    const c = s.cells;
+    out.push(c.start.buffer as ArrayBuffer, c.box.buffer as ArrayBuffer, c.beta.buffer as ArrayBuffer);
+    if (c.order) out.push(c.order.buffer as ArrayBuffer, c.mag.buffer as ArrayBuffer);
+  }
   return out;
 }
 

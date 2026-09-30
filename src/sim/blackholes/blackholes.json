@@ -638,7 +638,7 @@
         "Gaia DR3 4373465352415301632",
         "2MASS J17284110−0034514"
       ],
-      "catalogueIndex": null,
+      "catalogueIndex": 332012,
       "spectralType": "G V",
       "kindText": "Sun-like star",
       "massMsun": {
@@ -677,7 +677,7 @@
         "Gaia DR3 5870569352746779008",
         "2MASS J13501675−5914203"
       ],
-      "catalogueIndex": null,
+      "catalogueIndex": 331205,
       "spectralType": "lower red-giant branch",
       "kindText": "Red giant",
       "massMsun": {
@@ -716,7 +716,7 @@
         "LS II +14 13",
         "2MASS J19391872+1455542"
       ],
-      "catalogueIndex": null,
+      "catalogueIndex": 330526,
       "spectralType": "metal-poor giant",
       "kindText": "Metal-poor giant",
       "massMsun": {

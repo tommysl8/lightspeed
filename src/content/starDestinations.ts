@@ -11,6 +11,8 @@ import {
   bodyOfCatalogueStar,
   catalogueStarId,
   catalogueNumber,
+  ensureCatalogueStar,
+  extensionStar,
   motionYears,
   plausibleSpectralType,
   registerCatalogueStar,
@@ -26,8 +28,13 @@ import { findDestination, type Destination } from './destinations';
 
 /** Distance from the camera to catalogue star i now, km (where it is, straight-line motion). */
 export function catalogueStarDistanceKm(i: number): number {
-  const s = starData.stars;
-  if (!s || i >= s.count) return NaN;
+  const head = starData.stars;
+  if (!head) return NaN;
+  // A star of the catalogue's extension: from its band file, once loaded.
+  const e = i >= head.count ? extensionStar(i) : null;
+  if (i >= head.count && !e) return NaN;
+  const s = e ? e.file.stars : head;
+  if (e) i = e.local;
   const P = s.positions;
   const V = s.velocitiesInt16;
   const kv = s.velocityUnitKms * KMS_TO_PC_PER_YR;
@@ -66,11 +73,16 @@ function catalogueDestination(i: number): Destination {
     distanceKm: () => catalogueStarDistanceKm(i),
     unavailable: () => (starData.full ? (sim.bodies[id] && !sim.bodies[id].present ? `${name} is not there at the date shown` : null) : 'Loading the star catalogue…'),
     prepare: () => {
-      registerCatalogueStar(i);
+      if (!registerCatalogueStar(i)) void ensureCatalogueStar(i);
     },
     go: () => {
       const body = registerCatalogueStar(i);
       if (body) goToBody(body);
+      // A star of the extension whose band file has not loaded yet: once it has.
+      else
+        void ensureCatalogueStar(i).then((b) => {
+          if (b) goToBody(b);
+        });
     },
   };
 }

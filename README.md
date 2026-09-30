@@ -14,7 +14,7 @@ Explore the real universe at nearly the speed of light, in your browser.
 </p>
 
 Lightspeed is a map of the universe at true scale that you can fly around. The planets are where they are today.
-329,770 stars sit at their measured distances. Beyond them are the Milky Way, Andromeda, 55,877 galaxies of the cosmic
+3.75 million stars sit at their measured distances. Beyond them are the Milky Way, Andromeda, 55,877 galaxies of the cosmic
 web and the afterglow of the Big Bang. Fly fast and special relativity takes over: the sky bunches up ahead of you,
 colours shift and your clock falls behind Earth's. Get close to a black hole and its gravity bends the light of the
 whole sky.
@@ -60,7 +60,7 @@ On a touch screen, drag to look around and hold the arrows at the right edge to 
 Almost everything you see comes from real measurements:
 
 - **Solar System:** positions from Astronomy Engine and JPL Horizons.
-- **Stars:** AT-HYG with Gaia DR3 distances and motions.
+- **Stars:** 3.75 million from AT-HYG, the Gaia Catalogue of Nearby Stars and Gaia DR3, with Gaia distances and motions.
 - **Planets of other stars:** the NASA Exoplanet Archive.
 - **Galaxies:** the Local Volume Database and Cosmicflows-4.
 - **Black holes:** published measurements.
