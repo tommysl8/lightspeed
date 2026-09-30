@@ -5,7 +5,7 @@ import { BloomEffect, EffectComposer, EffectPass, ToneMappingEffect, ToneMapping
 import { LightspeedScenePass } from './LightspeedScenePass';
 import { precompileLater, setPrecompileStarter } from './precompile';
 import { quality } from './quality';
-import { GpuFrameTimer } from './gpuBudget';
+import { GpuFrameTimer, surveyBudget } from './gpuBudget';
 import { lens, lensOverride } from './lens/lensState';
 
 /**
@@ -90,9 +90,9 @@ export function RenderPipeline() {
     };
   }, [gl, camera, scenePass]);
 
-  // The frame's GPU work near a black hole starts here: after the simulation (priority −10), before the flow map and
-  // the sky cube (priority 0) and the render (1).
-  useFrame(() => timer.begin(lens.active), -1);
+  // The frame's GPU work near a black hole (or with the galaxy surveys drawn: their point budget) starts here: after
+  // the simulation (priority −10), before the flow map and the sky cube (priority 0) and the render (1).
+  useFrame(() => timer.begin(lens.active || surveyBudget.active), -1);
 
   useFrame((_, delta) => {
     if (composer.multisampling !== quality.msaa) {

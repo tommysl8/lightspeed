@@ -2,8 +2,9 @@
 // distances from Cosmicflows-4, at their comoving places in megaparsecs (float32, heliocentric world
 // axes), the camera as hi + lo floats. A map, not the light the eye would get: from out here every
 // galaxy is far too faint to see. Each point is coloured by the kind of galaxy its distance method
-// says it is and sized and brightened by its infrared (Ks) luminosity; points fade out close to the
-// camera, where the galaxies drawn as bodies take over, and dim gently with distance, for depth.
+// says it is and carries light by its infrared (Ks) luminosity; points fade out close to the camera,
+// where the galaxies drawn as bodies take over, and dim gently with distance, for depth. The law of
+// that light is the one the galaxy surveys use (galaxyMap.glsl), so the two maps agree where they meet.
 //
 // In the expanding universe (sim/cosmos/expansion.ts) a point with anchor c (its group's comoving
 // place, its own, or home inside the Local Group) is at position + (a − 1) c at the clock's time, so
@@ -18,6 +19,7 @@
 #include <common>
 #include <logdepthbuf_pars_vertex>
 #include <lightspeed_relativity>
+#include <lightspeed_galaxymap>
 #ifdef LENS
 // Near a black hole (render/lensVariants.ts swaps in this shader compiled with LENS while the lens is
 // drawn) each point is drawn at its image (lensImage, tier 1, as the stars: stars.vert.glsl), its light
@@ -41,7 +43,6 @@ uniform vec3 uCamLo;
 uniform float uOpacity;
 uniform float uPixelRatio;
 uniform float uNearMpc;  // points within this distance fade out (the bodies take over)
-uniform float uDepthMpc; // brightness halves at this distance
 uniform vec3 uTypeColor[3];
 uniform float uTypeLnT[3]; // ln of each kind's colour temperature (K)
 
@@ -131,11 +132,11 @@ void main() {
     a /= p;
   }
   float l = exp2(3.3219281 * aAttr.y); // L / L*
-  // Size and brightness by luminosity (gently: the survey spans 10⁴ in L); nearer points larger and
-  // brighter, for depth (brightness halves at uDepthMpc).
-  float size = clamp(1.5 * pow(l, 0.18) * sqrt(1.0 + 0.5 * uDepthMpc / d), 1.1, 4.5);
-  float q = d / uDepthMpc;
-  a *= clamp(0.6 * pow(l, 0.3), 0.08, 1.0) * 1.4 / (1.0 + q * q);
+  // Light by luminosity (gently: the survey spans 10⁴ in L) and by distance, for depth (galaxyMap.glsl:
+  // it halves at uDepthMpc, and nearer points are brighter); the size only shapes the point, its alpha
+  // being its light over its area.
+  float px = mapSizePx(l, d, uPixelRatio);
+  a *= mapLight(l) * mapDepth(d) * mapUnitPx2(uPixelRatio) / (px * px);
   int t = int(aAttr.x + 0.5);
   vec3 base = t == 0 ? uTypeColor[0] : t == 1 ? uTypeColor[1] : uTypeColor[2];
   float lnT = t == 0 ? uTypeLnT[0] : t == 1 ? uTypeLnT[1] : uTypeLnT[2];
@@ -171,7 +172,6 @@ void main() {
   // smaller still, each as much brighter, its light (alpha × area) kept. Tens of thousands of points
   // each blended over a hundred pixels in one small patch would cost milliseconds for light that
   // adds up the same.
-  float px = size * uPixelRatio + 1.0;
   float k = min(exp(-max(lnD, 0.0)), sqrt(min(a / FAINT_ALPHA, 1.0)));
   if (k < 1.0) {
     float s = max(px * k, 1.5);

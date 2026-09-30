@@ -7,6 +7,7 @@ import { GalaxyModel } from './scene/GalaxyModel';
 import { Nebulae } from './scene/Nebulae';
 import { Galaxies } from './scene/Galaxies';
 import { CosmicWeb } from './scene/CosmicWeb';
+import { Surveys } from './scene/Surveys';
 import { CmbMap } from './scene/CmbMap';
 import { Constellations } from './scene/Constellations';
 import { PlanetHosts } from './scene/PlanetHosts';
@@ -120,6 +121,7 @@ export default function App() {
           <Starfield />
           <NuclearCluster />
           <CosmicWeb />
+          <Surveys />
           <Constellations />
           <PlanetHosts />
           <EclipticGrid />

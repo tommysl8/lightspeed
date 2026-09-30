@@ -2,7 +2,7 @@
  * The cards of the data layers, in the top left of the view while they show (in the column there,
  * below the view readout or Roam's panel and the messages: ViewportChrome.tsx): the map of the
  * cosmic microwave background (its label, "contrast enhanced", and its credit), the cosmic web
- * (what the points are, and the survey's gaps), and near Sagittarius A* the two models there: the
+ * (what the points are, and the survey's gaps), the galaxy surveys (placed by redshift), and near Sagittarius A* the two models there: the
  * stars round it (a statistical model of the nuclear star cluster and disc, its text in
  * sim/galaxy/nuclearCluster.ts) and the glowing gas falling into it (the accretion flow's model,
  * sim/blackholes/accretion.ts). Each says what the layer is and whether it is a model; each opens to say
@@ -17,7 +17,8 @@ import { useUI } from '../../state/ui';
 import { sim } from '../../sim/sim';
 import { relView } from '../../render/relativisticView';
 import { useTicker } from '../useTicker';
-import { CMB_CARD, COSMIC_WEB_CARD, cosmicWebShare, webMembersShown } from '../cosmicLayers';
+import { CMB_CARD, COSMIC_WEB_CARD, cosmicWebShare, SURVEY_CARD, surveyShare, webMembersShown } from '../cosmicLayers';
+import { survey } from '../../sim/surveys/load';
 import { cmbEpochNote } from '../../sim/cosmos/cmb';
 import { NSC_LAYER_CARD, nuclear } from '../../sim/galaxy/nuclearCluster';
 import { FLOW_HOLE, flowPoint, type FlowPoint } from '../../sim/blackholes/accretion';
@@ -108,18 +109,21 @@ export function LayerCards() {
   useTicker(2);
   const showCmb = useUI((s) => s.showCmb);
   const webMode = useUI((s) => s.cosmicWeb);
+  const surveysMode = useUI((s) => s.surveys);
   const flowOn = useUI((s) => s.accretionFlow);
   // The stars round Sgr A* have no switch of their own: their card can be put away for the visit.
   const [nscAway, setNscAway] = useState(false);
   // Shown whatever the readouts setting: the label and caveats belong with the layers.
   const web = cosmicWebShare(webMode, sim.camera.pos.length()) >= WEB_CARD_SHARE || webMembersShown.now;
+  // The surveys' card once they show (and their index has loaded).
+  const surveys = !!survey.hierarchy && surveyShare(surveysMode, sim.camera.pos.length()) >= WEB_CARD_SHARE;
   // The map is drawn in the plain view (and the plain half of the split view).
   const cmb = showCmb && (!relView.active || relView.split);
   // The nuclear cluster's field while its points are drawn (within 60 pc of Sgr A*, once loaded).
   const nsc = !nscAway && nuclear.w > 0 && nuclear.points > 0;
   // The gas while it is drawn and conspicuous: its point bright, or resolved by the lens (flowPoint: 99 when not drawn).
   const flow = flowOn && flowPoint(FLOW_HOLE, flowNow).magnitude < FLOW_CARD_MAG;
-  if (!web && !cmb && !nsc && !flow) return null;
+  if (!web && !surveys && !cmb && !nsc && !flow) return null;
   const holeArticle = kindArticle('black-hole');
   return (
     <div className="flex w-full max-w-[380px] flex-col gap-1.5">
@@ -143,6 +147,17 @@ export function LayerCards() {
           sources={[`${COSMIC_WEB_CARD.credit}.`]}
           article={COSMOS_ARTICLE}
           onClose={() => useUI.setState({ cosmicWeb: 'off' })}
+        />
+      )}
+      {surveys && (
+        <LayerCard
+          title={SURVEY_CARD.title}
+          line={SURVEY_CARD.line}
+          caveat={SURVEY_CARD.caveat}
+          more={SURVEY_CARD.more}
+          sources={[`${SURVEY_CARD.credit}.`]}
+          article={COSMOS_ARTICLE}
+          onClose={() => useUI.setState({ surveys: 'off' })}
         />
       )}
       {flow && (
