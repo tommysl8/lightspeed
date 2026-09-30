@@ -1,18 +1,18 @@
 {
-  "name": "lightspeed",
+  "name": "skyfold",
   "private": true,
   "version": "0.3.0",
   "type": "module",
   "description": "Explore the real universe at nearly the speed of light: the true-scale Solar System, real stars in 3D, the Milky Way and the galaxies beyond, with exact relativistic optics and flights through expanding space, in the browser.",
   "license": "MIT",
   "author": "Tommy S. Liu (https://github.com/tommysl8)",
-  "homepage": "https://lightspeed-explorer.vercel.app",
+  "homepage": "https://skyfold-space.vercel.app",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/tommysl8/lightspeed.git"
+    "url": "git+https://github.com/tommysl8/skyfold.git"
   },
   "bugs": {
-    "url": "https://github.com/tommysl8/lightspeed/issues"
+    "url": "https://github.com/tommysl8/skyfold/issues"
   },
   "engines": {
     "node": "^22.12.0 || ^24.0.0"

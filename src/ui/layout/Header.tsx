@@ -381,7 +381,7 @@ function ViewMenu() {
                 ['book', 'Guide', () => openDoc('guide'), null],
                 ['dock-left', 'Physics reference', openReference, null],
                 ['keyboard', 'Keyboard and mouse', () => useUI.setState({ keysOpen: true }), '?'],
-                ['info', 'About Lightspeed', () => openDoc('about'), null],
+                ['info', 'About Skyfold', () => openDoc('about'), null],
               ] as const
             ).map(([icon, label, run, key]) => (
               <button
@@ -415,7 +415,7 @@ function ViewMenu() {
  * from 1024), buttons 8–12 px padded:
  *   375 px   mark, date, then icons: search, Journeys, Learn, View. About 320 px.
  *   480 px   "Where to?" gets its label (+64 px).
- *   640 px   the name LIGHTSPEED (+104). About 505 px.
+ *   640 px   the name SKYFOLD (+104). About 505 px.
  *   768 px   the time on the chip (+64), "Journeys" (+57). About 665 px.
  *   900 px   "Learn" and "View" in words (+73). About 740 px.
  *   1024 px  larger type, "UTC" on the chip. About 850 px.
@@ -428,7 +428,7 @@ export function Header() {
       <a
         href="#/about"
         className="-mx-1 flex h-[30px] shrink-0 items-center rounded-[2px] px-1 hover:bg-hover focus-visible:outline focus-visible:outline-1 focus-visible:outline-accent lg:h-9"
-        title="About Lightspeed"
+        title="About Skyfold"
         onClick={(e) => {
           e.preventDefault();
           openDoc('about');

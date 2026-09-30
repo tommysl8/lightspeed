@@ -324,7 +324,7 @@ export const FLOW_TEXTS = {
   card: 'The glow at the centre is a model of the hot gas falling in (a thin, hot flow fitted to its radio-to-infrared spectrum): never seen in visible light, uncertain about three times either way, and smooth where the real one flickers.',
   menuHint: 'A model of the hot gas falling into Sgr A*. Off: the black hole shows against the sky alone.',
   figureCaption:
-    'The Event Horizon Telescope’s 2017 image: a reconstruction at 1.3 mm, ring 51.8 ± 2.3 µas across. Lightspeed’s 1.3 mm view is a model, not this image.',
+    'The Event Horizon Telescope’s 2017 image: a reconstruction at 1.3 mm, ring 51.8 ± 2.3 µas across. Skyfold’s 1.3 mm view is a model, not this image.',
   bandVisible: 'Visible light',
   bandMm: '1.3 mm, as the EHT sees it',
   bandMmHint: 'The model’s brightness at the EHT’s wavelength in false colour (black, red, yellow, white up to 6 × 10¹⁰ K): not light the eye could see.',

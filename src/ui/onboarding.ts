@@ -39,7 +39,7 @@ export function showWelcome(): void {
 }
 
 /**
- * Forget everything Lightspeed saved in this browser: panel sizes and states, display toggles,
+ * Forget everything Skyfold saved in this browser: panel sizes and states, display toggles,
  * collapsed sections, physics notes already shown, and the welcome screen.
  */
 export function resetPreferences(): void {

@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <!-- Lightspeed. A circle on the sky, at rest and seen from a ship moving at 0.6c towards
+  <!-- Skyfold. A circle on the sky, at rest and seen from a ship moving at 0.6c towards
        the amber apex. In stereographic projection aberration shrinks everything towards the
        apex by the Doppler factor, exactly 2 here: radius 24 becomes 12, still through the
        apex. Coordinates sit on a 4-unit grid, so edges land on whole pixels at 16 and 32 px. -->

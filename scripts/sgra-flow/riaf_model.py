@@ -19,7 +19,7 @@ The observer is at rest at infinity (the image and SED as seen from Earth withou
 observer at rest near the hole, surface brightness is the same up to the factor g^(3-alpha) of their own
 gravitational blueshift (negligible beyond ~100 r_g).
 
-This is the model Lightspeed draws (model A of fit_riaf.py: n0 = 2.613e6 cm^-3, T0 = 1.876e12 K, n0nt = 4.081e5 cm^-3,
+This is the model Skyfold draws (model A of fit_riaf.py: n0 = 2.613e6 cm^-3, T0 = 1.876e12 K, n0nt = 4.081e5 cm^-3,
 p = 2). The app's float32 twin of one ray is src/render/flow/flowRay.ts (and the GPU's, flowMap.frag.glsl); cameras
 at a finite distance, in the static or the raindrop frame, are flow_camera.py; the numbers the app reads are written
 by flow_tables.py into src/sim/blackholes/sgraFlow.json. Unchanged since it was used for the fit

@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Lightspeed · explore the real universe at nearly the speed of light</title>
+    <title>Skyfold · explore the real universe at nearly the speed of light</title>
     <meta
       name="description"
       content="The Solar System at true scale, 329,770 real stars and the planets found around them, the Milky Way, Andromeda and 55,877 galaxies of the cosmic web, eleven real black holes that bend light as general relativity says, a ship that flies at nearly the speed of light, long reads on the science behind it, and a lab with five experiments for students."
@@ -20,8 +20,8 @@
 
     <!-- Link previews (the image URL is made absolute at build time on Vercel: vite.config.ts) -->
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="Lightspeed" />
-    <meta property="og:title" content="Lightspeed · explore the real universe at nearly the speed of light" />
+    <meta property="og:site_name" content="Skyfold" />
+    <meta property="og:title" content="Skyfold · explore the real universe at nearly the speed of light" />
     <meta
       property="og:description"
       content="The planets, the stars, the Milky Way and the galaxies beyond it, where they really are. Fly at nearly the speed of light and watch the sky, and your clock, change."
@@ -29,14 +29,15 @@
     <meta property="og:image" content="/og-image.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="The Lightspeed mark and title: explore the real universe at nearly the speed of light" />
+    <meta property="og:image:alt" content="The Skyfold mark and title: explore the real universe at nearly the speed of light" />
     <meta name="twitter:card" content="summary_large_image" />
 
     <style>
       /* Shown while the app loads; src/ui/boot.ts takes it away once the view is drawn. It fades in
          only if loading takes a moment. The mark is drawn like a polar plot: both circles pass through
          the apex, so each is the curve r = 2a cos θ about it. The apex appears first, as the pole, then
-         both circles are traced from it as θ sweeps, side by side on one ray. */
+         each circle is traced from it over the top and under the bottom at once, as θ sweeps both ways, and
+         its two halves meet on the far side (each runs 3° past it, so they overlap there with no seam). */
       .boot {
         position: fixed;
         inset: 0;
@@ -52,7 +53,7 @@
         overflow: visible;
       }
       .boot-c {
-        stroke-dasharray: 1;
+        stroke-dasharray: 1 2;
         animation: boot-trace 2s cubic-bezier(0.45, 0, 0.25, 1) 0.55s both;
       }
       .boot-dot {
@@ -119,21 +120,23 @@
     </style>
   </head>
   <body style="background: #050607">
-    <div id="boot" class="boot" role="status" aria-label="Loading Lightspeed">
+    <div id="boot" class="boot" role="status" aria-label="Loading Skyfold">
       <svg width="56" height="56" viewBox="4 4 56 56" aria-hidden="true">
         <g fill="none" stroke="#d8dde3" stroke-width="8">
-          <path class="boot-c" pathLength="1" d="M56 32A24 24 0 1 1 8 32A24 24 0 1 1 56 32" />
-          <path class="boot-c" pathLength="1" d="M56 32A12 12 0 1 1 32 32A12 12 0 1 1 56 32" />
+          <path class="boot-c" pathLength="1" d="M56 32A24 24 0 1 0 8.033 33.256" />
+          <path class="boot-c" pathLength="1" d="M56 32A24 24 0 1 1 8.033 30.744" />
+          <path class="boot-c" pathLength="1" d="M56 32A12 12 0 1 0 32.016 32.628" />
+          <path class="boot-c" pathLength="1" d="M56 32A12 12 0 1 1 32.016 31.372" />
         </g>
         <circle class="boot-dot" cx="52" cy="32" r="8" fill="#f0a73a" />
       </svg>
-      <div class="boot-name">LIGHTSPEED</div>
+      <div class="boot-name">SKYFOLD</div>
       <div class="boot-note">Loading the universe…</div>
     </div>
     <div id="root"></div>
     <noscript>
       <p style="font: 14px system-ui, sans-serif; color: #d8dde3; text-align: center; margin-top: 40vh">
-        Lightspeed needs JavaScript and WebGL 2.
+        Skyfold needs JavaScript and WebGL 2.
       </p>
     </noscript>
     <script type="module" src="/src/main.tsx"></script>

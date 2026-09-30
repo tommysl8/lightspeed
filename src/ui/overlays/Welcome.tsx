@@ -1,5 +1,5 @@
 /**
- * First-visit welcome: what Lightspeed is, and ways to start: the tour first, then "Where to?",
+ * First-visit welcome: what Skyfold is, and ways to start: the tour first, then "Where to?",
  * the journeys and Roam. Shown once; the guide can bring it back.
  */
 import type { ReactNode } from 'react';

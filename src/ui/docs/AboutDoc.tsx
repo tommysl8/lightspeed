@@ -1,5 +1,5 @@
 /**
- * About Lightspeed: what it is, who made it, how to cite it, and where its data and methods
+ * About Skyfold: what it is, who made it, how to cite it, and where its data and methods
  * come from.
  */
 import { useState, type ReactNode } from 'react';
@@ -66,7 +66,7 @@ function Overview() {
   return (
     <Chapter id="overview" title="What it is">
       <p className="doc-lead">
-        Lightspeed is a space exploration tool with real physics. It shows the universe as it is right now, from the Solar
+        Skyfold is a space exploration tool with real physics. It shows the universe as it is right now, from the Solar
         System at true scale to 329,770 stars in three dimensions, eleven real black holes, the Milky Way and the galaxies of
         the cosmic web, and lets you fly through it at nearly the speed of light, or hover over a black hole and fall in,
         with the sky and the clocks doing exactly what relativity says they do.
@@ -134,7 +134,7 @@ function Author() {
               GitHub
               <span className="mono text-fg-3">github.com/{AUTHOR.handle}</span>
             </a>
-            <a className="btn" href={`mailto:${AUTHOR.email}?subject=Lightspeed`}>
+            <a className="btn" href={`mailto:${AUTHOR.email}?subject=Skyfold`}>
               <Icon name="mail" size={11} />
               Email
               <span className="mono text-fg-3">{AUTHOR.email}</span>
@@ -146,7 +146,7 @@ function Author() {
         <p key={p.slice(0, 16)}>{p}</p>
       ))}
       <p>
-        Lightspeed was designed and built by {AUTHOR.name}. Corrections, bug reports and ideas for new journeys or places to visit are
+        Skyfold was designed and built by {AUTHOR.name}. Corrections, bug reports and ideas for new journeys or places to visit are
         welcome by email, or as an issue on the project’s <Ext href={`${AUTHOR.repo}/issues`}>GitHub page</Ext>.
       </p>
     </Chapter>
@@ -156,7 +156,7 @@ function Author() {
 function Cite() {
   const url = `${window.location.origin}/`;
   const apa = `${AUTHOR.citeShort} (${APP.year}). ${APP.citeTitle} (Version ${APP.version}) [Computer software]. ${url}`;
-  const bib = `@software{liu_lightspeed_${APP.year},
+  const bib = `@software{liu_skyfold_${APP.year},
   author  = {${AUTHOR.citeName}},
   title   = {${APP.citeTitleCaps}},
   year    = {${APP.year}},
@@ -165,7 +165,7 @@ function Cite() {
 }`;
   return (
     <Chapter id="cite" title="How to cite">
-      <p>If you use Lightspeed in teaching or in written work, please cite it as:</p>
+      <p>If you use Skyfold in teaching or in written work, please cite it as:</p>
       <div className="doc-cite">
         <p>
           {AUTHOR.citeShort} ({APP.year}). <i>{APP.citeTitle}</i> (Version {APP.version}) [Computer software]. {url}
@@ -340,7 +340,7 @@ function Sources() {
             ESA/Gaia/DPAC (CC BY-NC 3.0 IGO).
           </>,
           <>
-            A model of the Milky Way’s stars and dust, generated for Lightspeed from published parameters: GRAVITY Collaboration
+            A model of the Milky Way’s stars and dust, generated for Skyfold from published parameters: GRAVITY Collaboration
             (2022), Bennett &amp; Bovy (2019), Bland-Hawthorn &amp; Gerhard (2016), Reid et al. (2019), Wegg &amp; Gerhard (2013),
             Wegg, Gerhard &amp; Portail (2015), Drimmel &amp; Spergel (2001) and Chen et al. (2019).
           </>,
@@ -353,7 +353,7 @@ function Sources() {
           </>,
           <>
             45 images of nebulae from ESA/Hubble, ESA/Webb, ESO and NSF NOIRLab,{' '}
-            <Ext href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</Ext>, modified for Lightspeed (resized, black
+            <Ext href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</Ext>, modified for Skyfold (resized, black
             level subtracted, edges faded; three cropped). Each picture’s credit line is on its card and in the corner of the
             view while it shows, and all of them are listed in{' '}
             <Ext href={`${AUTHOR.repo}/blob/main/CREDITS.md#nebula-images`}>CREDITS.md</Ext>. Positions from SIMBAD (CDS,
@@ -381,7 +381,7 @@ function Sources() {
             J. M. Bardeen (1973), in <i>Black Holes</i> (Les Houches), 215 (the shadow of a spinning black hole, for the spin
             note); C. W. Misner, K. S. Thorne &amp; J. A. Wheeler, <i>Gravitation</i> (1973); S. Chandrasekhar, <i>The
             Mathematical Theory of Black Holes</i> (1983). Checked against an independent reference in 30 to 50 digit
-            arithmetic, written for Lightspeed with mpmath (F. Johansson and others) and kept with its scripts.
+            arithmetic, written for Skyfold with mpmath (F. Johansson and others) and kept with its scripts.
           </>,
           <>
             Sagittarius A* and M87*: GRAVITY Collaboration (2022, A&amp;A 657, L12: mass and distance; 2023, A&amp;A 677, L10:
@@ -408,7 +408,7 @@ function Sources() {
             The gas falling into Sagittarius A*, a model: the hot, thin flow of Broderick &amp; Loeb (2006, MNRAS 367, 905) and
             Broderick et al. (2009, ApJ 697, 45), with the radial structure of Yuan, Quataert &amp; Narayan (2003, ApJ 598,
             301) and the synchrotron light of Leung, Gammie &amp; Noble (2011, ApJ 737, 21) and Pandya et al. (2016, ApJ 822,
-            34), fitted for Lightspeed to the fluxes of the Event Horizon Telescope (2022, ApJL 930, L13), Bower et al. (2019,
+            34), fitted for Skyfold to the fluxes of the Event Horizon Telescope (2022, ApJL 930, L13), Bower et al. (2019,
             ApJL 881, L2) and GRAVITY Collaboration (2020, A&amp;A 638, A2) and the near-infrared slope of Paugnat et al. (2024,
             ApJ 977, 228); the V band’s zero point from Bessell, Castelli &amp; Plez (1998, A&amp;A 333, 231).
           </>,
@@ -534,7 +534,7 @@ function Limitations() {
   return (
     <Chapter id="limitations" title="Model limitations">
       <p>
-        Lightspeed simplifies in the following ways, and says so on screen where it matters.
+        Skyfold simplifies in the following ways, and says so on screen where it matters.
       </p>
       <ol className="doc-list-num">
         <li>
@@ -674,9 +674,9 @@ function Privacy() {
   return (
     <Chapter id="privacy" title="Privacy">
       <p>
-        Lightspeed runs entirely in your browser. There are no accounts, cookies, advertising or analytics, and nothing you do is
+        Skyfold runs entirely in your browser. There are no accounts, cookies, advertising or analytics, and nothing you do is
         sent anywhere. Your preferences are kept in this browser’s local storage; clearing this site’s data in your browser
-        removes them. The site is served as static files; the web host may keep ordinary request logs, but Lightspeed
+        removes them. The site is served as static files; the web host may keep ordinary request logs, but Skyfold
         itself collects nothing.
       </p>
     </Chapter>
@@ -690,7 +690,7 @@ export default function AboutDoc() {
         <div className="doc-mast-k">About</div>
         <h1 className="doc-mast-logo">
           <LogoMark size={52} className="text-fg" />
-          Lightspeed
+          Skyfold
         </h1>
         <p>{APP.tagline}</p>
         <div className="doc-mast-meta mono">

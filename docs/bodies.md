@@ -1,6 +1,6 @@
 # Bodies: the registry, and how to add to it
 
-Everything Lightspeed draws, labels, lists, flies to or measures is a **body in the registry**
+Everything Skyfold draws, labels, lists, flies to or measures is a **body in the registry**
 (`src/sim/bodies/`). The Sun, the planets, the Moon, Pluto, Voyager 1 and Proxima Centauri are
 registered at start-up (`core.ts`). The rest of the Solar System (25 moons, the dwarf planets and
 trans-Neptunian objects, comets, interstellar objects and spacecraft) is registered from its data

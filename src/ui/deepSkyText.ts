@@ -273,5 +273,5 @@ export function ehtRingText(ringDiameterUas: number, ringSource: string): string
  */
 export function ehtCaption(ringDiameterUas: number, ringSource: string, flowCaption: string | null): string {
   if (flowCaption) return flowCaption;
-  return `The Event Horizon Telescope’s 2017 image: a reconstruction at 1.3 mm, ring ${ehtRingText(ringDiameterUas, ringSource)} µas across. Lightspeed draws no gas round this black hole: only its shadow and the light it bends.`;
+  return `The Event Horizon Telescope’s 2017 image: a reconstruction at 1.3 mm, ring ${ehtRingText(ringDiameterUas, ringSource)} µas across. Skyfold draws no gas round this black hole: only its shadow and the light it bends.`;
 }

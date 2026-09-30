@@ -1,5 +1,5 @@
 /**
- * The Lightspeed mark: one circle on the sky drawn twice, at rest and as seen from a ship
+ * The Skyfold mark: one circle on the sky drawn twice, at rest and as seen from a ship
  * moving at 0.6c towards the amber apex. In stereographic projection, aberration shrinks
  * everything towards the apex by the Doppler factor √((1 + β)/(1 − β)), exactly 2 at 0.6c,
  * so the circle halves and still passes through the apex. Same geometry as public/favicon.svg.
@@ -45,7 +45,7 @@ export function Wordmark({
   return (
     <span className={`inline-flex items-center gap-2 whitespace-nowrap ${large ? 'lg:gap-2.5' : ''} ${className}`}>
       <LogoMark size={size} className={`text-fg ${large ? 'lg:h-[22px] lg:w-[22px]' : ''}`} />
-      <span className={`mono font-semibold tracking-[0.2em] text-fg ${large ? 'text-[12px] lg:text-[14.5px]' : 'text-[12px]'} ${nameBelowSm ? '' : 'max-sm:hidden'}`}>LIGHTSPEED</span>
+      <span className={`mono font-semibold tracking-[0.2em] text-fg ${large ? 'text-[12px] lg:text-[14.5px]' : 'text-[12px]'} ${nameBelowSm ? '' : 'max-sm:hidden'}`}>SKYFOLD</span>
       {subtitle && <span className="hidden text-[12px] text-fg-3 min-[1760px]:inline">{APP.taglineShort}</span>}
     </span>
   );

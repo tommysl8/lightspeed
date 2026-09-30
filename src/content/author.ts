@@ -7,7 +7,7 @@ export const AUTHOR = {
   handle: 'tommysl8',
   github: 'https://github.com/tommysl8',
   /** The project's source code and issue tracker. */
-  repo: 'https://github.com/tommysl8/lightspeed',
+  repo: 'https://github.com/tommysl8/skyfold',
   email: 'tommysliu8@gmail.com',
   affiliation: 'Electrical and Computer Engineering, University of Illinois Urbana-Champaign',
   bio: [
@@ -17,15 +17,15 @@ export const AUTHOR = {
 } as const;
 
 export const APP = {
-  name: 'Lightspeed',
+  name: 'Skyfold',
   /** One line, for the header, link previews and the About page. */
   tagline: 'Explore the real universe at nearly the speed of light',
   /** Short form, beside the name where there is little room. */
   taglineShort: 'The real universe at nearly the speed of light',
   /** For citations (APA: sentence case). */
-  citeTitle: 'Lightspeed: A relativistic explorer of the real universe',
+  citeTitle: 'Skyfold: A relativistic explorer of the real universe',
   /** The same title in title case, for BibTeX. */
-  citeTitleCaps: 'Lightspeed: A Relativistic Explorer of the Real Universe',
+  citeTitleCaps: 'Skyfold: A Relativistic Explorer of the Real Universe',
   version: typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : 'dev',
   build: typeof __BUILD_SHA__ === 'string' ? __BUILD_SHA__ : 'local',
   date: typeof __BUILD_DATE__ === 'string' ? __BUILD_DATE__ : '',
