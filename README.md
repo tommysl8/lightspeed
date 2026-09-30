@@ -91,6 +91,12 @@ The data, maps and pictures come from NASA, JPL, ESA (Gaia, Hubble, Webb), ESO, 
 NASA Exoplanet Archive, the Cosmicflows and Local Volume teams, the Event Horizon Telescope and many papers.
 [CREDITS.md](CREDITS.md) lists every source with its licence.
 
+## Contributing
+
+Bug reports, corrections and new ideas are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for how to run it, what a
+good pull request looks like and the rules for adding data. Please also read the
+[code of conduct](CODE_OF_CONDUCT.md).
+
 ## Author
 
 Made by **Tommy S. Liu** ([@tommysl8](https://github.com/tommysl8)), an Electrical and Computer Engineering student at
@@ -99,5 +105,10 @@ the University of Illinois Urbana-Champaign. Bug reports and ideas are welcome a
 
 ## Licence
 
-The code is [MIT](LICENSE). The data keep their own licences, listed in [CREDITS.md](CREDITS.md). The star, exoplanet
-and black-hole files use Gaia DR3 values, so they are for non-commercial use only (CC BY-NC 3.0 IGO).
+- **Code:** [MIT](LICENSE). Use it for anything.
+- **Data:** each data set keeps its own licence, listed in [CREDITS.md](CREDITS.md). Most are open (public domain, CC0,
+  CC BY).
+- **Non-commercial data:** the star, exoplanet-host and black-hole files are built from Gaia DR3 values, which ESA
+  licenses as CC BY-NC 3.0 IGO, so those files are for **non-commercial use only**. The scripts that build them are MIT,
+  so anyone can rebuild them from the original sources.
+- **Citing:** GitHub's "Cite this repository" button uses [CITATION.cff](CITATION.cff).
