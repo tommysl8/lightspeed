@@ -331,7 +331,7 @@ function companionRecord(file: BlackHolesFile, sys: HoleSystemJson, c: Companion
   if (i !== null) {
     const catTeff = stars && i < stars.count ? stars.teff[i] : 0;
     notes.push(
-      `It is star ${i.toLocaleString('en-GB')} of the star catalogue, whose ${catTeff ? `${catTeff.toLocaleString('en-GB')} K ` : ''}colour temperature comes from its dust-reddened colour: its measured ${teffK.toLocaleString('en-GB')} K and luminosity are used instead.`,
+      `It is star ${i.toLocaleString('en-GB')} of the star catalogue, whose ${catTeff ? `${catTeff.toLocaleString('en-GB')} K ` : ''}colour temperature comes from its colour as seen from the Sun, through the dust: its measured ${teffK.toLocaleString('en-GB')} K and luminosity are used instead.`,
     );
   }
 

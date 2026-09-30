@@ -17,13 +17,14 @@
 import { getBody, isBody, bodyRecords, registerBodies, registryVersion, replaceBodies, unregisterBodies, type BodyId } from '../bodies';
 import { assetUrl } from '../../render/textures';
 import { updateEphemeris } from '../ephemeris';
-import { borrowCompanionTemperatures, decodeStars3D, decodeStars3DExtra, fetchGzip, type Stars3D, type Stars3DExtra } from './catalogue';
-import { buildNameTable, type StarNameTable, type StarNamesJson } from './names';
+import type { Stars3D, Stars3DExtra } from './catalogue';
+import type { StarNameTable } from './names';
 import type { SystemsFile } from './orbits';
 import type { ConstellationsFile } from './constellations';
 import { catalogueStarId, catalogueStarRecord, mergeCoreProxima, starRecords } from './records';
-import type { StarWorkerReply, StarWorkerRequest } from './worker';
-import { nearSunCounts, starDrawLists } from './visibility';
+import { requestStarFile } from './workerClient';
+import { STAR_HEAD_PATH } from './extension';
+import { ensureExtensionStar, extensionStar } from './extensionLoad';
 import { registerBinaryHoles, registerIsolatedHoles } from '../blackholes/load';
 import { holeCompanionIndices } from '../blackholes/records';
 
@@ -57,54 +58,8 @@ export function subscribeStars(listener: () => void): () => void {
   return () => listeners.delete(listener);
 }
 
-// ─── The worker ──────────────────────────────────────────────────────────────────────────
-
-let worker: Worker | null | undefined;
-let nextId = 1;
-const waiting = new Map<number, { resolve: (v: unknown) => void; reject: (e: Error) => void }>();
-
-function starWorker(): Worker | null {
-  if (worker !== undefined) return worker;
-  worker = null;
-  if (typeof Worker === 'undefined' || typeof window === 'undefined') return null;
-  try {
-    worker = new Worker(new URL('./worker.ts', import.meta.url), { type: 'module', name: 'stars' });
-    worker.onmessage = (e: MessageEvent<StarWorkerReply>) => {
-      const w = waiting.get(e.data.id);
-      if (!w) return;
-      waiting.delete(e.data.id);
-      if (e.data.ok) w.resolve(e.data.data);
-      else w.reject(new Error(e.data.error));
-    };
-  } catch {
-    worker = null;
-  }
-  return worker;
-}
-
-const absolute = (path: string): string => (typeof location !== 'undefined' ? new URL(assetUrl(path), location.href).href : assetUrl(path));
-
-/** Fetch and decode a star file, in the worker when there is one. */
-async function request<T>(kind: StarWorkerRequest['kind'], path: string): Promise<T> {
-  const w = starWorker();
-  if (w) {
-    const id = nextId++;
-    return new Promise<T>((resolve, reject) => {
-      waiting.set(id, { resolve: resolve as (v: unknown) => void, reject });
-      w.postMessage({ id, kind, url: absolute(path) } satisfies StarWorkerRequest);
-    });
-  }
-  const buf = await fetchGzip(absolute(path));
-  if (kind === 'stars') {
-    const stars = decodeStars3D(buf);
-    borrowCompanionTemperatures(stars);
-    stars.nearSun = nearSunCounts(stars);
-    stars.drawLists = starDrawLists(stars);
-    return stars as T;
-  }
-  if (kind === 'extra') return decodeStars3DExtra(buf) as T;
-  return buildNameTable(JSON.parse(new TextDecoder().decode(buf)) as StarNamesJson) as T;
-}
+/** Fetch and decode a star file (in the worker: workerClient.ts). */
+const request = <T>(kind: 'stars' | 'extra' | 'names', path: string, head?: string): Promise<T> => requestStarFile<T>(kind, path, { head });
 
 // ─── Registration ────────────────────────────────────────────────────────────────────────
 
@@ -165,7 +120,8 @@ export function loadStars(opts: { idle?: boolean } = {}): Promise<boolean> {
   pending = (async () => {
     try {
       if (opts.idle) await whenIdle(1200);
-      const full = request<Stars3D>('stars', 'data/stars3d.bin.gz');
+      // The core with the head's pinned stars appended (stars3d-head.bin.gz, 0.07 MB; docs/data/stars.md §12).
+      const full = request<Stars3D>('stars', 'data/stars3d.bin.gz', STAR_HEAD_PATH);
       const systems = import('./systems.json').then((m) => m.default as unknown as SystemsFile);
       try {
         const bright = await request<Stars3D>('stars', 'data/stars3d-bright.bin.gz');
@@ -240,7 +196,10 @@ let extraPending: Promise<Stars3DExtra | null> | null = null;
 /** Spectral types and constellations of every star (fetched once). */
 export function loadStarExtra(): Promise<Stars3DExtra | null> {
   extraPending ??= request<Stars3DExtra>('extra', 'data/stars3d-extra.bin.gz')
-    .then((x) => {
+    .then((core) => {
+      // The pinned stars' types and constellations come with the head: appended so that index i is star i.
+      const head = starData.stars?.headExtra;
+      const x = head ? concatExtra(core, head) : core;
       starData.extra = x;
       renameLazyStars();
       changed();
@@ -252,6 +211,16 @@ export function loadStarExtra(): Promise<Stars3DExtra | null> {
       return null;
     });
   return extraPending;
+}
+
+function concatExtra(a: Stars3DExtra, b: Stars3DExtra): Stars3DExtra {
+  const spectralType = new Uint16Array(a.count + b.count);
+  spectralType.set(a.spectralType);
+  spectralType.set(b.spectralType, a.count);
+  const constellation = new Uint8Array(a.count + b.count);
+  constellation.set(a.constellation);
+  constellation.set(b.constellation, a.count);
+  return { count: a.count + b.count, spectralType, constellation };
 }
 
 // ─── Catalogue stars on demand ───────────────────────────────────────────────────────────
@@ -277,10 +246,11 @@ export const onDemandStars = (): ReadonlySet<number> => lazyStars;
  */
 export function registerCatalogueStar(i: number): BodyId | null {
   const stars = starData.stars;
-  if (!starData.full || !stars || i < 0 || i >= stars.count) return null;
+  if (!starData.full || !stars || i < 0) return null;
   const had = bodyOfCatalogueStar(i);
   if (had) return had;
-  const rec = catalogueStarRecord(stars, i, starData.names, starData.extra);
+  const rec = catalogueRecordOf(i);
+  if (!rec) return null;
   registerBodies([rec]);
   lazyStars.add(i);
   // Place it now: whatever asked for it (Go, a flight plan, the camera's path) reads where it is
@@ -297,7 +267,18 @@ export async function ensureCatalogueStar(i: number): Promise<BodyId | null> {
   const had = bodyOfCatalogueStar(i);
   if (had) return had;
   await Promise.all([starData.names ?? loadStarNames(), starData.extra ?? loadStarExtra()]);
+  // A star of the extension: its band file first.
+  if (starData.stars && i >= starData.stars.count) await ensureExtensionStar(i);
   return registerCatalogueStar(i);
+}
+
+/** The record of catalogue star i from the head or its loaded band file (null if neither has it). */
+function catalogueRecordOf(i: number) {
+  const stars = starData.stars;
+  if (!stars) return null;
+  if (i < stars.count) return catalogueStarRecord(stars, i, starData.names, starData.extra);
+  const e = extensionStar(i);
+  return e ? catalogueStarRecord(e.file.stars, i, starData.names, e.file.extra, e.local) : null;
 }
 
 /** Remove catalogue stars registered on demand. */
@@ -311,6 +292,6 @@ export function releaseCatalogueStars(indices: readonly number[]): void {
 function renameLazyStars(): void {
   const stars = starData.stars;
   if (!stars || !starData.full || !lazyStars.size) return;
-  const recs = [...lazyStars].filter((i) => isBody(catalogueStarId(i))).map((i) => catalogueStarRecord(stars, i, starData.names, starData.extra));
+  const recs = [...lazyStars].filter((i) => isBody(catalogueStarId(i))).map(catalogueRecordOf).filter((r) => r !== null);
   if (recs.length) replaceBodies(recs);
 }

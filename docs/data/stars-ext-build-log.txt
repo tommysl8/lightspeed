@@ -1,0 +1,161 @@
+AT-HYG v4.0: 2226476 rows beyond the core's 332178 (45 s)
+Gaia DR3 rows: 3841856 (119 s)
+BP−RP → B−V: 81 knots from 538862 AT-HYG stars (BP−RP -0.15 to 3.85); beyond, the Pecaut & Mamajek dwarf sequence
+V from Tycho-2 minus V from Gaia (AT-HYG stars with 9 < V_T < 10.5): median -0.006 mag, MAD 0.044, 208475 stars
+AT-HYG done (204 s)
+GCNS: 331312 rows, 300567 with median distance <= 100 pc
+    census object without V: WISEA J085510.74-071442.5 (BD, >Y4)
+    census object without V: GJ 866 B (LM?, )
+    census object without V: GJ 866 C (LM?, )
+    census object without V: eps Ind C (BD, T6)
+    census object without V: SCR J1845-6357 B (BD, T6)
+    census object without V: UGPS J072227.51-054031.2 (BD, > T9)
+    census object without V: WISE J163940.83-684738.6 (BD, Y0pec)
+    census object without V: WISEP J174124.25+255319.5 (BD, T9)
+    census object without V: 2MASS J09393548-2448279 (BD, T8)
+    census object without V: 2MASS J11145133-2618235 (BD, T7.5)
+    census object without V: WISE J035000.32-565830.2 (BD, Y1)
+    census object without V: 2MASSI J0415195-093506 (BD, T8)
+    census object without V: GJ 229 B (BD, T7pec)
+    census object without V: GJ 570 C (LM?, )
+    census object without V: GJ 570 D (BD, T7)
+    census object without V: WISE J154151.65-225024.9 (BD, Y0.5)
+    census object without V: 2MASSI J0937347+293142 (BD, T7)
+    census object without V: WISE J220905.73+271143.9 (BD, Y0)
+    census object without V: WISE J140518.39+553421.3 (BD, Y0(pec?))
+    census object without V: GJ 644 Ba (LM?, )
+    census object without V: GJ 644 Bb (LM?, )
+    census object without V: WISEA J082507.37+280548.2 (BD, Y0.5)
+    census object without V: WISE J041022.71+150248.4 (BD, Y0)
+    census object without V: 2MASS J05212615+1025328 (BD, T7.5)
+    census object without V: G 41-14 C (LM?, )
+    census object without V: GJ 829 B (LM?, )
+    census object without V: Scholtz's Star B (BD, T5)
+    census object without V: WISEPA J025409.45+022359.1 (BD, T8)
+    census object without V: BD-17 588 C (LM?, )
+    census object without V: CWISE J105512.11+544328.3 (BD, sdT8?)
+    census object without V: WISE J205628.91+145953.2 (BD, Y0)
+    census object without V: WISE J004945.61+215120.0 (BD, T8.5)
+    census object without V: WISEP J031325.96+780744.2 (BD, T8.5)
+    census object without V: WISE J200050.19+362950.1 (BD, T8)
+    census object without V: G 203-47 B (WD?, )
+    census object without V: WISE J173835.53+273259.0 (BD, Y0)
+    census object without V: WISEA J235402.79+024014.1 (BD, Y1)
+    census object without V: GJ 623 B (LM?, )
+    census object without V: WISE J000517.48+373720.5 (BD, T9)
+    census object without V: 2MASS J07290002-3954043 (BD, T8pec)
+    census object without V: GJ 831 B (LM?, )
+    census object without V: UGPS J052127.27+364048.6 (BD, T8.5)
+    census object without V: WISE J115013.85+630241.5 (BD, T8)
+    census object without V: mu. Her C (LM?, )
+    census object without V: GJ 747 B (LM?, )
+    census object without V: 2MASS J03480772-6022270 (BD, T7)
+    census object without V: SCR J1546-5534 B (BD, T6)
+    census object without V: 2MASS J00345157+0523050 (BD, T6.5)
+    census object without V: CWISEP J040235.55-265145.4 (BD, >Y1?)
+    census object without V: chi01 Ori B (LM?, )
+    census object without V: WISE J111838.70+312537.9 (BD, T8.5)
+    census object without V: HD 50281 Bb (LM?, )
+    census object without V: WISENF J193656.08+040801.2 (BD, Y0?)
+    census object without V: 41 Ara Bb (LM?, )
+    census object without V: GJ 791.2 B (LM?, )
+    census object without V: 2MASSI J0727182+171001 (BD, T8)
+    census object without V: CWISEP J181006.00-101001.1 (BD, )
+    census object without V: GJ 867 C (LM, )
+    census object without V: GJ 867 D (BD?, )
+    census object without V: G 193-27 B (LM?, )
+    census object without V: HD 115953 Ab (LM?, )
+    census object without V: ULAS J141623.94+134836.3 (BD, T7.5)
+    census object without V: WISE J071322.55-291751.9 (BD, Y0)
+    census object without V: WISEP J213456.73-713743.6 (BD, T9pec)
+    census object without V: 2MASS J17502484-0016151 B (BD?, )
+    census object without V: WISEP J232519.54-410534.9 (BD, T9pec)
+    census object without V: L 737-9 B (LM?, )
+    census object without V: WISE J121756.90+162640.8 A (BD, T9)
+    census object without V: WISE J121756.90+162640.8 B (BD, Y0)
+    census object without V: BD-18 359 B (LM?, )
+    census object without V: WISEPA J045853.89+643452.9 A (BD, T8.5)
+    census object without V: WISEPA J045853.89+643452.9 B (BD, T9.5)
+    census object without V: WISEA J193054.55-205949.4 (BD, >Y1)
+    census object without V: BPS CS 22879-0089 B (LM?, )
+    census object without V: WISE J114156.71-332635.8 (BD, Y0)
+    census object without V: Wolf 227 B (BD?, )
+    census object without V: CFBDS J005910-011401 (BD, T9)
+    census object without V: L 768-119 B (BD?, )
+    census object without V: WISE J223617.59+510551.9 (BD, T5.5)
+    census object without V: G 119-36 B (LM?, )
+    census object without V: WISE J111239.24-385700.7 (BD, T9)
+    census object without V: CWISEP J225628.97+400227.3 (BD, >=Y1)
+    census object without V: GJ 1230 C (LM, )
+    census object without V: WISE J182831.08+265037.7 (BD, >= Y2)
+    census object without V: CWISE J061741.79+194512.8 B (BD, T8?)
+    census object without V: ULAS J133553.45+113005.2 (BD, T9)
+    census object without V: WISE J033605.05-014350.4 (BD, Y0)
+    census object without V: 2MASS J13243559+6358284 (BD, T2pec)
+    census object without V: WISE J064723.23-623235.5 (BD, Y1)
+    census object without V: WISEPA J181210.85+272144.3 (BD, T8.5)
+    census object without V: WISE J081117.81-805141.3 (BD, T9.5)
+    census object without V: WISEU J050305.68-564834.0 (BD, >Y1)
+    census object without V: WISE J161441.46+173935.5 (BD, T9)
+    census object without V: WISEPA J075108.79-763449.6 (BD, T9)
+    census object without V: G 100-28 B (LM, )
+    census object without V: WISE J094305.98+360723.5 (BD, T9.5)
+    census object without V: 2MASS J12373919+6526148 (BD, T7)
+    census object without V: CWISEP J144606.62-231717.8 (BD, >Y1?)
+    census object without V: WISEA J083011.95+283716.0 (BD, >Y1)
+    census object without V: CWISEP J023842.60-133210.7 (BD, >Y1?)
+10-pc census: 477 stars and brown dwarfs; 16 added from the census's own values
+    dropped zari Gaia DR3 3030028788014350848: V 6.91 from the Sun
+    dropped zari Gaia DR3 4315798269676322304: V 7.35 from the Sun
+    dropped luminous Gaia DR3 3017190477921606400: V 7.25 from the Sun
+    dropped luminous Gaia DR3 3030028788014350848: V 6.91 from the Sun
+    dropped luminous Gaia DR3 3206991473643150464: V 6.64 from the Sun
+    dropped cluster Gaia DR3 3030028788014350848: V 6.91 from the Sun
+pinned for the Sun's sky at any date: 315
+kept: athyg 2181093, gcns 249488, census 16, zari 302952, luminous 589901, cluster 99068, host 2550, bhCompanion 3; total 3425071
+  athyg: no usable parallax: 24152
+  athyg: Gaia and Tycho-2 V differ by 0.75 mag or more (Tycho-2 kept): 35123
+  athyg: distance error 20% or more, no designation: 20185
+  athyg: Gaia id already used: 1045
+  athyg: implausibly luminous: 1
+  gcns: already in (Gaia id): 50487
+  gcns: no colour (V = G): 3317
+  gcns: duplicate by position: 586
+  gcns: V from G and 2MASS Ks: 2058
+  gcns: no G magnitude: 284
+  gcns: parallax/error below 5: 55
+  gcns: parallax/error below 3: 12
+  census: in the catalogue already: 16
+  census: no way to its V: 100
+  zari: already in (Gaia id): 90686
+  zari: parallax/error below 5: 23818
+  zari: duplicate by position: 77
+  zari: brighter than V = 7.52 from the Sun (dropped as a probable duplicate): 2
+  luminous: already in (Gaia id): 293593
+  luminous: duplicate by position: 102
+  luminous: no colour (V = G): 80
+  luminous: brighter than V = 7.52 from the Sun (dropped as a probable duplicate): 3
+  luminous: parallax/error below 5: 28
+  cluster: parallax/error below 5: 6025
+  cluster: already in (Gaia id): 14180
+  cluster: duplicate by position: 52
+  cluster: brighter than V = 7.52 from the Sun (dropped as a probable duplicate): 1
+  host: already in (Gaia id): 1847
+  host: parallax/error below 0: 16
+  host: no colour (V = G): 1
+head: 329770 + 3972 pinned = 333742; band files: 1074 with 3421099 stars; total 3754841
+stars3d-head.bin.gz: 3972 stars, 111280 bytes raw, 74077 gzipped
+  pinned: 3413 exoplanet hosts, 16 census objects, 227 Gliese stars, 315 seen from near the Sun at some date, 3 black-hole companions
+  gaia-bh3 companion: Gaia DR3 4318465066420528000 -> star index 330526
+  gaia-bh2 companion: Gaia DR3 5870569352746779008 -> star index 331205
+  gaia-bh1 companion: Gaia DR3 4373465352415301632 -> star index 332012
+stars3d-index.bin.gz: 1074 files, 22600 cells, 328160 bytes raw, 192844 gzipped
+band files: 53417944 bytes in all; median 32494, 90% 132783, largest 252230
+  band 0 (M_V −∞ to -3): 521 stars in 1 files, 11271 bytes
+  band 1 (M_V -3 to 0): 302577 stars in 118 files, 4834732 bytes
+  band 2 (M_V 0 to 3): 1798922 stars in 520 files, 28156006 bytes
+  band 3 (M_V 3 to 6): 963199 stars in 284 files, 15015676 bytes
+  band 4 (M_V 6 to 9): 83006 stars in 42 files, 1291994 bytes
+  band 5 (M_V 9 to ∞): 272874 stars in 109 files, 4108265 bytes
+star-names.json.gz: 1625107 bytes gzipped; 117705 HIP, 349825 HD, 3774 Gliese, 5729 variable, 739 proper names; 9252 spectral types
+all stars by distance (cumulative): <= 10 pc 377, <= 30.66 pc 9850, <= 100 pc 301430, <= 500 pc 1384420, <= 1000 pc 2255044, <= 2000 pc 2835684, <= 3000 pc 3172342, <= 5000 pc 3669080, <= 8000 pc 3751562

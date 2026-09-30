@@ -38,7 +38,10 @@ describe('stars3d.bin.gz', () => {
     expect(stars.velocityUnitKms).toBeCloseTo(0.1, 6);
     expect(stars.absMagUnit).toBeCloseTo(0.01, 6);
     expect(loadExtra().count).toBe(stars.count);
-    expect(loadNamesJson().count).toBe(stars.count);
+    // The names file numbers the core first (coreCount), then the head's pinned stars and the band files.
+    const names = loadNamesJson();
+    expect(names.coreCount ?? names.count).toBe(stars.count);
+    expect(names.count).toBeGreaterThanOrEqual(stars.count);
   });
 
   it('is sorted brightest first as seen from the Sun', () => {

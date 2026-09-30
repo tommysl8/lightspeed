@@ -3,17 +3,20 @@ import { useFrame } from '@react-three/fiber';
 import { BufferAttribute, BufferGeometry, type NormalOrGLBufferAttributes, type Points, Sphere, type ShaderMaterial, Vector3 } from 'three';
 import { createCmbPointMaterial, createStarMaterial, psfUniforms, relativityUniforms, starUniforms } from '../render/materials';
 import { POINTS_LAYER } from '../render/LightspeedScenePass';
-import { imageOrderVariant, lensDrawn, lensedVariant, updateLensVariants, updateVertexLens, useLensVariant } from '../render/lensVariants';
+import { imageOrderVariant, lensDrawn, lensedVariant, registerLensVariant, updateLensVariants, updateVertexLens, useLensVariant, vertexLensUniforms } from '../render/lensVariants';
 import { lens } from '../render/lens/lensState';
 import { quality } from '../render/quality';
 import { relView } from '../render/relativisticView';
 import { PARSEC_KM } from '../physics/constants';
-import { muBoundAxisInto } from '../physics/schwarzschildTables';
+import { muBoundAxisInto, muBoundEval } from '../physics/schwarzschildTables';
 import { bodyRecords, registryVersion, subscribeRegistry } from '../sim/bodies';
 import type { BodyId } from '../sim/bodies/types';
 import { gravity } from '../sim/gravity';
 import { flightDrawList, motionYears, nearSunDrawCount, starBoostMag, starData, starDrawList, starsVersion, subscribeStars, type Stars3D } from '../sim/stars';
 import { binsStale, holeBinsBuilder, ListScan, type CandidateView, type HoleBins, type HoleBinsBuilder, type StarEpoch } from '../sim/stars/lensCandidates';
+import { cellBoxAt, cellDistance, cellPrefixes, CUT_ABOVE_LIMIT, fillCellIndex, type StarCells } from '../sim/stars/cells';
+import { extData, extensionVersion, subscribeExtension } from '../sim/stars/extensionLoad';
+import type { BandFile } from '../sim/stars/extension';
 import { sim } from '../sim/sim';
 import { useUI } from '../state/ui';
 
@@ -54,6 +57,72 @@ interface Field {
   lists: Map<Uint32Array, BufferAttribute>;
   /** Near a black hole: the images the lens adds (lensed draws of the same stars). */
   lensed: LensedImages;
+  /** The head's cell draws (sim/stars/cells.ts), two slots for the two halves of the split view. */
+  cellSlots: CellSlot[];
+}
+
+/**
+ * A draw through cells: each cell's prefix count the index was made from, the cut it was made for, and the index.
+ * Two per drawn catalogue (one per half of the split view), each made again only when a count changes.
+ */
+interface CellSlot {
+  counts: Uint32Array;
+  scratch: Uint32Array;
+  cut: number;
+  used: number;
+  slot: IndexSlot;
+}
+const newCellSlots = (cells: number): CellSlot[] =>
+  [0, 1].map(() => ({ counts: new Uint32Array(cells).fill(0xffffffff), scratch: new Uint32Array(cells), cut: NaN, used: 0, slot: { attr: null, count: 0 } }));
+let slotClock = 0;
+
+/** Stars drawn a frame at most, over the head's cells and the extension (about 2.3 ms of vertex work on the target laptop). */
+export const STAR_DRAW_BUDGET = 600_000;
+/** The budget, halved and thirded on the GPU-time controller's lower lens rungs (render/gpuBudget.ts). */
+const budgetNow = (): number => STAR_DRAW_BUDGET / (1 + quality.lensRung);
+/** The camera (pc, J2000 ecliptic), the date, and the cut's lowering for the budget: set once a frame. */
+const drawState = { cutDelta: 0, camX: 0, camY: 0, camZ: 0, years: 0 };
+
+/**
+ * For measurements in the development build (window.__starfield): the stars each draw of the last frame drew (the
+ * head, the extension's files), and switches to hide the star field or to draw the head as before the cells.
+ */
+export const starfieldDev = { visible: true, extVisible: true, headCells: true, head: 0, ext: 0, files: 0, cutDelta: 0 };
+if (import.meta.env.DEV && typeof window !== 'undefined') (window as unknown as { __starfield: typeof starfieldDev }).__starfield = starfieldDev;
+
+/**
+ * The prefixes of `cells` for apparent-magnitude cut `cut` into a slot (the one last made for this cut, else the
+ * older), its index made again only when a count has changed. Returns the slot.
+ */
+function cellDraw(cells: StarCells, slots: CellSlot[], cut: number, extra?: (c: number) => number): CellSlot {
+  const sl = slots[0].cut === cut ? slots[0] : slots[1].cut === cut ? slots[1] : slots[0].used <= slots[1].used ? slots[0] : slots[1];
+  sl.used = ++slotClock;
+  const d = drawState;
+  const total = cellPrefixes(cells, d.camX, d.camY, d.camZ, d.years, cut, sl.scratch, extra);
+  let same = sl.slot.attr !== null;
+  for (let c = 0; same && c < cells.count; c++) if (sl.scratch[c] !== sl.counts[c]) same = false;
+  sl.cut = cut;
+  if (same) return sl;
+  sl.counts.set(sl.scratch);
+  let a = sl.slot.attr;
+  if (!a || a.array.length < total) {
+    let cap = 1024;
+    while (cap < total) cap *= 2;
+    a = sl.slot.attr = new BufferAttribute(new Uint32Array(cap), 1);
+  }
+  const n = fillCellIndex(cells, sl.counts, a.array as Uint32Array);
+  a.clearUpdateRanges();
+  a.addUpdateRange(0, Math.max(1, n));
+  a.needsUpdate = true;
+  sl.slot.count = n;
+  return sl;
+}
+
+/** The brightening any star may get in this draw (the view's beaming, a lens's frame boost and blueshift, the exposure), magnitudes. */
+function drawRaise(lensOn: boolean): number {
+  const u = relativityUniforms;
+  const phi = u.uPhi.value > 0 ? u.uPhi.value : 0;
+  return boostMagOf(phi + (lensOn ? 2 * Math.max(0, gravity.framePhi) : 0), lnGMaxNow()) + MAG_PER_LN * u.uLnExposure.value;
 }
 
 /**
@@ -118,6 +187,7 @@ function makeField(stars: Stars3D): Field {
   g.boundingSphere = new Sphere(new Vector3(), Infinity);
   const hidden = registeredStars(stars.count);
   for (const i of hidden) absMag[i] = HIDDEN;
+  const cellSlots = newCellSlots(stars.cells?.count ?? 0);
   const key = (): ListKey => ({ version: -1, hole: null, axis: new Vector3(), boostMag: 0, magLimit: 0, years: 0, retarded: false, valid: false });
   return {
     geometry: g,
@@ -128,6 +198,7 @@ function makeField(stars: Stars3D): Field {
     years: 0,
     magLimit: 0,
     lists: new Map(),
+    cellSlots,
     lensed: {
       hole: null,
       builder: null,
@@ -265,6 +336,23 @@ function chooseStars(f: Field): void {
   } else list = flightDrawList(f.stars.drawLists, f.fromSun, f.years, f.magLimit, raise);
   const L = f.lensed;
   let index: BufferAttribute | null = null;
+  // The head's cells (sim/stars/cells.ts) where they draw fewer stars than the first stretch, a list or all of them
+  // (0.05–500 pc from the Sun, all 329,770 stars once), and always under the budget. Not with a lens: its order-0
+  // list merges with the plain lists.
+  const cells = starfieldDev.headCells ? f.stars.cells : undefined;
+  if (cells && !lensOn) {
+    const plain = list ? list.length : count;
+    if (drawState.cutDelta > 0 || plain > 20_000) {
+      const sl = cellDraw(cells, f.cellSlots, f.magLimit + CUT_ABOVE_LIMIT + Math.max(0, raise) - drawState.cutDelta);
+      if (sl.slot.count < plain || drawState.cutDelta > 0) {
+        const g = f.geometry;
+        if (g.index !== sl.slot.attr) g.setIndex(sl.slot.attr);
+        if (g.drawRange.count !== sl.slot.count) g.setDrawRange(0, sl.slot.count);
+        devCount(g, true);
+        return;
+      }
+    }
+  }
   if (list && lensOn && L.order0Count > 0) {
     // The lens's own candidates join the list (both ascending, no star twice).
     let m = L.merged.get(list);
@@ -288,6 +376,18 @@ function chooseStars(f: Field): void {
   const g = f.geometry;
   if (g.index !== index) g.setIndex(index);
   if (g.drawRange.count !== count) g.setDrawRange(0, count);
+  devCount(g, true);
+}
+
+/** Development measurements: count a draw, or hide it (starfieldDev). */
+function devCount(g: BufferGeometry, head: boolean): void {
+  if (!import.meta.env.DEV) return;
+  if (!starfieldDev.visible || (!head && !starfieldDev.extVisible)) g.setDrawRange(0, 0);
+  if (head) starfieldDev.head = g.drawRange.count;
+  else {
+    starfieldDev.ext += g.drawRange.count;
+    starfieldDev.files++;
+  }
 }
 
 /** Order k's extra draw: the field's attributes with an index of its own. */
@@ -455,10 +555,13 @@ function updateLensedImages(f: Field, camPc: Vector3, retarded: boolean): void {
 }
 
 /**
- * The stars in 3D: the 329,770 stars of the catalogue (sim/stars) in one draw call, each at its
- * own distance, moving with its own velocity, as bright and as coloured as it looks from where
+ * The stars in 3D: the head of the catalogue (sim/stars: its 329,770 core stars and the pinned ones)
+ * in one draw call, and each loaded band file of its extension in one more (ExtensionField), each star
+ * at its own distance, moving with its own velocity, as bright and as coloured as it looks from where
  * the camera is (shaders/stars.vert.glsl). The 9,959 naked-eye stars come first (stars3d-bright),
- * then the full catalogue replaces them star for star. Stars registered as bodies (the named
+ * then the full head replaces them star for star. Each draw shows only the stars that can pass the
+ * shader's cut: a first stretch, a list, or the prefixes of its cells (sim/stars/cells.ts), under
+ * one budget for all of them (STAR_DRAW_BUDGET). Stars registered as bodies (the named
  * stars, and any star the camera comes close to) are drawn by the registry instead. Also the
  * cosmic microwave background's hot spot, which joins the sky as a point source at extreme speed.
  *
@@ -520,6 +623,14 @@ export function Starfield() {
     // (sim/stars/visibility.ts), and away from it, or near it once the stars stand still, only those of a list
     // (from outside the Milky Way, a hundred at most, none of which shows): the rest are not drawn, which leaves
     // the picture as it is and saves the vertex shader most of its work.
+    drawState.camX = ex;
+    drawState.camY = ey;
+    drawState.camZ = ez;
+    drawState.years = years;
+    starfieldDev.ext = 0;
+    starfieldDev.files = 0;
+    updateBudget(field);
+    starfieldDev.cutDelta = drawState.cutDelta;
     if (field) {
       field.fromSun = Math.hypot(ex, ey, ez);
       field.years = years;
@@ -564,6 +675,7 @@ export function Starfield() {
             }}
           />
         ))}
+      <ExtensionField material={material} />
       <CmbSpot />
     </>
   );
@@ -587,6 +699,214 @@ function CmbSpot() {
       frustumCulled={false}
       renderOrder={-99}
       ref={(o) => o?.layers.set(POINTS_LAYER)}
+    />
+  );
+}
+
+// ─── The catalogue's extension: its loaded band files (sim/stars/extensionLoad.ts) ────────────────────────────────
+
+/** A loaded band file as drawn: its geometry (the file's arrays; the magnitudes copied, to hide registered stars) and its cell slots. */
+interface FileField {
+  file: BandFile;
+  geometry: BufferGeometry;
+  absMag: Int16Array;
+  hidden: Set<number>;
+  slots: CellSlot[];
+}
+
+function makeFileField(file: BandFile): FileField {
+  const s = file.stars;
+  const g = new BufferGeometry();
+  g.setAttribute('position', new BufferAttribute(s.positions, 3));
+  g.setAttribute('aVel', new BufferAttribute(s.velocitiesInt16, 3, false));
+  const absMag = new Int16Array(s.absMagInt16);
+  g.setAttribute('aAbsMag', new BufferAttribute(absMag, 1, false));
+  g.setAttribute('aTemp', new BufferAttribute(s.teff, 1, false));
+  g.boundingSphere = new Sphere(new Vector3(), Infinity);
+  g.setDrawRange(0, 0);
+  const ff: FileField = { file, geometry: g, absMag, hidden: new Set(), slots: newCellSlots(file.cells.count) };
+  syncFileHidden(ff);
+  return ff;
+}
+
+/** Hide the stars of a file that are registered as bodies (their bodies draw them), show those released. */
+function syncFileHidden(ff: FileField): void {
+  const { base, stars } = ff.file;
+  const now = new Set<number>();
+  for (const r of bodyRecords()) {
+    const i = r.star?.catalogueIndex;
+    if (i !== undefined && i >= base && i < base + stars.count) now.add(i - base);
+  }
+  const attr = ff.geometry.attributes.aAbsMag as BufferAttribute;
+  let changed = false;
+  for (const k of ff.hidden)
+    if (!now.has(k)) {
+      ff.absMag[k] = stars.absMagInt16[k];
+      attr.addUpdateRange(k, 1);
+      changed = true;
+    }
+  for (const k of now)
+    if (!ff.hidden.has(k)) {
+      ff.absMag[k] = HIDDEN;
+      attr.addUpdateRange(k, 1);
+      changed = true;
+    }
+  ff.hidden = now;
+  if (changed) attr.needsUpdate = true;
+}
+
+const cellDir = new Vector3();
+/**
+ * Near a black hole, how much brighter its lens can make a cell's stars at most, magnitudes: the magnification
+ * bound at the cell's least angle from the lens axis (the table the shader's pre-cull reads, less the frame boost's
+ * turn as there) and the Doppler and gravity bound uLensBoost (render/lensVariants.ts).
+ */
+function lensRaise(cells: StarCells): (c: number) => number {
+  const inv = lens.inv;
+  if (!inv) return () => 0;
+  muBoundAxisInto(inv, axisScratch);
+  const lnMin = axisScratch.lnPsiMin;
+  const invD = axisScratch.invDelta;
+  const boost = vertexLensUniforms.uLensBoost.value;
+  const d = drawState;
+  const box = new Float64Array(6);
+  return (c: number) => {
+    // The cell's box at the date: its centre and the radius of the sphere round it.
+    cellBoxAt(cells, c, d.years, box);
+    const hx = 0.5 * (box[3] - box[0]);
+    const hy = 0.5 * (box[4] - box[1]);
+    const hz = 0.5 * (box[5] - box[2]);
+    const rad = Math.hypot(hx, hy, hz);
+    const ex = box[0] + hx - d.camX;
+    const ey = box[1] + hy - d.camY;
+    const ez = box[2] + hz - d.camZ;
+    const r = Math.hypot(ex, ey, ez);
+    let psi = 0;
+    if (r > rad && cellDistance(cells, c, d.camX, d.camY, d.camZ, d.years) > 0) {
+      cellDir.set(ex, ez, -ey).divideScalar(r); // J2000 ecliptic → world axes
+      const angle = Math.acos(Math.max(-1, Math.min(1, cellDir.dot(lens.axis))));
+      psi = Math.max(0, angle - Math.asin(Math.min(1, rad / r)) - 1.01 * Math.max(0, gravity.framePhi));
+    }
+    return MAG_PER_LN * (muBoundEval(lens.muBound, lnMin, invD, Math.max(psi, 1e-12)) + boost);
+  };
+}
+
+/** One file's draw: its cells' prefixes for this half's brightening (or a lens's), under the budget. */
+function chooseFileStars(ff: FileField): void {
+  const cells = ff.file.cells;
+  const magLimit = psfUniforms.uMagLimit.value;
+  let sl: CellSlot;
+  if (lensDrawn() && lens.inv && lens.inv.thetaE > 0) {
+    // The shader's pre-cull: magnitude from the camera, less the magnification bound and uLensBoost, over the exposure.
+    const cut = magLimit + CUT_ABOVE_LIMIT + MAG_PER_LN * Math.max(0, relativityUniforms.uLnExposure.value) - drawState.cutDelta;
+    sl = cellDraw(cells, ff.slots, cut, lensRaise(cells));
+  } else sl = cellDraw(cells, ff.slots, magLimit + CUT_ABOVE_LIMIT + Math.max(0, drawRaise(false)) - drawState.cutDelta);
+  const g = ff.geometry;
+  if (g.index !== sl.slot.attr) g.setIndex(sl.slot.attr);
+  if (g.drawRange.count !== sl.slot.count) g.setDrawRange(0, sl.slot.count);
+  devCount(g, false);
+}
+
+/** ln of the magnification the budget's sum allows a lens to give any cell (the draws themselves use each cell's bound). */
+const BUDGET_LENS_LN_MU = 5;
+let budgetCounts = new Uint32Array(4096);
+/**
+ * Once a frame: how many stars the head's cells and the loaded files would draw at the larger brightening of the
+ * split view's two halves; over the budget, the cut is lowered by the same amount for every cell until they fit
+ * (bisection). The faintest stars go first.
+ */
+function updateBudget(field: Field | null): void {
+  const lensOn = lensDrawn();
+  const d = drawState;
+  const budget = budgetNow();
+  const headCount = field?.stars.cells && !lensOn ? field.stars.count : 0;
+  const raise = Math.max(
+    0,
+    boostMagOf(Math.max(relView.halves[0].phi, relView.halves[1].phi, 0) + (lensOn ? 2 * Math.max(0, gravity.framePhi) : 0), lnGMaxNow()) +
+      MAG_PER_LN * Math.max(relView.lnExposure, relView.lnExposureClassical, 0),
+  );
+  // At rest, with fewer stars loaded than the budget, nothing can exceed it.
+  if (!(raise > 0) && !lensOn && extData.loadedStars + headCount <= budget) {
+    d.cutDelta = 0;
+    return;
+  }
+  const sets: [StarCells, number][] = [];
+  if (field?.stars.cells && !lensOn) sets.push([field.stars.cells, 0]);
+  const lensExtra = lensOn ? MAG_PER_LN * (BUDGET_LENS_LN_MU + vertexLensUniforms.uLensBoost.value) : 0;
+  for (const f of extData.files.values()) sets.push([f.cells, lensExtra]);
+  const base = psfUniforms.uMagLimit.value + CUT_ABOVE_LIMIT + raise;
+  const total = (delta: number): number => {
+    let n = 0;
+    for (const [c, extra] of sets) {
+      if (budgetCounts.length < c.count) budgetCounts = new Uint32Array(2 * c.count);
+      n += cellPrefixes(c, d.camX, d.camY, d.camZ, d.years, base + extra - delta, budgetCounts);
+    }
+    return n;
+  };
+  if (total(0) <= budget) {
+    d.cutDelta = 0;
+    return;
+  }
+  let lo = 0;
+  let hi = 40;
+  for (let k = 0; k < 12; k++) {
+    const mid = 0.5 * (lo + hi);
+    if (total(mid) > budget) lo = mid;
+    else hi = mid;
+  }
+  d.cutDelta = hi;
+}
+
+/** The loaded band files, one points object each with the star material (and its lens variant). */
+function ExtensionField({ material }: { material: ShaderMaterial }) {
+  const version = useSyncExternalStore(subscribeExtension, extensionVersion);
+  const registry = useSyncExternalStore(subscribeRegistry, registryVersion);
+  const fields = useRef(new Map<BandFile, FileField>());
+  const list = useMemo(() => {
+    const m = fields.current;
+    const now = new Set(extData.files.values());
+    for (const [file, ff] of m)
+      if (!now.has(file)) {
+        ff.geometry.dispose();
+        m.delete(file);
+      }
+    for (const file of now) if (!m.has(file)) m.set(file, makeFileField(file));
+    return [...m.values()];
+    // `version` stands for extData.files.
+  }, [version]);
+  useEffect(() => {
+    for (const ff of list) syncFileHidden(ff);
+  }, [registry, list]);
+  useEffect(
+    () => () => {
+      for (const ff of fields.current.values()) ff.geometry.dispose();
+    },
+    [],
+  );
+  return (
+    <>
+      {list.map((ff) => (
+        <FilePoints key={ff.file.base} ff={ff} material={material} />
+      ))}
+    </>
+  );
+}
+
+function FilePoints({ ff, material }: { ff: FileField; material: ShaderMaterial }) {
+  const obj = useRef<AnyPoints | null>(null);
+  useEffect(() => registerLensVariant({ obj }), []);
+  return (
+    <points
+      geometry={ff.geometry}
+      material={material}
+      frustumCulled={false}
+      renderOrder={-100}
+      ref={(o) => {
+        obj.current = o;
+        if (!o) return;
+        o.layers.set(POINTS_LAYER);
+        o.onBeforeRender = () => chooseFileStars(ff);
+      }}
     />
   );
 }

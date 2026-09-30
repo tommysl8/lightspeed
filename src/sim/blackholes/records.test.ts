@@ -139,7 +139,11 @@ describe('the data file', () => {
   it('calls nothing a black hole that is not one: HR 6819 and LB-1 stay out, catalogue star 2446 is no companion', () => {
     const text = JSON.stringify(file);
     expect(text).not.toMatch(/HR 6819|LB-1|QV Tel/);
-    expect(holeCompanionIndices()).toEqual([111021]);
+    // Cygnus X-1's HDE 226868 in the core; the Gaia black holes' companions pinned in the head (stars3d-head.bin.gz).
+    const idx = holeCompanionIndices();
+    expect(idx).toContain(111021);
+    expect(idx.length).toBe(4);
+    for (const i of idx.filter((i) => i !== 111021)) expect(i).toBeGreaterThanOrEqual(329_770);
   });
 
   it('draws M87* and OGLE-2011-BLG-0462 with no orbit line, the binaries’ holes with one', () => {

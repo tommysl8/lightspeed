@@ -14,8 +14,11 @@ from and how to rebuild it, and how the code is laid out. How each data set was 
   from Astronomy Engine, which also supplies the IAU rotation models, so Earth's day side is correct for the current
   moment. The scene also has Saturn's rings (with shadows both ways), ~32,000 real asteroids, Jupiter Trojans and
   Kuiper-belt objects from JPL, and the stars.
-- **The stars in 3D.** 329,770 stars (every star to V ≈ 10, and every catalogued star within 100 light-years) from
-  AT-HYG v4.0 with Gaia DR3 distances and velocities, each at its own distance, moving in a straight line with its
+- **The stars in 3D.** 3,754,841 stars: the 329,770 of every star to V ≈ 10 and every catalogued star within 100
+  light-years, loaded at start; the rest of AT-HYG (Tycho-2, to V ≈ 12), every star of the Gaia Catalogue of Nearby
+  Stars within 100 pc, the luminous hot stars of Zari et al. (2021), Gaia DR3's luminous stars out to 5–8 kpc,
+  open-cluster members within 1 kpc and every exoplanet host, fetched in small files as the camera comes near
+  (docs/data/stars.md §12). All from AT-HYG v4.0 and Gaia DR3 distances and velocities, each at its own distance, moving in a straight line with its
   measured space velocity (good for about a million years either side of 2000; the stars are held still beyond), as
   bright as it looks from wherever the camera is and coloured by temperature. From Earth the sky is the familiar
   one, to the eye's limit of magnitude 6.5; fly away and the 88 constellation figures come apart. Alpha Centauri
@@ -214,7 +217,7 @@ pixel ratio, when frames take over 8.5 ms.
 | Ellipsoids of Nix, Hydra and Haumea (`public/models/{nix,hydra,haumea}.bin`) | Generated from the triaxial sizes of Weaver et al. 2016 and Ortiz et al. 2017 | Generated; MIT with the source code |
 | Comet 67P shape (`public/models/churyumov-gerasimenko.bin`) | SHAP5 model by R. Gaskell, L. Jorda et al. (ESA/Rosetta/MPS for OSIRIS Team) | **[CC BY-SA 3.0 IGO](https://creativecommons.org/licenses/by-sa/3.0/igo/)**; this derived file is CC BY-SA 3.0 IGO too |
 | Asteroids, Trojans, TNOs (`public/data/belts.bin`) | [JPL Small-Body Database](https://ssd-api.jpl.nasa.gov/doc/sbdb_query.html) | NASA/JPL-Caltech |
-| Stars (`public/data/stars3d.bin.gz`, `stars3d-bright.bin.gz`, `stars3d-extra.bin.gz`, `star-names.json.gz`) | [AT-HYG v4.0](https://codeberg.org/astronexus/athyg) (David Nash) with [Gaia DR3](https://www.cosmos.esa.int/gaia) distances and radial velocities (ESA/Gaia/DPAC), Hipparcos photometry and parallaxes (ESA 1997; van Leeuwen 2007), [HYG v4.4](https://codeberg.org/astronexus/hyg) variable-star names and the [IAU star names](https://www.iau.org/public/themes/naming_stars/) | **Non-commercial use only**: AT-HYG is [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), the Gaia-derived values [CC BY-NC 3.0 IGO](https://www.cosmos.esa.int/web/gaia-users/license); both apply (see `CREDITS.md`) |
+| Stars (`public/data/stars3d.bin.gz`, `stars3d-bright.bin.gz`, `stars3d-extra.bin.gz`, `stars3d-head.bin.gz`, `stars3d-index.bin.gz`, `stars3d/`, `star-names.json.gz`) | [AT-HYG v4.0](https://codeberg.org/astronexus/athyg) (David Nash) with [Gaia DR3](https://www.cosmos.esa.int/gaia) distances and radial velocities (ESA/Gaia/DPAC), the Gaia Catalogue of Nearby Stars (Gaia Collaboration, Smart et al. 2021), the 10 parsec sample (Reylé et al. 2021), the luminous hot stars of Zari et al. (2021) and the open-cluster members of Hunt & Reffert (2023) via VizieR (CDS), Hipparcos photometry and parallaxes (ESA 1997; van Leeuwen 2007), [HYG v4.4](https://codeberg.org/astronexus/hyg) variable-star names and the [IAU star names](https://www.iau.org/public/themes/naming_stars/) | **Non-commercial use only**: AT-HYG is [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), the Gaia-derived values [CC BY-NC 3.0 IGO](https://www.cosmos.esa.int/web/gaia-users/license); both apply (see `CREDITS.md`) |
 | Constellation figures (`public/data/constellations.json`) | [d3-celestial](https://github.com/ofrohn/d3-celestial) (Olaf Frohn), after the IAU / Sky & Telescope charts | [BSD 3-Clause](https://github.com/ofrohn/d3-celestial/blob/master/LICENSE) |
 | Star systems and named stars (`src/sim/stars/systems.json`) | Orbits and stellar parameters from the papers cited in the file (Akeson et al. 2021, Kervella et al. 2017, Bond et al. 2015 and 2017, Shakht et al. 2017, Torres et al. 2015 and others) and Gaia DR3 | Published values, each with its reference |
 | Exoplanets (`public/data/exoplanets.json.gz`) | [NASA Exoplanet Archive](https://exoplanetarchive.ipac.caltech.edu/), Planetary Systems Composite Parameters (doi:[10.26133/NEA13](https://doi.org/10.26133/NEA13); Christiansen et al. 2025), retrieved 25 September 2026: "This research has made use of the NASA Exoplanet Archive, which is operated by the California Institute of Technology, under contract with the National Aeronautics and Space Administration under the Exoplanet Exploration Program." Host positions at J2000 from Gaia DR3 (ESA/Gaia/DPAC) and the Hipparcos new reduction | NASA/Caltech-IPAC data, freely available with that acknowledgement; **non-commercial use only** because of the Gaia-derived positions ([CC BY-NC 3.0 IGO](https://www.cosmos.esa.int/web/gaia-users/license)) |
@@ -249,9 +252,12 @@ Libraries: three.js, React Three Fiber and postprocessing (pmndrs), zustand, KaT
 
 ```bash
 # Stars (docs/data/stars.md): downloads its inputs into data-raw/ with --fetch, then builds the star files,
-# the constellation figures and the naked-eye subset
+# the constellation figures, the naked-eye subset and the catalogue's extension (§12; its --fetch downloads about
+# 0.7 GB of AT-HYG, GCNS, Zari, cluster and Gaia DR3 tables), then the faint stars' glow
 node scripts/build-stars3d.mjs --fetch
+node --max-old-space-size=10000 scripts/build-stars3d-ext.mjs --fetch
 npm run data:stars
+npm run data:faint-stars
 # Minor bodies: queries the JPL SBDB API (cached in data-raw/)
 npm run data:belts
 # Exoplanets (docs/data/exoplanets.md): from the NASA Exoplanet Archive table in data-raw/ (the download command is in

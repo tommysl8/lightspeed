@@ -338,10 +338,11 @@ encoding). Load the 2K first and swap to the 4K when it arrives.
 
 **What it is not.** It has no nebular emission (H-alpha), zodiacal light or airglow. Stars brighter than about V = 11
 are missing on purpose, because the app draws them as points. The app draws the catalogue's stars as points only down
-to the eye's limit (V 6.5), so the light of those from V 6.5 to about 10 is in `public/textures/faint-stars.png`
+to the eye's limit (V 6.5), so the light of those from V 6.5 to 11 (the core catalogue's, and its extension's
+brighter than V = 11: docs/data/stars.md §12) is in `public/textures/faint-stars.png`
 (`scripts/build-faint-stars.mjs`: each star's share of light the star field does not draw, spread over a Gaussian of
-0.5°, in the sky map's projection and encoding), which the shader adds to the map. Only stars from V 10 to 11 are in
-neither: a small share of the sky's diffuse light. The galactic-coordinate version (`milkyway_2020_4k_gal.exr`) was not used, because the celestial one maps
+0.5°, in the sky map's projection and encoding), which the shader adds to the map. The extension's stars from V 10 to
+11 add about a third to that light (143 stars of V = 0 in all, against 106 from the core). The galactic-coordinate version (`milkyway_2020_4k_gal.exr`) was not used, because the celestial one maps
 straight to the app's frame.
 
 ## 5. Star clusters: `public/data/clusters.json.gz`
@@ -617,9 +618,8 @@ The rows for these files are in `CREDITS.md`, and the About page lists the sourc
 - The disc has no flare, and the X-shaped bulge lobes are not explicit.
 - Globular cluster masses are photometric estimates (M/L_V = 1.9), not dynamical masses.
 - Hunt & Reffert distance uncertainties are statistical; a 0.015 mas systematic is added only in `nebulae.json`.
-- The SVS background lacks stars brighter than V ~ 11 and the 3D star catalogue stops at V ≈ 10, so stars from
-  V 10 to 11 are in neither (a small share of the diffuse light). The stars from V 6.5 to 10 are in
-  `public/textures/faint-stars.png` (section 4).
+- The SVS background lacks stars brighter than V ~ 11; the star catalogue's stars from V 6.5 to 11 (Tycho-2's
+  completeness near V 11 aside) are in `public/textures/faint-stars.png` (section 4).
 - The dust is smooth: it has no gaps like the windows towards the Sagittarius and Scutum star clouds, so seen from
   the Sun the model is 1.2 to 1.3 mag fainter than the real sky there (within 0.5 mag towards the anticentre and the
   poles; `glow.test.ts`).
@@ -689,7 +689,7 @@ colour; a blackbody's radiance seen with Doppler factor D is that of a blackbody
 - Only the 2K map is loaded: nothing is drawn finer than its 10.5′ texels (finer, the map resolves the faint stars
   into dots), and it was averaged from the 4K master in linear light, which the GPU's mipmaps of log-encoded values
   would not be. The 4K file is kept as the master. The light of the catalogue's stars too faint to draw as points
-  (V 6.5 to about 10) is added from `public/textures/faint-stars.png` (section 4).
+  (V 6.5 to 11) is added from `public/textures/faint-stars.png` (section 4).
 - The map is filtered with its screen-space derivatives and the hardware's anisotropic filter, which the poles of the
   plate carrée need (there the rows are tiny rings and the texels slivers along the meridians). The footprint is
   taken on the sky (right ascension shrunk by cos Dec) and made no thinner than a quarter of its length, which

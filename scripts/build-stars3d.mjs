@@ -27,7 +27,7 @@
 
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { gunzipSync, gzipSync, constants as zc } from 'node:zlib';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join } from 'node:path';
 import { SYSTEMS, STARS, REFS, SUN } from './star-literature.mjs';
 
@@ -166,7 +166,7 @@ async function fetchMissing() {
 // Parsing helpers
 // ---------------------------------------------------------------------------------------------------------------
 
-function parseCsvLine(line) {
+export function parseCsvLine(line) {
   const out = [];
   let cur = '';
   let quoted = false;
@@ -215,22 +215,22 @@ function readAthyg() {
 // ---------------------------------------------------------------------------------------------------------------
 
 /** B-V -> colour temperature, Ballesteros (2012), EPL 97, 34008; same clamp as src/physics/blackbody.ts. */
-function bvToTemperature(bv) {
+export function bvToTemperature(bv) {
   const x = Math.min(2.0, Math.max(-0.4, bv));
   return 4600 * (1 / (0.92 * x + 1.7) + 1 / (0.92 * x + 0.62));
 }
 
-const unitFromRaDec = (raDeg, decDeg) => {
+export const unitFromRaDec = (raDeg, decDeg) => {
   const a = raDeg * DEG;
   const d = decDeg * DEG;
   return [Math.cos(d) * Math.cos(a), Math.cos(d) * Math.sin(a), Math.sin(d)];
 };
 
 /** ICRS equatorial -> J2000 ecliptic (rotation about x by the J2000 obliquity). */
-const eqToEcl = (v) => [v[0], COS_E * v[1] + SIN_E * v[2], -SIN_E * v[1] + COS_E * v[2]];
+export const eqToEcl = (v) => [v[0], COS_E * v[1] + SIN_E * v[2], -SIN_E * v[1] + COS_E * v[2]];
 
 /** Heliocentric position (pc) and velocity (km/s), ICRS axes, from astrometry. */
-function stateFromAstrometry({ raDeg, decDeg, parallaxMas, pmRaMasYr, pmDecMasYr, rvKms }) {
+export function stateFromAstrometry({ raDeg, decDeg, parallaxMas, pmRaMasYr, pmDecMasYr, rvKms }) {
   const a = raDeg * DEG;
   const d = decDeg * DEG;
   const r = unitFromRaDec(raDeg, decDeg);
@@ -246,7 +246,7 @@ function stateFromAstrometry({ raDeg, decDeg, parallaxMas, pmRaMasYr, pmDecMasYr
   };
 }
 
-const propagate = (s, dtYr) => ({ pos: s.pos.map((x, k) => x + s.vel[k] * dtYr * KMS_TO_PC_PER_YR), vel: [...s.vel] });
+export const propagate = (s, dtYr) => ({ pos: s.pos.map((x, k) => x + s.vel[k] * dtYr * KMS_TO_PC_PER_YR), vel: [...s.vel] });
 const add = (a, b) => a.map((x, k) => x + b[k]);
 const sub = (a, b) => a.map((x, k) => x - b[k]);
 const scale = (a, s) => a.map((x) => x * s);
@@ -393,7 +393,7 @@ const Z6 = {
 };
 
 /** Returns { zp (mas), valid } for a 5p (31) or 6p (95) solution; valid=false outside 6<G<21 / colour range. */
-function zeroPoint(G, nuEff, pseudocolour, eclLatDeg, paramsSolved) {
+export function zeroPoint(G, nuEff, pseudocolour, eclLatDeg, paramsSolved) {
   let tab;
   let colour;
   if (paramsSolved === 31) {
@@ -442,7 +442,7 @@ const GREEK = {
 
 // The 88 IAU constellations: abbreviation, name, genitive (from d3-celestial's constellations.json, which lists
 // Serpens twice, once per part; the duplicate is dropped).
-const CONSTELLATIONS = (() => {
+export const CONSTELLATIONS = (() => {
   const seen = new Set();
   const out = [];
   for (const f of JSON.parse(readFileSync(join(RAW, 'd3celestial_constellations.json'), 'utf8')).features) {
@@ -453,7 +453,7 @@ const CONSTELLATIONS = (() => {
   if (out.length !== 88) throw new Error(`expected 88 constellations, got ${out.length}`);
   return out;
 })();
-const CON_INDEX = new Map(CONSTELLATIONS.map((c, i) => [c.abbr.toLowerCase(), i + 1]));
+export const CON_INDEX = new Map(CONSTELLATIONS.map((c, i) => [c.abbr.toLowerCase(), i + 1]));
 
 function stripDiacritics(s) {
   return s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[’']/g, "'").trim();
@@ -486,7 +486,7 @@ function readIauNames() {
 // measured colour.
 // ---------------------------------------------------------------------------------------------------------------
 
-function readSptTable() {
+export function readSptTable() {
   const lines = readFileSync(join(RAW, 'EEM_dwarf_UBVIJHK_colors_Teff.txt'), 'utf8').split(/\r?\n/);
   const out = [];
   let inTable = false;
@@ -505,7 +505,7 @@ function readSptTable() {
   return out;
 }
 
-function sptToBv(spect, table) {
+export function sptToBv(spect, table) {
   const m = /^\s*([OBAFGKM])\s*(\d+(?:\.\d+)?)?/.exec(spect ?? '');
   if (!m) return NaN;
   const x = 'OBAFGKM'.indexOf(m[1]) * 10 + (m[2] ? Number(m[2]) : 5);
@@ -523,7 +523,7 @@ function sptToBv(spect, table) {
 // Binary packing
 // ---------------------------------------------------------------------------------------------------------------
 
-function roundMantissa(f32, bits) {
+export function roundMantissa(f32, bits) {
   const u = new Uint32Array(f32.buffer, f32.byteOffset, f32.length);
   const drop = 23 - bits;
   if (drop <= 0) return;
@@ -537,7 +537,7 @@ function roundMantissa(f32, bits) {
 }
 
 /** Byte-shuffle: element i's byte k goes to k*n + i (improves deflate on numeric columns). */
-function shuffle(typed, width) {
+export function shuffle(typed, width) {
   const b = new Uint8Array(typed.buffer, typed.byteOffset, typed.byteLength);
   const n = b.length / width;
   const out = new Uint8Array(b.length);
@@ -1688,7 +1688,10 @@ function buildNames({ stars, iauNames, hygById, spectList, note }) {
   };
 }
 
-main().catch((e) => {
-  console.error(e);
-  process.exit(1);
-});
+// Run only as a script: scripts/build-stars3d-ext.mjs imports the helpers above.
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main().catch((e) => {
+    console.error(e);
+    process.exit(1);
+  });
+}

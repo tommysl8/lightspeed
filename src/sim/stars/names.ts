@@ -9,7 +9,12 @@
 export interface StarNamesJson {
   format: 'lightspeed.star-names';
   version: number;
+  /** Every star numbered: the core, then the head's pinned stars, then the band files (docs/data/stars.md §12). */
   count: number;
+  /** Stars of the core (stars3d.bin.gz), whose entries come first; absent before the catalogue's extension. */
+  coreCount?: number;
+  /** Spectral types of the core's stars (the extension's follow); absent before the extension. */
+  coreSpectralTypes?: number;
   /** [abbreviation, name, genitive] of the 88 IAU constellations; stars3d-extra's constellation index is 1-based. */
   constellations: [string, string, string][];
   spectralTypes: string[];

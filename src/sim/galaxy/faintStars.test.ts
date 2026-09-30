@@ -5,7 +5,7 @@
  */
 import { describe, expect, it } from 'vitest';
 import { readBytes } from '../../test/files';
-import { loadStars } from '../../test/stars';
+import { loadBandFile, loadHeadFile, loadStarIndex, loadStars } from '../../test/stars';
 import { apply, ECL_TO_GAL } from './frames';
 import { MW_FAINT_STARS, MW_FLUX_PER_SR, decodeSvs } from './background';
 import { STAR_MAG_LIMIT } from '../stars/visibility';
@@ -84,11 +84,26 @@ describe('the faint stars’ light', () => {
       const t = Math.min(1, Math.max(0, V - (STAR_MAG_LIMIT - 0.5)));
       want += t * t * (3 - 2 * t) * 10 ** (-0.4 * V);
     }
-    // About 106 stars of V = 0 (the 8-bit encoding holds each texel to a few per cent).
-    expect(want).toBeGreaterThan(100);
-    expect(want).toBeLessThan(112);
+    // And the extension's stars brighter than V = 11 from the Sun, the sky map's own cut (docs/data/stars.md §12):
+    // the pinned stars of the head and the band files.
+    const add = (P: Float32Array, M: Int16Array, n: number) => {
+      for (let i = 0; i < n; i++) {
+        const V = M[i] / 100 + 5 * Math.log10(Math.hypot(P[3 * i], P[3 * i + 1], P[3 * i + 2]) / 10);
+        if (V < 11) want += 10 ** (-0.4 * V);
+      }
+    };
+    const head = loadHeadFile();
+    add(head.positions, head.absMagInt16, head.count);
+    for (let f = 0; f < loadStarIndex().files; f++) {
+      const b = loadBandFile(f).stars;
+      add(b.positions, b.absMagInt16, b.count);
+    }
+    // About 143 stars of V = 0: 106 from the core, 37 from the extension (the 8-bit encoding holds each texel to a
+    // few per cent).
+    expect(want).toBeGreaterThan(135);
+    expect(want).toBeLessThan(150);
     expect(Math.abs(map / want - 1)).toBeLessThan(0.03);
-  });
+  }, 600_000);
 
   it('is brightest along the Milky Way, in the sky map’s projection', () => {
     // Mean p in bands of galactic latitude, from each texel's direction (ICRS: RA = 0 at the centre column, increasing to the left).
