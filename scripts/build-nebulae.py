@@ -408,7 +408,7 @@ def main() -> None:
                              page=meta["url"], file=url, band=o.get("band", "visible"), cropped=bool(o.get("crop")),
                              fullFrame=dict(centerRaDeg=round(meta["ra"], 5), centerDecDeg=round(meta["dec"], 5), fovArcmin=meta["fov"], northAngleDeg=meta["north"])),
             credit=meta["credit"], licence="CC BY 4.0",
-            modificationNote=("Image modified for Lightspeed: " + ("cropped, " if o.get("crop") else "") +
+            modificationNote=("Image modified for Skyfold: " + ("cropped, " if o.get("crop") else "") +
                               "resized, black level subtracted and edges faded (see imageProcessing)."),
             blurb=o["blurb"],
         ))

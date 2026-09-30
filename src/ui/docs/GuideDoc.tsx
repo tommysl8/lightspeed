@@ -1,5 +1,5 @@
 /**
- * The Lightspeed guide: how to explore, fly and find your way around. British spelling, SI
+ * The Skyfold guide: how to explore, fly and find your way around. British spelling, SI
  * units, symbols in italics (ital() for plain strings). Everything here describes the interface as the code builds it: when a control
  * moves, this file moves with it.
  */
@@ -118,10 +118,10 @@ function Welcome() {
     <Chapter
       id="welcome"
       n={chapterNo('welcome')}
-      title="Welcome to Lightspeed"
+      title="Welcome to Skyfold"
       lead={
         <>
-          Lightspeed is a space exploration tool with real physics. It shows the universe as it is at this moment, from the
+          Skyfold is a space exploration tool with real physics. It shows the universe as it is at this moment, from the
           planets at true scale to the stars, the Milky Way and the galaxies beyond, and lets you fly through it at nearly the
           speed of light, with the sky and the clocks behaving exactly as relativity says they must.
         </>
@@ -274,7 +274,7 @@ function QuickStart() {
 }
 
 const SCREEN_PARTS: [number, ReactNode, ReactNode][] = [
-  [1, 'Lightspeed', 'The name opens the About page.'],
+  [1, 'Skyfold', 'The name opens the About page.'],
   [
     2,
     'Date',
@@ -317,7 +317,7 @@ function Screen() {
       <Fig
         n="3.1"
         wide
-        caption="The Lightspeed screen with the instrument panel open on the right (View › Instrument panel, or I). The physics reference, when you open it, sits on the left."
+        caption="The Skyfold screen with the instrument panel open on the right (View › Instrument panel, or I). The physics reference, when you open it, sits on the left."
       >
         <ScreenMap />
       </Fig>
@@ -623,7 +623,7 @@ function Looking() {
         piece of text and every panel hidden, the labels and names too. Everything still works: drag and scroll, Roam, the
         keys. A hint says how to leave for two seconds: <Kbd>Esc</Kbd>, <Kbd>Shift</Kbd>+<Kbd>F</Kbd>, or the browser’s own
         way out of full screen. Everything comes back exactly as it was. Where the browser does not allow full screen (an
-        iPhone, or Lightspeed inside another page), the interface is hidden all the same. One line stays: while a nebula’s
+        iPhone, or Skyfold inside another page), the interface is hidden all the same. One line stays: while a nebula’s
         photograph is on screen, its credit, faint in the bottom corner, because the licence of the pictures (CC BY 4.0) asks
         for it wherever they show. On a touch screen Roam’s arrows stay too.
       </p>
@@ -722,7 +722,7 @@ function Universe() {
         At the centre is Sagittarius A*, a black hole of 4.3 million solar masses 27,000 light-years away, with the four stars
         whose orbits round it are published under an open licence (S2 goes round every 16 years, turning slowly as general
         relativity says). Other published orbits exist but are not licensed for reuse. The black hole itself, and the others
-        Lightspeed shows, have a section of their own below.
+        Skyfold shows, have a section of their own below.
       </p>
       <TryRow>
         <Try run={() => runScene('milky-way-outside')}>See the Milky Way from outside</Try>
@@ -1347,7 +1347,7 @@ function Seeing() {
       <div id="doc-the-lens">
         <H3>The lens</H3>
         <p>
-          A black hole bends the light that passes it, and Lightspeed draws that bending exactly, for every star, every
+          A black hole bends the light that passes it, and Skyfold draws that bending exactly, for every star, every
           glow and every body in view, as it would be for a black hole that does not spin. Five things to look for:
         </p>
         <ul>
@@ -1510,7 +1510,7 @@ function Troubleshooting() {
     [
       'The view is black',
       <>
-        Lightspeed needs WebGL 2. Check that hardware acceleration is on in your browser’s settings, update the browser, and
+        Skyfold needs WebGL 2. Check that hardware acceleration is on in your browser’s settings, update the browser, and
         reload. On a laptop, plugging in the charger lets the graphics chip run at full speed.
       </>,
     ],
@@ -1525,7 +1525,7 @@ function Troubleshooting() {
     [
       'It is slow near a black hole',
       <>
-        The lens is the costliest thing Lightspeed draws. Near a black hole a controller watches how long the graphics chip
+        The lens is the costliest thing Skyfold draws. Near a black hole a controller watches how long the graphics chip
         takes over each frame, and while that stays above about 8.5 ms it steps down: fewer rays in the photon ring, fewer of
         the stars round Sagittarius A* drawn one by one (the rest join their glow, so the light stays the same), and plainer
         pictures of the sky, and only then a lower resolution. On Windows, Chrome’s default graphics backend is the fastest:
@@ -1650,7 +1650,7 @@ function Troubleshooting() {
 
 const GLOSSARY: [ReactNode, ReactNode][] = [
   ['Aberration', 'The change in the apparent direction of light caused by the observer’s motion.'],
-  ['Accretion flow', 'The gas falling into a black hole. Sagittarius A*’s is hot, thin and faint; in Lightspeed it is a model fitted to its spectrum.'],
+  ['Accretion flow', 'The gas falling into a black hole. Sagittarius A*’s is hot, thin and faint; in Skyfold it is a model fitted to its spectrum.'],
   ['Apex, antapex', 'The points on the sky towards which, and away from which, the observer is moving.'],
   ['Astronomical unit (au)', 'A defined length, 149,597,870.7 km, close to the mean distance from Earth to the Sun: about 8 minutes 19 seconds of light-time.'],
   [<><i>β</i> (beta)</>, <>Speed as a fraction of the speed of light, <i>v</i>/<i>c</i>.</>],
@@ -1670,9 +1670,9 @@ const GLOSSARY: [ReactNode, ReactNode][] = [
   [<><i>γ</i> (gamma), Lorentz factor</>, <>1/√(1 − <i>β</i><sup className="sup">2</sup>): the factor by which moving clocks run slow and moving lengths contract.</>],
   ['Gravitational lensing', 'The bending of light by gravity, which moves, brightens, doubles and rings the images of what lies behind a mass.'],
   ['Gravitational time dilation', <>The slowing of clocks by gravity: a clock hovering at <i>r</i> from a black hole runs at √(1 − <i>r</i><sub>s</sub>/<i>r</i>) of one far away.</>],
-  ['Hovering observer', 'An observer held at a fixed distance from a black hole by a rocket. Near a black hole Lightspeed measures your motion against them.'],
+  ['Hovering observer', 'An observer held at a fixed distance from a black hole by a rocket. Near a black hole Skyfold measures your motion against them.'],
   ['Journey', `One of the ${countWord(JOURNEYS.length)} set pieces under Journeys: a flight from Earth, or a scene with the clock set, with a line on what to look for.`],
-  [<>Lambda-CDM (<i>Λ</i>CDM)</>, 'The standard model of cosmology: a flat universe of ordinary matter, cold dark matter and dark energy in the form of a cosmological constant, Λ. Lightspeed uses it with the values measured by the Planck satellite (2018).'],
+  [<>Lambda-CDM (<i>Λ</i>CDM)</>, 'The standard model of cosmology: a flat universe of ordinary matter, cold dark matter and dark energy in the form of a cosmological constant, Λ. Skyfold uses it with the values measured by the Planck satellite (2018).'],
   ['Light-time', 'How long light takes to cover a given distance.'],
   ['Light-year (ly)', <>The distance light travels in a Julian year, 9.46 × 10<sup className="sup">12</sup> km.</>],
   ['Local Group', 'The Milky Way, Andromeda, Triangulum and dozens of smaller galaxies, held together by gravity within about a megaparsec; inside it space does not expand.'],
@@ -1680,7 +1680,7 @@ const GLOSSARY: [ReactNode, ReactNode][] = [
   ['Parsec (pc)', 'The distance at which one astronomical unit spans one second of arc: 3.26 light-years. A kiloparsec (kpc) is a thousand parsecs, a megaparsec (Mpc) a million.'],
   ['Photon ring', 'A thin band just outside a black hole’s shadow holding light that went round the hole once or more on its way to you: squeezed copies of the whole sky, one inside the next.'],
   [<>Proper time, <i>τ</i> (tau)</>, 'Time kept by a clock travelling with the observer: “your clock”.'],
-  ['Raindrop', 'An observer falling freely into a black hole from rest far away. Its view stays regular through the horizon; Lightspeed shows a fall from its frame, and home’s clock on its clocks.'],
+  ['Raindrop', 'An observer falling freely into a black hole from rest far away. Its view stays regular through the horizon; Skyfold shows a fall from its frame, and home’s clock on its clocks.'],
   [<>Rapidity, <i>φ</i> (phi)</>, <>artanh <i>β</i>: a measure of speed that adds simply for successive boosts along a line, and grows in proportion to proper time at constant acceleration.</>],
   [<>Redshift, <i>z</i></>, <>How much light has been stretched on its way: 1 + <i>z</i> is the wavelength received over the wavelength sent. For distant galaxies most of it is the expansion of space.</>],
   ['Roam', 'The camera flown by hand, with nothing in focus and no speed limit: its pace is the distance to the nearest thing that matters, per second. A camera, not a ship: no relativity applies to its motion.'],
@@ -1720,7 +1720,7 @@ export default function GuideDoc() {
     <>
       <header className="doc-mast">
         <div className="doc-mast-k">Guide</div>
-        <h1>Exploring with Lightspeed</h1>
+        <h1>Exploring with Skyfold</h1>
         <p>
           How to look around, fly and find your way, from the Moon to the cosmic web, and what everything on the screen does.
         </p>

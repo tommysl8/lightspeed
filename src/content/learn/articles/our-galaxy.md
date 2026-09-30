@@ -182,7 +182,7 @@ S2 also measures the distance to the centre by pure geometry: the orbit's size o
 :::
 
 ::: see-it fly:sgr-a-star
-A flight to the centre at a steady 1 g, turning round halfway to brake. Watch the two clocks: the ship's reads about 20 years on arrival, the one at home about 27,000 (Lightspeed puts the centre at GRAVITY's 2022 distance, 8,277 parsecs).
+A flight to the centre at a steady 1 g, turning round halfway to brake. Watch the two clocks: the ship's reads about 20 years on arrival, the one at home about 27,000 (Skyfold puts the centre at GRAVITY's 2022 distance, 8,277 parsecs).
 :::
 
 ## A shadow the size of a doughnut on the Moon

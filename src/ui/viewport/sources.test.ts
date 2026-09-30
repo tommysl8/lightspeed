@@ -13,7 +13,7 @@ const image: DeepSkyImage = {
   file: 'images/nebulae/x.jpg',
   band: 'visible',
   credit: 'ESO/G. Beccari',
-  modificationNote: 'Image modified for Lightspeed: resized.',
+  modificationNote: 'Image modified for Skyfold: resized.',
   page: 'https://www.eso.org/public/images/eso0000a/',
   source: 'ESO eso0000a',
   licence: 'CC BY 4.0',
@@ -41,7 +41,7 @@ describe('a card’s Sources', () => {
     expect(links).toMatch(/GRAVITY 2022<\/a><\/span><span> · <a/);
     expect(renderToStaticMarkup(createElement(SourceLinks, { links: [] }))).toBe('');
     const credit = renderToStaticMarkup(createElement(PictureCreditLine, { image })).replace(/<[^>]+>/g, '');
-    expect(credit).toBe('ESO/G. Beccari. Image modified for Lightspeed: resized. ESO eso0000a · CC BY 4.0');
+    expect(credit).toBe('ESO/G. Beccari. Image modified for Skyfold: resized. ESO eso0000a · CC BY 4.0');
     const html = renderToStaticMarkup(createElement(PictureCreditLine, { image }));
     expect(html).toContain(`href="${image.page}"`);
     expect(html).toContain(`href="${image.licenceUrl}"`);

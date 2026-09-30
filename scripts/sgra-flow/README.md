@@ -1,6 +1,6 @@
 # Sagittarius A*'s accretion flow
 
-The model of the hot gas falling into Sgr A* that Lightspeed draws, and the independent reference the app's own ray
+The model of the hot gas falling into Sgr A* that Skyfold draws, and the independent reference the app's own ray
 march is checked against. It shares no code with the TypeScript or the GLSL. Full description, sources and checks:
 `docs/data/blackholes.md`, section 7.
 

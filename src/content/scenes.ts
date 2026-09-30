@@ -1,6 +1,6 @@
 /**
  * Scenes: the one place that sets the view up from a short text spec. The Learn articles'
- * "See it in Lightspeed" buttons, the journeys and (later) search all go through here.
+ * "See it in Skyfold" buttons, the journeys and (later) search all go through here.
  *
  *   go:<target>                 fly the camera to a target and show its card
  *   fly:<target>                a 1 g flip-and-burn flight from Earth, paced by ship time
@@ -396,7 +396,7 @@ export interface SceneStatus {
  * for the articles' targets and scenes in the app, whose loaders all start with the page
  * (main.tsx), so they are loading, loaded or failed.
  */
-export const LATER = 'Not in Lightspeed yet';
+export const LATER = 'Not in Skyfold yet';
 const LOADING = 'Loading the Solar System data…';
 const LOADING_STARS = 'Loading the star catalogue…';
 /** What a spec says when its data did not load. */
@@ -570,7 +570,7 @@ function blocker(s: Scene): string | null {
 /** Whether a spec can run now, why not, and what it is. */
 export function sceneStatus(spec: string): SceneStatus {
   const s = parseScene(spec);
-  if (!s) return { ok: false, reason: 'Not a scene Lightspeed knows', label: spec };
+  if (!s) return { ok: false, reason: 'Not a scene Skyfold knows', label: spec };
   const label = labelOf(s);
   const reason = blocker(s);
   return reason ? { ok: false, reason, label } : { ok: true, label };

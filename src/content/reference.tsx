@@ -352,7 +352,7 @@ export const REFERENCE: Record<ExplainerId, ReferenceSection> = {
           Light falling towards a black hole gains energy. To an observer hovering at radius <M t="r" />, light that left a
           source far away arrives with its frequency raised by <M t="1/\sqrt{1 - r_s/r}" />, and the observer’s own clock runs
           slow against clocks far away by the same factor: both follow from the same geometry. At ten times the horizon’s
-          radius the factor is 1.054; at <M t="1.01\,r_s" />, 10.05; at the lowest hover Lightspeed allows,{' '}
+          radius the factor is 1.054; at <M t="1.01\,r_s" />, 10.05; at the lowest hover Skyfold allows,{' '}
           <M t="r_s(1 + 10^{-6})" />, it is 1,000.
         </p>
         <p>
@@ -411,7 +411,7 @@ export const REFERENCE: Record<ExplainerId, ReferenceSection> = {
     ),
     note: (
       <>
-        Lightspeed traces the light exactly (Schwarzschild) for one black hole at a time, the one whose lens matters most.
+        Skyfold traces the light exactly (Schwarzschild) for one black hole at a time, the one whose lens matters most.
         Constellation figures, planet-host rings and orbit lines follow the primary image only; nebula pictures have no second
         image; a star exactly behind a hole shows as two points, and only the Sun, the S-stars and the black holes’ companions
         are drawn as rings.

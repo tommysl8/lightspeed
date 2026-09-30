@@ -14,7 +14,7 @@ import './learn.css';
 
 const ArticleBody = lazy(() => import('./ArticleBody'));
 
-export const ISSUES_URL = 'https://github.com/tommysl8/lightspeed/issues';
+export const ISSUES_URL = 'https://github.com/tommysl8/skyfold/issues';
 
 /** The hub's contents: its shelves. */
 export const hubToc = (): TocEntry[] => SHELVES.map((s) => ({ id: `shelf-${s.id}`, title: s.title }));
@@ -79,7 +79,7 @@ export function LearnHub() {
         <h1>How we know</h1>
         <p>
           Long reads on the science behind the view: how it was worked out, what the physics says and what comes next. Every
-          claim has a source, and most articles can show you their subject in Lightspeed.
+          claim has a source, and most articles can show you their subject in Skyfold.
         </p>
       </header>
       {shelves(articles).map((s) => (
@@ -178,7 +178,7 @@ export function LearnMissing({ slug }: { slug: string }) {
       <header className="doc-mast">
         <div className="doc-mast-k">Learn</div>
         <h1>Not written yet</h1>
-        <p>There is no article called “{slug}” yet. New ones are added as the universe in Lightspeed grows.</p>
+        <p>There is no article called “{slug}” yet. New ones are added as the universe in Skyfold grows.</p>
       </header>
       <p className="learn-status">
         <a

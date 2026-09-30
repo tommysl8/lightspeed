@@ -11,7 +11,7 @@ On Friday 11 January 1935, at a meeting of the Royal Astronomical Society in Lon
 
 It was a fair description of a black hole, offered to throw it out: there should be a law of Nature, Eddington told the meeting, to stop a star behaving in so absurd a way.[^obs1935] There is no such law. Chandrasekhar shared the 1983 Nobel Prize in Physics,[^nobel1983] and black holes have since been weighed, pictured and heard colliding.
 
-The shape of space and time around a black hole that does not spin has been known exactly since 1916. It tells you what one looks like from close by, how slowly your clock runs there and what you would see as you fell in. Lightspeed draws all of it, for Sagittarius A\* (Sgr A\*) at the centre of our galaxy and for ten other black holes.
+The shape of space and time around a black hole that does not spin has been known exactly since 1916. It tells you what one looks like from close by, how slowly your clock runs there and what you would see as you fell in. Skyfold draws all of it, for Sagittarius A\* (Sgr A\*) at the centre of our galaxy and for ten other black holes.
 
 ::: timeline Building the case
 - **1783:** John Michell describes stars too heavy for their own light to leave.
@@ -119,7 +119,7 @@ Black holes can also be heard. At 09:50:45 UTC on 14 September 2015 both LIGO de
 
 Light bends near any mass. At the Sun's edge Einstein predicted a bend of 1.75 arcseconds, twice the Newtonian value, and the eclipse expeditions of May 1919 measured 1.98 in Brazil and 1.61 on Príncipe.[^dyson1920] In 1936 a Czech amateur scientist, Rudi Mandl, pressed Einstein to publish the idea that a star exactly behind another would be seen as a ring; Einstein told the editor of *Science* that the paper was "of little value, but it makes the poor guy happy".[^renn2000] Close to a black hole the bending is extreme. In 1978, at the Paris Observatory in Meudon, Jean-Pierre Luminet computed the first picture of a black hole with a disc of gas, on an IBM 7040, and drew it by hand in a few thousand dots of Indian ink.[^luminet1979][^luminet2019] In 2000 Heino Falcke, Fulvio Melia and Eric Agol predicted that radio telescopes linked across the Earth could see the shadow of Sgr A\*.[^falcke2000]
 
-The numbers below are Schwarzschild's, for Sgr A\* with GRAVITY's 4.297 million solar masses and 8,277 parsecs, as in Lightspeed. Without spin, every black hole bends light and slows clocks in the same way at the same number of horizon radii, whatever its mass.
+The numbers below are Schwarzschild's, for Sgr A\* with GRAVITY's 4.297 million solar masses and 8,277 parsecs, as in Skyfold. Without spin, every black hole bends light and slows clocks in the same way at the same number of horizon radii, whatever its mass.
 
 ### Clocks that run slow
 
@@ -189,7 +189,7 @@ The innermost stable circular orbit, three horizon radii out. With no engine you
 
 Sgr A\* is starving. The Event Horizon Telescope's models put the gas it swallows at 5 to 10 billionths of a solar mass a year,[^eht2022v] in a hot, thin flow that glows in radio and infrared light and flickers constantly, with flares on top.[^gravity2020flux] In 2018 GRAVITY saw hot spots in the flares circling the hole at about 30% of the speed of light.[^gravity2018flares]
 
-Lightspeed draws the gas as a model: a flow of the kind worked out by Avery Broderick and Abraham Loeb,[^broderick2006] fitted to Sgr A\*'s measured spectrum from radio to infrared and turned the way the flares go round. Its visible light has never been seen, because about 30 magnitudes of dust hide the centre of the Galaxy,[^genzel2010] so it is extrapolated from the infrared and could be three times brighter or fainter; and the model is smooth and steady where the real gas flickers. Sgr A\*'s card can also show the model at 1.3 mm, the Event Horizon Telescope's wavelength, in false colour: a view of the model, not the telescope's picture.
+Skyfold draws the gas as a model: a flow of the kind worked out by Avery Broderick and Abraham Loeb,[^broderick2006] fitted to Sgr A\*'s measured spectrum from radio to infrared and turned the way the flares go round. Its visible light has never been seen, because about 30 magnitudes of dust hide the centre of the Galaxy,[^genzel2010] so it is extrapolated from the infrared and could be three times brighter or fainter; and the model is smooth and steady where the real gas flickers. Sgr A\*'s card can also show the model at 1.3 mm, the Event Horizon Telescope's wavelength, in false colour: a view of the model, not the telescope's picture.
 
 ::: see-it sgr-a-star-flow
 Ten horizon radii out, on the line to the Sun, seeing the gas from our own angle, two billion times closer than Earth. The model gas glows all round, hazing over the shadow; bent round the hole, its light peaks in a ring just outside the shadow's edge, brightest where the gas comes towards you. On the card, switch to 1.3 mm and compare it with the Event Horizon Telescope's own picture, which the card links to.
@@ -249,9 +249,9 @@ For one solar mass, $\hbar c^3 = 2.84 \times 10^{-9}$ in SI units and $8\pi G M 
 
 Hawking's area rule has now been tested. On 14 January 2025 LIGO caught its clearest merger yet, two black holes of 33.6 and 32.2 solar masses. Their horizons had a total area of about 240,000 km², and the black hole they made had about 400,000 km².[^gw250114][^ligo2025]
 
-## How Lightspeed draws a black hole
+## How Skyfold draws a black hole
 
-The geometry is exact. For the black hole whose effect is largest wherever you are, Lightspeed works out how far light is bent at each angle from it, in tables of 512 steps rebuilt as you move, and sends every star, the Galaxy's glow, the other galaxies and the microwave background through them, second images and colour shifts included. Clocks, hovering, orbits and falls follow the same geometry. Its pictures match an independent ray tracer on at least 99.99% of the pixels away from an edge.
+The geometry is exact. For the black hole whose effect is largest wherever you are, Skyfold works out how far light is bent at each angle from it, in tables of 512 steps rebuilt as you move, and sends every star, the Galaxy's glow, the other galaxies and the microwave background through them, second images and colour shifts included. Clocks, hovering, orbits and falls follow the same geometry. Its pictures match an independent ray tracer on at least 99.99% of the pixels away from an edge.
 
 Some things are models, and the app says so where they show:
 

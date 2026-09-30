@@ -67,13 +67,13 @@ function usePage(route: DocRoute, onReady: () => void): PageView {
       body: <GuideDoc />,
       foot: (
         <FootLink href="#/about" to={() => openDoc('about')}>
-          About Lightspeed →
+          About Skyfold →
         </FootLink>
       ),
     };
   if (route.page === 'about')
     return {
-      label: 'About Lightspeed',
+      label: 'About Skyfold',
       toc: ABOUT_TOC,
       numbered: false,
       sectionsInUrl: true,
@@ -192,7 +192,7 @@ export default function DocView({ route }: { route: DocRoute }) {
     <div ref={ref} className="doc-overlay" role="dialog" aria-modal="true" aria-label={page.label}>
       <header className="doc-bar">
         <LogoMark size={18} className="text-fg" />
-        <span className="mono text-[12px] font-semibold tracking-[0.2em] text-fg max-sm:hidden">LIGHTSPEED</span>
+        <span className="mono text-[12px] font-semibold tracking-[0.2em] text-fg max-sm:hidden">SKYFOLD</span>
         <nav className="doc-tabs" aria-label="Pages">
           {TABS.map((t) => (
             <a

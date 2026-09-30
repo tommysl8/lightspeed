@@ -263,7 +263,7 @@ const HOLES = [
     ehtImage: {
       file: 'images/eht/sgra-2017.jpg',
       credit: 'EHT Collaboration',
-      modificationNote: 'Image modified for Lightspeed: resized.',
+      modificationNote: 'Image modified for Skyfold: resized.',
       page: 'https://www.eso.org/public/images/eso2208-eht-mwa/',
       source: 'ESO eso2208-eht-mwa',
       licence: 'CC BY 4.0',
@@ -324,7 +324,7 @@ const HOLES = [
     ehtImage: {
       file: 'images/eht/m87-2017.jpg',
       credit: 'EHT Collaboration',
-      modificationNote: 'Image modified for Lightspeed: resized.',
+      modificationNote: 'Image modified for Skyfold: resized.',
       page: 'https://www.eso.org/public/images/eso1907a/',
       source: 'ESO eso1907a',
       licence: 'CC BY 4.0',
