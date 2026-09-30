@@ -466,7 +466,7 @@ function CosmicPrediction({ plan }: { plan: TripPlan }) {
               : back.ok
                 ? `${yearsText(p.shipTimeYr + back.shipTimeYr, 3)} aboard, ${yearsText(p.cosmicTimeYr + back.cosmicTimeYr, 3)} at home`
                 : back.reason === 'beyond-event-horizon'
-                  ? 'No way back: home is then beyond the event horizon'
+                  ? 'No way back: home is then beyond the cosmic event horizon'
                   : 'No way back within the limit'
           }
           title="Leaving again on arrival, with the same engine: the way back is longer, because the universe has grown meanwhile"

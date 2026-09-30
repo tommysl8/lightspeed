@@ -3,11 +3,13 @@ import { useFrame, useThree } from '@react-three/fiber';
 import { PlaneGeometry, Vector3, type Mesh, type PerspectiveCamera, type ShaderMaterial } from 'three';
 import { createNebulaMaterial, nebulaUniforms, psfUniforms } from '../render/materials';
 import { POINTS_LAYER } from '../render/LightspeedScenePass';
+import { lensDrawn, swapLensVariant } from '../render/lensVariants';
+import { lens } from '../render/lens/lensState';
 import { acquireTexture, releaseTexture } from '../render/textures';
 import { PARSEC_KM } from '../physics/constants';
 import { MW_MU_FADE, NEBULA_MU_PEAK, surfaceScale } from '../sim/galaxy/background';
 import { galaxyState, galaxyVersion, subscribeGalaxy } from '../sim/galaxy/load';
-import { apparentCard, nebulaCard, type CardMotion, type CardView, type NebulaCard } from '../sim/galaxy/cards';
+import { apparentCard, nebulaCard, type CardLens, type CardMotion, type CardView, type NebulaCard } from '../sim/galaxy/cards';
 import { relView } from '../render/relativisticView';
 import { sim } from '../sim/sim';
 import { useUI } from '../state/ui';
@@ -51,13 +53,16 @@ const cam = new Vector3();
 const rel: [number, number, number] = [0, 0, 0];
 const view: CardView = { forward: new Vector3(), halfDiagonal: 1, pxPerRad: 1 };
 const motion: CardMotion = { velDir: new Vector3(), phi: 0 };
+const cardLens: CardLens = { inv: null as unknown as CardLens['inv'], holeM: new Vector3(), mPerUnit: 1, pxPerRad: 1 };
 
 /**
  * The 45 nebulae as their pictures, each a card at its distance and true size (sim/galaxy,
  * nebulae.json). The pictures are how the nebulae look from Earth; from anywhere else the card
  * stays facing the Sun, so flying past shows it foreshortened, edge-on it fades away, and from
  * the far side it shows the picture mirrored. Each picture loads when its card is a few pixels
- * wide, and goes again when it has been out of sight.
+ * wide, and goes again when it has been out of sight. Near a black hole each card draws with its
+ * lensed variant (render/lensVariants.ts: every vertex of its grid at its primary image), and its
+ * size and place for the credit line follow the lens too (sim/galaxy/cards.ts apparentCard).
  */
 export function Nebulae() {
   // Re-render when the nebulae arrive.
@@ -99,6 +104,15 @@ export function Nebulae() {
     const moving = relView.active && !relView.suspended && relView.phi > 0;
     motion.velDir = relView.velDir;
     motion.phi = relView.phi;
+    // Near a black hole: each card drawn lensed, and judged where its lens puts it.
+    const lensOn = lensDrawn() && lens.inv !== null;
+    if (lensOn) {
+      cardLens.inv = lens.inv!;
+      (cardLens.holeM as Vector3).copy(lens.holeM);
+      cardLens.mPerUnit = PARSEC_KM / lens.mKm;
+      cardLens.pxPerRad = lens.pxPerRad;
+    }
+    for (const s of slots) swapLensVariant(s.mesh, lensOn);
     const selected = useUI.getState().selected;
     const now = performance.now();
     const credits: { id: string; px: number }[] = [];
@@ -110,9 +124,9 @@ export function Nebulae() {
       rel[0] = x;
       rel[1] = y;
       rel[2] = z;
-      let { px, inView } = apparentCard(rel, card.radiusPc, view, moving ? motion : null);
+      let { px, inView } = apparentCard(rel, card.radiusPc, view, moving ? motion : null, lensOn ? cardLens : null);
       if (moving && relView.split) {
-        const still = apparentCard(rel, card.radiusPc, view, null);
+        const still = apparentCard(rel, card.radiusPc, view, null, lensOn ? cardLens : null);
         px = Math.max(px, still.px);
         inView ||= still.inView;
       }

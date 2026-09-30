@@ -162,3 +162,28 @@ describe('the index', () => {
     expect(() => buildIndex([{ file: 'x.md', source: '\u0000---\n:::\n$$' }])).not.toThrow();
   });
 });
+
+describe('the library', () => {
+  const files = Object.entries(import.meta.glob<string>('./articles/*.md', { query: '?raw', import: 'default', eager: true })).map(([path, source]) => ({
+    file: path.replace(/^.*\//, ''),
+    source,
+  }));
+  const { articles, warnings } = buildIndex(files);
+
+  it('lists every article, with no warnings', () => {
+    expect(warnings).toEqual([]);
+    expect(articles).toHaveLength(files.length);
+  });
+
+  it('gives each article an order of its own within its shelf, so the reading order never falls back on titles', () => {
+    const taken = new Map<string, string>();
+    const clashes: string[] = [];
+    for (const a of articles) {
+      const key = `${a.shelf} ${a.order}`;
+      const other = taken.get(key);
+      if (other) clashes.push(`${a.slug} and ${other}: shelf ${a.shelf}, order ${a.order}`);
+      taken.set(key, a.slug);
+    }
+    expect(clashes).toEqual([]);
+  });
+});

@@ -22,8 +22,27 @@
 //  6. the Milky Way seen from the Sun (near the Sun only), behind every surface like the CMB: a
 //     diffuse source sampled in the rest-frame direction, recoloured and brightened with the same
 //     radiance transform as the surfaces (render/shaders/milkyway.glsl)
+#ifdef LENS
+//  7. near a black hole (uLensOn, lightspeed_lens), the sky behind the surfaces is seen through its
+//     lens: a pixel inside the diffuse zone (a cone about the hole in the ship's view) has its
+//     rest-frame ray taken to the hole's frame and bent back to where its light came from (lensRay);
+//     the Milky Way is read there (in the Sun's frame again), the CMB's temperature is
+//     T_CMB · D_view · g · D_dip(n∞) (the ship's Doppler factor, the observer's gravitational
+//     blueshift, and the hole frame's own motion through the CMB at the escape direction),
+//     and both are 0 where the ray falls into the hole. Outside the zone only the blueshift g.
+//     The cube (bodies) is read unlensed: bodies near a hole are drawn by the lens's spheres pass.
+//     During a fall the "rest frame" is the lens frame itself (the frame boost is 0 there).
+//     That step is a program of its own (render/lensVariants.ts: this material's LENS variant, sharing
+//     every uniform, drawn only while a lens is and compiled in the background before it is:
+//     render/LightspeedScenePass.ts, render/precompile.ts), so far from holes the program, its compile
+//     and every pixel are exactly as they were (with the lens code behind a uniform its first compile
+//     took 860 ms on the target laptop against 171, and a flight's first frame waited for it).
+#endif
 #include <lightspeed_blackbody>
 #include <lightspeed_milkyway>
+#ifdef LENS
+#include <lightspeed_lens>
+#endif
 
 uniform samplerCube uCube;
 uniform float uCubeLive; // 1: something is in the cube map; 0: it is empty (not read)
@@ -46,6 +65,11 @@ uniform float uCmbEPhi;   // e^phi_cmb
 uniform float uCmbEmPhi;  // e^-phi_cmb
 uniform float uLnTCmb;    // ln T_CMB at the clock's time (T0 / a)
 uniform float uCmbGain;   // 1 while the CMB's bright spot is resolved; 0 once a point source draws it
+#ifdef LENS
+uniform vec3 uCmbHoleDir;    // near a black hole: the hole frame's motion through the CMB, direction (world axes)
+uniform float uCmbHoleEPhi;  //   and e^±phi of it
+uniform float uCmbHoleEmPhi;
+#endif
 
 varying vec2 vUv;
 
@@ -95,6 +119,34 @@ void main() {
 
   float lnD = lnDopplerShip(d, uVelDir, uEPhi, uEmPhi);
 
+#ifdef LENS
+  // Near a black hole: where the sky seen along this pixel came from, and its light's shift.
+  vec3 skyDir = dRest;
+  float lnSky = lnD;   // ln of the sky's frequency ratio: the view's Doppler, the blueshift, the frame boosts
+  float skySeen = 1.0; // 0 where the ray falls into the hole
+  bool lensed = false;
+  vec3 nInf = dRest;
+  float lnGRay = 0.0;
+  float lnDfPix = 0.0;
+  if (uLensOn > 0.5) {
+    lnSky = lnD + uLensLnG;
+    if (dot(d, uLensZoneCentre) >= uLensZoneCos) {
+      // The rest-frame ray again, with lensAtan's accuracy (the built-in atan above is off by up to 1e-5 rad).
+      float lnDview;
+      vec3 dH = frameAberrate(relUnaberrateLens(d, uVelDir, uEPhi, uEmPhi, lnDview), lnDfPix);
+      vec2 jac;
+      if (lensRay(dH, nInf, jac, lnGRay)) {
+        float lnDfSrc;
+        skyDir = frameUnaberrate(nInf, lnDfSrc);
+        lnSky = lnD + lnGRay + lnDfSrc - lnDfPix;
+        lensed = true;
+      } else {
+        skySeen = 0.0;
+      }
+    }
+  }
+#endif
+
   // One ship pixel spans D times more of the rest-frame sky (the aberration Jacobian).
   float lod = clamp((lnD + uLnPixelOverTexel) * 1.442695, 0.0, uMaxLod);
   vec4 src = uCubeLive > 0.5 ? textureLod(uCube, dRest, lod) : vec4(0.0);
@@ -106,6 +158,15 @@ void main() {
     rgb = uCubeLive > 0.5 ? dopplerRgb(src.rgb, lnD) * expBrightness(lnL + uLnExposure) : vec3(0.0);
 
     // The CMB: behind every surface, added to the point sources already drawn under this pass.
+#ifdef LENS
+    // (Near a black hole in a branch of its own.)
+    if (uCmbGain > 0.0 && uLensOn > 0.5) {
+      // Through the lens: T_CMB D_view g D_dip(n∞), the hole frame's own motion through the CMB at the escape direction.
+      float lnTc = lensed ? uLnTCmb + lnDopplerShip(nInf, uCmbHoleDir, uCmbHoleEPhi, uCmbHoleEmPhi) + lnGRay - lnDfPix + lnD : uLnTCmb + lnDopplerShip(d, uCmbDir, uCmbEPhi, uCmbEmPhi) + uLensLnG;
+      vec4 bb = blackbodyLn(lnTc);
+      rgb += (1.0 - src.a) * skySeen * uCmbGain * bb.rgb * expBrightness(bb.a + uLnSunRadiance + uLnExposure);
+    } else
+#endif
     if (uCmbGain > 0.0) {
       vec4 bb = blackbodyLn(uLnTCmb + lnDopplerShip(d, uCmbDir, uCmbEPhi, uCmbEmPhi));
       rgb += (1.0 - src.a) * uCmbGain * bb.rgb * expBrightness(bb.a + uLnSunRadiance + uLnExposure);
@@ -117,6 +178,21 @@ void main() {
   // Doppler factor D is that of a blackbody at D T.
   // (A uniform condition: the map is filtered with screen-space derivatives, which need every
   // pixel of a quad to take the same path.)
+#ifdef LENS
+  // (Near a black hole in a branch of its own, as the CMB; both branches uniform, as the derivatives need.)
+  if (uMwGain > 0.0 && uLensOn > 0.5) {
+    vec3 bg = vec3(0.0);
+    vec3 eye;
+    vec3 sky = milkyWayP(skyDir, eye);
+    if (uDoppler > 0.5) {
+      float lnK = blackbodyLn(LN_T_SUN + lnSky).a + uLnExposure;
+      if (lnK > -60.0) bg = dopplerRgb(milkyWayDisplay(sky, eye, exp(min(lnK, 40.0))), lnSky);
+    } else {
+      bg = milkyWayDisplay(sky, eye, 1.0);
+    }
+    rgb += (1.0 - src.a) * skySeen * bg;
+  } else
+#endif
   if (uMwGain > 0.0) {
     vec3 bg = vec3(0.0);
     vec3 eye;

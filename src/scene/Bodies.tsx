@@ -9,6 +9,10 @@
  * body is a few pixels wide, are held while its mesh is mounted, and live in an LRU cache with
  * a memory budget (render/textures.ts); the Sun's, Earth's and the focused system's stay
  * pinned. A body with rings counts as wide as its rings.
+ *
+ * A black hole (renderer 'lens') has no mesh: its lens draws it (render/lens/, scene/BlackHoleLens.tsx). A star the
+ * lens draws exactly as a sphere seen through it (lens.spheres: a stellar hole's companion near the axis) hides its
+ * own mesh while it is listed, so it is neither drawn twice nor put into the relativistic cube map.
  */
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { useFrame } from '@react-three/fiber';
@@ -56,6 +60,7 @@ import { createOrbitMaterial, createPlanetMaterial, createRingMaterial, createSu
 import { bandsExtent, bandsTexture, extentFactor } from '../render/rings';
 import { loadShape } from '../render/shapes';
 import { acquireTexture, pumpTextureUploads, releaseTexture, setPinnedTextures, type TextureOptions } from '../render/textures';
+import { lens } from '../render/lens/lensState';
 
 /** Full sphere for bodies drawn large; a low-poly one below LOD_PX. */
 const SPHERE_HI = new SphereGeometry(1, 128, 64);
@@ -424,7 +429,8 @@ export function StarBody({ id }: { id: BodyId }) {
     const b = sim.bodies[id];
     if (!b) return;
     const m = mesh.current;
-    m.visible = b.present && b.radiusPx >= MESH_MIN_PX;
+    // Hidden while the lens draws it exactly (lens.spheres).
+    m.visible = b.present && b.radiusPx >= MESH_MIN_PX && !(lens.spheres.length > 0 && lens.spheres.includes(id));
     if (!m.visible) return;
     m.position.copy(b.apparentPos).sub(sim.camera.pos);
     m.quaternion.copy(b.apparentQuat);
@@ -672,7 +678,8 @@ export function Bodies() {
       if (b.present && px >= MOUNT_PX) {
         if (!has) {
           const how = rendererOf(e.record);
-          if (how === 'point' || how === 'layer') continue;
+          // A black hole has no mesh: its lens draws it.
+          if (how === 'point' || how === 'layer' || how === 'lens') continue;
           st.set.add(e.id);
           changed = true;
         }

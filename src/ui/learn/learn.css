@@ -127,6 +127,10 @@
   margin: 0;
   padding: 2px 0;
 }
+/* An inline formula and the punctuation straight after it (content/learn/mathPlugin.ts): never split. */
+.learn-math-tail {
+  white-space: nowrap;
+}
 .learn-math-error {
   font-family: var(--font-mono);
   font-size: 0.85em;

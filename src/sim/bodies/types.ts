@@ -234,8 +234,10 @@ export interface BodyVisual {
    *  point       no mesh at all: only the point of light (galaxies until they have renderers)
    *  layer       drawn by a layer of its own (the Milky Way's particles, the star clusters, the nebulae's
    *              pictures: scene/MilkyWay.tsx, scene/Nebulae.tsx): no mesh and no point of light here
+   *  lens        a black hole: no mesh and no point of light of its own; the lens draws it (its shadow is the
+   *              light the lens does not bring: render/lens/)
    */
-  renderer?: 'planet' | 'sun' | 'star' | 'spacecraft' | 'point' | 'layer';
+  renderer?: 'planet' | 'sun' | 'star' | 'spacecraft' | 'point' | 'layer' | 'lens';
   /** Surface map: a file in public/textures/, or a path from public/ when it contains a slash. Equirectangular, prime meridian at the centre. */
   map?: string;
   night?: string;
@@ -406,6 +408,8 @@ export interface BodyRecord {
   exoplanet?: ExoplanetInfo;
   /** A cluster, nebula, black hole or galaxy: its catalogue data for the card and the data sheet (sim/galaxy). */
   deepSky?: DeepSkyInfo;
+  /** A black hole's own data, for the lens, the clocks, the card and the data sheet (sim/blackholes). */
+  blackHole?: BlackHoleInfo;
 }
 
 /** A picture of a deep-sky object, with what its licence asks to be shown with it (CC BY 4.0). */
@@ -424,6 +428,42 @@ export interface DeepSkyImage {
   licenceUrl: string;
   /** Visible light, or near-infrared. */
   band: string;
+}
+
+/**
+ * A black hole's own data, for the lens, the time, the card and the data sheet. Every number carries its
+ * source in `refs` (citations) as DeepSkyInfo does. (The accretion flow's axis lives only with the flow's
+ * model, sim/blackholes/sgraFlow.json; the record just names the flow.)
+ */
+export interface BlackHoleInfo {
+  class: 'supermassive' | 'stellar';
+  massMsun: number;
+  /** 1σ statistical and systematic, M☉ (0 when not given). */
+  massStatMsun: number;
+  massSysMsun: number;
+  /** 1σ below and above, M☉, where the paper gives them unequal (massStatMsun is then the larger of the two). */
+  massUncMsun?: readonly [number, number];
+  massSource: string;
+  /** Other published masses for the card ("9.62 in the discovery paper", "5.4–8.7 × 10⁹ from stellar dynamics"). */
+  massNote?: string;
+  /** GM, km³/s² (massMsun × GM☉). */
+  gmKm3S2: number;
+  /** 2GM/c², km. */
+  rsKm: number;
+  spin: { value: number | null; status: 'unknown' | 'estimated'; note: string };
+  /** Accretion-flow model drawn for it, if any. */
+  flow?: 'sgr-a-star-riaf';
+  /** The Event Horizon Telescope's picture, shown on the card with its credit (CC BY 4.0). */
+  ehtImage?: DeepSkyImage & { ringDiameterUas: number; ringSource: string };
+  /** A free fall may be started (supermassive only: tides tear a ship apart far outside a stellar hole). */
+  fallAllowed: boolean;
+  /** Its companion star's id, for a hole in a binary. */
+  companion?: BodyId;
+  /** Orbital elements assumed rather than measured (Ω, sense, e), for the card. */
+  assumed?: readonly string[];
+  /** The model notes the card leaves out (it shows at most three, the record's modelNotes): for the data sheet. */
+  sheetNotes?: readonly string[];
+  refs: readonly string[];
 }
 
 /**

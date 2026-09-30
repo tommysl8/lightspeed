@@ -5,8 +5,13 @@ import type { BodyId } from '../sim/bodies';
 import type { SizeMode } from '../sim/sim';
 import type { ExplainerId } from '../content/explainers';
 import type { ExperimentId } from '../lab/notebook';
+import type { AccretionBand } from '../sim/blackholes/accretion';
 
-export type ControlMode = 'orbit' | 'free' | 'transition' | 'travel';
+/**
+ * What the camera is doing: orbiting a target, free flight, a slew, a trip; and near a black hole a fall
+ * ('fall'), a circular geodesic orbit ('circular') or a snapshot at speed with its schedule ('hold').
+ */
+export type ControlMode = 'orbit' | 'free' | 'transition' | 'travel' | 'fall' | 'circular' | 'hold';
 export type ManualTab = 'experiments' | 'notebook' | 'reference';
 export type ScopeChannel = 'beta' | 'gamma' | 'range' | 'dopplerFwd' | 'dtau';
 
@@ -113,6 +118,19 @@ export interface UIState {
   plannerBeta: number;
   tripActive: boolean;
 
+  // Black holes. None of these is saved between visits (savedPrefs leaves them out): a visitor who turned
+  // lensing off once must not find every black hole invisible on the next visit.
+  /** View › Gravitational lensing. Off: light is drawn straight, only the flow's point shows, and the hole cannot be seen. */
+  lensing: boolean;
+  /** View › Accretion flow (on: the real flow exists and would be seen). */
+  accretionFlow: boolean;
+  /** Sgr A*'s card: the flow in visible light, or at 1.3 mm as the Event Horizon Telescope sees it (false colour). */
+  accretionBand: AccretionBand;
+  /** Sgr A*'s card: blur the 1.3 mm view to the Event Horizon Telescope's resolution as seen from Earth. */
+  ehtBlur: boolean;
+  /** A fall into a black hole is under way (set with tripActive, so every trip's gate holds). */
+  fallActive: boolean;
+
   select: (id: BodyId | null) => void;
   toggle: (
     key:
@@ -127,7 +145,9 @@ export interface UIState {
       | 'leftOpen'
       | 'rightOpen'
       | 'shortcuts'
-      | 'hints',
+      | 'hints'
+      | 'lensing'
+      | 'accretionFlow',
   ) => void;
   setSizeMode: (m: SizeMode) => void;
 }
@@ -190,7 +210,11 @@ export function migrateUI(old: unknown, version: number, notebookUsed: () => boo
   return s;
 }
 
-/** What is saved between visits: preferences only; the simulation always starts fresh. */
+/**
+ * What is saved between visits: preferences only; the simulation always starts fresh. The black holes'
+ * switches (lensing, accretionFlow, accretionBand, ehtBlur) are left out on purpose: a visitor who turned
+ * lensing off once must not find every black hole invisible on the next visit (so no version change either).
+ */
 export const savedPrefs = (s: UIState) => ({
   showOrbits: s.showOrbits,
   showLabels: s.showLabels,
@@ -275,6 +299,11 @@ export const useUI = create<UIState>()(
       plannerDest: 'mars',
       plannerBeta: 0.5,
       tripActive: false,
+      lensing: true,
+      accretionFlow: true,
+      accretionBand: 'visible',
+      ehtBlur: false,
+      fallActive: false,
       // Selecting a body brings its card back if it was closed.
       select: (id) => set((s) => ({ selected: id, bodyCard: id ? true : s.bodyCard })),
       toggle: (key) => set((s) => ({ [key]: !s[key] }) as Partial<UIState>),

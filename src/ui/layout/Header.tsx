@@ -1,7 +1,8 @@
 /**
  * The header: the name (it opens About), the date chip, and on the right the ways in: "Where
  * to?" (the one amber button), Journeys, Learn, the Lab for students and the View menu.
- * Everything technical (instruments, hints, layers, optics) lives in the View menu.
+ * Everything technical (instruments, hints, layers, optics, and near a black hole its lens and the
+ * accretion flow's model) lives in the View menu.
  *
  * Labels give way to icons as the screen narrows, "Where to?" last. Widths were worked out
  * from the font metrics for 375 to 1920 px; see the notes by each breakpoint.
@@ -29,6 +30,8 @@ import { starMotionNote } from '../../sim/stars/motion';
 import { Wordmark } from '../Logo';
 import { JOURNEYS } from '../../content/journeys';
 import { countWord } from '../../lib/words';
+import { FLOW_TEXTS } from '../../sim/blackholes/accretion';
+import { LENSING_HINT } from '../deepSkyText';
 
 export function OpticsSeg() {
   const relMode = useUI((s) => s.relMode);
@@ -38,8 +41,8 @@ export function OpticsSeg() {
       value={relMode}
       onChange={(m) => useUI.setState({ relMode: m })}
       options={[
-        { value: 'off', label: 'Classical', title: 'Classical (Galilean) optics: no aberration or Doppler shift (Z)' },
-        { value: 'on', label: 'Relativistic', title: 'Relativistic optics: aberration, Doppler shift and beaming, active above 0.01c (Z)' },
+        { value: 'off', label: 'Classical', title: 'Classical (Galilean) optics: no aberration or Doppler shift from your motion; a black hole’s lens shows in both (Z)' },
+        { value: 'on', label: 'Relativistic', title: 'Relativistic optics: aberration, Doppler shift and beaming, active above 0.01c; a black hole’s lens shows in both (Z)' },
         { value: 'split', label: 'Split', title: 'Split screen: classical left of the divider, relativistic right (X)' },
       ]}
     />
@@ -228,6 +231,8 @@ function ViewMenu() {
       shortcuts: u.shortcuts,
       rightOpen: u.rightOpen,
       hints: u.hints,
+      lensing: u.lensing,
+      accretionFlow: u.accretionFlow,
     })),
   );
   const t = useUI.getState().toggle;
@@ -319,7 +324,14 @@ function ViewMenu() {
               <OpticsSeg />
             </div>
           </div>
-          <p className="px-2.5 pb-1 text-[11px] leading-snug text-fg-3">Relativistic optics show above 0.01c, so in flight.</p>
+          <p className="px-2.5 pb-1 text-[11px] leading-snug text-fg-3">Relativistic optics show above 0.01c, so in flight. Near a black hole its lens shows at rest too.</p>
+          {/* Neither switch is saved between visits (state/ui.ts savedPrefs): lensing off would hide every black hole next time. */}
+          <Check checked={s.lensing} onChange={() => t('lensing')} hint={LENSING_HINT}>
+            Gravitational lensing
+          </Check>
+          <Check checked={s.accretionFlow} onChange={() => t('accretionFlow')} hint={FLOW_TEXTS.menuHint}>
+            Accretion flow
+          </Check>
           <MenuHeading>Options</MenuHeading>
           <Check checked={s.showFps} onChange={() => t('showFps')}>
             Performance readout

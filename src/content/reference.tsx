@@ -2,7 +2,8 @@
  * Reference sections of the lab manual: the physics behind what the simulator shows, with
  * the key equation, a short derivation or discussion, what the model simplifies, and further
  * reading. Numerical values follow from the constants in src/physics (the unit tests check
- * the key ones).
+ * the key ones). The last three are about black holes: the blueshift and slow clocks near one,
+ * lensing, and the shadow's size.
  */
 import type { ReactNode } from 'react';
 import { M } from '../ui/TeX';
@@ -336,5 +337,133 @@ export const REFERENCE: Record<ExplainerId, ReferenceSection> = {
     ),
     note: <>The formulas assume constant proper acceleration from rest in flat spacetime; gravity is neglected.</>,
     reading: ['Rindler, W. (2006). Relativity: Special, General, and Cosmological, 2nd ed., ch. 3 (hyperbolic motion).', 'Gibbs, P. & Koks, D. (2006). The Relativistic Rocket. Usenet Physics FAQ.'],
+  },
+
+  // ── Near a black hole ────────────────────────────────────────────────────────────────────
+  // Numbers: Schwarzschild, for Sagittarius A* (4.297 × 10⁶ solar masses) where one is named; the key ones are
+  // checked against physics/schwarzschild.ts in ui/viewport/bodyCard.test.ts.
+
+  'gravitational-blueshift': {
+    id: 'gravitational-blueshift',
+    equation: '\\frac{\\nu_\\text{here}}{\\nu_\\infty} = \\frac{dt}{d\\tau} = \\frac{1}{\\sqrt{1 - r_s/r}}, \\qquad r_s = \\frac{2GM}{c^2}',
+    body: (
+      <>
+        <p>
+          Light falling towards a black hole gains energy. To an observer hovering at radius <M t="r" />, light that left a
+          source far away arrives with its frequency raised by <M t="1/\sqrt{1 - r_s/r}" />, and the observer’s own clock runs
+          slow against clocks far away by the same factor: both follow from the same geometry. At ten times the horizon’s
+          radius the factor is 1.054; at <M t="1.01\,r_s" />, 10.05; at the lowest hover Lightspeed allows,{' '}
+          <M t="r_s(1 + 10^{-6})" />, it is 1,000.
+        </p>
+        <p>
+          A star’s blackbody spectrum at temperature <M t="T" /> arrives as a blackbody at <M t="gT" />, as with a Doppler shift
+          (§7): every star looks hotter and bluer, and brighter, its bolometric surface brightness raised by <M t="g^4" />. For a
+          hovering observer the shift is the same in every direction; moving past them adds the Doppler shift and aberration of
+          your own motion. Someone falling from rest far away sees the sky straight overhead reddened instead, at the horizon by
+          a factor of 2: the speed of the fall there outweighs the blueshift.
+        </p>
+        <p>
+          On Earth the effect is tiny but measured: Pound and Rebka (1960) found gamma rays climbing a 22.5 m tower at Harvard
+          shifted by 2.5 parts in <M t="10^{15}" />, and GPS clocks run 45 µs a day fast from their weaker gravity (§4).
+        </p>
+      </>
+    ),
+    note: (
+      <>
+        Only the black hole’s gravity is included, and only where <M t="r_s/r" /> passes 5 parts in <M t="10^{10}" />; home’s
+        clock is one far from every mass. The Sun’s own potential (parts in <M t="10^{8}" />) and the Galaxy’s (parts in{' '}
+        <M t="10^{6}" />) are left out. Within 5,000 horizon radii the time warp paces the clock of an observer hovering where
+        you are.
+      </>
+    ),
+    reading: [
+      'Pound, R. V. & Rebka, G. A. (1960). Phys. Rev. Lett. 4, 337.',
+      'Hartle, J. B. (2003). Gravity: An Introduction to Einstein’s General Relativity, ch. 9 and 12.',
+      'Hamilton, A. J. S. & Lisle, J. P. (2008). Am. J. Phys. 76, 519 (falling observers).',
+    ],
+  },
+
+  'double-images': {
+    id: 'double-images',
+    equation: '\\theta_\\pm = \\tfrac12\\left(\\beta \\pm \\sqrt{\\beta^2 + 4\\theta_E^2}\\right), \\qquad \\theta_E \\approx \\sqrt{\\frac{2 r_s}{d}}',
+    body: (
+      <>
+        <p>
+          A star behind a black hole, a little off the line through it, is seen twice: its light passes the hole on both sides.{' '}
+          <M t="\beta" /> is where the star would appear without the hole, <M t="\theta_\pm" /> where its two images appear, all
+          measured from the hole. The brighter image lies outside the Einstein ring, on the star’s own side; the fainter lies
+          inside it, on the opposite side, mirrored. A star exactly behind becomes a ring of radius <M t="\theta_E" />, for an
+          observer at distance <M t="d" /> and a source much farther away. From 4,000 au from Sagittarius A* the ring of the sky
+          behind is 0.374° in radius (the formula gives 0.373°); from 1,000 au, 0.750°.
+        </p>
+        <p>
+          Close to the hole the formula fails, and light can go round the hole before reaching you. Each further half turn puts
+          an image about <M t="e^{\pi} \approx 23" /> times closer to the edge of the shadow and makes it about as many times
+          fainter, so the images crowd into a thin photon ring. Hovering at ten horizon radii, the Einstein ring is 29.8° in
+          radius and the second ring, where the sky behind you appears, 14.61°, just outside the shadow’s 14.27°.
+        </p>
+        <p>
+          Lensing stretches or squeezes each image: its brightness changes with its area, but the surface brightness of the sky
+          does not (apart from the colour shift, §11). The first double image found was of a quasar (Walsh, Carswell and
+          Weymann 1979); a lone black hole was found in 2022 only by how it bent a star’s light.
+        </p>
+      </>
+    ),
+    note: (
+      <>
+        Lightspeed traces the light exactly (Schwarzschild) for one black hole at a time, the one whose lens matters most.
+        Constellation figures, planet-host rings and orbit lines follow the primary image only; nebula pictures have no second
+        image; a star exactly behind a hole shows as two points, and only the Sun, the S-stars and the black holes’ companions
+        are drawn as rings.
+      </>
+    ),
+    reading: [
+      'Einstein, A. (1936). Science 84, 506.',
+      'Darwin, C. (1959). Proc. R. Soc. A 249, 180.',
+      'Virbhadra, K. S. & Ellis, G. F. R. (2000). Phys. Rev. D 62, 084003.',
+      'Bozza, V. (2002). Phys. Rev. D 66, 103001.',
+      'Walsh, D., Carswell, R. F. & Weymann, R. J. (1979). Nature 279, 381.',
+    ],
+  },
+
+  'shadow-size': {
+    id: 'shadow-size',
+    equation: '\\sin\\alpha_\\text{sh} = \\frac{3\\sqrt{3}\\,GM}{c^2\\,r}\\sqrt{1 - \\frac{r_s}{r}}',
+    body: (
+      <>
+        <p>
+          Light aimed within <M t="b_c = 3\sqrt3\,GM/c^2" /> of a black hole, 2.6 times the horizon’s radius, spirals in and is
+          lost. Seen from far away, the dark disc this leaves, the shadow, has that radius: <M t="\alpha_\text{sh} \approx b_c/d" />.
+          From 8,277 pc Sagittarius A*’s shadow is 53.3 µas across while its horizon would span only 20.5 µas; the Event Horizon
+          Telescope measured a ring of light round it 51.8 ± 2.3 µas across.
+        </p>
+        <p>
+          Close to, Synge’s formula above gives the shadow’s angular radius <M t="\alpha_\text{sh}" /> for an observer hovering
+          at <M t="r" /> (the obtuse solution inside the photon sphere, <M t="r < 1.5\,r_s" />). At ten horizon radii the shadow
+          is 28.5° across; at the photon sphere it is exactly half the sky; at <M t="1.01\,r_s" /> all the sky but a disc 29.7°
+          across overhead is dark.
+        </p>
+        <p>
+          Motion changes it, through aberration (§6): at ten horizon radii, diving in at <M t="0.9c" /> shrinks the shadow to
+          6.6° across, and climbing out at <M t="0.9c" /> it is 114° across. Someone falling from rest far away sees, as they
+          cross the horizon, a dark patch 84.2° across ahead of them, not total darkness.
+        </p>
+      </>
+    ),
+    note: (
+      <>
+        Drawn without spin (Schwarzschild). Sagittarius A*’s spin is not measured: seen as we see it, about 25° from its axis,
+        a spin of 0.9 to 0.94 would make its shadow about 5–7 % smaller and shift it by about 1 <M t="GM/c^2" />; seen
+        edge-on a fast spin makes a shadow up to about 12 % narrower, one side flattened. That agrees with the Event Horizon
+        Telescope’s finding that spin changes the shadow’s size by less than about 8 %.
+      </>
+    ),
+    reading: [
+      'Synge, J. L. (1966). Mon. Not. R. Astron. Soc. 131, 463.',
+      'Bardeen, J. M. (1973). In Black Holes (Les Houches 1972), ed. C. DeWitt & B. S. DeWitt, p. 215.',
+      'Falcke, H., Melia, F. & Agol, E. (2000). Astrophys. J. 528, L13.',
+      'Event Horizon Telescope Collaboration (2022). Astrophys. J. Lett. 930, L12.',
+      'Perlick, V. & Tsupko, O. Yu. (2022). Phys. Rep. 947, 1.',
+    ],
   },
 };

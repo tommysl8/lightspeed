@@ -8,6 +8,11 @@
  * and not be followed by a digit. The first unescaped $ after the opening one must be a valid
  * closing one, or the text is not maths at all, so "$5 and $10" stays money. \$ is always a
  * dollar sign (markdown-it's escape rule consumes it before this rule sees it).
+ *
+ * Punctuation straight after an inline formula ("$x$," "$y$.") is set with it in a span that does not
+ * wrap, so a comma never starts a line on its own (KaTeX sets a formula as inline blocks, and a line
+ * may break after an inline block even before a comma). Only for formulas short enough to fit any
+ * column (TAIL_TEX_MAX characters of TeX): a long one must still be free to break inside.
  */
 import katex from 'katex';
 import type { default as MarkdownIt, StateBlock, StateInline } from 'markdown-it';
@@ -18,6 +23,10 @@ const BACKSLASH = 0x5c;
 const isSpace = (c: number) => c === 0x20 || c === 0x09 || c === 0x0a || c === 0x0d;
 const isDigit = (c: number) => c >= 0x30 && c <= 0x39;
 const isAlnum = (c: number) => isDigit(c) || (c >= 0x41 && c <= 0x5a) || (c >= 0x61 && c <= 0x7a);
+/** Punctuation kept on the line of the inline formula it follows (not "]", which may close a link's text). */
+const isTailPunct = (c: number) => c === 0x2c || c === 0x2e || c === 0x3b || c === 0x3a || c === 0x21 || c === 0x3f || c === 0x29;
+/** The longest inline formula, in characters of TeX, that keeps the punctuation after it on its line. */
+export const TAIL_TEX_MAX = 48;
 
 const escapeHtml = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
 
@@ -74,12 +83,16 @@ function mathInline(state: StateInline, silent: boolean): boolean {
   if (end < 0 || end + open > state.posMax) return false;
   const content = src.slice(start + open, end);
   if (!content.trim()) return false;
+  // The punctuation straight after a short inline formula goes with it (rendered in a span that does not wrap).
+  let after = end + open;
+  if (!display && content.length <= TAIL_TEX_MAX) while (after < state.posMax && isTailPunct(src.charCodeAt(after))) after++;
   if (!silent) {
     const token = state.push(display ? 'math_inline_display' : 'math_inline', 'math', 0);
     token.content = content;
     token.markup = display ? '$$' : '$';
+    token.meta = { tail: src.slice(end + open, after) };
   }
-  state.pos = end + open;
+  state.pos = after;
   return true;
 }
 
@@ -133,7 +146,11 @@ function mathBlock(state: StateBlock, startLine: number, endLine: number, silent
 export function mathPlugin(md: MarkdownIt): void {
   md.inline.ruler.after('escape', 'math_inline', mathInline);
   md.block.ruler.before('fence', 'math_block', mathBlock, { alt: ['paragraph', 'reference', 'blockquote', 'list'] });
-  md.renderer.rules.math_inline = (tokens, idx) => renderTex(tokens[idx].content, false);
+  md.renderer.rules.math_inline = (tokens, idx) => {
+    const tex = renderTex(tokens[idx].content, false);
+    const tail = (tokens[idx].meta as { tail?: string } | null)?.tail;
+    return tail ? `<span class="learn-math-tail">${tex}${escapeHtml(tail)}</span>` : tex;
+  };
   md.renderer.rules.math_inline_display = (tokens, idx) => renderTex(tokens[idx].content, true);
   md.renderer.rules.math_block = (tokens, idx) => `<div class="learn-math">${renderTex(tokens[idx].content, true)}</div>\n`;
 }

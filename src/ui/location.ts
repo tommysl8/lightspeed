@@ -149,11 +149,15 @@ function orbitsPair(r: BodyRecord): boolean {
 
 /**
  * The breadcrumb for the camera's state: its target and what it orbits in orbit; the target's
- * surroundings in free flight; the destination in flight.
+ * surroundings in free flight; the destination in flight; near a black hole, the fall into it, the
+ * circular orbit round it or the snapshot held above it.
  */
 export function locationPath(mode: ControlMode, focus: BodyId, dest: BodyId | null = null): Crumb[] {
   if (mode === 'travel' && dest) return [...region(dest), { label: `Flying to ${bodyName(dest)}` }];
   if (mode === 'free') return [...region(focus), { label: 'Free flight' }];
+  if (mode === 'fall') return [...region(focus), { label: `Falling into ${bodyName(focus)}` }];
+  if (mode === 'circular') return [...region(focus), { label: `In orbit round ${bodyName(focus)}` }];
+  if (mode === 'hold') return [...region(focus), { label: `Hovering above ${bodyName(focus)}` }];
   // The Sun heads its own region's trail only when it is the target ("Solar System › Sun").
   const chain = lineage(focus).filter((r, i, all) => !(r.id === 'sun' && i < all.length - 1) && !(i === all.length - 2 && orbitsPair(all[i + 1])));
   return [...region(focus), ...chain.map((r): Crumb => ({ label: r.name, to: r.id, galactic: r.id === 'milky-way' || undefined }))];

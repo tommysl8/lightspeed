@@ -5,8 +5,11 @@
  * size, or its record's labelRank; stars by how bright they look from the camera), with bodies
  * large on screen a little ahead. A star too faint to see gets no label unless it is selected,
  * in focus or in the system in focus, and the stars of a pair too close to tell apart share one
- * (labelPairs.ts). Labels fade when their body is big enough to recognise and give way to more
- * important labels they would overlap. Positions are written straight into the DOM, never
+ * (labelPairs.ts). A black hole that nothing shows from afar is labelled only when it matters: a
+ * stellar hole when chosen or when its companion star is labelled, a lone one within a parsec, a
+ * galaxy's central hole from inside its galaxy (Sgr A*, which the Galaxy's own label cannot stand
+ * for from inside it, always). Labels fade when their body is big enough to recognise and give way
+ * to more important labels they would overlap. Positions are written straight into the DOM, never
  * through React state (60 fps).
  */
 import { useEffect, useRef } from 'react';
@@ -25,6 +28,9 @@ import { sim } from '../sim/sim';
 import { starLabelRank, STAR_MAG_LIMIT } from '../sim/stars';
 import { lightLeftAgo } from '../sim/cosmos/sight';
 import { cosmicSky } from '../sim/cosmos/expansion';
+import { holeView, type HoleView } from '../sim/lensBodies';
+import { gravity } from '../sim/gravity';
+import { heightText } from './deepSkyText';
 
 /** Label elements in the pool: the most that can show at once. */
 export const LABEL_POOL = 40;
@@ -106,6 +112,27 @@ export function hiddenBehindFocus(
   return Math.hypot(b.screen.x - focus.screen.x, b.screen.y - focus.screen.y) < 0.9 * focus.radiusPx;
 }
 
+/** A lone black hole's label shows from this close (1 pc), unless it is chosen. */
+export const LONE_HOLE_LABEL_KM = PARSEC_KM;
+
+/**
+ * Whether a black hole's label may show at the lowest tiers (it is not selected, in focus or the flight's
+ * destination): a hole in a binary while its companion star's label would show (and the pair is
+ * resolved); a lone stellar hole within LONE_HOLE_LABEL_KM; a hole at a galaxy's centre from inside that
+ * galaxy (M87* from within M87; Sgr A*, the Galaxy's own, as today).
+ */
+export function holeLabelled(r: BodyRecord, b: { distTrue: number }, hidden: ReadonlySet<BodyId>): boolean {
+  const h = r.blackHole;
+  if (!h) return true;
+  if (h.companion) {
+    const c = sim.bodies[h.companion];
+    return !!c && c.present && c.screen.onScreen && c.magnitude <= LABEL_MAG_LIMIT && !hidden.has(r.id);
+  }
+  if (!r.parent) return h.class === 'supermassive' || b.distTrue < LONE_HOLE_LABEL_KM;
+  const host = sim.bodies[r.parent];
+  return !!host && host.distCamera <= host.displayRadius;
+}
+
 /** Whether a cluster, nebula or galaxy gets a label of its own from where the camera is. */
 export function deepSkyLabelled(b: { distCamera: number; displayRadius: number; radiusPx: number; magnitude: number }): boolean {
   if (b.distCamera <= b.displayRadius) return false;
@@ -131,6 +158,8 @@ const cand: Candidate[] = [];
 const pool: Candidate[] = [];
 const placed: { x: number; y: number; w: number }[] = [];
 const chosen = new Map<BodyId, { e: Entry; opacity: number; flashing: boolean }>();
+/** The selected hole's numbers (holeView fills it: no allocation). */
+const view = {} as HoleView;
 const byScore = (a: Candidate, b: Candidate) => a.score - b.score;
 
 /** Whether a body's label shows now (ui/HoverTag.tsx names only what has none). */
@@ -143,7 +172,7 @@ export function LabelSync() {
   const focusSystem = useRef({ focus: '', system: '' as BodyId | '' });
   useFrame(() => {
     if (!slots.length) return;
-    const { showLabels, selected, focus, journeyNote } = useUI.getState();
+    const { showLabels, selected, focus, journeyNote, tripActive, plannerDest } = useUI.getState();
     const focusState = sim.bodies[focus];
     // What covers what lies behind it: a body, a nebula's picture, a galaxy; not a cluster's sparse points.
     const focusCovers = !!focusState && getBody(focus)?.kind !== 'cluster';
@@ -173,10 +202,14 @@ export function LabelSync() {
       const tier =
         e.id === selected ? 0 : flashing ? 1 : e.id === focus ? 2 : (system && system !== 'sun' && isWithin(e.id, system)) || (beyondGalaxy && e.id === 'milky-way') ? 3 : 4;
       const star = e.record.kind === 'star' && e.id !== 'sun';
+      // A black hole shows nothing of itself from afar: labelled when chosen (or flown to), or as holeLabelled says.
+      const hole = e.record.kind === 'black-hole';
+      if (hole && tier >= 3 && !(tripActive && plannerDest === e.id) && !holeLabelled(e.record, b, pairs.hide)) continue;
       // From beyond the Galaxy only galaxies and clusters of galaxies are labelled (besides the
       // selection and the focus): the Sun, the stars, their planets and the nebulae are lost in the
-      // Milky Way's light, which is labelled as home.
-      if (beyondGalaxy && tier >= 3 && e.record.kind !== 'galaxy' && !(e.record.kind === 'cluster' && /galaxies/.test(e.record.kindText ?? ''))) continue;
+      // Milky Way's light, which is labelled as home. A galaxy's central hole is labelled from inside it.
+      const insideHost = hole && !!e.record.parent && e.record.blackHole?.class === 'supermassive';
+      if (beyondGalaxy && tier >= 3 && e.record.kind !== 'galaxy' && !insideHost && !(e.record.kind === 'cluster' && /galaxies/.test(e.record.kindText ?? ''))) continue;
       // A star nobody could see from here, or one that shares its pair's label, is left unlabelled.
       if (star && tier >= 3 && (b.magnitude > LABEL_MAG_LIMIT || pairs.hide.has(e.id))) continue;
       // A cluster, nebula or galaxy is labelled once it is big enough on screen or bright enough to
@@ -264,10 +297,15 @@ export function LabelSync() {
       el.style.pointerEvents = c.opacity > 0.3 ? 'auto' : 'none';
       el.dataset.selected = id === selected ? 'true' : 'false';
       el.dataset.flash = c.flashing ? 'true' : 'false';
-      // Range and light-time under the selected body's name, a few times a second.
+      // Range and light-time under the selected body's name, a few times a second; near a black hole (the one
+      // whose gravity is modelled), its height above the horizon, as the card writes it (the distance to its
+      // centre says little there); far away its range like any body's.
       if (id === selected) {
         if (s.sub.style.display) s.sub.style.display = '';
-        if (subFrame % 8 === 0 || !s.sub.textContent) {
+        const hv = c.e.record.kind === 'black-hole' && gravity.hole === id && (subFrame % 8 === 0 || !s.sub.textContent) ? holeView(id, view) : null;
+        if (hv) {
+          s.sub.textContent = `${heightText(hv.heightKm)} ${hv.heightKm > 0 ? 'above the horizon' : 'inside the horizon'}`;
+        } else if (subFrame % 8 === 0 || !s.sub.textContent) {
           const r = qty(b.distTrue, 'length', 4);
           // A galaxy in the expanding universe: when its light left, not distance / c.
           const left = lightLeftAgo(id, false);

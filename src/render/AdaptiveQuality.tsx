@@ -3,6 +3,8 @@ import { useFrame, useThree } from '@react-three/fiber';
 import { gpuRendererName, isIntegratedGpu, quality, stepDown, stepUp } from './quality';
 import { relView } from './relativisticView';
 import { textures, TEXTURE_BUDGET_INTEGRATED_BYTES } from './textures';
+import { gpuBudget } from './gpuBudget';
+import { lens } from './lens/lensState';
 
 /**
  * Keeps the frame rate near 60 fps on ordinary laptops. It measures a 1 s average; after two
@@ -11,6 +13,12 @@ import { textures, TEXTURE_BUDGET_INTEGRATED_BYTES } from './textures';
  * back up (not multisampling). On an integrated GPU the cube map starts at 768 px a face, the
  * texture budget is smaller (its memory is the computer's) and a screen of pixel ratio 2 starts
  * without multisampling.
+ *
+ * Near a black hole the GPU-time controller (gpuBudget.ts) comes first, each frame: it sets the
+ * lens's quality rung, and only once its rungs are exhausted does it step the pixel ratio (and give
+ * those steps back first); the frame-rate rules stay as the last resort and leave the pixel ratio
+ * to it while a lens is drawn. While a measurement holds the controller (dev/perf.ts) the rung it
+ * pinned is left alone.
  */
 export function AdaptiveQuality() {
   const setDpr = useThree((s) => s.setDpr);
@@ -38,6 +46,18 @@ export function AdaptiveQuality() {
   }, [gl]);
 
   useFrame((_, delta) => {
+    if (!gpuBudget.paused) {
+      const rung = gpuBudget.rung(lens.active, relView.split);
+      if (quality.lensRung !== rung) quality.lensRung = rung;
+      // (A step the pixel ratio cannot take, at 1 already, is not counted: none is given back later.)
+      if (gpuBudget.wantsDprStep(quality.dpr > 1)) {
+        quality.dpr = Math.max(1, quality.dpr - 0.25);
+        setDpr(quality.dpr);
+      } else if (gpuBudget.wantsDprUp() && quality.dpr < quality.maxDpr) {
+        quality.dpr = Math.min(quality.maxDpr, quality.dpr + 0.25);
+        setDpr(quality.dpr);
+      }
+    }
     if (delta > 0.25) return; // tab was hidden or the page stalled: not a real measurement
     const a = acc.current;
     a.time += delta;
@@ -59,10 +79,10 @@ export function AdaptiveQuality() {
 
     if (a.slow >= 2) {
       a.slow = 0;
-      if (stepDown(quality, relView.active) === 'dpr') setDpr(quality.dpr);
+      if (stepDown(quality, relView.active, lens.active) === 'dpr') setDpr(quality.dpr);
     } else if (a.fast >= 5) {
       a.fast = 0;
-      if (stepUp(quality, relView.active) === 'dpr') setDpr(quality.dpr);
+      if (stepUp(quality, relView.active, lens.active) === 'dpr') setDpr(quality.dpr);
     }
   });
 

@@ -11,6 +11,25 @@
 // aberration of point sources), and each population's light is brightened and recoloured as a
 // blackbody of its colour temperature seen with the Doppler factor D (a surface's radiance becomes
 // that of a blackbody at D T).
+//
+// Near Sagittarius A* (within 1 kpc) the same pass draws the glow of the nuclear star cluster and disc: the laws of
+// sim/galaxy/nuclearGlow.json times u - w s(r) (sim/galaxy/nuclearCluster.ts: u the field's share of their light,
+// 1 within 500 pc of the hole, where the Galaxy model's particles of them fade as the camera nears them, w the
+// points' share, 1 within 30 pc, s(r) the share of the light in the points drawn), marched along each straight
+// line of sight (nscMarch: 16 cells, 8 at the lens's quality rung 1, in t with s = s0 + a sinh t about the
+// ray's closest approach to the hole, cut where the ray enters and leaves the field's inner hole and crosses
+// the disc's inner cylinder, where the light jumps, and ended at the field's edge), with no dust (as the
+// points; the model's dust is thin there). The model's own particles of the two populations take 1 - u. The lens
+// resamples it as if from far away, which it partly is not (docs/data/blackholes.md §3, label 4). Inside M87, M87's
+// own starlight near the camera: a table of the column against the angle from its centre (sim/galaxy/glow.ts
+// m87ColumnTable), the light its model galaxy's particles no longer draw there.
+//
+// Cost: the discs' march as before; the nuclear march 0.24 ms a frame on the target laptop 4,000 au from Sgr A*
+// (0.2 at 8 cells) at the coarse target's resolution, 0.1 at 100-300 pc, 0.06 at 700 pc (only the pixels whose
+// rays pass within 300 pc of it march), nothing beyond 1 kpc (its pieces are scalars: with arrays indexed by a
+// variable it cost 0.3-0.4); M87's table read, two texel fetches a pixel, 0.04-0.06 ms, only inside M87.
+// Every addition is behind a uniform: with them off (x = y = w = 0, z = 1) the discs' glow is
+// computed exactly as before. Twins: sim/galaxy/glow.ts (nearGlow, nuclearMarch, m87ColumnAt).
 #include <common>
 #include <lightspeed_relativity>
 
@@ -33,6 +52,26 @@ uniform vec3 uGlowThinRgb; // linear sRGB of luminance 1
 uniform vec3 uGlowYoungRgb;
 uniform vec3 uGlowThickRgb;
 uniform vec3 uGlowLnT;     // ln of their colour temperatures (K): thin, young, thick
+// The nuclear field and M87 (sim/galaxy/nuclearCluster.ts nscGlowUniforms).
+uniform vec4 uNscGlowOn;   // x: the points' share w; y: M87's starlight on; z: the discs' glow on; w: the field's share u (0: no march)
+uniform vec3 uNscCamHi;    // camera - Sgr A*, frame G's axes, pc: hi + lo
+uniform vec3 uNscCamLo;
+uniform float uNscSteps;   // cells of the nuclear march (at most 16)
+uniform vec4 uNscLaw;      // the cluster: rho0 (L_sun/pc^3), r_b (pc), gamma, beta
+uniform vec4 uNscLaw2;     // alpha, 1/q, m_max (pc), the field's inner radius (pc)
+uniform vec4 uNsdLaw;      // the disc: rho0, r_b, 1/h_z (1/pc), R_min (pc)
+uniform vec4 uNsdLaw2;     // R_edge (pc), the field's outer radius (pc), inner and outer slopes
+uniform highp sampler2D uNscShare; // 64 x 1: r the cluster's point share, g the disc's
+uniform vec2 uNscShareAxis; // ln r of node 0 (pc), nodes per unit ln r
+uniform float uNscLocal;   // the column standing in for the points within 0.01 pc of the camera (L_sun/pc^2)
+uniform vec3 uNscRgb;      // the cluster's glow and the disc's: linear sRGB of luminance 1
+uniform vec3 uNsdRgb;
+uniform vec2 uNscLnT;      // ln of their colour temperatures (K)
+uniform vec3 uM87Dir;      // unit, camera to M87's centre, world axes
+uniform highp sampler2D uM87Table; // 64 x 1: ln of the column (L_sun/pc^2) at ln psi = x + i / y
+uniform vec2 uM87Axis;
+uniform vec3 uM87Rgb;
+uniform float uM87LnT;
 
 varying vec3 vRay;
 
@@ -89,6 +128,132 @@ vec3 shifted(vec3 rgb, float lnT, float lnD, out float lnK) {
   return c / max(dot(c, vec3(0.2126, 0.7152, 0.0722)), 1e-6);
 }
 
+// The points' share of each component's light at radius r (pc): x the cluster's, y the disc's (linear in ln r).
+vec2 nscShare(float r) {
+  float u = clamp((log(r) - uNscShareAxis.x) * uNscShareAxis.y, 0.0, 63.0);
+  float i = min(floor(u), 62.0);
+  vec2 a = texelFetch(uNscShare, ivec2(int(i), 0), 0).rg;
+  vec2 b = texelFetch(uNscShare, ivec2(int(i) + 1, 0), 0).rg;
+  return mix(a, b, u - i);
+}
+
+// The glow's emissivity at p (frame G's axes, pc from Sgr A*), L_sun/pc^3: x the cluster's, y the disc's; each law
+// times u - w s(r), u the field's share of their light (uNscGlowOn.w), w the points' (uNscGlowOn.x).
+vec2 nscEmissivity(vec3 p) {
+  float R2 = dot(p.xy, p.xy);
+  float r = sqrt(R2 + p.z * p.z);
+  float zq = p.z * uNscLaw2.y;
+  float m = sqrt(R2 + zq * zq);
+  vec2 j = vec2(0.0);
+  if (r >= uNscLaw2.w && m <= uNscLaw2.z) {
+    float lx = log(max(m, 1e-6) / uNscLaw.y);
+    j.x = uNscLaw.x * exp(-uNscLaw.z * lx + (uNscLaw.z - uNscLaw.w) / uNscLaw2.x * log(1.0 + exp(uNscLaw2.x * lx)));
+  }
+  float R = sqrt(R2);
+  if (R >= uNsdLaw.w && R < uNsdLaw2.x && r <= uNsdLaw2.y) {
+    float lx = log(R / uNsdLaw.y);
+    j.y = uNsdLaw.x * exp(-(lx < 0.0 ? uNsdLaw2.z : uNsdLaw2.w) * lx - abs(p.z) * uNsdLaw.z);
+  }
+  return j * (uNscGlowOn.w - uNscGlowOn.x * nscShare(r));
+}
+
+// Where the ray s -> c + s n crosses the cylinder R = rho about the galactic pole's axis: the roots s- <= s+ of
+// A s^2 + 2B s + C = 0 (A = |n.xy|^2 > 0, B = c.xy . n.xy, C = |c.xy|^2 - rho^2), in the form without cancellation.
+bool nscCylinder(float A, float B, float C, out vec2 sc) {
+  float disc = B * B - A * C;
+  if (!(disc > 0.0)) return false;
+  float q = B >= 0.0 ? -(B + sqrt(disc)) : sqrt(disc) - B;
+  float r1 = q / A;
+  float r2 = C / q;
+  sc = vec2(min(r1, r2), max(r1, r2));
+  return true;
+}
+
+// The nuclear glow's columns (L_sun/pc^2; x the cluster's, y the disc's) along the ray from c (frame G's axes,
+// pc from Sgr A*) in the unit direction n: the midpoint rule in t, s = s0 + a sinh t about the ray's closest
+// approach to the hole (ds = a cosh t dt; a = b, or the distance from the galactic pole's axis at s0 when that
+// is smaller, at least the disc's inner radius), from the camera to where the ray leaves the field (its outer
+// sphere or the disc's outer edge), in pieces cut where the ray enters and leaves the inner hole (no light:
+// its piece gets no cells) and crosses the disc's inner cylinder, the cells shared among the pieces by
+// rounding their running lengths (sim/galaxy/glow.ts nuclearMarch, step for step).
+vec2 nscMarch(vec3 c, vec3 n) {
+  float s0 = -dot(c, n);
+  float b = max(length(cross(c, n)), 1e-9);
+  float rOut = uNsdLaw2.y;
+  if (b >= rOut) return vec2(0.0);
+  float A = dot(n.xy, n.xy);
+  float B = dot(c.xy, n.xy);
+  float C0 = dot(c.xy, c.xy);
+  vec2 sc;
+  float sEnd = s0 + sqrt(rOut * rOut - b * b);
+  if (A > 1e-12 && nscCylinder(A, B, C0 - uNsdLaw2.x * uNsdLaw2.x, sc)) sEnd = min(sEnd, sc.y);
+  float a = min(b, max(length(c.xy + s0 * n.xy), uNsdLaw.w));
+  float inv = 1.0 / a;
+  float tc = asinh(-s0 * inv);
+  float te = asinh((sEnd - s0) * inv);
+  if (!(te > tc)) return vec2(0.0);
+  float h0 = te;
+  float h1 = te;
+  if (b < uNscLaw2.w) {
+    float q = sqrt(uNscLaw2.w * uNscLaw2.w - b * b) * inv;
+    h0 = asinh(-q);
+    h1 = asinh(q);
+  }
+  float k1 = te;
+  float k2 = te;
+  if (A > 1e-12 && nscCylinder(A, B, C0 - uNsdLaw.w * uNsdLaw.w, sc)) {
+    k1 = asinh((sc.x - s0) * inv);
+    k2 = asinh((sc.y - s0) * inv);
+  }
+  float hA = clamp(h0, tc, te);
+  float hB = clamp(h1, tc, te);
+  float v0 = hA;
+  float v1 = hB;
+  float v2 = clamp(k1, tc, te);
+  float v3 = clamp(k2, tc, te);
+  float w;
+  if (v0 > v1) { w = v0; v0 = v1; v1 = w; }
+  if (v2 > v3) { w = v2; v2 = v3; v3 = w; }
+  if (v0 > v2) { w = v0; v0 = v2; v2 = w; }
+  if (v1 > v3) { w = v1; v1 = v3; v3 = w; }
+  if (v1 > v2) { w = v1; v1 = v2; v2 = w; }
+  // The five pieces between tc, v0 ... v3, te, in scalars (no arrays: indexing one by a variable is slow on
+  // some GPUs); the inner hole's piece, [hA, hB] when the ray enters it, holds no light and gets no cells.
+  bool hole = hA < hB;
+  float l0 = hole && tc == hA && v0 == hB ? 0.0 : v0 - tc;
+  float l1 = hole && v0 == hA && v1 == hB ? 0.0 : v1 - v0;
+  float l2 = hole && v1 == hA && v2 == hB ? 0.0 : v2 - v1;
+  float l3 = hole && v2 == hA && v3 == hB ? 0.0 : v3 - v2;
+  float l4 = hole && v3 == hA && te == hB ? 0.0 : te - v3;
+  float total = l0 + l1 + l2 + l3 + l4;
+  if (!(total > 0.0)) return vec2(0.0);
+  int cells = int(uNscSteps + 0.5);
+  float per = float(cells) / total;
+  int c1 = int(floor(l0 * per + 0.5));
+  int c2 = int(floor((l0 + l1) * per + 0.5));
+  int c3 = int(floor((l0 + l1 + l2) * per + 0.5));
+  int c4 = int(floor((l0 + l1 + l2 + l3) * per + 0.5));
+  vec2 col = vec2(0.0);
+  for (int k = 0; k < 16; k++) {
+    if (k >= cells) break;
+    // The piece cell k falls in: its start, length, first cell and number of cells.
+    float lo = tc;
+    float len = l0;
+    int first = 0;
+    int last = c1;
+    if (k >= c1) { lo = v0; len = l1; first = c1; last = c2; }
+    if (k >= c2) { lo = v1; len = l2; first = c2; last = c3; }
+    if (k >= c3) { lo = v2; len = l3; first = c3; last = c4; }
+    if (k >= c4) { lo = v3; len = l4; first = c4; last = cells; }
+    float h = len / float(last - first);
+    float t = lo + (float(k - first) + 0.5) * h;
+    float et = exp(t);
+    float s = s0 + 0.5 * a * (et - 1.0 / et);
+    col += nscEmissivity(c + s * n) * (0.5 * a * (et + 1.0 / et) * h);
+  }
+  return col;
+}
+
 void main() {
   float lnD;
   vec3 dWorld = relUnaberrate(normalize(vRay), lnD);
@@ -103,7 +268,9 @@ void main() {
   vec3 tint1 = vec3(0.0);
   vec3 tint2 = vec3(0.0);
   float sa = 0.0;
+  // The discs' glow (off inside other galaxies).
   for (int k = 1; k <= GLOW_STEPS; k++) {
+    if (uNscGlowOn.z < 0.5) break;
     float sb = GLOW_S_SCALE * (exp(float(k) * lambda) - 1.0);
     float L = sb - sa;
     vec3 pa = uCamG + dir * sa;
@@ -163,7 +330,8 @@ void main() {
   // A column S (L☉/pc²) along a line of sight is 10^(−0.4 M☉) × (10 pc)² × S V = 0 stars per steradian;
   // in the target, times a faint star's image area and the exposure.
   float sigmaPsf = 0.5 * uPixelRatio * uResScale / uPxPerRad;
-  float perColumn = exp(-0.921034 * (M_V_SUN - uMagZero) + uLnExposure) * 100.0 * 6.2831853 * sigmaPsf * sigmaPsf * uLumGain;
+  float perColumnAny = exp(-0.921034 * (M_V_SUN - uMagZero) + uLnExposure) * 100.0 * 6.2831853 * sigmaPsf * sigmaPsf;
+  float perColumn = perColumnAny * uLumGain;
   float lnK0, lnK1, lnK2;
   vec3 c0 = shifted(uGlowThinRgb, uGlowLnT.x, lnD, lnK0);
   vec3 c1 = shifted(uGlowYoungRgb, uGlowLnT.y, lnD, lnK1);
@@ -176,6 +344,32 @@ void main() {
   r1 /= max(dot(r1, vec3(0.2126, 0.7152, 0.0722)), 1e-6);
   r2 /= max(dot(r2, vec3(0.2126, 0.7152, 0.0722)), 1e-6);
   vec3 f = perColumn * (col.x * exp(min(lnK0, 60.0)) * r0 + col.y * exp(min(lnK1, 60.0)) * r1 + col.z * exp(min(lnK2, 60.0)) * r2);
+  // The nuclear field's glow (each law times u - w s(r)), and the stand-in for the points beside the camera, times w
+  // (with the cluster's colour: near the camera they are nearly all the cluster's).
+  if (uNscGlowOn.w > 0.0) {
+    vec2 nc = nscMarch(uNscCamHi + uNscCamLo, dir);
+    nc.x += uNscGlowOn.x * uNscLocal;
+    float lnKc, lnKd;
+    vec3 cc = shifted(uNscRgb, uNscLnT.x, lnD, lnKc);
+    vec3 cd = shifted(uNsdRgb, uNscLnT.y, lnD, lnKd);
+    f += perColumn * (nc.x * exp(min(lnKc, 60.0)) * cc + nc.y * exp(min(lnKd, 60.0)) * cd);
+  }
+  // M87's own starlight near the camera (not the Milky Way model's: no share of the sky from the Sun).
+  if (uNscGlowOn.y > 0.0) {
+    vec3 da = dWorld - uM87Dir;
+    vec3 db = dWorld + uM87Dir;
+    float psi = 2.0 * atan(length(da), length(db));
+    float u = clamp((log(max(psi, 1e-30)) - uM87Axis.x) * uM87Axis.y, 0.0, 63.0);
+    float i = min(floor(u), 62.0);
+    float l0 = texelFetch(uM87Table, ivec2(int(i), 0), 0).r;
+    float l1 = texelFetch(uM87Table, ivec2(int(i) + 1, 0), 0).r;
+    float l = mix(l0, l1, u - i);
+    if (l > -79.0) {
+      float lnKm;
+      vec3 cm = shifted(uM87Rgb, uM87LnT, lnD, lnKm);
+      f += perColumnAny * exp(min(l + lnKm, 80.0)) * cm;
+    }
+  }
   f = min(f, vec3(6.0e4));
   // The luminance goes into alpha too: this is the Milky Way model's light (galaxy.frag.glsl).
   gl_FragColor = vec4(f, dot(f, vec3(0.2126, 0.7152, 0.0722)));

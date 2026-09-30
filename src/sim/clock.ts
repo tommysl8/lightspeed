@@ -48,11 +48,13 @@ export function stepWarp(dir: 1 | -1): void {
 }
 
 /**
- * Back to the present moment at real time. Not allowed mid-trip, where time can't run
- * backwards. The chronometers are zeroed and pulses in flight are discarded.
+ * Back to the present moment at real time. Not allowed mid-trip or in a fall into a black hole,
+ * where time can't run backwards. The chronometers are zeroed and pulses in flight are discarded.
+ * (Near a black hole the clock is set to now but cannot stay live: your clock runs slow there.)
  */
 export function resetToNow(): void {
-  if (useUI.getState().tripActive) return;
+  const ui = useUI.getState();
+  if (ui.tripActive || ui.fallActive) return;
   setSimTime(Date.now());
   zeroChrono();
   clearPulses();
@@ -97,11 +99,12 @@ export const TIME_MIN_MS = msFromCivil(-13.8e9, 1, 1);
 export const TIME_MAX_MS = msFromCivil(1e13, 1, 1);
 
 /**
- * Set the simulation epoch (UTC ms). Not allowed mid-trip. Like "now", it zeroes the
+ * Set the simulation epoch (UTC ms). Not allowed mid-trip, nor in a fall. Like "now", it zeroes the
  * chronometers and discards pulses in flight, since time may have run backwards.
  */
 export function setEpoch(ms: number): boolean {
-  if (useUI.getState().tripActive || !Number.isFinite(ms)) return false;
+  const ui = useUI.getState();
+  if (ui.tripActive || ui.fallActive || !Number.isFinite(ms)) return false;
   setSimTime(Math.min(EPOCH_MAX_MS, Math.max(EPOCH_MIN_MS, ms)));
   sim.live = false;
   zeroChrono();

@@ -18,6 +18,20 @@
 #include <common>
 #include <logdepthbuf_pars_vertex>
 #include <lightspeed_relativity>
+#ifdef LENS
+// Near a black hole (render/lensVariants.ts swaps in this shader compiled with LENS while the lens is
+// drawn) each point is drawn at its image (lensImage, tier 1, as the stars: stars.vert.glsl), its light
+// shifted by the observer's gravitational ln g as well and brightened by the magnification μ (in the
+// display's square-root law), and the points per pixel of sky, which set the drawing by lot, divided by μ.
+// uImageOrder 1 draws the images bent round the far side of the hole: near M87* its Einstein ring is tens
+// of degrees across and holds the whole web's second image (scene/CosmicWeb.tsx draws it while the Einstein
+// angle is over 2°). Cost: without LENS, today's program; with it a few table reads a point (the second
+// image of all 55,877 points, from M87*, was estimated at 0.18 ms).
+//
+// Twins: physics/relativity.ts, physics/lensPoint.ts (pointImageTier1).
+#include <lightspeed_lens>
+uniform float uImageOrder; // which image: 0 the primary, 1 the one bent round the far side of the hole
+#endif
 
 attribute vec3 aAnchor; // Mpc, comoving
 attribute vec2 aAttr;   // type code (0 elliptical and lenticular, 1 spiral and irregular, 2 either), log10 L/L*
@@ -86,11 +100,28 @@ void main() {
     return;
   }
   float lnD;
+#ifdef LENS
+  float lnDfSrc;
+  vec3 image;
+  float lnMu;
+  float lnG;
+  if (!lensImage(frameAberrate(rel / d, lnDfSrc) * (d * uLensScale.w), uImageOrder, 0.0, image, lnMu, lnG)) {
+    cull();
+    return;
+  }
+  float lnDfImg;
+  vec3 dShip = relAberrate(frameUnaberrate(image, lnDfImg), lnD);
+  // The boosts' own factor (the frame's there and back, and the view observer's); gravity's is added below.
+  lnD += lnDfSrc - lnDfImg;
+  // The boosts squeeze the sky by D², the lens stretches it by μ.
+  float crowd = uPointsPerPx * exp(2.0 * lnD - lnMu);
+#else
   vec3 dShip = relAberrate(rel / d, lnD);
   // Ahead of a fast ship D² more points share each pixel of sky. Beyond a few, they are drawn by lot
   // (the same ones every frame), each as bright as those left out (as galaxy.vert.glsl draws its
   // large splats): the same light, without tens of thousands of blends on one pixel.
   float crowd = uPointsPerPx * exp(2.0 * lnD);
+#endif
   if (crowd > CROWD_MAX) {
     float p = max(CROWD_MAX / crowd, uLotMin);
     if (pointHash() >= p) {
@@ -113,13 +144,22 @@ void main() {
   // angle (D⁻² from aberration, (1 + z)² from the angular-diameter distance a_e χ); drawn where it
   // was (a_e χ away), (a_e / a_o)² of that (docs/data/cosmology.md, section 4).
   float lnDe = lnD - L;
+#ifdef LENS
+  lnDe += lnG;
+  if (uPhi > 0.0 || uLensOn > 0.5 || uFramePhi > 0.0 || lnDe != 0.0) {
+#else
   if (lnDe != 0.0) {
+#endif
     vec4 b0 = blackbodyLn(lnT);
     vec4 b1 = blackbodyLn(lnT + lnDe);
     vec3 c = base * (b1.rgb / max(b0.rgb, vec3(1e-3)));
     float lc = dot(c, vec3(0.2126, 0.7152, 0.0722));
     base = lc > 0.0 ? c * (dot(base, vec3(0.2126, 0.7152, 0.0722)) / lc) : base;
     float lnF = b1.a - b0.a - 2.0 * lnDe - (uRetarded > 0.5 ? 2.0 * L : 0.0) + uLnExposure;
+#ifdef LENS
+    // The lens's solid angle: μ, in place of the g⁻² a boost by ln g would give.
+    lnF += lnMu + 2.0 * lnG;
+#endif
     a *= exp(clamp(0.5 * lnF, -60.0, 2.0));
   }
   if (a <= 1e-4) {

@@ -2,7 +2,7 @@
 slug: the-edge-of-reach
 title: The edge of reach
 shelf: universe
-order: 16
+order: 17
 pitch: Webb has seen galaxies that no ship and no radio signal could ever reach, not in a trillion years. Here is where that line runs, and why it moves.
 updated: 2026-09-25
 ---

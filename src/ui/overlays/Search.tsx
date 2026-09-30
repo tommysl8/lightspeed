@@ -289,7 +289,7 @@ function Palette() {
           <input
             data-autofocus
             className="h-9 min-w-0 flex-1 bg-transparent font-serif text-[17px] text-fg outline-none placeholder:text-fg-3"
-            placeholder="Where to? A planet, a star, a galaxy…"
+            placeholder="Where to? A planet, a star, a galaxy, a black hole…"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={onKey}

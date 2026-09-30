@@ -1,7 +1,10 @@
 /**
  * The Galaxy model's light near the camera: the glow's laws hold the light the particles hold, its
  * integration along a line of sight is exact enough, and seen from the Sun the model it completes
- * is about as bright as the sky map it takes over from (docs/data/galaxy.md).
+ * is about as bright as the sky map it takes over from (docs/data/galaxy.md). And the twins of the two
+ * glows the same shader draws near black holes: the nuclear star cluster's march (against a fine
+ * integration of its laws) and M87's table (against its published light profile and a fine
+ * integration), with the table's processor time.
  */
 import { describe, expect, it } from 'vitest';
 import { gunzipFile, loadStars } from '../../test/stars';
@@ -11,7 +14,37 @@ import { galaxyModel } from './arms';
 import { particleBuffers } from './particles';
 import { GALAXY_MODEL_JSON } from './galaxyData';
 import { erf } from './model';
-import { discSigma, glowDisc, GLOW_DISC_RANGE_KPC, GLOW_YOUNG_RANGE_KPC, nearGlow, particleShare, populationColour, populationLuminosity, THICK_DISC, THIN_DISC, YOUNG_ARM_STARS, youngHz, youngSurfaceMap, type GlowSetup } from './glow';
+import {
+  discSigma,
+  glowDisc,
+  GLOW_DISC_RANGE_KPC,
+  GLOW_YOUNG_RANGE_KPC,
+  M87_PSI_MIN,
+  M87_TABLE_SIZE,
+  m87ColumnAt,
+  m87ColumnTable,
+  m87Emissivity,
+  m87Profile,
+  nearGlow,
+  NUCLEAR_GLOW_STEPS,
+  nuclearGlowAt,
+  nuclearMarch,
+  particleShare,
+  populationColour,
+  populationLuminosity,
+  templateKept,
+  templateSplats,
+  THICK_DISC,
+  THIN_DISC,
+  YOUNG_ARM_STARS,
+  youngHz,
+  youngSurfaceMap,
+  type GlowSetup,
+  type M87TemplateNear,
+} from './glow';
+import { NUCLEAR_GLOW, nuclearGlow } from './nuclearCluster';
+import { buildTemplate } from '../cosmos/templates';
+import { cpuMs } from '../../test/timing';
 
 const json = GALAXY_MODEL_JSON;
 const model = galaxyModel();
@@ -250,5 +283,209 @@ describe('the handover from the sky map to the model', () => {
       expect(got[name], name).toBeGreaterThan(0);
       expect(got[name], name).toBeLessThan(1.6);
     }
+  }, 60_000);
+});
+
+// ─── The nuclear star cluster's glow and M87's starlight (docs/data/blackholes.md §6) ────────
+
+/** A seeded uniform generator (mulberry32), for reproducible random rays. */
+function seeded(seed: number): () => number {
+  let a = seed >>> 0;
+  return () => {
+    a = (a + 0x6d2b79f5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+const unitRandom = (rnd: () => number): Vec3 => {
+  const z = 2 * rnd() - 1;
+  const a = 2 * Math.PI * rnd();
+  const q = Math.sqrt(1 - z * z);
+  return [q * Math.cos(a), q * Math.sin(a), z];
+};
+
+describe('the nuclear star cluster’s glow along a line of sight', () => {
+  const laws = nuclearGlow.laws;
+  const e = [0, 0];
+  /** The reference: 200,000 steps uniform in ln s from 10⁻⁶ pc to 2,000 pc, the laws point by point. */
+  const reference = (c: Vec3, u: Vec3): number => {
+    const n = 200000;
+    const l0 = Math.log(1e-6);
+    const dl = (Math.log(2000) - l0) / n;
+    let S = 0;
+    for (let i = 0; i < n; i++) {
+      const s = Math.exp(l0 + (i + 0.5) * dl);
+      nuclearGlowAt(laws, c[0] + s * u[0], c[1] + s * u[1], c[2] + s * u[2], e);
+      S += (e[0] + e[1]) * s * dl;
+    }
+    return S;
+  };
+  const DISTANCES = [0.02, 0.2, 2, 10, 30, 55];
+  const cases = (() => {
+    const rnd = seeded(20260929);
+    const out: { d: number; c: Vec3; u: Vec3; want: number }[] = [];
+    for (const d of DISTANCES) {
+      for (let k = 0; k < 30; k++) {
+        const v = unitRandom(rnd);
+        const c: Vec3 = [v[0] * d, v[1] * d, v[2] * d];
+        const u = unitRandom(rnd);
+        out.push({ d, c, u, want: reference(c, u) });
+      }
+    }
+    return out;
+  })();
+  const errors = (cells: number) =>
+    cases.map(({ c, u, want }) => {
+      const got = nuclearMarch(laws, c, u, cells);
+      return (got[0] + got[1]) / want - 1;
+    });
+  const quantile = (a: number[], q: number) => a.map(Math.abs).sort((x, y) => x - y)[Math.floor(q * (a.length - 1))];
+
+  it('in 16 steps (the shader’s, step for step) agrees with a fine integration: median 0.5 %, nine rays in ten 2 %, the sky’s mean 1 %', () => {
+    const err = errors(NUCLEAR_GLOW_STEPS[0]);
+    expect(quantile(err, 0.5)).toBeLessThan(0.005);
+    expect(quantile(err, 0.9)).toBeLessThan(0.02);
+    expect(quantile(err, 1)).toBeLessThan(0.05);
+    // What reaches the eye over the whole sky from each camera: the mean column.
+    for (const d of DISTANCES) {
+      let got = 0;
+      let want = 0;
+      for (const x of cases) {
+        if (x.d !== d) continue;
+        const g = nuclearMarch(laws, x.c, x.u, NUCLEAR_GLOW_STEPS[0]);
+        got += g[0] + g[1];
+        want += x.want;
+      }
+      expect(Math.abs(got / want - 1), `${d} pc`).toBeLessThan(0.01);
+    }
+  }, 60_000);
+
+  it('in 8 steps (rung 1) within a few per cent: median 3 %, nine rays in ten 8 %', () => {
+    const err = errors(NUCLEAR_GLOW_STEPS[1]);
+    expect(quantile(err, 0.5)).toBeLessThan(0.03);
+    expect(quantile(err, 0.9)).toBeLessThan(0.08);
+  });
+
+  it('is nothing for rays that pass outside the field, and never negative', () => {
+    expect(nuclearMarch(laws, [400, 0, 0], [0, 1, 0], 16)).toEqual([0, 0]);
+    for (const { c, u } of cases) {
+      const g = nuclearMarch(laws, c, u, 16);
+      expect(g[0]).toBeGreaterThanOrEqual(0);
+      expect(g[1]).toBeGreaterThanOrEqual(0);
+    }
+  });
+});
+
+describe('M87’s own starlight', () => {
+  const json = NUCLEAR_GLOW;
+  const p = m87Profile(json);
+  const MU_OF_SIGMA = 26.402;
+
+  it('projects back onto its published fits (Ferrarese et al. 2006 inside 25″, Kormendy et al. 2009 outside): 0.01 mag to 200″, 0.03 at 1,000″', () => {
+    // The fits along the major axis, circularised with the measured ellipticity, as scripts/build-nsc.py writes
+    // them; j(r) deprojected there by Abel's integral, projected again here.
+    type Fits = { ferrarese: { mue: number; gamma: number; n: number; re: number; rb: number }; gToV: number; kormendy: { n: number; re: number; mue: number }; joinArcsec: number; av: number; ellipticity: [number, number][] };
+    const prof = readJson<{ m87: { profile: Fits } }>('src/sim/galaxy/nuclearGlow.json').m87.profile;
+    const bn = (n: number) => 2 * n - 1 / 3 + 4 / (405 * n) + 46 / (25515 * n * n);
+    const sersic = (R: number, n: number, re: number, mue: number) => mue + ((2.5 * bn(n)) / Math.LN10) * ((R / re) ** (1 / n) - 1);
+    const muFit = (Rm: number) => {
+      const f = prof.ferrarese;
+      const mb = sersic(f.rb, f.n, f.re, f.mue);
+      const core = Rm < f.rb ? mb + 2.5 * f.gamma * Math.log10(Rm / f.rb) : sersic(Rm, f.n, f.re, f.mue);
+      const k = prof.kormendy;
+      return (Rm < prof.joinArcsec ? core - prof.gToV : sersic(Rm, k.n, k.re, k.mue)) - prof.av;
+    };
+    const E = prof.ellipticity;
+    const eps = (Rm: number) => {
+      const x = Math.log10(Rm);
+      for (let i = 0; i < E.length - 1; i++) {
+        const a = Math.log10(E[i][0]);
+        const b = Math.log10(E[i + 1][0]);
+        if (x <= b) return E[i][1] + ((E[i + 1][1] - E[i][1]) * (Math.max(x, a) - a)) / (b - a);
+      }
+      return E[E.length - 1][1];
+    };
+    const pcPerArcsec = (json.m87.distanceMpc * 1e6 * Math.PI) / 180 / 3600;
+    for (const Rm of [0.2, 2, 20, 200, 1000]) {
+      const Rc = Rm * Math.sqrt(1 - eps(Rm)) * pcPerArcsec;
+      // Σ(R) = 2 ∫ j(√(R² + z²)) dz, with z = R sinh t.
+      let col = 0;
+      const nt = 20000;
+      const tMax = 14;
+      for (let i = 0; i < nt; i++) {
+        const t = ((i + 0.5) * tMax) / nt;
+        col += 2 * m87Emissivity(p, Rc * Math.cosh(t)) * Rc * Math.cosh(t) * (tMax / nt);
+      }
+      const mu = MU_OF_SIGMA - 2.5 * Math.log10(col);
+      // At 1,000″ (80 kpc) the table's end at 300 kpc leaves out a little of the Sérsic envelope's light.
+      expect(Math.abs(mu - muFit(Rm)), `${Rm}″`).toBeLessThan(Rm > 500 ? 0.03 : 0.01);
+    }
+    // And its light: M_V −23.1 at the app's distance (Kormendy et al.'s M_VT −22.95 at 17.14 Mpc is −23.01 here).
+    expect(4.83 - 2.5 * Math.log10(json.m87.lightLsun)).toBeCloseTo(-23.12, 1);
+  });
+
+  // The model galaxy's elliptical template (the app's own), as it would be drawn for a galaxy of 8 kpc half-light radius.
+  const tmpl = buildTemplate('elliptical');
+  const near: M87TemplateNear = { ...templateSplats(tmpl.position, tmpl.attrs, tmpl.count), unitPc: 8000, splatPc: 8000, pxPerRad: 296, sigmaMax: 256 };
+
+  it('its table holds, direction by direction, the light the template no longer draws, to 2 % (against a fine integration; 0.9 % at worst today)', () => {
+    const table = new Float32Array(M87_TABLE_SIZE);
+    const rEnd = near.rMax * near.unitPc;
+    for (const d of [0.00485, 1, 100, 3000, 20000]) {
+      m87ColumnTable(p, near, d, table);
+      const peak = m87ColumnAt(table, M87_PSI_MIN);
+      for (const psi of [2e-4, 0.01, 0.3, 1.2, 2.5, 3.1]) {
+        // Fine: 200,000 midpoint steps in t (r = b cosh t) over the whole ray within the template's reach, the
+        // light where the template's particles have faded.
+        const b = d * Math.sin(psi);
+        const s0 = d * Math.cos(psi);
+        const t0 = Math.asinh(-s0 / b);
+        const t1 = Math.acosh(rEnd / b);
+        const n = 200000;
+        const dt = (t1 - t0) / n;
+        let want = 0;
+        for (let i = 0; i < n; i++) {
+          const tt = t0 + (i + 0.5) * dt;
+          const r = b * Math.cosh(tt);
+          const s = s0 + b * Math.sinh(tt);
+          want += m87Emissivity(p, r) * (1 - templateKept(near, r, s)) * r * dt;
+        }
+        if (want < 1e-6 * peak) continue;
+        // The table is read log-linearly between its nodes: the fine integration is compared at the nodes' own ψ.
+        const got = m87ColumnAt(table, psi);
+        expect(Math.abs(got / want - 1), `d ${d} pc, ψ ${psi}`).toBeLessThan(0.02);
+      }
+    }
+  }, 60_000);
+
+  it('from M87* (1,000 au) is the whole profile’s light, bright all round; from far off, nothing', () => {
+    const table = new Float32Array(M87_TABLE_SIZE);
+    m87ColumnTable(p, near, 0.00485, table);
+    const toward = m87ColumnAt(table, 1e-3);
+    const away = m87ColumnAt(table, Math.PI);
+    // μ about 12.3 to 14.6 mag/arcsec² (the core's inner power law, held flat inside 1,000 au).
+    expect(MU_OF_SIGMA - 2.5 * Math.log10(toward)).toBeGreaterThan(11);
+    expect(MU_OF_SIGMA - 2.5 * Math.log10(away)).toBeLessThan(15);
+    m87ColumnTable(p, near, 1e6, table);
+    expect(m87ColumnAt(table, 0.5)).toBe(0);
+  });
+
+  it('builds its table within its 0.1 ms of processor time (guarded at twice that)', () => {
+    const table = new Float32Array(M87_TABLE_SIZE);
+    // Batches of a few hundred milliseconds (Windows counts processor time in ticks of 15.6 ms), the best of
+    // eight: the machine's other work still slows this thread's own time through the shared caches. The budget is
+    // 0.1 ms (best batches 0.07–0.11 ms with other processes busy); the guard is twice it, as the lens tables'
+    // test guards theirs (physics/schwarzschildTables.test.ts), since a shared core inflates processor time.
+    const batch = 2000;
+    let best = Infinity;
+    for (let k = 0; k < 8; k++) {
+      const t0 = cpuMs();
+      for (let i = 0; i < batch; i++) m87ColumnTable(p, near, 0.005 + i, table);
+      best = Math.min(best, (cpuMs() - t0) / batch);
+    }
+    expect(best).toBeLessThan(0.2);
+    // (Processor time, not the wall clock: in a full test run the batches can take longer than the default 5 s.)
   }, 60_000);
 });

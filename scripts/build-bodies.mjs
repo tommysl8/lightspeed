@@ -1,6 +1,6 @@
 // Builds public/data/bodies.json: physical data, rotation models, colours, discovery notes,
 // facts and asset references for the moons, dwarf planets, comets, interstellar objects and
-// spacecraft added in phase 2.
+// spacecraft.
 //
 // Machine-readable inputs (cached in data-raw/d3/ by this script or by build-textures/-shapes):
 //   pck00011.tpc                 NAIF text PCK: IAU WGCCRE 2015 rotation models and triaxial radii

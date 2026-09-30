@@ -454,7 +454,7 @@ the frame in which moons are usually given. astronomy-engine's Jupiter–Neptune
 system barycentres. At these flybys the two differ by 190–213 km (Jupiter), 276–295 km (Saturn),
 28 km (Uranus) and 74 km (Neptune). If the app draws the planet at astronomy-engine's point and its
 moons relative to that point, the geometry is exact as stored. If the app ever offsets the planet body
-from the barycentre, apply the same offset to these tracks' centre. Pluto is the opposite case: the brief asked for `@9`, which
+from the barycentre, apply the same offset to these tracks' centre. Pluto is the opposite case: its tracks use `@9`, which
 matches `HelioVector(Body.Pluto)`, and Pluto's body is 2,132 km from it.
 
 ### Outside the precise span

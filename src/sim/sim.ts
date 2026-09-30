@@ -8,6 +8,7 @@
 import { Quaternion, Vector3 } from 'three';
 import type { AstroTime } from 'astronomy-engine';
 import type { BodyId, Regime } from './bodies/types';
+import type { ImageOrder } from '../physics/lensPoint';
 import { astroTimeAt } from '../lib/time';
 
 export interface ScreenPoint {
@@ -18,6 +19,19 @@ export interface ScreenPoint {
   onScreen: boolean;
   /** In front of the camera. */
   inFront: boolean;
+}
+
+/**
+ * A screen point that is written every frame (a body's, an image's). A class rather than a { x, y, … } literal:
+ * a literal shares V8's field layout with every object in the app whose first property is x, and once any of
+ * them has held something other than a number there, every number stored into it is boxed (a 16-byte
+ * allocation per store, per body, per frame); a class has a layout of its own.
+ */
+export class ScreenPos implements ScreenPoint {
+  x = 0;
+  y = 0;
+  onScreen = false;
+  inFront = false;
 }
 
 export interface BodyState {
@@ -58,6 +72,75 @@ export interface BodyState {
   /** Apparent visual magnitude from the camera (for the point-sprite glint). */
   magnitude: number;
   screen: ScreenPoint;
+  /** Its images through a black hole's lens this frame (sim/lensBodies.ts), or null: not lensed, drawn as it is. */
+  lens: BodyLens | null;
+}
+
+/** Images a body can have through the lens at once: the primary and two more. */
+export const MAX_BODY_IMAGES = 3;
+
+/**
+ * One image of a body seen through a black hole's lens (sim/lensBodies.ts writes it; the glints, labels,
+ * picking and the hover tag read it).
+ */
+export interface BodyImage {
+  order: ImageOrder;
+  /** CSS px, as BodyState.screen (in the half of the split view it lands in). */
+  screen: ScreenPoint;
+  /**
+   * Apparent V magnitude of this image: magnification, the finite-source cap, the gravitational shifts, the
+   * frame boost and the source's own motion included; like BodyState.magnitude, the view observer's own
+   * motion is left to where the image is drawn (the glint shader, BodyState.dopplerFactor).
+   */
+  magnitude: number;
+  /** ln|μ| of the point source (no finite-source cap). */
+  lnMu: number;
+  /** ln of the total frequency factor (frame boost, lens, the source's own motion and potential, the view observer) for the colour. */
+  lnD: number;
+  /** The view observer's own part of lnD (its motion relative to the Sun's frame, or to the lens frame in a fall). */
+  lnDView: number;
+  /** lnD without the view observer's part: what the glint shader adds to its own aberration (aLnDx). */
+  lnDx: number;
+  /**
+   * The flat-space magnitude with the magnification (ln μB0) and the shifts that change no solid angle (ln g, the
+   * source's own motion) folded in, before any spectral shift: the glint's aMag.
+   */
+  magLensed: number;
+  /** Unit direction of the image in the frame the glints are drawn in: the Sun's (outside a fall), the lens frame (in a fall). */
+  dir: Vector3;
+  /** Unit direction of the image in the lens frame (hovering, or falling from rest), world axes: the lab's readings. */
+  dirLens: Vector3;
+  /** Share of the image drawn as a point: 1, less while the ring of a near-perfect alignment fades in (z 3.5 → 2.5). */
+  share: number;
+}
+
+/** A near-perfect alignment drawn as an arc or ring of light (scene/LensRings.tsx). */
+export interface LensRing {
+  /** Unit direction of the ring's centre (the lensing hole's shadow centre) in the view observer's frame. */
+  centre: Vector3;
+  /** Ring radius, rad. */
+  radius: number;
+  /** Unit direction, in the sky, of the primary arc's middle (towards the source). */
+  towards: Vector3;
+  /** Half-angle of each arc about its middle, rad (π: a full ring). */
+  arcHalf: number;
+  /** Apparent V magnitude of all the light in the ring (the view observer's own motion included: the ring is drawn as seen). */
+  magnitude: number;
+  lnT: number;
+  lnD: number;
+  /** Share of the light drawn as the ring: 0 at z ≥ 3.5, 1 at z ≤ 2.5 (the two images' glints take the rest). */
+  share: number;
+  /** The half of the split view it is drawn in (1: the whole view, or the relativistic half). */
+  half: 0 | 1;
+}
+
+/** A body's images this frame. */
+export interface BodyLens {
+  /** Images drawn (1–3); images[0] is the primary, whose screen point is also BodyState.screen. */
+  count: number;
+  /** Reused slots (nothing is allocated per frame): only the first `count` are this frame's; the rest are left over from earlier frames. */
+  images: BodyImage[];
+  ring: LensRing | null;
 }
 
 export type SizeMode = 'true' | 'visible';
@@ -81,7 +164,8 @@ export function makeBody(id: BodyId): BodyState {
     radiusPx: 0,
     dopplerFactor: 1,
     magnitude: 99,
-    screen: { x: 0, y: 0, onScreen: false, inFront: false },
+    screen: new ScreenPos(),
+    lens: null,
   };
 }
 

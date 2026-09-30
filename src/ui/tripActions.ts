@@ -1,4 +1,8 @@
-/** Glue between the trip model, the camera and the UI. */
+/**
+ * Glue between the trip model, the camera and the UI. A fall into a black hole counts as a trip for the
+ * gates (it sets tripActive): no trip starts during one, and stopTrip ends it (sim/fall.ts endFall), the
+ * camera back hovering where it let go.
+ */
 import type { BodyId } from '../sim/bodies';
 import { controller } from '../controls/cameraController';
 import { sim } from '../sim/sim';
@@ -8,6 +12,7 @@ import { resetFlightOptions } from './flight/flightOptions';
 import { setWarp } from '../sim/clock';
 import { useUI } from '../state/ui';
 import { chronoLaunch, chronoTripEnd } from '../sim/chronometer';
+import { endFall, fall } from '../sim/fall';
 
 export function openPlanner(dest?: BodyId): void {
   const ui = useUI.getState();
@@ -40,6 +45,7 @@ export function afterArrival(fn: (dest: BodyId) => void): void {
  * rocket's acceleration and a limit on the time on board (default 1 g, no limit).
  */
 export function startTrip(dest: BodyId, beta: number, drive?: Drive, opts?: FlightOptions): boolean {
+  if (fall.trip || useUI.getState().fallActive) return false;
   const plan = planTrip(dest, beta, sim.camera.pos.clone(), sim.astroTime, drive, opts);
   if (!plan || plan.distance <= 0) return false;
   arrivalStep = null;
@@ -56,8 +62,15 @@ function endJourney(): void {
   useUI.setState({ journeyNote: null });
 }
 
-/** Stop mid-course: the ship halts (instantly, idealised) and the camera orbits the nearest body. */
+/**
+ * Stop mid-course: the ship halts (instantly, idealised) and the camera orbits the nearest body. In a fall
+ * into a black hole: the fall stops, and the camera hovers where it let go (home's clock kept).
+ */
 export function stopTrip(): void {
+  if (fall.trip) {
+    endFall('stopped');
+    return;
+  }
   arrivalStep = null;
   abortTrip();
   chronoTripEnd();

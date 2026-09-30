@@ -10,11 +10,13 @@
  * motion the shader applies (its velocity over the years since J2000 plus its light-time, and
  * the light-time from the camera when stars are drawn where they are seen), and keeps the index
  * after the last star that could be seen: drawing that many stars shows exactly what drawing
- * them all does. It does not hold in the relativistic view (beaming brightens stars ahead), and
- * the star field draws them all there.
+ * them all does. It does not hold as it is in the relativistic view (beaming brightens stars ahead) or
+ * near a black hole (its gravity blueshifts the light): there the star field draws a far list worked out
+ * for a fainter limit, by the most any star can brighten (flightDrawList, starBoostLn), or all of them.
  */
 import type { Stars3D } from './catalogue';
 import { C_PC_PER_YR, KMS_TO_PC_PER_YR, MOTION_VALID_YEARS } from './constants';
+import { sampleBlackbody, type BlackbodySample } from '../../physics/blackbody';
 
 /** The eye's limit: stars fainter than this fade out (render/materials.ts uses it). */
 export const STAR_MAG_LIMIT = 6.5;
@@ -174,5 +176,90 @@ export function starDrawList(l: StarDrawLists | undefined, cameraPc: number, yea
   if (cameraPc <= l.radiusPc) return Math.abs(years) >= MOTION_VALID_YEARS ? l.frozen[years < 0 ? 0 : 1] : null;
   let out: Uint32Array | null = null;
   for (let k = 0; k < l.farPc.length; k++) if (cameraPc >= l.farPc[k]) out = l.far[k];
+  return out;
+}
+
+// ─── Brighter than at rest: the relativistic view and black holes ──────────────────────────────────
+
+/** Magnitudes per unit of ln flux, 2.5 / ln 10. */
+const MAG_PER_LN = 2.5 / Math.LN10;
+
+/**
+ * The coolest star the brightening bound below allows for, K: the catalogue's coolest is 2,570 K (a star of
+ * unknown temperature is drawn at 5,772 K) and the nuclear cluster's cool giants are warmer. The bound grows
+ * as the temperature falls, so a floor under every star keeps it a bound.
+ */
+export const STAR_BOOST_T_MIN_K = 2000;
+
+const bbScratch: BlackbodySample = { r: 0, g: 0, b: 0, lnY: 0 };
+const lnY = (lnT: number): number => sampleBlackbody(lnT, bbScratch).lnY;
+
+/**
+ * The most a star's visible flux can grow, ln, besides a lens's magnification: over the view's Doppler
+ * factors e^x with |x| ≤ phi (the ship's rapidity and any frame boost; 0 at rest) and every temperature
+ * T ≥ tMinK, of ln Y(T e^(x + lnG)) − ln Y(T) − 2x: the blackbody seen at the shifted temperature and the
+ * boost's solid angle D⁻² (the lens's solid angle, its magnification, is left to the caller), with lnG the
+ * largest gravitational blueshift of the light at the observer (0 far from black holes; the lens's
+ * solid angle takes the place of g⁻²). Exact for the blackbody table the GPU reads (sampleBlackbody):
+ *  - where x + lnG < 0 the shifted light is redder, and for any T the flux grows by at most lnG − x (the
+ *    Rayleigh–Jeans limit, which a cooler star falls short of), largest at x = −phi;
+ *  - where x + lnG ≥ 0 the coolest star gains the most (ln Y's slope in ln T falls with T), and in x the
+ *    gain is concave (ln Y is concave in ln T), so its largest value is found by a ternary search.
+ * Returns 0 or more (exactly 0 at rest far from a hole). Cost: about 160 table reads, a few microseconds.
+ */
+export function starBoostLn(phi: number, lnG: number, tMinK: number = STAR_BOOST_T_MIN_K): number {
+  const p = Number.isFinite(phi) ? Math.abs(phi) : 0;
+  const g = Number.isFinite(lnG) ? lnG : 0;
+  if (p === 0 && g <= 0) return 0;
+  let best = 0;
+  // Redder than the source (x < −lnG): the Rayleigh–Jeans limit lnG − x, largest at x = −phi.
+  if (-p < -g) best = Math.max(best, g + p);
+  // Bluer: the coolest star, concave in x on [max(−phi, −lnG), phi].
+  const lo = Math.max(-p, -g);
+  const hi = p;
+  if (lo <= hi) {
+    const lnTMin = Math.log(tMinK);
+    const y0 = lnY(lnTMin);
+    const f = (x: number): number => lnY(lnTMin + x + g) - y0 - 2 * x;
+    let a = lo;
+    let b = hi;
+    for (let i = 0; i < 80 && b - a > 1e-12 * (1 + Math.abs(a) + Math.abs(b)); i++) {
+      const m1 = a + (b - a) / 3;
+      const m2 = b - (b - a) / 3;
+      if (f(m1) < f(m2)) a = m1;
+      else b = m2;
+    }
+    // The ends too, and a hair for the search's last step.
+    best = Math.max(best, f(lo), f(hi), f(a), f(b) + 1e-9);
+  }
+  return best;
+}
+
+/** starBoostLn in magnitudes (MAG_PER_LN of it). */
+export const starBoostMag = (phi: number, lnG: number, tMinK: number = STAR_BOOST_T_MIN_K): number => MAG_PER_LN * starBoostLn(phi, lnG, tMinK);
+
+/**
+ * The list of stars the star field must draw when stars may be up to `maxBoostMag` magnitudes brighter than
+ * at rest (the relativistic view, where beaming brightens stars ahead, and near a black hole, where gravity
+ * blueshifts their light: starBoostMag, with the exposure's dimming taken off), or null when all must be.
+ *
+ * A limit raised by B magnitudes reaches k = 10^(B/5) times as far, and a star that shows from r with it,
+ * r < p + v(T + p/c) + k·reach/(1 − β), has p + v(T + p/c) + reach/(1 − β) > r/k (k ≥ 1): it is in the far
+ * list of any distance up to r/k (starDrawLists). So the list for the largest FAR_LIST_PC at or below r/k
+ * holds every star that can show, and drawn in catalogue order it shows exactly what drawing all of them does.
+ * From within FAR_LIST_PC[0]·k of the Sun (and near the Sun) no list applies. Arriving at Sgr A* (β 0.04,
+ * with the hole's blueshift) this is the 4 kpc list of 1,218 stars instead of all 329,770: measured on the
+ * target laptop by whole frames A/B (2,048 × 1,320), the frame 0.84–0.97 ms cheaper (best against best) and the
+ * picture the same pixel for pixel. `years` is where the stars are (the lists hold for any date the shader moves
+ * them to).
+ */
+export function flightDrawList(l: StarDrawLists | undefined, cameraPc: number, years: number, magLimit: number, maxBoostMag: number): Uint32Array | null {
+  if (!l || !(cameraPc >= 0) || !(maxBoostMag >= 0) || !Number.isFinite(years)) return null;
+  const raise = magLimit + maxBoostMag - l.magLimit;
+  if (!(raise < 100)) return null;
+  const r = cameraPc / Math.pow(10, Math.max(0, raise) / 5);
+  if (!(r > l.radiusPc)) return null;
+  let out: Uint32Array | null = null;
+  for (let k = 0; k < l.farPc.length; k++) if (r >= l.farPc[k]) out = l.far[k];
   return out;
 }

@@ -29,6 +29,8 @@ uniform vec3 uRingNormalW;   // ring-plane normal (world axes)
 uniform vec3 uCenterW;       // planet centre relative to the camera
 uniform float uRingInner;    // km (displayed scale)
 uniform float uRingOuter;
+// Near a black hole the classical view has an exposure (render/materials.ts surfaceUniforms): 0 elsewhere.
+uniform float uLnExposureSurface;
 
 varying vec2 vUv;
 varying vec3 vNormalW;
@@ -115,5 +117,6 @@ void main() {
   col += uAtmoColor * uAtmoStrength * rim * smoothstep(-0.25, 0.35, NdL) * uSunIntensity;
 
   col += albedo * uAmbient;
+  if (uLnExposureSurface != 0.0) col *= exp(uLnExposureSurface);
   gl_FragColor = vec4(col, 1.0);
 }

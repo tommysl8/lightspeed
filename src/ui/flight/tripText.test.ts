@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { msFromCivil } from '../../lib/time';
-import { arrivalText, homeDateText, oneMinusBeta, roughDuration, speedText, tripCostText } from './tripText';
+import { arrivalText, gravityWellText, homeDateText, oneMinusBeta, refusalText, roughDuration, speedText, tripCostText } from './tripText';
+import type { Refusal } from '../../sim/travel';
 
 const YEAR = 365.25 * 86_400;
 
@@ -76,6 +77,25 @@ describe('arrivalText', () => {
     const t = arrivalText({ destName: 'Mars', earthTime: 120, shipTime: NaN, warp: true, endMs: 0 });
     expect(t.headline).toBe('Arrived at Mars. The trip took 2 min at home.');
     expect(t.more).toMatch(/fiction/);
+  });
+});
+
+describe('refusalText', () => {
+  const base: Refusal = { reason: 'gravity-well', model: 'static', dest: 'earth', distanceKm: NaN, horizonKm: NaN, maxKm: NaN, maxShipTimeYr: NaN, accelG: 1, beta: 0.5, aDep: 1, detail: '' };
+
+  it('asks to climb out of a black hole’s well first, within 30 times its horizon’s radius', () => {
+    const t = refusalText({ ...base, wellKm: 3.8e8 }, 'Earth');
+    expect(t.title).toBe('Climb out first');
+    // 3.8 × 10⁸ km is 2.5 au: Sgr A*'s 30 r_s.
+    expect(t.text).toMatch(/^The planner leaves out gravity, which within 30 horizon radii of the black hole \(2\.5 au from its centre\) would be wrong\./);
+    expect(gravityWellText({})).toMatch(/^The planner leaves out gravity, which within 30 horizon radii of the black hole would be wrong\. Move the camera farther out/);
+    // Typographic apostrophes only (house style).
+    expect(gravityWellText({ hole: 'sgr-a-star', wellKm: 1e9 })).not.toMatch(/'/);
+  });
+
+  it('calls the expanding universe’s horizon the cosmic event horizon', () => {
+    const t = refusalText({ ...base, reason: 'beyond-reach', model: 'flrw', distanceKm: 1.5e23, horizonKm: 1.6e23, maxKm: 1.55e23 }, 'GN-z11');
+    expect(t.title).toBe('Too close to the cosmic event horizon');
   });
 });
 

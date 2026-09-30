@@ -2,7 +2,7 @@
 slug: the-expanding-universe
 title: The expanding universe
 shelf: universe
-order: 15
+order: 16
 pitch: In 1927 a Belgian priest measured the expansion of the universe. In 1931 he cut the measurement from his own paper, and Hubble got the credit.
 updated: 2026-09-25
 ---

@@ -13,7 +13,7 @@ import { readJson, readText } from '../../test/files';
 import { creditSentence } from '../../ui/deepSkyText';
 import { resolveTarget, runScene, sceneNote, sceneStatus, cancelSceneStep, S2_ORBIT_WARP } from '../../content/scenes';
 import { findDestination, nestedDestinations, searchDestinations } from '../../content/destinations';
-import { articleForBody } from '../../content/bodyArticles';
+import { articleForBody, kindArticle } from '../../content/bodyArticles';
 import { locationPath } from '../../ui/location';
 import { conicFromState, makeConic, orbitMu, orbitSource, type OrbitSource } from '../../scene/orbitLines';
 import { updateEphemeris } from '../ephemeris';
@@ -82,9 +82,26 @@ describe('Sagittarius A* and the S-stars', () => {
     expect(sim.bodies['sgr-a-star'].pos.length() / PARSEC_KM).toBeCloseTo(8277, 3);
     expect(schwarzschildRadiusKm(s.massMsun) / AU_KM).toBeCloseTo(0.0848, 3);
     expect(shadowRadiusKm(s.massMsun) / AU_KM).toBeCloseTo(0.2203, 3);
-    // Its disc is the shadow; nothing glows.
-    expect(getBody('sgr-a-star')!.physical.radiusKm).toBeCloseTo(shadowRadiusKm(s.massMsun), 0);
+    // Its size is its horizon, r_s = 0.0848 au; the lens draws it (no disc, no point of its own); the camera may
+    // hover down to r_s(1 + 10⁻⁶), 12.7 km above the horizon. Nothing of its own glows here (the flow's point is
+    // written by updateDerived, which this test does not run: in the app it is V 17.15 from the Sun).
+    const r = getBody('sgr-a-star')!;
+    expect(r.visual?.renderer).toBe('lens');
+    expect(r.physical.radiusKm).toBeCloseTo(schwarzschildRadiusKm(s.massMsun), 6);
+    expect(r.physical.radiusKm / AU_KM).toBeCloseTo(0.0848, 4);
+    expect(r.framing?.minKm! - r.physical.radiusKm).toBeCloseTo(12.69, 2);
+    expect(r.framing?.distanceKm).toBe(4000 * AU_KM);
     expect(sim.bodies['sgr-a-star'].magnitude).toBe(99);
+    // Its black-hole block: sstars.json's mass, the horizon, a fall allowed, its flow, the EHT's picture, at most three card notes.
+    const bh = r.blackHole!;
+    expect(bh.massMsun).toBe(s.massMsun);
+    expect(bh.rsKm).toBeCloseTo(schwarzschildRadiusKm(s.massMsun), 6);
+    expect(bh.fallAllowed).toBe(true);
+    expect(bh.flow).toBe('sgr-a-star-riaf');
+    expect(bh.ehtImage?.ringDiameterUas).toBe(51.8);
+    expect(r.modelNotes!.length).toBeLessThanOrEqual(3);
+    expect(r.modelNotes![0]).toMatch(/^Drawn without spin/);
+    expect(r.deepSky!.rows!.find((x) => x.l.startsWith('Shadow radius'))!.title).toMatch(/the shadow as seen from far away/);
   });
 
   it('moves S2 on its 16-year orbit about Sgr A*, placed a light-time on from the orbit as seen', () => {
@@ -196,8 +213,11 @@ describe('lists, search and cards', () => {
     expect(getBody('milky-way')!.modelNotes![0]).toMatch(/^Model built from published measurements \(Reid et al\. 2019 arms, Wegg et al\. bar, Drimmel and Spergel dust\)/);
   });
 
-  it('points to the article on our galaxy, and dying stars to the one on what stars are made of', () => {
-    for (const id of ['milky-way', 'sgr-a-star', 's2', 'orion-nebula', 'eagle-nebula', 'carina-nebula', 'pleiades', 'omega-centauri']) expect(articleForBody(id), id).toBe('our-galaxy');
+  it('points to the article on our galaxy, Sgr A* to its kind’s, and dying stars to the one on what stars are made of', () => {
+    for (const id of ['milky-way', 's2', 'orion-nebula', 'eagle-nebula', 'carina-nebula', 'pleiades', 'omega-centauri']) expect(articleForBody(id), id).toBe('our-galaxy');
+    // Every black hole's Read button follows its kind (no article of its own).
+    expect(getBody('sgr-a-star')!.article).toBeUndefined();
+    expect(articleForBody('sgr-a-star')).toBe(kindArticle('black-hole'));
     for (const id of ['crab-nebula', 'ring-nebula', 'helix-nebula', 'cats-eye-nebula']) expect(articleForBody(id), id).toBe('what-stars-are-made-of');
   });
 

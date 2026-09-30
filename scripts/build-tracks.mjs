@@ -311,7 +311,7 @@ const GM_SYSTEM =
   GM.sun + GM.mercury + GM.venus + GM.emb + GM.mars + GM.jupiter + GM.saturn + GM.uranus + GM.neptune + GM.pluto;
 
 // Centres. Planet codes are body centres (not system barycentres) so flyby geometry is exact
-// against the planet itself, except Pluto (@9, the Pluto–Charon barycentre) as specified.
+// against the planet itself, except Pluto (@9, the Pluto–Charon barycentre, as astronomy-engine's Body.Pluto is).
 // soi: Laplace sphere of influence a·(m/M☉)^(2/5), where the track switches centre.
 const CENTRES = {
   sun: { code: '10', label: 'Sun (body centre)' },

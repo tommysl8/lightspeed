@@ -1,12 +1,14 @@
 /**
  * The journeys: one-click trips and scenes, each with what to look for. Flights are
- * predicted live (they leave from Earth, and the planets move).
+ * predicted live (they leave from Earth, and the planets move). The count in the lead line is
+ * the list's own, in words; while a flight or a fall is under way the list waits for it.
  */
 import { useEffect, useState, useSyncExternalStore } from 'react';
 import { JOURNEYS, predictFlight, type Journey } from '../../content/journeys';
 import { sceneStatus } from '../../content/scenes';
 import { registryVersion, subscribeRegistry } from '../../sim/bodies';
 import { qty } from '../../lib/sci';
+import { countWordStart } from '../../lib/words';
 import { useUI } from '../../state/ui';
 import { CloseIcon } from '../kit';
 import { Icon } from '../icons';
@@ -71,6 +73,7 @@ function Row({ j, n, pred, disabled }: { j: Journey; n: number; pred?: string; d
 
 function Card() {
   const tripActive = useUI((s) => s.tripActive);
+  const fallActive = useUI((s) => s.fallActive);
   const close = () => useUI.setState({ journeysOpen: false });
   const ref = useModal<HTMLDivElement>(close);
   const pred = usePredictions(true);
@@ -91,11 +94,15 @@ function Card() {
           </button>
         </div>
         <p className="border-b border-line px-5 py-2.5 text-[12px] leading-snug text-fg-2">
-          Ten set pieces, one click each. Flights leave from Earth and play in about a minute, paced by the clock on board;
+          {countWordStart(JOURNEYS.length)} set pieces, one click each. Flights leave from Earth and play in about a minute, paced by the clock on board;
           the panel along the bottom shows both clocks and can skip to arrival.
         </p>
         {tripActive && (
-          <p className="border-b border-line bg-accent/[0.06] px-5 py-2 text-[12px] text-accent">A flight is under way: finish it, or abort it on the flight panel, before starting another journey.</p>
+          <p className="border-b border-line bg-accent/[0.06] px-5 py-2 text-[12px] text-accent">
+            {fallActive
+              ? 'A fall is under way: let it end, or press Stop the fall on the panel along the bottom, before starting another journey.'
+              : 'A flight is under way: finish it, or abort it on the flight panel, before starting another journey.'}
+          </p>
         )}
         <ol className="scroll max-h-[min(60vh,560px)] list-none">
           {JOURNEYS.map((j, i) => (

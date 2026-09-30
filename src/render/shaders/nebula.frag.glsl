@@ -10,6 +10,12 @@ uniform vec2 uFadeL;      // l · k where the light starts to show, and where it
 uniform float uOpacity;
 uniform float uPhi;
 uniform float uLnExposure;
+#ifdef LENS
+// Near a black hole (compiled with LENS: nebula.vert.glsl) the same, with the light's frequency
+// factor including the observer's gravitational shift (surface brightness is conserved by the lens).
+uniform float uLensOn;   // 1: a black hole's lens is drawn (render/lens/lensUniforms.ts)
+uniform float uFramePhi; // rapidity of the Sun's frame → the hole's
+#endif
 
 varying vec2 vUv;
 varying float vFacing;
@@ -21,7 +27,11 @@ void main() {
   if (l <= 0.0) discard;
   float lnK = uLnExposure;
   vec3 tint = vec3(1.0);
+#ifdef LENS
+  if (uPhi > 0.0 || uLensOn > 0.5 || uFramePhi > 0.0) {
+#else
   if (uPhi > 0.0) {
+#endif
     vec4 shifted = blackbodyLn(LN_T_SUN + vLnD);
     lnK += shifted.a;
     tint = shifted.rgb / blackbodyLn(LN_T_SUN).rgb;

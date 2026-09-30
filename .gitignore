@@ -21,3 +21,4 @@ Thumbs.db
 !.vscode/extensions.json
 .idea/
 .vercel/
+__pycache__/

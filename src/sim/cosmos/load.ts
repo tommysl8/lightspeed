@@ -3,7 +3,8 @@
  *
  *  1. Once the browser is idle after start-up: the Local Group and its surroundings
  *     (local-galaxies.json.gz, 31 kB) and the named galaxies, clusters and young galaxies
- *     (named.json, a chunk of its own, 8 kB gzipped) become bodies, with the Local Group itself.
+ *     (named.json, a chunk of its own, 8 kB gzipped) become bodies, with the Local Group itself
+ *     and M87's black hole, M87* (sim/blackholes).
  *  2. Then the galaxies' particle templates and the cosmology's emission table (the redshifts of
  *     their light, sim/cosmos/expansion.ts) are built in the cosmos worker.
  *  3. The cosmic web (cosmic-web.bin.gz, 870 kB) loads only when it is wanted: the camera leaves
@@ -20,9 +21,10 @@ import { sgrAFrom, sgrAPositionEcl } from '../galaxy/records';
 import { MPC_KM } from '../../physics/constants';
 import { buildSkyTable, buildTemplates, buildWeb, type CosmosWorkerReply, type CosmosWorkerRequest } from './cosmosData';
 import type { WebBound, WebBuffers } from './cosmicWeb';
-import { cosmicSky, LOCAL_GROUP_SPHERE, setExpansionMembers, setSkyTable, type SkyTable } from './expansion';
+import { cosmicSky, LOCAL_GROUP_SPHERE, setBoundSpheres, setExpansionMembers, setSkyTable, type SkyTable } from './expansion';
 import type { LocalGalaxiesDoc, NamedDoc } from './localGalaxies';
-import { bodyIdOf, cosmosRecords, type GalaxyShape } from './records';
+import { bodyIdOf, CLUSTER_RADIUS_MPC, cosmosRecords, type GalaxyShape } from './records';
+import { registerM87Star } from '../blackholes/load';
 import type { Template } from './templates';
 import type { Vec3 } from './frames';
 
@@ -68,11 +70,28 @@ export function registerCosmos(local: LocalGalaxiesDoc, named: NamedDoc): void {
   const fresh = records.filter((r) => !isBody(r.id));
   if (fresh.length) registerBodies(fresh);
   setExpansionMembers(anchors);
+  setBoundSpheres(clusterCores());
+  // M87*, at the centre of M87 (sim/blackholes), in the expanding universe with its galaxy.
+  registerM87Star();
   cosmosState.shapes = shapes;
   cosmosState.named = named;
   cosmosState.local = local;
   cosmosState.status = 'ready';
   changed();
+}
+
+/**
+ * The galaxy clusters' cores, for the camera's own anchor (expansion.ts setBoundSpheres): each cluster's anchor and
+ * the radius holding half its measured galaxies (CLUSTER_RADIUS_MPC), well inside the region its gravity holds
+ * together (a cluster's bound region reaches beyond a megaparsec).
+ */
+function clusterCores(): { id: string; anchorWorldKm: Vec3; radiusKm: number }[] {
+  const out: { id: string; anchorWorldKm: Vec3; radiusKm: number }[] = [];
+  for (const [id, mpc] of Object.entries(CLUSTER_RADIUS_MPC)) {
+    const m = cosmicSky.byId.get(id);
+    if (m && !m.home) out.push({ id, anchorWorldKm: [m.anchorKm.x, m.anchorKm.y, m.anchorKm.z], radiusKm: mpc * MPC_KM });
+  }
+  return out;
 }
 
 /** The rows of the cosmic web drawn as bodies of their own (the named galaxies): left out of the web's points. */

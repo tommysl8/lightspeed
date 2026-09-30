@@ -154,12 +154,14 @@ function Welcome() {
         between 1700 and 2200, to about half a degree between 3000 BCE and 3000 CE, and only illustrative beyond (the orbits are
         right, the places along them are not). The stars, the star clusters, the nebulae and the galaxies are at their measured
         distances (the farthest galaxies at the distance their redshift gives). Distances are never compressed, light travels at 299,792.458 km/s, and what you see in flight follows the
-        transformation laws of special relativity exactly.
+        transformation laws of special relativity exactly, and near a black hole those of general relativity: its light
+        bent and its clocks slowed as Einstein’s theory says for a black hole that does not spin.
       </p>
       <p>
         Where the measurements run out, a model takes over, and the card says so. The Milky Way seen from outside is a model
         built from published measurements, its spiral arms carried on beyond the parallax data. Other galaxies are drawn from
-        their measured size, brightness and tilt, with the shape typical of their type. The cosmic web is a survey, with gaps,
+        their measured size, brightness and tilt, with the shape typical of their type. Round the black hole at the Galaxy’s
+        centre the crowd of stars and the glowing gas falling in are models too. The cosmic web is a survey, with gaps,
         and the map of the oldest light is contrast enhanced. <Ch to="universe" /> says what each of them is.
       </p>
       <p>
@@ -293,12 +295,12 @@ const SCREEN_PARTS: [number, ReactNode, ReactNode][] = [
   [
     7,
     'View',
-    'Display layers (the constellations, planet hosts, the cosmic web, the CMB map), body size and optics; the instrument panel and physics hints; the guide, the keys and About. Below 900 pixels it shows as an icon.',
+    'Display layers (the constellations, planet hosts, the cosmic web, the CMB map), body size and optics, with gravitational lensing and the accretion flow under the optics; the instrument panel and physics hints; the guide, the keys and About. Below 900 pixels it shows as an icon.',
   ],
   [
     8,
     'The view',
-    'The simulation. Top left: what the camera is doing and its range to the target, and the cards of the cosmic web and the CMB map while they show. Top centre: status lamps. Top right: the card of the selected body. Bottom left: a scale bar; bottom right, the credits of the nebulae’s pictures in view. In flight, a panel along the bottom.',
+    'The simulation. Top left: what the camera is doing and its range to the target, and the cards of the cosmic web, the CMB map and the models round Sagittarius A* while they show. Top centre: status lamps. Top right: the card of the selected body. Bottom left: a scale bar; bottom right, the credits of the nebulae’s pictures in view. In flight, and close to a black hole, a panel along the bottom.',
   ],
   [9, 'Time', <>Pause; slower and faster, with the rate in words; Now (<Ch to="time" />).</>],
   [
@@ -366,6 +368,20 @@ function Screen() {
           [<Lamp tone="amber">1 s = 3.4 months on board</Lamp>, <>In flight: how much of your time passes each second (<Ch to="flying" />).</>],
           [<Lamp tone="amber">Free flight</Lamp>, <>You are flying the camera by hand (<Ch to="looking" />).</>],
           [
+            <Lamp tone="amber">Home ×10.05</Lamp>,
+            <>
+              Near a black hole: home’s clock runs this many times faster than a clock hovering here, because the hole’s
+              gravity slows time where you are. It lights from ×1.01 (<Ch to="time" />).
+            </>,
+          ],
+          [
+            <Lamp tone="red">Falling</Lamp>,
+            <>
+              You are falling freely into a black hole; in reality there is no way back (Stop the fall resets you,{' '}
+              <Ch to="flying" />).
+            </>,
+          ],
+          [
             <Lamp tone="cyan">Relativistic optics</Lamp>,
             <>
               The view shows aberration and Doppler shift; in split screen the lamp reads <i>Split optics</i> (
@@ -412,12 +428,19 @@ function Looking() {
           [<Kbd key="h">H</Kbd>, 'Return to Earth'],
         ]}
       />
+      <p>
+        Round a black hole the camera <i>hovers</i>: it holds its place against the hole’s pull, as a rocket would, and
+        scrolling moves it in height above the horizon rather than in distance from the centre, down to a millionth of the
+        horizon’s radius above it (12.7 km above the horizon of Sagittarius A*, 27 mm above Gaia BH1’s). Close in, a panel
+        along the bottom of the view says how much slower your clock runs than home’s, how hard the rocket must push, and how
+        strong the tides are (<Ch to="flying" />).
+      </p>
 
       <H3>Where to?</H3>
       <p>
         <b>Where to?</b> in the header (or <Kbd>/</Kbd>, or <Kbd>Ctrl</Kbd>+<Kbd>K</Kbd>) finds any place by name: a planet or a
-        moon, a spacecraft, any of the 330,000 stars, a planet of another star, a star cluster, a nebula, a galaxy, the cosmic
-        web. It forgives
+        moon, a spacecraft, any of the 330,000 stars, a planet of another star, a star cluster, a nebula, a black hole, a
+        galaxy, the cosmic web. It forgives
         part of a name (<i>prox</i>), a nickname (<i>Luna</i>, <i>the red planet</i>) and a slip of the keyboard (
         <i>Satrun</i>). Each result gives what it is, how far away it is and how long its light takes to reach you (for a
         galaxy in the expanding universe, how long ago the light now arriving left it); the
@@ -446,8 +469,8 @@ function Looking() {
         press its key: <Kbd>0</Kbd> for the Sun, <Kbd>1</Kbd> to <Kbd>9</Kbd> for Mercury to Pluto, <Kbd>M</Kbd> for the Moon
         and <Kbd>V</Kbd> for Voyager 1. In <b>Bodies</b> the moons sit under their planets (the ▸ beside a planet opens its
         moons), followed by the dwarf planets, asteroids and Kuiper belt objects, comets, interstellar visitors, spacecraft,
-        stars, planets of other stars, and then the Milky Way (the Galaxy itself, Sagittarius A* with its stars, and the
-        galaxies that orbit it), the star clusters (open, then globular), the nebulae (where stars are born, what dying stars
+        stars, planets of other stars, and then the Milky Way (the Galaxy itself, Sagittarius A* with its stars, the other
+        black holes, each paired with its star where it has one, and the galaxies that orbit it), the star clusters (open, then globular), the nebulae (where stars are born, what dying stars
         shed, and those in the Magellanic Clouds), the other galaxies (the Local Group, those beyond it and the most distant
         known) and the clusters, the cosmic web and the CMB map. Under <b>Bodies › Stars</b> the named stars are sorted into those within 16 light-years, those with planets and
         the bright ones, and a star system (Alpha Centauri, Sirius) has a row of its own with its stars and planets under it;
@@ -505,8 +528,24 @@ function Looking() {
           ],
           [<>Readouts over the view <Kbd>U</Kbd></>, <>The camera readout and scale bar; in flight also the reticle and the apex markers (<Ch to="readings" />).</>],
           ['Light-time correction', 'Draw each body where it was when the light now reaching you left it.'],
+          [
+            'Gravitational lensing',
+            <>
+              Under the optics, and on by default: light bent by the black hole that bends it most where you are (
+              <Ch to="seeing" />). Off, light is drawn straight, so the black hole and its resolved gas cannot be seen (from far
+              away its gas still shows as a point).
+            </>,
+          ],
+          [
+            'Accretion flow',
+            'On by default: a model of the hot gas falling into Sagittarius A*, a bright point from far away and a ring bent round the shadow close by. Off, the black hole shows against the sky alone. The scenes made to show the lens switch it off, and say so.',
+          ],
         ]}
       />
+      <p>
+        Neither of the last two is remembered between visits: each starts on, so that a black hole never goes missing on
+        your next visit because of a switch you forgot.
+      </p>
 
       <H3>Free flight</H3>
       <p>
@@ -539,7 +578,9 @@ function Looking() {
       />
       <p>
         Free flight is for sightseeing. The throttle is shown in the status bar at the bottom right, and the relativistic
-        optics switch on above 0.01<i>c</i>, but only planned flights count as trips.
+        optics switch on above 0.01<i>c</i>, but only planned flights count as trips. Near a black hole the throttle is your
+        speed past observers hovering there: the engine is taken to hold the ship against the hole’s pull, and the panel
+        along the bottom gives the thrust your motion takes.
       </p>
     </Chapter>
   );
@@ -551,6 +592,7 @@ const OUT_THERE: Reading[] = [
   { slug: 'what-stars-are-made-of', title: 'What stars are made of', what: 'Spectra, what makes a star shine, and how stars live and die.' },
   { slug: 'other-worlds', title: 'Other worlds', what: 'How the planets of other stars were found, from wobbles and shadows to pictures.' },
   { slug: 'our-galaxy', title: 'Our galaxy', what: 'How the Milky Way was mapped from inside, and the black hole at its centre weighed.' },
+  { slug: 'black-holes', title: 'Black holes', what: 'What one would look like up close, how the real ones were found, and what falling into one would be like.' },
   { slug: 'island-universes', title: 'Island universes', what: 'How the spiral nebulae turned out to be other galaxies, and Andromeda’s approach.' },
   { slug: 'the-expanding-universe', title: 'The expanding universe', what: 'Redshifts, the expansion, and the oldest light there is.' },
   { slug: 'the-edge-of-reach', title: 'The edge of reach', what: 'Why some galaxies we can see could never be reached, even at the speed of light.' },
@@ -629,14 +671,52 @@ function Universe() {
         view carries its credit and a note of how it was changed, on its body card and in the corner of the view.
       </p>
       <p>
-        At the centre is Sagittarius A*, a black hole of 4.3 million solar masses 27,000 light-years away, drawn as a black
-        disc the size of its shadow, with the four stars whose orbits round it are published under an open licence (S2 goes
-        round every 16 years). Other published orbits exist but are not licensed for reuse.
+        At the centre is Sagittarius A*, a black hole of 4.3 million solar masses 27,000 light-years away, with the four stars
+        whose orbits round it are published under an open licence (S2 goes round every 16 years, turning slowly as general
+        relativity says). Other published orbits exist but are not licensed for reuse. The black hole itself, and the others
+        Lightspeed shows, have a section of their own below.
       </p>
       <TryRow>
         <Try run={() => runScene('milky-way-outside')}>See the Milky Way from outside</Try>
         <Try run={() => runScene('galactic-centre-orbits')}>Watch S2 go round</Try>
       </TryRow>
+
+      <div id="doc-black-holes">
+        <H3>Black holes</H3>
+        <p>
+          Eleven real black holes are in the sky. <b>Sagittarius A*</b> is at the centre of the Milky Way, and <b>M87*</b>,
+          6.5 billion times the Sun’s mass, at the heart of the galaxy M87, 55 million light-years away. The rest are a few
+          times the Sun’s mass and are known by what they do to a star: <b>Gaia BH1</b>, 1,570 light-years away and the
+          nearest known, <b>Gaia BH2</b> and <b>Gaia BH3</b> (at 32.7 solar masses the heaviest stellar black hole known in
+          the Galaxy) were found by the wobble of a companion star in the Gaia satellite’s measurements; <b>Cygnus X-1</b>,{' '}
+          <b>V404 Cygni</b>, <b>A0620-00</b>, <b>MAXI J1820+070</b> and <b>XTE J1118+480</b> by the X-rays of the gas they
+          pull off theirs. Each of these eight goes round with its star on the published orbit, and the Bodies list shows
+          each beside its star. <b>OGLE-2011-BLG-0462</b> is alone: it was found by the way it bent and brightened the light
+          of a star behind it.
+        </p>
+        <p>
+          A black hole has no surface to draw. What you see is its <b>lens</b>: the light of everything behind and around
+          it, bent by its gravity, worked out exactly for a black hole that does not spin (<Ch to="seeing" /> says how to
+          read it). From <b>Go there</b>’s distance of 4,000 au, Sagittarius A*’s dark shadow is far below a pixel, but the
+          stars behind it are pushed into a ring 0.75° across. Come closer and the shadow grows: 28.5° across at ten times
+          the radius of its horizon, and at the horizon itself the whole sky is squeezed into a disc overhead. Its card says
+          how big it looks from where you are, and how much slower your clock runs there.
+        </p>
+        <p>
+          Round Sagittarius A* two models fill in what is known but cannot be seen from Earth. One is the hot, thin gas
+          falling into it, fitted to its measured spectrum: from 4,000 au a point of magnitude −11, a fifth as bright as the
+          full Moon, and close by a lopsided ring round the shadow (<b>View › Accretion flow</b>). The other is the Galaxy’s{' '}
+          <b>nuclear star cluster</b>, millions of stars within a few parsecs of the hole, drawn as 60,000 stars and a glow
+          whose numbers, brightness and colours follow published fits. From near the hole they make the sky bright: seen
+          from 4,000 au a few young stars a few hundredths of a parsec away each outshine the full Moon from Earth hundreds
+          of times over. The card of each black hole says what else is assumed, and <b>What is modelled here</b> on it leads
+          to the full list.
+        </p>
+        <TryRow>
+          <Try run={() => runScene('sgr-a-star-shadow')}>See the shadow of Sgr A*</Try>
+          <Try run={() => runScene('fall-into-sgr-a-star')}>Fall into Sgr A*</Try>
+        </TryRow>
+      </div>
 
       <H3>Other galaxies</H3>
       <p>
@@ -738,6 +818,98 @@ function Universe() {
         <li>
           <b>Flights beyond the Local Group</b> assume a perfect engine and a destination that moves with the expansion of the
           universe.
+        </li>
+      </ul>
+      {/* A black hole's card links here (ui/viewport/BodyCard.tsx, "What is modelled here"). */}
+      <p id="doc-hole-models">Near the black holes:</p>
+      <ul>
+        <li>
+          <b>Spacetime is curved only near one black hole at a time.</b> Near the black hole whose lens matters most, light
+          is bent exactly and clocks slow; everywhere else, and for every other black hole at the same moment, gravity bends
+          neither light nor flights (the expansion of the universe and the S-stars’ precession apart), and no other
+          gravitational time dilation is applied. The others’ lenses are then far below a pixel.
+        </li>
+        <li>
+          <b>Drawn without spin.</b> Every black hole is drawn as one that does not spin (Schwarzschild’s solution): no
+          black hole’s spin is measured well enough to draw (Sagittarius A*’s estimates run from under 0.1 to 0.9 of the
+          most a black hole can spin; M87*’s is not measured; Cygnus X-1’s is claimed above 0.998). Spin makes a shadow
+          smaller by less than about 8 %, the Event Horizon Telescope’s figure: at the angle we see Sgr A* from, about 25°
+          from its axis, a spin of 0.9 to 0.94 would make its shadow about 5 to 7 % smaller and shift it by about 1 M
+          (GM/c², 6.3 million km); seen edge-on, a fast spin makes a shadow up to about 12 % narrower and 2.4 M off-centre,
+          one side flattened.
+        </li>
+        <li>
+          <b>Inside the shadow there is nothing to see.</b> A black hole formed by a collapsing star has no white hole behind
+          it: light traced back into the shadow ends on the collapsed matter, whose light faded long ago.
+        </li>
+        <li>
+          <b>The glow of the sky near the ring</b> (the Milky Way, the Galaxy’s particles, the galaxies, the nuclear cluster’s
+          glow) is resampled from pictures of a quarter of the screen’s resolution as if its light came from very far away
+          (the nuclear cluster’s own glow partly does not) and, in flight, recoloured with an approximate spectral model.
+          The stars keep their exact colours.
+        </li>
+        <li>
+          <b>Guides</b> (constellation figures, planet-host and cluster rings, orbit lines) follow a star’s or a body’s
+          main image only; the ecliptic grid is not bent. <b>Nebula pictures</b> bend only as far as their 9 × 9 grids of
+          points allow and have no second image; <b>the cosmic web</b> is a map and follows its main image (and its second
+          near M87*); <b>galaxies</b> keep the look they have unbent, a single splat or a template, while their light is
+          bent.
+        </li>
+        <li>
+          <b>A star exactly behind a black hole</b> would be magnified without limit if it were a point: its own disc caps
+          the brightening. The ring it makes is drawn for the Sun, the S-stars and the companions; a catalogue star shows as
+          two points.
+        </li>
+        <li>
+          <b>The engine holds the ship.</b> Near a black hole your motion is measured against observers hovering there
+          (falling, against observers falling from rest far away), and the rocket is assumed to supply whatever thrust that
+          takes. Hovering is allowed even where the tides would tear a ship apart, as the physics of hovering is; the panel
+          along the bottom says so in red.
+        </li>
+        <li>
+          <b>Time near a black hole.</b> The rate paces a clock hovering where you are; home’s clock is one far from every
+          mass. Only the black hole’s gravity is included (the Sun’s and the Galaxy’s, parts in 10
+          <sup className="sup">8</sup> and 10<sup className="sup">6</sup>, are left out), and only where it passes 5 parts
+          in 10<sup className="sup">10</sup>.
+        </li>
+        <li>
+          <b>A fall</b> shows home’s clock on the clocks of observers falling freely beside you (Painlevé–Gullstrand time), a
+          convention: observers hovering outside would say you never cross the horizon. What you would actually see of home,
+          overhead, is shown too. The first stretch plays in 20 s and the last in 80 s: real time at Sgr A*, 25 minutes
+          aboard a second at M87*. The fall ends where tides pull a ship apart, 0.03 s before the centre, where general relativity predicts a
+          singularity and stops working; stopping puts you back where you let go. Falls into the stellar-mass black holes
+          are not offered: their tides tear a ship apart 27 to 78 horizon radii out.
+        </li>
+        <li>
+          <b>The flight planner ignores gravity</b>, so it will not leave from within 30 horizon radii of a black hole.
+        </li>
+        <li>
+          <b>The gas round Sagittarius A*</b> is a model: a hot, thin flow of the kind Broderick and Loeb described (2006),
+          fitted to Sgr A*’s spectrum from radio waves to the near infrared, and turned like the flares seen by GRAVITY (a
+          model choice), drawn outside the horizon only. Its visible light has never been seen (some 30 magnitudes of dust
+          are in the way) and is carried over from the infrared: uncertain about three times either way, and eight times
+          fainter in a pessimistic model. It is smooth and steady, where the real flow flickers tenfold within hours. The
+          scenes that show the lens switch it off. <b>The 1.3 mm view</b> on its card is the model’s brightness at the Event
+          Horizon Telescope’s wavelength in false colour (blurred to the EHT’s resolution when asked), not the EHT’s own
+          picture, which the card links to beside it.
+        </li>
+        <li>
+          <b>The stars round Sagittarius A*</b> within a few parsecs are a statistical model of the nuclear star cluster and
+          disc: their numbers, brightness and colours follow published fits, but none is a real star except S2, S29, S38
+          and S55. Stars fainter than those drawn, and any within 0.01 pc of you, are a smooth glow.{' '}
+          <b>M87’s own starlight</b> round M87* is a smooth model of its measured light profile, not stars.
+        </li>
+        <li>
+          <b>Not drawn:</b> the X-ray binaries’ discs of hot gas, Cygnus X-1’s jet and wind, M87*’s jet, V404 Cygni’s
+          distant third star, and <b>the dust</b> near the black holes: the Sun seen from beyond Sgr A* would really be
+          dimmed by some 30 magnitudes.
+        </li>
+        <li>
+          <b>The classical view near a moving black hole</b> shows an observer at rest relative to the Sun, as the classical
+          view does everywhere; hovering there differs by the hole’s speed, at most 0.19 % of <i>c</i> (Gaia BH3, 570 km/s).
+        </li>
+        <li>
+          <b>The lab</b> takes no reading near a black hole: its experiments assume flat spacetime.
         </li>
       </ul>
       <p>
@@ -845,15 +1017,36 @@ function Time() {
       <p>
         <Kbd>Space</Kbd> or <Kbd>P</Kbd> pauses and resumes (in free flight only <Kbd>P</Kbd>, since Space is up). <b>Now</b>{' '}
         (<Kbd>N</Kbd>) returns to the present at real time and restarts both clocks on the instrument panel from zero. It is
-        unavailable during a flight: a traveller’s clock cannot be wound back.
+        unavailable during a flight and during a fall into a black hole: a traveller’s clock cannot be wound back. Close to a
+        black hole it still sets the present date, but the clock cannot then keep pace with the computer’s, because your
+        clock runs slow there (below).
       </p>
 
       <H3>Two clocks</H3>
       <p>
         Section B of the instrument panel holds two clocks. <i>t</i> is <i>coordinate time</i>, kept by clocks at rest relative
-        to the Sun. <i>τ</i> is <i>proper time</i>, kept by a clock travelling with you. Even while you orbit Earth, <i>τ</i>{' '}
-        falls behind <i>t</i> by about 5 parts in <P10 n={9} />, because Earth carries you round the Sun at 30 km/s. In flight
-        the difference grows to minutes, hours or years. <b>Zero</b> sets both clocks to zero.
+        to the Sun, far from any black hole. <i>τ</i> is <i>proper time</i>, kept by a clock travelling with you. Even while
+        you orbit Earth, <i>τ</i> falls behind <i>t</i> by about 5 parts in <P10 n={9} />, because Earth carries you round the
+        Sun at 30 km/s. In flight the difference grows to minutes, hours or years; near a black hole, gravity slows <i>τ</i>{' '}
+        as well. <b>Zero</b> sets both clocks to zero.
+      </p>
+
+      <H3>Near a black hole</H3>
+      <p>
+        Gravity slows time. A clock hovering at a distance <i>r</i> from a black hole’s centre runs at √(1 − <i>r</i>
+        <sub>s</sub>/<i>r</i>) of a clock far away, where <i>r</i>
+        <sub>s</sub> is the radius of its horizon: at ten times that radius from Sagittarius A* at 0.9487 of home’s rate, so
+        home’s clock runs 1.054 times faster than yours; one per cent above the horizon ten times faster; at the closest the
+        camera goes, a thousand times. Within 5,000 horizon radii of a black hole (424 au from Sgr A*, 140,000 km from Gaia
+        BH1) the difference passes a part in ten thousand, and the rate then paces <i>your</i> clock: one per cent above
+        Sgr A*’s horizon the footer reads <i>1 s = 1 s here · 10 s at home</i>, the date turns amber, and the lamp at the
+        top of the view says how much faster home’s clock runs (<i>Home ×10.05</i>). The panel along the bottom says it in
+        words, <i>your clock runs 10.05× slower than home’s</i>, with both clocks beside it.
+      </p>
+      <p>
+        On a circular orbit your clock runs slower still, by your speed as well (at the innermost stable orbit of Sgr A*,
+        where you pass the hovering observers at half the speed of light, at 0.7071 of home’s rate). Falling in, home’s clock
+        is shown on the clocks of observers falling freely beside you, a convention (<Ch to="flying" />).
       </p>
     </Chapter>
   );
@@ -967,8 +1160,47 @@ function Flying() {
         allow for (it does not stretch gravitationally bound systems). A 1 g flight to the black hole at the centre takes about
         20 years by your clock and about 27,000 years at home. The same holds within the Local Group: a 1 g flight to
         Andromeda takes about 29 years aboard and 2.5 million years at home. Farther out, the expansion of the universe matters.
+        Flights ignore gravity, so the planner will not leave from within 30 horizon radii of a black hole, where it would
+        matter: <i>Climb out first</i>. Arriving is fine.
       </p>
       <GuideFlightsBeyond />
+
+      <H3>Near a black hole</H3>
+      <p>
+        Close to a black hole a panel along the bottom of the view takes the flight panel’s place (it never shows during a
+        trip). Hovering, it gives how much slower your clock runs than home’s, both clocks, your height above the horizon,
+        the thrust hovering takes (3,806 g ten horizon radii from Sagittarius A*, 3.6 million g one per cent above its
+        horizon) and the tides across a 2 m ship, with a gauge of height from the horizon to 10,000 horizon radii marked where
+        light can circle the hole and at the innermost stable orbit. Where the tides would tear a ship apart it says so in
+        red; hovering there is still allowed, as the physics of hovering is.
+      </p>
+      <p>
+        Scenes use two more ways of moving. A <b>circular orbit</b> needs no engine: the innermost stable one, three horizon
+        radii out, goes round Sagittarius A* in 23.0 minutes by your clock and 32.6 by home’s. A <b>snapshot</b> holds one
+        moment still, the clock paused, and shows it as a ship passing at a given speed would see it. Any touch of the
+        controls ends either.
+      </p>
+      <p>
+        <b>Falling.</b> Hovering over a supermassive black hole (Sagittarius A* or M87*), the panel offers <b>Let go</b>:
+        after one confirmation you fall freely from rest where you are, through the horizon. The journey <i>Fall into a
+        black hole</i> drops you instead from ten horizon radii out as if from rest far away. The fall plays by your own
+        clock, the stretch to twice the horizon’s radius in 20 s and the rest, to the end, in 80 s; at Sgr A* that last part
+        is real time (the whole fall from ten horizon radii takes 864 s by your clock to the horizon and 28.2 s more to the
+        end). <Kbd>[</Kbd> and <Kbd>]</Kbd> change the pace. The panel gives your clock, home’s, the radius, the time left
+        and your speed past the hovering observers; inside the horizon, that nothing can hover. Nothing marks the crossing:
+        the dark patch ahead is wider than the view, but the rest of the sky is still there round it. The fall ends where
+        the tides pull a ship apart, 0.03 s before the centre. <b>Stop the fall</b> ends it at any time (<Kbd>Esc</Kbd> does
+        not). Either way you are put back hovering where you let go, with home’s clock kept: nothing leaves a black hole, so
+        this is a reset, not a journey. During a fall, journeys, scenes, dates and Now wait.
+      </p>
+      <p>
+        Falls into the stellar-mass black holes are not offered: their tides would tear a ship apart 27 to 78 horizon radii
+        out, long before it reached the horizon.
+      </p>
+      <TryRow>
+        <Try run={() => runScene('fall-into-sgr-a-star')}>Fall into Sgr A*</Try>
+        <Try run={() => runScene('isco-orbit')}>Orbit Sgr A* at the innermost stable orbit</Try>
+      </TryRow>
       <Note title="Faster than light" tone="hazard">
         Nothing with mass can reach <i>c</i>: the energy needed grows without limit as <i>β</i> approaches 1. The superluminal
         drive exists to show why. During it the Lorentz factor is imaginary, time on board has no meaning, and some observers
@@ -993,6 +1225,7 @@ const SEEING: Reading[] = [
   { slug: 'time-dilation', title: 'Time dilation is real', what: 'Why your clock falls behind Earth’s in flight, the twin paradox, and the experiments that prove it.' },
   { slug: 'seeing-near-light-speed', title: 'What you would see near the speed of light', what: `Aberration, the Doppler shift and beaming: the sky of Figure ${chapterNo('seeing')}.1.` },
   { slug: 'rockets-to-the-stars', title: 'Rockets to the stars', what: 'The 1 g flip-and-burn, and the fuel it would need.' },
+  { slug: 'black-holes', title: 'Black holes', what: 'The shadow, the Einstein ring and the photon ring, clocks near the horizon, and what falling in would look like.' },
 ];
 
 /** A list of Learn articles, each with a line on what it tells. */
@@ -1019,7 +1252,7 @@ function Seeing() {
       id="seeing"
       n={chapterNo('seeing')}
       title="What you are seeing"
-      lead="Near the speed of light the sky and the clocks behave strangely, and every bit of it is real physics. Learn tells the full stories; this chapter points to them."
+      lead="Near the speed of light, and near a black hole, the sky and the clocks behave strangely, and every bit of it is real physics. Learn tells the full stories; this chapter points to them."
     >
       <Reads list={SEEING} />
       <TryRow>
@@ -1051,14 +1284,76 @@ function Seeing() {
       </Fig>
       <p>
         <b>View › Optics</b> offers three models: <b>Relativistic</b>; <b>Classical</b>, which draws the sky as it is in the
-        Sun’s frame; and <b>Split</b> (<Kbd>X</Kbd>), with classical on the left and relativistic on the right of a divider you
-        can drag. <Kbd>Z</Kbd> switches between classical and relativistic. All three look the same at rest: the difference
-        appears in flight, above 0.01<i>c</i>. To see the crowding on its own, turn off <i>Doppler shift and beaming</i> in
-        section D of the instrument panel.
+        frame of an observer at rest (relative to the Sun; near a black hole, hovering there); and <b>Split</b> (
+        <Kbd>X</Kbd>), with classical on the left and relativistic on the right of a divider you can drag. <Kbd>Z</Kbd>{' '}
+        switches between classical and relativistic. All three look the same at rest: the difference appears in flight,
+        above 0.01<i>c</i>. A black hole’s lens is not a matter of your speed, so it shows in all three, at rest too. To see
+        the crowding on its own, turn off <i>Doppler shift and beaming</i> in section D of the instrument panel.
       </p>
       <TryRow>
         <Try run={() => useUI.setState({ relMode: 'split' })}>Split the view (for your next flight)</Try>
       </TryRow>
+
+      <div id="doc-the-lens">
+        <H3>The lens</H3>
+        <p>
+          A black hole bends the light that passes it, and Lightspeed draws that bending exactly, for every star, every
+          glow and every body in view, as it would be for a black hole that does not spin. Five things to look for:
+        </p>
+        <ul>
+          <li>
+            <b>The shadow.</b> Light aimed too close to the hole falls in, so a dark disc covers the part of the sky it would
+            have come from. From far away it is 2.6 times the size the horizon would be if light went straight (Sagittarius
+            A*’s is 53 millionths of an arcsecond across seen from Earth, about the size of the ring of light the Event
+            Horizon Telescope imaged round it); close in it grows, to 28.5° across hovering ten horizon radii out, half the
+            sky at one and a half, and all but a disc overhead just above the horizon.
+          </li>
+          <li>
+            <b>The Einstein ring.</b> Whatever lies exactly behind the hole is spread into a ring round it. Everything else
+            behind it is seen twice: once outside the ring, and once inside it, mirrored and fainter. Stars near the hole
+            therefore appear in pairs on opposite sides of it (point at the second image of S2 and its label says it is bent
+            round Sgr A*), and a body passing exactly behind, such as the Sun or S2, spreads into arcs and a ring. From
+            4,000 au Sgr A*’s ring is 0.75° across; from ten horizon radii, 59.7°.
+          </li>
+          <li>
+            <b>The photon ring.</b> Just outside the shadow’s edge a thin bright band holds light that went round the hole
+            once, twice or more before reaching you: a whole copy of the sky in each, squeezed ever thinner. It is drawn with
+            several rays a pixel so that it stays smooth.
+          </li>
+          <li>
+            <b>The blueshift.</b> Hovering near a black hole you are held against its pull, and the light falling in to you
+            gains energy: every star looks bluer and brighter, by the same factor home’s clock runs faster than yours (1.054
+            ten horizon radii out, ten times one per cent above the horizon). The view dims itself to match, as a camera
+            would, and dims further when the glowing gas fills it; section D of the instrument panel shows the exposure.
+          </li>
+          <li>
+            <b>Your own motion</b> reshapes all of it, as it does the rest of the sky. Diving in at 0.9<i>c</i> the shadow
+            ten horizon radii out shrinks from 28.5° to 6.6° across; climbing out at the same speed it swells to 114°.
+          </li>
+        </ul>
+        <p>
+          In the split view near a black hole the left half is labelled <i>HOVERING</i>, the view of an observer at rest
+          there (near a moving black hole <i>AT REST (SUN)</i>, at rest relative to the Sun as everywhere else; during a fall{' '}
+          <i>FALLING FROM REST</i>, the view of a raindrop falling from far away), and the right half{' '}
+          <i>SHIP</i>, as seen from the ship: the lens shows in both. <b>View › Gravitational lensing</b> turns it off, and
+          light is drawn straight: the black hole then cannot be seen. Only the black hole whose lens is largest where you are
+          bends light; the others’ are then far below a pixel.
+        </p>
+        <p>
+          Every black hole is drawn without spin, because no black hole’s spin is measured well enough to draw: a fast spin
+          would make Sagittarius A*’s shadow about 5 to 7 % smaller as we see it and shift it by about half its horizon’s
+          radius, and a shadow seen
+          edge-on up to 12 % narrower, one side flattened (the full note is under What is a model, <Ch to="universe" />).
+          Inside the shadow there is nothing: a black hole made by a collapsing star has no other side to see. On
+          Sagittarius A*’s card, next to the Event Horizon Telescope’s own picture or a link to it, a switch draws the model
+          of its gas at the EHT’s wavelength, 1.3 mm, in false colour, blurred to the EHT’s resolution if you ask: a model to
+          compare, not the EHT’s image.
+        </p>
+        <TryRow>
+          <Try run={() => runScene('sgr-a-star-einstein-ring')}>See Sgr A*’s Einstein ring</Try>
+          <Try run={() => runScene('photon-ring')}>See the photon ring</Try>
+        </TryRow>
+      </div>
       <p>
         With <b>View › Physics hints</b> on, a note in the corner points to the right article the first time each of these
         things happens. For students, the lab’s <b>Reference</b> tab has the same physics in ten short sections with their
@@ -1086,10 +1381,10 @@ function Readings() {
         <tbody>
           {(
             [
-              ['A', 'Observer', 'Your distance from the Sun and your direction; speed v and β = v/c; the Lorentz factor γ; rapidity; how fast your clock runs; kinetic energy per kilogram.'],
+              ['A', 'Observer', 'Your distance from the Sun and your direction; speed v and β = v/c; the Lorentz factor γ; rapidity; how fast your clock runs; kinetic energy per kilogram. Near a black hole also whom your motion is measured against (the observers hovering there, or in a fall those falling from far away), your height above the horizon, the gravitational rate α of a hovering clock, your speed past the hovering observers, the thrust your motion takes and the tides.'],
               ['B', 'Chronometers', `Coordinate time t, your proper time τ, their difference and their ratio (Chapter ${chapterNo('time')}).`],
               ['C', 'Target', 'For the selected body: range, light-time, range rate, angular size and brightness; in motion, its angle from the apex in both frames and its Doppler factor; physical data and a short description. Buttons slew the camera, plan a flight, or emit a light pulse from the body.'],
-              ['D', 'Relativistic optics', 'Whether the relativistic view is active; the Doppler factor ahead, abeam and astern; the angle within which the forward half of the sky appears; the colour temperature of the Sun if it lay dead ahead; the reticle’s spectrometer reading.'],
+              ['D', 'Relativistic optics', 'Whether the relativistic view is active; the Doppler factor ahead, abeam and astern; the angle within which the forward half of the sky appears; the colour temperature of the Sun if it lay dead ahead; the reticle’s spectrometer reading; the automatic exposure whenever it is not zero (near a black hole, at rest too).'],
               ['E', 'Light-time', 'How old your view of Earth is, how long a signal to Earth would take, and how long ago the sunlight reaching you left the Sun.'],
               ['F', 'Spacetime diagram', 'In flight through static space only: your worldline, with ticks of ship time and your current line of simultaneity.'],
               ['G', 'Ephemeris', 'The distance from the Sun and from you, and the light-time, of the Sun, the planets, Pluto, the Moon, Voyager 1, the stars of the named systems, the moons of the system in view, and the target. Click a row to select the body.'],
@@ -1113,11 +1408,11 @@ function Readings() {
       <H3>In the view</H3>
       <KeyTable
         rows={[
-          ['Body card', 'Top right, for the selected body: what it is, its range and light-time, three facts, and Go there, Fly here, Read and Details. × closes it; the next selection brings it back.'],
+          ['Body card', 'Top right, for the selected body: what it is, its range and light-time, three facts, and Go there, Fly here, Read and Details. For a black hole, your height above its horizon instead of the range, and what it looks like from here: the shadow’s and the Einstein ring’s size, how much slower your clock runs, the thrust hovering takes. × closes it; the next selection brings it back.'],
           ['Flight panel', <>Along the bottom in flight: speed, your clock, the clock at home and the distance left (<Ch to="flying" />).</>],
           ['Reticle', <>In motion, marks the centre of the view. Its spectrometer reads the angle <i>θ</i>′ from the apex and the Doppler factor <i>D</i> there.</>],
           ['APEX, ANTAPEX', 'The directions you are heading towards and away from.'],
-          ['Scale bar', 'A length at the distance of the body named beside it. In the relativistic view it reads “scale undefined”, since the scale varies across the sky.'],
+          ['Scale bar', 'A length at the distance of the body named beside it. In the relativistic view it reads “no single scale at this speed”, and close to a black hole “no single scale near a black hole”, since the scale then varies across the sky.'],
           ['Axis triad', 'The ecliptic axes, X towards the March equinox and Z towards ecliptic north. Shown with the grid.'],
           ['Camera readout', 'What the camera is doing and its range to the target.'],
         ]}
@@ -1155,7 +1450,8 @@ function Lab() {
       <p>
         The lab keeps every constant-speed and rocket flight as a reading, whether or not it is open. Once you have opened it,
         the arrival card also says which experiment logged the flight, and the planner says which experiment will. Flights
-        through expanding space are not logged: the experiments are about special relativity.
+        through expanding space are not logged: the experiments are about special relativity. For the same reason no
+        reading is taken near a black hole, where spacetime is not flat; the message in the corner of the view says so.
       </p>
       <TryRow>
         <Try run={() => openLab()}>Open the lab</Try>
@@ -1304,6 +1600,49 @@ function Troubleshooting() {
       </>,
     ],
     [
+      'It is slow near a black hole',
+      <>
+        The lens is the costliest thing Lightspeed draws. Near a black hole a controller watches how long the graphics chip
+        takes over each frame, and while that stays above about 8.5 ms it steps down: fewer rays in the photon ring, fewer of
+        the stars round Sagittarius A* drawn one by one (the rest join their glow, so the light stays the same), and plainer
+        pictures of the sky, and only then a lower resolution. On Windows, Chrome’s default graphics backend is the fastest:
+        switched to Vulkan (<i>Choose ANGLE graphics backend</i> in chrome://flags) these views run 2.3 to 2.8 times slower
+        on an integrated GPU.
+      </>,
+    ],
+    [
+      'The black hole is not there',
+      <>
+        On a first visit the lens appears a few seconds after the page has loaded, once its shaders have been prepared in
+        the background. If it still does not, check <b>View › Gravitational lensing</b> (it starts on at every visit). From
+        far away a black hole’s lens is smaller than a pixel: Sagittarius A*’s is drawn from within about 720 parsecs, Gaia
+        BH1’s from within 320 au.
+      </>,
+    ],
+    [
+      'The sky near Sagittarius A* is bright grey',
+      <>
+        It really is that bright there: the nuclear star cluster surrounds the black hole with a glow and thousands of stars
+        far brighter than any in Earth’s sky. The view is stopped down for that glare, as a camera would be (the
+        instrument panel’s Auto-exposure row shows by how much), so the sky shows grey and faint things in it (the Sun’s
+        ring seen from beyond the hole) can barely be picked out.
+      </>,
+    ],
+    [
+      'I can’t stop falling',
+      <>
+        Press <b>Stop the fall</b> on the panel at the bottom of the view; <Kbd>Esc</Kbd> does not end a fall. You are put
+        back hovering where you let go.
+      </>,
+    ],
+    [
+      'The planner says “Climb out first”',
+      <>
+        Flights ignore gravity, so the planner will not leave from within 30 horizon radii of a black hole. Scroll out, or
+        take the camera to another body, and plan the flight from there.
+      </>,
+    ],
+    [
       'I can’t see any planets',
       <>
         At true scale they are smaller than a pixel. Look for their labels, or press <Kbd>T</Kbd> for enlarged bodies. If the
@@ -1401,21 +1740,27 @@ function Troubleshooting() {
 
 const GLOSSARY: [ReactNode, ReactNode][] = [
   ['Aberration', 'The change in the apparent direction of light caused by the observer’s motion.'],
+  ['Accretion flow', 'The gas falling into a black hole. Sagittarius A*’s is hot, thin and faint; in Lightspeed it is a model fitted to its spectrum.'],
   ['Apex, antapex', 'The points on the sky towards which, and away from which, the observer is moving.'],
   ['Astronomical unit (au)', 'A defined length, 149,597,870.7 km, close to the mean distance from Earth to the Sun: about 8 minutes 19 seconds of light-time.'],
   [<><i>β</i> (beta)</>, <>Speed as a fraction of the speed of light, <i>v</i>/<i>c</i>.</>],
   ['Beaming', 'The brightening of light from ahead, and dimming of light from behind, seen by a fast observer.'],
   ['Comoving distance', 'The distance between two galaxies carried along by the expansion, with the expansion taken out: their distance at any moment divided by the scale factor then. Today it is their distance now.'],
   [<>Coordinate time, <i>t</i></>, 'Time kept by clocks at rest in the Sun’s frame S: the clock “at home”.'],
-  ['Cosmic event horizon', 'The distance beyond which light sent today will never arrive, because the expansion of the universe is speeding up: about 16.6 billion light-years. No ship can reach anything beyond it.'],
+  ['Cosmic event horizon', 'The distance beyond which light sent today will never arrive, because the expansion of the universe is speeding up: about 16.6 billion light-years. No ship can reach anything beyond it. Not to be confused with a black hole’s event horizon.'],
   ['Cosmic microwave background (CMB)', 'The oldest light there is, set free about 370,000 years after the Big Bang and stretched since into microwaves; it fills the sky at 2.725 K.'],
   ['Cosmic time', 'Time since the Big Bang, as kept by clocks at rest in the expanding universe: 13.8 billion years today. On flights through expanding space it is the clock at home.'],
   ['Cosmic web', 'The pattern of galaxies on the largest scales: walls and filaments round nearly empty voids.'],
   [<>Doppler factor, <i>D</i></>, <>The ratio of observed to emitted frequency. <i>D</i> greater than 1 is a blueshift.</>],
   ['Ecliptic', 'The plane of Earth’s orbit, and the circle it traces on the sky; the reference plane for the coordinates used here.'],
+  ['Einstein ring', 'The ring into which a black hole (or any mass) spreads the light of what lies exactly behind it. Everything else behind it is seen twice, once outside the ring and once, mirrored, inside it.'],
   ['Epoch', 'The instant being simulated: the date on the chip in the header.'],
+  ['Event horizon', <>A black hole’s point of no return: a sphere of radius <i>r</i><sub>s</sub> = 2<i>GM</i>/<i>c</i><sup className="sup">2</sup> for one that does not spin (12.7 million km for Sagittarius A*, 27 km for Gaia BH1). Nothing inside it can get out, or even stay where it is.</>],
   ['Frame, S and S′', 'S is the rest frame of the Sun; S′ is the frame moving with the observer.'],
   [<><i>γ</i> (gamma), Lorentz factor</>, <>1/√(1 − <i>β</i><sup className="sup">2</sup>): the factor by which moving clocks run slow and moving lengths contract.</>],
+  ['Gravitational lensing', 'The bending of light by gravity, which moves, brightens, doubles and rings the images of what lies behind a mass.'],
+  ['Gravitational time dilation', <>The slowing of clocks by gravity: a clock hovering at <i>r</i> from a black hole runs at √(1 − <i>r</i><sub>s</sub>/<i>r</i>) of one far away.</>],
+  ['Hovering observer', 'An observer held at a fixed distance from a black hole by a rocket. Near a black hole Lightspeed measures your motion against them.'],
   ['Journey', `One of the ${countWord(JOURNEYS.length)} set pieces under Journeys: a flight from Earth, or a scene with the clock set, with a line on what to look for.`],
   [<>Lambda-CDM (<i>Λ</i>CDM)</>, 'The standard model of cosmology: a flat universe of ordinary matter, cold dark matter and dark energy in the form of a cosmological constant, Λ. Lightspeed uses it with the values measured by the Planck satellite (2018).'],
   ['Light-time', 'How long light takes to cover a given distance.'],
@@ -1423,11 +1768,14 @@ const GLOSSARY: [ReactNode, ReactNode][] = [
   ['Local Group', 'The Milky Way, Andromeda, Triangulum and dozens of smaller galaxies, held together by gravity within about a megaparsec; inside it space does not expand.'],
   ['Opposition', 'The time when a planet stands opposite the Sun in Earth’s sky, near its closest to Earth.'],
   ['Parsec (pc)', 'The distance at which one astronomical unit spans one second of arc: 3.26 light-years. A kiloparsec (kpc) is a thousand parsecs, a megaparsec (Mpc) a million.'],
+  ['Photon ring', 'A thin band just outside a black hole’s shadow holding light that went round the hole once or more on its way to you: squeezed copies of the whole sky, one inside the next.'],
   [<>Proper time, <i>τ</i> (tau)</>, 'Time kept by a clock travelling with the observer: “your clock”.'],
+  ['Raindrop', 'An observer falling freely into a black hole from rest far away. Its view stays regular through the horizon; Lightspeed shows a fall from its frame, and home’s clock on its clocks.'],
   [<>Rapidity, <i>φ</i> (phi)</>, <>artanh <i>β</i>: a measure of speed that adds simply for successive boosts along a line, and grows in proportion to proper time at constant acceleration.</>],
   [<>Redshift, <i>z</i></>, <>How much light has been stretched on its way: 1 + <i>z</i> is the wavelength received over the wavelength sent. For distant galaxies most of it is the expansion of space.</>],
   [<>Reduced chi-squared, <i>χ</i><sup className="sup">2</sup>/<i>ν</i></>, 'The sum of squared residuals, each divided by its variance, over the degrees of freedom. About 1 for a good fit with honest error bars.'],
   [<>Scale factor, <i>a</i></>, 'How far space has stretched: distances between galaxies far apart grow in proportion to it. It is 1 today.'],
+  ['Shadow (of a black hole)', 'The dark patch a black hole makes on the sky: the directions from which no light can reach you, because light aimed there falls in. Seen from far away it is 2.6 times the size of the horizon.'],
   ['Simulation rate', <>Simulated seconds per real second, from 1 to {rich(`10${superscript(Math.round(Math.log10(WARP_STEPS[WARP_STEPS.length - 1])))}`)}.</>],
   ['True scale', 'Every body drawn at its real size and at its real distance.'],
   ['Worldline', 'The path of an object through spacetime.'],

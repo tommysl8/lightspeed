@@ -35,3 +35,12 @@ export function useTicker(hz = 4, active = true): number {
   const div = Math.max(1, Math.round(1000 / hz / BASE_MS));
   return useSyncExternalStore(active ? subscribe : idle, () => (active ? Math.floor(tick / div) : -1));
 }
+
+/**
+ * A value of the simulation's state, `get()` (a string, number or boolean), read on the shared clock but
+ * re-rendering only when it changes: whether a panel should show at all, so a hidden one costs a call of
+ * `get` twenty times a second and no render.
+ */
+export function useSimValue<T extends string | number | boolean | null>(get: () => T): T {
+  return useSyncExternalStore(subscribe, get);
+}

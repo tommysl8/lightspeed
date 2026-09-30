@@ -2,12 +2,22 @@
  * Static viewport furniture: viewfinder corners, view information, annunciator lamps, the
  * event console, the split-view divider, the body card and physics notes, journey notes,
  * and the warning band shown while the fictional warp is engaged.
+ *
+ * Near a black hole: the range to it is its height above the horizon (exact, sim/gravity.ts), the
+ * lamps say how much faster home's clock runs ("Home ×N") and when a fall is under way, and the split
+ * view's halves are named for who sees them (an observer hovering there, or a raindrop in a fall, and
+ * the ship), since the left half is no longer free of Doppler shifts: the hole's lens and its blueshift
+ * show at rest too.
  */
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { bodyName } from '../../sim/bodies';
 import { explainerById } from '../../content/explainers';
-import { qty } from '../../lib/sci';
+import { qty, sig } from '../../lib/sci';
+import { heightParts } from '../deepSkyText';
 import { relView } from '../../render/relativisticView';
+import { lens } from '../../render/lens/lensState';
+import { gravity } from '../../sim/gravity';
+import { holeStripShown, timesText } from '../flight/HoleStrip';
 import { pulses } from '../../sim/pulses';
 import { sim } from '../../sim/sim';
 import { travel, tripPace } from '../../sim/travel';
@@ -42,8 +52,27 @@ function ViewInfo() {
   if (!show) return null;
   const f = sim.bodies[focus];
   if (!f) return null;
-  const r = Number.isFinite(f.distCamera) ? qty(f.distCamera, 'length', 4) : { v: '—', u: '' };
-  const label = mode === 'orbit' ? 'ORBIT' : mode === 'transition' ? 'SLEW' : mode === 'free' ? 'FREE' : 'TRANSIT';
+  // A black hole's range is the height above its horizon (exact: the distance to its centre is 32 km coarse at Sgr A*),
+  // written as the card and the panel along the bottom write it ("4000 au", ui/deepSkyText.ts heightParts).
+  const hole = gravity.hole === focus && Number.isFinite(gravity.heightKm);
+  const r = hole
+    ? heightParts(gravity.heightKm)
+    : Number.isFinite(f.distCamera)
+      ? qty(f.distCamera, 'length', 4)
+      : { v: '—', u: '' };
+  const above = hole ? (gravity.heightKm < 0 ? ' inside the horizon' : ' above the horizon') : '';
+  const label =
+    mode === 'orbit' || mode === 'circular'
+      ? 'ORBIT'
+      : mode === 'transition'
+        ? 'SLEW'
+        : mode === 'free'
+          ? 'FREE'
+          : mode === 'fall'
+            ? 'FALL'
+            : mode === 'hold'
+              ? 'SNAPSHOT'
+              : 'TRANSIT';
   return (
     <div className="mono pointer-events-none absolute left-4 top-3 space-y-px text-[10px] leading-[14px] text-fg-3 [text-shadow:0_0_3px_#000]">
       <div>
@@ -58,6 +87,7 @@ function ViewInfo() {
           <span className="inline-block w-11">RANGE</span>
           <span className="text-fg-2">
             {r.v} {r.u}
+            {above}
           </span>
         </div>
       )}
@@ -84,6 +114,9 @@ function Annunciators() {
   const warpTrip = !!travel.trip?.warp;
   // A real trip plays by ship time, whatever the time warp is set to.
   const paced = travel.trip?.pacing === 'ship' ? tripPace(travel.trip) : null;
+  const falling = mode === 'fall';
+  // Deep in a black hole's gravity: how much faster home's clock runs than a clock here (from 1 %).
+  const home = !falling && gravity.hole && gravity.alpha > 0 ? 1 / gravity.alpha : 1;
   return (
     <div className="pointer-events-none absolute inset-x-0 top-3 flex flex-wrap justify-center gap-1.5 px-40 max-md:px-4">
       {paused && <Lamp tone="white">Paused</Lamp>}
@@ -98,6 +131,16 @@ function Annunciators() {
         </Lamp>
       )}
       {mode === 'free' && <Lamp tone="amber">Free flight</Lamp>}
+      {home >= 1.01 && (
+        <Lamp tone="amber" title="Home’s clock runs this many times faster than a clock hovering here: the black hole’s gravity slows time">
+          Home ×{timesText(home, gravity.oneMinusAlpha / gravity.alpha).replace('×', '')}
+        </Lamp>
+      )}
+      {falling && (
+        <Lamp tone="red" title="Falling freely into a black hole: nothing leaves one">
+          Falling
+        </Lamp>
+      )}
       {relView.active && <Lamp tone="cyan">{relView.split ? 'Split optics' : 'Relativistic optics'}</Lamp>}
       {retarded && <Lamp tone="cyan">Light-time correction</Lamp>}
       {inFlight > 0 && <Lamp tone="cyan">{inFlight === 1 ? 'Pulse in flight' : `${inFlight} pulses in flight`}</Lamp>}
@@ -184,7 +227,10 @@ function EventConsole() {
 function SplitDivider() {
   const splitX = useUI((s) => s.splitX);
   const mode = useUI((s) => s.relMode);
+  const falling = useUI((s) => s.controlMode === 'fall');
   useTicker(4, mode === 'split');
+  // Near a black hole its lens (and its blueshift) show in both halves: each is named for who sees it.
+  const holeView = lens.active;
   const dragging = useRef(false);
   const onDown = useCallback((e: React.PointerEvent) => {
     dragging.current = true;
@@ -226,11 +272,21 @@ function SplitDivider() {
         <div className="absolute left-1/2 top-1/2 h-9 w-[7px] -translate-x-1/2 -translate-y-1/2 border border-fg/70 bg-black" />
       </div>
       <div className="mono pointer-events-none absolute top-10 z-20 -translate-x-full pr-3 text-right text-[10px] tracking-[0.1em] text-fg-2" style={{ left: `${splitX * 100}%` }}>
-        S · CLASSICAL
-        <div className="text-[9.5px] tracking-normal text-fg-3">no aberration, no Doppler shift</div>
+        {/* Beside a moving hole (Gaia BH3) the left half stays at rest relative to the Sun, not hovering. */}
+        {holeView ? (falling ? 'FALLING FROM REST' : gravity.framePhi > 0 ? 'AT REST (SUN)' : 'HOVERING') : 'S · CLASSICAL'}
+        <div className="text-[9.5px] tracking-normal text-fg-3">
+          {holeView
+            ? falling
+              ? 'a raindrop’s view'
+              : gravity.framePhi > 0
+                ? // A moving hole (Gaia BH3: 570 km/s): the classical half stays at rest relative to the Sun, as everywhere.
+                  `at rest relative to the Sun, ${sig(Math.tanh(gravity.framePhi) * 100, 2)} % of c from hovering here`
+                : 'as seen by an observer at rest here'
+            : 'no aberration, no Doppler shift'}
+        </div>
       </div>
       <div className="mono pointer-events-none absolute top-10 z-20 pl-3 text-[10px] tracking-[0.1em] text-data" style={{ left: `${splitX * 100}%` }}>
-        S′ · RELATIVISTIC
+        {holeView ? 'SHIP' : 'S′ · RELATIVISTIC'}
         <div className="text-[9.5px] tracking-normal text-fg-3">as seen from the ship</div>
       </div>
     </>
@@ -278,7 +334,9 @@ function JourneyBanner() {
   const note = useUI((s) => s.journeyNote);
   const tripActive = useUI((s) => s.tripActive);
   const plannerOpen = useUI((s) => s.plannerOpen);
-  if (!note || tripActive || plannerOpen) return null;
+  // Near a black hole the HUD holds the note (ui/flight/HoleStrip.tsx).
+  useTicker(2, !!note);
+  if (!note || tripActive || plannerOpen || holeStripShown()) return null;
   return (
     <div className="absolute inset-x-0 bottom-10 z-10 flex justify-center px-4">
       <div ref={keepCreditsClear} className="panel-float appear flex max-w-[640px] items-start gap-3 py-2 pl-3.5 pr-1.5">

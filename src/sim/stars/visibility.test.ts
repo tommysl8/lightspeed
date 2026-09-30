@@ -2,14 +2,18 @@
  * The near-Sun draw counts: drawing the first `count` stars shows exactly what drawing all
  * 329,770 does, from anywhere within 0.05 pc of the Sun, within the years each count is for.
  * Checked against the star shader's own arithmetic (render/shaders/stars.vert.glsl) from many
- * places and dates, with light-time on and off.
+ * places and dates, with light-time on and off. Also the brightening bound (starBoostLn) against a
+ * brute-force search over temperatures and Doppler factors, and the flight draw list (flightDrawList):
+ * it omits no star that the whole field would show with its brightest Doppler shift and a black hole's
+ * blueshift, from several distances and ways, at several speeds.
  */
 import { describe, expect, it } from 'vitest';
 import { loadStars } from '../../test/stars';
 import type { Stars3D } from './catalogue';
 import { C_PC_PER_YR, KMS_TO_PC_PER_YR } from './constants';
 import { MOTION_VALID_YEARS } from './constants';
-import { FAR_LIST_PC, NEAR_SUN_PC, NEAR_SUN_YEARS, STAR_FADE_MAG, STAR_MAG_LIMIT, nearSunCounts, nearSunDrawCount, starDrawList, starDrawLists } from './visibility';
+import { FAR_LIST_PC, NEAR_SUN_PC, NEAR_SUN_YEARS, STAR_BOOST_T_MIN_K, STAR_FADE_MAG, STAR_MAG_LIMIT, flightDrawList, nearSunCounts, nearSunDrawCount, starBoostLn, starBoostMag, starDrawList, starDrawLists } from './visibility';
+import { sampleBlackbody } from '../../physics/blackbody';
 
 const stars = loadStars();
 const counts = nearSunCounts(stars);
@@ -217,5 +221,113 @@ describe('star draw lists', () => {
     expect(starDrawList(lists, 3_000, 0, STAR_MAG_LIMIT + 1)).toBeNull(); // fainter stars asked for
     expect(starDrawList(undefined, 3_000, 0, STAR_MAG_LIMIT)).toBeNull();
     expect(starDrawList(lists, NaN, 0, STAR_MAG_LIMIT)).toBeNull();
+  });
+});
+
+// ─── Brighter than at rest: the relativistic view and black holes ───────────────────────────────────
+
+const MAG_PER_LN = 2.5 / Math.LN10;
+const lnY = (lnT: number): number => sampleBlackbody(lnT).lnY;
+
+/** The most a star at T brightens (ln) for Doppler factors e^x, |x| ≤ phi, and blueshift lnG: a search over 2,001 x. */
+function bruteBoost(T: number, phi: number, lnG: number): number {
+  let best = -Infinity;
+  const y0 = lnY(Math.log(T));
+  for (let k = 0; k <= 2000; k++) {
+    const x = -phi + (2 * phi * k) / 2000;
+    best = Math.max(best, lnY(Math.log(T) + x + lnG) - y0 - 2 * x);
+  }
+  return best;
+}
+
+describe('the brightening bound', () => {
+  it('is 0 at rest far from a black hole, and bounds every temperature and Doppler factor from above', () => {
+    expect(starBoostLn(0, 0)).toBe(0);
+    for (const [phi, lnG] of [
+      [0.04, 0],
+      [0.3, 0],
+      [1, 0],
+      [3, 0],
+      [0, 0.02],
+      [0, 0.7],
+      [0.5, 0.1],
+    ]) {
+      const bound = starBoostLn(phi, lnG);
+      let best = 0;
+      for (const T of [STAR_BOOST_T_MIN_K, 2570, 3000, 3500, 4500, 5772, 8000, 12000, 20000, 40000]) best = Math.max(best, bruteBoost(T, phi, lnG));
+      expect(bound).toBeGreaterThanOrEqual(best - 1e-9);
+      // Tight: the coolest star allowed for sets it (to the search's step).
+      expect(bound - bruteBoost(STAR_BOOST_T_MIN_K, phi, lnG)).toBeLessThan(1e-4);
+    }
+  });
+});
+
+/** The stars that show from `cam` when each can be brightened by as much as a Doppler factor within phi and lnG allow. */
+function visibleBoosted(s: Stars3D, cam: readonly number[], years: number, phi: number, lnG: number): number[] {
+  const cut = STAR_MAG_LIMIT + STAR_FADE_MAG;
+  const u = s.velocityUnitKms * KMS_TO_PC_PER_YR;
+  const P = s.positions;
+  const V = s.velocitiesInt16;
+  const boostOf = new Map<number, number>();
+  const out: number[] = [];
+  for (let i = 0; i < s.count; i++) {
+    const px = P[3 * i], py = P[3 * i + 1], pz = P[3 * i + 2];
+    const vx = V[3 * i] * u, vy = V[3 * i + 1] * u, vz = V[3 * i + 2] * u;
+    const t = years + Math.sqrt(px * px + py * py + pz * pz) / C_PC_PER_YR;
+    const rx = px - cam[0] + vx * t;
+    const ry = py - cam[1] + vy * t;
+    const rz = pz - cam[2] + vz * t;
+    const d = Math.max(Math.sqrt(rx * rx + ry * ry + rz * rz), 1e-12);
+    const m = s.absMagInt16[i] * s.absMagUnit + 5 * Math.log10(d) - 5;
+    if (m - MAG_PER_LN * starBoostLn(phi, lnG) >= cut) continue; // cannot show at all
+    const T = s.teff[i] > 0 ? s.teff[i] : 5772;
+    let b = boostOf.get(T);
+    if (b === undefined) boostOf.set(T, (b = bruteBoost(T, phi, lnG)));
+    if (m - MAG_PER_LN * b < cut) out.push(i);
+  }
+  return out;
+}
+
+describe('the flight draw list', () => {
+  it('omits no star the whole field would show at its brightest, from several places and speeds', () => {
+    const dirs = [
+      [-0.0549, -0.0965, -0.9938],
+      [1, 0, 0],
+      [0.5774, -0.5774, 0.5774],
+    ];
+    let checked = 0;
+    for (const r of [600, 1500, 5000, 8300]) {
+      for (const dir of dirs) {
+        const cam = dir.map((c) => c * r);
+        for (const [phi, lnG] of [
+          [0.04, 0],
+          [0.3, 0],
+          [1, 0],
+          [0.04, 0.05],
+        ]) {
+          const list = flightDrawList(lists, r, 0, STAR_MAG_LIMIT, starBoostMag(phi, lnG));
+          if (!list) continue;
+          checked++;
+          expect(allListed(visibleBoosted(stars, cam, 0, phi, lnG), list), `${r} pc, φ ${phi}, ln g ${lnG}`).toBe(true);
+        }
+      }
+    }
+    expect(checked).toBeGreaterThan(20);
+    // 48 whole-catalogue scans: seconds alone, minutes with the rest of the suite on the same cores.
+  }, 300_000);
+
+  it('says which list applies: the far list for the raised limit, none near the Sun or when the limit reaches past the lists', () => {
+    // Arriving at Sgr A* (β 0.04, 8.28 kpc): the 4 or 8 kpc list, not all 329,770 stars.
+    const arriving = flightDrawList(lists, 8277, 0, STAR_MAG_LIMIT, starBoostMag(Math.atanh(0.04), 0));
+    expect(arriving).not.toBeNull();
+    expect(arriving!.length).toBeLessThan(2000);
+    // At rest far from holes it is the plain list.
+    expect(flightDrawList(lists, 3000, 0, STAR_MAG_LIMIT, 0)).toBe(starDrawList(lists, 3000, 0, STAR_MAG_LIMIT));
+    // A raised limit reaches as far as 10^(B/5) times: from 3 kpc with 2 magnitudes, the list for 1.2 kpc or nearer.
+    expect(flightDrawList(lists, 3000, 0, STAR_MAG_LIMIT, 2)).toBe(lists.far[FAR_LIST_PC.indexOf(1000)]);
+    expect(flightDrawList(lists, 0.01, 0, STAR_MAG_LIMIT, 0.5)).toBeNull();
+    expect(flightDrawList(lists, 600, 0, STAR_MAG_LIMIT, 5)).toBeNull();
+    expect(flightDrawList(undefined, 3000, 0, STAR_MAG_LIMIT, 1)).toBeNull();
+    expect(flightDrawList(lists, 3000, 0, STAR_MAG_LIMIT, NaN)).toBeNull();
   });
 });

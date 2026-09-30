@@ -9,6 +9,15 @@
 #include <common>
 #include <logdepthbuf_pars_vertex>
 #include <lightspeed_relativity>
+#ifdef LENS
+// Near a black hole (render/lensVariants.ts swaps in this shader compiled with LENS while the lens is
+// drawn) each point goes to its star-like primary image (lensImage, tier 1): the figures follow the stars'
+// primary images, drawn at the same distance, so clipping is still the straight line's. A guide: no second
+// image, no colour. Cost: a few table reads a point.
+//
+// Twin: physics/lensPoint.ts (pointImageTier1).
+#include <lightspeed_lens>
+#endif
 
 attribute vec3 aVelA; // the first star's velocity (0.1 km/s steps); `position` is its J2000 place, pc
 attribute vec3 aPosB; // the second star's J2000 place and velocity
@@ -51,7 +60,16 @@ void main() {
   vec3 ub = normalize(b);
   vGap = min(atan(length(cross(e, ua)), dot(e, ua)), atan(length(cross(e, ub)), dot(e, ub)));
   float lnD;
+#ifdef LENS
+  float lnDf;
+  vec3 image;
+  float lnMu;
+  float lnG;
+  lensImage(frameAberrate(vec3(e.x, e.z, -e.y), lnDf) * (d * uLensScale.y), 0.0, 0.0, image, lnMu, lnG);
+  vec3 dShip = relAberrate(frameUnaberrate(image, lnDf), lnD);
+#else
   vec3 dShip = relAberrate(vec3(e.x, e.z, -e.y), lnD);
+#endif
   // At its true distance (km), not on a unit sphere: a piece that passes beside or behind the
   // camera (near a star of the figure) is then clipped as the straight line it is.
   gl_Position = projectionMatrix * vec4(mat3(viewMatrix) * (dShip * (d * PC_KM)), 1.0);

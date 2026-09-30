@@ -15,6 +15,29 @@
  *
  * Everything here is in frame G (sim/galaxy/frames.ts), kpc, and luminosities in L☉ (V band).
  * nearGlow is the shader's integration in TypeScript, for the tests.
+ *
+ * Two more glows share the shader (docs/data/blackholes.md §6), each with its twin here:
+ *  - within 1 kpc of Sgr A*, the light of the nuclear star cluster and nuclear disc that neither the Galaxy
+ *    model's particles of them (which fade as the camera nears them) nor the field's point stars draw: each
+ *    law times u − w s(r) (sim/galaxy/nuclearCluster.ts, whose laws come from sim/galaxy/nuclearGlow.json;
+ *    u and w the field's and the points' shares, s the points' share of the light): nuclearMarch
+ *    integrates it along each line of sight in frame G's axes, in parsecs from Sgr A*, with the variable
+ *    t of s = s0 + a sinh t (a the ray's closest approach to the hole, or to the galactic pole's axis when
+ *    that is closer), so that the steps follow the cusp and the disc's inner peak at every distance, and the
+ *    steps never straddle the inner hole of the field (r < 0.04 pc: only the S-stars) or the nuclear disc's
+ *    inner edge (R = 3 pc), the places its light jumps, and end at its outer edge. 16 steps (8 at the lens's
+ *    quality rung 1): against a fine quadrature the median error is 0.1 %, nine rays in ten are within
+ *    0.6 % and the whole sky's light within 0.6 % (glow.test.ts, nuclearCluster.test.ts);
+ *  - inside M87, its own starlight near the camera (m87ColumnTable): a spherical model of M87's light
+ *    profile, integrated on the processor along 64 directions from the direction of the centre (the sky
+ *    from inside a spherical galaxy depends only on that angle), which the shader reads as a table. It
+ *    holds only the light that M87's model galaxy no longer draws: the template's particles near the camera
+ *    fade out as their splats grow past half the largest drawn (render/shaders/galaxies.vert.glsl), and the
+ *    table takes the true profile's light in their place, particle size by particle size.
+ * Cost: the march 0.24 ms of GPU time a frame 4,000 au from Sgr A* on the target laptop (0.2 at 8 cells), 0.1 at
+ * 100–300 pc, 0.06 at 700 pc, nothing beyond 1 kpc; the table 0.06–0.1 ms of processor time when the camera has
+ * moved 1 % closer to or further from M87's centre.
+ * Twins: render/shaders/galaxyGlow.frag.glsl (nscMarch, the M87 lookup).
  */
 import { blackbodyRgb, bvToTemperature } from '../../physics/blackbody';
 import { armRadius, armStrength, armWidth, createGalaxyModel, type GalaxyModel, type GalaxyModelJson } from './model';
@@ -241,4 +264,564 @@ function erfA(x: number): number {
   const s = Math.sign(x);
   const t = 1 / (1 + 0.3275911 * Math.abs(x));
   return s * (1 - ((((1.061405429 * t - 1.453152027) * t + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-x * x));
+}
+
+// ─── The nuclear star cluster's glow ─────────────────────────────────────────────────────
+
+/** The parts of sim/galaxy/nuclearGlow.json (written by scripts/build-nsc.py) the app reads. */
+export interface NuclearGlowJson {
+  count: number;
+  splitAbsMag: number;
+  innerPc: number;
+  outerPc: number;
+  excludePc: number;
+  nsc: { rbPc: number; gamma: number; beta: number; alpha: number; q: number; mMaxPc: number; rho0: number; lightLsun: number; bv: number };
+  nsd: { rbPc: number; edgePc: number; rMinPc: number; hzPc: number; slopeIn: number; slopeOut: number; rho0: number; lightLsun: number; bv: number };
+  young: { count: number; discCount: number; lightLsun: number; rInPc: number; rOutPc: number; isoIndex: number; discIndex: number };
+  modelShares: { nscLsun: number; nsdLsun: number };
+  /** The points' shares at 64 radii, one table per count of points drawn (the first 60,000, 30,000, 10,000 of the file). */
+  share: { rPc: number[]; counts: number[]; splitMag: number[]; bvNsc: number[]; bvNsd: number[]; nsc: number[][]; nsd: number[][] };
+  m87: { distanceMpc: number; lightLsun: number; bv: number; flatInsidePc: number; lnRPc: number[]; lnJ: number[] };
+}
+
+/**
+ * The laws of the nuclear cluster's light, pc and L☉/pc³ (V), frame G's axes about Sgr A* (z towards the
+ * north galactic pole):
+ *  - the cluster (NSC): ρ0 x^−γ (1 + x^α)^((γ − β)/α), x = m / r_b, m² = R² + (z/q)², for r ≥ innerPc and
+ *    m ≤ mMaxPc (Schödel et al. 2018's Nuker law, flattened as Schödel et al. 2014 measured);
+ *  - the disc (NSD): ρ0 (R/r_b)^−slopeIn inside r_b, (R/r_b)^−slopeOut to edgePc, times e^(−|z|/h_z), for
+ *    R ≥ rMinPc and r ≤ outerPc (the Galaxy model's own law, so the field replaces its particles exactly);
+ *  - each one's point share s(r): the part of its light in stars bright enough, seen from the hole, to be
+ *    among the points drawn, at 64 radii uniform in ln r from innerPc to outerPc (linear between); one table for
+ *    each count of points the app draws (60,000, 30,000 and 10,000 at the lens's quality rungs 0, 1 and 2).
+ * The glow is each law times 1 − s(r); the points are the law times s(r), and the young stars.
+ */
+export interface NuclearLaws {
+  nsc: { rho0: number; rbPc: number; gamma: number; beta: number; alpha: number; q: number; mMaxPc: number };
+  nsd: { rho0: number; rbPc: number; hzPc: number; rMinPc: number; edgePc: number; slopeIn: number; slopeOut: number };
+  innerPc: number;
+  outerPc: number;
+  /** The points' shares at the nodes, one table per count of points (`counts`); node i at ln r = shareLnR0 + i / shareInvDLnR. */
+  counts: number[];
+  shareNsc: Float64Array[];
+  shareNsd: Float64Array[];
+  /** The glow's colour B − V with each count (the stars it holds). */
+  bvNsc: number[];
+  bvNsd: number[];
+  shareLnR0: number;
+  shareInvDLnR: number;
+  /** The young stars of the central half parsec, all points: their light and where they are (for the local term). */
+  young: { lightLsun: number; rInPc: number; rOutPc: number; discShare: number; isoIndex: number; discIndex: number };
+}
+
+/** The laws from nuclearGlow.json. */
+export function nuclearLaws(json: NuclearGlowJson): NuclearLaws {
+  const r = json.share.rPc;
+  const n = r.length;
+  const lnR0 = Math.log(r[0]);
+  return {
+    nsc: { rho0: json.nsc.rho0, rbPc: json.nsc.rbPc, gamma: json.nsc.gamma, beta: json.nsc.beta, alpha: json.nsc.alpha, q: json.nsc.q, mMaxPc: json.nsc.mMaxPc },
+    nsd: { rho0: json.nsd.rho0, rbPc: json.nsd.rbPc, hzPc: json.nsd.hzPc, rMinPc: json.nsd.rMinPc, edgePc: json.nsd.edgePc, slopeIn: json.nsd.slopeIn, slopeOut: json.nsd.slopeOut },
+    innerPc: json.innerPc,
+    outerPc: json.outerPc,
+    counts: json.share.counts.slice(),
+    shareNsc: json.share.nsc.map((t) => Float64Array.from(t)),
+    shareNsd: json.share.nsd.map((t) => Float64Array.from(t)),
+    bvNsc: json.share.bvNsc.slice(),
+    bvNsd: json.share.bvNsd.slice(),
+    shareLnR0: lnR0,
+    shareInvDLnR: (n - 1) / (Math.log(r[n - 1]) - lnR0),
+    young: {
+      lightLsun: json.young.lightLsun,
+      rInPc: json.young.rInPc,
+      rOutPc: json.young.rOutPc,
+      discShare: json.young.discCount / Math.max(1, json.young.count),
+      isoIndex: json.young.isoIndex,
+      discIndex: json.young.discIndex,
+    },
+  };
+}
+
+/**
+ * The points' share of a component's light at radius r (pc), as the shader interpolates it: 0 the cluster, 1 the
+ * disc; `table` the count of points drawn (an index into laws.counts: 0 is all 60,000).
+ */
+export function nuclearShare(laws: NuclearLaws, which: 0 | 1, rPc: number, table = 0): number {
+  const t = which === 0 ? laws.shareNsc[table] : laws.shareNsd[table];
+  const last = t.length - 1;
+  const u = Math.min(last, Math.max(0, (Math.log(rPc) - laws.shareLnR0) * laws.shareInvDLnR));
+  const i = Math.min(Math.floor(u), last - 1);
+  return t[i] + (t[i + 1] - t[i]) * (u - i);
+}
+
+/** The cluster's law at (R, z) of frame G about Sgr A* (pc), L☉/pc³: all its light, points and glow. */
+export function nscLaw(laws: NuclearLaws, R: number, z: number): number {
+  const c = laws.nsc;
+  const r = Math.hypot(R, z);
+  const zq = z / c.q;
+  const m = Math.sqrt(R * R + zq * zq);
+  if (!(r >= laws.innerPc) || m > c.mMaxPc) return 0;
+  const lx = Math.log(Math.max(m, 1e-6) / c.rbPc);
+  return c.rho0 * Math.exp(-c.gamma * lx + ((c.gamma - c.beta) / c.alpha) * Math.log(1 + Math.exp(c.alpha * lx)));
+}
+
+/** The nuclear disc's law at (R, z), L☉/pc³. */
+export function nsdLaw(laws: NuclearLaws, R: number, z: number): number {
+  const d = laws.nsd;
+  if (R < d.rMinPc || R >= d.edgePc || R * R + z * z > laws.outerPc * laws.outerPc) return 0;
+  const lx = Math.log(R / d.rbPc);
+  return d.rho0 * Math.exp(-(lx < 0 ? d.slopeIn : d.slopeOut) * lx - Math.abs(z) / d.hzPc);
+}
+
+/**
+ * The young stars' light as a smooth law, L☉/pc³ at radius r: their number density spread over spheres (the
+ * clockwise disc's fifth taken as isotropic too), times their mean light. Only for the stand-in of the points
+ * left out near the camera: every young star is a point.
+ */
+export function youngLaw(laws: NuclearLaws, rPc: number): number {
+  const y = laws.young;
+  if (!(rPc >= y.rInPc && rPc <= y.rOutPc)) return 0;
+  const p = (k: number) => (k * rPc ** (k - 1)) / (y.rOutPc ** k - y.rInPc ** k);
+  const dNdr = (1 - y.discShare) * p(y.isoIndex) + y.discShare * p(y.discIndex);
+  return (y.lightLsun * dNdr) / (4 * Math.PI * rPc * rPc);
+}
+
+/**
+ * The glow's emissivity at p (frame G axes, pc from Sgr A*), L☉/pc³, with the points of share table `table` drawn:
+ * the cluster's into out[0], the disc's into out[1].
+ */
+export function nuclearGlowAt(laws: NuclearLaws, px: number, py: number, pz: number, out: number[], table = 0): number[] {
+  const R = Math.hypot(px, py);
+  const r = Math.hypot(R, pz);
+  out[0] = nscLaw(laws, R, pz) * (1 - nuclearShare(laws, 0, r, table));
+  out[1] = nsdLaw(laws, R, pz) * (1 - nuclearShare(laws, 1, r, table));
+  return out;
+}
+
+/**
+ * The points' expected emissivity at p, L☉/pc³: the laws times their point shares (table `table`), and the young
+ * stars (all of them points: at 30,000 and 10,000 points the few hundred faint ones the file sorts later, 0.01 and
+ * 0.03 % of the young stars' light, are left out).
+ */
+export function nuclearPointsAt(laws: NuclearLaws, px: number, py: number, pz: number, table = 0): number {
+  const R = Math.hypot(px, py);
+  const r = Math.hypot(R, pz);
+  return nscLaw(laws, R, pz) * nuclearShare(laws, 0, r, table) + nsdLaw(laws, R, pz) * nuclearShare(laws, 1, r, table) + youngLaw(laws, r);
+}
+
+/** Steps of the nuclear glow's march at the lens's quality rungs 0 and 1. */
+export const NUCLEAR_GLOW_STEPS: readonly [number, number] = [16, 8];
+
+const cutT = new Float64Array(6);
+const pieceA = new Float64Array(5);
+const pieceL = new Float64Array(5);
+const cellB = new Int32Array(6);
+
+/**
+ * The glow's columns (L☉/pc², V, no dust) along the ray from `cam` (frame G axes, pc from Sgr A*) in the
+ * unit direction `dir`, in `cells` midpoint steps: the cluster's into out[0], the disc's into out[1], of each
+ * law times u − w s(r): u (`fieldShare`) the field's share of the two components' light (the Galaxy model's
+ * particles of them draw the rest, 1 − u), w (`pointsShare`) the points' share (they draw w s(r), s the share
+ * table `table`). With w = u = 1 (the default) it is the light not in the points, j (1 − s). The shader's nscMarch, step for step
+ * (render/shaders/galaxyGlow.frag.glsl): along t, with s = s0 + a sinh t
+ * about the ray's closest approach to the hole (s0, distance b), so ds = a cosh t dt, from the camera to where
+ * the ray leaves the field (its outer sphere, or the disc's outer edge R = R_edge, beyond which neither
+ * component has light: the camera is always inside that cylinder); cut where the ray enters and leaves the
+ * inner hole (no light) and crosses the disc's inner cylinder, and the cells shared among the pieces by
+ * rounding their running lengths. The scale a is b (then a cosh t is the distance from the hole, and the
+ * steps follow the cluster's cusp) unless the ray passes the galactic pole's axis closer than that, at a
+ * height (a ray below or above the hole): then a is the distance from the axis at s0, at least the disc's
+ * inner radius, so the steps also resolve the disc's R^−1.3 peak there.
+ */
+export function nuclearMarch(laws: NuclearLaws, cam: Vec3, dir: Vec3, cells: number, out: number[] = [0, 0], table = 0, pointsShare = 1, fieldShare = 1): number[] {
+  out[0] = 0;
+  out[1] = 0;
+  const s0 = -(cam[0] * dir[0] + cam[1] * dir[1] + cam[2] * dir[2]);
+  const cx = cam[1] * dir[2] - cam[2] * dir[1];
+  const cy = cam[2] * dir[0] - cam[0] * dir[2];
+  const cz = cam[0] * dir[1] - cam[1] * dir[0];
+  const b = Math.max(Math.hypot(cx, cy, cz), 1e-9);
+  const rOut = laws.outerPc;
+  if (b >= rOut) return out;
+  const A = dir[0] * dir[0] + dir[1] * dir[1];
+  const B = cam[0] * dir[0] + cam[1] * dir[1];
+  const C0 = cam[0] * cam[0] + cam[1] * cam[1];
+  let sEnd = s0 + Math.sqrt(rOut * rOut - b * b);
+  if (A > 1e-12 && cylinder(A, B, C0 - laws.nsd.edgePc * laws.nsd.edgePc)) sEnd = Math.min(sEnd, cross2[1]);
+  const a = Math.min(b, Math.max(Math.hypot(cam[0] + s0 * dir[0], cam[1] + s0 * dir[1]), laws.nsd.rMinPc));
+  const inv = 1 / a;
+  const tc = Math.asinh(-s0 * inv);
+  const te = Math.asinh((sEnd - s0) * inv);
+  if (!(te > tc)) return out;
+  // The interior cut points, te where there is none: the inner hole's two ends, the cylinder's two crossings.
+  let h0 = te;
+  let h1 = te;
+  if (b < laws.innerPc) {
+    const q = Math.sqrt(laws.innerPc * laws.innerPc - b * b) * inv;
+    h0 = Math.asinh(-q);
+    h1 = Math.asinh(q);
+  }
+  let k1 = te;
+  let k2 = te;
+  if (A > 1e-12 && cylinder(A, B, C0 - laws.nsd.rMinPc * laws.nsd.rMinPc)) {
+    k1 = Math.asinh((cross2[0] - s0) * inv);
+    k2 = Math.asinh((cross2[1] - s0) * inv);
+  }
+  const clampT = (t: number) => Math.min(te, Math.max(tc, t));
+  const hA = clampT(h0);
+  const hB = clampT(h1);
+  // Sort the four (a network of five compare-and-swaps, as the shader).
+  let v0 = hA;
+  let v1 = hB;
+  let v2 = clampT(k1);
+  let v3 = clampT(k2);
+  let w: number;
+  if (v0 > v1) ((w = v0), (v0 = v1), (v1 = w));
+  if (v2 > v3) ((w = v2), (v2 = v3), (v3 = w));
+  if (v0 > v2) ((w = v0), (v0 = v2), (v2 = w));
+  if (v1 > v3) ((w = v1), (v1 = v3), (v3 = w));
+  if (v1 > v2) ((w = v1), (v1 = v2), (v2 = w));
+  cutT[0] = tc;
+  cutT[1] = v0;
+  cutT[2] = v1;
+  cutT[3] = v2;
+  cutT[4] = v3;
+  cutT[5] = te;
+  let total = 0;
+  for (let i = 0; i < 5; i++) {
+    const lo = cutT[i];
+    const hi = cutT[i + 1];
+    // The hole's piece holds no light and gets no cells.
+    const hole = hA < hB && lo === hA && hi === hB;
+    pieceA[i] = lo;
+    pieceL[i] = hole ? 0 : hi - lo;
+    total += pieceL[i];
+  }
+  if (!(total > 0)) return out;
+  cellB[0] = 0;
+  let run = 0;
+  for (let i = 0; i < 5; i++) {
+    run += pieceL[i];
+    cellB[i + 1] = i === 4 ? cells : Math.round((cells * run) / total);
+  }
+  for (let k = 0; k < cells; k++) {
+    let i = 0;
+    for (let j = 1; j < 5; j++) if (k >= cellB[j]) i = j;
+    const n = cellB[i + 1] - cellB[i];
+    const h = pieceL[i] / n;
+    const t = pieceA[i] + (k - cellB[i] + 0.5) * h;
+    const et = Math.exp(t);
+    const s = s0 + 0.5 * a * (et - 1 / et);
+    const ds = 0.5 * a * (et + 1 / et) * h;
+    const px = cam[0] + s * dir[0];
+    const py = cam[1] + s * dir[1];
+    const pz = cam[2] + s * dir[2];
+    const R = Math.hypot(px, py);
+    const r = Math.hypot(R, pz);
+    out[0] += nscLaw(laws, R, pz) * (fieldShare - pointsShare * nuclearShare(laws, 0, r, table)) * ds;
+    out[1] += nsdLaw(laws, R, pz) * (fieldShare - pointsShare * nuclearShare(laws, 1, r, table)) * ds;
+  }
+  return out;
+}
+
+const cross2 = [0, 0];
+
+/**
+ * Where the ray s ↦ cam + s dir crosses a cylinder about the galactic pole's axis: the roots s− ≤ s+ of
+ * A s² + 2B s + C = 0 (A = dir_x² + dir_y² > 0, B = cam_xy · dir_xy, C = R_cam² − ρ²) into cross2, in the form
+ * without cancellation (as the shader, in float32). False when the ray misses it.
+ */
+function cylinder(A: number, B: number, C: number): boolean {
+  const disc = B * B - A * C;
+  if (!(disc > 0)) return false;
+  const q = B >= 0 ? -(B + Math.sqrt(disc)) : Math.sqrt(disc) - B;
+  const r1 = q / A;
+  const r2 = C / q;
+  cross2[0] = Math.min(r1, r2);
+  cross2[1] = Math.max(r1, r2);
+  return true;
+}
+
+/** Points in the unit ball, uniform in volume (a fixed set): the local term's average over the sphere round the camera. */
+const BALL: readonly number[] = (() => {
+  const out: number[] = [];
+  // Three shells of equal volume, each at the radius that halves its volume: ∛(1/6), ∛(1/2), ∛(5/6).
+  const shells = [Math.cbrt(1 / 6), Math.cbrt(1 / 2), Math.cbrt(5 / 6)];
+  const per = 16;
+  const golden = Math.PI * (3 - Math.sqrt(5));
+  for (const rr of shells) {
+    for (let i = 0; i < per; i++) {
+      const y = 1 - (2 * (i + 0.5)) / per;
+      const q = Math.sqrt(1 - y * y);
+      const a = golden * i + rr * 7;
+      out.push(rr * q * Math.cos(a), rr * y, rr * q * Math.sin(a));
+    }
+  }
+  return out;
+})();
+
+/**
+ * The column (L☉/pc², V) that stands in, along every line of sight, for the point stars within `radiusPc` of the
+ * camera (`cam`, frame G axes, pc from Sgr A*), which are not drawn (a model K giant 100 au away would be a
+ * point of V −21.6 with no disc): their expected emissivity averaged over that sphere, times its radius, so
+ * the sphere's light is kept (from its centre a uniform sphere of emissivity j and radius R shows a column jR
+ * in every direction).
+ */
+export function nuclearLocalColumn(laws: NuclearLaws, cam: Vec3, radiusPc: number, table = 0): number {
+  const r = Math.hypot(cam[0], cam[1], cam[2]);
+  if (r - radiusPc > laws.outerPc) return 0;
+  let sum = 0;
+  const n = BALL.length / 3;
+  for (let i = 0; i < n; i++) sum += nuclearPointsAt(laws, cam[0] + radiusPc * BALL[3 * i], cam[1] + radiusPc * BALL[3 * i + 1], cam[2] + radiusPc * BALL[3 * i + 2], table);
+  return (sum / n) * radiusPc;
+}
+
+// ─── M87's own starlight ─────────────────────────────────────────────────────────────────
+
+/** Directions in M87's table, uniform in ln ψ (ψ the angle from the direction of M87's centre) from M87_PSI_MIN to π. */
+export const M87_TABLE_SIZE = 64;
+export const M87_PSI_MIN = 1e-4;
+/** Steps along each direction (in t, as the nuclear march).*/
+export const M87_TABLE_STEPS = 24;
+/** A table entry with no light (ln of the column). */
+export const M87_LN_NONE = -80;
+
+/** M87's light profile: its luminosity density j(r), L☉/pc³, at radii uniform in ln r (log-linear between; none beyond). */
+export interface M87Profile {
+  lnR0: number;
+  invDLnR: number;
+  lnJ: Float64Array;
+  rMaxPc: number;
+  /** Inside this the profile is held flat (1,000 au), pc. */
+  rFlatPc: number;
+}
+
+export function m87Profile(json: NuclearGlowJson): M87Profile {
+  const lr = json.m87.lnRPc;
+  const n = lr.length;
+  return { lnR0: lr[0], invDLnR: (n - 1) / (lr[n - 1] - lr[0]), lnJ: Float64Array.from(json.m87.lnJ), rMaxPc: Math.exp(lr[n - 1]), rFlatPc: json.m87.flatInsidePc };
+}
+
+/** j(r), L☉/pc³ (held at its innermost value inside the table: the profile is flat inside 1,000 au). */
+export function m87Emissivity(p: M87Profile, rPc: number): number {
+  if (!(rPc < p.rMaxPc)) return 0;
+  const last = p.lnJ.length - 1;
+  const u = Math.max(0, (Math.log(rPc) - p.lnR0) * p.invDLnR);
+  const i = Math.min(Math.floor(u), last - 1);
+  return Math.exp(p.lnJ[i] + (p.lnJ[i + 1] - p.lnJ[i]) * (u - i));
+}
+
+/**
+ * What M87's model galaxy draws near the camera: its elliptical template's splat size against radius, and the
+ * settings the galaxies' shader fades its particles with (render/shaders/galaxies.vert.glsl: a splat of σ
+ * target pixels is drawn × (1 − smoothstep(σ_max/2, σ_max, σ)), σ = h / d × pixels per radian).
+ */
+export interface M87TemplateNear {
+  /** The template's unit (its half-light radius) and its splats' scale, pc. */
+  unitPc: number;
+  splatPc: number;
+  /** Median splat size (template units) at radii uniform in ln r (template units) from lnR0, step 1/invDLnR; none beyond rMax. */
+  lnR0: number;
+  invDLnR: number;
+  splat: Float64Array;
+  rMax: number;
+  lnRMax: number;
+  /** The largest of those splats (template units), and the largest median at or inside each node. */
+  splatMax: number;
+  splatUpTo: Float64Array;
+  /** The Galaxy layer's pixels per radian and the largest splat drawn (galaxyUniforms uPxPerRad, uSigmaMax). */
+  pxPerRad: number;
+  sigmaMax: number;
+}
+
+/** The median splat size of a template's particles against radius (template units), in 24 bins uniform in ln r. */
+export function templateSplats(position: Float32Array, attrs: Float32Array, count: number): Pick<M87TemplateNear, 'lnR0' | 'invDLnR' | 'splat' | 'rMax' | 'lnRMax' | 'splatMax' | 'splatUpTo'> {
+  const r = new Float64Array(count);
+  let rMax = 0;
+  let rMin = Infinity;
+  for (let i = 0; i < count; i++) {
+    r[i] = Math.hypot(position[3 * i], position[3 * i + 1], position[3 * i + 2]);
+    rMax = Math.max(rMax, r[i]);
+    rMin = Math.min(rMin, r[i]);
+  }
+  const bins = 24;
+  const lnR0 = Math.log(Math.max(rMin, 1e-6));
+  const invD = bins / (Math.log(rMax) - lnR0);
+  const lists: number[][] = Array.from({ length: bins }, () => []);
+  for (let i = 0; i < count; i++) lists[Math.min(bins - 1, Math.floor((Math.log(Math.max(r[i], 1e-6)) - lnR0) * invD))].push(attrs[4 * i + 1]);
+  const splat = new Float64Array(bins);
+  let last = 0.5;
+  for (let k = 0; k < bins; k++) {
+    const l = lists[k].sort((a, b) => a - b);
+    splat[k] = l.length ? l[l.length >> 1] : last;
+    last = splat[k];
+  }
+  // Bin k's median stands for its centre, ln r = lnR0 + (k + ½)/invD.
+  let splatMax = 0;
+  for (let i = 0; i < count; i++) splatMax = Math.max(splatMax, attrs[4 * i + 1]);
+  // The largest median at or inside each node, and the next (the medians are read linearly between nodes).
+  const splatUpTo = new Float64Array(bins);
+  let m = 0;
+  for (let k = 0; k < bins; k++) splatUpTo[k] = m = Math.max(m, splat[k], k + 1 < bins ? splat[k + 1] : 0);
+  return { lnR0: lnR0 + 0.5 / invD, invDLnR: invD, splat, rMax, lnRMax: Math.log(rMax), splatMax, splatUpTo };
+}
+
+/**
+ * The share of the template's light that its particles still draw, at ln(r / unit) from M87's centre (lnRr) and
+ * sPc from the camera: 0 where the camera is inside a splat or a splat is past σ_max, 1 where splats are under
+ * σ_max/2, the smoothstep between (as galaxies.vert.glsl), and 1 beyond the template's reach.
+ */
+function keptAt(t: M87TemplateNear, lnRr: number, sPc: number): number {
+  if (!(lnRr <= t.lnRMax)) return 1;
+  const last = t.splat.length - 1;
+  const u = Math.min(last, Math.max(0, (lnRr - t.lnR0) * t.invDLnR));
+  const i = Math.min(Math.floor(u), last - 1);
+  const h = (t.splat[i] + (t.splat[i + 1] - t.splat[i]) * (u - i)) * t.splatPc;
+  if (sPc <= h) return 0;
+  const sigma = (h / sPc) * t.pxPerRad;
+  const lo = 0.5 * t.sigmaMax;
+  if (sigma <= lo) return 1;
+  if (sigma >= t.sigmaMax) return 0;
+  const x = (sigma - lo) / (t.sigmaMax - lo);
+  return 1 - x * x * (3 - 2 * x);
+}
+
+/** The share of the template's light at radius rPc (from M87's centre) and sPc from the camera that its particles still draw. */
+export function templateKept(t: M87TemplateNear, rPc: number, sPc: number): number {
+  return keptAt(t, Math.log(Math.max(rPc / t.unitPc, 1e-9)), sPc);
+}
+
+/**
+ * M87's own starlight seen from a camera `dPc` from its centre: into `out` (M87_TABLE_SIZE entries), ln of the
+ * column (L☉/pc², V) along the directions ψ_i = M87_PSI_MIN (π/M87_PSI_MIN)^(i/(N − 1)) from the direction of
+ * the centre, of the true profile times the share of the template's light its particles no longer draw
+ * (templateKept), out to the template's reach (beyond it M87's halo is left to the model galaxy's point).
+ * Along each direction, in t (r = b cosh t, b = d sin ψ), over the part of the ray where the template can have
+ * faded: from the camera (or where the ray enters the template's sphere) to where the largest splat drops
+ * under σ_max/2 or the ray leaves the sphere, in M87_TABLE_STEPS steps each exact for an exponential in t (a
+ * power law in r, which is what the profile is, piece by piece). e^t is carried from node to node, and ln r
+ * is a short series in e^(−2|t|) at most nodes, so each node costs about one exponential. No allocation.
+ */
+export function m87ColumnTable(p: M87Profile, t: M87TemplateNear, dPc: number, out: Float32Array): Float32Array {
+  const n = out.length;
+  const rEnd = Math.min(p.rMaxPc, Math.exp(t.lnRMax) * t.unitPc);
+  const lnStep = Math.log(Math.PI / M87_PSI_MIN) / (n - 1);
+  const lnUnit = Math.log(t.unitPc);
+  // No particle fades further from the camera than s = h pxPerRad / (σ_max / 2), h its splat.
+  const k2 = (2 * t.splatPc * t.pxPerRad) / t.sigmaMax;
+  const sFade = k2 * t.splatMax;
+  const lastJ = p.lnJ.length - 1;
+  const lastS = t.splatUpTo.length - 1;
+  for (let i = 0; i < n; i++) {
+    const psi = M87_PSI_MIN * Math.exp(i * lnStep);
+    const b = Math.max(dPc * Math.sin(psi), 1e-12);
+    const s0 = dPc * Math.cos(psi);
+    if (b >= rEnd) {
+      out[i] = M87_LN_NONE;
+      continue;
+    }
+    const tEdge = Math.acosh(rEnd / b);
+    const lnHalfB = Math.log(0.5 * b);
+    const ta = Math.max(Math.asinh(-s0 / b), -tEdge);
+    // Tighten the end to this ray: the largest splat at radii up to the furthest the ray reaches before it (the
+    // splats grow outwards), three times over (each bound can only shrink the stretch, and so the radii, of the next).
+    let sHi = sFade;
+    for (let it = 0; it < 3; it++) {
+      const rHi = Math.max(dPc, Math.hypot(b, sHi - s0));
+      const u = Math.min(lastS, Math.max(0, (Math.log(rHi) - lnUnit - t.lnR0) * t.invDLnR));
+      const j = Math.min(Math.floor(u), lastS - 1);
+      sHi = Math.min(sHi, k2 * (t.splatUpTo[j] + (t.splatUpTo[j + 1] - t.splatUpTo[j]) * (u - j)));
+    }
+    // On the way in (towards the closest approach) the radii shrink and so do the splats: where the fade stops
+    // before the closest approach, find it (bisection on s − k h(r(s)), with a quarter to spare), so the steps
+    // are not spent where the template draws everything.
+    const sIn = Math.min(s0, sHi);
+    if (sIn > 0 && sIn * FADE_MARGIN > k2 * medianSplat(t, Math.log(Math.max(b, 1e-300)) - lnUnit)) {
+      let lo = 0;
+      let hi = sIn;
+      for (let it = 0; it < 10; it++) {
+        const mid = 0.5 * (lo + hi);
+        if (mid > k2 * medianSplat(t, Math.log(Math.hypot(b, s0 - mid)) - lnUnit)) hi = mid;
+        else lo = mid;
+      }
+      if (hi < sIn) sHi = Math.min(sHi, hi * FADE_MARGIN);
+    }
+    const tb = Math.min(tEdge, Math.asinh((sHi - s0) / b));
+    if (!(tb > ta)) {
+      out[i] = M87_LN_NONE;
+      continue;
+    }
+    // Pieces cut where the ray crosses the edge of the profile's flat core (its slope jumps there).
+    let pieces = 0;
+    cutM[pieces++] = ta;
+    if (b < p.rFlatPc) {
+      const tf = Math.acosh(p.rFlatPc / b);
+      if (-tf > ta && -tf < tb) cutM[pieces++] = -tf;
+      if (tf > ta && tf < tb) cutM[pieces++] = tf;
+    }
+    cutM[pieces] = tb;
+    let col = 0;
+    for (let q = 0; q < pieces; q++) {
+      const a0 = cutM[q];
+      const a1 = cutM[q + 1];
+      const steps = Math.max(1, Math.round((M87_TABLE_STEPS * (a1 - a0)) / (tb - ta)));
+      const h = (a1 - a0) / steps;
+      const eh = Math.exp(h);
+      let et = Math.exp(a0);
+      let sum = 0;
+      let prev = 0;
+      let lnPrev = 0;
+      let tk = a0;
+      for (let k = 0; k <= steps; k++, et *= eh, tk += h) {
+        const inv = 1 / et;
+        const r = 0.5 * b * (et + inv);
+        const sk = s0 + 0.5 * b * (et - inv);
+        // ln r = ln(b/2) + |t| + ln(1 + x), x = e^(−2|t|): by its series where x < 0.03 (most nodes; the error is
+        // under x⁶/6, 1.3e-10), else a logarithm.
+        const x = et > 1 ? inv * inv : et * et;
+        const lr = x < 0.03 ? lnHalfB + Math.abs(tk) + x * (1 - x * (0.5 - x * (1 / 3 - x * (0.25 - x * 0.2)))) : Math.log(r);
+        const kept = keptAt(t, lr - lnUnit, sk);
+        let f = 0;
+        let lnF = 0;
+        if (kept < 1 && r < p.rMaxPc) {
+          const u = Math.max(0, (lr - p.lnR0) * p.invDLnR);
+          const j = Math.min(Math.floor(u), lastJ - 1);
+          lnF = p.lnJ[j] + (p.lnJ[j + 1] - p.lnJ[j]) * (u - j) + lr + (kept > 0 ? Math.log(1 - kept) : 0);
+          f = Math.exp(lnF);
+        }
+        // Each step exactly for an exponential in t (a power law in r): (f1 − f0) / ln(f1 / f0), else the trapezoid.
+        if (k > 0) {
+          const dl = f > 0 && prev > 0 ? lnF - lnPrev : 0;
+          sum += Math.abs(dl) > 1e-6 ? (f - prev) / dl : 0.5 * (f + prev);
+        }
+        prev = f;
+        lnPrev = lnF;
+      }
+      col += sum * h;
+    }
+    out[i] = col > 0 ? Math.max(M87_LN_NONE, Math.log(col)) : M87_LN_NONE;
+  }
+  return out;
+}
+
+const cutM = new Float64Array(4);
+/** The bisection's end is pushed out by this much, for the medians' scatter from bin to bin. */
+const FADE_MARGIN = 1.25;
+
+/** The template's median splat (template units) at ln(r / unit) = lnRr, as keptAt reads it. */
+function medianSplat(t: M87TemplateNear, lnRr: number): number {
+  const last = t.splat.length - 1;
+  const u = Math.min(last, Math.max(0, (lnRr - t.lnR0) * t.invDLnR));
+  const i = Math.min(Math.floor(u), last - 1);
+  return t.splat[i] + (t.splat[i + 1] - t.splat[i]) * (u - i);
+}
+
+/** The column the shader reads from the table in direction ψ from M87's centre (L☉/pc²): ln-linear in ln ψ. */
+export function m87ColumnAt(table: Float32Array, psi: number): number {
+  const n = table.length;
+  const lnStep = Math.log(Math.PI / M87_PSI_MIN) / (n - 1);
+  const u = Math.min(n - 1, Math.max(0, Math.log(Math.max(psi, 1e-30) / M87_PSI_MIN) / lnStep));
+  const i = Math.min(Math.floor(u), n - 2);
+  const l = table[i] + (table[i + 1] - table[i]) * (u - i);
+  return l <= M87_LN_NONE + 1 ? 0 : Math.exp(l);
 }

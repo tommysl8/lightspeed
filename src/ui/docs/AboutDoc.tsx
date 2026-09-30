@@ -56,9 +56,9 @@ function CopyButton({ text, label }: { text: string; label: string }) {
 const PRINCIPLES: [string, string][] = [
   ['True scale', 'Distances and sizes are never compressed, from a moon to the cosmic web. Drawing bodies larger is an explicit option, and says so.'],
   ['The real sky', 'Positions from published ephemerides, good to an arcminute from 1700 to 2200 and to about half a degree from 3000 BCE to 3000 CE, among 329,770 stars placed in three dimensions at their measured distances, and the galaxies beyond at theirs.'],
-  ['Exact relativity', 'Aberration, Doppler shift, beaming and time dilation follow from the Lorentz transformation, not from low-speed approximations.'],
+  ['Exact relativity', 'Aberration, Doppler shift, beaming and time dilation follow from the Lorentz transformation, not from low-speed approximations. Near a black hole, the bending of light and the slowing of clocks follow exactly from general relativity, for a black hole that does not spin.'],
   ['Expanding space', 'Beyond the Local Group space expands, and the program models it: the clock keeps cosmic time, and flights out there cross the expanding universe of the Planck 2018 model rather than zooming.'],
-  ['Models labelled', 'Where the measurements run out, a model built from published measurements takes over (the Milky Way seen from outside, the shapes of other galaxies), and its card says so.'],
+  ['Models labelled', 'Where the measurements run out, a model built from published measurements takes over (the Milky Way seen from outside, the shapes of other galaxies, the stars and the gas round the black hole at its centre), and its card says so.'],
   ['Fiction labelled', 'The one non-physical feature, faster-than-light travel, is marked in red and never enters the notebook.'],
 ];
 
@@ -67,9 +67,9 @@ function Overview() {
     <Chapter id="overview" title="What it is">
       <p className="doc-lead">
         Lightspeed is a space exploration tool with real physics. It shows the universe as it is right now, from the Solar
-        System at true scale to 329,770 stars in three dimensions, the Milky Way and the galaxies of the cosmic web, and lets
-        you fly through it at nearly the speed of light, with the sky and the clocks doing exactly what relativity says they
-        do.
+        System at true scale to 329,770 stars in three dimensions, eleven real black holes, the Milky Way and the galaxies of
+        the cosmic web, and lets you fly through it at nearly the speed of light, or hover over a black hole and fall in,
+        with the sky and the clocks doing exactly what relativity says they do.
       </p>
       <p>
         It is for anyone who has wondered what the sky would look like from a starship, and how long the trip would really
@@ -369,9 +369,66 @@ function Sources() {
           </>,
         ]}
       />
-      <h3 className="doc-h3-plain">Beyond the Milky Way</h3>
+      <h3 className="doc-h3-plain">Black holes</h3>
       <Refs
         start={29}
+        items={[
+          <>
+            The physics of a black hole that does not spin: J. L. Synge (1966), MNRAS 131, 463 (the shadow); C. Darwin (1959),
+            Proc. R. Soc. A 249, 180 (the paths of light); B. C. Carlson (1995), Numer. Algorithms 10, 13, and the{' '}
+            <Ext href="https://dlmf.nist.gov/19">NIST DLMF</Ext>, chapter 19 (the elliptic integrals); V. Perlick (2004), Living
+            Rev. Relativ. 7, 9, and Phys. Rev. D 69, 064017 (the exact lens equation); A. Gould (1994), ApJ 421, L71 (a star’s
+            own disc at a caustic); A. J. S. Hamilton &amp; J. P. Lisle (2008), Am. J. Phys. 76, 519 (the raindrop and the
+            free-fallers’ clocks); S. E. Gralla, D. E. Holz &amp; R. M. Wald (2019), Phys. Rev. D 100, 024018 (photon rings);
+            J. M. Bardeen (1973), in <i>Black Holes</i> (Les Houches), 215 (the shadow of a spinning black hole, for the spin
+            note); C. W. Misner, K. S. Thorne &amp; J. A. Wheeler, <i>Gravitation</i> (1973); S. Chandrasekhar, <i>The
+            Mathematical Theory of Black Holes</i> (1983). Checked against an independent reference in 30 to 50 digit
+            arithmetic, written for Lightspeed with mpmath (F. Johansson and others) and kept with its scripts.
+          </>,
+          <>
+            Sagittarius A* and M87*: GRAVITY Collaboration (2022, A&amp;A 657, L12: mass and distance; 2023, A&amp;A 677, L10:
+            the flares’ orbit, which orients the gas); Event Horizon Telescope Collaboration (2019, ApJL 875, L1, L5 and L6;
+            2022, ApJL 930, L12 to L17; 2025, arXiv:2509.24593); Do et al. (2019, Science 365, 664); Liepold, Ma &amp; Walsh
+            (2023, ApJL 945, L35) and Simon, Cappellari &amp; Hartke (2024, MNRAS 527, 2341): M87*’s mass from its stars;
+            Walker et al. (2018, ApJ 855, 128): M87’s jet.
+          </>,
+          <>
+            The stellar-mass black holes and their stars: El-Badry et al. (2023, MNRAS 518, 1057, and 521, 4323) and
+            Nagarajan et al. (2024, PASP 136, 014202): Gaia BH1 and BH2; Gaia Collaboration, Panuzzo et al. (2024, A&amp;A 686,
+            L2): Gaia BH3; Miller-Jones et al. (2021, Science 371, 1046), Brocksopp et al. (1999, A&amp;A 343, 861), Gies et al.
+            (2003, ApJ 583, 424) and Ramachandran et al. (2025, A&amp;A 698, A37): Cygnus X-1; Miller-Jones et al. (2009, ApJL
+            706, L230), Casares et al. (2019, MNRAS 488, 1356) and Khargharia, Froning &amp; Robinson (2010, ApJ 716, 1105):
+            V404 Cygni; González Hernández et al. (2014, MNRAS 438, L21), Cantrell et al. (2010, ApJ 710, 1127) and Gelino et
+            al. (2006, ApJ 642, 438): A0620-00 and XTE J1118+480; Torres et al. (2019, ApJL 882, L21; 2020, ApJL 893, L37),
+            Atri et al. (2020, MNRAS 493, L81) and Mikołajewska et al. (2022, ApJ 930, 9): MAXI J1820+070; Sahu et al. (2022,
+            ApJ 933, 83; 2025, arXiv:2503.07820) and Lam et al. (2022, ApJL 933, L23): OGLE-2011-BLG-0462; Eggleton (1983, ApJ
+            268, 368): a Roche lobe’s size. Each value is cited on the card that uses it. The positions and motions of Gaia
+            BH1, BH2, A0620-00, MAXI J1820+070 and XTE J1118+480 are Gaia DR3’s (ESA/Gaia/DPAC,{' '}
+            <Ext href="https://www.cosmos.esa.int/web/gaia-users/license">CC BY-NC 3.0 IGO</Ext>), via SIMBAD.
+          </>,
+          <>
+            The gas falling into Sagittarius A*, a model: the hot, thin flow of Broderick &amp; Loeb (2006, MNRAS 367, 905) and
+            Broderick et al. (2009, ApJ 697, 45), with the radial structure of Yuan, Quataert &amp; Narayan (2003, ApJ 598,
+            301) and the synchrotron light of Leung, Gammie &amp; Noble (2011, ApJ 737, 21) and Pandya et al. (2016, ApJ 822,
+            34), fitted for Lightspeed to the fluxes of the Event Horizon Telescope (2022, ApJL 930, L13), Bower et al. (2019,
+            ApJL 881, L2) and GRAVITY Collaboration (2020, A&amp;A 638, A2) and the near-infrared slope of Paugnat et al. (2024,
+            ApJ 977, 228); the V band’s zero point from Bessell, Castelli &amp; Plez (1998, A&amp;A 333, 231).
+          </>,
+          <>
+            The stars round Sagittarius A*, a model: Schödel et al. (2014, A&amp;A 566, A47; 2018, A&amp;A 609, A27; 2020,
+            A&amp;A 641, A102), Gallego-Cano et al. (2018, A&amp;A 609, A26), Feldmeier-Krause et al. (2017, MNRAS 464, 194),
+            Nogueras-Lara et al. (2020, Nature Astronomy 4, 377), Launhardt, Zylka &amp; Mezger (2002, A&amp;A 384, 112), Sormani
+            et al. (2022, MNRAS 512, 1857), Paumard et al. (2006, ApJ 643, 1011), Lu et al. (2013, ApJ 764, 155) and Yelda et
+            al. (2014, ApJ 783, 131); the stars’ brightness and colours from the{' '}
+            <Ext href="https://mist.science">MIST</Ext> v1.2 isochrones (Choi et al. 2016, ApJ 823, 102; Dotter 2016, ApJS 222,
+            8) with Kroupa’s (2001, MNRAS 322, 231) mass function. M87’s own starlight from the light profiles of Ferrarese et al.
+            (2006, ApJS 164, 334) and Kormendy et al. (2009, ApJS 182, 216).
+          </>,
+        ]}
+      />
+      <h3 className="doc-h3-plain">Beyond the Milky Way</h3>
+      <Refs
+        start={34}
         items={[
           <>
             Galaxies: <Ext href="https://doi.org/10.3847/1538-4357/ac94d8">Cosmicflows-4</Ext> (Tully et al. 2023, ApJ 944, 94;
@@ -419,7 +476,7 @@ function Sources() {
       />
       <h3 className="doc-h3-plain">Methods</h3>
       <Refs
-        start={34}
+        start={39}
         items={[
           <>
             Relativistic rendering: the rest-frame scene is rendered to a cube map and resampled per pixel by the aberration
@@ -427,6 +484,18 @@ function Sources() {
             a reflectance basis under a 5,772 K spectrum shifted by <i>D</i>, with <i>I</i>′<sub>λ</sub> = <i>D</i>
             <sup className="sup">5</sup> <i>I</i>
             <sub>λ</sub>(<i>λD</i>).
+          </>,
+          <>
+            Black holes: one exact Schwarzschild lens at a time, for the black hole whose lens is largest where the camera is.
+            Each time the camera’s distance changes, the deflection of light against its angle from the hole is tabulated in
+            double precision (512 points, from Carlson’s elliptic integrals) with an inverse table for images of orders 0 to 3;
+            the graphics chip reads them per pixel for diffuse light (the Galaxy layer resampled at each ray’s source, the
+            photon ring’s band with several rays a pixel) and per vertex for stars and points, and bodies near the hole are
+            solved exactly on the processor. Magnification is capped at the caustics by each star’s own disc (Gould 1994).
+            The accretion flow is ray traced along exact light paths from the camera into a map in the lens’s frame. Checked
+            on the target laptop’s graphics chip against the independent reference: escape directions within 0.001 of a
+            pixel, point images within 0.005 of a pixel, and pictures of 16 views agreeing on at least 99.99 % of the pixels
+            away from an edge.
           </>,
           <>
             Diffuse light (the Milky Way, the model of the Galaxy, the nebulae): a patch of sky the size of a faint star’s image
@@ -476,8 +545,37 @@ function Limitations() {
       </p>
       <ol className="doc-list-num">
         <li>
-          Apart from the expansion of the universe and the precession that general relativity adds to the S-stars’ orbits,
-          spacetime is flat: gravity bends neither the flights nor light, and no gravitational time dilation is applied.
+          Near the one black hole whose lens matters most, light is bent exactly (Schwarzschild) and clocks slow; everywhere
+          else, and for every other black hole at the same moment, gravity bends neither light nor flights (apart from the
+          expansion of the universe and the precession that general relativity adds to the S-stars’ orbits), and no other
+          gravitational time dilation is applied. The other black holes’ lenses are then far below a pixel. Only the black
+          hole’s own gravity is included (the Sun’s and the Galaxy’s, parts in 10⁸ and 10⁶, are left out), and only where it
+          passes 5 parts in 10¹⁰; near a hole the time warp paces a clock hovering there, and home’s clock is one far from
+          every mass. The flight planner ignores gravity, so it refuses to leave from within 30 horizon radii of a black hole,
+          and the lab takes no reading near one.
+        </li>
+        <li>
+          Every black hole is drawn without spin, since none is measured well enough to draw (Sagittarius A*: estimates from
+          under 0.1 to 0.9; M87*: not measured; Cygnus X-1: claimed above 0.998). Spin makes a shadow smaller by less than
+          about 8 % (the Event Horizon Telescope’s figure): at the angle we see Sgr A* from, a spin of 0.9 to 0.94 would make
+          it about 5 to 7 % smaller and shift it by about half its horizon’s radius; seen edge-on, a fast spin makes a
+          shadow up to 12 % narrower and 1.2 horizon radii off-centre. Nothing is drawn inside the shadow: a black hole formed by collapse has no white hole, and
+          light traced back into it ends on the collapsed matter, whose light has faded. Near a hole your motion is measured
+          against observers hovering there (falling, against observers falling from rest far away), and the engine is
+          assumed to hold the ship, wherever you hover. In a fall home’s clock is shown on the free-fallers’ clocks
+          (Painlevé–Gullstrand time), a convention, and the fall ends where tides pull a ship apart, 0.03 s before the
+          centre, where general relativity stops working.
+        </li>
+        <li>
+          Round Sagittarius A*, the gas falling in is a model (a hot, thin flow of the Broderick and Loeb type, fitted to its
+          radio-to-infrared spectrum and oriented like the flares GRAVITY saw), drawn outside the horizon only. Its visible
+          light has never been seen and is carried over from the infrared: uncertain by about three times either way, eight
+          times fainter in a pessimistic model; it is smooth and steady where the real flow flickers tenfold within hours.
+          The stars within a few parsecs of the hole are a statistical model of the nuclear star cluster and disc following
+          published fits, not real stars (S2, S29, S38 and S55 apart); the fainter ones, and any within 0.01 pc of you, are a
+          smooth glow. M87’s own starlight is a smooth model of its measured light profile. The X-ray binaries’ discs, the
+          jets of Cygnus X-1 and M87* and V404 Cygni’s third star are not drawn; the orientation of four X-ray binaries’
+          orbits on the sky is assumed, and Cygnus X-1’s is taken from the direction of its jet.
         </li>
         <li>Constant-speed trips start and stop instantaneously. The 1 g drive is the physically realisable profile.</li>
         <li>
@@ -490,7 +588,9 @@ function Limitations() {
         </li>
         <li>
           Stars move in straight lines (good for about a million years either side of 2000; they stand still beyond), with no
-          interstellar dust; most double stars are one point, and the sizes of stars without a measured radius are estimates.
+          interstellar dust (none near the black holes either: the Sun seen past Sagittarius A* would really be dimmed by
+          about 30 magnitudes); most double stars are one point, and the sizes of stars without a measured radius are
+          estimates.
           The catalogue is complete to V ≈ 10 as seen from the Sun, so far from the Sun its stars thin out: that is the
           catalogue, not the Galaxy.
         </li>
@@ -560,8 +660,8 @@ function Software() {
       </p>
       <p>
         The code is released under the MIT Licence, © {APP.year} {AUTHOR.name}. The star catalogue, maps, shape models and other data
-        keep their own licences (the star and exoplanet files, and the map of the faint stars’ light built from them, are for
-        non-commercial use only, because of their Gaia DR3 values, and the star files are also CC BY-SA 4.0; the 67P shape
+        keep their own licences (the star and exoplanet files, the map of the faint stars’ light built from them and the
+        black holes’ file are for non-commercial use only, because of their Gaia DR3 values, and the star files are also CC BY-SA 4.0; the 67P shape
         model is CC BY-SA 3.0 IGO; the Solar System Scope textures, the nebula images, the star clusters (the Harris catalogue
         apart, which is free of charge), the S-stars’ orbits, the Cosmicflows-4 galaxies and the figure read from Sawala et al.
         are CC BY 4.0; the Local Volume Database is CC0; the NASA SVS sky and the WMAP map are public domain), listed under <Ref page="about" to="sources">Sources and methods</Ref>.

@@ -2,16 +2,18 @@
  * The galaxies beyond the Milky Way in the app, from the shipped files: every galaxy target of the
  * articles resolving (the young galaxies too), where they are and how they are tilted (Andromeda
  * a 3° oval at its real position angle from Earth, its arms trailing its measured spin), the
- * Local Group, the trail up to the observable universe, the Bodies list and search, the articles,
+ * Local Group, M87* at M87's centre (its trail, light-time and redshift its galaxy's), the trail up to
+ * the observable universe, the Bodies list and search, the articles,
  * the cards of the young galaxies, the clusters' sizes from their Cosmicflows-4 members, and the
  * named scenes.
  */
 import { beforeAll, describe, expect, it } from 'vitest';
+import { Vector3 } from 'three';
 import { msFromCivil } from '../../lib/time';
 import { loadLocalGalaxies, loadNamed, loadWeb } from '../../test/cosmos';
 import { resolveTarget, runScene, sceneNote, sceneStatus, cancelSceneStep, KNOWN_TARGETS, parseScene, flightOf } from '../../content/scenes';
 import { findDestination, nestedDestinations, searchDestinations } from '../../content/destinations';
-import { articleForBody } from '../../content/bodyArticles';
+import { articleForBody, kindArticle } from '../../content/bodyArticles';
 import { locationPath } from '../../ui/location';
 import { deepSkyDistanceLine } from '../../ui/deepSkyText';
 import { updateEphemeris } from '../ephemeris';
@@ -19,11 +21,13 @@ import { cosmicAt } from '../cosmicTime';
 import { setSimTime, sim } from '../sim';
 import { apparentMagnitude } from '../derived';
 import { getBody, isBody } from '../bodies';
-import { KPC_KM, MPC_KM, PARSEC_KM } from '../../physics/constants';
+import { AU_KM, KPC_KM, MPC_KM, PARSEC_KM } from '../../physics/constants';
 import { useUI } from '../../state/ui';
 import { controller } from '../../controls/cameraController';
 import { registerGalaxyCore } from '../galaxy/load';
 import { cosmosState, registerCosmos, webRowsOfBodies } from './load';
+import { cosmicSky, updateCosmicSky } from './expansion';
+import { cosmicSightLine, lightLeftAgo } from './sight';
 import { CLUSTER_RADIUS_MPC, LOCAL_GROUP_RADIUS_MPC, bodyIdOf } from './records';
 import { dot, eclToWorld, ICRS_TO_ECL, apply, skyBasis, type Vec3 } from './frames';
 import { CMB_CARD, COSMIC_WEB_CARD, cosmicWebShare } from '../../ui/cosmicLayers';
@@ -164,6 +168,54 @@ describe('where you are', () => {
     expect(labels('earth').slice(0, 4)).toEqual(['Observable universe', 'Local Universe', 'Local Group', 'Milky Way']);
   });
 
+  it('puts M87* at the centre of M87, its trail through the Virgo Cluster and its galaxy', () => {
+    expect(labels('m87-star')).toEqual(['Observable universe', 'Local Universe', 'Virgo Cluster', 'Messier 87 (Virgo A)', 'M87*']);
+    expect(getBody('m87-star')?.parent).toBe('m87');
+    expect(sim.bodies['m87-star'].pos.distanceTo(sim.bodies.m87.pos)).toBe(0);
+  });
+
+  it('sees M87* as it sees M87: the same anchor in the expanding universe, the same light-time and redshift', () => {
+    const hole = cosmicSky.byId.get('m87-star')!;
+    const galaxy = cosmicSky.byId.get('m87')!;
+    expect(hole.anchorKm.equals(galaxy.anchorKm)).toBe(true);
+    expect(hole.home).toBe(false);
+    updateCosmicSky(false);
+    expect(hole.chiMpc).toBeGreaterThan(10);
+    expect(hole.chiMpc).toBe(galaxy.chiMpc);
+    expect(lightLeftAgo('m87-star')).toBe(lightLeftAgo('m87'));
+    expect(lightLeftAgo('m87')).toMatch(/million years/);
+  });
+
+  it('sees M87 and M87* with no expansion in between from inside the Virgo Cluster’s core, as the Local Group from home', () => {
+    const save = sim.camera.pos.clone();
+    try {
+      // Beside M87*, 6,288 au out (its framing): 0.3 Mpc from the cluster's anchor, inside its core.
+      sim.camera.pos.copy(sim.bodies['m87-star'].pos).add(new Vector3(0, 0, 6288 * AU_KM));
+      updateCosmicSky(false);
+      expect(cosmicSky.inLocalGroup).toBe(false);
+      expect(cosmicSky.boundTo).toBe('virgo-cluster');
+      for (const id of ['m87', 'm87-star', 'virgo-cluster']) {
+        expect(cosmicSky.byId.get(id)!.chiMpc, id).toBe(0);
+        expect(cosmicSky.byId.get(id)!.ln1pz, id).toBe(0);
+        expect(lightLeftAgo(id), id).toBeNull();
+        expect(cosmicSightLine(id), id).toBeNull();
+      }
+      // Everything beyond the cluster is seen from the cluster's own place: home as from Virgo, 16 Mpc of expanding space away.
+      expect(cosmicSky.byId.get('andromeda')!.chiMpc).toBeGreaterThan(15);
+      expect(lightLeftAgo('andromeda')).toMatch(/million years/);
+      // Just outside the core the expansion between comes back.
+      const virgo = cosmicSky.byId.get('virgo-cluster')!.anchorKm;
+      sim.camera.pos.copy(virgo).multiplyScalar(cosmicSky.a).add(new Vector3(1.01 * CLUSTER_RADIUS_MPC['virgo-cluster'] * MPC_KM, 0, 0));
+      updateCosmicSky(false);
+      expect(cosmicSky.boundTo).toBeNull();
+      expect(cosmicSky.byId.get('m87')!.chiMpc).toBeGreaterThan(0.9);
+      expect(lightLeftAgo('m87')).toMatch(/million years/);
+    } finally {
+      sim.camera.pos.copy(save);
+      updateCosmicSky(false);
+    }
+  });
+
   it('keeps a dwarf just outside the zero-velocity surface out of the Local Group', () => {
     // NGC 3109, 1.3 Mpc away, recedes with the expansion (subgroup "nearby" in the file).
     expect(labels('lg-ngc-3109')).toEqual(['Observable universe', 'Local Universe', 'NGC 3109']);
@@ -189,6 +241,11 @@ describe('lists, search and articles', () => {
     expect(mw.find((i) => i.destination.id === 'lmc')?.depth).toBe(1);
     const uni = groups.find((g) => g.id === 'universe')!.items.map((i) => i.destination.id);
     expect(uni).toEqual(expect.arrayContaining(['local-group', 'virgo-cluster', 'coma-cluster', 'bullet-cluster', 'cosmic-web', 'cmb']));
+    // M87* under M87, under the Virgo Cluster.
+    const virgo = groups.find((g) => g.id === 'universe')!.items;
+    const at = virgo.findIndex((i) => i.destination.id === 'm87');
+    expect(virgo[at].depth).toBe(1);
+    expect(virgo[at + 1]).toMatchObject({ depth: 2, destination: { id: 'm87-star', kind: 'Supermassive black hole', group: 'galaxies' } });
   });
 
   it('finds every galaxy, cluster and layer by its names', () => {
@@ -205,6 +262,10 @@ describe('lists, search and articles', () => {
     expect(top('Fornax Dwarf')).toBe('lg-fornax-1');
     expect(searchDestinations('Fornax').some((m) => m.destination.id === 'lg-fornax-1')).toBe(true);
     expect(top('Virgo Cluster')).toBe('virgo-cluster');
+    // "M87" is the galaxy; its black hole is "M87*".
+    expect(top('M87')).toBe('m87');
+    expect(top('M87*')).toBe('m87-star');
+    expect(top('M87 black hole')).toBe('m87-star');
     expect(top('Coma')).toBe('coma-cluster');
     expect(top('Cen A')).toBe('centaurus-a');
     expect(top('M104')).toBe('sombrero');
@@ -222,6 +283,8 @@ describe('lists, search and articles', () => {
     for (const id of ['andromeda', 'lmc', 'lg-draco-2', 'm87', 'bullet-cluster', 'local-group']) expect(articleForBody(id), id).toBe('island-universes');
     for (const id of ['virgo-cluster', 'coma-cluster']) expect(articleForBody(id), id).toBe('the-expanding-universe');
     for (const id of HIGH_Z) expect(articleForBody(id), id).toBe('the-edge-of-reach');
+    // M87*, like every black hole, follows its kind.
+    expect(articleForBody('m87-star')).toBe(kindArticle('black-hole'));
   });
 });
 

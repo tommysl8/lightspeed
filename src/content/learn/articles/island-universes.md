@@ -2,7 +2,7 @@
 slug: island-universes
 title: Island universes
 shelf: galaxies
-order: 14
+order: 15
 pitch: In 1920 nobody could say whether the spiral nebulae were other galaxies or wisps inside our own. One star, marked VAR! on a glass plate, settled it.
 updated: 2026-09-25
 ---

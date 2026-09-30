@@ -2,14 +2,21 @@
  * The instrument panel (right dock): observer kinematics, chronometers, the target data
  * sheet, relativistic optics, light-time, a spacetime diagram of the current trip, an
  * ephemeris table and a strip-chart recorder. Everything polls the simulation at 8 Hz.
+ *
+ * Near a black hole (sim/gravity.ts) the Observer section adds the hole's own readings: whom the
+ * view is measured against (an observer hovering at r, or falling from rest far away), the
+ * gravitational clock rate α, the height above the horizon, the speed past the hovering observers,
+ * the thrust the present motion takes and the tides; the clock rate becomes α/γ (your clock against
+ * home's), and the auto-exposure shows whenever it moves by a twentieth of a stop or more. On a black hole's
+ * data sheet its magnitude is the model of its gas seen as a point, and a binary's period shows once.
  */
 import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { C_KM_S, SUN_TEFF_K } from '../../physics/constants';
 import { bodyName, getBody, kindText, type BodyId, type BodyRecord, type Regime } from '../../sim/bodies';
 import { gamma } from '../../physics/relativity';
 import { fixed, fmtBeta, fmtGamma, pickUnit, qty, sci, sig, storedDigits } from '../../lib/sci';
-import { radiusReading, stored } from '../dataSheet';
-import { lightYearsText, roundedText, sizeText } from '../deepSkyText';
+import { radiusReading, sheetNotes, stored } from '../dataSheet';
+import { heightParts, lightYearsText, roundedText, sizeText, thrustText } from '../deepSkyText';
 import { PictureCredit } from '../viewport/BodyCard';
 import { ephemerisRows } from './ephemerisRows';
 import { controller } from '../../controls/cameraController';
@@ -33,6 +40,9 @@ import { rich } from '../rich';
 import { starData, starLabels, loadStarNames, loadStarExtra, starsVersion, subscribeStars } from '../../sim/stars';
 import type { DeepSkyInfo, ExoplanetInfo, StarInfo } from '../../sim/bodies';
 import { massText, methodWords, radiusText, temperatureWords } from '../exoplanetText';
+import { gravity } from '../../sim/gravity';
+import { fall } from '../../sim/fall';
+import { holeNumbers, tidesText } from '../flight/HoleStrip';
 
 /** What the target is, for the data sheet ("Natural satellite of Earth"). */
 function kindLine(r: BodyRecord): string {
@@ -77,6 +87,36 @@ function oneMinus(x: number): string {
 
 // ─── A · Observer ────────────────────────────────────────────────────────────────────────
 
+/** Whom the view is measured against near a black hole, in words. */
+function holeFrameText(mode: string, rOverRs: number): string {
+  const f = fall.trip;
+  if (f && mode === 'fall') return f.model.kind === 'rain' ? 'falling from rest far away' : `falling, let go at r = ${sig(f.r0M / 2, 4)} r_s`;
+  const r = `r = ${sig(rOverRs, rOverRs < 1.001 ? 7 : 4)} r_s`;
+  if (mode === 'circular') return `in a circular orbit at ${r}`;
+  if (mode === 'hold') return `passing at ${r} (snapshot)`;
+  if (mode === 'free') return `under power at ${r}`;
+  return `hovering at ${r}`;
+}
+
+/** A black hole's readings in the Observer section. */
+function NearHole({ mode }: { mode: string }) {
+  const n = holeNumbers();
+  if (!n) return null;
+  // As the card, the label and the panel along the bottom write it ("4000 au").
+  const h = heightParts(n.heightKm);
+  return (
+    <>
+      <div className="cap px-2.5 pb-0.5 pt-2">Near {bodyName(n.hole)}</div>
+      <Ro l="Measured against" v={<span className="font-sans text-fg-2">{holeFrameText(mode, n.rOverRs)}</span>} title="Near a black hole the view and the speeds are measured against observers hovering there (falling: observers falling from rest far away)" />
+      <Ro l={n.heightKm < 0 ? 'Inside the horizon by' : 'Height above the horizon'} v={<>{rich(h.v)} <span className="text-fg-3">{h.u}</span></>} tone={n.heightKm < 0 ? 'hazard' : 'data'} />
+      {!gravity.inside && <Ro l={<>Gravitational rate <Sym>α</Sym></>} v={oneMinus(gravity.alpha)} title="α = √(1 − r_s/r): a hovering clock's rate against home's" tone="data" />}
+      <Ro l="Speed past hovering observers" v={gravity.inside ? '—' : fmtBeta(n.betaPast)} u={gravity.inside ? undefined : 'c'} title={gravity.inside ? 'Inside the horizon nothing can hover' : undefined} />
+      <Ro l="Thrust for this motion" v={n.thrustG === null ? 'none: falling freely' : thrustText(n.thrustG)} title="The proper acceleration the present motion takes (hovering: GM/(r²α)); the engine is assumed to provide it" />
+      <Ro l="Tides across 2 m" v={tidesText(n.tidalMS2)} tone={n.tidesTearShip ? 'hazard' : undefined} title={n.tidesTearShip ? 'Tides here would tear a ship apart' : 'The stretch 2GM·L/r³ along the radius'} />
+    </>
+  );
+}
+
 function Observer() {
   const mode = useUI((s) => s.controlMode);
   const beta = observerBeta();
@@ -84,6 +124,7 @@ function Observer() {
   const v = sim.ship.vel.length();
   const pos = eclipticLonLat(sim.camera.pos);
   const warp = !!travel.trip?.warp;
+  const near = gravity.hole ? holeNumbers() : null;
   return (
     <Sec id="obs" idx="A" title="Observer">
       <Ro l="Reference frame" v={<span className="font-sans text-fg-2">S, Sun at rest</span>} />
@@ -99,7 +140,11 @@ function Observer() {
         title="γ = 1/√(1 − β²)"
       />
       <Ro l={<>Rapidity <Sym>φ</Sym> = artanh <Sym>β</Sym></>} v={warp ? '—' : sig(Math.atanh(beta), 5)} />
-      <Ro l={<>Clock rate d<Sym>τ</Sym>/d<Sym>t</Sym></>} v={warp ? 'undefined' : oneMinus(1 / g)} title="Proper time per unit coordinate time, 1/γ" />
+      <Ro
+        l={<>Clock rate d<Sym>τ</Sym>/d<Sym>t</Sym></>}
+        v={warp ? 'undefined' : near ? oneMinus(near.clockRate) : oneMinus(1 / g)}
+        title={near ? (fall.trip ? 'Your proper time per unit of home’s time on the free-fallers’ clocks' : 'Your proper time per unit of home’s time, α/γ: gravity and speed') : 'Proper time per unit coordinate time, 1/γ'}
+      />
       <Ro
         l="Kinetic energy per kg"
         v={warp ? '—' : sci((g - 1) * C_KM_S * C_KM_S * 1e6, 3)}
@@ -107,6 +152,7 @@ function Observer() {
         title="(γ − 1)c² per kilogram of rest mass"
       />
       {mode === 'free' && <Ro l="Throttle" v={sci(controller.throttleBeta, 3)} u="c" tone="accent" />}
+      {near && <NearHole mode={mode} />}
     </Sec>
   );
 }
@@ -293,7 +339,8 @@ function Target() {
   const geo = targetReading(id);
   const massKg = d.massKg ?? (d.gmKm3S2 ? d.gmKm3S2 / G_KM3 : NaN);
   const radius = radiusReading(r, d.triaxialRadiiKm ? 'Mean radius' : 'Radius');
-  const notes = [r.positionNote, ...(r.modelNotes ?? [])].filter((n): n is string => !!n);
+  // The card's notes and, for a black hole, those its card leaves out (ui/dataSheet.ts).
+  const notes = sheetNotes(r);
   // A galaxy in the expanding universe: when its light left, not distance / c.
   const lightLeft = lightLeftAgo(id);
   return (
@@ -323,14 +370,16 @@ function Target() {
       <Ro l="Angular diameter" v={ang.v} u={ang.u} />
       {b.magnitude < 40 && (
         <Ro
-          l="Apparent magnitude V"
+          l={r.kind === 'black-hole' ? 'Apparent magnitude V (gas model)' : 'Apparent magnitude V'}
           v={fixed(b.magnitude, 1)}
           title={
-            d.luminous
-              ? 'Its own light: M_V + 5 log10(d / 10 pc), no interstellar dust'
-              : r.litBy
-                ? `Reflected light of ${bodyName(r.litBy)} (Lambert sphere with the body's assumed albedo)`
-                : "Reflected sunlight (Lambert sphere with the body's geometric albedo)"
+            r.kind === 'black-hole'
+              ? 'The model of the gas falling into it, seen as a point; no dust'
+              : d.luminous
+                ? 'Its own light: M_V + 5 log10(d / 10 pc), no interstellar dust'
+                : r.litBy
+                  ? `Reflected light of ${bodyName(r.litBy)} (Lambert sphere with the body's assumed albedo)`
+                  : "Reflected sunlight (Lambert sphere with the body's geometric albedo)"
           }
         />
       )}
@@ -362,7 +411,8 @@ function Target() {
       {d.siderealRotationH !== undefined && (
         <Ro l="Sidereal rotation" v={stored(Math.abs(d.siderealRotationH), 5)} u={d.siderealRotationH < 0 ? 'h retro.' : 'h'} />
       )}
-      {d.orbitalPeriodD !== undefined && <Ro l="Orbital period" v={stored(d.orbitalPeriodD)} u="d" />}
+      {/* Once: a binary black hole's rows above already give its period, with the paper it comes from. */}
+      {d.orbitalPeriodD !== undefined && !r.deepSky?.rows?.some((x) => x.l === 'Orbital period') && <Ro l="Orbital period" v={stored(d.orbitalPeriodD)} u="d" />}
       {d.semiMajorAxisKm !== undefined && <Ro l="Semi-major axis" v={<Q x={d.semiMajorAxisKm} dim="length" d={6} stored />} />}
       {d.obliquityDeg !== undefined && <Ro l="Obliquity" v={fixed(d.obliquityDeg, 2)} u="°" />}
       {d.geometricAlbedo !== undefined && (
@@ -436,7 +486,8 @@ function Optics() {
         title="Rest-frame directions with θ ≤ 90° appear within θ′ ≤ arccos β of the apex"
       />
       <Ro l="Sun colour temp. at apex" v={warp ? '—' : sig(SUN_TEFF_K * k, 4)} u="K" title="A blackbody at T appears as a blackbody at D·T" />
-      {relView.active && <Ro l="Auto-exposure" v={fixed(Math.log2(relView.exposure), 1)} u="EV" />}
+      {/* From a twentieth of a stop: near a stellar-mass hole it moves by 10⁻⁴ of one, which would read "0.0 EV". */}
+      {Math.abs(Math.log2(relView.exposure)) >= 0.05 && <Ro l="Auto-exposure" v={fixed(Math.log2(relView.exposure), 1)} u="EV" title="Near a black hole it follows the blueshift of the sky, at rest too, and stops down for the glare of the sky (the stars round the centre) or of the gas, as a camera would" />}
       {r && r.beta >= 1e-3 && (
         <>
           <div className="cap px-2.5 pb-0.5 pt-2">Spectrometer at reticle</div>
@@ -565,7 +616,7 @@ const CHANNELS: Record<ScopeChannel, { label: string; q: string; unit?: string; 
   beta: { label: 'β', q: 'β', read: () => observerBeta() },
   gamma: { label: 'γ', q: 'γ', log: true, read: () => gamma(observerBeta()) },
   dopplerFwd: { label: 'D apex', q: 'D', log: true, read: () => Math.sqrt((1 + observerBeta()) / (1 - observerBeta())) },
-  dtau: { label: 'dτ/dt', q: 'dτ/dt', read: () => 1 / gamma(observerBeta()) },
+  dtau: { label: 'dτ/dt', q: 'dτ/dt', read: () => (gravity.hole ? (holeNumbers()?.clockRate ?? 1) : 1 / gamma(observerBeta())) },
   range: {
     label: 'Range',
     q: 'r',

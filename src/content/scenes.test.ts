@@ -53,7 +53,8 @@ describe('parseScene', () => {
     for (const t of KNOWN_TARGETS) expect(parseScene(`go:${t}`)).not.toBeNull();
     expect(KNOWN_TARGETS).toContain('jades-gs-z14-0');
     expect(KNOWN_TARGETS).toContain('mom-z14');
-    expect(KNOWN_TARGETS).toHaveLength(110);
+    expect(KNOWN_TARGETS).toHaveLength(116);
+    expect(KNOWN_TARGETS).toEqual(expect.arrayContaining(['m87-star', 'gaia-bh1', 'gaia-bh2', 'gaia-bh3', 'cyg-x-1', 'ogle-2011-blg-0462']));
     expect(KNOWN_TARGETS).toEqual(expect.arrayContaining(['trappist-1', 'hr-8799', '51-pegasi', 'kepler-90', 'toi-700', 'kepler-16']));
   });
 
@@ -205,12 +206,13 @@ describe('journeys', () => {
       tracks: parseTracks(readJson<TracksIndex>('public/data/tracks.json'), readBytes('public/data/tracks.bin')),
     });
     updateEphemeris();
-    expect(JOURNEYS.map((j) => j.id)).toEqual(['sunlight', 'saturn', 'split', 'voyager', 'proxima', 'trappist', 'year', 'moon', 'neptune', 'halley']);
+    expect(JOURNEYS.map((j) => j.id)).toEqual(['sunlight', 'saturn', 'split', 'voyager', 'proxima', 'trappist', 'year', 'moon', 'neptune', 'halley', 'black-hole']);
     for (const j of JOURNEYS) {
       expect(parseScene(j.scene), j.id).not.toBeNull();
       expect(j.look.length, j.id).toBeGreaterThan(40);
-      // TRAPPIST-1 needs the stars and the planetary systems (sim/exoplanets/exoplanets.test.ts runs it).
-      if (j.id === 'trappist') expect(sceneStatus(j.scene).reason).toBe(LATER);
+      // TRAPPIST-1 needs the stars and the planetary systems (sim/exoplanets/exoplanets.test.ts runs it); the fall
+      // into Sgr A* needs the Milky Way (blackHoleScenes.test.ts runs it).
+      if (j.id === 'trappist' || j.id === 'black-hole') expect(sceneStatus(j.scene).reason).toBe(LATER);
       else expect(sceneStatus(j.scene).ok, j.id).toBe(true);
     }
   });

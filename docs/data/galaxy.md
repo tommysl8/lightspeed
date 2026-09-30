@@ -3,9 +3,10 @@
 The Galaxy in Lightspeed: a parametric model of the Milky Way with a particle rendering of it, the real Milky Way
 sky as seen from the Sun, 1,664 star clusters with measured distances, 45 nebulae with images and distances, and the
 stars orbiting the Galaxy's central black hole. Sections 1 to 11 describe the data and how they were made; section 12
-describes how the app draws them. The evaluators in `src/sim/galaxy/` are plain TypeScript with no three.js
-dependency (the renderer is in `src/scene/MilkyWay.tsx`, `GalaxyModel.tsx`, `Nebulae.tsx` and
-`src/render/galaxyLayer.ts`).
+describes how the app draws them. The black hole itself (its lens, its accretion flow) and the model of the nuclear
+star cluster round it are written up in `docs/data/blackholes.md`. The evaluators in `src/sim/galaxy/` are plain
+TypeScript with no three.js dependency (the renderer is in `src/scene/MilkyWay.tsx`, `GalaxyModel.tsx`, `Nebulae.tsx`
+and `src/render/galaxyLayer.ts`).
 
 ## Contents
 
@@ -41,8 +42,10 @@ Label these differently in the UI.
   distances, ages, masses and sizes, nebula positions, distances and photographs, Sgr A*'s mass and distance, the
   S-star orbits and the frame definitions.
 - **Model.** The 3D Galaxy made of particles. Its density laws and parameters are fitted to data by the cited papers,
-  but each particle is a random draw, not a star. The spiral arms are traced by parallaxes over about a third of the
-  disc and extrapolated elsewhere. The dust, the colours and the split of light between components are also model.
+  but each particle is a random draw, not a star. Within a few parsecs of Sgr A* the stars are a statistical model of
+  the nuclear star cluster and disc (`docs/data/blackholes.md` §6), and the gas falling into it a fitted model (§7
+  there). The spiral arms are traced by parallaxes over about a third of the disc and extrapolated elsewhere. The
+  dust, the colours and the split of light between components are also model.
   Suggested wording: "Model of the Milky Way built from published measurements. Individual points are not real
   stars. The far side of the Galaxy has never been mapped directly."
 
@@ -497,7 +500,10 @@ GRAVITY measured f_SP = 1.10 +- 0.19 (2020) and 0.997 +- 0.144 (2022), where 1 i
 `{ fSP: 1 }`, the evaluator advances omega in proportion to the swept true anomaly. That is the first-order 1PN
 orbit, and it puts about 70% of each step within a few months of pericentre, as observed. At the elements' osculation
 epoch the published omega is recovered exactly. The default `fSP: 0` gives the plain Kepler orbit the elements
-describe. The gravitational redshift (about 200 km/s at pericentre) is not added to the radial velocity.
+describe. The orbits leave out the gravitational redshift and the transverse Doppler shift of the radial velocity
+(about 200 km/s together at pericentre): they change what a spectrograph reads, not where the star is. The colours and
+magnitudes drawn near Sgr A* include both: `sim/lensBodies.ts` gives each image the star's gravitational shift where it
+is and its orbital Doppler factor along the ray that reaches the camera (`docs/data/blackholes.md` §10).
 
 **Tests** (`sstars.test.ts`, all derived from the papers):
 
@@ -621,8 +627,8 @@ The rows for these files are in `CREDITS.md`, and the About page lists the sourc
   positive longitude), but the round thin disc continues through it, so it is hard to see from outside. A hole in the
   thin disc inside the bar would be a modelling choice that Bland-Hawthorn & Gerhard (2016) do not make; a
   Besançon-style hole (Robin et al. 2003, 1.3 kpc) would not change 2.5 to 4.5 kpc. Left for the author to decide.
-- The S-star evaluator ignores the Roemer delay and gravitational redshift. It is not a replacement for a full
-  orbit fit.
+- The S-star evaluator ignores the Roemer delay and the relativistic redshift terms of the radial velocity (the
+  colours drawn near Sgr A* include them, section 7). It is not a replacement for a full orbit fit.
 
 ## 11. Changes after the independent verification (25 September 2026)
 
@@ -646,8 +652,11 @@ Registered by `src/sim/galaxy/load.ts` from the records of `records.ts`:
   Wegg et al. bar, Drimmel and Spergel dust)". Its framing is the view from 100,000 light-years (`frameMilkyWay`,
   20° off the north galactic pole towards the Sun): the scene `milky-way-outside`, and the trail's "Milky Way" link.
 - `sgr-a-star` (kind `black-hole`): the GRAVITY 2022 mass and distance at the Reid & Brunthaler position, held fixed.
-  It is drawn as a black sphere of the shadow's radius, √27 GM/c² = 0.220 au, with no point of light and no glowing
-  gas.
+  Its radius is the horizon's, r_s = 2GM/c² = 0.0848 au, and it has renderer `lens`: no mesh and no point of light of
+  its own, but a Schwarzschild lens that bends everything in view round its shadow (√27 GM/c² = 0.220 au in impact
+  parameter), the model of its accretion flow (a point from far away, a ring close in) and the nuclear star cluster
+  round it. Its camera hovers in height above the horizon down to r_s(1 + 10⁻⁶). All of it is in
+  `docs/data/blackholes.md`.
 - `s2`, `s29`, `s38`, `s55` (kind `star`, parent Sgr A*): the GRAVITY 2022 orbits with the Schwarzschild precession
   (f_SP = 1). The app places a body where it is at the date shown, and the orbits' epochs are when their light
   reaches us, so each orbit is evaluated a light-time D/c after the date: where the star is now is 27,000 years of
@@ -692,12 +701,20 @@ colour; a blackbody's radiance seen with Doppler factor D is that of a blackbody
 - The eye's threshold: the glow fades out between 22 and 24 mag/arcsec² (the darkest skies on Earth are about 22),
   judged over 4 texels (about 0.7°), as the star field fades out at V = 6.5. The galactic poles stay black.
 - Handover: the map has weight 1 − w and the model w, with w = smoothstep(100 pc, 500 pc, distance from the Sun),
-  blended as pictures (the model's light carried in the layer's alpha: `render/galaxyLayer.ts`).
+  blended as pictures (the model's light carried in the layer's alpha: `render/galaxyLayer.ts`). The model is drawn
+  only once its share reaches 1 % (within about 124 pc of the Sun it is left out, which changes no pixel by more than
+  1/255 at the Pleiades' 0.66 % and saves its whole pass there, 2.5 to 2.9 ms: `docs/data/blackholes.md` §11).
+- Near a black hole the map, and the relativistic remap's copy of it, are bent by its lens inside the region where the
+  lens moves light by half a pixel or more (`docs/data/blackholes.md` §10), with the pixel's footprint taken from the
+  lens's own Jacobian; light from inside the shadow is none.
 - Cost on the target laptop (1936 × 1376 px): 2.7 ms a frame as a full-screen pass, of which about 1 ms is the faint
   stars' map. The map and the faint stars' map are each read twice (the pixel's footprint and the eye's), with
   gradients, which this GPU does slowly (four such reads cost 2.1 ms, four plain ones 0.6 ms). In the handover both
   the map and the model are drawn, with every star, and the frame there (9.3 to 10.3 ms with a warm GPU) is over the
-  ~8 ms budget.
+  ~8 ms budget. Measured again on 29 September 2026 (2,048 × 1,320 px, medians of batch medians): 480 pc from the Sun
+  6.98 ms with the processor 20–40 % busy and 8.7 to 9.0 busier, against 9.2 the evening before; the sky map's own
+  pass there costs 1.8 to 2.9 ms for 0.7 % of the sky, and drawing it at half resolution would save 0.6 to 2.1 ms
+  anywhere near the Sun (proposed in `docs/data/blackholes.md` §11, not done).
 
 ### The model
 
@@ -738,6 +755,13 @@ the square-root law splat by splat would make a smooth disc several times too br
   cluster's light, and 48 points from a Plummer sphere of the same half-light radius with the rest (illustrative).
 - The worker (`worker.ts`, `galaxyData.ts`) inflates and decodes the particles and clusters and works out the dust
   and warp maps (512 × 512 half floats over ±20 kpc).
+- Before its dust each particle is tested against the view's frustum (with a margin of four of its widths and 2 px),
+  which changes no pixel and saves 0.27 to 0.46 ms a frame (measured near Sgr A*, the particles filling the view).
+- Near Sgr A* the model's nuclear disc and cluster (a few hundred particles on a 2-pc lattice there) hand over to the
+  nuclear star cluster's own field of 60,000 stars and a glow, from 1 kpc in and wholly within 30 pc, so that the three
+  always add up to the same light (`docs/data/blackholes.md` §6). Near a black hole the layer's two targets (and a
+  third holding the glow alone) are resampled through the lens in a box round the hole, and carry mipmaps within 3,000
+  M of it (`docs/data/blackholes.md` §10).
 
 ### Clusters and nebulae
 

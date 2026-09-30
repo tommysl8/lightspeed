@@ -8,6 +8,28 @@
 // position comes from the CPU in float64 (floating origin).
 #include <common>
 #include <logdepthbuf_pars_vertex>
+#ifdef LENS
+// Near a black hole (render/lensVariants.ts: the line's material is swapped for one compiled with LENS
+// while the lens is drawn) both ends of each segment go to their primary image, keeping their straight-line
+// distance from the camera, so the near-plane clipping and the depth test still see the line where it is:
+// with LENS alone by tier 1 (lensImage, as the stars), with LENS_EXACT, for the lines of bodies within
+// 10⁵ M of the hole (the S-stars round Sgr A*), by the exact solver of both branches (lensImageExact: tier 1
+// is 2 px off for S2's line in front of the hole), drawn straight where it does not apply (scene/Orbits.tsx
+// asks for it only for a hovering camera beyond 3M, the one case it always does). The point's place relative
+// to the hole comes from the body's, worked out in float64 on the CPU (uBodyHoleM), plus the segment's
+// offset, so the hole-relative position keeps its precision. A guide: the primary image only, no colour.
+// Both ends go through one call of lensPoint in a loop: the compiler keeps one copy of the lens code, where
+// two calls (and tier 1 as the exact solver's fallback) had the exact program's cold compile at 17–40 s on
+// the target laptop. Cost: two images a vertex, 1,024 segments at most (tier 2: 0.06 ms for 4,096 vertices,
+// measured); the programs are compiled in the background and used only near a hole.
+//
+// Twins: scene/orbitLines.ts (the conic), physics/lensPoint.ts (pointImageTier1, pointImageExact).
+#include <lightspeed_lens>
+#ifdef LENS_EXACT
+#include <lightspeed_lens_exact>
+#endif
+uniform vec3 uBodyHoleM;   // the body relative to the lensing hole, world axes, units of M (float64 on the CPU)
+#endif
 
 attribute vec2 corner;  // x: 0 = segment start, 1 = end; y: -1 / +1 side
 attribute float aIndex; // segment index
@@ -53,6 +75,29 @@ vec3 orbitOffset(float dA) {
   return -2.0 * uA * sin(mid) * s * uP + 2.0 * uB * cos(mid) * s * uQ;
 }
 
+#ifdef LENS
+// A point of the line, p from the camera (km) and o from the body (km), moved to its primary image at the
+// same distance from the camera. Within 3M of the hole (only its own orbit line comes so near, where the
+// line has faded out beside the hole) it stays where it is.
+vec3 lensPoint(vec3 p, vec3 o) {
+  vec3 srcH = uBodyHoleM + o * uLensScale.x;
+  if (dot(srcH, srcH) < 9.0) return p;
+  vec3 relM = uLensHole + srcH;
+  float lnDf = 0.0;
+  if (uFramePhi > 0.0) relM = frameAberrate(normalize(relM), lnDf) * length(relM);
+  vec3 image;
+  float lnMu;
+  float lnG;
+#ifdef LENS_EXACT
+  // (Straight, the direction it sets first, where the exact solver does not apply.)
+  lensImageExact(relM, 0.0, image, lnMu, lnG);
+#else
+  lensImage(relM, 0.0, 0.0, image, lnMu, lnG);
+#endif
+  return frameUnaberrate(image, lnDf) * length(p);
+}
+#endif
+
 float trailAlpha(float dA) {
   // Brighter just behind the body (where it has been), fading around the orbit.
   float behind = clamp(-dA / (PI * 0.95), 0.0, 1.0);
@@ -68,8 +113,22 @@ void main() {
   float dA1 = anomalyOffset(s1);
   vec3 o0 = orbitOffset(dA0);
   vec3 o1 = orbitOffset(dA1);
+#ifdef LENS
+  // Both ends through one call site (see the header).
+  vec3 e0 = uBodyPos + o0;
+  vec3 e1 = uBodyPos + o1;
+  for (int k = 0; k < 2; k++) {
+    vec3 o = k == 0 ? o0 : o1;
+    vec3 q = lensPoint(uBodyPos + o, o);
+    if (k == 0) e0 = q;
+    else e1 = q;
+  }
+  vec4 v0 = viewMatrix * vec4(e0, 1.0);
+  vec4 v1 = viewMatrix * vec4(e1, 1.0);
+#else
   vec4 v0 = viewMatrix * vec4(uBodyPos + o0, 1.0);
   vec4 v1 = viewMatrix * vec4(uBodyPos + o1, 1.0);
+#endif
 
   // Clip the segment against the near plane.
   float nz = -uNear * 1.001;

@@ -147,7 +147,7 @@ Voyager 1 reached the heliopause on 25 August 2012, 121.6 au out.[^nasavim][^hor
 The Sun settled it. A coronal mass ejection, a burst of plasma thrown off in March 2012, reached Voyager 1 in April 2013 and set the surrounding gas ringing. The pitch depends on the density, and the plasma wave instrument heard gas more than 40 times denser than in the outer layer of the heliosphere: interstellar plasma.[^jpl2013][^gurnett2013] "We literally jumped out of our seats when we saw these oscillations in our data," said Don Gurnett, who led the plasma wave team.[^jpl2013] Voyager 2, whose plasma instrument still worked, crossed on 5 November 2018 at 119.0 au and measured the change directly.[^nasavim][^stone2019][^horizons]
 
 ::: see-it go:voyager1
-Voyager 1 is beyond the heliopause and 172 au from the Earth. A radio message to it takes 23 hours 51 minutes, nearly five times as long as one to Pluto.
+Voyager 1 is beyond the heliopause, more than 170 au from the Earth. A radio message to it takes about a day, nearly five times as long as one to Pluto.
 :::
 
 ::: myth Voyager 1 has left the Solar System.
@@ -201,7 +201,7 @@ The third was found on 1 July 2025 by the ATLAS survey telescope at Río Hurtado
 What sets it apart is its chemistry. The James Webb Space Telescope found it unusually rich in carbon dioxide and, for the first time in an interstellar object, detected methane.[^belyakov2026] In June 2026 a Webb team reported about 30 times as much deuterium, heavy hydrogen, as in the Solar System's comets and very little carbon-13, the heavier form of carbon. That points to a very cold birthplace early in the galaxy's history. They estimate it may have formed 10 to 12 billion years ago, more than twice as long ago as the Sun.[^nasawebb2026]
 
 ::: see-it go:atlas-3i
-At the end of September 2026, 3I/ATLAS was 11.7 au from the Sun, beyond Saturn's orbit and heading out at about 59 km/s, nearly five times the local escape speed.
+3I/ATLAS is on its way out: on 25 September 2026 it was 11.6 au from the Sun, beyond Saturn's orbit and heading out at about 59 km/s, nearly five times the local escape speed. Its card gives today's distance.
 :::
 
 Three in eight years sounds rare, but they are probably everywhere. From how hard 'Oumuamua was to find, astronomers estimate about one such object in every 10 cubic au of space. A sphere the size of Neptune's orbit holds about 113,000 cubic au, so about 10,000 of them are inside it at any moment, nearly all too small and faint to notice.[^jewittseligman2023]

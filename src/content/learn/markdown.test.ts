@@ -86,6 +86,19 @@ describe('maths', () => {
     expect(text(html)).toContain('A coffee costs $5 and a sandwich $10, and a price written $20 stays a price.');
   });
 
+  it('keeps the punctuation after a short inline formula on its line, and leaves links and long formulas alone', () => {
+    const h = inline('The shadow is $\\alpha = 14.27°$, so $x$. And ($y$); then [the link $z$](#/learn/x).');
+    expect(h).toMatch(/<span class="learn-math-tail"><span class="katex">[\s\S]*14\.27°[\s\S]*<\/span>,<\/span> so/);
+    expect(h).toMatch(/<span class="learn-math-tail"><span class="katex">[\s\S]*<\/span>\.<\/span> And/);
+    expect(h).toMatch(/<span class="learn-math-tail"><span class="katex">[\s\S]*<\/span>\);<\/span> then/);
+    // A formula inside a link's text keeps the "]" to the link.
+    expect(h).toMatch(/<a href="#\/learn\/x"[^>]*>the link <span class="katex">/);
+    expect(text(h)).toBe('The shadow is [math], so [math]. And ([math]); then the link [math].');
+    // A long formula may still break inside: its punctuation is not tied to it.
+    const long = `$${'a + '.repeat(20)}b$, then`;
+    expect(inline(long)).not.toContain('learn-math-tail');
+  });
+
   it('leaves an unclosed $$ alone rather than swallowing the text after it', () => {
     const h = inline('$$\nx = 1\n\nA paragraph.');
     expect(h).not.toContain('katex');

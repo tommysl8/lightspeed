@@ -4,7 +4,11 @@
 // Frames and units
 //   sky frame at Sgr A*: x = east (Delta RA cos Dec), y = north, z = away from the observer (au or arcsec).
 //   Epochs t: decimal Julian years at the observer (2000.0 + (JD - 2451545) / 365.25).
-//   Radial velocity = dz/dt, km/s, positive = receding. Relativistic redshift terms are not included.
+//   Radial velocity = dz/dt, km/s, positive = receding. The orbits leave out the relativistic redshift terms
+//   (the gravitational and transverse Doppler shifts of the measured radial velocities, about 200 km/s for S2
+//   at pericentre): they change what a spectrograph reads, not where the star is. The colours and magnitudes
+//   drawn near Sgr A* include both (sim/lensBodies.ts: the static emitter's gravitational shift and the
+//   orbital Doppler factor along the ray that reaches the camera).
 //
 // Conversions to the app's frames use frames.ts (sky frame -> ICRS -> galactic / ecliptic / world).
 

@@ -8,6 +8,9 @@ import { earthLight, updateApparentPositions, updateEarthLight } from '../sim/li
 import { sim } from '../sim/sim';
 import { travel } from '../sim/travel';
 import { tickClock, tickTrip } from '../sim/tick';
+import { updateFall } from '../sim/fall';
+import { updateGravity } from '../sim/gravity';
+import { lensProgramsReady, updateLens } from '../render/lens/lensState';
 import { updateShipKinematics } from '../sim/shipKinematics';
 import { updatePulses } from '../sim/pulses';
 import { labArrival, labFrame } from '../lab/logger';
@@ -20,6 +23,11 @@ import { updateNearbyStars } from '../sim/stars';
 import { updateExoplanets } from '../sim/exoplanets';
 import { isWithin } from '../sim/bodies';
 import { updateCosmicSky } from '../sim/cosmos/expansion';
+import { nscPointsGate } from '../sim/galaxy/nuclearCluster';
+
+// The nuclear star cluster's points are drawn only once the lensed programs have compiled (scene/NuclearCluster.tsx):
+// until then their light stays in the glow (sim/galaxy/nuclearCluster.ts updateNuclear).
+nscPointsGate.programsReady = lensProgramsReady;
 
 /**
  * A star registered on demand stays while it (or a planet of it) is looked at, selected or flown
@@ -35,6 +43,13 @@ function keepStar(id: string): boolean {
  * Runs first every frame: advance the clock, update the ephemeris and any trip, move the
  * camera, then sync the three.js camera. It stays at the origin and only takes the
  * orientation: the floating origin.
+ *
+ * Near a black hole: the clock is paced by a hovering observer's proper time (sim/tick.ts, from the
+ * previous frame's gravity state), a fall sets its exact place right after the clock (sim/fall.ts
+ * updateFall, so the camera and the gravity state use the same r), the gravity state follows the
+ * camera and the ship's rapidity (sim/gravity.ts), and the lens follows the gravity state
+ * (render/lens/lensState.ts) before the view observers are set. Far from every hole each of these
+ * steps leaves everything as it was.
  */
 export function SimDriver() {
   const { camera, gl, size } = useThree();
@@ -69,6 +84,8 @@ export function SimDriver() {
     // under a reading page); otherwise the clock runs at the time warp. Scripted stepping
     // (debugDt) keeps to its own steps.
     const dtSim = tickClock(dtReal, sim.debugDt > 0 ? undefined : Date.now());
+    // A fall into a black hole: its exact radius and direction, before the camera and gravity use them.
+    updateFall();
 
     // World
     updateEphemeris();
@@ -100,11 +117,15 @@ export function SimDriver() {
     updateExoplanets(keepStar, ui.focus);
     // The observer's rapidity, exact at any γ (from the trip model while flying)
     updateShipKinematics();
+    // The black hole that matters from here, if any: its exact distance, clocks and frames (sim/gravity.ts)
+    updateGravity();
 
     // What the camera sees
     updateApparentPositions(ui.retarded);
     // The galaxies' light in the expanding universe: redshifts, and where each is seen (sim/cosmos/expansion.ts)
     updateCosmicSky(ui.retarded);
+    // Its lens: tables, zones, boxes and uniforms (render/lens/lensState.ts)
+    updateLens();
     updateRelativisticView(ui.relMode, ui.splitX, ui.relDoppler, !!travel.trip?.warp);
     updateDerived(cam, ui.focus, ui.selected);
     if (sim.frame - earthLight.frame >= 12) updateEarthLight();

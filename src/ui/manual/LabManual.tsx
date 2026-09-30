@@ -1,6 +1,7 @@
 /**
  * The lab (left dock): the handbook and experiments, the notebook, and the reference
- * sections. Loaded lazily with KaTeX.
+ * sections. Loaded lazily with KaTeX. Near a black hole the live readings say why there are none:
+ * the experiments assume flat spacetime (lab/logger.ts refuses to record there).
  */
 import { memo, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useShallow } from 'zustand/react/shallow';
@@ -14,7 +15,7 @@ import { PROTOCOLS, PROTOCOL_LIST, cellText, columnUnits, sigmaText, toCsv, type
 import { EXPERIMENT_IDS, rowsFor, useNotebook, type DataRow, type ExperimentId } from '../../lab/notebook';
 import { emitLightPulse, recordManual } from '../../lab/logger';
 import { useLabEvents } from '../../lab/events';
-import { reticleReading, targetReading } from '../../lab/measure';
+import { nearBlackHole, reticleReading, targetReading } from '../../lab/measure';
 import { useUI } from '../../state/ui';
 import { openDoc } from '../../state/route';
 import { Icon } from '../icons';
@@ -299,9 +300,20 @@ function Procedure({ exp, rows }: { exp: ExperimentId; rows: DataRow[] }) {
   );
 }
 
+/** The live reading's words near a black hole, where the lab takes none. */
+const NEAR_HOLE_TEXT = 'no reading near a black hole: these experiments assume flat spacetime';
+
 function LiveReading({ exp }: { exp: ExperimentId }) {
   useTicker(8);
   const sel = useUI((s) => s.selected);
+  if (nearBlackHole()) {
+    return (
+      <div className="mono text-[11px] text-fg-2">
+        <span className="text-fg-3">{exp === 'E3' ? 'Spectrometer (reticle): ' : 'Goniometer: '}</span>
+        <span className="text-fg-3">{NEAR_HOLE_TEXT}</span>
+      </div>
+    );
+  }
   if (exp === 'E3') {
     const r = reticleReading();
     return (

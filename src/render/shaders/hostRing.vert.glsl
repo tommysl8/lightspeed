@@ -7,6 +7,11 @@
 #include <common>
 #include <logdepthbuf_pars_vertex>
 #include <lightspeed_relativity>
+#ifdef LENS
+// Near a black hole (compiled with LENS: render/lensVariants.ts) the ring follows its star's primary image
+// (lensImage, tier 1), keeping its size and colour. Twin: physics/lensPoint.ts (pointImageTier1).
+#include <lightspeed_lens>
+#endif
 
 attribute vec3 aVel; // 0.1 km/s steps, heliocentric, J2000 ecliptic; `position` is the J2000 place, pc
 
@@ -38,7 +43,16 @@ void main() {
   }
   vec3 e = rel / d;
   float lnD;
+#ifdef LENS
+  float lnDf;
+  vec3 image;
+  float lnMu;
+  float lnG;
+  lensImage(frameAberrate(vec3(e.x, e.z, -e.y), lnDf) * (d * uLensScale.y), 0.0, 0.0, image, lnMu, lnG);
+  vec3 dShip = relAberrate(frameUnaberrate(image, lnDf), lnD);
+#else
   vec3 dShip = relAberrate(vec3(e.x, e.z, -e.y), lnD);
+#endif
   gl_Position = projectionMatrix * vec4(mat3(viewMatrix) * dShip, 1.0);
   gl_PointSize = uSizePx * uPixelRatio;
   #include <logdepthbuf_vertex>

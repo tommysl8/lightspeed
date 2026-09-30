@@ -1,6 +1,13 @@
 /**
  * Per-frame derived quantities: distances, displayed radii, screen positions and apparent
  * magnitudes. Runs after the ephemeris and the camera update, and before rendering.
+ *
+ * Near a black hole (sim/lensBodies.ts): a body the lens bends is placed at its
+ * primary image, with that image's magnitude and frequency factor; a black hole's screen point is
+ * the centre of its shadow as drawn (a circle in each half of the view), its radiusPx the shadow's
+ * radius, its magnitude its accretion flow's point (99 without one), and the active hole's
+ * distances come from the exact hole-relative camera (gravity.camRelHoleKm). With no lens and no
+ * hole every number here is what it always was, bit for bit.
  */
 import { PerspectiveCamera, Quaternion, Vector3, Vector4 } from 'three';
 import { AU_KM, C_KM_S, SUN_VMAG_AT_1AU } from '../physics/constants';
@@ -9,6 +16,7 @@ import type { Vec3 } from '../physics/vec';
 import { relView } from '../render/relativisticView';
 import { displayRadiusKm, type BodyId, type BodyRecord } from './bodies';
 import { bodyEntries, entryOf } from './bodies/registry';
+import { lensBodies, lensedScreenOf, placeBlackHoles } from './lensBodies';
 import { sim, type ScreenPoint } from './sim';
 
 /** Minimum on-screen radius (CSS px) of bodies in "visible" mode. */
@@ -58,9 +66,11 @@ function project(v: Vector3, camera: PerspectiveCamera, out: ScreenPoint): void 
 /**
  * Where a direction or point shows on screen (CSS px), from a camera-relative world vector: its
  * aberrated direction in the relativistic view (and whichever half of a split view it lands in),
- * as for bodies. For labels of things that are not bodies (the constellation names).
+ * as for bodies; near a black hole its primary image (the lens's order 0 on the tables the GPU
+ * reads) first. For labels of things that are not bodies (the constellation names).
  */
 export function screenOf(rel: Vector3, camera: PerspectiveCamera, out: ScreenPoint): ScreenPoint {
+  if (lensedScreenOf(rel, out)) return out;
   inv.copy(sim.camera.quat).invert();
   project(rel, camera, out);
   if (!relView.active) return out;
@@ -134,6 +144,9 @@ export function updateDerived(camera: PerspectiveCamera, focus?: BodyId, selecte
     setMagnitude(e.record, b);
   }
 
+  // Through a black hole's lens: each bent body at its primary image, with that image's magnitude.
+  lensBodies(camera, focus, selected);
+
   // Keep inflated bodies from swallowing each other: cap each moon, and the body it orbits, to
   // a fraction of their separation (Earth and the Moon; later every planet and its moons).
   if (visible) {
@@ -155,8 +168,9 @@ export function updateDerived(camera: PerspectiveCamera, focus?: BodyId, selecte
   for (let i = 0; i < list.length; i++) {
     const b = list[i].state;
     b.radiusPx = b.distCamera > b.displayRadius ? Math.asin(b.displayRadius / b.distCamera) * pxPerRad : 1e4;
-    // Aberration shrinks apparent sizes ahead (and enlarges them behind) by 1/D.
-    if (b.dopplerFactor !== 1) b.radiusPx /= b.dopplerFactor;
+    // Aberration shrinks apparent sizes ahead (and enlarges them behind) by 1/D (for a lensed body the view
+    // observer's own D: its lens's frequency shifts change no size).
+    if (b.dopplerFactor !== 1) b.radiusPx /= b.lens ? Math.exp(b.lens.images[0].lnDView) : b.dopplerFactor;
     if (!b.present) {
       // Not there at this date: nothing to draw, label, pick or measure.
       b.radiusPx = 0;
@@ -168,6 +182,9 @@ export function updateDerived(camera: PerspectiveCamera, focus?: BodyId, selecte
       b.screen.onScreen = false;
     }
   }
+
+  // Black holes: the shadow's centre and radius, the active hole's exact distances, the flow's point.
+  placeBlackHoles(pxPerRad);
 
   sim.ship.beta = Math.min(sim.ship.vel.length() / C_KM_S, 0.999_999_999);
 }

@@ -14,8 +14,10 @@ nebulae, and the black hole at its centre with the stars that orbit it. Beyond t
 Local Group, the nearby galaxies and clusters, 55,877 galaxies of the cosmic web, the most distant galaxies known and
 the map of the cosmic microwave background. You can go to any of them. Fly at nearly the speed of light and the sky
 crowds ahead of you, colours shift, and your clock falls behind Earth's, exactly as special relativity says; go far
-enough and the universe expands while you travel. The numbers are always a click away, Learn tells the science behind
-it, and for students there is a lab with five guided experiments.
+enough and the universe expands while you travel. Go close to one of eleven real black holes and its gravity bends the
+light of the whole sky round its shadow and slows your clock, exactly as general relativity says; hover just above
+its horizon, or fall in. The numbers are always a click away, Learn tells the science behind it, and for students
+there is a lab with five guided experiments.
 
 Built with Vite, React, TypeScript and three.js (React Three Fiber). It is a static site with no backend.
 
@@ -28,13 +30,15 @@ screen offers three ways in: a one-minute **guided tour** that points at each pa
 the **journeys**. Everything else is one click away:
 
 - **Where to?** (header, `/` or `Ctrl+K`): find any place by name, from the Moon to Andromeda (a planet or moon, any of
-  the 329,770 stars, a planet of another star, a star cluster, a nebula, a galaxy), with how far away it is, how old its
-  light is and what a 1 g flight there would take for you and at home. Enter goes there; Shift+Enter plans the flight.
+  the 329,770 stars, a planet of another star, a star cluster, a nebula, a black hole, a galaxy), with how far away it
+  is, how old its light is and what a 1 g flight there would take for you and at home. Enter goes there; Shift+Enter
+  plans the flight.
   Before you type it offers eight places, from the Moon out to the Galactic Centre and Andromeda, with their 1 g costs.
-- **Journeys** (header): ten set pieces, one click each. Race a pulse of sunlight to Earth, ride to Saturn at
+- **Journeys** (header): eleven set pieces, one click each. Race a pulse of sunlight to Earth, ride to Saturn at
   0.9c, see the sky at 0.999c on a split screen, catch up with Voyager 1, push to Proxima Centauri at 1 g, fly to
   the seven worlds of TRAPPIST-1, watch a year pass in half a minute or a month over Earth, ride Voyager 2 past
-  Neptune in 1989, or see Halley's Comet come back in 2061. Flights leave from Earth, play in about a minute, and each journey says what to look
+  Neptune in 1989, see Halley's Comet come back in 2061, or fall into Sagittarius A*, the black hole at the centre of
+  the Galaxy, through its horizon. Flights leave from Earth, play in about a minute, and each journey says what to look
   for.
 - **Body cards**: click a planet, a star, a nebula or a galaxy and a card says what it is, how far away it is, how old
   its light is, three things worth knowing (with their sources), who found it or when it was launched, and how far to
@@ -44,10 +48,10 @@ the **journeys**. Everything else is one click away:
   System, Solar neighbourhood, Milky Way, Local Group, Local Universe) to see it whole. **Bodies** lists every place
   by kind, moons under their planets and planets under their stars, then the star clusters, nebulae and galaxies.
 - **Learn** (header, `E`): long reads on the science behind the view at `#/learn`, from light and relativity to the
-  stars, the galaxies and the expanding universe, with their sources.
-- **View** (header): display layers (constellations, planet hosts, the cosmic web, the CMB map), optics, the
-  **instrument panel** (`I`, every number several times a second) and **physics hints** (off by default), the guide,
-  the keys and About.
+  stars, the galaxies, black holes and the expanding universe, with their sources.
+- **View** (header): display layers (constellations, planet hosts, the cosmic web, the CMB map), optics with
+  **gravitational lensing** and the **accretion flow** (both on at every visit), the **instrument panel** (`I`, every
+  number several times a second) and **physics hints** (off by default), the guide, the keys and About.
 - **Lab** (header, `K`): for students, five guided experiments. It never opens by itself.
 - **Guide** and `?`: a thirteen-chapter guide at `#/guide` (chapters can be linked, such as `#/guide/universe`, and
   printed), and the keyboard and mouse on one sheet.
@@ -119,10 +123,28 @@ papers (the cards label the others as estimates or colour temperatures); any sta
   side is extrapolated). 1,664 star clusters (1,500 open clusters with Gaia DR3 distances; 164 globulars glowing with
   their measured brightness), 45 nebulae as their
   photographs at their measured distances and true sizes (each credited on its card and on screen; seen from anywhere
-  but Earth they are flat cards), and Sagittarius A*, a black disc the size of its shadow, with the four stars whose
+  but Earth they are flat cards), and Sagittarius A*, the black hole at the centre (below), with the four stars whose
   published orbits are openly licensed (S2 every 16 years, with general relativity's precession). The trail names
   the spiral arm you are in where the arms are measured. A 1 g flight to the centre takes about 20 years aboard and
   27,000 at home.
+- **Black holes.** Sagittarius A* (4.3 million solar masses, GRAVITY 2022), M87* (6.5 billion, at the centre of M87),
+  Gaia BH1, BH2 and BH3, Cygnus X-1, V404 Cygni, A0620-00, MAXI J1820+070 and XTE J1118+480 with their companion stars
+  on their published orbits, and OGLE-2011-BLG-0462, found alone by microlensing. Each is an exact Schwarzschild
+  black hole (drawn without spin, since none is measured well enough): its lens bends the light of everything in view,
+  stars, the Milky Way's glow, galaxies, the cosmic web, nebulae and bodies, into its shadow, its Einstein ring and
+  the thin photon ring, with each star's second image (and, close to the shadow's edge, its third and fourth) and rings
+  of light where a body lines up behind it, in the classical and the relativistic view alike. Near a black hole
+  clocks slow (home runs 1.054 times faster than you ten horizon radii from Sgr A*, a thousand times at the closest you
+  can hover), the camera hovers in height above the horizon down to a millionth of its radius, and a panel gives the
+  thrust hovering takes and the tides; scenes add a circular orbit and snapshots at 0.9c, and you can fall into Sgr A*
+  or M87* through the horizon to where tides would tear a ship apart, with home's clock kept on the free-fallers'
+  clocks. Round Sgr A* two
+  labelled models fill in what cannot be seen from Earth: the hot gas falling in (a fitted accretion-flow model, ray
+  traced along exact light paths, bright as a point from afar and a lopsided ring close in; its card offers the same
+  model at 1.3 mm to compare with the Event Horizon Telescope's picture) and a statistical nuclear star cluster of
+  60,000 stars and a glow. Eleven scenes show the shadow, the Einstein and photon rings, hovering at the horizon, the
+  innermost stable orbit, the same place at three speeds, a fly-by at 0.9c, S2 passing behind the hole, the gas, the
+  fall and M87* from 1,000 au. `docs/data/blackholes.md` writes it all up, with the checks.
 - **Beyond the Milky Way.** The 169 galaxies of the Local Group and its surroundings out to 3 Mpc (the CC0 Local
   Volume Database), M81, M87, Centaurus A, the Sombrero and the Whirlpool, the Virgo, Coma and Bullet clusters, and
   three of the most distant galaxies confirmed (GN-z11, JADES-GS-z14-0 and MoM-z14, the record at redshift 14.44), each
@@ -200,7 +222,7 @@ No configuration is needed.
 | `/` or `Ctrl+K` | Where to? (search anything, from the Moon to Andromeda) |
 | `E`, `I`, `K` | Learn, instrument panel, the lab |
 | `T`, `O`, `L`, `B`, `U`, `J`, `Y` | True scale ↔ enlarged, orbits, labels, small bodies, readouts over the view, ecliptic grid, constellations |
-| View menu | Planet hosts, the cosmic web, the CMB map |
+| View menu | Planet hosts, the cosmic web, the CMB map, gravitational lensing, the accretion flow |
 | `?` | Keyboard and mouse on one sheet |
 
 Single-key shortcuts can be switched off under View › Single-key shortcuts. Panels, menus, dialogs and the guide work from
@@ -229,6 +251,19 @@ tone mapping:
    the aberration Jacobian, and the result is recoloured for Doppler shift and beaming.
 4. Bloom and AgX tone mapping are applied last, in the observer's frame, with automatic exposure.
 
+**Black holes** (`src/physics/schwarzschild.ts`, `src/render/lens/`, `docs/data/blackholes.md`). A ray near a
+Schwarzschild black hole stays in a plane through it, so the whole lens is one function: the azimuth a backward ray
+sweeps against its angle from the hole, for the camera's distance and frame. Whenever that distance changes, the CPU
+tabulates it in float64 (512 nodes, from Carlson's elliptic integral R_F, in about 0.3 ms and without allocating),
+with an inverse table for the images of orders 0 to 3; the GPU reads both with `texelFetch` and its own accurate
+arctangent (Chrome's built-in one is too coarse here). Diffuse light is lensed per pixel in a box round the hole: the
+Galaxy layer's targets (and, for sources off the screen, a sky cube built on the way in) resampled at each ray's
+source, with the photon ring's band in a pass of its own with several rays a pixel. Point sources are lensed per
+vertex in `LENS` variants of their shaders, compiled in the background and used only while a lens is drawn, so far
+from every black hole every shader runs its old program. Bodies near the hole are solved exactly on the CPU, so labels,
+picking and the hover tag sit on the drawn images. A GPU-time controller steps the lens's quality rungs, and then the
+pixel ratio, when frames take over 8.5 ms.
+
 ## Physics notes
 
 - Constants and body data live in `src/physics/constants.ts`, each with its source. All physics is pure,
@@ -237,7 +272,11 @@ tone mapping:
   the Doppler colour matrices. `src/physics/cosmology/` is the expanding universe (flat ΛCDM, Planck 2018, with the
   massive neutrino integrated exactly): ages and distances, horizons, the rocket's equations of motion in expanding
   space, what a traveller sees, and what has happened at home by the time they arrive; `docs/data/cosmology.md`
-  writes it up, with its checks against an independent implementation and astropy.
+  writes it up, with its checks against an independent implementation and astropy. `schwarzschild.ts`,
+  `schwarzschildTables.ts`, `lensPoint.ts` and `geodesics.ts` are the black holes' general relativity (the paths and
+  images of light, the shadow, clocks, hovering, orbits and falls), checked against an independent reference in 30–50
+  digit arithmetic (`scripts/schwarzschild/`, mpmath) through committed fixtures, and the lens on the GPU against the
+  same reference pixel by pixel (`scripts/lens-check/`; `docs/data/blackholes.md`).
 - **Beaming:** radiance (surface brightness) scales as D⁴. A point source's flux, seen by a *moving observer*,
   scales as D², because aberration also compresses its solid angle. The tests check this against the textbook
   energy-density boost γ²(1+β²/3) of an isotropic radiation field. The rendered brightness is visible-band: the
@@ -250,8 +289,17 @@ tone mapping:
     is not modelled, so distant stars look slightly too bright when approached; sizes of stars without a measured
     radius are estimated from their brightness and colour; most double stars are one point.
   - Planets are lit without 1/r² dimming, as if your eyes adapt.
-  - Trips ignore gravity. Beyond the Local Group they follow the expanding universe, with a perfect engine and a
-    destination that moves with the expansion.
+  - Spacetime is curved only near one black hole at a time: near the black hole whose lens matters most, light is
+    bent exactly (Schwarzschild) and clocks slow; everywhere else, and for every other black hole at the same moment,
+    gravity bends neither light nor flights (apart from the expansion of the universe and the S-stars' precession),
+    and no other gravitational time dilation is applied. Only the black hole's own gravity is included.
+  - Trips ignore gravity, so the planner will not leave from within 30 horizon radii of a black hole. Beyond the Local
+    Group they follow the expanding universe, with a perfect engine and a destination that moves with the expansion.
+  - Every black hole is drawn without spin (none is measured well enough to draw; at the angle we see Sgr A* from, a
+    spin of 0.9–0.94 would make its shadow about 5–7 % smaller and shift it by about half its horizon's radius). The gas
+    falling into Sgr A* is a fitted model, its visible light uncertain by about three times and steady where the real
+    flow flickers; the stars round it are a statistical model of the nuclear star cluster; M87's own light is a smooth
+    model of its profile. The cards and `docs/data/blackholes.md` §3 list every such label.
   - The Milky Way seen from outside is a model built from published measurements, its spiral arms extrapolated beyond
     the parallax data; other galaxies' shapes are modelled from their measured size and orientation, with the near
     side of a disc assumed where it is not known; the cosmic web is a survey with an uneven footprint; the CMB map is
@@ -290,6 +338,10 @@ tone mapping:
 | Light of the faint stars (`public/textures/faint-stars.png`) | Built from the star files above: the catalogue's stars too faint to draw one by one (V 6.5 to about 10), seen from the Sun, in the Milky Way background's projection. Derived from [AT-HYG v4.0](https://codeberg.org/astronexus/athyg) (David Nash) and [Gaia DR3](https://www.cosmos.esa.int/gaia) (ESA/Gaia/DPAC) | **Non-commercial use only**, as the star files: [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) and [CC BY-NC 3.0 IGO](https://www.cosmos.esa.int/web/gaia-users/license), with both credits |
 | Milky Way model (`public/data/galaxy-particles.bin.gz`, `src/sim/galaxy/model.json`) | Generated from published parameters (GRAVITY Collaboration 2022, Bland-Hawthorn & Gerhard 2016, Reid et al. 2019 and others; see `CREDITS.md`) | Part of this project (MIT) |
 | Sagittarius A* and the S-stars (`src/sim/galaxy/sstars.json`) | [GRAVITY Collaboration 2022](https://doi.org/10.1051/0004-6361/202142465) (mass, distance, orbits of S2, S29, S38, S55); Reid & Brunthaler 2004 (position) | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
+| Black holes and their companion stars (`src/sim/blackholes/blackholes.json`) | Masses, distances, orbits and companions from the papers cited in the file (GRAVITY Collaboration 2022, EHT Collaboration 2019 and 2022, El-Badry et al. 2023, Nagarajan et al. 2024, Gaia Collaboration 2024, Miller-Jones et al. 2021, Sahu et al. 2025 and others); positions and proper motions of five systems from Gaia DR3 (ESA/Gaia/DPAC), via SIMBAD | Published values, each with its reference; **non-commercial use only** because of the Gaia DR3 astrometry ([CC BY-NC 3.0 IGO](https://www.cosmos.esa.int/web/gaia-users/license)), with the Gaia credit |
+| Sgr A*'s accretion flow (`src/sim/blackholes/sgraFlow.json`, `scripts/sgra-flow/ref/`) | A model of the Broderick & Loeb (2006) type fitted for Lightspeed to published fluxes (EHT Collaboration 2022, Bower et al. 2019, GRAVITY Collaboration 2020, Paugnat et al. 2024), traced by `scripts/sgra-flow/` | Part of this project (MIT); the measured fluxes are quoted with citation |
+| The stars round Sgr A* (`public/data/nsc-stars.bin.gz`, `src/sim/galaxy/nuclearGlow.json`) | A statistical model generated by `scripts/build-nsc.py` from published fits (Schödel et al. 2014, 2018, 2020, Gallego-Cano et al. 2018, Launhardt et al. 2002, Paumard et al. 2006, Lu et al. 2013 and others) with MIST v1.2 isochrones (Choi et al. 2016, Dotter 2016; not redistributed); M87's light profile from Ferrarese et al. 2006 and Kormendy et al. 2009 | Part of this project (MIT); the fits are quoted with citation |
+| Black-hole physics fixtures (`src/physics/__fixtures__/schwarzschild.json`, `scripts/lens-check/ref/`) | Computed by the project's own reference in 30–50 digit arithmetic (`scripts/schwarzschild/`, with mpmath) | Part of this project (MIT) |
 | Nebula positions and distances (`src/sim/galaxy/nebulae.json`) | SIMBAD (CDS); Hunt & Reffert 2024, Bailer-Jones et al. 2021 and the papers named in each entry | Facts quoted with citation |
 | Star clusters (`public/data/clusters.json.gz`) | Open clusters: [Hunt & Reffert 2023, 2024](https://doi.org/10.1051/0004-6361/202348662) (Gaia DR3). Globular clusters: Vasiliev & Baumgardt 2021, Baumgardt & Vasiliev 2021, and the [Harris catalogue](https://physics.mcmaster.ca/~harris/mwgc.dat) (2010 edition) | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/); the Harris catalogue free of charge, with a reference to its website |
 | Nebula images (`public/images/nebulae/*.jpg`, 45) | ESA/Hubble, ESA/Webb, ESO and NSF NOIRLab; each image's credit line is in `CREDITS.md`. Modified: resized, black level subtracted, edges faded (three cropped) | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
@@ -337,6 +389,18 @@ npm run data:cmb
 # Cosmology (docs/data/cosmology.md): the home clock's literature values, and the reference values for the tests
 node scripts/build-cosmology-future.mjs
 python scripts/cosmology-fixtures.py
+# Black holes (docs/data/blackholes.md): the records (from the table in the script), the stars round Sgr A*
+# (downloads the MIST isochrones once into data-raw/nsc/; numpy), the accretion flow's tables and references (numpy,
+# scipy; about 33 minutes), and the physics fixtures (mpmath; about 4 minutes)
+node scripts/build-blackholes.mjs
+npm run data:nsc
+python scripts/sgra-flow/flow_tables.py
+npm run data:blackhole-fixtures
+# Checks on the GPU (a development server on port 5190): every shader compiled cold in a headless Chrome, and the
+# standard views' frame times; the lens's pictures against the references are scripts/lens-check/lens-check.js, run
+# in a tab (docs/data/blackholes.md §11)
+npm run check:shaders
+node scripts/lens-check/run-perf.mjs
 ```
 
 How each data set was made, from the Solar System to the cosmic web, and how accurate it is, is written up in
@@ -345,24 +409,28 @@ How each data set was made, from the Solar System to the cosmic web, and how acc
 ## Project layout
 
 ```
-src/physics/   pure, unit-tested physics (constants, relativity, light time, Kepler, rocket, colour)
+src/physics/   pure, unit-tested physics (constants, relativity, light time, Kepler, rocket, colour, black holes)
 src/physics/cosmology/ the expanding universe: ages, distances, the rocket in expanding space, the home clock
 src/sim/       simulation core: clock, chronometers, cosmic time, ephemeris, Voyager, trips, light pulses, light delay
 src/sim/bodies/ the body registry: every body's record, position provider, rotation, and the per-frame pass
 src/sim/solarSystem/ the moons, dwarf planets, comets, interstellar objects and spacecraft, from their data files
 src/sim/stars/ the 3D star catalogue, star systems, star names and constellations (decoded in a worker)
 src/sim/exoplanets/ planets of other stars: the archive's catalogue, eleven featured systems, Kepler orbits on the sky
-src/sim/galaxy/ the Milky Way: its model, the sky from the Sun, star clusters, nebulae, Sgr A* and its stars
+src/sim/galaxy/ the Milky Way: its model, the sky from the Sun, star clusters, nebulae, Sgr A* and its stars, the
+               nuclear star cluster
+src/sim/blackholes/ the black holes' records and the accretion flow's model; src/sim/gravity.ts, fall.ts and
+               lensBodies.ts: the hole's gravity each frame, falls, and bodies seen through the lens
 src/sim/cosmos/ beyond it: the Local Group and named galaxies, their particle templates, the cosmic web, the CMB map
 src/lab/       the lab: experiment protocols and analysis, lab text, data loggers, notebook, instrument readings
 src/lib/       number formatting (significant figures, SI grouping, units) and least-squares statistics
-src/render/    shaders, materials, the relativistic scene pass, post-processing, adaptive quality
+src/render/    shaders, materials, the relativistic scene pass, post-processing, adaptive quality; render/lens/ the
+               black hole's lens and render/flow/ the accretion flow's map
 src/scene/     React Three Fiber scene components (bodies, stars, constellations, belts, orbits, glints)
 src/controls/  camera: orbit, free flight, smooth zoom-and-pan flights
 src/ui/        interface: header and footer, body card, journeys, panels, instruments, plots, planner, recorder
 src/ui/docs/   the guide and About pages, and their figures
 src/content/   journeys, destinations, scenes, Learn articles, physics sections, author and version details
-scripts/       data builders
+scripts/       data builders; the independent references (schwarzschild/, sgra-flow/) and the GPU checks (lens-check/)
 docs/          how bodies are added (bodies.md); how each data set was made, from the moons to the cosmic web (data/)
 ```
 
@@ -394,9 +462,9 @@ The About page in the app gives the same citation with the address of the site i
 ## Licence
 
 Code: [MIT](LICENSE), © 2026 Tommy Liu. The star catalogue, maps, shape models and other data keep their own
-licences, listed above and in [CREDITS.md](CREDITS.md). In particular, the star and exoplanet files, and the map of
-the faint stars' light built from them, are for **non-commercial use only**, because of their Gaia DR3 values (CC
-BY-NC 3.0 IGO; the star files are also CC BY-SA 4.0); the 67P shape model is CC BY-SA 3.0 IGO; the Solar System Scope
+licences, listed above and in [CREDITS.md](CREDITS.md). In particular, the star and exoplanet files, the map of the
+faint stars' light built from them and the black holes' file are for **non-commercial use only**, because of their Gaia
+DR3 values (CC BY-NC 3.0 IGO; the star files are also CC BY-SA 4.0); the 67P shape model is CC BY-SA 3.0 IGO; the Solar System Scope
 textures, the nebula images, the star clusters (the Harris catalogue apart), the S-stars' orbits, the Cosmicflows-4 galaxies and the figure read
 from Sawala et al. (2025) are CC BY 4.0; the Local Volume Database is CC0; the Pluto map, the NASA SVS sky and the
 WMAP map are NASA public domain.

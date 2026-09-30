@@ -1,11 +1,20 @@
 /**
  * The laboratory's two clocks.
  *
- *  - t: coordinate time in the Sun's rest frame S since the last zero.
+ *  - t: coordinate time in the Sun's rest frame S since the last zero: home's clock, a clock at rest
+ *    far from every mass.
  *  - τ: proper time of the observer (the camera, or the ship during a trip). An observer
  *    moving with Earth runs slow by the velocity term, β²/2 ≈ 4.9 × 10⁻⁹. Real Earth clocks
- *    also sit in the Sun's potential, GM/(rc²) ≈ 9.9 × 10⁻⁹ at 1 au, which this flat-spacetime
- *    model ignores (together ≈ 1.55 × 10⁻⁸, the IAU constant L_B).
+ *    also sit in the Sun's potential, GM/(rc²) ≈ 9.9 × 10⁻⁹ at 1 au, which is left out (together
+ *    ≈ 1.55 × 10⁻⁸, the IAU constant L_B): the one gravity the clocks carry is a black hole's.
+ *
+ * Near a black hole (sim/gravity.ts selects one wherever its r_s/r reaches 5 × 10⁻¹⁰) the clocks
+ * carry its gravity exactly: τ runs at dτ/dt = α/cosh φ_S, with α = √(1 − r_s/r) and φ_S the
+ * observer's rapidity relative to S (home's frame, not the hole's: home's clock is at rest in S,
+ * so this is exact to O(u·x) whatever the hole's own velocity u), and the lag at
+ * 1 − α/cosh φ_S = x/(1 + α) + α·2 sinh²(φ_S/2)/cosh φ_S, both terms ≥ 0, so neither cancels
+ * (physics/geodesics.ts lagRateGravity). Farther out (no hole selected) the body below is today's,
+ * bit for bit. A fall hands the clocks its own τ, home's T and their difference (sim/fall.ts).
  *
  * At everyday speeds t − τ is parts in 10⁹ of t, far below the rounding of a
  * millisecond timestamp, so the clocks keep the lag L = t − τ as its own sum,
@@ -19,6 +28,8 @@
  * the next zero.
  */
 import { C_KM_S } from '../physics/constants';
+import { lagRateGravity } from '../physics/geodesics';
+import { gravity } from './gravity';
 import { sim } from './sim';
 
 export const chrono = {
@@ -80,12 +91,23 @@ export function chronoTripEnd(): void {
   chrono.trip = null;
 }
 
-/** Outside trips: advance t by dt and the lag by dt (1 − 1/γ) for the observer's velocity. */
+/**
+ * Outside trips: advance t by dt and the lag by dt (1 − 1/γ) for the observer's velocity; near a black
+ * hole by dt (1 − α/cosh φ_S), with τ advanced by dt·α/cosh φ_S directly (near the horizon the lag is
+ * nearly all of t, and t − lag would lose τ's digits).
+ */
 export function chronoIntegrate(dtSim: number): void {
   if (chrono.trip || dtSim <= 0) return;
-  const beta = Math.min(sim.ship.vel.length() / C_KM_S, 0.999_999_999_999);
-  const dLag = dtSim * lagRate(beta);
+  if (gravity.x === 0) {
+    const beta = Math.min(sim.ship.vel.length() / C_KM_S, 0.999_999_999_999);
+    const dLag = dtSim * lagRate(beta);
+    chrono.t += dtSim;
+    chrono.lag += dLag;
+    chrono.tau += dtSim - dLag;
+    return;
+  }
+  const phi = Number.isFinite(sim.ship.phi) ? sim.ship.phi : 0;
   chrono.t += dtSim;
-  chrono.lag += dLag;
-  chrono.tau += dtSim - dLag;
+  chrono.lag += dtSim * lagRateGravity(gravity.x, phi);
+  chrono.tau += dtSim * (gravity.alpha / Math.cosh(phi));
 }

@@ -5,6 +5,12 @@
 // guide, so it keeps its colour).
 #include <common>
 #include <lightspeed_relativity>
+#ifdef LENS
+// Near a black hole (compiled with LENS: render/lensVariants.ts; mounted by scene/GalaxyModel.tsx) the ring
+// goes to the cluster centre's primary image (lensImage, tier 1) and its radius grows as √μ, the
+// magnification's linear scale. Twin: physics/lensPoint.ts (pointImageTier1).
+#include <lightspeed_lens>
+#endif
 
 attribute float aRadius; // pc
 
@@ -28,7 +34,17 @@ void main() {
     return;
   }
   float lnD;
+#ifdef LENS
+  float lnDf;
+  vec3 image;
+  float lnMu;
+  float lnG;
+  lensImage(frameAberrate(normalize(uGalToWorld * (rel / d)), lnDf) * (d * uLensScale.z), 0.0, 0.0, image, lnMu, lnG);
+  vec3 dShip = relAberrate(frameUnaberrate(image, lnDf), lnD);
+  r *= exp(0.5 * lnMu);
+#else
   vec3 dShip = relAberrate(normalize(uGalToWorld * (rel / d)), lnD);
+#endif
   r *= exp(-lnD);
   float half_ = r + 2.0;
   vRing = r / half_;

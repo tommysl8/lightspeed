@@ -4,6 +4,7 @@ import { PlaneGeometry, type Mesh, type PerspectiveCamera, type Texture } from '
 import { createMilkyWayBackgroundMaterial, milkyWayUniforms, psfUniforms } from '../render/materials';
 import { BACKGROUND_LAYER } from '../render/LightspeedScenePass';
 import { acquireTexture, releaseTexture } from '../render/textures';
+import { useLensVariant } from '../render/lensVariants';
 import { backgroundScale, modelShare, MW_FAINT_STARS, MW_TEXTURE_2K } from '../sim/galaxy/background';
 import { sim } from '../sim/sim';
 
@@ -36,6 +37,8 @@ function useSkyTexture(file: string, opts: { color: boolean; grey?: boolean }): 
  * The Milky Way as seen from the Sun, behind everything in the classical view (the relativistic
  * view draws it in its remap pass: render/LightspeedScenePass.ts). It fades out as the camera
  * leaves the Sun's neighbourhood, while the model of the Galaxy fades in (sim/galaxy/background.ts).
+ * Near a black hole it is drawn with its material's LENS variant (render/lensVariants.ts; the plain
+ * program, the one start-up compiles, has no lens code).
  */
 export function MilkyWayBackground() {
   const material = useMemo(createMilkyWayBackgroundMaterial, []);
@@ -45,6 +48,7 @@ export function MilkyWayBackground() {
   // The catalogue's stars too faint to draw as points (192 kB, 0.5 MB on the GPU), added to the map.
   const faint = useSkyTexture(MW_FAINT_STARS, FAINT_OPTS);
   const mesh = useRef<Mesh>(null);
+  useLensVariant(mesh);
   useEffect(() => () => geometry.dispose(), [geometry]);
   useEffect(() => () => material.dispose(), [material]);
 
@@ -52,9 +56,12 @@ export function MilkyWayBackground() {
     const u = milkyWayUniforms;
     u.uMwTex.value = tex;
     u.uMwFaint.value = faint;
-    // The sky map's share of the view: the model has the rest (render/galaxyLayer.ts blends the two pictures).
+    // The sky map's share of the view: the model has the rest (render/galaxyLayer.ts blends the two pictures). Below a
+    // share of 1 % (beyond about 477 pc from the Sun) it is left out, as the model is below 1 % near the Sun
+    // (scene/GalaxyModel.tsx): at a 0.7 % share that changes no pixel by more than 2/255 and saves its whole pass,
+    // 0.85 ms at Gaia BH1's 480 pc on the target laptop (docs/data/blackholes.md §11).
     const share = 1 - modelShare(sim.camera.pos.length());
-    u.uMwGain.value = tex && share > 1e-3 ? share : 0;
+    u.uMwGain.value = tex && share >= 0.01 ? share : 0;
     // Beyond the crossfade nothing is drawn (the clear colour is black).
     if (mesh.current) mesh.current.visible = u.uMwGain.value > 0;
     const img = tex?.image as { height?: number } | undefined;

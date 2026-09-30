@@ -23,6 +23,7 @@ import {
   type OpenCluster,
 } from './clusters';
 import { loadOrbits, skyStateInto, skyToEclipticMatrix, type Orbit, type SStarsJson } from './sstars';
+import { HOVER_FLOOR_RADIUS_RS, SGR_A_BLACK_HOLE, sgrABlackHole } from '../blackholes/records';
 
 const J2000_MS = Date.UTC(2000, 0, 1, 12);
 const YEAR_MS = JULIAN_YEAR_S * 1000;
@@ -122,9 +123,9 @@ export function sgrARecord(s: SgrA): BodyRecord {
     distanceHiPc: s.distancePc + Math.hypot(s.distanceStatPc, s.distanceSysPc),
     distanceSource: `the orbits of four stars round it (${GRAVITY_2022}): ±${s.distanceStatPc} pc statistical, ±${s.distanceSysPc} pc systematic`,
     rows: [
-      { l: 'Mass', v: `${sig(s.massMsun / 1e6, 4)} × 10⁶`, u: 'M☉', title: `±${sig(s.massStatMsun / 1e6, 2)} × 10⁶ statistical, ±${sig(s.massSysMsun / 1e6, 2)} × 10⁶ systematic (${GRAVITY_2022})` },
+      { l: 'Mass', v: `${sig(s.massMsun / 1e6, 4)} × 10⁶`, u: 'M☉', title: `±${sig(s.massStatMsun / 1e6, 2)} × 10⁶ statistical, ±${sig(s.massSysMsun / 1e6, 2)} × 10⁶ systematic (${GRAVITY_2022}). ${SGR_A_BLACK_HOLE.massNote ?? ''}`.trim() },
       { l: 'Event horizon radius 2GM/c²', v: sig(rs / AU_KM, 3), u: 'au', title: `${sig(rs, 3)} km, for a black hole that does not spin` },
-      { l: 'Shadow radius √27 GM/c²', v: sig(shadow / AU_KM, 3), u: 'au', title: `${sig(shadow, 3)} km: the dark disc a distant observer sees (the photon ring's apparent radius)` },
+      { l: 'Shadow radius √27 GM/c²', v: sig(shadow / AU_KM, 3), u: 'au', title: `${sig(shadow, 3)} km: the shadow as seen from far away (the photon ring's apparent radius); nearer, the lens makes it larger` },
       { l: 'Shadow from Earth', v: sig(shadowMicroArcsec, 3), u: 'µas', title: 'Predicted diameter. The Event Horizon Telescope measured a ring of 51.8 ± 2.3 µas (EHT Collaboration 2022)' },
     ],
     refs: [`${GRAVITY_2022} (mass, distance)`, 'Reid & Brunthaler 2004, ApJ 616, 872 (position)', 'Event Horizon Telescope Collaboration 2022, ApJL 930, L12 (ring)'],
@@ -138,30 +139,34 @@ export function sgrARecord(s: SgrA): BodyRecord {
     kindText: 'Supermassive black hole',
     parent: null,
     physical: {
-      // The disc drawn is the shadow: the size it looks from afar.
-      radiusKm: shadow,
+      // Its size is its horizon; what it looks like (the shadow, bigger than the horizon and bigger still
+      // close to) is the lens's to draw.
+      radiusKm: rs,
       gmKm3S2: s.massMsun * GM_SUN_KM3_S2,
       colour: '#000000',
     },
-    visual: { renderer: 'planet', flat: true },
-    framing: { distanceKm: 4000 * AU_KM },
+    // The lens draws it: its shadow is the light the lens does not bring (render/lens/).
+    visual: { renderer: 'lens' },
+    // Framed from 4,000 au; the camera may hover down to r_s(1 + 10⁻⁶), 12.7 km above the horizon, which only
+    // the controller's hole-relative float64 camera can hold (a heliocentric step is 32 km there).
+    framing: { distanceKm: 4000 * AU_KM, minKm: rs * HOVER_FLOOR_RADIUS_RS },
     labelRank: 14,
     detector: false,
     orbitLine: false,
     deepSky: info,
     facts: [
       `A black hole of ${sig(s.massMsun / 1e6, 3)} million solar masses, weighed by the orbits of the stars that swing round it; S2 goes round every 16 years.`,
-      `Its shadow, the dark patch its gravity carves out of the light behind it, is ${sig((2 * shadow) / AU_KM, 2)} au across, smaller than Mercury's orbit. From Earth that is ${Math.round(shadowMicroArcsec)} millionths of an arcsecond; the Event Horizon Telescope's picture of 2022 shows a glowing ring 51.8 ± 2.3 of them across.`,
+      `Its shadow, the dark patch its gravity carves out of the light behind it, is ${sig((2 * shadow) / AU_KM, 2)} au across, smaller than Mercury’s orbit. From Earth that is ${Math.round(shadowMicroArcsec)} millionths of an arcsecond; the Event Horizon Telescope’s picture (observed in 2017, published in 2022) shows a glowing ring 51.8 ± 2.3 of them across.`,
       'Dust between us and the centre dims its light about a trillion times in visible light (30 magnitudes) but only about ten times in the near-infrared, where astronomers follow its stars.',
     ],
     factSources: [doiUrl(GRAVITY_2022_DOI), doiUrl('10.3847/2041-8213/ac6674'), doiUrl('10.1103/RevModPhys.82.3121')],
     factSourceLabels: ['GRAVITY 2022', 'EHT Collaboration 2022', 'Genzel, Eisenhauer & Gillessen 2010'],
     positionNote: 'Position: radio position (Reid & Brunthaler 2004) at the GRAVITY (2022) distance, held fixed; its apparent drift of 6.4 milliarcseconds a year, a reflection of the Sun’s own orbit, is left out.',
-    modelNotes: [
-      'Drawn as a black disc the size of its shadow as seen from afar (√27 GM/c², for a black hole that does not spin). The glowing gas round it and the bending of the light of the stars behind it are not drawn.',
-    ],
+    // At most three one-line notes reach the card; the rest are the data sheet's (blackHole.sheetNotes).
+    modelNotes: SGR_A_BLACK_HOLE.modelNotes.slice(0, 3),
     dataSource: GRAVITY_2022,
-    article: 'our-galaxy',
+    // No article of its own: every black hole's Read button follows its kind (content/bodyArticles.ts).
+    blackHole: sgrABlackHole(s.massMsun, s.massStatMsun, s.massSysMsun),
     provider,
   };
 }

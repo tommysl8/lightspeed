@@ -1,7 +1,8 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, onTestFinished } from 'vitest';
 import { C_KM_S, JULIAN_YEAR_S } from '../physics/constants';
 import { gamma } from '../physics/relativity';
 import { chrono, chronoIntegrate, chronoLaunch, chronoTau, chronoTrip, chronoTripEnd, lagRate, zeroChrono } from './chronometer';
+import { gravity } from './gravity';
 import { sim } from './sim';
 
 describe('chronometers', () => {
@@ -45,6 +46,33 @@ describe('chronometers', () => {
     chronoTripEnd();
     zeroChrono();
     expect(chronoTau()).toBe(0);
+  });
+
+  it('carries a black hole’s gravity: dτ/dt = α/cosh φ_S (0.458 243 571 at x = 0.5, φ = 1), with the lag kept apart', () => {
+    onTestFinished(() => {
+      // Back to no hole, whatever happened (the other tests run at x = 0).
+      gravity.x = 0;
+      gravity.alpha = 1;
+      sim.ship.phi = 0;
+    });
+    zeroChrono();
+    sim.ship.vel.set(C_KM_S * Math.tanh(1), 0, 0);
+    sim.ship.phi = 1;
+    gravity.x = 0.5;
+    gravity.alpha = Math.sqrt(0.5);
+    chronoIntegrate(1);
+    expect(chronoTau()).toBeCloseTo(0.458_243_571_484_656, 15);
+    expect(chrono.lag).toBeCloseTo(1 - 0.458_243_571_484_656, 15);
+    expect(chrono.t).toBe(1);
+    // Hovering 10⁻⁶ r_s above the horizon (α ≈ 10⁻³): τ keeps its digits although the lag is nearly all of t.
+    zeroChrono();
+    sim.ship.vel.set(0, 0, 0);
+    sim.ship.phi = 0;
+    gravity.x = 1 / (1 + 1e-6);
+    gravity.alpha = Math.sqrt(1e-6 / (1 + 1e-6));
+    for (let i = 0; i < 1000; i++) chronoIntegrate(1 / gravity.alpha / 60);
+    expect(chronoTau() / (1000 / 60)).toBeCloseTo(1, 13);
+    expect((chrono.t - chronoTau() - chrono.lag) / chrono.t).toBeCloseTo(0, 12);
   });
 
   it('follows a trip exactly and invalidates τ after a superluminal one', () => {

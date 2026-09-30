@@ -9,9 +9,10 @@
  */
 import { useEffect, useMemo, useRef, useSyncExternalStore } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { BufferGeometry, Float32BufferAttribute, type Object3D } from 'three';
+import { BufferGeometry, Float32BufferAttribute, type Material, type Object3D } from 'three';
 import { createHostRingMaterial } from '../render/materials';
 import { POINTS_LAYER } from '../render/LightspeedScenePass';
+import { useLensVariant } from '../render/lensVariants';
 import { exoplanetData, exoplanetsVersion, subscribeExoplanets } from '../sim/exoplanets';
 import { starData, type Stars3D } from '../sim/stars';
 import { planetHostsNow } from '../ui/planetHosts';
@@ -39,7 +40,9 @@ function hostGeometry(stars: Stars3D, hostStars: Int32Array): BufferGeometry | n
 export function PlanetHosts() {
   const version = useSyncExternalStore(subscribeExoplanets, exoplanetsVersion);
   const material = useMemo(createHostRingMaterial, []);
-  const points = useRef<Object3D | null>(null);
+  const points = useRef<(Object3D & { material: Material | Material[] }) | null>(null);
+  // Near a black hole each ring follows its star's primary image (the lensed variant: render/lensVariants.ts).
+  useLensVariant(points);
   const matches = exoplanetData.matches;
   const stars = starData.full ? starData.stars : null;
   const geometry = useMemo(() => (matches && stars ? hostGeometry(stars, matches.star) : null), [matches, stars, version]);

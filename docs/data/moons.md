@@ -51,7 +51,7 @@ and its fixture by walking up from its own directory, so it keeps working after 
 model to it: `plutoBody = HelioVector(Body.Pluto) + evalMoon(moons.pluto, t)`. Place Charon, Nix and Hydra the same
 way: `barycentre + evalMoon(...)`. Pluto's offset is about 2 130 km, always opposite Charon; a test checks this.
 
-**Galilean moons.** The task allowed astronomy-engine's `JupiterMoons()` to stay if it met the requirement. Over
+**Galilean moons.** astronomy-engine's `JupiterMoons()` could have stayed if it met the accuracy target. Over
 1981–2199 it does not: Io is off by up to 952 km against a 211 km target (see below). The four Galileans therefore
 have fitted models too, and the app should use them instead of `JupiterMoons()`.
 

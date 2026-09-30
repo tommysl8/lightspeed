@@ -6,6 +6,7 @@ uniform float uHasMap;
 uniform vec3 uSunColor;   // 5772 K blackbody colour (luminance 1)
 uniform float uIntensity; // radiance at the disc's centre
 uniform vec3 uLimbU;      // limb-darkening coefficient per channel (materials.ts)
+uniform float uLnExposureSurface; // near a black hole, the classical view's exposure (materials.ts surfaceUniforms); 0 elsewhere
 
 varying vec2 vUv;
 varying vec3 vNormalW;
@@ -29,5 +30,7 @@ void main() {
     // The map's large-scale blotches are artistic, not photospheric, so keep only a hint.
     gran = clamp(1.0 + 0.22 * (lum / max(avg, 1e-3) - 1.0), 0.8, 1.2);
   }
-  gl_FragColor = vec4(uSunColor * uIntensity * limb * gran, 1.0);
+  vec3 col = uSunColor * uIntensity * limb * gran;
+  if (uLnExposureSurface != 0.0) col *= exp(uLnExposureSurface);
+  gl_FragColor = vec4(col, 1.0);
 }

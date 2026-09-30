@@ -227,3 +227,7 @@ Every claim below was re-checked against the source named; items not listed here
 Numbers shared with other Learn articles were compared across all 16 articles; changes made here for agreement are listed below.
 
 - Style: 'Andromeda Galaxy' and 'Triangulum Galaxy' capitalised in the closing myth; footnote titles containing 'Sgr A*' / 'Sagittarius A*' now escape the asterisk so Markdown cannot read it as emphasis | n/a | n/a | style
+
+## See-it captions checked in the app (29 September 2026)
+
+- galactic-centre-orbits: the bright point at the orbits' shared focus is the model of the gas falling into the black hole, and near the centre the model star cluster's glow makes the orbit lines faint, so the caption now says the S-stars are picked out by their labels and names the point | measured in the app | corrected

@@ -24,6 +24,11 @@
  * Where a flight ends: at the destination's framing distance, except for a galaxy, a cluster or a nebula, which has
  * no surface to stop short of: the ship goes all the way in (controls/framing.ts flightStandoff).
  *
+ * Gravity. The planner leaves gravity out (the expansion apart), so it refuses to set out from within 30 r_s
+ * of a black hole (PLANNER_REFUSAL_RS, sim/gravity.ts): there 1 − α reaches 1.7 % and the climb out would
+ * change the flight's clocks. Farther out the climb's correction to a flight's proper time is seconds.
+ * Arrivals are unchanged: a flight to a black hole ends at its framing distance, outside that radius.
+ *
  * Pacing. Real trips play back by SHIP time: each frame advances the crew's proper time τ by
  * (real seconds) × shipRate, and the Earth clock is then set from the trip's closed-form t(τ).
  * A relativistic trip that takes years at home and hours on board thus plays at an even pace
@@ -56,6 +61,8 @@ import { advanceTime, stepWarp } from './clock';
 import { cosmicAt } from './cosmicTime';
 import { insideLocalGroup } from './cosmos/expansion';
 import { G0, planCosmicLeg, spaceModel, type CosmicLeg, type CosmicResult, type SpaceModel } from './travelCosmic';
+import { blackHoles, PLANNER_REFUSAL_RS } from './gravity';
+import { fall, stepFallPace } from './fall';
 
 export type { SpaceModel } from './travelCosmic';
 
@@ -133,7 +140,7 @@ export interface FlightOptions {
  * ship-time limit, or a destination that recedes faster than a slow ship can close (static space).
  */
 export interface Refusal {
-  reason: UnreachableReason | 'recedes';
+  reason: UnreachableReason | 'recedes' | 'gravity-well';
   model: SpaceModel;
   dest: BodyId;
   /** Distance of the destination, km (comoving, a = 1 today, in expanding space). */
@@ -151,6 +158,9 @@ export interface Refusal {
   aDep: number;
   /** The planner's own sentence, with its numbers (for the data-minded; the UI words it plainly). */
   detail: string;
+  /** 'gravity-well': the black hole the flight would set out too close to, and the radius of the refusal (30 r_s), km. */
+  hole?: BodyId;
+  wellKm?: number;
 }
 
 export type FlightResult = { ok: true; plan: TripPlan } | { ok: false; refusal: Refusal | null };
@@ -256,6 +266,8 @@ export function planFlight(
   const ms = msFromAstroTime(time);
   if (!bodyAvailability(dest, ms).available) return { ok: false, refusal: null };
   const accelG = opts.accelG ?? 1;
+  const well = gravityWell(from);
+  if (well) return { ok: false, refusal: { ...refusal('gravity-well', 'static', dest, NaN, accelG, drive === 'rocket' ? NaN : beta, `The departure is ${(well.rKm / well.rs).toPrecision(3)} r_s from ${bodyName(well.id)}, within ${PLANNER_REFUSAL_RS} r_s.`), hole: well.id, wellKm: PLANNER_REFUSAL_RS * well.rs } };
   const accel = accelG * G0_KM_S2;
   const targetNow = bodyPositionAt(dest, time, tmp).clone();
   // Near the centre of what has no surface (a galaxy, a cluster, a nebula), else the framing distance.
@@ -298,6 +310,20 @@ export function planFlight(
   if (!warp && limit !== undefined && shipTime > limit * JULIAN_YEAR_S)
     return { ok: false, refusal: { ...refusal('ship-time-limit', 'static', dest, distance, accelG, beta, ''), maxKm: beta * C_KM_S * g * limit * JULIAN_YEAR_S, maxShipTimeYr: limit } };
   return { ok: true, plan: { ...base, drive, beta, warp, speed: beta * C_KM_S, gamma: g, earthTime: hit.time, shipTime, rocket: null } };
+}
+
+/**
+ * The black hole a departure from `from` (world km) is within PLANNER_REFUSAL_RS horizon radii of, if any:
+ * the planner leaves gravity out, so it does not set out from so deep in a well.
+ */
+function gravityWell(from: Vector3): { id: BodyId; rs: number; rKm: number } | null {
+  for (const h of blackHoles()) {
+    const b = sim.bodies[h.id];
+    if (!b?.present) continue;
+    const r = b.pos.distanceTo(from);
+    if (r < PLANNER_REFUSAL_RS * h.rs) return { id: h.id, rs: h.rs, rKm: r };
+  }
+  return null;
 }
 
 /**
@@ -658,9 +684,10 @@ export function setShipRate(rate: number): number | null {
 /** Ten times faster or slower. */
 export const stepShipRate = (dir: 1 | -1): number | null => (travel.trip ? setShipRate(travel.trip.shipRate * 10 ** dir) : null);
 
-/** Slower or faster time, whichever clock is in charge: the ship rate on a real trip, the time warp otherwise. */
+/** Slower or faster time, whichever clock is in charge: the ship rate on a real trip, the pace of a fall into a black hole, the time warp otherwise. */
 export function stepRate(dir: 1 | -1): void {
   if (travel.trip?.pacing === 'ship') stepShipRate(dir);
+  else if (fall.trip) stepFallPace(dir);
   else stepWarp(dir);
 }
 
