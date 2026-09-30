@@ -6,13 +6,14 @@ export const AUTHOR = {
   citeShort: 'Liu, T.',
   handle: 'tommysl8',
   github: 'https://github.com/tommysl8',
+  linkedin: 'https://www.linkedin.com/in/tommysliu/',
   /** The project's source code and issue tracker. */
   repo: 'https://github.com/tommysl8/skyfold',
   email: 'tommysliu8@gmail.com',
-  affiliation: 'Electrical and Computer Engineering, University of Illinois Urbana-Champaign',
+  affiliation: 'Electrical and Computer Engineering Honors, University of Illinois Urbana-Champaign',
   bio: [
     'Tommy S. Liu has been building and taking apart electronics since middle school. His work spans analog/digital IC design and signal processing, most recently a low-cost, high-precision digital oscilloscope that EDN named one of its 20 most-read articles of 2025.',
-    'He is also drawn to the mathematics and physics underneath the hardware, having qualified for the USA Mathematical Olympiad and earned distinction in the USA Physics Olympiad. He is currently studying Electrical and Computer Engineering at the University of Illinois Urbana-Champaign.',
+    'He is also drawn to the mathematics and physics underneath the hardware, having qualified for the USA Mathematical Olympiad (USAMO) and earned distinction in the USA Physics Olympiad (USAPhO). He is currently studying Electrical and Computer Engineering Honors at the University of Illinois Urbana-Champaign.',
   ],
 } as const;
 
