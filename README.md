@@ -67,6 +67,7 @@ Almost everything you see comes from real measurements:
 - **Galaxies:** the Local Volume Database and Cosmicflows-4.
 - **Galaxy surveys:** 13.5 million galaxies and quasars from DESI DR1 and the SDSS, placed by their redshifts, and
   0.87 million more quasars over the whole sky from Gaia (Quaia), drawn stretched by their rough distances.
+- **Deep sky:** NGC/IC objects with measured distances (OpenNGC), ATNF pulsars, supernova remnants and gravitational-wave mergers.
 - **Black holes:** published measurements.
 
 Where something has to be a model, such as the Milky Way seen from outside, the gas around Sagittarius A\* or the

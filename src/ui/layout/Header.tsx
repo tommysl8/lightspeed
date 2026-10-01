@@ -28,6 +28,7 @@ import { enterClean } from '../cleanMode';
 import { Icon } from '../icons';
 import { constellationsShown, toggleConstellations } from '../constellations';
 import { planetHostsShown, togglePlanetHosts } from '../planetHosts';
+import { deepSkyChecked, toggleDeepSkyLayer } from '../deepSkyLayers';
 import { cosmicWebShare, surveyShare, toggleCosmicWeb, toggleSurveys } from '../cosmicLayers';
 import { starMotionNote } from '../../sim/stars/motion';
 import { Wordmark } from '../Logo';
@@ -229,6 +230,9 @@ function ViewMenu() {
       planetHosts: u.planetHosts,
       cosmicWeb: u.cosmicWeb,
       surveys: u.surveys,
+      deepSky: u.deepSky,
+      pulsars: u.pulsars,
+      gwEvents: u.gwEvents,
       showCmb: u.showCmb,
       retarded: u.retarded,
       showFps: u.showFps,
@@ -352,6 +356,39 @@ function ViewMenu() {
             }
           >
             Galaxy surveys
+          </Check>
+          <Check
+            checked={deepSkyChecked('deepSky', s.deepSky, sim.camera.pos.length())}
+            onChange={() => toggleDeepSkyLayer('deepSky')}
+            hint={
+              s.deepSky === 'auto'
+                ? 'Faint rings round the NGC and IC galaxies, clusters and nebulae with measured distances, and the supernova remnants. On by themselves among the stars and beyond the Galaxy'
+                : 'Faint rings round the NGC and IC galaxies, clusters and nebulae with measured distances, and the supernova remnants'
+            }
+          >
+            Deep-sky objects
+          </Check>
+          <Check
+            checked={deepSkyChecked('pulsars', s.pulsars, sim.camera.pos.length())}
+            onChange={() => toggleDeepSkyLayer('pulsars')}
+            hint={
+              s.pulsars === 'auto'
+                ? '4,179 pulsars of the ATNF catalogue, each beating with its spin (slowed when too fast to watch). On by themselves among the stars'
+                : '4,179 pulsars of the ATNF catalogue, each beating with its spin (slowed when too fast to watch)'
+            }
+          >
+            Pulsars
+          </Check>
+          <Check
+            checked={deepSkyChecked('gwEvents', s.gwEvents, sim.camera.pos.length())}
+            onChange={() => toggleDeepSkyLayer('gwEvents')}
+            hint={
+              s.gwEvents === 'auto'
+                ? 'Mergers of black holes and neutron stars heard in gravitational waves, each a soft region where it probably happened. On by themselves beyond the Galaxy'
+                : 'Mergers of black holes and neutron stars heard in gravitational waves, each a soft region where it probably happened'
+            }
+          >
+            Gravitational-wave events
           </Check>
           <Check checked={s.showCmb} onChange={() => t('showCmb')} hint="The cosmic microwave background over the sky: WMAP’s map, contrast enhanced about 10,000 times">
             CMB map

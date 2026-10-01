@@ -57,6 +57,13 @@ export interface UIState {
    * universe (ui/cosmicLayers.ts).
    */
   surveys: 'auto' | 'on' | 'off';
+  /**
+   * The deep-sky catalogues' markers (sim/deepsky; ui/deepSkyLayers.ts): the NGC and IC objects with measured distances
+   * and the supernova remnants; the pulsars; the gravitational-wave events. On, off, or 'auto': shown where they help.
+   */
+  deepSky: 'auto' | 'on' | 'off';
+  pulsars: 'auto' | 'on' | 'off';
+  gwEvents: 'auto' | 'on' | 'off';
   /** The map of the cosmic microwave background over the sky (contrast enhanced). */
   showCmb: boolean;
   /** First-visit welcome screen. */
@@ -199,6 +206,10 @@ export const savedPrefs = (s: UIState) => ({
   planetHosts: s.planetHosts,
   cosmicWeb: s.cosmicWeb,
   surveys: s.surveys,
+  // New in this version with their default ('auto'): a saved state without them keeps it, so no migration.
+  deepSky: s.deepSky,
+  pulsars: s.pulsars,
+  gwEvents: s.gwEvents,
   showFps: s.showFps,
   // Not leftOpen: the physics reference opens only when asked for, never on a reload.
   rightOpen: s.rightOpen,
@@ -237,6 +248,9 @@ export const useUI = create<UIState>()(
       planetHosts: 'auto',
       cosmicWeb: 'auto',
       surveys: 'auto',
+      deepSky: 'auto',
+      pulsars: 'auto',
+      gwEvents: 'auto',
       showCmb: false,
       welcomeOpen: !welcomed(),
       tourStep: null,

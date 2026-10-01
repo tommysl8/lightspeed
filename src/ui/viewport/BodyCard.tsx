@@ -118,6 +118,9 @@ export function cardModelLine(r: BodyRecord): string | null {
   const notes = r.modelNotes ?? [];
   if (notes.includes(NO_IMAGE_NOTE)) return NO_IMAGE_NOTE;
   if (notes.includes(MILKY_WAY_MODEL_LABEL)) return GALAXY_MODEL_LINE;
+  // A deep-sky catalogue's object whose place is uncertain or a model (a pulsar's distance from its dispersion measure,
+  // a merger's region): its own line.
+  if (r.deepSky?.cardNote) return r.deepSky.cardNote;
   return null;
 }
 
@@ -207,7 +210,9 @@ export function BodyCard() {
   const notes = (hole ? (d.modelNotes ?? []).slice(0, 3) : [d.positionNote, ...(d.modelNotes ?? [])]).filter((n): n is string => !!n && n !== modelLine);
   // A galaxy beyond the camera's bound structure: the light arriving now, when it left and how stretched. Not beside
   // a black hole whose gravity paces the clock: its light left it hours or days ago, not ages (M87* from 6,288 au).
-  const sight = d.deepSky && !hh?.near ? cosmicSightLine(id, b.dopplerFactor) : null;
+  // (Not for a merger heard in gravitational waves: it sent no light, and its card says when its waves arrived.)
+  const sight = d.deepSky && !hh?.near && d.kind !== 'merger' ? cosmicSightLine(id, b.dopplerFactor) : null;
+  const sent = d.kind === 'merger' ? 'its waves' : 'its light';
   // Far from the present: home and the stars are drawn as they are today.
   const epochNote = farEpochNote(id);
   const links = sourceLinks(d);
@@ -274,10 +279,10 @@ export function BodyCard() {
         )}
         {/* Deep in a hole's gravity (where the warp paces your own clock) its light-time says little: left out. */}
         {hh?.near && (gravity.paced || hh.motion === 'falling') ? null : left === 'none' ? (
-          <span className="text-fg-3"> · none of its light has reached you</span>
+          <span className="text-fg-3"> · none of {sent} has reached you</span>
         ) : left ? (
           <>
-            <span className="text-fg-3"> · its light left </span>
+            <span className="text-fg-3"> · {sent} left </span>
             {left}
             <span className="text-fg-3"> ago</span>
           </>

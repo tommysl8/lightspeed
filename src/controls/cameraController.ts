@@ -76,7 +76,7 @@ const UP = new Vector3(0, 1, 0);
 const Z_UP = new Vector3(0, 0, 1);
 const upScratch = new Vector3();
 /** Kinds seen along our line of sight (niceDirection), when this far from the Sun (a light-year) or farther. */
-const FROM_EARTH_KINDS: ReadonlySet<string> = new Set(['galaxy', 'cluster', 'nebula']);
+const FROM_EARTH_KINDS: ReadonlySet<string> = new Set(['galaxy', 'cluster', 'nebula', 'pulsar']);
 const FROM_EARTH_KM = 9.46e12;
 const ZERO = new Vector3();
 /** Farthest orbit distance, km (about 10¹¹ light-years: beyond the observable universe's 4.4 × 10²³ km radius). */

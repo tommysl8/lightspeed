@@ -91,7 +91,7 @@ const labelNow = (e: Entry, far: boolean, beyondGalaxy = false): string =>
 /** A star fainter than this (the eye's limit, and the half magnitude over which the star field fades it out) gets no label of its own. */
 const LABEL_MAG_LIMIT = STAR_MAG_LIMIT + 0.5;
 
-const DEEP_SKY: ReadonlySet<string> = new Set(['cluster', 'nebula', 'galaxy']);
+const DEEP_SKY: ReadonlySet<string> = new Set(['cluster', 'nebula', 'galaxy', 'merger']);
 /** A deep-sky object's label shows from this radius on screen, CSS px (or once it is as bright as a star that shows). */
 export const DEEP_SKY_LABEL_PX = 4;
 
@@ -111,6 +111,12 @@ export function hiddenBehindFocus(
   if (!focus || !focus.screen.onScreen || !(b.distCamera > focus.distCamera)) return false;
   return Math.hypot(b.screen.x - focus.screen.x, b.screen.y - focus.screen.y) < 0.9 * focus.radiusPx;
 }
+
+/**
+ * A pulsar's label shows from this close (30 pc), unless it is chosen: from farther it is one faint marker among
+ * thousands (scene/DeepSky.tsx).
+ */
+export const PULSAR_LABEL_KM = 30 * PARSEC_KM;
 
 /** A lone black hole's label shows from this close (1 pc), unless it is chosen. */
 export const LONE_HOLE_LABEL_KM = PARSEC_KM;
@@ -211,7 +217,9 @@ export function LabelSync() {
       // selection and the focus): the Sun, the stars, their planets and the nebulae are lost in the
       // Milky Way's light, which is labelled as home. A galaxy's central hole is labelled from inside it.
       const insideHost = hole && !!e.record.parent && e.record.blackHole?.class === 'supermassive';
-      if (beyondGalaxy && tier >= 3 && e.record.kind !== 'galaxy' && !insideHost && !(e.record.kind === 'cluster' && /galaxies/.test(e.record.kindText ?? ''))) continue;
+      if (beyondGalaxy && tier >= 3 && e.record.kind !== 'galaxy' && e.record.kind !== 'merger' && !insideHost && !(e.record.kind === 'cluster' && /galaxies/.test(e.record.kindText ?? ''))) continue;
+      // A pulsar is labelled near it (or when chosen): from afar it is one faint marker among thousands.
+      if (tier >= 3 && e.record.kind === 'pulsar' && b.distTrue > PULSAR_LABEL_KM) continue;
       // A star nobody could see from here, or one that shares its pair's label, is left unlabelled.
       if (star && tier >= 3 && (b.magnitude > LABEL_MAG_LIMIT || pairs.hide.has(e.id))) continue;
       // A cluster, nebula or galaxy is labelled once it is big enough on screen or bright enough to

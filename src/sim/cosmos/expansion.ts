@@ -150,6 +150,14 @@ export function setExpansionMembers(list: readonly { id: string; anchorWorldKm: 
   }
 }
 
+/** Drop members whose bodies were released (the deep-sky catalogues' galaxies and mergers, registered on demand). */
+export function removeExpansionMembers(ids: readonly string[]): void {
+  if (!ids.length) return;
+  const gone = new Set(ids);
+  for (const id of ids) cosmicSky.byId.delete(id);
+  for (let i = cosmicSky.members.length - 1; i >= 0; i--) if (gone.has(cosmicSky.members[i].id)) cosmicSky.members.splice(i, 1);
+}
+
 /** The emission table has arrived (from the cosmos worker, or built here). */
 export function setSkyTable(t: SkyTable): void {
   cosmicSky.table = t;
