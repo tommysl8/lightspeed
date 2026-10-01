@@ -2,7 +2,9 @@
  * The constellations' names, each at the middle of its figure as seen from where the camera is:
  * the mean direction of the figure's stars (near the Sun, d3-celestial's own label place, which is
  * tuned for a star chart). 88 DOM elements, made once and positioned straight in the DOM while
- * the figures show (like the body labels, never through React state).
+ * the figures show (like the body labels, never through React state). A name shows only while its figure is big enough
+ * on screen to read it against (NAME_PX), and fades out from NAME_FAR_PC from the Sun: from far off, with the figures
+ * turned on, the 88 would pile up in one spot.
  */
 import { useEffect, useRef, useSyncExternalStore } from 'react';
 import { useFrame } from '@react-three/fiber';
@@ -25,6 +27,18 @@ interface NameSlot {
 const slots: NameSlot[] = [];
 let host: HTMLDivElement | null = null;
 let builtFor: unknown = null;
+
+/** A name fades in as its figure's stars spread over this many CSS px (their mean distance from its middle), from the first. */
+export const NAME_PX: readonly [number, number] = [15, 40];
+
+/** Names fade out between these distances from the Sun, pc (the figures themselves stay while they are on). */
+export const NAME_FAR_PC: readonly [number, number] = [400, 1200];
+
+/** A name's strength (0–1) for a figure whose stars spread over spreadPx on screen. */
+export const nameBySize = (spreadPx: number): number => {
+  const t = Math.min(1, Math.max(0, (spreadPx - NAME_PX[0]) / (NAME_PX[1] - NAME_PX[0])));
+  return t * t * (3 - 2 * t);
+};
 
 const dir = new Vector3();
 const acc = new Vector3();
@@ -71,6 +85,12 @@ export function ConstellationNameSync() {
     const cz = cam.y / PARSEC_KM;
     // Near the Sun the chart's label places; from 0.5 pc on, the figures' own middles.
     const w = Math.min(1, Math.max(0, (Math.hypot(cx, cy, cz) - 0.05) / 0.45));
+    const far = 1 - Math.min(1, Math.max(0, (Math.hypot(cx, cy, cz) - NAME_FAR_PC[0]) / (NAME_FAR_PC[1] - NAME_FAR_PC[0])));
+    if (far <= 0) {
+      for (const s of slots) if (s.el.style.opacity !== '0') s.el.style.opacity = '0';
+      return;
+    }
+    const pxPerRad = sim.viewport.height / 2 / Math.tan(((camera as PerspectiveCamera).fov * Math.PI) / 360);
     for (let k = 0; k < slots.length; k++) {
       const s = slots[k];
       acc.set(0, 0, 0);
@@ -90,7 +110,9 @@ export function ConstellationNameSync() {
       // How closely the figure's stars gather on the sky (1: a point, 0: all over it). A figure
       // that has come apart (far from the Sun) keeps no name, nor does one whose lines have faded.
       const gathered = acc.length() / s.stars.length;
-      const opacity = Math.min(1, Math.max(0, (gathered - 0.55) / 0.25)) * (figureFade[k] ?? 1);
+      // …nor one too small on screen to read it against: its stars' angular spread, acos of how gathered they are.
+      const spreadPx = Math.acos(Math.min(1, gathered)) * pxPerRad;
+      const opacity = Math.min(1, Math.max(0, (gathered - 0.55) / 0.25)) * (figureFade[k] ?? 1) * nameBySize(spreadPx) * far;
       dir.copy(acc).normalize().multiplyScalar(w).addScaledVector(s.chart, 1 - w).normalize();
       screenOf(dir, camera as PerspectiveCamera, screen);
       const el = s.el;

@@ -156,6 +156,11 @@ export interface UIState {
   holePanelAuto: boolean;
   /** The visitor's (or a scene's) choice for the panel near the hole the camera is at; null: the default. Not saved. */
   holePanel: HolePanelChoice | null;
+  /**
+   * The notes on the data layers put away with their Hide (ui/viewport/LayerCards.tsx: 'cmb', 'web', 'surveys', 'flow',
+   * 'belts', 'nsc'): hiding a note leaves its layer as it is. Saved; View › Layer notes brings them all back.
+   */
+  hiddenNotes: string[];
 
   select: (id: BodyId | null) => void;
   toggle: (
@@ -227,6 +232,8 @@ export const savedPrefs = (s: UIState) => ({
   hints: s.hints,
   // New in this version with its default (off) for everyone: a saved state without it keeps the default, so no migration.
   holePanelAuto: s.holePanelAuto,
+  // New in this version with its default (none hidden): no migration.
+  hiddenNotes: s.hiddenNotes,
 });
 
 function welcomed(): boolean {
@@ -298,6 +305,7 @@ export const useUI = create<UIState>()(
       fallActive: false,
       holePanelAuto: false,
       holePanel: null,
+      hiddenNotes: [],
       // Selecting a body brings its card back if it was closed.
       select: (id) => set((s) => ({ selected: id, bodyCard: id ? true : s.bodyCard })),
       toggle: (key) => set((s) => ({ [key]: !s[key] }) as Partial<UIState>),
