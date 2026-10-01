@@ -95,8 +95,8 @@ if (import.meta.env.DEV) {
         lensTest: lensTest.lensTest,
         /** Whole-frame GPU timing (dev/perf.ts). */
         perf: perf.perf,
-        /** The galaxy surveys: what has loaded (bytes, files), this frame's draw, and the point budget (sim/surveys, scene/Surveys.tsx). */
-        surveys: { state: surveyLoad.survey, frame: surveyScene.surveyFrame, budget: gpuBudget.surveyBudget, reset: surveyLoad.resetSurvey, glow: surveyLod.glowSettings },
+        /** The galaxy surveys: what has loaded (bytes, files) of the surveys and of Quaia, this frame's draw, and the point budget (sim/surveys, scene/Surveys.tsx). */
+        surveys: { state: surveyLoad.survey, quaia: surveyLoad.quaia, frame: surveyScene.surveyFrame, budget: gpuBudget.surveyBudget, reset: surveyLoad.resetSurvey, glow: surveyLod.glowSettings },
         /** Render n frames with a fixed timestep (works while the tab is hidden). */
         step(n = 60, dt = 1 / 60) {
           s.sim.debugDt = dt;

@@ -35,6 +35,13 @@ export interface TileInput {
   pos: Float64Array;
   kind: Uint8Array;
   lum: Uint8Array;
+  /** Any more bytes of each point (`per` a point, interleaved), stored with it (format.ts encodeNode). */
+  extra?: { per: number; bytes: Uint8Array };
+  /**
+   * A factor on each point's display light where the app draws some points fainter than their luminosity alone says
+   * (Quaia's quasars with the largest distance errors: quaia.ts quaiaFade), so the glows hold the light the points show.
+   */
+  weight?: Float32Array;
 }
 
 /** A node as built (before the files are written). */
@@ -146,7 +153,7 @@ export function buildOctree(input: TileInput, seed = 1, capacity = SURVEY_NODE_P
     const B = box[k];
     for (let s = starts[k]; s < starts[k + 1]; s++) {
       const i = byNode[s];
-      const w = hOf[input.lum[i]];
+      const w = hOf[input.lum[i]] * (input.weight ? input.weight[i] : 1);
       const x = p[3 * i];
       const y = p[3 * i + 1];
       const z = p[3 * i + 2];
@@ -242,6 +249,8 @@ export function nodeBytes(node: BuiltNode, input: TileInput, dist: Float64Array 
   const tier = new Uint8Array(m);
   const kind = new Uint8Array(m);
   const lum = new Uint8Array(m);
+  const per = input.extra ? input.extra.per : 0;
+  const extra = new Uint8Array(m * per);
   for (let j = 0; j < m; j++) {
     const i = node.points[j];
     pos[3 * j] = input.pos[3 * i];
@@ -250,6 +259,7 @@ export function nodeBytes(node: BuiltNode, input: TileInput, dist: Float64Array 
     tier[j] = tierOf(dist[i]);
     kind[j] = input.kind[i];
     lum[j] = input.lum[i];
+    for (let e = 0; e < per; e++) extra[j * per + e] = input.extra!.bytes[i * per + e];
   }
-  return encodeNode(pos, tier, kind, lum, node.lo, node.side, node.glows);
+  return encodeNode(pos, tier, kind, lum, node.lo, node.side, node.glows, per ? { per, bytes: extra } : null);
 }
