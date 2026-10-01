@@ -46,6 +46,9 @@ import {
   holeSky,
   IN_THE_PLANE,
   ISCO_LOOK,
+  CYG_X1_ABOVE_VIEW,
+  CYG_X1_DISK_VIEW,
+  SGRA_RADIO_M,
   NAMED_SCENES,
   PHOTON_RING_LOOK,
   runScene,
@@ -61,7 +64,7 @@ const DEG = 180 / Math.PI;
 const SGR_A = 'sgr-a-star';
 const NOW = msFromCivil(2026, 9, 29, 12);
 
-/** The eleven named scenes (the table in docs/data/blackholes.md §10), with their labels. */
+/** The fourteen named scenes (the table in docs/data/blackholes.md §10), with their labels. */
 const SCENES = {
   'sgr-a-star-shadow': 'The shadow of Sgr A*',
   'photon-ring': 'The photon ring',
@@ -73,11 +76,14 @@ const SCENES = {
   'sgr-a-star-flyby': 'Flying past Sgr A*',
   's2-behind-sgr-a-star': 'S2 behind the black hole',
   'sgr-a-star-flow': 'The gas round Sgr A*',
+  'sgr-a-star-radio': 'Sagittarius A* in radio light',
   'm87-star-close': 'M87* from 1,000 au',
+  'cyg-x-1-disk': 'The disc of Cygnus X-1',
+  'cyg-x-1-from-above': 'Cygnus X-1 from above',
 } as const;
 type NewScene = keyof typeof SCENES;
-/** The scenes that do not switch the flow off (the flow's own; M87* has no flow drawn). */
-const FLOW_KEPT: ReadonlySet<NewScene> = new Set(['sgr-a-star-flow', 'm87-star-close']);
+/** The scenes that do not switch the flow off (the flow's own; M87* and Cygnus X-1 have no flow drawn). */
+const FLOW_KEPT: ReadonlySet<NewScene> = new Set(['sgr-a-star-flow', 'sgr-a-star-radio', 'm87-star-close', 'cyg-x-1-disk', 'cyg-x-1-from-above']);
 
 /** One frame, in SimDriver's order (src/scene/SimDriver.tsx), without the drawing. */
 function frame(dt = 1 / 60): void {
@@ -610,6 +616,66 @@ describe('The gas round Sgr A*', () => {
     expect(useUI.getState()).toMatchObject({ accretionFlow: true, lensing: true });
   }, 60_000);
 
+});
+
+describe('Sagittarius A* in radio light', () => {
+  it('hovers 30 horizon radii out on the line to the Sun, the flow on at 1.3 mm, put back by the next scene', () => {
+    useUI.setState({ accretionFlow: false, accretionBand: 'visible' });
+    const note = run('sgr-a-star-radio');
+    expect(useUI.getState()).toMatchObject({ accretionFlow: true, accretionBand: 'mm', lensing: true, selected: SGR_A });
+    expect(Math.abs(gravity.rM / SGRA_RADIO_M - 1)).toBeLessThan(1e-12);
+    const v = view();
+    expect(Math.round(v.rOverRs)).toBe(30);
+    expect(note).toContain(`Thirty horizon radii (${fixed(v.distanceKm / AU_KM, 1)} au)`);
+    // The EHT's ring, 51.8 µas across (blackholes.json): 52 millionths of an arcsecond.
+    expect(Math.round(getBody(SGR_A)!.blackHole!.ehtImage!.ringDiameterUas)).toBe(52);
+    expect(note).toContain('52 millionths of an arcsecond');
+    run('go:jupiter');
+    expect(useUI.getState()).toMatchObject({ accretionFlow: false, accretionBand: 'visible' });
+  }, 60_000);
+});
+
+describe('Cygnus X-1’s disc', () => {
+  const normal = () => {
+    const n = getBody('cyg-x-1')!.blackHole!.disk!.normalWorld;
+    return new Vector3(n[0], n[1], n[2]);
+  };
+  const kmText = (km: number, step: number) => (Math.round(km / step) * step).toLocaleString('en-GB');
+
+  it('just above the disc: 30 horizon radii out, 8° above its plane, the disc on and the orbit lines off', () => {
+    useUI.setState({ showOrbits: true, accretionDisks: false });
+    const note = run('cyg-x-1-disk');
+    expect(gravity.hole).toBe('cyg-x-1');
+    expect(Math.abs(gravity.rM / CYG_X1_DISK_VIEW.rM - 1)).toBeLessThan(1e-9);
+    expect(90 - angle(gravity.camRelHoleKm.clone(), normal()) * DEG).toBeCloseTo(CYG_X1_DISK_VIEW.elevationDeg, 6);
+    expect(useUI.getState()).toMatchObject({ accretionDisks: true, showOrbits: false, lensing: true, selected: 'cyg-x-1' });
+    expect(note).toContain(`Thirty horizon radii (${kmText(gravity.rKm, 100)} km)`);
+    expect(Math.round(gravity.rM / 2)).toBe(30);
+    // Level: the disc's axis is up in the view.
+    const up = new Vector3(0, 1, 0).applyQuaternion(sim.camera.quat);
+    expect(angle(up, normal().projectOnPlane(forward()))).toBeLessThan(1e-6);
+    expect(angle(forward(), gravity.camRelHoleKm.clone().negate())).toBeLessThan(1e-6);
+    run('go:jupiter');
+    expect(useUI.getState()).toMatchObject({ accretionDisks: false, showOrbits: true });
+  }, 60_000);
+
+  it('from above: 75 horizon radii out on the line to the Sun, the disc at our own angle, 27° from its axis', () => {
+    const note = run('cyg-x-1-from-above');
+    expect(Math.abs(gravity.rM / CYG_X1_ABOVE_VIEW.rM - 1)).toBeLessThan(1e-9);
+    const toSun = sim.bodies.sun.pos.clone().sub(sim.bodies['cyg-x-1'].pos);
+    expect(angle(gravity.camRelHoleKm.clone(), toSun)).toBeLessThan(1e-9);
+    const i = angle(gravity.camRelHoleKm.clone(), normal()) * DEG;
+    expect(Math.round(Math.min(i, 180 - i))).toBe(27);
+    expect(note).toContain(`Seventy-five horizon radii (${kmText(gravity.rKm, 100)} km)`);
+    expect(note).toContain('27° from its axis');
+    expect(Math.round(gravity.rM / 2)).toBe(75);
+  }, 60_000);
+
+  it('the disc lies in the binary’s orbital plane, 27° from our line of sight (Miller-Jones et al. 2021: 27.5 ± 0.8°)', () => {
+    const toSun = sim.bodies.sun.pos.clone().sub(sim.bodies['cyg-x-1'].pos);
+    const i = angle(toSun, normal()) * DEG;
+    expect(Math.min(i, 180 - i)).toBeCloseTo(27.1, 0);
+  });
 });
 
 describe('M87* from 1,000 au', () => {

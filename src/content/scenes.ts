@@ -261,7 +261,10 @@ export const NAMED_SCENES = [
   'sgr-a-star-flyby',
   's2-behind-sgr-a-star',
   'sgr-a-star-flow',
+  'sgr-a-star-radio',
   'm87-star-close',
+  'cyg-x-1-disk',
+  'cyg-x-1-from-above',
 ] as const;
 export type NamedSceneId = (typeof NAMED_SCENES)[number];
 
@@ -373,7 +376,10 @@ const PENDING_LABELS: Record<NamedSceneId, string> = {
   'sgr-a-star-flyby': 'Flying past Sgr A*',
   's2-behind-sgr-a-star': 'S2 behind the black hole',
   'sgr-a-star-flow': 'The gas round Sgr A*',
+  'sgr-a-star-radio': 'Sagittarius A* in radio light',
   'm87-star-close': 'M87* from 1,000 au',
+  'cyg-x-1-disk': 'The disc of Cygnus X-1',
+  'cyg-x-1-from-above': 'Cygnus X-1 from above',
 };
 
 /** Define (or replace) a named scene. */
@@ -905,11 +911,12 @@ function start(s: Scene, note: string): boolean {
  * Views a scene may turn on for itself: the CMB map over the sky, light-time correction, the
  * relativistic view (split, or with its Doppler colours), the cosmic web, and near a black hole
  * its lens, the accretion flow and the flow's band and blur (the scenes made to show the lens
- * switch the flow off). What one scene turned on, the next scene turns back (unless the visitor
+ * switch the flow off), and the thin accretion discs (whose scenes hide the orbit lines, which run through the
+ * disc's plane). What one scene turned on, the next scene turns back (unless the visitor
  * has changed it since), so the CMB map does not stay over Jupiter after the CMB scene, nor the
  * flow stay hidden after a lens scene.
  */
-const SCENE_VIEWS = ['showCmb', 'retarded', 'relMode', 'relDoppler', 'cosmicWeb', 'lensing', 'accretionFlow', 'accretionBand', 'ehtBlur'] as const;
+const SCENE_VIEWS = ['showCmb', 'showOrbits', 'retarded', 'relMode', 'relDoppler', 'cosmicWeb', 'lensing', 'accretionFlow', 'accretionDisks', 'accretionBand', 'ehtBlur'] as const;
 type SceneView = (typeof SCENE_VIEWS)[number];
 type SceneViews = Partial<Pick<UIState, SceneView>>;
 
@@ -920,12 +927,14 @@ function currentViews(): Pick<UIState, SceneView> {
   const s = useUI.getState();
   return {
     showCmb: s.showCmb,
+    showOrbits: s.showOrbits,
     retarded: s.retarded,
     relMode: s.relMode,
     relDoppler: s.relDoppler,
     cosmicWeb: s.cosmicWeb,
     lensing: s.lensing,
     accretionFlow: s.accretionFlow,
+    accretionDisks: s.accretionDisks,
     accretionBand: s.accretionBand,
     ehtBlur: s.ehtBlur,
   };
@@ -1303,15 +1312,17 @@ export const FLOW_OFF = 'The glowing gas is hidden here so the bent starlight sh
 
 /**
  * What a black-hole scene turns on for itself (the next scene turns it back): the lens always (with it
- * off a black hole cannot be seen at all); the flow as the scene wants it, in visible light when on;
+ * off a black hole cannot be seen at all); the flow as the scene wants it, in visible light when on (or in radio
+ * light, at 1.3 mm, for the radio scene); a thin disc where the scene shows one;
  * and, for the scenes about motion, the relativistic view, as a flight turns it on. The hole's panel
  * opens too: the visitor asked for the scene (ui/flight/HoleStrip.tsx; it stays closed otherwise).
  */
-function holeViews(hole: BodyId, o: { flow?: boolean; moving?: boolean }): void {
+function holeViews(hole: BodyId, o: { flow?: boolean; radio?: boolean; disk?: boolean; moving?: boolean }): void {
   useUI.setState((s) => ({
     holePanel: { hole, open: true },
     lensing: true,
-    ...(o.flow === undefined ? {} : o.flow ? { accretionFlow: true, accretionBand: 'visible' as const } : { accretionFlow: false }),
+    ...(o.flow === undefined ? {} : o.flow ? { accretionFlow: true, accretionBand: o.radio ? ('mm' as const) : ('visible' as const) } : { accretionFlow: false }),
+    ...(o.disk ? { accretionDisks: true, showOrbits: false } : {}),
     ...(o.moving && s.relMode === 'off' ? { relMode: 'on' as const } : {}),
   }));
 }
@@ -1599,6 +1610,22 @@ defineScene('sgr-a-star-flow', {
     }),
 });
 
+/** The radio scene's camera: 30 horizon radii out, where the ring and its shadow fill the middle of the view. */
+export const SGRA_RADIO_M = 60;
+
+defineScene('sgr-a-star-radio', {
+  label: 'Sagittarius A* in radio light',
+  note: 'Thirty horizon radii (2.5 au) from Sagittarius A*, seeing in radio light (1.3 mm) as the Event Horizon Telescope does: the model of its hot gas in false colour, an orange ring round the dark shadow, brightest where the gas comes towards you. Stars do not show at this wavelength. From Earth the ring is 52 millionths of an arcsecond across. View › Radio eyes switches back to visible light.',
+  unavailable: needs(SGR_A),
+  run: (note) =>
+    scene(note, () => {
+      holeViews(SGR_A, { flow: true, radio: true });
+      useUI.setState({ selected: SGR_A });
+      const dir = sunward(SGR_A);
+      toHole(SGR_A, SGRA_RADIO_M, dir, hoverStep(SGR_A, SGRA_RADIO_M, dir));
+    }),
+});
+
 const M87_STAR: BodyId = 'm87-star';
 export const M87_CLOSE_AU = 1000;
 
@@ -1613,6 +1640,67 @@ defineScene('m87-star-close', {
       const dir = sunward(M87_STAR);
       const rM = (M87_CLOSE_AU * AU_KM) / holeMKm(M87_STAR);
       toHole(M87_STAR, rM, dir, hoverStep(M87_STAR, rM, dir));
+    }),
+});
+
+// ─── Cygnus X-1's disc ──────────────────────────────────────────────────────────────────
+
+const CYG_X1: BodyId = 'cyg-x-1';
+
+/**
+ * A direction from Cygnus X-1 at `elevationDeg` above its disc's plane (world axes), on the side away from its
+ * companion turned a quarter round the disc (so the supergiant, 37,000 times farther than the camera, sits off to
+ * one side and the disc's far side is seen against the sky).
+ */
+export function cygX1View(elevationDeg: number): Vector3 {
+  const n = getBody(CYG_X1)?.blackHole?.disk?.normalWorld ?? [0, 1, 0];
+  const normal = new Vector3(n[0], n[1], n[2]);
+  const star = sim.bodies['hde-226868']?.present ? sim.bodies['hde-226868'].pos.clone().sub(sim.bodies[CYG_X1].pos) : new Vector3(1, 0, 0);
+  const across = new Vector3().crossVectors(normal, star);
+  if (across.lengthSq() < 1e-30) across.set(1, 0, 0).cross(normal);
+  across.normalize();
+  const el = (elevationDeg * Math.PI) / 180;
+  return across.multiplyScalar(Math.cos(el)).addScaledVector(normal, Math.sin(el)).normalize();
+}
+
+/** The disc scenes' camera: r (units of M) and elevation above the disc's plane (degrees). */
+export const CYG_X1_DISK_VIEW = { rM: 60, elevationDeg: 8 };
+/** "From above" is from our own side: on the line to the Sun, 27° from the disc's axis, as Earth sees it. */
+export const CYG_X1_ABOVE_VIEW = { rM: 150 };
+
+/** Hover for a disc scene along dir: looking at the hole with the disc's axis up, so its plane lies level across the view. */
+function cygX1Hover(rM: number, dir: Vector3): void {
+  const n = getBody(CYG_X1)?.blackHole?.disk?.normalWorld ?? [0, 1, 0];
+  controller.hoverAt(CYG_X1, rM, dir, dir.clone().negate(), { x: n[0], y: n[1], z: n[2] });
+}
+
+/** How the disc scenes' notes end: what is a model. */
+const DISK_MODEL =
+  'The disc is a model: a thin disc at 2 % of its Eddington luminosity, each ring a blackbody, drawn without the hole’s fast spin; its gas turns 1,000 times slower than real, and its swirls are illustrative.';
+
+defineScene('cyg-x-1-disk', {
+  label: 'The disc of Cygnus X-1',
+  note: `Thirty horizon radii (1,900 km) from Cygnus X-1, just above its disc of hot gas. Its inner rings blaze, and its far side is bent up over the black hole, with a thin ring of its light hugging the shadow. The side whose gas comes towards you is far brighter. ${DISK_MODEL}`,
+  unavailable: needs(CYG_X1),
+  run: (note) =>
+    scene(note, () => {
+      holeViews(CYG_X1, { disk: true });
+      useUI.setState({ selected: CYG_X1 });
+      const dir = cygX1View(CYG_X1_DISK_VIEW.elevationDeg);
+      toHole(CYG_X1, CYG_X1_DISK_VIEW.rM, dir, () => cygX1Hover(CYG_X1_DISK_VIEW.rM, cygX1View(CYG_X1_DISK_VIEW.elevationDeg)));
+    }),
+});
+
+defineScene('cyg-x-1-from-above', {
+  label: 'Cygnus X-1 from above',
+  note: `Seventy-five horizon radii (4,700 km) from Cygnus X-1, on our side of it: its disc seen at the angle we see it from Earth, 27° from its axis. Its inner edge, three horizon radii out, is as close as gas can circle without falling in; just outside the shadow a thin ring shows the disc’s underside, its light bent round the hole. The side whose gas comes towards you is brighter. ${DISK_MODEL}`,
+  unavailable: needs(CYG_X1),
+  run: (note) =>
+    scene(note, () => {
+      holeViews(CYG_X1, { disk: true });
+      useUI.setState({ selected: CYG_X1 });
+      const dir = sunward(CYG_X1);
+      toHole(CYG_X1, CYG_X1_ABOVE_VIEW.rM, dir, () => cygX1Hover(CYG_X1_ABOVE_VIEW.rM, sunward(CYG_X1)));
     }),
 });
 

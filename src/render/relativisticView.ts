@@ -16,7 +16,8 @@
  * the classical path with its point uniforms (nothing near those holes is a surface the remap would
  * have to aberrate). With a lens drawn the exposure is autoLnExposure(|φ_view| + ln g_max) (ln g_max the
  * brightest shift of light from far away: the static observer's ln g, or the raindrop's at the dark
- * region's edge), or less where the accretion flow's glare (render/flow/flowMap.ts) or the sky's own
+ * region's edge), or less where the accretion flow's glare (render/flow/flowMap.ts), a thin disc's
+ * (render/disk/diskMap.ts) or the sky's own
  * (render/lens/skyMeter.ts, which also applies near a hole whose lens is not drawn) calls for it, applied
  * in the classical path too; the CMB's hot spot is shifted by the observer's blueshift g (its place is the
  * observer's own forward direction). With no hole every value is today's.
@@ -46,6 +47,7 @@ import { insideLocalGroup } from '../sim/cosmos/expansion';
 import { cmbPointUniforms, relativityUniforms, SUN_SURFACE_RADIANCE } from './materials';
 import { lens, lensOverride } from './lens/lensState';
 import { flowLnExposure } from './flow/flowMap';
+import { diskLnExposure } from './disk/diskMap';
 import { skyLnExposure } from './lens/skyMeter';
 
 export type RelMode = 'off' | 'on' | 'split';
@@ -219,8 +221,9 @@ export function updateRelativisticView(mode: RelMode, splitX: number, doppler: b
       lensExposureArg = arg;
       lensExposure = autoLnExposure(arg);
     }
-    // Sgr A*'s resolved accretion flow outshines the sky: stop down for its glare too (render/flow/flowMap.ts).
-    const e = Math.min(lensExposure, flowLnExposure(), sky);
+    // Sgr A*'s resolved accretion flow outshines the sky, and a thin accretion disc far more: stop down for their glare
+    // too (render/flow/flowMap.ts, render/disk/diskMap.ts).
+    const e = Math.min(lensExposure, flowLnExposure(), diskLnExposure(), sky);
     relView.lnExposure = e;
     relView.lnExposureClassical = e;
     // (the exposure far from holes is worked out afresh when the lens goes, even at the same speed)

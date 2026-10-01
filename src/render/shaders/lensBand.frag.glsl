@@ -13,7 +13,9 @@
 // showed the pixels on the edge flickering by up to 58 % from frame to frame; with the stratum's width it is flat
 // to the last bit. Each sub-ray does everything a pixel of the composite does (lightspeed_lenspixel: the lens, the
 // source's screen or cube reading at the level of its own stratum's footprint, the surface-brightness factors, the
-// recolouring, the flow); the part inside the edge adds only the flow in front of the shadow. Sub-rays spaced
+// recolouring, the flow, and a thin accretion disc, which hides what is behind it: the disc's higher-order images, the
+// thin rings of its light that went round the hole, live in this band); the part inside the edge adds only the flow
+// and the disc in front of the shadow. Sub-rays spaced
 // regularly in α would meet a 0.015-px ring with probability 0.12 and flicker by up to 11 % of the sky's brightness.
 //
 // Cost: 2,700 pixels at 100 M to 39,000 at the horizon of a fall, 8 sub-rays each (4 at rung 1): 0.02–0.15 ms.
@@ -24,6 +26,7 @@
 #include <lightspeed_galaxycomposite>
 #include <lightspeed_lens>
 #include <lightspeed_flowlookup>
+#include <lightspeed_disklookup>
 #include <lightspeed_lenspixel>
 
 uniform mat4 uProjInv;
@@ -64,6 +67,9 @@ void main() {
   float gHi = min(g + 0.5 * omega, uLensSpan);
   vec4 acc = vec4(0.0);
   vec3 flow = vec3(0.0);
+  vec3 disk = vec3(0.0);
+  // the disc's light shift: the static observer's blueshift and the pixel's own (the disc is at rest in the hole frame)
+  float lnDisk = lnDpix - lnDfPix + uLensLnG;
   if (gHi > 0.0) {
     float gl = max(gLo, 1e-5 * omega);
     float s0 = lensLog(gl) + 3.0 * gl;
@@ -73,8 +79,10 @@ void main() {
     float hash = fract(sin(dot(gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453);
     // The strata's ends in g: gl, the gaps at s0 + k ds, gHi.
     float gA = gl;
-    for (int k = 0; k < 8; k++) {
-      if (float(k) >= n) break;
+    // (a bound the compiler cannot see, so that it keeps this a loop: unrolled, the eight sub-rays' inlined lens and
+    // disc took Direct3D's compiler 7–9 s)
+    int subRays = int(n + 0.5);
+    for (int k = 0; k < subRays; k++) {
       float gB = float(k) + 1.0 >= n ? gHi : exp(lensLnGapOfS(s0 + (float(k) + 1.0) * ds));
       float xi = fract(uBandJitter + hash + 0.618034 * float(k));
       float gk = gA + xi * (gB - gA);
@@ -83,12 +91,17 @@ void main() {
       float ca;
       lensSinCosOfGap(gk, sa, ca);
       vec3 dk = ca * uLensAxis + sa * e;
-      vec4 flux;
-      float lnG;
-      float gRay;
-      bool esc = lensSourceFlux(dView, dk, lnDpix, lnDfPix, vec2(gB - gA, omega), flux, lnG, gRay);
-      if (esc) acc += w * flux;
-      if (uLensDebug < 0.5) flow += w * lensFlowAtGap(dk, gRay, lnDpix, lnG);
+      vec3 dl;
+      if (uLensDebug < 0.5 && diskAt(dk, gk, lnDisk, dl)) {
+        disk += w * dl;
+      } else {
+        vec4 flux;
+        float lnG;
+        float gRay;
+        bool esc = lensSourceFlux(dView, dk, lnDpix, lnDfPix, vec2(gB - gA, omega), flux, lnG, gRay);
+        if (esc) acc += w * flux;
+        if (uLensDebug < 0.5) flow += w * lensFlowAtGap(dk, gRay, lnDpix, lnG);
+      }
       gA = gB;
     }
   }
@@ -100,13 +113,15 @@ void main() {
     float ca;
     lensSinCosOfGap(gc, sa, ca);
     vec3 dc = ca * uLensAxis + sa * e;
-    flow += capturedShare * lensFlow(dc, lnDpix, lensLnGAt(0.5 * length(uLensAxis - dc)));
+    vec3 dl;
+    if (diskAt(dc, gc, lnDisk, dl)) disk += capturedShare * dl;
+    else flow += capturedShare * lensFlow(dc, lnDpix, lensLnGAt(0.5 * length(uLensAxis - dc)));
   }
   vec3 rgb;
   // Uniform radiance (4): as the composite writes it.
   if (uLensDebug > 3.5) rgb = 0.5 * acc.rgb / (cP * cP * cP + 1.0);
   else if (uLensDebug > 0.5) rgb = acc.rgb;
-  else rgb = galaxyDisplay(acc) + flow;
+  else rgb = galaxyDisplay(acc) + flow + disk;
   // Half-float targets overflow at 65,504: a real camera saturates long before.
   gl_FragColor = vec4(min(rgb, vec3(3.0e4)), 1.0);
 }

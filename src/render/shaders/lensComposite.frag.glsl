@@ -9,7 +9,9 @@
 // alone; inside it the ray is taken to the hole's frame, through the lens (lightspeed_lenspixel), and its light read
 // where its source is seen unlensed (the targets, or the hole's sky cube for sources off the screen), with the
 // surface-brightness factors and the recolouring, then drawn with the Galaxy layer's display law. Captured rays are
-// black (a hole formed by collapse has no white hole) apart from the flow in front of the shadow. One ray a pixel and
+// black (a hole formed by collapse has no white hole) apart from the flow in front of the shadow. A thin accretion disc
+// (lightspeed_disklookup) is opaque: where a pixel's ray meets it, the disc's light is the pixel's, inside the diffuse
+// zone and round it alike (while a disc is drawn the box covers its whole image). One ray a pixel and
 // no loop: the band's sub-rays are the band pass's (a loop of them here cost 3.7–3.9 ms over the whole screen with no
 // pixel in the band, on the target laptop).
 //
@@ -22,6 +24,7 @@
 #include <lightspeed_galaxycomposite>
 #include <lightspeed_lens>
 #include <lightspeed_flowlookup>
+#include <lightspeed_disklookup>
 #include <lightspeed_lenspixel>
 
 uniform mat4 uProjInv;
@@ -39,15 +42,24 @@ void main() {
   if (lensInBand(dView)) discard;
 #endif
   float cP = max(dot(dView, uViewFwd), 1e-3);
-  vec3 rgb;
-  if (uLensDebug < 0.5 && dot(dView, uLensZoneCentre) < uLensZoneCos) {
+  bool inZone = uLensDebug > 0.5 || dot(dView, uLensZoneCentre) >= uLensZoneCos;
+  vec3 rgb = vec3(0.0);
+  float lnDpix = 0.0;
+  float lnDfPix = 0.0;
+  vec3 d = dView;
+  bool onDisk = false;
+  if (inZone || uDiskOn > 0.5) {
+    vec3 dS = relUnaberrateLens(dView, uVelDir, uEPhi, uEmPhi, lnDpix);
+    d = frameAberrate(dS, lnDfPix);
+    // The disc, at rest in the hole's frame: the static observer's blueshift and the pixel's own shifts.
+    if (uLensDebug < 0.5) onDisk = diskAt(d, lensGap(d), lnDpix - lnDfPix + uLensLnG, rgb);
+  }
+  if (onDisk) {
+    // (its light is in rgb)
+  } else if (!inZone) {
     // Outside the diffuse zone: the light as drawn unlensed, with the observer's blueshift.
     rgb = galaxyDisplay(lensOwnFlux(vUv, cP, uLensLnG));
   } else {
-    float lnDpix;
-    vec3 dS = relUnaberrateLens(dView, uVelDir, uEPhi, uEmPhi, lnDpix);
-    float lnDfPix;
-    vec3 d = frameAberrate(dS, lnDfPix);
     vec4 flux;
     float lnG;
     float g;

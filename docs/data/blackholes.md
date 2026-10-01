@@ -6,11 +6,13 @@ eight of them in binaries with their companion stars on the published orbits. Ne
 largest where the camera is, light is bent exactly (every star, glow, body and galaxy in view), clocks slow and the
 camera hovers in height above the horizon; scenes add orbits and moments seen at speed, and the camera can fall
 through the horizons of Sgr A* and M87*. Round Sgr A* two labelled models fill in what cannot be seen from Earth: the
-nuclear star cluster, and the gas falling into the hole.
+nuclear star cluster, and the gas falling into the hole, which "Radio eyes" shows at 1.3 mm as the Event Horizon
+Telescope sees it. Cygnus X-1 has its thin accretion disc, a labelled model, with every image the lens makes of it.
 
 Sections 1 to 3 say what ships, how it is rebuilt and what is data rather than model; 4 is the physics and how it is
 checked; 5 the black holes' data; 6 the nuclear star cluster; 7 the accretion flow; 8 the sources and licences; 9 the
-known limitations; 10 how the app uses it all; 11 the measured cost and the checks on the GPU.
+known limitations; 10 how the app uses it all; 11 the measured cost and the checks on the GPU; 12 Cygnus X-1's thin
+disc and the 1.3 mm "Radio eyes".
 
 ## 1. Outputs
 
@@ -21,6 +23,7 @@ known limitations; 10 how the app uses it all; 11 the measured cost and the chec
 | `public/data/nsc-stars.bin.gz` | 60,000 stars of the model of the nuclear star cluster and disc, brightest first as seen from Sgr A* (§6) | 876 kB | loaded within 3 kpc of Sgr A* |
 | `src/sim/galaxy/nuclearGlow.json` | The cluster's and disc's laws, their point-share tables for 60,000, 30,000 and 10,000 points, M87's light profile, the build's checks (§6) | 23 kB | bundled |
 | `src/physics/__fixtures__/schwarzschild.json` | The physics fixtures from the independent reference (§4) | 424 kB | tests |
+| `src/physics/__fixtures__/thinDisk.json` | The thin disc's fixtures from its independent reference: 198 rays' crossings, the flux, the shift at known points (§12) | 121 kB | tests |
 | `scripts/sgra-flow/ref/` | The flow's reference pictures: far away at 30° from its axis; hovering at 20, 6 and 2.02 M; a raindrop at 1 M, inside the horizon (§7) | 1.2 MB | tests |
 | `scripts/lens-check/ref/` | Camera maps of the 8 fixture cameras at 30 digits and 16 reference pictures, for the checks on the GPU (§11) | 2.4 MB | development |
 | `public/images/eht/sgra-2017.jpg`, `m87-2017.jpg` | The Event Horizon Telescope's pictures, named by the records: not in the tree (§8, §9); until they are, the two cards link to ESO's pages. A card shows a picture only once its file is listed in `EHT_SHIPPED` (`src/ui/viewport/EhtFigure.tsx`), which a test keeps equal to the folder | — | — |
@@ -38,10 +41,11 @@ The code, each module with a header saying what it does, how, why, what it costs
 | `src/render/lens/`, `src/render/shaders/lens*.glsl`, `dopplerColour.glsl`, `galaxyComposite.glsl` | The lens on the GPU: the tables' textures, zones and boxes, the per-pixel composite, the photon ring's band, the sky cube, the lensed spheres |
 | `src/render/lensVariants.ts`, `lensRingMaterial.ts`, `gpuBudget.ts` | Lensed variants of the point layers; rings of light; the GPU-time controller |
 | `src/render/flow/`, `src/render/shaders/flowMap.frag.glsl`, `flowLookup.glsl` | The flow's map, its exposure meter and its blur (§7) |
-| `src/scene/BlackHoleLens.tsx`, `AccretionFlow.tsx`, `NuclearCluster.tsx`, `LensRings.tsx` | Their scene components |
-| `src/ui/flight/HoleStrip.tsx`, `src/ui/viewport/EhtFigure.tsx`, `FlowControls.tsx` | The panel near a hole; the EHT's picture and the flow's switches on Sgr A*'s card |
+| `src/physics/thinDisk.ts`, `src/render/disk/`, `src/render/shaders/diskLookup.glsl` | Cygnus X-1's thin disc: its temperatures and shifts, the table of every orbit of light, where each ray crosses the disc, its exposure and turning (§12) |
+| `src/scene/BlackHoleLens.tsx`, `AccretionFlow.tsx`, `AccretionDisk.tsx`, `NuclearCluster.tsx`, `LensRings.tsx` | Their scene components |
+| `src/ui/flight/HoleStrip.tsx`, `src/ui/viewport/EhtFigure.tsx`, `FlowControls.tsx`, `DiskControls.tsx` | The panel near a hole; the EHT's picture and the flow's switches on Sgr A*'s card; the disc's line and switch on Cygnus X-1's |
 | `src/dev/perf.ts`, `lensTest.ts` | Development only: `window.__ls.perf` (timing) and `window.__ls.lensTest` (the lens's own hooks) |
-| `scripts/build-blackholes.mjs`, `build-nsc.py`, `schwarzschild/`, `sgra-flow/`, `lens-check/`, `check-shaders.mjs` | The builders and the independent references |
+| `scripts/build-blackholes.mjs`, `build-nsc.py`, `schwarzschild/`, `sgra-flow/`, `thin-disk/`, `lens-check/`, `check-shaders.mjs` | The builders and the independent references |
 
 ## 2. Build commands
 
@@ -56,6 +60,8 @@ python scripts/build-nsc.py --verify               # rebuild both in memory and 
 python scripts/sgra-flow/flow_tables.py            # sgraFlow.json and scripts/sgra-flow/ref/ (numpy, scipy; about 33
                                                    #   minutes on three processes; --quick two minutes; --angles-from-json)
 python scripts/sgra-flow/fit_riaf.py riaf_results.json  # from scripts/sgra-flow/: re-image the three fitted models
+npm run data:disk-fixtures                         # python scripts/thin-disk/disk_ref.py: thinDisk.json (mpmath, numpy,
+                                                   #   scipy; about 90 s)
 npm run data:blackhole-fixtures                    # python scripts/schwarzschild/make_fixtures.py --subset (mpmath;
                                                    #   about 4 minutes on four cores)
 python scripts/schwarzschild/render_views.py --out DIR  # the eight fixture cameras' pictures
@@ -111,7 +117,7 @@ view, opens, beside the Guide's section):
 | 13 | **The 1.3 mm view** is the model's brightness at the EHT's wavelength in false colour (blurred to the EHT's 20 µas as seen from Earth when asked), not the EHT's reconstruction, which the card shows | the figure's caption and the switches on Sgr A*'s card; Sgr A*'s data sheet; Guide |
 | 14 | **The stars round Sgr A*** within a few parsecs are a statistical model of the nuclear star cluster and disc: their numbers, brightness and colours follow published fits, but none is a real individual star except S2, S29, S38 and S55; stars fainter than those drawn, and any within 0.01 pc of you, are a smooth glow | Sgr A*'s card; the Milky Way's data sheet; the layer card; Guide; About |
 | 15 | **Assumed orbital elements**: Cygnus X-1's Ω from its jet; the orientation on the sky, sense and circular orbit of V404 Cygni, A0620-00, MAXI J1820+070 and XTE J1118+480; donor radii and temperatures marked estimated | each binary's card and data sheet |
-| 16 | **Not drawn**: the X-ray binaries' accretion discs, Cygnus X-1's jet and wind, M87*'s jet, V404 Cygni's wide third star | each one's data sheet; Guide |
+| 16 | **Not drawn**: the quiet X-ray binaries' accretion discs (faint, cool, cut off far from the hole and not in a steady state between outbursts: no thin-disc model applies), Cygnus X-1's jet and wind, M87*'s jet, V404 Cygni's wide third star | each one's card (the discs) and data sheet; Guide |
 | 17 | **M87's own starlight** is a smooth model of its light profile (and its model galaxy from outside), not stars | M87*'s card and data sheet; Guide |
 | 18 | **No dust near the black holes**: the Sun seen past Sgr A* would really be dimmed by about 30 magnitudes | Sgr A*'s data sheet; the `sky-from` scene's note; Guide; About (the dust item) |
 | 19 | **Positions**: Sgr A* held fixed; OGLE-2011-BLG-0462's position known to 0.1″ and its motion not followed | OGLE-2011-BLG-0462's card and data sheet |
@@ -120,6 +126,8 @@ view, opens, beside the Guide's section):
 | 22 | **Contested masses**: Cygnus X-1 21.2 or 17.5 M☉; M87* 6.5 × 10⁹ (EHT) with stellar dynamics 5.4–8.7 × 10⁹; Gaia BH1 9.27 (9.62 in the discovery paper); Sgr A*'s mass 7.5 % lower in the Keck group's fit (Do et al. 2019) | each one's card (the mass line) and data sheet |
 | 23 | **Hovering where tides would tear a ship apart** is allowed (the physics of hovering holds there); the panel says so in red | the panel near a hole; Guide |
 | 24 | **The classical view near a moving hole** shows an observer at rest relative to the Sun, as the classical view does everywhere (hovering there differs by the hole's speed, at most 0.19 % of c: Gaia BH3, 570 km/s) | the split view's label; Guide |
+| 25 | **Cygnus X-1's disc is a model**: a thin Novikov–Thorne disc at 2 % of its Eddington luminosity, from the innermost stable orbit of a hole that does not spin to 10¹¹ cm (a model choice), in the orbit's plane, each ring a blackbody, drawn with all its light (bolometric, on its own scale with its contrast raised, γ = 2, so the screen shows its falloff) or its visible light; turning 1,000 times slower than real; its swirls illustrative; its exposure metered on its peak (§12) | Cygnus X-1's card (the disc's line beside its switch, and a note under Sources); data sheet; the View menu's hint; the disc scenes' notes |
+| 26 | **Radio eyes** is the flow model's 1.3 mm view (label 13) chosen from the View menu: "Radio light (1.3 mm), like the EHT"; the sky goes dark behind it (starlight does not show at 1.3 mm); Sgr A* only (§12) | the View menu; the radio scene's note |
 
 Labels 1, 2, 10, 12, 13, 14, 18 and 22 are also in the captions and text of the Learn article *Black holes*
 (`src/content/learn/articles/black-holes.md`), where the lensing hint's **Read more** leads.
@@ -702,8 +710,9 @@ of it from 6 M out, but up to 9 % hovering 1 % above the horizon, §7).
 
 **The models and the data.** The accretion flow (label 12), the nuclear cluster (label 14) and M87's starlight (label
 17) are models; no dust is drawn near the holes (label 18); several orbital elements are assumed (label 15) and some
-masses are contested (label 22); OGLE-2011-BLG-0462 is held fixed (label 19); discs, jets and V404 Cygni's third star
-are not drawn (label 16). Gaia's fourth data release (due December 2026) will revise every Gaia black hole's orbit (§5).
+masses are contested (label 22); OGLE-2011-BLG-0462 is held fixed (label 19); Cygnus X-1's disc is a model drawn
+without the hole's spin and with illustrative swirls (label 25, §12); the quiet binaries' discs, jets and V404 Cygni's
+third star are not drawn (label 16). Gaia's fourth data release (due December 2026) will revise every Gaia black hole's orbit (§5).
 
 **What the checks found and is not fixed** (§11, measured on the target laptop):
 
@@ -859,9 +868,10 @@ observers.
 
 ### The interface
 
-- **View menu** (`ui/layout/Header.tsx`): "Gravitational lensing" (under the optics) and "Accretion flow", both on at
-  every visit (`state/ui.ts`: neither is saved, so a switch forgotten off cannot hide every black hole next time), each
-  with its hint (labels 12, 21). No new keys; the keys sheet's View-menu row names them.
+- **View menu** (`ui/layout/Header.tsx`): "Gravitational lensing" (under the optics), "Accretion flow", "Radio eyes"
+  (the flow at 1.3 mm, off) and "Accretion discs", on at every visit but Radio eyes (`state/ui.ts`: none is saved, so a
+  switch forgotten off cannot hide every black hole next time), each with its hint (labels 12, 21, 25, 26). No new
+  keys; the keys sheet's View-menu row names them.
 - **Cards** (`ui/viewport/BodyCard.tsx`): for the black hole whose gravity is modelled, the height above the horizon
   instead of the distance and light-time, and no look-back through the expanding universe (far away, its distance like
   any body's); "From here" (the shadow's and the Einstein ring's size, your clock's rate, the thrust hovering takes; from
@@ -870,7 +880,8 @@ observers.
   the card leaves out, each subject once) and the Guide's section; on Sgr A*'s and M87*'s cards the Event Horizon
   Telescope's picture with its credit (`EhtFigure.tsx`; a link to it on ESO's page until the pictures ship), and on Sgr
   A*'s the flow's switches (`FlowControls.tsx`: visible light or 1.3 mm, as the EHT sees it; the blur to the EHT's
-  resolution, for the 1.3 mm view only).
+  resolution, for the 1.3 mm view only); on Cygnus X-1's the disc's switch (`DiskControls.tsx`: all its light or
+  visible light) and its one-line label.
 - **Layer cards** (`ui/viewport/LayerCards.tsx`): near Sgr A*, the stars round it (a model, label 14) and the gas
   falling in (label 12), each opening to say more.
 - **Physics hints** (`content/explainers.ts`, appended so no section changes its number): the blueshift and slow
@@ -903,6 +914,9 @@ what the visitor has not changed):
 | `s2-behind-sgr-a-star` | 300 au out, S2 120 au behind the hole at its closest | two images 0.81° and 0.68° from the centre, 5.4 times brighter together |
 | `sgr-a-star-flow` | 10 r_s on the line to the Sun, the flow on | the model's ring 14.43° in radius outside the shadow's 14.27°, magnitude −29.5 in all |
 | `m87-star-close` | 1,000 au from M87* (7.8 r_s) | the shadow 36.3° across, the ring 69°; clock 0.9336; 4.2 g; M87's starlight round it |
+| `sgr-a-star-radio` (the journey *Sagittarius A\* in radio light*) | 30 r_s (2.5 au) on the line to the Sun, the flow at 1.3 mm | the model's orange ring round the shadow, against a dark sky (§12) |
+| `cyg-x-1-disk` (the journey *The disc of Cygnus X-1*) | 30 r_s (1,900 km) from Cygnus X-1, 8° above its disc, the disc's axis up, orbit lines off | the inner rings blazing, the far side bent over the shadow, the thin ring at the shadow's edge, the approaching side far brighter, dark space and stars round it (§12) |
+| `cyg-x-1-from-above` | 75 r_s (4,700 km) on the line to the Sun: the disc at our own angle, 27° from its axis | the inner edge, the underside's ring round the shadow, the approaching side brighter |
 
 The Guide's Try buttons open `sgr-a-star-shadow`, `fall-into-sgr-a-star`, `isco-orbit`, `sgr-a-star-einstein-ring`
 and `photon-ring`; the journey *Fall into a black hole* runs `fall-into-sgr-a-star`.
@@ -1269,3 +1283,139 @@ the screen on 29 September at 22:10–22:30 (0–255, the flow off unless said),
 at 20 M (`sgr-a-star-shadow`, the shadow black; ln E −4.0), 174 at 100 M (`sgr-a-star-einstein-ring`, where bloom from the
 crowded edge lifts the 5.9°-wide shadow's centre to 82 although the scene pass draws it exactly black) and 131 in
 `sky-from:sgr-a-star` (ln E −7.4), where the Sun's ring shows at 135 against the sky's 130.
+
+## 12. The thin disc
+
+**What is drawn, and where.** Only Cygnus X-1 is drawn with an accretion disc: it is a persistent X-ray binary whose
+disc shines all the time (its thermal disc is measured at about 2 % of its Eddington luminosity in its softer states).
+The other black holes get none, each for its own reason:
+
+| Black hole | Disc | Why |
+| --- | --- | --- |
+| Cygnus X-1 | **drawn** (a model, label 25) | a persistent disc, its luminosity measured (Zhao et al. 2021) |
+| V404 Cygni, A0620-00, XTE J1118+480, MAXI J1820+070 | not drawn (label 16) | quiet between outbursts: their discs are cool (a few thousand kelvin), cut off far from the hole (the inner flow a hot, thin gas out to ~10³–10⁴ r_s in the models of their quiescent spectra) and not in a steady state, so no thin-disc model applies and neither the truncation radius nor the accretion rate is measured well enough to draw one honestly |
+| Gaia BH1–3, OGLE-2011-BLG-0462 | none | dormant: nothing is falling in |
+| Sgr A*, M87* | the hot flow (§7) for Sgr A*; nothing for M87* | not thin discs |
+
+**The model** (`src/physics/thinDisk.ts`). A geometrically thin, optically thick Novikov–Thorne disc (Novikov & Thorne
+1973) round a hole that does not spin, in its equatorial plane, from the innermost stable circular orbit (6 GM/c²) out,
+its gas on circular Keplerian orbits. Each ring is a blackbody at T = (F/σ)^(1/4), with the flux of Page & Thorne
+(1974) in the closed form for no spin (Luminet 1979, eq. 15):
+
+F(r) = (3GMṀ / 8π r_g³) f(r),  f(r) = [√r − √6 + (√3/2) ln((√r + √3)(√6 − √3) / ((√r − √3)(√6 + √3)))] / ((r − 3) r^(5/2)),
+
+r in units of r_g = GM/c²: zero at the inner edge (no torque there), peaking at 9.5509 M, 1/r³ far out. The real hole
+spins fast (claimed above 0.9985, label 1): its disc would reach in to about 1.2 GM/c², five times closer, and be
+hotter; the app is Schwarzschild only, and the card says so in one line.
+
+**Its numbers** (`blackholes.json`, the hole's `disk` block; derived in `src/sim/blackholes/records.ts diskInfo`):
+
+| Quantity | Value | Source |
+| --- | --- | --- |
+| Mass | 21.2 M☉ (GM/c² = 31.3 km) | Miller-Jones et al. 2021 |
+| Luminosity | 0.02 L_Edd (0.02–0.03 over six spectra), L_Edd = 2.8 × 10³⁹ erg/s: L = 5.6 × 10³⁷ erg/s | Zhao et al. 2021, Table 2 |
+| Accretion rate | Ṁ = L / (η c²) = 1.089 × 10¹⁸ g/s, with the efficiency of a disc of no spin, η = 1 − √(8/9) = 5.72 % (the luminosity is what is measured; the spinning hole of the fit needs less, 0.17–0.23 × 10¹⁸ g/s) | derived |
+| Temperatures | T* = 2.142 × 10⁷ K; the hottest ring 2.216 × 10⁶ K (0.19 keV) at 9.55 M | derived |
+| Inner and outer edge | 6 M (188 km); 10¹¹ cm = 31,900 M, a model choice: the scale its wind-fed flow is modelled out to (Palit, Janiuk & Czerny 2020), within the tidal limit for a disc in a close binary (Paczyński 1977) | as said |
+| Plane | the binary's orbit (its axis p̂ × q̂ of the drawn orbit, `normalWorld`), so 27.1° from our line of sight (Miller-Jones et al.: 27.5 +0.8 −0.6° from the light curve; the drawn orbit's 152.9° astrometric inclination); its orientation on the sky follows the orbit's assumed Ω (label 15); the gas turns with the orbit | Miller-Jones et al. 2021 |
+| Turning | the inner edge goes round in 9.64 ms; drawn 1,000 times slower (9.6 s) | the record's `slowdown` |
+
+**The light.** A blackbody of temperature T seen with the frequency shift g = ν_obs/ν_em is a blackbody of temperature
+g T (I_ν/ν³ is conserved along a ray), so each pixel is a blackbody at g T(r): g = √(1 − 3/r) / (1 − Ω L_z) for gas on
+a circular orbit (Ω = r^(−3/2), L_z the photon's angular momentum about the disc's axis per unit energy) seen from far
+away, times the ray's own shift to the camera (the hovering observer's blueshift, the hole frame's boost, the view's
+Doppler factor: as the sky's light in `lensPixel.glsl`). Its colour is always the visible colour of that blackbody (the
+app's blackbody table); its brightness is drawn one of two ways, chosen on the card:
+
+- **All its light** (the default): σ(g T)⁴, the bolometric brightness (I ∝ g⁴), mostly X-rays: what Luminet's and the
+  published pictures of such discs show. The approaching side outshines the receding one by g⁴ (several times at our
+  27°, tens of times edge-on), and the disc fades from its hot inner rings outward as r⁻³.
+- **Visible light**: its visible luminance, as a surface of the Sun's calibration (radiance 8 is a 5,772 K surface).
+  Every ring within thousands of M is millions of kelvin hot, so its visible light is the Rayleigh–Jeans tail: one
+  pale blue everywhere, brighter only as g T, and the disc looks nearly even. That is what an eye would see.
+
+**The images** (`src/render/shaders/diskLookup.glsl`, called by the lens box's composite, the photon ring's band and the
+lensed spheres). Every pixel's backward ray already has its look angle and gap to the shadow's edge; the disc's chunk
+finds where it crosses the disc's plane. A ray stays in a plane through the hole, whose orbit u(ψ) = 1/r is a function of
+its impact parameter b alone if ψ is the sweep from infinity along its incoming leg; so one table of every orbit (512
+rows in b, crowding at b_c on both sides, out to b = 10⁵ M; 512 columns uniform in ψ to the periapsis or the horizon;
+v = b u, 1 MB of float32, made once by RK4 from a point known in closed form, the periapsis or the crossing of the
+photon sphere, within 3 × 10⁻⁸ in u of Carlson's sweeps) serves every camera. The camera's place on each orbit (ψ_c,
+512 closed-form sweeps, 0.08 ms) is rebuilt when its r changes. The ray reaches the disc's plane after the sweeps
+Δ_k = Δ_0 + kπ (Δ_0 where the ray's plane cuts the disc's): k = 0 is the direct image, k = 1 the disc's far side bent up
+over the shadow and under it (and its underside inside its inner edge seen from above), k = 2 a thin ring at the photon
+ring. A crossing before the ray's periapsis is read from the camera's place on its orbit, one past it from the far end
+(Δφ − Δ_k, Δφ the lens's own sweep to infinity: anchored at the far end throughout, the near side's direct image was
+2–5 × 10⁻⁴ out in r; at the camera throughout, a ray near 90° from the hole was 9 % out past its periapsis, where the
+camera sits at the periapsis and the sweep to it has a square root), on the two rows either side, linear in b. The disc
+is opaque and seen from both faces: the first crossing between its edges ends the ray, and hides the sky behind it
+(and the companion star in the lensed spheres' pass). The band supersamples the thin rings as it does the sky's.
+Beyond the diffuse zone the rays are still traced (the table costs the same); while a disc is drawn the lens box
+covers its whole image (`lensState.ts lensBoxExtra`).
+
+**The swirl** (illustrative, label 25): two layers of a tiling noise in (ln r, φ − Ω τ), streaked along the orbit,
+sheared by the gas's own differential rotation, each restarted every two inner orbits and crossfaded with the other so
+the shear never winds up, its light varied by about ±20 % (±40 % on the screen with all its light, after γ); faded out where its streaks would be under a few pixels,
+and not drawn on the thinnest ring. The light-travel time across the disc is left out of it. Its clock is real time
+slowed 1,000 times, at the hovering camera's own rate (faster by 1/√(1 − 2M/r)), and stands still with the simulation.
+
+**Exposure and contrast** (`src/render/disk/diskMap.ts`, display choices, label 25). The disc is metered on its peak:
+the ring it resolves best (the hottest, at 9.55 M, or the innermost ring 10 px across from farther away) on its
+approaching side, the gas coming towards the camera as nearly as the tilt allows (L_z = sin i · r/√(1 − 2/r)).
+
+- **All its light** is drawn on the disc's own scale: the peak's (g T)⁴ at 4 display units (the view's tone mapping,
+  AgX, reaches white at 16), and every other pixel as its light relative to the peak to the power **γ = 2**. AgX is
+  logarithmic over 16½ stops: a ring five stops below the peak still shows at a fifth of white, so drawn linearly the
+  r⁻³ falloff and the approaching side's lead were flattened into an evenly lit plate reaching the frame's edge (the
+  first version, measured on its pictures). With γ = 2 the inner tens of M blaze, the disc is near black by about
+  100 M, and the g⁴ asymmetry survives the tone curve (at 30 px tilts and below the approaching side clearly outshines
+  the receding one). The view keeps the exposure the sky and the stars call for, so dark space and stars show round the
+  disc (a camera exposed for the disc's visible glare would show none); the companion star, drawn through the lens
+  beside it, keeps its brightness relative to the disc's visible light (`uDiskStarLnE`).
+- **Visible light** is drawn linearly, as a surface of the Sun's calibration, its peak at 1 display unit, and the view's
+  exposure follows it (about e^−11: the stars drop out, as in a photograph), weighted by the disc's share of the view.
+
+The disc's share of the view (its outer edge from 3 to 30 px in radius) fades it in; a disc a few pixels across never
+shows as a white blot.
+
+**The 1.3 mm view as "Radio eyes."** The View menu's **Radio eyes** ("Radio light (1.3 mm), like the EHT: the model of
+Sgr A*'s gas in false colour") switches the flow to its 1.3 mm view (§7, label 13), the same as the card's band switch;
+turning it on brings the flow back if it was off. Starlight does not show at 1.3 mm, so the view then stops down to at
+least e^−20 (`flowMap.ts FLOW_MM_LN_EXPOSURE`): the false-colour ring shows against a dark sky even for a camera that
+arrived with Radio eyes on and never metered the visible flow (its pictures were washed in the sky's glow before).
+**M87\* is not given one**: the flow model is Sgr A*'s own fit (its densities, temperatures and field fitted to Sgr
+A*'s spectrum, §7); M87*'s ring is made by a different flow (a magnetically arrested, jet-launching one, fitted
+nowhere in the app), so any 1.3 mm picture of it would not be supported by the model.
+
+**Checked** (`src/physics/thinDisk.test.ts`, `src/render/disk/diskMap.test.ts`, `src/content/blackHoleScenes.test.ts`;
+the reference is `scripts/thin-disk/disk_ref.py`, `npm run data:disk-fixtures`, about 90 s, which writes
+`src/physics/__fixtures__/thinDisk.json`):
+
+| Check | Result (tolerance) |
+| --- | --- |
+| The reference's two methods for 198 rays (cameras at 30, 100 and 1,000 M; tilts of 27.1°, 60° and 80°; inside and outside the shadow, orders 0–2: 287 crossings): the sweep by tanh-sinh quadrature and root-finding in 30 digits, against the geodesic integrated in three dimensions with events on the plane | 1.9 × 10⁻¹⁰ in r, 1.7 × 10⁻¹⁰ in g (10⁻⁹) |
+| The app's crossings against it: every crossing outside the photon sphere found, in order, with its swept angle, place and L_z; on the disc (103 crossings) | r within 8.9 × 10⁻⁵ (median 2.4 × 10⁻⁶; 10⁻⁴), g within 6.3 × 10⁻⁶ (3 × 10⁻⁵) |
+| The orbit table against Carlson's closed forms | within 3 × 10⁻⁸ in u (10⁻⁷) |
+| The flux's closed form against the Page–Thorne integral (quadrature in 30 digits) at six radii; its peak | to 17 digits; 9.550928 M |
+| The shift at known points: face-on (√(1 − 3/r)); light leaving the inner edge along and against the gas (√2 and √2/3) | 10⁻¹³ |
+| The disc's numbers, uniforms, spot exposure, box, share, clock and noise | `diskMap.test.ts` |
+| The scenes: camera, tilt, views turned on and put back | `blackHoleScenes.test.ts` |
+
+**Cost** (target laptop, 2,048 × 1,104 at pixel ratio 2, rung 0, whole-frame A/B medians of 4–5 interleaved rounds,
+the disc on against off in the same view; other work on the machine, its noisiest rounds left aside): `cyg-x-1-disk`
+(60 M, 8° up) 0.55–0.83 ms, `cyg-x-1-from-above` 0.2–0.4 ms, 30 M from the hole 6° above the plane 0.73 ms, 15 M at 3°
+(the shadow filling the view, the band at its widest) 0.90 ms; scaled to 2,048 × 1,320 about 1.1 ms at most (budget
+1.5). The processor: the orbit table once, 19 ms; the camera's rows
+0.08 ms when r changes. Compiles (`npm run check:shaders`, cold, the machine busy, the same hour against the shaders
+before the disc): the composite 2.3–2.4 s against 1.2, the band 8.0 s against 3.4, the spheres 1.0 against 0.65; the
+background list 33.8 s against 29.8 (with a quieter machine earlier, the band 3.5–4.1 s). The band's sub-ray loop has
+a bound the compiler cannot see, so Direct3D's compiler keeps it a loop rather than inlining the lens and the disc
+eight times (unrolled it took longer still). The lens waits for these near a hole, in the background, as before.
+
+**Not drawn, or simplified** (the data sheet's note): the corona that makes its hard X-rays; the hardening of the
+disc's spectrum (its colour temperature about 1.6 times its effective one in X-rays; the visible light of a
+diluted blackbody would be about four times fainter); X-ray heating of the outer disc; the disc's thickness (it is drawn
+infinitely thin, so seen exactly edge-on it vanishes); its own gravity; the light-travel time across it; the jet and the
+companion's wind; and stars drawn as points behind it, which it does not hide (at the disc's exposure they are far
+below it). From far away, where its outer edge is under 3 px, it is not drawn at all: its light there is outshone by
+its companion's and is not added to the hole's point.
