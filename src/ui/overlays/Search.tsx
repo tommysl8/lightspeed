@@ -4,8 +4,8 @@
  *
  * Results come from the destinations registry (content/destinations.ts), so what later
  * updates add (moons, stars, galaxies) turns up here by itself, and from the names of the
- * catalogue's 330,000 stars (content/starDestinations.ts: "Betelgeuse", "α Ori", "HIP 70890"),
- * loaded when the palette first opens. Each shows how far away it is
+ * catalogue's 330,000 stars (content/starDestinations.ts: "Betelgeuse", "α Ori", "HIP 70890") and of the
+ * asteroids and comets (content/asteroidDestinations.ts: "Eros", "433", "NEOWISE"), loaded when the palette first opens. Each shows how far away it is
  * and how old its light is; the highlighted one also shows what a 1 g flight there would cost
  * on both clocks. Planning a trip is not free (planTrip solves an intercept against the
  * ephemeris), so that is worked out for the highlighted row only, a moment after it settles.
@@ -15,6 +15,7 @@ import { C_KM_S } from '../../physics/constants';
 import {
   destinationsVersion,
   featuredDestinations,
+  normalise,
   searchDestinations,
   subscribeDestinations,
   type Destination,
@@ -22,10 +23,13 @@ import {
 import { JOURNEYS } from '../../content/journeys';
 import { starDestinations, withStars } from '../../content/starDestinations';
 import { exoplanetDestinations } from '../../content/exoplanetDestinations';
+import { asteroidMatches } from '../../content/asteroidDestinations';
+import { loadSmallNames, smallNamesVersion, subscribeSmallNames } from '../../sim/asteroids/names';
 import { loadStarExtra, loadStarNames, starData, starsVersion, subscribeStars } from '../../sim/stars';
 import { catalogueStatus, exoplanetsVersion, loadExoplanetCatalogue, subscribeExoplanets } from '../../sim/exoplanets';
 import { ALL_DEEP_SKY, deepSkyDestinations, deepSkyVersion, requestDeepSky, subscribeDeepSky } from '../../sim/deepsky';
 import { qty } from '../../lib/sci';
+import { getBody } from '../../sim/bodies';
 import { formatDurationShort } from '../../lib/time';
 import { useUI } from '../../state/ui';
 import { openJourneys } from '../onboarding';
@@ -198,10 +202,12 @@ function Palette() {
   const registry = useSyncExternalStore(subscribeDestinations, destinationsVersion);
   const stars = useSyncExternalStore(subscribeStars, starsVersion);
   const planets = useSyncExternalStore(subscribeExoplanets, exoplanetsVersion);
+  const small = useSyncExternalStore(subscribeSmallNames, smallNamesVersion);
   const deepSky = useSyncExternalStore(subscribeDeepSky, deepSkyVersion);
   const [namesFailed, setNamesFailed] = useState(false);
   useEffect(() => {
     void loadStarNames().then((t) => setNamesFailed(!t));
+    void loadSmallNames(normalise);
     void loadStarExtra();
     void loadExoplanetCatalogue();
     // The deep-sky catalogues' names (NGC 1234, PSR J0437−4715, GW150914): searched once they arrive.
@@ -213,14 +219,19 @@ function Palette() {
       withStars(
         withStars(
           withStars(
-            searchDestinations(query).map((m) => m.destination),
+            // The registry's matches and the asteroids', by score (an exact "Eros" before a near "Eris"), the registry's first when equal.
+            [...searchDestinations(query), ...asteroidMatches(query)]
+              .map((m, i) => ({ m, i }))
+              .sort((a, b) => b.m.score - a.m.score || a.i - b.i)
+              .map(({ m }) => m.destination)
+              .filter((d, i, all) => all.findIndex((x) => x.id === d.id) === i),
             exoplanetDestinations(query),
           ),
           deepSkyDestinations(query),
         ),
         starDestinations(query),
       ),
-    [query, registry, stars, planets, deepSky],
+    [query, registry, stars, planets, small, deepSky],
   );
   const browsing = query.trim() === '';
   const list = browsing ? featured : results;
@@ -235,6 +246,10 @@ function Palette() {
   const archiveLoading = catalogueStatus() === 'loading' || catalogueStatus() === 'idle';
 
   useEffect(() => setIndex(0), [query]);
+  // A destination that is not a body yet (an asteroid found by name) becomes one while it is highlighted.
+  useEffect(() => {
+    if (activeDest?.body && !getBody(activeDest.body)) activeDest.prepare?.();
+  }, [activeDest?.id]);
   // Keep the highlighted row in view.
   useEffect(() => {
     if (cur >= 0) document.getElementById(optionId(cur))?.scrollIntoView({ block: 'nearest' });
@@ -327,7 +342,7 @@ function Palette() {
             <p className="px-4 py-5 text-[12.5px] text-fg-2 [overflow-wrap:anywhere]">
               {namesLoading || archiveLoading
                 ? `Nothing called “${query.trim()}” so far: the names of the ${namesLoading ? (archiveLoading ? 'stars and their planets' : 'stars') : 'planets of other stars'} are still loading…`
-                : `Nothing called “${query.trim()}”. Stars are found by name or number too (Betelgeuse, α Ori, HIP 27989), and planets of other stars by name (K2-18 b).`}
+                : `Nothing called “${query.trim()}”. Stars are found by name or number too (Betelgeuse, α Ori, HIP 27989), asteroids by name or number (Eros, 433), comets by designation (C/2020 F3), and planets of other stars by name (K2-18 b).`}
             </p>
           )}
         </div>

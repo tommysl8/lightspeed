@@ -58,8 +58,12 @@ if (import.meta.env.DEV) {
     import('./sim/surveys/load'),
     import('./scene/Surveys'),
     import('./sim/surveys/lod'),
+    import('./sim/asteroids/load'),
+    import('./sim/asteroids/bodies'),
+    import('./scene/asteroidPick'),
+    import('./scene/Asteroids'),
     import('./sim/deepsky'),
-  ]).then(([s, c, u, fiber, trip, rel, travel, chrono, pulses, solarSystem, registry, navigation, stars, scenes, exoplanets, materials, galaxy, galaxyLayer, cosmos, gravity, lens, fall, blackholes, nsc, gpuBudget, lensTest, perf, surveyLoad, surveyScene, surveyLod, deepSky]) =>
+  ]).then(([s, c, u, fiber, trip, rel, travel, chrono, pulses, solarSystem, registry, navigation, stars, scenes, exoplanets, materials, galaxy, galaxyLayer, cosmos, gravity, lens, fall, blackholes, nsc, gpuBudget, lensTest, perf, surveyLoad, surveyScene, surveyLod, smallLoad, smallBodies, smallPick, smallScene, deepSky]) =>
     Object.assign(window, {
       __ls: {
         sim: s.sim,
@@ -100,6 +104,8 @@ if (import.meta.env.DEV) {
         surveys: { state: surveyLoad.survey, quaia: surveyLoad.quaia, frame: surveyScene.surveyFrame, budget: gpuBudget.surveyBudget, reset: surveyLoad.resetSurvey, glow: surveyLod.glowSettings },
         /** The deep-sky catalogues: the gate, and through it the runtime once loaded (sim/deepsky). */
         deepSky: deepSky.deepSkyGate,
+        /** The asteroids and comets: what has loaded, the drawn sections, picking and registering one (sim/asteroids, scene/Asteroids.tsx). */
+        asteroids: { state: smallLoad.smallBodies, sections: smallPick.layerSections, pick: smallPick.pickSmallBody, ensure: smallBodies.ensureSmallBody, look: smallScene.asteroidLook, frame: smallScene.asteroidFrame },
         /** Render n frames with a fixed timestep (works while the tab is hidden). */
         step(n = 60, dt = 1 / 60) {
           s.sim.debugDt = dt;
