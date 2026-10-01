@@ -13,8 +13,8 @@
  * to SURVEY_NODE_POINTS galaxies, a random sample of those in its cube that no ancestor holds; the rest go to its
  * eight children. Every level is therefore a fair sample of where the galaxies are, and every galaxy is stored once.
  * With each node come its glows: for each of its eight octants, the summed display light of the galaxies in that
- * child's subtree, where they are (the light-weighted centroid) and how spread (the rms radius). Drawn points plus
- * the glows of the undrawn octants add up to the light of the whole catalogue (scene/Surveys.tsx).
+ * child's subtree, where they are (the light-weighted centroid) and how spread (the rms radius): the app draws them
+ * faintly where that child is not drawn (scene/Surveys.tsx).
  *
  * Positions: per galaxy, its direction from the Sun is kept to SURVEY_DIR_ARCSEC and its distance to SURVEY_DIST_MPC,
  * which is finer than either is known (DESI's fibres are 1.5″ across; one km/s of peculiar velocity moves a galaxy
@@ -452,15 +452,44 @@ export function decodeNodeCells(buffer: ArrayBuffer | Uint8Array, emit: (j: numb
 
 /** Decode a node's file into float32 positions from its centre (Mpc) and interleaved attribute bytes, for the GPU. */
 export function decodeNode(buffer: ArrayBuffer | Uint8Array, side: number): DecodedNode {
-  // A point at the centre of its cell, measured from the node's centre: (q + ½) step − side / 2.
+  // A point at the centre of its cell, measured from the node's centre: (q + ½) step − side / 2; in stratified order.
   const h = side / 2;
-  const position = new Float32Array(3 * nodePointCount(buffer));
+  const n = nodePointCount(buffer);
+  const order = stratifiedOrder(n);
+  const at = new Uint32Array(n);
+  for (let j = 0; j < n; j++) at[order[j]] = j;
+  const position = new Float32Array(3 * n);
   const r = decodeNodeCells(buffer, (j, qx, qy, qz, step) => {
-    position[3 * j] = (qx + 0.5) * step - h;
-    position[3 * j + 1] = (qy + 0.5) * step - h;
-    position[3 * j + 2] = (qz + 0.5) * step - h;
+    const k = 3 * at[j];
+    position[k] = (qx + 0.5) * step - h;
+    position[k + 1] = (qy + 0.5) * step - h;
+    position[k + 2] = (qz + 0.5) * step - h;
   });
-  return { count: r.count, position, attrs: r.attrs, glows: r.glows };
+  const attrs = new Uint8Array(2 * n);
+  for (let j = 0; j < n; j++) {
+    attrs[2 * j] = r.attrs[2 * order[j]];
+    attrs[2 * j + 1] = r.attrs[2 * order[j] + 1];
+  }
+  return { count: r.count, position, attrs, glows: r.glows };
+}
+
+/**
+ * An order of n items in which every prefix is spread evenly through the whole list: bit-reversed indices, so the
+ * first half takes every second item, the first quarter every fourth, and so on (`order[j]` is the item at place j).
+ * A node's galaxies are kept in the file along a space-filling curve, so in this order any first so many of them are a
+ * sample spread evenly over the node's space: a node drawn in part draws a prefix (lod.ts).
+ */
+export function stratifiedOrder(n: number): Uint32Array {
+  const out = new Uint32Array(n);
+  if (n === 0) return out;
+  const bits = Math.max(1, Math.ceil(Math.log2(n)));
+  let j = 0;
+  for (let k = 0; k < 2 ** bits && j < n; k++) {
+    let r = 0;
+    for (let b = 0; b < bits; b++) r |= ((k >>> b) & 1) << (bits - 1 - b);
+    if (r < n) out[j++] = r;
+  }
+  return out;
 }
 
 /** The point count in a node file's header. */

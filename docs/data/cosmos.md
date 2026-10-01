@@ -573,8 +573,9 @@ Since the galaxy surveys (30 September 2026; `docs/data/surveys.md`) the web dra
 share (`render/shaders/galaxyMap.glsl`): a point's light is mapLight(L) × mapDepth(d), a product, and its size only
 shapes it (alpha = light / area), where before its alpha and its size each depended on both L and d. The two laws agree
 within about 25% for any one point (exactly for a point 3 px across) and the web looks as it did from home. The depth
-cue's knee, 180 Mpc before, now follows the camera out (half its distance from the Sun beyond 360 Mpc), with the light
-nearer than the knee unchanged, so from gigaparsecs away the web and the surveys dim with distance alike. Nothing else
+cue's knee, 180 Mpc before, now follows the camera out (its distance from the Sun beyond 180 Mpc), and the expansion's
+dimming is held to at most a factor of 100 beyond the ship's own shift, so from gigaparsecs away the web and the
+surveys dim with distance alike and stay visible. Nothing else
 about the web changed: the survey layer leaves out the galaxies that are in Cosmicflows-4, so none is drawn twice.
 
 Near a black hole the web is bent point by point (a `LENS` variant of its shader, used only while a lens is drawn):

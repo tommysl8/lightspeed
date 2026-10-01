@@ -1,24 +1,40 @@
 /**
- * Which nodes of the surveys' octree to draw this frame (scene/Surveys.tsx), and which to fetch.
+ * Which nodes of the surveys' octree to draw this frame, and how many of each node's galaxies (scene/Surveys.tsx),
+ * and which to fetch.
  *
- * From the root down, the node that looks largest from the camera next (a priority queue on its projected size, in
- * device pixels), as long as its galaxies fit in the point budget: a node is drawn only if its parent is, so each
- * drawn node's octants whose child is not drawn show that child's light as a glow. A node counts by its subtree's
- * bounding box (the galaxies' own, from the hierarchy, much tighter than the cube: the surveys fill thin cones), seen
- * from the ship: in flight its direction is aberrated and its size divided by the Doppler factor there, so the nodes
- * crowded into the sky ahead count for less and those spread over the sky behind for more. Nodes out of the view
- * (with a margin) and nodes smaller than MIN_NODE_PX are not refined; nodes drawn last frame count 25 % larger
- * (hysteresis, so a node on the edge of the budget does not flicker in and out). A node wanted but not loaded yet is
- * asked for, in the same order, and its parent's glow stands in for it (and its subtree) meanwhile.
+ * The budget is spread over the whole visible volume. Each part of the sky gets points growing with the galaxies it
+ * holds per pixel, but more slowly (as their number to the power 1 − SPREAD): where they crowd on the screen (the dense
+ * nearby survey seen from afar) more points, so their walls and filaments show, but where they are sparse (the far,
+ * thinly surveyed shells, or space near the camera spread over many pixels) not so few that those parts vanish. A pure
+ * random sample would spend nearly all of the budget on the dense parts; an even density on the screen would starve
+ * them. In terms of the share of its galaxies a node draws: going down from the root, each node adds to the share its
+ * ancestors already draw of its region (each one's drawn galaxies over its subtree's) what is missing to reach
+ * k (its pixels / its subtree's galaxies)^SPREAD: all its own galaxies if they are too few, and then its children are
+ * considered, or else a part, and nothing below it. k is the largest that fits the budget (a bisection; each trial is
+ * one pass over the visible nodes). A part of a node is a fair sample of it: the worker orders each node's galaxies so
+ * that every prefix is spread evenly over the node (format.ts stratifiedOrder), and a draw takes the first so many. A node is
+ * drawn with at least MIN_NODE_FRACTION of its galaxies or not at all, which keeps the number of draws and of downloads
+ * in hand; the space it would have covered is left to its parent's glow.
  *
- * Cost: a few hundred nodes looked at a frame, well under 0.1 ms.
+ * A node counts by its subtree's bounding box (the galaxies' own, much tighter than the cube: the surveys fill thin
+ * cones), seen from the ship: in flight its direction is aberrated and its size divided by the Doppler factor there.
+ * Nodes out of the view are left out. The choice is made over the whole hierarchy, loaded or not, so it does not change
+ * as files arrive: the chosen nodes that are loaded are drawn, the others fetched, coarse before fine.
+ *
+ * Cost: one pass over the visible nodes (a few hundred to 2,700) to measure them, and 50 cheap passes to find k:
+ * about 0.1–0.3 ms.
  */
 import type { SurveyNode } from './format.ts';
 
-/** A node is refined only while it looks at least this large, device px. */
-export const MIN_NODE_PX = 96;
-/** Nodes drawn last frame count this much larger. */
-export const KEEP_BOOST = 1.25;
+/** A node is drawn with at least this share of its own galaxies, or not at all. */
+export const MIN_NODE_FRACTION = 0.1;
+/**
+ * How the budget is spread: each part of the sky draws a share (pixels / galaxies)^SPREAD of its galaxies. 0 would be a
+ * plain random sample, all of it in the dense parts; 1 an even density on the screen, the dense parts starved.
+ */
+export const SPREAD = 0.3;
+/** Points per device pixel of sky at most, however large the budget. */
+export const MAX_DENSITY = 0.5;
 
 export interface LodView {
   /** The camera, world Mpc (float64), and the scale factor the galaxies are at. */
@@ -34,8 +50,14 @@ export interface LodView {
   /** Galaxies drawn at most. */
   budget: number;
   /**
-   * The camera's comoving place (world Mpc) and how far from it, comoving, a galaxy can be seen at all: light from
-   * farther left before the earliest galaxies shone (Surveys.tsx). Nodes wholly beyond are neither drawn nor fetched.
+   * The view's area, device px²; by default a 2,560 × 1,440 screen. A node's area is what it would cover on a screen
+   * without edges (its galaxies spread over it: a node larger than the view has that share of them in it), up to a
+   * thousand screens (the nodes round the camera).
+   */
+  screenPx?: number;
+  /**
+   * The camera's comoving place (world Mpc) and how far from it, comoving, a galaxy's light can have arrived (the
+   * particle horizon). Nodes wholly beyond are neither drawn nor fetched.
    */
   anchor?: readonly [number, number, number];
   reachMpc?: number;
@@ -47,11 +69,18 @@ export interface LodView {
 }
 
 export interface LodResult {
-  /** Nodes to draw, parents before children. */
+  /** Loaded nodes to draw, coarse before fine, and how many of each one's galaxies (the first so many). */
   draw: number[];
+  count: number[];
   points: number;
-  /** Nodes wanted and not loaded, most wanted first. */
+  /** Nodes drawn whole (their octants whose child is not drawn show that child's light as a glow). */
+  whole: Set<number>;
+  /** Nodes chosen, loaded or not (with how many of their galaxies). */
+  chosen: Map<number, number>;
+  /** Nodes chosen and not loaded, coarse before fine. */
   fetch: number[];
+  /** The scale k found (see above). */
+  scale: number;
 }
 
 /** Largest-first heap of (priority, node). */
@@ -177,37 +206,82 @@ export function nodeSizePx(node: SurveyNode, v: LodView): number {
   return size;
 }
 
-/** Choose the nodes to draw and to fetch. `loaded(i)`: node i's galaxies are here; `drawnBefore(i)`: drawn last frame. */
-export function selectNodes(nodes: readonly SurveyNode[], v: LodView, loaded: (i: number) => boolean, drawnBefore: (i: number) => boolean): LodResult {
-  const out: LodResult = { draw: [], points: 0, fetch: [] };
+/** Choose the nodes to draw (and how many galaxies of each) and to fetch. `loaded(i)`: node i's galaxies are here. */
+export function selectNodes(nodes: readonly SurveyNode[], v: LodView, loaded: (i: number) => boolean): LodResult {
+  const out: LodResult = { draw: [], count: [], points: 0, whole: new Set(), chosen: new Map(), fetch: [], scale: 0 };
   if (nodes.length === 0) return out;
-  const heap = new Heap();
-  heap.push(Infinity, 0);
-  // The choice is made over the whole hierarchy, loaded or not, so it does not change as the files arrive (a choice
-  // among the loaded nodes only would fetch nodes that the next arrivals then push out of the budget): the nodes
-  // chosen and loaded under a drawn parent are drawn, the chosen ones not loaded are fetched, most wanted first.
-  let planned = 0;
-  const drawn = new Set<number>();
-  while (heap.size > 0) {
-    const i = heap.pop();
-    const node = nodes[i];
-    if (planned + node.points > v.budget) continue;
-    planned += node.points;
-    if (!loaded(i)) out.fetch.push(i);
-    else if (node.parent < 0 || drawn.has(node.parent)) {
-      drawn.add(i);
-      out.draw.push(i);
-      out.points += node.points;
-    }
+  const screen = v.screenPx ?? 2560 * 1440;
+  // The visible nodes that could matter, breadth first, with the pixels each covers (a node that would be denser
+  // than MAX_DENSITY on its own is never drawn whole, so its children are not measured).
+  const idx: number[] = [0];
+  const cap = 1000 * screen;
+  const area: number[] = [cap];
+  const up: number[] = [-1];
+  for (let q = 0; q < idx.length; q++) {
+    const node = nodes[idx[q]];
+    if (node.points / area[q] >= MAX_DENSITY) continue;
     for (let o = 0; o < 8; o++) {
       const c = node.children[o];
       if (c < 0) continue;
-      let s = nodeSizePx(nodes[c], v);
+      const s = nodeSizePx(nodes[c], v);
       if (s < 0) continue;
-      if (drawnBefore(c)) s *= KEEP_BOOST;
-      if (s < MIN_NODE_PX) continue;
-      heap.push(s, c);
+      idx.push(c);
+      area.push(Math.max(1, Math.min(cap, s * s)));
+      up.push(q);
     }
+  }
+  const len = idx.length;
+  const m = new Float64Array(len);
+  const whole = new Uint8Array(len);
+  const given = new Float64Array(len);
+  // Each node's target share per unit of k: (pixels / galaxies of its subtree)^SPREAD.
+  const aim = new Float64Array(len);
+  for (let q = 0; q < len; q++) aim[q] = (area[q] / Math.max(1, nodes[idx[q]].subtree)) ** SPREAD;
+  const plan = (k: number): number => {
+    let total = 0;
+    for (let q = 0; q < len; q++) {
+      m[q] = 0;
+      whole[q] = 0;
+      const p = up[q];
+      if (p >= 0 && !whole[p]) continue;
+      // The share of its region's galaxies its ancestors already draw; it adds what is missing.
+      given[q] = p >= 0 ? given[p] + m[p] / Math.max(1, nodes[idx[p]].subtree) : 0;
+      const rest = Math.min(1, k * aim[q]) - given[q];
+      if (rest <= 0) continue;
+      const n = nodes[idx[q]].points;
+      const want = rest * nodes[idx[q]].subtree;
+      if (want >= n) {
+        m[q] = n;
+        whole[q] = 1;
+      } else if (want >= MIN_NODE_FRACTION * n) m[q] = Math.floor(want);
+      total += m[q];
+    }
+    return total;
+  };
+  // Bisection on ln k.
+  let lo = -30;
+  let hi = 10;
+  if (plan(Math.exp(hi)) <= v.budget) lo = hi;
+  else
+    for (let it = 0; it < 50; it++) {
+      const mid = 0.5 * (lo + hi);
+      if (plan(Math.exp(mid)) > v.budget) hi = mid;
+      else lo = mid;
+    }
+  out.scale = Math.exp(lo);
+  plan(out.scale);
+  for (let q = 0; q < len; q++) {
+    if (!(m[q] > 0)) continue;
+    const i = idx[q];
+    out.chosen.set(i, m[q]);
+    if (!loaded(i)) {
+      out.fetch.push(i);
+      continue;
+    }
+    out.draw.push(i);
+    out.count.push(m[q]);
+    out.points += m[q];
+    if (whole[q]) out.whole.add(i);
   }
   return out;
 }
@@ -236,17 +310,19 @@ export function glowList(max = MAX_GLOWS): GlowList {
 }
 
 /**
- * The glows for the drawn nodes: each octant of a drawn node holds the light its child does not draw (the node's
- * share less the child's: `share(i)`, 0 for a node not drawn), from the node's file (`fileGlows(i)`); and a glow that
- * looks wide is split, largest first, into its node's own galaxies and its children's subtrees (the hierarchy's
- * summaries: no download), each with the same share, until it looks small or MAX_GLOWS are used. The light is only
- * divided, never changed: the split glows hold what the one did. Glows out of the view are not split.
+ * The glows: where no point is drawn. Each octant of a node drawn whole (`emits(i)`: its weight, 0 for the others)
+ * whose child is not drawn at all (`drawn(c)`) holds that child's subtree's light, from the node's file
+ * (`fileGlows(i)`); and a glow that looks wide is split, largest first, into its node's own galaxies and its
+ * children's subtrees (the hierarchy's summaries: no download), each with the same weight, until it looks small or the
+ * limit is reached. The light is only divided, never changed. Glows out of the view are not split. Nodes drawn in part
+ * emit no glow: their points are a fair sample of all the galaxies below them.
  */
 export function selectGlows(
   nodes: readonly SurveyNode[],
   v: Pick<LodView, 'cam' | 'a' | 'forward' | 'halfFov' | 'pxPerRad'>,
-  drawn: readonly number[],
-  share: (i: number) => number,
+  sources: readonly number[],
+  emits: (i: number) => number,
+  drawn: (i: number) => boolean,
   fileGlows: (i: number) => Float32Array | undefined,
   out: GlowList,
   targetScale = 0.25,
@@ -292,16 +368,16 @@ export function selectGlows(
     }
   };
   let count = 0;
-  for (const i of drawn) {
-    const w = share(i);
+  for (const i of sources) {
+    const w = emits(i);
     if (!(w > 1e-3)) continue;
     const fg = fileGlows(i);
     const n = nodes[i];
     for (let o = 0; o < 8; o++) {
       const c = n.children[o];
       if (c < 0) continue;
-      const sh = w - share(c);
-      if (sh <= 1e-3) continue;
+      if (drawn(c)) continue;
+      const sh = w;
       // The node file's own copy of this octant's glow (exact); the hierarchy's is the same to 0.07 %.
       const summary = fg ? fg.subarray(o * 8, o * 8 + 8) : nodes[c].sub;
       add(0, c, sh, summary, fg ? i : c);

@@ -34,7 +34,6 @@ uniform float uLotMin;
 uniform float uAObs;
 uniform float uRetarded;
 uniform float uSkyOn;
-uniform float uLnFirst;  // ln(1 + z) of light that left when the earliest galaxies shone: from farther, no galaxy yet
 
 //#emission
 
@@ -66,8 +65,8 @@ void main() {
   float chi = length(sep);
   if (uSkyOn > 0.5 && chi > 1e-6) {
     L = emissionLn1pZ(chi);
-    // Its light left before the earliest galaxies shone (or beyond the particle horizon: it has not arrived).
-    if (L > uLnFirst) {
+    if (L > 1e29) {
+      // Beyond the particle horizon: none of its light has arrived.
       cull();
       return;
     }
@@ -105,6 +104,8 @@ void main() {
     float lc = dot(cc, vec3(0.2126, 0.7152, 0.0722));
     base = lc > 0.0 ? cc * (dot(base, vec3(0.2126, 0.7152, 0.0722)) / lc) : base;
     float lnF = b1.a - b0.a - 2.0 * lnDe - (uRetarded > 0.5 ? 2.0 * L : 0.0) + uLnExposure;
+    // The expansion's dimming held to a tenth (galaxyMap.glsl), so the map stays readable from gigaparsecs away.
+    if (L > 0.5) lnF = mapFloorLnF(lnF, lnT, lnD, b0.a, uLnExposure);
     a *= exp(clamp(0.5 * lnF, -60.0, 2.0));
   }
   if (a <= 1e-4) {

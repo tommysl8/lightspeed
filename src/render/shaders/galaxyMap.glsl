@@ -8,20 +8,34 @@
 // or epoch (render/galaxyMap.ts; docs/data/surveys.md §4). A point's size only shapes it: its alpha is its light over
 // its area.
 //
-// The depth cue: nearer than uDepthMpc a galaxy's light falls as 1/d (mapNear, capped at 9×: the light the web's larger
-// near points used to carry), beyond it as 1/d². uDepthMpc (render/galaxyMap.ts mapDepthMpc) is 180 Mpc from near home,
-// as the web always had, and half the camera's distance from the Sun farther out: the knee moves out with the camera, and
-// nearer than the knee a galaxy looks as it does from home (the 1/d part does not change), so that from gigaparsecs out
-// the survey's far side is neither a hundred times fainter than its near side nor, all summed, a glare.
+// The depth cue: a galaxy nearer than 180 Mpc is brighter by up to 9× (mapNear: the light the web's larger near points
+// used to carry), and beyond uDepthMpc its light falls as 1/d². uDepthMpc (render/galaxyMap.ts mapDepthMpc) is 180 Mpc
+// from near home, as the web always had, and the camera's distance from the Sun farther out: the knee moves out with
+// the camera, so that seen from gigaparsecs away the surveys are not dimmed by their whole distance squared.
 uniform float uDepthMpc;
 const float MAP_DEPTH_REF = 180.0;
+
+// The expansion's dimming of a map's point is held to MAP_DIM_FLOOR (ln of flux) below what the ship's own shift gives:
+// a tenth in the display's square-root law. Its colour still shows the whole redshift. Without the floor the maps went
+// black from a few gigaparsecs out, where every galaxy's light arrives at z = 1 to 5; the maps show where the galaxies
+// are, and stay readable from anywhere their light has reached (render/galaxyMap.ts MAP_DIM_FLOOR, its twin).
+const float MAP_DIM_FLOOR = -4.6051702;
+
+/**
+ * ln of the flux factor of light from a black body at e^lnT K, shifted by the ship (e^lnDs, with any other shift but the
+ * expansion's) and the expansion (L = ln(1 + z)), given the flux law's value lnF with both: lnF, or the floor.
+ */
+float mapFloorLnF(float lnF, float lnT, float lnDs, float b0a, float lnExposure) {
+  vec4 b2 = blackbodyLn(lnT + lnDs);
+  return max(lnF, b2.a - b0a - 2.0 * lnDs + lnExposure + MAP_DIM_FLOOR);
+}
 
 float mapLight(float l) {
   return clamp(0.6 * pow(l, 0.3), 0.08, 1.0) * clamp(pow(l, 0.36), 0.5, 4.0);
 }
 
 float mapNear(float d) {
-  return min((1.0 + 0.5 * uDepthMpc / max(d, 1e-6)) * (MAP_DEPTH_REF / uDepthMpc), 9.0);
+  return min(1.0 + 0.5 * MAP_DEPTH_REF / max(d, 1e-6), 9.0);
 }
 
 float mapDepth(float d) {

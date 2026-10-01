@@ -158,42 +158,47 @@ node.
 
 A galaxy's light on the screen is the product mapLight(L) × mapDepth(d) × (what the expansion and the ship do to its
 light), `render/shaders/galaxyMap.glsl`, shared with the cosmic web. mapLight is the web's gentle luminosity law (0.6
-(L/L*)^0.3 within 0.08 to 1, times (L/L*)^0.36 within 0.5 to 4); mapDepth the depth cue (1.4 × min((180 / D + 90 / d),
-9) / (1 + (d/D)²), falling as 1/d nearer than D and as 1/d² beyond); the rest, as the web's points, is the light of a
-black body of the class's colour temperature seen at T D / (1 + z) (redshift from the cosmology's emission table at the
-camera's epoch, the ship's Doppler factor), with Tolman's dimming and aberration. The point's size only shapes it: its
-alpha is its light over its area.
+(L/L*)^0.3 within 0.08 to 1, times (L/L*)^0.36 within 0.5 to 4); mapDepth the depth cue (1.4 × min(1 + 90 / d, 9) / (1 +
+(d/D)²), falling as 1/d nearer than D and as 1/d² beyond); the rest, as the web's points, is the light of a black body
+of the class's colour temperature seen at T D / (1 + z) (redshift from the cosmology's emission table at the camera's
+epoch, the ship's Doppler factor), with Tolman's dimming and aberration, the expansion's dimming held to at most a
+factor of 100 in flux beyond what the ship's own shift does (MAP_DIM_FLOOR, applied from z = 0.65 on, to the web's
+points too): with all of it the galaxies seen from gigaparsecs away, whose light left them billions of years ago, came
+out thousands of times fainter than those near the camera and the survey's far shells were black. The point's size only
+shapes it: its alpha is its light over its area.
 
 Because the law is a product, a cell of the octree can carry the sum of mapLight of all its galaxies, and a glow for the
-cell with the other factors applied once holds the light of all of them. **Drawn points plus glows add up to the light
-of the whole catalogue**: each drawn node's octants whose child is not drawn are glows holding exactly that child's
-subtree's light; a node fading in (0.3 s) draws its points with its share and its parent draws the glow with the rest.
-The tests check the sums (drawn plus glows within 1 % of the total from anywhere, far inside it in fact: they differ by
-float rounding) on synthetic catalogues and on the shipped tiles (the root's glows equal its children's galaxies plus
-their glows).
+cell with the other factors applied once holds the light of all of them. **The glows are a faint fill, not the light's
+full account.** Each wholly drawn node's octants whose child is not drawn at all are glows holding that child's
+subtree's light (the tests check it to 1 % on synthetic catalogues, and that splitting never changes it), drawn at the
+share of the catalogue the points draw, at most GLOW_FILL (0.2): where points are drawn at 1.5 % of the galaxies the
+glows show the rest at 1.5 % too, as a faint tint where the points thin out, not a haze over them. A first version drew
+the glows with all of the undrawn galaxies' light, as the points' sum would suggest; from gigaparsecs out those hold 98
+% of it and the survey was a fog with a sprinkle of points.
 
 The glows are drawn as soft splats (a Gaussian 1.6 times as wide as the octant's spread seen from here: an octant's
 light fills its cube, flat-topped, and narrower splats summed to a visible lattice) into a target of one sixteenth of
 the view's resolution in each direction, added to the view in linear light. A glow that looks wide is split, largest
-first, into its node's own galaxies and its children's subtrees, from the hierarchy's summaries (no download), until
-the splats are narrower than 24 device pixels or 1,000 of them are drawn; the light is only divided, never changed.
-The depth cue is averaged over each glow's spread (three points along the line of sight), since near the camera an
-octant's galaxies are both near and far and the cue falls as 1/d²: at its centroid alone the octant round the camera
-came out several times too bright. Checked on the CPU, the shipped tiles' points and glows under this law (the expansion's
-and the ship's shifts aside) against the same view drawn from 1.5 million points: within 0.7 % at the default budget of
-200,000 points from 50 Mpc, 500 Mpc and 3 Gpc, within 0.6 % at 300,000 and within 1.8 % at the smallest, 80,000.
+first, into its node's own galaxies and its children's subtrees, from the hierarchy's summaries (no download), until the
+splats are narrower than 24 device pixels or 1,000 of them are drawn; the light is only divided, never changed. A glow
+wider than 12 device pixels (1σ) fades out by 48 (render/galaxyMap.ts glowFade): a region that large on the screen is
+drawn in points. The depth cue is averaged over each glow's spread (three points along the line of sight), since near
+the camera an octant's galaxies are both near and far and the cue falls as 1/d²: at its centroid alone the octant round
+the camera came out several times too bright.
 
-**The depth scale** D (`render/galaxyMap.ts` mapDepthMpc) is 180 Mpc near home, as the web always had, and half the
-camera's distance from the Sun beyond 360 Mpc: the knee moves out with the camera and nearer than it a galaxy looks as
-it does from home. With the web's fixed 180 Mpc everything beyond about 1 Gpc was invisible from out there; with the
-knee moved but the light not renormalised, the whole survey summed to a glare from gigaparsecs out.
+**The depth scale** D (`render/galaxyMap.ts` mapDepthMpc) is 180 Mpc near home, as the web always had, and the camera's
+distance from the Sun beyond that: the knee moves out with the camera, so from outside the survey the cue dims the
+galaxies round home by a factor of 2, not by their distance squared, and nearer than 90 Mpc a galaxy is brightened as it
+is from home (mapNear, 1 + 90 / d, at most 9). With the web's fixed 180 Mpc everything beyond about 1 Gpc was invisible
+from out there.
 
-**Light that left before the galaxies.** A galaxy is not drawn when its light, arriving now at the camera, left before
-the earliest galaxy seen shone (MoM-z14, z = 14.44, 283 Myr after the Big Bang): from near the edge of the observable
-universe the surveys' region is seen as it was before any galaxy formed. Nodes wholly beyond that distance, or whose
-every galaxy would be fainter than 1 % alpha even at its best (nearest, most luminous, hottest colour), are not drawn
-or fetched: their light stays in their parent's glow. Glows whose brightest pixel could not reach 10⁻⁵ are left out,
-and with none left the glow target and its full-screen pass are not drawn.
+**Looking back from far away.** The map shows where the surveys' galaxies are, from anywhere: a galaxy is left out only
+beyond the particle horizon, where none of its light has arrived. (A first version also left out galaxies whose light,
+reaching the camera, left before the earliest galaxy seen, MoM-z14 at z = 14.44; from 10 Gpc and more that emptied the
+survey entirely, and the fans of its footprint are what the view from out there is for.) Nodes whose every galaxy would
+be fainter than 1 % alpha even at its best (nearest, most luminous, hottest colour) are not drawn or fetched. Glows
+whose brightest pixel could not reach 10⁻⁵ are left out, and with none left the glow target and its full-screen pass
+are not drawn.
 
 ## 7. In the app
 
@@ -213,51 +218,57 @@ first, six at a time, each fetched, inflated and decoded in a worker. A failed d
 doubling each time to at most a minute (`lib/retry.ts`, shared with the star files), for as long as it is wanted: it
 never gives up for the session. Up to 2.5 million galaxies stay decoded; beyond, the nodes least recently drawn go.
 
-**Which nodes** (`src/sim/surveys/lod.ts`). From the root down, the node that looks largest next, by its subtree's
-bounding box seen from the ship (in flight its direction aberrated and its size divided by the Doppler factor there),
-while its galaxies fit the point budget; out-of-view nodes and nodes smaller than 96 device pixels are not refined;
-nodes drawn last frame count 25 % larger. The choice is made over the whole hierarchy, loaded or not, so it does not
+**Which nodes, and how much of each** (`src/sim/surveys/lod.ts`). The budget is spread over the whole visible volume,
+not spent on the few nodes that look largest (a first version drew 6 nodes from 2 Gpc; now 16–25 from any view).
+Each part of the sky draws a share k (pixels / galaxies)^0.3 of its galaxies, by its subtree's bounding box seen from
+the ship (in flight its direction aberrated and its size divided by the Doppler factor there): the dense nearby survey
+seen from afar gets more points, so its walls and filaments show, the thin far shells not so few that they vanish.
+Going down from the root, a node draws what its ancestors' points leave missing of that share: all its galaxies (and
+then its children are considered) or a part, at least a tenth, and nothing below it. k is the largest that fits the
+budget (a bisection, 0.1–0.3 ms). A part is a fair sample: the worker puts each node's galaxies in a bit-reversed
+order of the file's space-filling curve, so every prefix is spread evenly over the node, and the draw takes the first
+so many (a draw range: nothing is copied). The choice is made over the whole hierarchy, loaded or not, so it does not
 change as files arrive and no file is fetched that the view would not draw.
 
 **The point budget** (`render/gpuBudget.ts` surveyBudget): 200,000 galaxies to start with, between 80,000 and 300,000.
 The frame's GPU time is measured by the timer the black hole's lens uses (one query a frame, only while the layer is
 drawn): after each 30 measured frames a median over 8.5 ms takes a fifth off the budget, one under 6.5 ms adds a tenth.
-Without the timer extension it stays at 200,000.
+Only frames drawn as the laptop draws them count: while the page is hidden or frames are stepped by hand
+(`window.__ls.step`, the perf tools) the GPU idles between frames and times them several times too slow, so the samples
+are ignored and the budget is 200,000. Without the timer extension it stays there too. For a measurement,
+`__ls.surveys.budget.pin(300000)` (or `pin = 300000`) holds it, and `pin(null)` lets it move again.
 
 ## 8. Performance and downloads
 
 Measured on the target laptop (Intel Core 5 320, Intel Graphics, Chrome with ANGLE on Direct3D 11) in the development
-build, 30 September 2026, with `window.__ls.perf`: pixel ratio 2, a 2,560 × 1,224 canvas (a little larger than the
-laptop's own 1,936 × 1,384), no multisampling, the point budget held at 200,000. The cost is `perf.ab` with the layer on
-against off, interleaved, three rounds of four batches of 20 frames, the median of the rounds' differences; the frame is
-the whole frame's GPU time with the layer on. The processor was busy with a file sync throughout, which adds noise of
-a few tenths of a millisecond. Downloads are the bytes as stored (gzip; what Vercel sends) from a cold start of the
-layer at each view: the hierarchy (81.7 kB) and the nodes the view draws.
+build, 30 September 2026, with `window.__ls.perf`: pixel ratio 2, a 2,880 × 1,584 canvas (larger than the laptop's own
+1,936 × 1,384, so the costs are on the high side), no multisampling, the point budget held at 200,000. The cost is
+`perf.ab` with the layer on against off, interleaved, five rounds of four batches of 20 frames, the median of the
+rounds' differences (they agreed within 0.15 ms); the frame is the whole frame's GPU time with the layer on. Downloads
+are the bytes as stored (gzip; what Vercel sends) from a cold start of the layer at each view: the hierarchy (81.7 kB)
+and the nodes the view draws. "Looking home" is from the direction of right ascension 318°, declination +48°, which
+shows the northern and southern footprints as two fans.
 
 | View | Downloaded | Files | Drawn: nodes, galaxies, glows | Survey's GPU cost | Whole frame |
 | --- | --- | --- | --- | --- | --- |
 | At Earth, and anywhere within 30 Mpc (default setting) | 0 | 0 | nothing | 0 | unchanged |
-| 50 Mpc out (towards the north galactic pole, looking home) | 1.28 MB | 19 | 18, 199,003, 672 | 1.24 ms | 4.7–5.7 ms |
-| 500 Mpc out (the same way) | 1.25 MB | 18 | 17, 199,591, 915 | 1.29 ms | 5.5–5.9 ms |
-| The `cosmic-web` scene (200 Mpc out) | 1.25 MB | 17 | 16, 197,852, 632 | 0.98 ms | 4.6–4.7 ms |
-| 3 Gpc out, north (inside the survey's cone) | 1.14 MB | 16 | 15, 197,610, 910 | 1.29 ms | 5.6–5.8 ms |
-| 3 Gpc out, south (the whole survey in view) | 1.41 MB | 19 | 15, 198,413, 803 | 1.11 ms | 4.8 ms |
-| The edge of the observable universe (14.1 Gpc), north | 0.45 MB | 5 | 4, 65,536, 0 | 0.0 ms | 3.5–4.0 ms |
-| The edge, south | 0.18 MB | 2 | 1, 16,384, 0 | 0.4 ms | 3.7–4.0 ms |
-| Flying at 0.999c (γ = 22.4) from 500 Mpc towards the Bullet Cluster, relativistic view | 0.93 MB in the first 25 s | 25 | 17, 199,704, 288 | 1.47 ms | 5.2–5.8 ms |
+| 50 Mpc out (towards the north galactic pole, looking home) | 2.09 MB | 23 | 21, 200,000, 0 | | |
+| 500 Mpc out (the same way) | 1.90 MB | 21 | 20, 200,000, 6 | 1.33 ms | 8.7 ms |
+| The `cosmic-web` scene (200 Mpc out) | 2.07 MB | 23 | 16, 198,934, 0 | | |
+| 2 Gpc out (`controller.placeAt('local-group', 6.2e22)`) | 1.84 MB | 21 | 20, 200,000, 51 | 1.62 ms | 9.3 ms |
+| 5 Gpc out, looking home | 1.89 MB | 23 | 22, 200,000, 115 | 1.55 ms | 9.4 ms |
+| 10 Gpc out, looking home | 2.12 MB | 26 | 25, 200,000, 327 | | |
+| The edge of the observable universe (14 Gpc), looking home | 1.97 MB | 24 | 23, 200,000, 170 | | |
 
-From the edge the survey is black, as it should be: the light of home's galaxies reaching a camera 14 Gpc away left them
-before any galaxy had formed, or arrives redshifted to nothing, so the selection draws next to nothing and no glow.
+The whole frame read 7.4–7.8 ms without the layer in these runs (4.6–5.9 ms in earlier ones on a 2,560 × 1,224 canvas):
+the machine was busier. The points cost about as much as their pixels: 200,000 sprites of 4 to 5 device pixels across at
+these distances. The glows add their full-screen pass (0.5–0.9 ms, whatever their number), and none at all where no glow
+is bright enough to show. On the processor, choosing the nodes takes 0.1–0.3 ms a frame; the glows are chosen again (0.5
+ms for 1,000) only when the drawn nodes change or the camera moves or turns.
 
-Of the survey's cost at 3 Gpc, about 0.55 ms is the glows (the same for 500 or 2,000 of them: nearly all of it the
-full-screen pass that adds their target to the view), the rest the points, about 3.5–4 ns each. The processor's share
-(development build, same views): 1.0–1.4 ms a frame, most of it placing the glows; choosing them (0.5 ms for 1,000) is
-done again only when the drawn nodes change or the camera moves or turns.
-
-The point budget's controller could not be checked in this harness: with frames stepped by hand in a hidden pane the GPU
-timer read 13–35 ms a frame where `perf.measure` read 5–7 ms, for the black hole's lens controller as much as for this
-one (likely because the GPU clocks down between frames that are not back to back), so the budget fell to 80,000. In a
-visible tab at 60 frames a second it should read the real frame time; that is to be checked on the laptop.
+The point budget's controller could not be checked in this harness, whose frames are stepped by hand in a hidden pane
+(such frames are now ignored, above). In a visible tab at 60 frames a second it should read the real frame time; that
+is to be checked on the laptop.
 
 ## 9. Caveats and later
 
@@ -272,8 +283,9 @@ visible tab at 60 frames a second it should read the real frame time; that is to
 - Survey galaxies belong to no group the tiles know of: in the expanding universe each moves with the expansion on its
   own, so clusters stretch as the clock runs ahead (the web's groups keep their size).
 - Luminosities: the class median for 6.5 million galaxies (above); a K-correction of the bandwidth term only.
-- The glows hold the surveyed galaxies' light only, not the fainter galaxies no survey saw.
+- The glows are a tint at the points' own sampling rate, not the undrawn galaxies' light: the layer is a map of where
+  the surveyed galaxies are, not a photometric image (and holds nothing of the fainter galaxies no survey saw).
 - Not yet: points cannot be picked (a card per galaxy); the survey has no lensed variant near a black hole; DESI DR2
   (expected early 2027) would replace DR1 with the same pipeline.
-- Hosting: 63.7 MB in 2,700 files in the repository, served by Vercel. A first view costs about 1.1–1.3 MB in 16–20
+- Hosting: 63.7 MB in 2,700 files in the repository, served by Vercel. A first view costs about 1.8–2.1 MB in 21–26
   files. If traffic grows, move `public/data/survey/` to another host and change `SURVEY_BASE_URL`.

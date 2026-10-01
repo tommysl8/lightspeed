@@ -69,7 +69,7 @@ export function toggleSurveys(): void {
 export const SURVEY_CARD = {
   title: 'Galaxy surveys',
   line: '13.5 million galaxies and quasars from DESI and the SDSS, out to 23 billion light-years: a map, not what the eye would see.',
-  caveat: 'Placed by redshift: a galaxy’s own motion moves it along our line of sight, which stretches clusters into spikes pointing at us.',
+  caveat: 'Placed by redshift: a galaxy’s own motion moves it along our line of sight, which stretches clusters into spikes pointing at us. The empty wedges are sky the surveys could not see: behind the Milky Way’s disc, and much of the south.',
   more: [
     'Orange: red galaxies, mostly old stars. Blue: galaxies forming stars. Violet: quasars, gas falling into a supermassive black hole and outshining its galaxy. Glows hold the light of galaxies too small to draw from here.',
     'A survey, not a census: far away only the brightest galaxies were seen, and each survey chose different kinds, so the map thins and changes colour with distance. Two thirds of the sky has not been mapped this way: blank is unobserved, not empty.',

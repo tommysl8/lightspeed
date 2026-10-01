@@ -157,6 +157,9 @@ void main() {
     float lc = dot(c, vec3(0.2126, 0.7152, 0.0722));
     base = lc > 0.0 ? c * (dot(base, vec3(0.2126, 0.7152, 0.0722)) / lc) : base;
     float lnF = b1.a - b0.a - 2.0 * lnDe - (uRetarded > 0.5 ? 2.0 * L : 0.0) + uLnExposure;
+    // The expansion's dimming held to a tenth, as the galaxy surveys' (galaxyMap.glsl), so from gigaparsecs away the two
+    // maps stay readable alike.
+    if (L > 0.5) lnF = mapFloorLnF(lnF, lnT, lnDe + L, b0.a, uLnExposure);
 #ifdef LENS
     // The lens's solid angle: μ, in place of the g⁻² a boost by ln g would give.
     lnF += lnMu + 2.0 * lnG;

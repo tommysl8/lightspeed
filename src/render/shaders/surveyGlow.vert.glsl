@@ -29,7 +29,6 @@ uniform float uPointKernel;
 uniform float uAObs;
 uniform float uRetarded;
 uniform float uSkyOn;
-uniform float uLnFirst;
 
 //#emission
 
@@ -38,6 +37,7 @@ varying float vSigma;
 varying float vSize;
 
 const float GLOW_WIDEN = 1.6;
+const vec2 GLOW_FADE_PX = vec2(12.0, 48.0);
 
 void cull() {
   gl_Position = vec4(2.0, 2.0, 2.0, 1.0);
@@ -51,7 +51,7 @@ void main() {
   float chi = length(aSep);
   if (uSkyOn > 0.5 && chi > 1e-6) {
     L = emissionLn1pZ(chi);
-    if (L > uLnFirst) {
+    if (L > 1e29) {
       cull();
       return;
     }
@@ -92,6 +92,7 @@ void main() {
       float lc = dot(cc, vec3(0.2126, 0.7152, 0.0722));
       base = lc > 0.0 ? cc * (dot(base, vec3(0.2126, 0.7152, 0.0722)) / lc) : base;
       float lnF = b1.a - b0.a - 2.0 * lnDe - (uRetarded > 0.5 ? 2.0 * L : 0.0) + uLnExposure;
+      if (L > 0.5) lnF = mapFloorLnF(lnF, lnT, lnD, b0.a, uLnExposure);
       f = exp(clamp(0.5 * lnF, -60.0, 2.0));
     }
     light += base * (w * f);
@@ -106,6 +107,14 @@ void main() {
   // neighbouring octants' glows of that width summed to a lattice of lumps (ripples of 130 % of the mean on a regular
   // grid; 12 % once widened 1.6 times).
   float sigma = clamp(GLOW_WIDEN * (aRms * 0.57735 / max(d, 1e-6)) * uPxPerRad * exp(-lnD), 0.7, uMaxSize / 6.0);
+  // A glow is a fill where no point is drawn; one that would look large (a region that size on the screen is drawn in
+  // points) fades out (render/galaxyMap.ts glowFade, its twin).
+  float fade = 1.0 - smoothstep(GLOW_FADE_PX.x, GLOW_FADE_PX.y, sigma / uResScale);
+  if (fade <= 0.0) {
+    cull();
+    return;
+  }
+  light *= fade;
   vSigma = sigma;
   vSize = 6.0 * sigma;
   // Light per target pixel at the centre: the total over the splat (a Gaussian less its value at 3σ, where it ends:

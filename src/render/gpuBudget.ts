@@ -211,21 +211,45 @@ export const SURVEY_WINDOW = 30;
 
 const surveySamples = new Float64Array(SURVEY_WINDOW);
 const surveySorted = new Float64Array(SURVEY_WINDOW);
-const sv = { count: 0, pinned: 0 };
+const sv = { count: 0, pinned: 0, points: SURVEY_BUDGET_START };
+
+/** Hold the budget at `points`, or let it move again (null or 0). */
+function setPin(points: number | null): void {
+  sv.count = 0;
+  sv.pinned = points && points > 0 ? Math.round(points) : 0;
+}
 
 /**
- * The galaxy surveys' point budget (scene/Surveys.tsx draws nodes of the octree until it is spent). The whole frame's
- * GPU time is what is measured, as for the lens, so the budget gives way to whatever else the frame draws: after each
- * SURVEY_WINDOW measured frames, a median over GPU_OVER_MS takes a fifth off the budget, one under GPU_UNDER_MS adds a
- * tenth, within SURVEY_BUDGET_MIN to SURVEY_BUDGET_MAX (the survey's points cost about 9 ns each on the target laptop:
- * the whole range is 0.7–2.7 ms). Without the timer extension it stays at SURVEY_BUDGET_START. dev/perf.ts pins it.
+ * The galaxy surveys' point budget (scene/Surveys.tsx spreads it over the visible nodes of the octree). The whole
+ * frame's GPU time is what is measured, as for the lens, so the budget gives way to whatever else the frame draws:
+ * after each SURVEY_WINDOW measured frames, a median over GPU_OVER_MS takes a fifth off the budget, one under
+ * GPU_UNDER_MS adds a tenth, within SURVEY_BUDGET_MIN to SURVEY_BUDGET_MAX. Only frames drawn as the laptop draws them
+ * count: a frame stepped by hand (window.__ls.step, the perf tools) or drawn in a hidden page is timed with the GPU
+ * idling between frames, several times too slow, so while frames are not `trusted` (Surveys.tsx) the samples are
+ * ignored and the budget is SURVEY_BUDGET_START. Without the timer extension it stays there too.
+ *
+ * `pin` holds it for a measurement: `surveyBudget.pin(300_000)`, or `surveyBudget.pin = 300_000` (the same), and
+ * `null` lets it move again.
  */
 export const surveyBudget = {
-  points: SURVEY_BUDGET_START,
+  /** Galaxies to draw this frame: the pinned number, else the controller's. */
+  get points(): number {
+    return sv.pinned > 0 ? sv.pinned : sv.points;
+  },
+  set points(p: number) {
+    sv.points = p;
+  },
   medianMs: NaN,
   /** The survey layer is drawn this frame and wants the frame timed (scene/Surveys.tsx sets it). */
   active: false,
+  /** This frame is drawn as the laptop would draw it: not stepped by hand, the page visible (scene/Surveys.tsx sets it). */
+  trusted: true,
   sample(ms: number): void {
+    if (!surveyBudget.trusted) {
+      sv.count = 0;
+      sv.points = SURVEY_BUDGET_START;
+      return;
+    }
     if (sv.pinned > 0 || !surveyBudget.active || !(ms >= 0) || !Number.isFinite(ms)) return;
     surveySamples[sv.count++] = ms;
     if (sv.count < SURVEY_WINDOW) return;
@@ -234,25 +258,30 @@ export const surveyBudget = {
     surveySorted.sort();
     const med = 0.5 * (surveySorted[(SURVEY_WINDOW >> 1) - 1] + surveySorted[SURVEY_WINDOW >> 1]);
     surveyBudget.medianMs = med;
-    if (med > GPU_OVER_MS) surveyBudget.points = Math.max(SURVEY_BUDGET_MIN, Math.round(surveyBudget.points * 0.8));
-    else if (med < GPU_UNDER_MS) surveyBudget.points = Math.min(SURVEY_BUDGET_MAX, Math.round(surveyBudget.points * 1.1));
+    if (med > GPU_OVER_MS) sv.points = Math.max(SURVEY_BUDGET_MIN, Math.round(sv.points * 0.8));
+    else if (med < GPU_UNDER_MS) sv.points = Math.min(SURVEY_BUDGET_MAX, Math.round(sv.points * 1.1));
   },
-  /** Hold the budget at `points` (a measurement), or let it move again (null). */
-  pin(points: number | null): void {
-    sv.count = 0;
-    if (points === null) {
-      sv.pinned = 0;
-      return;
-    }
-    sv.pinned = points;
-    surveyBudget.points = points;
+  /** The pinned budget, or null. */
+  get pinned(): number | null {
+    return sv.pinned > 0 ? sv.pinned : null;
+  },
+  set pinned(p: number | null) {
+    setPin(p);
+  },
+  /** Hold the budget: call it (`pin(300_000)`, `pin(null)`) or assign to it (`pin = 300_000`). */
+  get pin(): (points: number | null) => void {
+    return setPin;
+  },
+  set pin(points: number | null) {
+    setPin(points);
   },
   reset(): void {
     sv.count = 0;
     sv.pinned = 0;
-    surveyBudget.points = SURVEY_BUDGET_START;
+    sv.points = SURVEY_BUDGET_START;
     surveyBudget.medianMs = NaN;
     surveyBudget.active = false;
+    surveyBudget.trusted = true;
   },
 };
 
