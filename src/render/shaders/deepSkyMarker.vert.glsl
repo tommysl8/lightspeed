@@ -21,6 +21,7 @@ uniform float uPixelRatio;
 uniform float uOpacity;
 uniform float uTime;      // wall-clock seconds
 uniform float uSelected;  // the selected marker's index in this catalogue, or −1
+uniform vec2 uHidden;     // markers not drawn (a pulsar drawn up close: scene/PulsarModel.tsx), or −1
 uniform vec3 uSelectedRel; // the selected one from the camera, galactic pc, worked out in float64 (a visit to a pulsar
                            // comes within an au of it, where float32 places 280 pc out are 3 au coarse)
 
@@ -45,6 +46,10 @@ void cull() {
 }
 
 void main() {
+  if (abs(float(gl_VertexID) - uHidden.x) < 0.5 || abs(float(gl_VertexID) - uHidden.y) < 0.5) {
+    cull();
+    return;
+  }
   float selected = abs(float(gl_VertexID) - uSelected) < 0.5 ? 1.0 : 0.0;
   vec3 rel = selected > 0.5 ? uSelectedRel : (position - uCamHi) - uCamLo;
   float d = max(length(rel), 1e-12);

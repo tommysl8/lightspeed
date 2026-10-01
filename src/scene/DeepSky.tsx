@@ -31,6 +31,7 @@ import { GAL_TO_WORLD, WORLD_TO_GAL } from '../sim/galaxy/frames';
 import { cosmicSky } from '../sim/cosmos/expansion';
 import { sim } from '../sim/sim';
 import { useUI } from '../state/ui';
+import { PulsarModel, pulsarShown } from './PulsarModel';
 
 const camGal = new Vector3();
 const camMpc = new Vector3();
@@ -187,6 +188,10 @@ export default function DeepSky() {
       const set = deepSky.sets.get(l.id)!;
       u.uPxPerRad.value = pxPerRad;
       u.uSelected.value = selected ? (set.indexById.get(selected) ?? -1) : -1;
+      if (u.uHidden) {
+        const h = l.id === 'pulsars' ? pulsarShown.ids : [];
+        u.uHidden.value.set(h[0] ? (set.indexById.get(h[0]) ?? -1) : -1, h[1] ? (set.indexById.get(h[1]) ?? -1) : -1);
+      }
       // The selected one's place from the camera in float64, where it is a body (galactic catalogues).
       const sb = selected && u.uSelectedRel && u.uSelected.value >= 0 ? sim.bodies[selected] : undefined;
       if (sb) {
@@ -223,5 +228,10 @@ export default function DeepSky() {
     }
   });
 
-  return <group ref={group} />;
+  return (
+    <>
+      <group ref={group} />
+      <PulsarModel />
+    </>
+  );
 }
