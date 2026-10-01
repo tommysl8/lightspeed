@@ -28,7 +28,7 @@ import { enterClean } from '../cleanMode';
 import { Icon } from '../icons';
 import { constellationsShown, toggleConstellations } from '../constellations';
 import { planetHostsShown, togglePlanetHosts } from '../planetHosts';
-import { cosmicWebShare, toggleCosmicWeb } from '../cosmicLayers';
+import { cosmicWebShare, surveyShare, toggleCosmicWeb, toggleSurveys } from '../cosmicLayers';
 import { starMotionNote } from '../../sim/stars/motion';
 import { Wordmark } from '../Logo';
 import { JOURNEYS } from '../../content/journeys';
@@ -228,6 +228,7 @@ function ViewMenu() {
       constellations: u.constellations,
       planetHosts: u.planetHosts,
       cosmicWeb: u.cosmicWeb,
+      surveys: u.surveys,
       showCmb: u.showCmb,
       retarded: u.retarded,
       showFps: u.showFps,
@@ -340,6 +341,17 @@ function ViewMenu() {
             }
           >
             Cosmic web
+          </Check>
+          <Check
+            checked={surveyShare(s.surveys, sim.camera.pos.length()) > 0}
+            onChange={toggleSurveys}
+            hint={
+              s.surveys === 'auto'
+                ? '13.5 million galaxies and quasars from DESI and the SDSS, as a map placed by redshift. On by itself beyond 30 megaparsecs'
+                : '13.5 million galaxies and quasars from DESI and the SDSS, as a map placed by redshift'
+            }
+          >
+            Galaxy surveys
           </Check>
           <Check checked={s.showCmb} onChange={() => t('showCmb')} hint="The cosmic microwave background over the sky: WMAP’s map, contrast enhanced about 10,000 times">
             CMB map

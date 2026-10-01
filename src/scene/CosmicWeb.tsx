@@ -33,6 +33,7 @@ import { useUI } from '../state/ui';
 import { sim } from '../sim/sim';
 import { cosmicWebShare, WEB_LOAD_KM, webMembersShown } from '../ui/cosmicLayers';
 import { memberRange, type WebBuffers } from '../sim/cosmos/cosmicWeb';
+import { mapDepthMpc } from '../render/galaxyMap';
 
 const cam = new Vector3();
 
@@ -116,6 +117,8 @@ export function CosmicWeb() {
     u.uPointsPerPx.value = n / (4 * Math.PI * pxPerRad * pxPerRad);
     u.uLotMin.value = Math.min(1, 48 / Math.max(1, n));
     cam.copy(sim.camera.pos).divideScalar(MPC_KM);
+    // The depth cue's scale follows the camera out, as the galaxy surveys' does (render/galaxyMap.ts).
+    u.uDepthMpc.value = mapDepthMpc(cam.length());
     const hi = u.uCamHi.value.set(Math.fround(cam.x), Math.fround(cam.y), Math.fround(cam.z));
     u.uCamLo.value.set(cam.x - hi.x, cam.y - hi.y, cam.z - hi.z);
     // Near a black hole: the lensed program once compiled (for next frame's swap), and the second image.

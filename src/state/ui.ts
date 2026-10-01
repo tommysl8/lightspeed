@@ -52,6 +52,11 @@ export interface UIState {
    * beyond the Local Group (ui/cosmicLayers.ts).
    */
   cosmicWeb: 'auto' | 'on' | 'off';
+  /**
+   * The galaxy surveys (DESI and the SDSS as points): on, off, or 'auto', loaded and shown only from beyond the local
+   * universe (ui/cosmicLayers.ts).
+   */
+  surveys: 'auto' | 'on' | 'off';
   /** The map of the cosmic microwave background over the sky (contrast enhanced). */
   showCmb: boolean;
   /** First-visit welcome screen. */
@@ -193,6 +198,7 @@ export const savedPrefs = (s: UIState) => ({
   constellations: s.constellations,
   planetHosts: s.planetHosts,
   cosmicWeb: s.cosmicWeb,
+  surveys: s.surveys,
   showFps: s.showFps,
   // Not leftOpen: the physics reference opens only when asked for, never on a reload.
   rightOpen: s.rightOpen,
@@ -230,6 +236,7 @@ export const useUI = create<UIState>()(
       constellations: 'auto',
       planetHosts: 'auto',
       cosmicWeb: 'auto',
+      surveys: 'auto',
       showCmb: false,
       welcomeOpen: !welcomed(),
       tourStep: null,

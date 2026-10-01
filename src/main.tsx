@@ -55,7 +55,10 @@ if (import.meta.env.DEV) {
     import('./render/gpuBudget'),
     import('./dev/lensTest'),
     import('./dev/perf'),
-  ]).then(([s, c, u, fiber, trip, rel, travel, chrono, pulses, solarSystem, registry, navigation, stars, scenes, exoplanets, materials, galaxy, galaxyLayer, cosmos, gravity, lens, fall, blackholes, nsc, gpuBudget, lensTest, perf]) =>
+    import('./sim/surveys/load'),
+    import('./scene/Surveys'),
+    import('./sim/surveys/lod'),
+  ]).then(([s, c, u, fiber, trip, rel, travel, chrono, pulses, solarSystem, registry, navigation, stars, scenes, exoplanets, materials, galaxy, galaxyLayer, cosmos, gravity, lens, fall, blackholes, nsc, gpuBudget, lensTest, perf, surveyLoad, surveyScene, surveyLod]) =>
     Object.assign(window, {
       __ls: {
         sim: s.sim,
@@ -92,6 +95,8 @@ if (import.meta.env.DEV) {
         lensTest: lensTest.lensTest,
         /** Whole-frame GPU timing (dev/perf.ts). */
         perf: perf.perf,
+        /** The galaxy surveys: what has loaded (bytes, files), this frame's draw, and the point budget (sim/surveys, scene/Surveys.tsx). */
+        surveys: { state: surveyLoad.survey, frame: surveyScene.surveyFrame, budget: gpuBudget.surveyBudget, reset: surveyLoad.resetSurvey, glow: surveyLod.glowSettings },
         /** Render n frames with a fixed timestep (works while the tab is hidden). */
         step(n = 60, dt = 1 / 60) {
           s.sim.debugDt = dt;

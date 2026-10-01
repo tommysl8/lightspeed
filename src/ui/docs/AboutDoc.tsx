@@ -7,6 +7,7 @@ import { APP, AUTHOR } from '../../content/author';
 import { Icon } from '../icons';
 import { LogoMark } from '../Logo';
 import { Chapter, Ext, Ref, type TocEntry } from './parts';
+import { DESI_ACKNOWLEDGEMENT, SDSS_ACKNOWLEDGEMENTS } from '../../sim/surveys/credits';
 
 export const ABOUT_TOC: TocEntry[] = [
   { id: 'overview', title: 'What it is' },
@@ -443,6 +444,22 @@ function Sources() {
             of Astrophysics 8, 142; CC0).
           </>,
           <>
+            Galaxy surveys: <Ext href="https://data.desi.lbl.gov/doc/releases/dr1/">DESI Data Release 1</Ext> (DESI Collaboration
+            et al. 2026, “Data Release 1 of the Dark Energy Spectroscopic Instrument”, AJ 171, 285; CC BY 4.0), its
+            large-scale-structure catalogues (Ross et al. 2025, JCAP 01, 125), and{' '}
+            <Ext href="https://www.sdss.org/dr17/">SDSS DR17</Ext> (Abdurro’uf et al. 2022, ApJS 259, 35; public domain): the
+            SDSS-I/II galaxies, BOSS DR12 (Reid et al. 2016), the eBOSS DR16 catalogues (Ross et al. 2020; Raichoor et al. 2021)
+            and DR16Q (Lyke et al. 2020). Changed for Skyfold: merged without duplicates or the Cosmicflows-4 galaxies, placed
+            by redshift in the Planck 2018 cosmology, classed by colour, rounded to 5″ and 0.125 Mpc and tiled (docs/data/surveys.md
+            in the source). Their acknowledgements:
+            <span className="mt-1 block">DESI: “{DESI_ACKNOWLEDGEMENT}”</span>
+            {SDSS_ACKNOWLEDGEMENTS.map((a) => (
+              <span key={a.phase} className="mt-1 block">
+                {a.phase}: “{a.text}”
+              </span>
+            ))}
+          </>,
+          <>
             Named galaxies, clusters and young galaxies: positions from SIMBAD, sizes from RC3 (de Vaucouleurs et al. 1991) via
             VizieR (“This research has made use of the SIMBAD database and the VizieR catalogue access tool, CDS, Strasbourg,
             France.”), two redshifts from NED (“This research has made use of the NASA/IPAC Extragalactic Database (NED), which
@@ -479,7 +496,7 @@ function Sources() {
       />
       <h3 className="doc-h3-plain">Methods</h3>
       <Refs
-        start={39}
+        start={40}
         items={[
           <>
             Relativistic rendering: the rest-frame scene is rendered to a cube map and resampled per pixel by the aberration
@@ -635,6 +652,12 @@ function Limitations() {
           uncertain, so within 30 Mpc each is placed at its group’s measured distance, beyond 60 Mpc at the distance its group’s
           redshift gives in the Planck 2018 cosmology, and in between at a blend of the two.
         </li>
+        <li>
+          The galaxy surveys are placed by redshift, as if all of it came from the expansion: each galaxy’s own motion shifts it
+          along our line of sight, so clusters are drawn as spikes pointing at the Solar System. They cover about a third of the
+          sky and thin out with distance, and the galaxies too small to draw from where you are are shown as glows holding their
+          light.
+        </li>
         <li>Planets are lit without the 1/r² dimming of sunlight, and the relativistic view uses automatic exposure.</li>
         <li>The superluminal drive is fiction, provided for comparison; nothing measured during it has physical meaning.</li>
         <li>
@@ -661,8 +684,8 @@ function Software() {
         keep their own licences (the star and exoplanet files, the map of the faint stars’ light built from them and the
         black holes’ file are for non-commercial use only, because of their Gaia DR3 values, and the star files are also CC BY-SA 4.0; the 67P shape
         model is CC BY-SA 3.0 IGO; the Solar System Scope textures, the nebula images, the star clusters (the Harris catalogue
-        apart, which is free of charge), the S-stars’ orbits, the Cosmicflows-4 galaxies and the figure read from Sawala et al.
-        are CC BY 4.0; the Local Volume Database is CC0; the NASA SVS sky and the WMAP map are public domain), listed under <Ref page="about" to="sources">Sources and methods</Ref>.
+        apart, which is free of charge), the S-stars’ orbits, the Cosmicflows-4 galaxies, the DESI galaxies and the figure read from Sawala et al.
+        are CC BY 4.0; the SDSS galaxies are in the public domain; the Local Volume Database is CC0; the NASA SVS sky and the WMAP map are public domain), listed under <Ref page="about" to="sources">Sources and methods</Ref>.
       </p>
       <p>
         The source code is on GitHub at <Ext href={AUTHOR.repo}>{AUTHOR.repo.replace('https://', '')}</Ext>.

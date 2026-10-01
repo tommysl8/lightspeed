@@ -22,6 +22,9 @@
  *
  * Twins: render/quality.ts (the rungs, stepDown/stepUp), render/AdaptiveQuality.tsx (applies them),
  * dev/perf.ts (pauses it). Tests: gpuBudget.test.ts drives it with synthetic timings.
+ *
+ * The same timer also sets the galaxy surveys' point budget (surveyBudget below) while the survey layer is drawn and
+ * no lens is: the two never run at once (the surveys fade out while a lens is drawn).
  */
 import { quality, type LensRung } from './quality';
 
@@ -199,6 +202,89 @@ export const gpuBudget: GpuBudget = {
   },
 };
 
+/** The galaxy surveys' point budget, galaxies drawn a frame: from 80,000 to 300,000, 200,000 to start with. */
+export const SURVEY_BUDGET_MIN = 80_000;
+export const SURVEY_BUDGET_MAX = 300_000;
+export const SURVEY_BUDGET_START = 200_000;
+/** Measured frames in each decision of the surveys' budget (half a second at 60 frames a second). */
+export const SURVEY_WINDOW = 30;
+
+const surveySamples = new Float64Array(SURVEY_WINDOW);
+const surveySorted = new Float64Array(SURVEY_WINDOW);
+const sv = { count: 0, pinned: 0, points: SURVEY_BUDGET_START };
+
+/** Hold the budget at `points`, or let it move again (null or 0). */
+function setPin(points: number | null): void {
+  sv.count = 0;
+  sv.pinned = points && points > 0 ? Math.round(points) : 0;
+}
+
+/**
+ * The galaxy surveys' point budget (scene/Surveys.tsx spreads it over the visible nodes of the octree). The whole
+ * frame's GPU time is what is measured, as for the lens, so the budget gives way to whatever else the frame draws:
+ * after each SURVEY_WINDOW measured frames, a median over GPU_OVER_MS takes a fifth off the budget, one under
+ * GPU_UNDER_MS adds a tenth, within SURVEY_BUDGET_MIN to SURVEY_BUDGET_MAX. Only frames drawn as the laptop draws them
+ * count: a frame stepped by hand (window.__ls.step, the perf tools) or drawn in a hidden page is timed with the GPU
+ * idling between frames, several times too slow, so while frames are not `trusted` (Surveys.tsx) the samples are
+ * ignored and the budget is SURVEY_BUDGET_START. Without the timer extension it stays there too.
+ *
+ * `pin` holds it for a measurement: `surveyBudget.pin(300_000)`, or `surveyBudget.pin = 300_000` (the same), and
+ * `null` lets it move again.
+ */
+export const surveyBudget = {
+  /** Galaxies to draw this frame: the pinned number, else the controller's. */
+  get points(): number {
+    return sv.pinned > 0 ? sv.pinned : sv.points;
+  },
+  set points(p: number) {
+    sv.points = p;
+  },
+  medianMs: NaN,
+  /** The survey layer is drawn this frame and wants the frame timed (scene/Surveys.tsx sets it). */
+  active: false,
+  /** This frame is drawn as the laptop would draw it: not stepped by hand, the page visible (scene/Surveys.tsx sets it). */
+  trusted: true,
+  sample(ms: number): void {
+    if (!surveyBudget.trusted) {
+      sv.count = 0;
+      sv.points = SURVEY_BUDGET_START;
+      return;
+    }
+    if (sv.pinned > 0 || !surveyBudget.active || !(ms >= 0) || !Number.isFinite(ms)) return;
+    surveySamples[sv.count++] = ms;
+    if (sv.count < SURVEY_WINDOW) return;
+    sv.count = 0;
+    surveySorted.set(surveySamples);
+    surveySorted.sort();
+    const med = 0.5 * (surveySorted[(SURVEY_WINDOW >> 1) - 1] + surveySorted[SURVEY_WINDOW >> 1]);
+    surveyBudget.medianMs = med;
+    if (med > GPU_OVER_MS) sv.points = Math.max(SURVEY_BUDGET_MIN, Math.round(sv.points * 0.8));
+    else if (med < GPU_UNDER_MS) sv.points = Math.min(SURVEY_BUDGET_MAX, Math.round(sv.points * 1.1));
+  },
+  /** The pinned budget, or null. */
+  get pinned(): number | null {
+    return sv.pinned > 0 ? sv.pinned : null;
+  },
+  set pinned(p: number | null) {
+    setPin(p);
+  },
+  /** Hold the budget: call it (`pin(300_000)`, `pin(null)`) or assign to it (`pin = 300_000`). */
+  get pin(): (points: number | null) => void {
+    return setPin;
+  },
+  set pin(points: number | null) {
+    setPin(points);
+  },
+  reset(): void {
+    sv.count = 0;
+    sv.pinned = 0;
+    sv.points = SURVEY_BUDGET_START;
+    surveyBudget.medianMs = NaN;
+    surveyBudget.active = false;
+    surveyBudget.trusted = true;
+  },
+};
+
 interface TimerExt {
   TIME_ELAPSED_EXT: number;
   GPU_DISJOINT_EXT: number;
@@ -226,7 +312,7 @@ export class GpuFrameTimer {
     gpuBudget.available = !!this.ext;
   }
 
-  /** Before the frame's GPU work: open a query when one is wanted (a lens is drawn and nothing is paused). */
+  /** Before the frame's GPU work: open a query when one is wanted (a lens or the galaxy surveys are drawn) and nothing is paused. */
   begin(wanted: boolean): void {
     const gl = this.gl;
     const ext = this.ext;
@@ -255,7 +341,10 @@ export class GpuFrameTimer {
       const disjoint = !!gl.getParameter(ext.GPU_DISJOINT_EXT);
       const ns = Number(gl.getQueryParameter(q, gl.QUERY_RESULT));
       this.free.push(q);
-      if (!disjoint) gpuBudget.sample(ns / 1e6);
+      if (!disjoint) {
+        gpuBudget.sample(ns / 1e6);
+        surveyBudget.sample(ns / 1e6);
+      }
     }
   }
 

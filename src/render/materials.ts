@@ -31,6 +31,8 @@ import { MW_MU_FADE } from '../sim/galaxy/background';
 import { GLOW_DISC_RANGE_KPC, GLOW_YOUNG_RANGE_KPC } from '../sim/galaxy/glow';
 import { nscGlowUniforms } from '../sim/galaxy/nuclearCluster';
 import { lensUniforms } from './lens/lensUniforms';
+import { MAP_DEPTH_NEAR_MPC, POINT_KERNEL } from './galaxyMap';
+import { LUM_LOG_MIN, LUM_LOG_STEP } from '../sim/surveys/format.ts';
 
 import blackbodyGlsl from './shaders/blackbody.glsl?raw';
 import relativityGlsl from './shaders/relativity.glsl?raw';
@@ -64,6 +66,9 @@ import clusterRingVert from './shaders/clusterRing.vert.glsl?raw';
 import nebulaFrag from './shaders/nebula.frag.glsl?raw';
 import galaxiesVert from './shaders/galaxies.vert.glsl?raw';
 import cosmicWebVert from './shaders/cosmicWeb.vert.glsl?raw';
+import galaxyMapGlsl from './shaders/galaxyMap.glsl?raw';
+import surveyVert from './shaders/survey.vert.glsl?raw';
+import surveyGlowVert from './shaders/surveyGlow.vert.glsl?raw';
 import cmbMapFrag from './shaders/cmbMap.frag.glsl?raw';
 import lensGlsl from './shaders/lens.glsl?raw';
 import lensExactGlsl from './shaders/lensExact.glsl?raw';
@@ -85,6 +90,8 @@ chunks.lightspeed_lens_exact = lensExactGlsl;
 chunks.lightspeed_dopplercolour = dopplerColourGlsl;
 chunks.lightspeed_galaxycomposite = galaxyCompositeGlsl;
 chunks.lightspeed_flowlookup = flowLookupGlsl;
+// The display law the cosmic web and the galaxy surveys share (a product, so the surveys' glows can be exact).
+chunks.lightspeed_galaxymap = galaxyMapGlsl;
 
 /**
  * Blackbody lookup texture shared by the point-source shaders and the remap pass. Float32 with
@@ -894,7 +901,7 @@ export function createCosmicWebMaterial(): ShaderMaterial {
       uOpacity: { value: 0 },
       uPixelRatio: psfUniforms.uPixelRatio,
       uNearMpc: { value: 1.5 },
-      uDepthMpc: { value: 180 },
+      uDepthMpc: { value: MAP_DEPTH_NEAR_MPC },
       uTypeColor: { value: [new Color(1.0, 0.66, 0.38), new Color(0.5, 0.7, 1.0), new Color(0.82, 0.82, 0.78)] },
       uTypeLnT: { value: WEB_TYPE_LN_T },
       uPointsPerPx: { value: 0 },
@@ -902,6 +909,80 @@ export function createCosmicWebMaterial(): ShaderMaterial {
     },
     vertexShader: withEmission(cosmicWebVert),
     fragmentShader: COSMIC_WEB_FRAG,
+    blending: AdditiveBlending,
+    depthTest: false,
+    depthWrite: false,
+    transparent: false,
+  });
+}
+
+/**
+ * The galaxy surveys' four classes (sim/surveys/format.ts SURVEY_CLASS): red (orange, as the web's early types), blue
+ * (as its spirals), grey (no colour known), and quasars, in a pale violet of their own that no galaxy class uses.
+ */
+export const SURVEY_CLASS_COLORS = [new Color(1.0, 0.66, 0.38), new Color(0.5, 0.7, 1.0), new Color(0.82, 0.82, 0.78), new Color(0.84, 0.62, 1.0)];
+/**
+ * Their colour temperatures, ln K: B − V 0.96 and 0.6 as the web's early and late types, 0.75 for either, and 0.3
+ * for quasars, whose continuum is blue (a display choice: about as blue as an F star).
+ */
+const SURVEY_CLASS_LN_T = [0.96, 0.6, 0.75, 0.3].map((bv) => Math.log(bvToTemperature(bv)));
+
+/** The galaxy surveys' points (shaders/survey.vert.glsl): one draw a node, added over the stars, under the bodies, as the web's. */
+export function createSurveyMaterial(): ShaderMaterial {
+  initBlackbodyUniforms();
+  return new ShaderMaterial({
+    uniforms: {
+      ...relativityUniforms,
+      ...skyUniforms,
+      uPixelRatio: psfUniforms.uPixelRatio,
+      uNearMpc: { value: 1.5 },
+      uDepthMpc: { value: MAP_DEPTH_NEAR_MPC },
+      uClassColor: { value: SURVEY_CLASS_COLORS },
+      uClassLnT: { value: SURVEY_CLASS_LN_T },
+      uLum: { value: new Vector2(LUM_LOG_MIN, LUM_LOG_STEP) },
+      uPointsPerPx: { value: 0 },
+      uLotMin: { value: 1 },
+    },
+    vertexShader: withEmission(surveyVert),
+    fragmentShader: COSMIC_WEB_FRAG,
+    blending: AdditiveBlending,
+    depthTest: false,
+    depthWrite: false,
+    transparent: false,
+  });
+}
+
+const SURVEY_GLOW_FRAG = /* glsl */ `
+varying vec3 vColor;
+varying float vSigma;
+varying float vSize;
+void main() {
+  vec2 p = (gl_PointCoord - 0.5) * vSize;
+  float r2 = dot(p, p) / (vSigma * vSigma);
+  if (r2 > 9.0) discard;
+  gl_FragColor = vec4(vColor * (exp(-0.5 * r2) - 0.011109), 1.0);
+}
+`;
+
+/** The surveys' glows (shaders/surveyGlow.vert.glsl), drawn into their own low-resolution target (render/surveyGlow.ts). */
+export function createSurveyGlowMaterial(): ShaderMaterial {
+  initBlackbodyUniforms();
+  return new ShaderMaterial({
+    uniforms: {
+      ...relativityUniforms,
+      ...skyUniforms,
+      uPixelRatio: psfUniforms.uPixelRatio,
+      uNearMpc: { value: 1.5 },
+      uDepthMpc: { value: MAP_DEPTH_NEAR_MPC },
+      uClassColor: { value: SURVEY_CLASS_COLORS },
+      uClassLnT: { value: SURVEY_CLASS_LN_T },
+      uPxPerRad: { value: 1000 },
+      uResScale: { value: 0.25 },
+      uMaxSize: { value: 256 },
+      uPointKernel: { value: POINT_KERNEL },
+    },
+    vertexShader: withEmission(surveyGlowVert),
+    fragmentShader: SURVEY_GLOW_FRAG,
     blending: AdditiveBlending,
     depthTest: false,
     depthWrite: false,

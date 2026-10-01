@@ -17,6 +17,7 @@ import { CUT_ABOVE_LIMIT, reachMag } from './cells';
 import { bandFilePath, STAR_INDEX_PATH, type BandFile, type StarIndex } from './extension';
 import { KMS_TO_PC_PER_YR, MOTION_VALID_YEARS } from './constants';
 import { requestStarFile } from './workerClient';
+import { retryAfterMs } from '../../lib/retry';
 
 /** Fetch margin beyond the eye's cut, magnitudes: a file arrives before its brightest star can show. */
 export const PREFETCH_MAG = 0.5;
@@ -61,8 +62,8 @@ export function subscribeExtension(f: () => void): () => void {
   return () => listeners.delete(f);
 }
 
-/** The wait before a failed download is tried again: 2 s, doubling with each failure in a row, at most a minute. */
-export const retryAfterMs = (failures: number): number => Math.min(60_000, 1000 * 2 ** Math.max(1, failures));
+/** The wait before a failed download is tried again: 2 s, doubling with each failure in a row, at most a minute (lib/retry.ts). */
+export { retryAfterMs };
 
 const now = (): number => (typeof performance !== 'undefined' ? performance.now() : Date.now());
 

@@ -1,8 +1,10 @@
 /**
- * The two data layers beyond the Galaxy: the cosmic web (the 55,877 galaxies of Cosmicflows-4 as a
- * map) and the map of the cosmic microwave background. What each is, in the words its card and the
- * Guide use, and when the web shows: like the constellation figures it is on by itself where it
- * helps ('auto': beyond the Local Group) and the View menu turns it on or off for good.
+ * The data layers beyond the Galaxy: the cosmic web (the 55,877 galaxies of Cosmicflows-4 as a map),
+ * the galaxy surveys (13.5 million galaxies and quasars of DESI and the SDSS, sim/surveys) and the map
+ * of the cosmic microwave background. What each is, in the words its card and the Guide use, and when
+ * the web and the surveys show: like the constellation figures they are on by themselves where they
+ * help ('auto': the web beyond the Local Group, the surveys beyond the local universe) and the View
+ * menu turns them on or off for good.
  */
 import { MPC_KM } from '../physics/constants';
 import { sim } from '../sim/sim';
@@ -29,6 +31,51 @@ export function cosmicWebShare(mode: UIState['cosmicWeb'], distSunKm: number): n
  * scene/CosmicWeb.tsx sets this each frame), and its card goes with them.
  */
 export const webMembersShown = { now: false };
+
+/**
+ * The galaxy surveys load once the camera is this far from the Sun ('auto'), and show from there, fully by
+ * SURVEY_AUTO_FULL_KM. Why 30 Mpc: within it the cosmic web draws the galaxies at their measured distances, while a
+ * survey can only place a galaxy by its redshift, and there a galaxy's own motion (300 km/s and more, over 1,000 in the
+ * Virgo cluster) is a large share of the expansion's (2,000 km/s at 30 Mpc), so redshift places would be off by 15 %
+ * or more; from 30 to 60 Mpc the web itself goes over to redshift distances (sim/cosmos/cosmicWeb.ts). And everything
+ * the tour and the journeys visit nearby, the Local Group, the nearby galaxies and the Virgo cluster (16.5 Mpc), lies
+ * inside it, so most visits download none of the surveys' 62 MB; the cosmic web's scene (200 Mpc out), Coma and the
+ * flights to the far universe do.
+ */
+export const SURVEY_LOAD_KM = 30 * MPC_KM;
+export const SURVEY_AUTO_FROM_KM = 30 * MPC_KM;
+export const SURVEY_AUTO_FULL_KM = 60 * MPC_KM;
+
+/** Whether the surveys' files should load for a setting and the camera's distance from the Sun (km). */
+export const surveyLoadWanted = (mode: UIState['surveys'], distSunKm: number): boolean => mode === 'on' || (mode === 'auto' && distSunKm >= SURVEY_LOAD_KM);
+
+/** How much of the surveys shows (0 to 1) for a setting and the camera's distance from the Sun (km). */
+export function surveyShare(mode: UIState['surveys'], distSunKm: number): number {
+  if (mode === 'off') return 0;
+  if (mode === 'on') return 1;
+  const t = Math.min(1, Math.max(0, (distSunKm - SURVEY_AUTO_FROM_KM) / (SURVEY_AUTO_FULL_KM - SURVEY_AUTO_FROM_KM)));
+  return t * t * (3 - 2 * t);
+}
+
+/** Whether the surveys show now (at all). */
+export const surveysNow = (): boolean => surveyShare(useUI.getState().surveys, sim.camera.pos.length()) > 0;
+
+/** Turn the surveys the other way from how they show now (and keep it so). */
+export function toggleSurveys(): void {
+  useUI.setState({ surveys: surveysNow() ? 'off' : 'on' });
+}
+
+/** What the survey layer is, for its card and the View menu. Short: the details are in docs/data/surveys.md. */
+export const SURVEY_CARD = {
+  title: 'Galaxy surveys',
+  line: '13.5 million galaxies and quasars from DESI and the SDSS, out to 23 billion light-years: a map, not what the eye would see.',
+  caveat: 'Placed by redshift: a galaxy’s own motion moves it along our line of sight, which stretches clusters into spikes pointing at us. The empty wedges are sky the surveys could not see: behind the Milky Way’s disc, and much of the south.',
+  more: [
+    'Orange: red galaxies, mostly old stars. Blue: galaxies forming stars. Violet: quasars, gas falling into a supermassive black hole and outshining its galaxy. Glows hold the light of galaxies too small to draw from here.',
+    'A survey, not a census: far away only the brightest galaxies were seen, and each survey chose different kinds, so the map thins and changes colour with distance. Two thirds of the sky has not been mapped this way: blank is unobserved, not empty.',
+  ],
+  credit: 'DESI Data Release 1 (CC BY 4.0) and SDSS DR17 (public domain); acknowledgements in the About page’s sources',
+} as const;
 
 /** Whether the web shows now (at all). */
 export const cosmicWebNow = (): boolean => cosmicWebShare(useUI.getState().cosmicWeb, sim.camera.pos.length()) > 0;

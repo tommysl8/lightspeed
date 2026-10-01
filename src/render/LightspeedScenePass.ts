@@ -65,6 +65,7 @@ import { lens, lensOverride, setLensView } from './lens/lensState';
 import { lensUniforms } from './lens/lensUniforms';
 import { quality } from './quality';
 import { GALAXY_GLOW_LAYER, GALAXY_LAYER, galaxyLayer } from './galaxyLayer';
+import { SURVEY_GLOW_LAYER, surveyGlow } from './surveyGlow';
 import { meterSky } from './lens/skyMeter';
 import { lensedVariant } from './lensVariants';
 import remapVert from './shaders/remap.vert.glsl?raw';
@@ -218,11 +219,12 @@ export class LightspeedScenePass extends Pass {
     return [this.lensedQuadScene, this.quadCamera];
   }
 
-  /** The view's layers: every one but the Galaxy's own (its particles and glow: galaxyLayer.ts). */
+  /** The view's layers: every one but the Galaxy's own (its particles and glow: galaxyLayer.ts) and the surveys' glows (surveyGlow.ts). */
   private static viewLayers(camera: PerspectiveCamera): void {
     camera.layers.enableAll();
     camera.layers.disable(GALAXY_LAYER);
     camera.layers.disable(GALAXY_GLOW_LAYER);
+    camera.layers.disable(SURVEY_GLOW_LAYER);
   }
 
   /** Change the cube-map resolution (adaptive quality). */
@@ -253,7 +255,7 @@ export class LightspeedScenePass extends Pass {
     const clearAlpha = renderer.getClearAlpha();
     renderer.getClearColor(this.clearColor);
 
-    // Everything but the Galaxy's particles and glow, which are drawn into their own targets (galaxyLayer.ts).
+    // Everything but the Galaxy's particles and glow and the surveys' glows, drawn into their own targets (galaxyLayer.ts, surveyGlow.ts).
     LightspeedScenePass.viewLayers(camera);
 
     // A debug sky of the lens's checks: only the lens's own passes, each half with its observer.
@@ -292,6 +294,7 @@ export class LightspeedScenePass extends Pass {
       setLensView(false);
       surfaceUniforms.uLnExposureSurface.value = relView.lnExposureClassical;
       galaxyLayer.render(renderer, scene, camera, target, target ? target.width : renderer.domElement.width, target ? target.height : renderer.domElement.height);
+      surveyGlow.render(renderer, scene, camera, target, target ? target.width : renderer.domElement.width, target ? target.height : renderer.domElement.height);
       renderer.autoClear = true;
       renderer.setRenderTarget(target);
       renderer.render(scene, camera);
@@ -329,6 +332,7 @@ export class LightspeedScenePass extends Pass {
       setLensView(false);
       surfaceUniforms.uLnExposureSurface.value = relView.lnExposureClassical;
       galaxyLayer.render(renderer, scene, camera, target, w, h, 0, relView.splitX);
+      surveyGlow.render(renderer, scene, camera, target, w, h, 0, relView.splitX);
       x0 = Math.round(relView.splitX * w);
       this.setScissor(renderer, target, 0, 0, x0, h, true);
       renderer.clear();
@@ -340,6 +344,7 @@ export class LightspeedScenePass extends Pass {
     setPointUniforms(true);
     setLensView(true);
     galaxyLayer.render(renderer, scene, camera, target, w, h, relView.split ? relView.splitX : 0, 1);
+    surveyGlow.render(renderer, scene, camera, target, w, h, relView.split ? relView.splitX : 0, 1);
     renderer.clear();
     camera.layers.set(POINTS_LAYER);
     renderer.render(scene, camera);
