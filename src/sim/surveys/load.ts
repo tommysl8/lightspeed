@@ -1,15 +1,18 @@
 /**
- * Loading the galaxy surveys (the tiles of sim/surveys/format.ts) as the camera goes.
+ * Loading the galaxy surveys (the tiles of sim/surveys/format.ts) as the camera goes: DESI and the SDSS
+ * (public/data/survey/) and Quaia's quasars (public/data/survey-quaia/: quaia.ts), each an octree of its own with a
+ * store of its own (SurveyStore), sharing one worker and the downloads in flight.
  *
  * Nothing is fetched until the layer is wanted (ui/cosmicLayers.ts surveyLoadWanted: 'auto' only once the camera is
- * SURVEY_LOAD_KM from the Sun, beyond the local universe; most visits never go there and download none of it). Then
- * the hierarchy (40 kB) once, and the nodes the frame's selection asks for (lod.ts), most wanted first, FETCHES at a
- * time, each fetched, inflated and decoded in a worker. A failed download is tried again after 2 s, then 4, 8… up to
- * a minute (lib/retry.ts), for as long as it is wanted: the layer never gives up for the session. Beyond
- * MAX_CACHED_POINTS the nodes least recently drawn are dropped (their GPU buffers with them: scene/Surveys.tsx).
+ * SURVEY_LOAD_KM from the Sun, beyond the local universe, and Quaia only from QUAIA_LOAD_KM; most visits never go there
+ * and download none of it). Then each one's hierarchy once, and the nodes the frame's selection asks for (lod.ts), most
+ * wanted first, FETCHES at a time in all, each fetched, inflated and decoded in a worker. A failed download is tried
+ * again after 2 s, then 4, 8… up to a minute (lib/retry.ts), for as long as it is wanted: the layer never gives up for
+ * the session. Beyond a store's cap (MAX_CACHED_POINTS for the surveys) the nodes least recently drawn are dropped
+ * (their GPU buffers with them: scene/Surveys.tsx).
  *
- * Where workers are missing (the tests) the same work runs here; surveyIO lets the tests replace the downloads and
- * the clock.
+ * Where workers are missing (the tests) the same work runs here; each store's `io` lets the tests replace the
+ * downloads and the clock (surveyIO is the surveys' own).
  */
 import { retryAfterMs } from '../../lib/retry';
 import { decodeHierarchy, decodeNode, HIERARCHY_FILE, nodeFile, type SurveyHierarchy } from './format.ts';
@@ -21,11 +24,15 @@ import type { SurveyWorkerReply, SurveyWorkerRequest } from './worker';
  * server lets this site fetch from it). By default the site's own public/data/survey/.
  */
 export const SURVEY_BASE_URL: string = `${import.meta.env.BASE_URL}data/survey/`;
+/** Where Quaia's tiles are: beside the surveys' (public/data/survey-quaia/ by default), and moved with them. */
+export const QUAIA_BASE_URL: string = SURVEY_BASE_URL.replace(/survey\/$/, 'survey-quaia/');
 
-/** Files fetched at once. */
+/** Files fetched at once, by all the stores together. */
 export const FETCHES = 6;
 /** Galaxies kept decoded at most (about 35 MB of GPU buffers). */
 export const MAX_CACHED_POINTS = 2_500_000;
+/** Quaia's quasars kept decoded at most: all 866,298 of them (about 14 MB). */
+export const QUAIA_MAX_CACHED_POINTS = 1_000_000;
 
 /** A node's galaxies, decoded. */
 export interface SurveyNodeData {
@@ -35,6 +42,9 @@ export interface SurveyNodeData {
   position: Float32Array;
   /** Kind and luminosity bytes, 2 a galaxy. */
   attrs: Uint8Array;
+  /** Any more bytes of each, extraPer a galaxy (Quaia: its distance error's code). */
+  extra: Uint8Array;
+  extraPer: number;
   /** The octants' glows (format.ts GLOW_FLOATS each). */
   glows: Float32Array;
   /** The frame it was last drawn or wanted in. */
@@ -43,37 +53,25 @@ export interface SurveyNodeData {
 
 export type SurveyStatus = 'idle' | 'loading' | 'ready' | 'failed';
 
-/** What has loaded. Read it; subscribe to hear of changes. */
-export const survey = {
-  hierarchy: null as SurveyHierarchy | null,
-  status: 'idle' as SurveyStatus,
-  hierarchyFailures: 0,
-  hierarchyRetryAt: 0,
-  nodes: new Map<number, SurveyNodeData>(),
-  loading: new Set<number>(),
-  /** Failures in a row of each node, and when it may be asked for again (surveyIO.now ms). */
-  failures: new Map<number, number>(),
-  retryAt: new Map<number, number>(),
-  loadedPoints: 0,
-  /** Bytes downloaded (as sent, gzip) and files fetched this session. */
-  bytes: 0,
-  files: 0,
-  frame: 0,
-  version: 0,
-};
-
-const listeners = new Set<() => void>();
-function changed(): void {
-  survey.version++;
-  listeners.forEach((f) => f());
-}
-export const surveyVersion = (): number => survey.version;
-export function subscribeSurvey(f: () => void): () => void {
-  listeners.add(f);
-  return () => listeners.delete(f);
+/** A node's file as it arrives, decoded. */
+export interface SurveyNodeReply {
+  count: number;
+  position: Float32Array;
+  attrs: Uint8Array;
+  extra?: Uint8Array;
+  extraPer?: number;
+  glows: Float32Array;
+  bytes: number;
 }
 
-const absolute = (file: string): string => (typeof location !== 'undefined' ? new URL(SURVEY_BASE_URL + file, location.href).href : SURVEY_BASE_URL + file);
+/** The downloads and the clock of a store (the tests replace them). */
+export interface SurveyIO {
+  hierarchy(): Promise<{ hierarchy: SurveyHierarchy; bytes: number }>;
+  node(path: string, side: number): Promise<SurveyNodeReply>;
+  now(): number;
+}
+
+const absolute = (base: string, file: string): string => (typeof location !== 'undefined' ? new URL(base + file, location.href).href : base + file);
 
 // ─── The worker ──────────────────────────────────────────────────────────────────────────
 
@@ -123,143 +121,226 @@ async function call(req: Req): Promise<SurveyWorkerReply> {
   });
 }
 
-/** The downloads and the clock (the tests replace them). */
-export const surveyIO = {
-  async hierarchy(): Promise<{ hierarchy: SurveyHierarchy; bytes: number }> {
-    const r = await call({ kind: 'hierarchy', url: absolute(HIERARCHY_FILE) });
-    if (!r.ok) throw new Error(r.error);
-    if (r.kind !== 'hierarchy') throw new Error('surveys worker: unexpected reply');
-    return { hierarchy: decodeHierarchy(r.buffer), bytes: r.bytes };
-  },
-  async node(path: string, side: number): Promise<{ count: number; position: Float32Array; attrs: Uint8Array; glows: Float32Array; bytes: number }> {
-    const r = await call({ kind: 'node', url: absolute(nodeFile(path)), side });
-    if (!r.ok) throw new Error(r.error);
-    if (r.kind !== 'node') throw new Error('surveys worker: unexpected reply');
-    return r;
-  },
-  now: (): number => (typeof performance !== 'undefined' ? performance.now() : Date.now()),
-};
-
-// ─── Loading ─────────────────────────────────────────────────────────────────────────────
-
-let hierarchyPending: Promise<boolean> | null = null;
-
-/** Whether the hierarchy should be asked for now: not yet tried, or failed and its wait is over. */
-export const surveyHierarchyDue = (): boolean =>
-  !survey.hierarchy && !hierarchyPending && (survey.status === 'idle' || (survey.status === 'failed' && surveyIO.now() >= survey.hierarchyRetryAt));
-
-/** Fetch the hierarchy (once; after a failure, again when surveyHierarchyDue says so). */
-export function loadSurveyHierarchy(): Promise<boolean> {
-  if (hierarchyPending) return hierarchyPending;
-  if (survey.hierarchy) return Promise.resolve(true);
-  survey.status = 'loading';
-  hierarchyPending = surveyIO
-    .hierarchy()
-    .then(({ hierarchy, bytes }) => {
-      survey.hierarchy = hierarchy;
-      survey.status = 'ready';
-      survey.hierarchyFailures = 0;
-      survey.bytes += bytes;
-      survey.files++;
-      hierarchyPending = null;
-      changed();
-      return true;
-    })
-    .catch((err) => {
-      survey.hierarchyFailures++;
-      const wait = retryAfterMs(survey.hierarchyFailures);
-      survey.hierarchyRetryAt = surveyIO.now() + wait;
-      survey.status = 'failed';
-      hierarchyPending = null;
-      console.warn(`[lightspeed] the galaxy surveys' index did not load (${err}); trying again in ${wait / 1000} s`);
-      changed();
-      return false;
-    });
-  return hierarchyPending;
+/** The downloads of the files under `base`, and the clock. */
+function filesAt(base: string): SurveyIO {
+  return {
+    async hierarchy() {
+      const r = await call({ kind: 'hierarchy', url: absolute(base, HIERARCHY_FILE) });
+      if (!r.ok) throw new Error(r.error);
+      if (r.kind !== 'hierarchy') throw new Error('surveys worker: unexpected reply');
+      return { hierarchy: decodeHierarchy(r.buffer), bytes: r.bytes };
+    },
+    async node(path, side) {
+      const r = await call({ kind: 'node', url: absolute(base, nodeFile(path)), side });
+      if (!r.ok) throw new Error(r.error);
+      if (r.kind !== 'node') throw new Error('surveys worker: unexpected reply');
+      return r;
+    },
+    now: () => (typeof performance !== 'undefined' ? performance.now() : Date.now()),
+  };
 }
 
-/** Whether node i failed and is still waiting to be tried again. */
-export const surveyNodeWaiting = (i: number): boolean => (survey.retryAt.get(i) ?? -Infinity) > surveyIO.now();
+// ─── A store ─────────────────────────────────────────────────────────────────────────────
 
-/** Fetch node i (once at a time); resolves true once it is loaded. */
-export function loadSurveyNode(i: number): Promise<boolean> {
-  const h = survey.hierarchy;
-  if (!h || survey.nodes.has(i) || survey.loading.has(i)) return Promise.resolve(survey.nodes.has(i));
-  const node = h.nodes[i];
-  survey.loading.add(i);
-  return surveyIO
-    .node(node.path, node.side)
-    .then((n) => {
-      survey.loading.delete(i);
-      survey.failures.delete(i);
-      survey.retryAt.delete(i);
-      // The file's size as stored (gzip), which is what a server that sends it as it is transfers (the development
-      // server inflates it on the way).
-      survey.bytes += node.fileBytes || n.bytes;
-      survey.files++;
-      if (survey.hierarchy !== h) return false;
-      survey.nodes.set(i, { id: i, count: n.count, position: n.position, attrs: n.attrs, glows: n.glows, lastUsed: survey.frame });
-      survey.loadedPoints += n.count;
-      changed();
-      return true;
-    })
-    .catch((err) => {
-      survey.loading.delete(i);
-      const f = (survey.failures.get(i) ?? 0) + 1;
-      survey.failures.set(i, f);
-      const wait = retryAfterMs(f);
-      survey.retryAt.set(i, surveyIO.now() + wait);
-      console.warn(`[lightspeed] survey file ${nodeFile(node.path)} did not load (${err}); trying again in ${wait / 1000} s`);
-      return false;
-    });
-}
+/** Every store, for the downloads they share (FETCHES). */
+const stores: SurveyStore[] = [];
+const downloadsOpen = (): number => stores.reduce((s, x) => s + x.loading.size, 0);
 
-/** Ask for the nodes in `want` (most wanted first) that are not here, not on their way and not waiting after a failure, FETCHES at a time. */
-export function requestSurveyNodes(want: readonly number[]): void {
-  for (const i of want) {
-    if (survey.loading.size >= FETCHES) return;
-    if (survey.nodes.has(i) || survey.loading.has(i) || surveyNodeWaiting(i)) continue;
-    void loadSurveyNode(i);
+/** One catalogue's octree and what of it has loaded. Read it; subscribe to hear of changes. */
+export class SurveyStore {
+  hierarchy: SurveyHierarchy | null = null;
+  status: SurveyStatus = 'idle';
+  hierarchyFailures = 0;
+  hierarchyRetryAt = 0;
+  nodes = new Map<number, SurveyNodeData>();
+  loading = new Set<number>();
+  /** Failures in a row of each node, and when it may be asked for again (io.now ms). */
+  failures = new Map<number, number>();
+  retryAt = new Map<number, number>();
+  loadedPoints = 0;
+  /** Bytes downloaded (as sent, gzip) and files fetched this session. */
+  bytes = 0;
+  files = 0;
+  frame = 0;
+  version = 0;
+  readonly label: string;
+  readonly maxPoints: number;
+  readonly io: SurveyIO;
+  private pending: Promise<boolean> | null = null;
+  private readonly listeners = new Set<() => void>();
+
+  /** `label` names it in warnings; its files are under `base`; at most `maxPoints` of its galaxies stay decoded. */
+  constructor(label: string, base: string, maxPoints: number) {
+    this.label = label;
+    this.maxPoints = maxPoints;
+    this.io = filesAt(base);
+    stores.push(this);
+  }
+
+  private changed(): void {
+    this.version++;
+    this.listeners.forEach((f) => f());
+  }
+
+  subscribe(f: () => void): () => void {
+    this.listeners.add(f);
+    return () => this.listeners.delete(f);
+  }
+
+  /** Whether the hierarchy should be asked for now: not yet tried, or failed and its wait is over. */
+  hierarchyDue(): boolean {
+    return !this.hierarchy && !this.pending && (this.status === 'idle' || (this.status === 'failed' && this.io.now() >= this.hierarchyRetryAt));
+  }
+
+  /** Fetch the hierarchy (once; after a failure, again when hierarchyDue says so). */
+  loadHierarchy(): Promise<boolean> {
+    if (this.pending) return this.pending;
+    if (this.hierarchy) return Promise.resolve(true);
+    this.status = 'loading';
+    this.pending = this.io
+      .hierarchy()
+      .then(({ hierarchy, bytes }) => {
+        this.hierarchy = hierarchy;
+        this.status = 'ready';
+        this.hierarchyFailures = 0;
+        this.bytes += bytes;
+        this.files++;
+        this.pending = null;
+        this.changed();
+        return true;
+      })
+      .catch((err) => {
+        this.hierarchyFailures++;
+        const wait = retryAfterMs(this.hierarchyFailures);
+        this.hierarchyRetryAt = this.io.now() + wait;
+        this.status = 'failed';
+        this.pending = null;
+        console.warn(`[lightspeed] the index of ${this.label} did not load (${err}); trying again in ${wait / 1000} s`);
+        this.changed();
+        return false;
+      });
+    return this.pending;
+  }
+
+  /** Whether node i failed and is still waiting to be tried again. */
+  nodeWaiting(i: number): boolean {
+    return (this.retryAt.get(i) ?? -Infinity) > this.io.now();
+  }
+
+  /** Fetch node i (once at a time); resolves true once it is loaded. */
+  loadNode(i: number): Promise<boolean> {
+    const h = this.hierarchy;
+    if (!h || this.nodes.has(i) || this.loading.has(i)) return Promise.resolve(this.nodes.has(i));
+    const node = h.nodes[i];
+    this.loading.add(i);
+    return this.io
+      .node(node.path, node.side)
+      .then((n) => {
+        this.loading.delete(i);
+        this.failures.delete(i);
+        this.retryAt.delete(i);
+        // The file's size as stored (gzip), which is what a server that sends it as it is transfers (the development
+        // server inflates it on the way).
+        this.bytes += node.fileBytes || n.bytes;
+        this.files++;
+        if (this.hierarchy !== h) return false;
+        this.nodes.set(i, {
+          id: i,
+          count: n.count,
+          position: n.position,
+          attrs: n.attrs,
+          extra: n.extra ?? new Uint8Array(0),
+          extraPer: n.extraPer ?? 0,
+          glows: n.glows,
+          lastUsed: this.frame,
+        });
+        this.loadedPoints += n.count;
+        this.changed();
+        return true;
+      })
+      .catch((err) => {
+        this.loading.delete(i);
+        const f = (this.failures.get(i) ?? 0) + 1;
+        this.failures.set(i, f);
+        const wait = retryAfterMs(f);
+        this.retryAt.set(i, this.io.now() + wait);
+        console.warn(`[lightspeed] the file ${nodeFile(node.path)} of ${this.label} did not load (${err}); trying again in ${wait / 1000} s`);
+        return false;
+      });
+  }
+
+  /**
+   * Ask for the nodes in `want` (most wanted first) that are not here, not on their way and not waiting after a
+   * failure, while fewer than FETCHES downloads of all the stores are open.
+   */
+  requestNodes(want: readonly number[]): void {
+    for (const i of want) {
+      if (downloadsOpen() >= FETCHES) return;
+      if (this.nodes.has(i) || this.loading.has(i) || this.nodeWaiting(i)) continue;
+      void this.loadNode(i);
+    }
+  }
+
+  /** Mark nodes drawn or wanted this frame, so they are kept. */
+  touchNodes(ids: readonly number[]): void {
+    for (const i of ids) {
+      const n = this.nodes.get(i);
+      if (n) n.lastUsed = this.frame;
+    }
+  }
+
+  /** Beyond `max`, drop the nodes least recently used (never those of this frame): returns their ids. */
+  evictNodes(max = this.maxPoints): number[] {
+    if (this.loadedPoints <= max) return [];
+    const old = [...this.nodes.values()].filter((n) => n.lastUsed < this.frame).sort((a, b) => a.lastUsed - b.lastUsed);
+    const out: number[] = [];
+    for (const n of old) {
+      if (this.loadedPoints <= max) break;
+      this.nodes.delete(n.id);
+      this.loadedPoints -= n.count;
+      out.push(n.id);
+    }
+    if (out.length) this.changed();
+    return out;
+  }
+
+  /** Back to nothing loaded. */
+  reset(): void {
+    this.hierarchy = null;
+    this.status = 'idle';
+    this.hierarchyFailures = 0;
+    this.hierarchyRetryAt = 0;
+    this.nodes.clear();
+    this.loading.clear();
+    this.failures.clear();
+    this.retryAt.clear();
+    this.loadedPoints = 0;
+    this.bytes = 0;
+    this.files = 0;
+    this.frame = 0;
+    this.pending = null;
+    this.changed();
   }
 }
 
-/** Mark nodes drawn or wanted this frame, so they are kept. */
-export function touchSurveyNodes(ids: readonly number[]): void {
-  for (const i of ids) {
-    const n = survey.nodes.get(i);
-    if (n) n.lastUsed = survey.frame;
-  }
-}
+/** The galaxy surveys: DESI and the SDSS. */
+export const survey = new SurveyStore('the galaxy surveys', SURVEY_BASE_URL, MAX_CACHED_POINTS);
+/** Quaia's quasars, the rest of the survey layer. */
+export const quaia = new SurveyStore('Quaia', QUAIA_BASE_URL, QUAIA_MAX_CACHED_POINTS);
 
-/** Beyond MAX_CACHED_POINTS, drop the nodes least recently used (never those of this frame): returns their ids. */
-export function evictSurveyNodes(max = MAX_CACHED_POINTS): number[] {
-  if (survey.loadedPoints <= max) return [];
-  const old = [...survey.nodes.values()].filter((n) => n.lastUsed < survey.frame).sort((a, b) => a.lastUsed - b.lastUsed);
-  const out: number[] = [];
-  for (const n of old) {
-    if (survey.loadedPoints <= max) break;
-    survey.nodes.delete(n.id);
-    survey.loadedPoints -= n.count;
-    out.push(n.id);
-  }
-  if (out.length) changed();
-  return out;
-}
-
-/** Back to nothing loaded (the tests). */
+// The surveys' own store under the names the rest of the app and the tests use.
+export const surveyIO = survey.io;
+export const surveyVersion = (): number => survey.version;
+export const subscribeSurvey = (f: () => void): (() => void) => survey.subscribe(f);
+export const surveyHierarchyDue = (): boolean => survey.hierarchyDue();
+export const loadSurveyHierarchy = (): Promise<boolean> => survey.loadHierarchy();
+export const surveyNodeWaiting = (i: number): boolean => survey.nodeWaiting(i);
+export const loadSurveyNode = (i: number): Promise<boolean> => survey.loadNode(i);
+export const requestSurveyNodes = (want: readonly number[]): void => survey.requestNodes(want);
+export const touchSurveyNodes = (ids: readonly number[]): void => survey.touchNodes(ids);
+export const evictSurveyNodes = (max = MAX_CACHED_POINTS): number[] => survey.evictNodes(max);
+/** Back to nothing loaded, both stores (the tests, the dev tools). */
 export function resetSurvey(): void {
-  survey.hierarchy = null;
-  survey.status = 'idle';
-  survey.hierarchyFailures = 0;
-  survey.hierarchyRetryAt = 0;
-  survey.nodes.clear();
-  survey.loading.clear();
-  survey.failures.clear();
-  survey.retryAt.clear();
-  survey.loadedPoints = 0;
-  survey.bytes = 0;
-  survey.files = 0;
-  survey.frame = 0;
-  hierarchyPending = null;
-  changed();
+  survey.reset();
+  quaia.reset();
 }

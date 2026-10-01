@@ -1,0 +1,12 @@
+# scripts/build-quaia.mjs, 2026-10-01
+Quaia 1.0.0 (doi:10.5281/zenodo.10403370, cc-by-4.0): quaia_G20.5.fits, md5 98659ac4bd8a09da2c4ce653690d53df
+Quaia: 1,295,502 quasars read (2 s)
+the surveys' objects, as their build reads them: DESI DR1 quasars 1,223,391; SDSS-IV eBOSS DR16 quasars 343,708; SDSS DR16 quasar catalogue 739,394; SDSS DR16 quasar catalogue, beyond z = 3.5 10,348; DESI DR1 Bright Galaxy Survey 5,522,353; DESI DR1 luminous red galaxies 2,138,627; DESI DR1 emission-line galaxies 2,432,072; SDSS galaxies (SDSS-I/II, DR17) 860,315; SDSS-III BOSS DR12 galaxies 1,151,201; SDSS-IV eBOSS DR16 luminous red galaxies 174,816; SDSS-IV eBOSS DR16 emission-line galaxies 173,736 (10 s)
+matched within 1.5" (each to the first catalogue that has it): DESI DR1 quasars 231,404; SDSS-IV eBOSS DR16 quasars 75,244; SDSS DR16 quasar catalogue 112,726; SDSS DR16 quasar catalogue, beyond z = 3.5 2,312; DESI DR1 Bright Galaxy Survey 5,281; DESI DR1 luminous red galaxies 1,959; DESI DR1 emission-line galaxies 28; SDSS galaxies (SDSS-I/II, DR17) 169; SDSS-III BOSS DR12 galaxies 81; SDSS-IV eBOSS DR16 luminous red galaxies 0; SDSS-IV eBOSS DR16 emission-line galaxies 0; 429,204 in all (27 s)
+chance matches (every quasar moved 30" north and matched again): 261, 0.02 % of Quaia (51 s)
+kept: 866,298 quasars (429,204 left to the surveys); 412,968 south of declination -20 (of Quaia's 412,968), 150,998 within 20 degrees of the Galactic plane
+  redshift (CMB frame) min 0.086, 5 % 0.45, median 1.43, 95 % 2.76, max 4.62; comoving distance 375 / 1760 / 4342 / 6260 / 7734 Mpc
+  distance error (1 sigma, comoving Mpc) 5 % 72, 25 % 119, median 206, 75 % 445, 90 % 705, 95 % 906, 99 % 1389
+  drawn fainter for their error: 322,911 (32,453 at the floor); the error kept in a byte to 1.5 % at worst
+octree: 166 nodes, depth 5 (54 s)
+files: 166 nodes, 4.83 MB (5.57 bytes a quasar); node files median 16 kB, largest 102 kB; hierarchy 4.7 kB (55 s)

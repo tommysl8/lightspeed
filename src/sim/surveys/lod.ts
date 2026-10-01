@@ -21,6 +21,10 @@
  * Nodes out of the view are left out. The choice is made over the whole hierarchy, loaded or not, so it does not change
  * as files arrive: the chosen nodes that are loaded are drawn, the others fetched, coarse before fine.
  *
+ * Several octrees can share one budget (selectNodesOf: the surveys' and Quaia's): the same k for all, so each part of
+ * the sky draws the same share law of each catalogue's galaxies, with each tree's points counted at its `cost` (a
+ * Quaia streak costs the GPU more than a point).
+ *
  * Cost: one pass over the visible nodes (a few hundred to 2,700) to measure them, and 50 cheap passes to find k:
  * about 0.1–0.3 ms.
  */
@@ -73,6 +77,8 @@ export interface LodResult {
   draw: number[];
   count: number[];
   points: number;
+  /** What the chosen nodes cost against the budget (points times their cost), loaded or not. */
+  spent: number;
   /** Nodes drawn whole (their octants whose child is not drawn show that child's light as a glow). */
   whole: Set<number>;
   /** Nodes chosen, loaded or not (with how many of their galaxies). */
@@ -208,16 +214,40 @@ export function nodeSizePx(node: SurveyNode, v: LodView): number {
 
 /** Choose the nodes to draw (and how many galaxies of each) and to fetch. `loaded(i)`: node i's galaxies are here. */
 export function selectNodes(nodes: readonly SurveyNode[], v: LodView, loaded: (i: number) => boolean): LodResult {
-  const out: LodResult = { draw: [], count: [], points: 0, whole: new Set(), chosen: new Map(), fetch: [], scale: 0 };
-  if (nodes.length === 0) return out;
+  return selectNodesOf([{ nodes, loaded }], v)[0];
+}
+
+/**
+ * One octree for selectNodesOf: its nodes, which are loaded, and what each of its points costs against the budget: 1, a
+ * number, or one for each node (node i's, asked once a frame for each visible node).
+ */
+export interface LodTree {
+  nodes: readonly SurveyNode[];
+  loaded: (i: number) => boolean;
+  cost?: number | ((i: number) => number);
+}
+
+/** selectNodes for several octrees under one budget (see above): a result for each. */
+export function selectNodesOf(trees: readonly LodTree[], v: LodView): LodResult[] {
+  const outs: LodResult[] = trees.map(() => ({ draw: [], count: [], points: 0, spent: 0, whole: new Set(), chosen: new Map(), fetch: [], scale: 0 }));
   const screen = v.screenPx ?? 2560 * 1440;
-  // The visible nodes that could matter, breadth first, with the pixels each covers (a node that would be denser
-  // than MAX_DENSITY on its own is never drawn whole, so its children are not measured).
-  const idx: number[] = [0];
+  // The visible nodes that could matter, breadth first from each tree's root, with the pixels each covers (a node that
+  // would be denser than MAX_DENSITY on its own is never drawn whole, so its children are not measured).
+  const idx: number[] = [];
   const cap = 1000 * screen;
-  const area: number[] = [cap];
-  const up: number[] = [-1];
+  const area: number[] = [];
+  const up: number[] = [];
+  const tree: number[] = [];
+  trees.forEach((t, k) => {
+    if (t.nodes.length === 0) return;
+    idx.push(0);
+    area.push(cap);
+    up.push(-1);
+    tree.push(k);
+  });
+  if (idx.length === 0) return outs;
   for (let q = 0; q < idx.length; q++) {
+    const nodes = trees[tree[q]].nodes;
     const node = nodes[idx[q]];
     if (node.points / area[q] >= MAX_DENSITY) continue;
     for (let o = 0; o < 8; o++) {
@@ -228,15 +258,22 @@ export function selectNodes(nodes: readonly SurveyNode[], v: LodView, loaded: (i
       idx.push(c);
       area.push(Math.max(1, Math.min(cap, s * s)));
       up.push(q);
+      tree.push(tree[q]);
     }
   }
   const len = idx.length;
+  const nodeOf = (q: number): SurveyNode => trees[tree[q]].nodes[idx[q]];
+  const cost = new Float64Array(len);
+  for (let q = 0; q < len; q++) {
+    const c = trees[tree[q]].cost;
+    cost[q] = c === undefined ? 1 : typeof c === 'number' ? c : c(idx[q]);
+  }
   const m = new Float64Array(len);
   const whole = new Uint8Array(len);
   const given = new Float64Array(len);
   // Each node's target share per unit of k: (pixels / galaxies of its subtree)^SPREAD.
   const aim = new Float64Array(len);
-  for (let q = 0; q < len; q++) aim[q] = (area[q] / Math.max(1, nodes[idx[q]].subtree)) ** SPREAD;
+  for (let q = 0; q < len; q++) aim[q] = (area[q] / Math.max(1, nodeOf(q).subtree)) ** SPREAD;
   const plan = (k: number): number => {
     let total = 0;
     for (let q = 0; q < len; q++) {
@@ -245,16 +282,17 @@ export function selectNodes(nodes: readonly SurveyNode[], v: LodView, loaded: (i
       const p = up[q];
       if (p >= 0 && !whole[p]) continue;
       // The share of its region's galaxies its ancestors already draw; it adds what is missing.
-      given[q] = p >= 0 ? given[p] + m[p] / Math.max(1, nodes[idx[p]].subtree) : 0;
+      given[q] = p >= 0 ? given[p] + m[p] / Math.max(1, nodeOf(p).subtree) : 0;
       const rest = Math.min(1, k * aim[q]) - given[q];
       if (rest <= 0) continue;
-      const n = nodes[idx[q]].points;
-      const want = rest * nodes[idx[q]].subtree;
+      const node = nodeOf(q);
+      const n = node.points;
+      const want = rest * node.subtree;
       if (want >= n) {
         m[q] = n;
         whole[q] = 1;
       } else if (want >= MIN_NODE_FRACTION * n) m[q] = Math.floor(want);
-      total += m[q];
+      total += cost[q] * m[q];
     }
     return total;
   };
@@ -268,13 +306,16 @@ export function selectNodes(nodes: readonly SurveyNode[], v: LodView, loaded: (i
       if (plan(Math.exp(mid)) > v.budget) hi = mid;
       else lo = mid;
     }
-  out.scale = Math.exp(lo);
-  plan(out.scale);
+  const scale = Math.exp(lo);
+  plan(scale);
+  for (const out of outs) out.scale = scale;
   for (let q = 0; q < len; q++) {
     if (!(m[q] > 0)) continue;
     const i = idx[q];
+    const out = outs[tree[q]];
     out.chosen.set(i, m[q]);
-    if (!loaded(i)) {
+    out.spent += cost[q] * m[q];
+    if (!trees[tree[q]].loaded(i)) {
       out.fetch.push(i);
       continue;
     }
@@ -283,7 +324,7 @@ export function selectNodes(nodes: readonly SurveyNode[], v: LodView, loaded: (i
     out.points += m[q];
     if (whole[q]) out.whole.add(i);
   }
-  return out;
+  return outs;
 }
 
 /** Room for glows (the most the settings below allow). */
