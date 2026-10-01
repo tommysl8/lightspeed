@@ -13,7 +13,8 @@
  * against home's, the thrust it takes to stay), its mass with the published uncertainties, a "What is
  * modelled here" link to its notes (the data sheet, ui/dataSheet.ts sheetNotes, and the Guide; its first
  * three are under Sources too), and for Sgr A* and M87* the Event Horizon Telescope's picture (EhtFigure)
- * with, for Sgr A*, the accretion flow's switches (FlowControls).
+ * with, for Sgr A*, the accretion flow's switches (FlowControls); for a hole with a thin accretion disc (Cygnus X-1)
+ * its line and switch (DiskControls).
  * Cost: holeView's closed forms three times a second while the card shows (nothing allocated).
  */
 import { C_KM_S } from '../../physics/constants';
@@ -49,6 +50,7 @@ import { MILKY_WAY_MODEL_LABEL } from '../../sim/galaxy/records';
 import { holeFromHere, holeHeightLine, holeMassText, MODELLED_HERE, type HoleHere } from '../deepSkyText';
 import { EHT_SHIPPED, EhtFigure } from './EhtFigure';
 import { FlowControls } from './FlowControls';
+import { DiskControls } from './DiskControls';
 import { PictureCreditLine, SourceLinks, Sources } from './Sources';
 import type { ControlMode } from '../../state/ui';
 
@@ -319,6 +321,7 @@ export function BodyCard() {
         )}
         {hole?.ehtImage && <EhtFigure image={hole.ehtImage} name={d.name} flowCaption={hole.flow ? FLOW_TEXTS.figureCaption : null} />}
         {hole?.flow && <FlowControls />}
+        {hole?.disk && <DiskControls disk={hole.disk} />}
         {(d.facts ?? []).map((f) => (
           <p key={f} className="mb-1.5 font-serif text-[12.5px] leading-snug text-fg-2 last:mb-0">
             {cardFact(f)}

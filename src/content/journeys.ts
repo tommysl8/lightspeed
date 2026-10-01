@@ -88,4 +88,11 @@ export const JOURNEYS: Journey[] = [
     scene: 'fall-into-sgr-a-star',
     clock: 'Your clock: 813 s in 20 s, then the last 80 s in real time',
   }),
+  journey({
+    id: 'cyg-x-1-disk',
+    title: 'The disc of Cygnus X-1',
+    sub: 'Just above a black hole’s glowing disc, its far side bent over the top',
+    scene: 'cyg-x-1-disk',
+  }),
+  journey({ id: 'sgr-a-star-radio', title: 'Sagittarius A* in radio light', sub: 'The ring the Event Horizon Telescope sees, up close', scene: 'sgr-a-star-radio' }),
 ];

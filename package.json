@@ -37,6 +37,7 @@
     "data:faint-stars": "node scripts/build-faint-stars.mjs",
     "data:nsc": "python scripts/build-nsc.py",
     "data:blackhole-fixtures": "python scripts/schwarzschild/make_fixtures.py --subset",
+    "data:disk-fixtures": "python scripts/thin-disk/disk_ref.py",
     "check:shaders": "node scripts/check-shaders.mjs"
   },
   "dependencies": {

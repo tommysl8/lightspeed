@@ -330,4 +330,15 @@ export const FLOW_TEXTS = {
   bandMmHint: 'The model’s brightness at the EHT’s wavelength in false colour (black, red, yellow, white up to 6 × 10¹⁰ K): not light the eye could see.',
   blur: 'Blur to the EHT’s resolution',
   blurHint: 'The EHT’s 20 µas beam as seen from Earth, carried into this view.',
+  radio: 'Radio eyes',
+  radioHint: 'Radio light (1.3 mm), like the EHT: the model of Sgr A*’s gas in false colour.',
+} as const;
+
+/** How a thin disc's brightness is drawn: its visible light, or all of its light (bolometric, mostly X-rays). */
+export type DiskLight = 'visible' | 'all';
+
+/** The words of a thin accretion disc (Cygnus X-1's: render/disk/diskMap.ts) where the interface names it. */
+export const DISK_TEXTS = {
+  menu: 'Accretion discs',
+  menuHint: 'Thin discs of hot gas where one really shines (Cygnus X-1): a model, turning 1,000 times slower than real.',
 } as const;

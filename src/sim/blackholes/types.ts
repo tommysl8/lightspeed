@@ -64,8 +64,29 @@ export interface HoleJson {
   orbitLine: boolean;
   /** The accretion flow drawn for it (only Sgr A*'s). */
   flow?: 'sgr-a-star-riaf';
+  /** A thin accretion disc drawn for it (Cygnus X-1's: docs/data/blackholes.md §12). */
+  disk?: DiskJson;
   /** The EHT's picture for its card (Sgr A*, M87*). */
   ehtImage?: EhtImageJson;
+}
+
+/**
+ * A thin accretion disc (physics/thinDisk.ts): Novikov–Thorne, from the innermost stable orbit out to rOutCm, its
+ * luminosity a share of the Eddington luminosity, in the plane of the binary's orbit and turning with it.
+ */
+export interface DiskJson {
+  model: 'novikov-thorne';
+  /** L / L_Edd of the disc's thermal light. */
+  eddingtonFraction: Sourced;
+  /** The Eddington luminosity the fraction is of, erg/s. */
+  lEddErgS: Sourced;
+  /** Its outer edge, cm. */
+  rOutCm: Sourced;
+  /** Its plane: the binary's orbit. */
+  plane: 'orbit';
+  /** How many times slower than real its gas is drawn turning. */
+  slowdown: number;
+  refs: string[];
 }
 
 /** A black hole's companion star. */

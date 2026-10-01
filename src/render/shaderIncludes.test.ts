@@ -6,8 +6,9 @@
  * with LENS, and with LENS and LENS_EXACT, defined. A shader that fails this fails to link in the browser, and
  * nothing else in Node would notice: no test compiles GLSL.
  *
- * The lens chunk (shaders/lens.glsl) and the accretion flow's chunk (shaders/flowLookup.glsl) include nothing
- * and declare exactly the uniforms of their shared objects (render/lens/lensUniforms.ts, render/flow/flowMap.ts);
+ * The lens chunk (shaders/lens.glsl), the accretion flow's chunk (shaders/flowLookup.glsl) and the thin disc's
+ * (shaders/diskLookup.glsl) include nothing and declare exactly the uniforms of their shared objects
+ * (render/lens/lensUniforms.ts, render/flow/flowMap.ts, render/disk/diskMap.ts);
  * the lens chunk calls no acos, asin or built-in atan (this GPU's are inaccurate: its atan is the
  * Abramowitz–Stegun polynomial, atan(1e-3, 1)·1e3 = 0.999866 measured in Chrome on the target laptop).
  */
@@ -18,10 +19,12 @@ import { LATER_MATERIALS } from './precompile';
 import { galaxyLayer } from './galaxyLayer';
 import { lensUniforms } from './lens/lensUniforms';
 import { flowUniforms } from './flow/flowMap';
+import { diskUniforms } from './disk/diskMap';
 import remapVert from './shaders/remap.vert.glsl?raw';
 import remapFrag from './shaders/remap.frag.glsl?raw';
 import lensGlsl from './shaders/lens.glsl?raw';
 import flowLookupGlsl from './shaders/flowLookup.glsl?raw';
+import diskLookupGlsl from './shaders/diskLookup.glsl?raw';
 
 // ─── A small GLSL front end: includes, comments, the preprocessor, top-level declarations ───────
 
@@ -338,10 +341,17 @@ describe('names in the shaders', () => {
   });
 });
 
-describe('the lens and flow chunks', () => {
+describe('the lens, flow and disc chunks', () => {
   it('include nothing', () => {
     expect(stripComments(lensGlsl)).not.toMatch(/^\s*#\s*include/m);
     expect(stripComments(flowLookupGlsl)).not.toMatch(/^\s*#\s*include/m);
+    expect(stripComments(diskLookupGlsl)).not.toMatch(/^\s*#\s*include/m);
+  });
+
+  it('the disc reads its tables only with texelFetch, and its noise with textureLod (the band calls it in a loop)', () => {
+    const code = stripComments(diskLookupGlsl);
+    expect(code).not.toMatch(/\btexture(2D)?\s*\(/);
+    expect(code).toMatch(/texelFetch\(uDiskOrbit/);
   });
 
   it('never call acos, asin or the built-in atan in the lens', () => {
@@ -355,5 +365,6 @@ describe('the lens and flow chunks', () => {
     const uniformsOf = (src: string) => [...stripComments(src).matchAll(/^\s*uniform\s+(?:(?:lowp|mediump|highp)\s+)?\w+\s+(\w+)/gm)].map((m) => m[1]).sort();
     expect(uniformsOf(lensGlsl)).toEqual(Object.keys(lensUniforms).sort());
     expect(uniformsOf(flowLookupGlsl)).toEqual(Object.keys(flowUniforms).sort());
+    expect(uniformsOf(diskLookupGlsl)).toEqual(Object.keys(diskUniforms).sort());
   });
 });

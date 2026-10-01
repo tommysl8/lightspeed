@@ -200,6 +200,12 @@ const REFS = {
   GaiaDR3: 'Gaia Collaboration, Vallenari et al. 2023, A&A 674, A1 — Gaia DR3 positions and proper motions (via SIMBAD)',
   SIMBAD: 'SIMBAD (CDS) — positions and magnitudes, retrieved 28 September 2026',
   Kerr: 'Bardeen 1973, in Black Holes (Les Houches), 215 — the shadow of a spinning (Kerr) black hole; the percentages computed here for Sgr A*’s viewing angle',
+  ZhaoGou2021: 'Zhao et al. 2021, ApJ 908, 117 — Cygnus X-1’s thermal disc at 2 % of its Eddington luminosity (L_Edd = 2.8 × 10³⁹ erg/s for 21.2 M☉; l = 0.02–0.03 over six soft-state spectra, Table 2)',
+  NovikovThorne1973: 'Novikov & Thorne 1973, in Black Holes (Les Houches), 343 — the thin accretion disc in general relativity',
+  PageThorne1974: 'Page & Thorne 1974, ApJ 191, 499 — the flux from a thin disc’s surface',
+  Luminet1979: 'Luminet 1979, A&A 75, 228 — the image of a thin disc round a Schwarzschild black hole; its flux in closed form (eq. 15)',
+  Paczynski1977: 'Paczyński 1977, ApJ 216, 822 — the largest disc tides allow in a close binary',
+  Palit2020: 'Palit, Janiuk & Czerny 2020, ApJ 904, 21 — Cygnus X-1’s wind-fed flow modelled out to about 10¹¹ cm, within Paczyński’s limit for its disc',
 };
 
 // ─── The black holes ─────────────────────────────────────────────────────────────────────────────────────────────
@@ -219,8 +225,11 @@ const M87_STARLIGHT = true;
 const STELLAR_SPIN_LINE =
   'Drawn without spin (Schwarzschild): its spin is not measured; a fast spin would make its shadow up to 12 % narrower and shift it by up to 1.2 horizon radii, depending on the angle.';
 const XRB_ORIENTATION_LINE = 'The orientation of its orbit on the sky is not known: one is assumed, turning anticlockwise as we see it, and the orbit is taken as circular.';
-/** The X-ray binaries' card line on what is not drawn (label 16 of docs/data/blackholes.md §3). */
-const XRB_GAS_LINE = 'Its disc of hot gas, pulled off its companion, is not drawn.';
+/**
+ * The quiet X-ray binaries' card line on what is not drawn (label 16 of docs/data/blackholes.md §3): between outbursts
+ * their discs are cool, cut off far from the hole and not in a steady state, so no thin-disc model applies.
+ */
+const XRB_GAS_LINE = 'Its disc of gas, pulled off its companion, is not drawn: between outbursts it is faint, cool and far from the hole, with no steady model to draw.';
 const GAIA_DR4 = 'Its orbit is Gaia DR3’s with ground-based radial velocities; Gaia’s fourth data release (due December 2026) will refine it.';
 
 const HOLES = [
@@ -443,11 +452,23 @@ const HOLES = [
       },
     ],
     modelNotes: [
-      'Drawn without spin (Schwarzschild), though it is claimed to spin at over 99.8 % of the maximum: that would make its shadow up to 12 % narrower and shift it up to 1.2 horizon radii.',
+      'Drawn without spin (Schwarzschild), though it is claimed to spin at over 99.8 % of the maximum: its disc would then reach about five times closer in, and its shadow be up to 12 % narrower.',
+      'Its disc is a model: a thin Novikov–Thorne disc at 2 % of its Eddington luminosity, in the orbit’s plane, turning 1,000 times slower than real; its swirls are illustrative.',
       'The orientation of its orbit on the sky is assumed: taken from the direction of its jet.',
-      'Its disc of hot gas, its jet and its companion’s wind are not drawn.',
     ],
-    refs: ['MillerJones2021', 'Brocksopp1999', 'Gies2003', 'Ramachandran2025', 'Bolton1972'],
+    sheetNotes: [
+      'Its jet and its companion’s wind are not drawn. The disc is drawn as a blackbody ring by ring, without the corona that makes its hard X-rays and without the hardening of its spectrum (about 1.6 times the temperature in X-rays), out to 10¹¹ cm (a model choice within the tidal limit); the light-travel time across it is left out of its turning pattern.',
+    ],
+    disk: {
+      model: 'novikov-thorne',
+      eddingtonFraction: { value: 0.02, unc: [0, 0.01], ref: 'ZhaoGou2021', note: 'the thermal disc’s bolometric luminosity, 0.02–0.03 of Eddington over six soft-state spectra' },
+      lEddErgS: { value: 2.8e39, ref: 'ZhaoGou2021', note: 'for 21.2 M☉' },
+      rOutCm: { value: 1e11, ref: 'Palit2020', note: 'a model choice: the scale its wind-fed flow is modelled out to, within the tidal limit for its disc (Paczyński 1977)' },
+      plane: 'orbit',
+      slowdown: 1000,
+      refs: ['ZhaoGou2021', 'NovikovThorne1973', 'PageThorne1974', 'Luminet1979', 'Paczynski1977', 'Palit2020'],
+    },
+    refs: ['MillerJones2021', 'Brocksopp1999', 'Gies2003', 'Ramachandran2025', 'Bolton1972', 'ZhaoGou2021'],
     fallAllowed: false,
     orbitLine: true,
   },
@@ -520,7 +541,7 @@ const HOLES = [
         label: 'Torres et al. 2019',
       },
     ],
-    modelNotes: [STELLAR_SPIN_LINE, XRB_ORIENTATION_LINE, 'Its disc of hot gas, pulled off its companion, and its jet are not drawn.'],
+    modelNotes: [STELLAR_SPIN_LINE, XRB_ORIENTATION_LINE, 'Its disc of gas, pulled off its companion, and its jet are not drawn: between outbursts the disc is faint, cool and far from the hole.'],
     refs: ['Torres2019', 'Torres2020', 'Atri2020', 'Mikolajewska2022'],
     fallAllowed: false,
     orbitLine: true,

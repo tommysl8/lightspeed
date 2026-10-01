@@ -77,6 +77,7 @@ import lensExactGlsl from './shaders/lensExact.glsl?raw';
 import dopplerColourGlsl from './shaders/dopplerColour.glsl?raw';
 import galaxyCompositeGlsl from './shaders/galaxyComposite.glsl?raw';
 import flowLookupGlsl from './shaders/flowLookup.glsl?raw';
+import diskLookupGlsl from './shaders/diskLookup.glsl?raw';
 
 // Register custom chunks so shaders can `#include <lightspeed_…>`.
 const chunks = ShaderChunk as unknown as Record<string, string>;
@@ -85,13 +86,14 @@ chunks.lightspeed_relativity = relativityGlsl;
 chunks.lightspeed_psf = psfGlsl;
 chunks.lightspeed_milkyway = milkyWayGlsl;
 // The black hole's lens (render/lens/), its exact form for sources near the hole, the recolouring of diffuse
-// light and the Galaxy layer's display law shared by the plain and lensed composites, and the accretion
-// flow's map read by the lens passes (render/flow/).
+// light and the Galaxy layer's display law shared by the plain and lensed composites, the accretion
+// flow's map read by the lens passes (render/flow/), and a thin accretion disc's lookup (render/disk/).
 chunks.lightspeed_lens = lensGlsl;
 chunks.lightspeed_lens_exact = lensExactGlsl;
 chunks.lightspeed_dopplercolour = dopplerColourGlsl;
 chunks.lightspeed_galaxycomposite = galaxyCompositeGlsl;
 chunks.lightspeed_flowlookup = flowLookupGlsl;
+chunks.lightspeed_disklookup = diskLookupGlsl;
 // The display law the cosmic web and the galaxy surveys share (a product, so the surveys' glows can be exact).
 chunks.lightspeed_galaxymap = galaxyMapGlsl;
 

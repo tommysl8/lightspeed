@@ -34,7 +34,7 @@ import { starMotionNote } from '../../sim/stars/motion';
 import { Wordmark } from '../Logo';
 import { JOURNEYS } from '../../content/journeys';
 import { countWord } from '../../lib/words';
-import { FLOW_TEXTS } from '../../sim/blackholes/accretion';
+import { DISK_TEXTS, FLOW_TEXTS } from '../../sim/blackholes/accretion';
 import { LENSING_HINT } from '../deepSkyText';
 
 export function OpticsSeg() {
@@ -241,6 +241,8 @@ function ViewMenu() {
       hints: u.hints,
       lensing: u.lensing,
       accretionFlow: u.accretionFlow,
+      accretionDisks: u.accretionDisks,
+      radioEyes: u.accretionBand === 'mm',
       holePanelAuto: u.holePanelAuto,
       roaming: u.controlMode === 'roam' || u.controlMode === 'free',
     })),
@@ -416,6 +418,17 @@ function ViewMenu() {
           </Check>
           <Check checked={s.accretionFlow} onChange={() => t('accretionFlow')} hint={FLOW_TEXTS.menuHint}>
             Accretion flow
+          </Check>
+          {/* The flow's 1.3 mm view, also on Sgr A*'s card; turning it on brings the flow back if it was off. */}
+          <Check
+            checked={s.radioEyes}
+            onChange={(v) => useUI.setState(v ? { accretionBand: 'mm', accretionFlow: true } : { accretionBand: 'visible', ehtBlur: false })}
+            hint={FLOW_TEXTS.radioHint}
+          >
+            {FLOW_TEXTS.radio}
+          </Check>
+          <Check checked={s.accretionDisks} onChange={() => t('accretionDisks')} hint={DISK_TEXTS.menuHint}>
+            {DISK_TEXTS.menu}
           </Check>
           <MenuHeading>Options</MenuHeading>
           <Check checked={s.showFps} onChange={() => t('showFps')}>

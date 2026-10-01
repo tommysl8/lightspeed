@@ -9,7 +9,7 @@
  * (scene/BlackHoleLens.tsx mounts it).
  *
  * How: every uniform object is shared by reference: the relativity chunk's (the half's observer), the lens's
- * (render/lens/lensUniforms.ts), the flow's (render/flow/flowMap.ts), the Galaxy layer's inputs (its targets, their
+ * (render/lens/lensUniforms.ts), the flow's (render/flow/flowMap.ts), a thin disc's (render/disk/diskMap.ts), the Galaxy layer's inputs (its targets, their
  * mipmaps, the drawn columns, the display law: render/galaxyLayer.ts) and lensPassUniforms here (the camera's
  * matrices, the pixel's angle, the sky cube, the Doppler skip, the debug sky), which scene/BlackHoleLens.tsx writes
  * each frame (setLensPassFrame).
@@ -25,6 +25,7 @@ import { buildDopplerLut, DOPPLER_LUT_LN_MAX, DOPPLER_LUT_LN_MIN, DOPPLER_LUT_SI
 import { blackbodyRange, blackbodyTexture, relativityUniforms } from '../materials';
 import { galaxyLayer } from '../galaxyLayer';
 import { flowUniforms } from '../flow/flowMap';
+import { diskUniforms } from '../disk/diskMap';
 import { lensUniforms } from './lensUniforms';
 import lensPixelGlsl from './lensPixel.glsl?raw';
 import lensBoxVert from '../shaders/lensBox.vert.glsl?raw';
@@ -92,7 +93,7 @@ export function lensPassUniformSet(): Record<string, { value: unknown }> {
   relativityUniforms.uBlackbody.value = blackbodyTexture();
   relativityUniforms.uBbRange.value.copy(blackbodyRange());
   lensPassUniforms.uDopplerLut.value = lensDopplerLut();
-  return { ...relativityUniforms, ...lensUniforms, ...flowUniforms, ...galaxyLayer.inputs, ...lensPassUniforms };
+  return { ...relativityUniforms, ...lensUniforms, ...flowUniforms, ...diskUniforms, ...galaxyLayer.inputs, ...lensPassUniforms };
 }
 
 /** The lens box's composite: additive, no depth, drawn on layers 3 and 1 at render order −999. */

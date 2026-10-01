@@ -46,7 +46,8 @@
  * flowDisplay.law 'surface' for comparison: next to the √-law sky it drew the flow a million times too faint, hidden
  * behind the cluster's glow. At 1.3 mm a false colour of the
  * brightness temperature at 230 GHz (0 to 6e10 K: black, red, yellow, white) at a fixed brightness, under the same
- * exposure (so the model's 1.3 mm picture shows against a dark sky).
+ * exposure, stopped down at least to FLOW_MM_LN_EXPOSURE (starlight does not show at 1.3 mm: the model's picture
+ * shows against a dark sky).
  *
  * Cost (target laptop, 2,048 × 1,320, measured under load from other work): rebuilding the visible map every frame
  * 0.31–0.37 ms of GPU at rung 0 (16,384 rays) and 0.15–0.19 ms at rung 1; nothing while the camera is still; the 1.3 mm map
@@ -565,7 +566,16 @@ export const flowGlare = {
   lnTotal: -Infinity,
   /** The handover's κ this frame (1 once the ring is 30 px; 0 within the handover until the picture's light is read). */
   kappa: 1,
+  /** The 1.3 mm view is drawn (the view then stops down at least to FLOW_MM_LN_EXPOSURE). */
+  mm: false,
 };
+
+/**
+ * The view's exposure at 1.3 mm, at most (ln): starlight is far too faint to show at that wavelength, so the sky
+ * goes dark behind the false colour, whatever the visible light's last reading (there may be none: a camera that
+ * arrived with Radio eyes on has never metered the visible flow). e^−20 dims the sky's √ law by e^−10.
+ */
+export const FLOW_MM_LN_EXPOSURE = -20;
 
 /** The ring's radius (device px) by which the picture is drawn with the sky's own law in full (κ = 1). */
 export const FLOW_HANDOVER_END_PX = 30;
@@ -622,9 +632,9 @@ export function flowRingPx(obs: LensObserver, pxPerRad: number): number {
  */
 export function flowExposureTarget(): number {
   const g = flowGlare;
-  if (!(g.share > 0) || !Number.isFinite(g.lnMean)) return 0;
-  const e = 2 * (Math.log(FLOW_EXPOSURE_MEAN) - g.lnGain - g.lnMean - Math.log(Math.min(1, Math.max(g.kappa, 1e-12)))) - g.lnToF;
-  return g.share * Math.min(0, e);
+  if (!(g.share > 0)) return 0;
+  const e = Number.isFinite(g.lnMean) ? 2 * (Math.log(FLOW_EXPOSURE_MEAN) - g.lnGain - g.lnMean - Math.log(Math.min(1, Math.max(g.kappa, 1e-12)))) - g.lnToF : 0;
+  return g.share * Math.min(0, e, g.mm ? FLOW_MM_LN_EXPOSURE : 0);
 }
 
 /** The share of the way to the target the exposure moves each frame (an eye adapts over a fraction of a second). */
@@ -897,6 +907,7 @@ export function updateFlowMap(renderer: WebGLRenderer, f: FlowFrame): void {
     const kappa = f.band === 'visible' ? g.kappa : 1;
     u.uFlowGain.value.set((kappa * share * gain * Math.sqrt(toF)) / Math.sqrt(e), 1, (FLOW_FALSE_COLOUR_WHITE * share) / e, 0);
     g.share = share;
+    g.mm = f.band === 'mm';
     g.lnToF = Math.log(toF);
     g.lnGain = Math.log(gain);
   }

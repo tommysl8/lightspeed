@@ -19,6 +19,7 @@ import { Glints } from './scene/Glints';
 import { NuclearCluster } from './scene/NuclearCluster';
 import { LensRings } from './scene/LensRings';
 import { AccretionFlow } from './scene/AccretionFlow';
+import { AccretionDisk } from './scene/AccretionDisk';
 import { BlackHoleLens } from './scene/BlackHoleLens';
 import { LightPulses } from './scene/LightPulses';
 import { EclipticGrid } from './scene/EclipticGrid';
@@ -145,6 +146,7 @@ export default function App() {
           <Glints />
           <LensRings />
           <AccretionFlow />
+          <AccretionDisk />
           <BlackHoleLens />
           <LightPulses />
           <LabelSync />

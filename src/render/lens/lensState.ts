@@ -177,6 +177,13 @@ const BOX_POINTS = 64;
 export const SPHERE_NEAR_M = 1000;
 /** The band pass's radial half-width about the edge, device px, when the edge is at least a pixel in radius. */
 export const BAND_HALF_WIDTH_PX = 3;
+/**
+ * A wider cone the lens box must cover besides the diffuse zone (image angle from the hole, rad; 0: none): a thin
+ * accretion disc's whole image, which the composite draws in the zone and round it (render/disk/diskMap.ts sets it
+ * each frame, so the box follows a frame behind the disc; its edge is faint).
+ */
+export const lensBoxExtra = { angle: 0 };
+
 /** The composite's Doppler skip: rung 0 and 1, and rung 2. */
 export const DOPPLER_SKIP = 1e-4;
 export const DOPPLER_SKIP_RUNG2 = 1e-2;
@@ -194,6 +201,7 @@ const e1 = new Vector3();
 const e2 = new Vector3();
 const pt = new Vector3();
 const coneC = new Vector3();
+const boxCentre = new Vector3();
 const shipDir = new Vector3();
 const negFrameDir = new Vector3();
 const quat = new Quaternion();
@@ -763,7 +771,11 @@ function updateView(h: 0 | 1, pxPerRad: number, fullScreen: boolean, tanHalf: nu
   const zr = viewCone(lens.axis, lens.diffuseZone, n, v.zoneCentre);
   v.zoneCos = zr >= Math.PI ? -1 : Math.cos(zr);
   v.ssBandPx = v.edgeRadius * pxPerRad >= 1 ? BAND_HALF_WIDTH_PX : 0;
-  const kind = fullScreen ? 'full' : lens.diffuseZone > 0 ? coneBox(v.zoneCentre, zr, tanHalf, aspect, mx, my, v.box) : 'none';
+  // The box: the zone, or a disc's image where that is wider.
+  const wide = lensBoxExtra.angle > lens.diffuseZone;
+  const boxAngle = wide ? lensBoxExtra.angle : lens.diffuseZone;
+  const br = wide ? viewCone(lens.axis, boxAngle, n, boxCentre) : zr;
+  const kind = fullScreen || boxAngle >= Math.PI ? 'full' : boxAngle > 0 ? coneBox(wide ? boxCentre : v.zoneCentre, br, tanHalf, aspect, mx, my, v.box) : 'none';
   v.full = kind === 'full';
   if (kind === 'full') {
     v.box[0] = -1;

@@ -4,7 +4,7 @@ import { deferredStorage } from '../lib/persistStorage';
 import type { BodyId } from '../sim/bodies';
 import type { SizeMode } from '../sim/sim';
 import type { ExplainerId } from '../content/explainers';
-import type { AccretionBand } from '../sim/blackholes/accretion';
+import type { AccretionBand, DiskLight } from '../sim/blackholes/accretion';
 
 /**
  * What the camera is doing: orbiting a target, roaming (the camera flown by hand, no speed limit: 'roam'),
@@ -139,6 +139,10 @@ export interface UIState {
   lensing: boolean;
   /** View › Accretion flow (on: the real flow exists and would be seen). */
   accretionFlow: boolean;
+  /** View › Accretion discs: a thin disc where one really shines (Cygnus X-1's; on: it exists and would be seen). */
+  accretionDisks: boolean;
+  /** Cygnus X-1's card: the disc's brightness in all of its light (bolometric, mostly X-rays) or its visible light alone. */
+  diskLight: DiskLight;
   /** Sgr A*'s card: the flow in visible light, or at 1.3 mm as the Event Horizon Telescope sees it (false colour). */
   accretionBand: AccretionBand;
   /** Sgr A*'s card: blur the 1.3 mm view to the Event Horizon Telescope's resolution as seen from Earth. */
@@ -170,6 +174,7 @@ export interface UIState {
       | 'hints'
       | 'lensing'
       | 'accretionFlow'
+      | 'accretionDisks'
       | 'holePanelAuto',
   ) => void;
   setSizeMode: (m: SizeMode) => void;
@@ -193,7 +198,7 @@ export function migrateUI(old: unknown, version: number): Partial<UIState> {
 
 /**
  * What is saved between visits: preferences only; the simulation always starts fresh. The black holes'
- * switches (lensing, accretionFlow, accretionBand, ehtBlur) are left out on purpose: a visitor who turned
+ * switches (lensing, accretionFlow, accretionDisks, accretionBand, ehtBlur) are left out on purpose: a visitor who turned
  * lensing off once must not find every black hole invisible on the next visit (so no version change either).
  */
 export const savedPrefs = (s: UIState) => ({
@@ -286,6 +291,8 @@ export const useUI = create<UIState>()(
       tripActive: false,
       lensing: true,
       accretionFlow: true,
+      accretionDisks: true,
+      diskLight: 'all',
       accretionBand: 'visible',
       ehtBlur: false,
       fallActive: false,

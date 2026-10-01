@@ -438,6 +438,32 @@ export interface DeepSkyImage {
 }
 
 /**
+ * A black hole's thin accretion disc as drawn (physics/thinDisk.ts; docs/data/blackholes.md §12): from the record's
+ * luminosity, Eddington luminosity and outer edge, with what follows from them for no spin.
+ */
+export interface BlackHoleDisk {
+  /** Its axis, world axes (unit): the binary orbit's angular momentum, so the gas turns with the orbit. */
+  normalWorld: readonly [number, number, number];
+  /** L / L_Edd and the Eddington luminosity (erg/s) it is a share of, with their source. */
+  eddingtonFraction: number;
+  lEddErgS: number;
+  luminositySource: string;
+  /** The accretion rate a disc of no spin needs for that luminosity, g/s. */
+  mdotGs: number;
+  /** ln T* (K): each ring's temperature is T* f(r)^(1/4); its hottest ring's, K. */
+  lnTStarK: number;
+  peakTK: number;
+  /** Inner and outer edges, units of M (GM/c²), and the outer edge's source. */
+  rInM: number;
+  rOutM: number;
+  rOutSource: string;
+  /** How many times slower than real its gas is drawn turning; the real period at the inner edge, s. */
+  slowdown: number;
+  innerPeriodS: number;
+  refs: readonly string[];
+}
+
+/**
  * A black hole's own data, for the lens, the time, the card and the data sheet. Every number carries its
  * source in `refs` (citations) as DeepSkyInfo does. (The accretion flow's axis lives only with the flow's
  * model, sim/blackholes/sgraFlow.json; the record just names the flow.)
@@ -460,6 +486,8 @@ export interface BlackHoleInfo {
   spin: { value: number | null; status: 'unknown' | 'estimated'; note: string };
   /** Accretion-flow model drawn for it, if any. */
   flow?: 'sgr-a-star-riaf';
+  /** A thin accretion disc drawn for it, if any (Cygnus X-1's). */
+  disk?: BlackHoleDisk;
   /** The Event Horizon Telescope's picture, shown on the card with its credit (CC BY 4.0). */
   ehtImage?: DeepSkyImage & { ringDiameterUas: number; ringSource: string };
   /** A free fall may be started (supermassive only: tides tear a ship apart far outside a stellar hole). */

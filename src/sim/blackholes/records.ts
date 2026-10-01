@@ -25,13 +25,14 @@
 import { AU_KM, C_KM_S, GM_SUN_KM3_S2, PARSEC_KM } from '../../physics/constants';
 import { sig } from '../../lib/sci';
 import { atCentreProvider, fixedStarProvider } from '../bodies/providers/simple';
-import type { BlackHoleInfo, BodyId, BodyRecord, DeepSkyInfo, StarInfo } from '../bodies/types';
+import type { BlackHoleDisk, BlackHoleInfo, BodyId, BodyRecord, DeepSkyInfo, StarInfo } from '../bodies/types';
+import { ISCO_M, mdotFromEddington, NT_PEAK_M, ntLnTemperature, ntLnTStar } from '../../physics/thinDisk';
 import type { Stars3D } from '../stars/catalogue';
 import { SUN_RADIUS_KM, SUN_TEFF_K } from '../stars/constants';
 import { bolometricCorrection, SUN_M_BOL } from '../stars/photometry';
 import { barycentreId, linearStarProvider, orbitStarProvider, starColour, starKindText, starLabelRank, type SystemMotion } from '../stars/records';
 import blackHolesJson from './blackholes.json';
-import type { BlackHolesFile, CompanionJson, HoleJson, HoleOrbitJson, HoleSystemJson, Sourced } from './types';
+import type { BlackHolesFile, CompanionJson, DiskJson, HoleJson, HoleOrbitJson, HoleSystemJson, Sourced } from './types';
 
 /** The data file as shipped. */
 export const BLACK_HOLES = blackHolesJson as unknown as BlackHolesFile;
@@ -87,6 +88,37 @@ export function citation(file: BlackHolesFile, key: string): string {
 /** Each key's citation once, in order. */
 const citations = (file: BlackHolesFile, keys: readonly string[]): string[] => [...new Set(keys.map((k) => citation(file, k)))];
 
+/**
+ * A thin disc as drawn, from its record: the accretion rate a disc of no spin needs for the published luminosity
+ * (the luminosity is what is measured; Ṁ follows from the efficiency, 5.7 % here where the real spinning hole's is
+ * higher), its temperatures and edges in units of M = GM/c², and the real period at its inner edge.
+ */
+export function diskInfo(json: DiskJson, massMsun: number, orbit: HoleOrbitJson, file: BlackHolesFile = BLACK_HOLES): BlackHoleDisk {
+  const mdotGs = mdotFromEddington(json.eddingtonFraction.value, json.lEddErgS.value);
+  const lnTStarK = ntLnTStar(massMsun, mdotGs);
+  const mCm = (gmOf(massMsun) / (C_KM_S * C_KM_S)) * 1e5;
+  const mS = gmOf(massMsun) / C_KM_S ** 3;
+  // The disc turns with the orbit: its axis is the orbit's angular momentum, p̂ × q̂ (J2000 ecliptic; world = (x, z, −y)).
+  const [p, q] = [orbit.pHat, orbit.qHat];
+  const n = [p[1] * q[2] - p[2] * q[1], p[2] * q[0] - p[0] * q[2], p[0] * q[1] - p[1] * q[0]];
+  const nl = Math.hypot(n[0], n[1], n[2]);
+  return {
+    normalWorld: [n[0] / nl, n[2] / nl, -n[1] / nl],
+    eddingtonFraction: json.eddingtonFraction.value,
+    lEddErgS: json.lEddErgS.value,
+    luminositySource: citation(file, json.eddingtonFraction.ref),
+    mdotGs,
+    lnTStarK,
+    peakTK: Math.exp(ntLnTemperature(NT_PEAK_M, lnTStarK)),
+    rInM: ISCO_M,
+    rOutM: json.rOutCm.value / mCm,
+    rOutSource: citation(file, json.rOutCm.ref),
+    slowdown: json.slowdown,
+    innerPeriodS: 2 * Math.PI * ISCO_M ** 1.5 * mS,
+    refs: citations(file, json.refs),
+  };
+}
+
 /** An uncertainty in words: "±0.10", "+0.23 −0.17", "±0.012 statistical, ±0.040 systematic". */
 export function uncertaintyText(s: Sourced, scale = 1, digits = 2): string {
   const u = s.unc;
@@ -137,6 +169,10 @@ export function blackHoleInfoFrom(json: HoleJson, file: BlackHolesFile = BLACK_H
   if (pair) info.massUncMsun = [pair[0], pair[1]];
   if (json.massNote) info.massNote = json.massNote;
   if (json.flow) info.flow = json.flow;
+  if (json.disk) {
+    if (!orbit) throw new Error(`${json.id}: a disc is drawn in its binary's orbital plane, and it has no orbit`);
+    info.disk = diskInfo(json.disk, massMsun, orbit, file);
+  }
   if (json.ehtImage) info.ehtImage = json.ehtImage;
   if (companion) info.companion = companion;
   if (orbit?.assumed.length) info.assumed = orbit.assumed;

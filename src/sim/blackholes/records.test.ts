@@ -111,8 +111,11 @@ describe('the data file', () => {
     // The binaries with an assumed orientation say so on the card (label 15).
     for (const id of [...XRBS, 'cyg-x-1']) expect(holeJson(id)!.modelNotes.join(' '), id).toMatch(/orientation of its orbit on the sky/);
     for (const id of ['gaia-bh1', 'gaia-bh2', 'gaia-bh3']) expect(orbitOf(id).assumed).toEqual([]);
-    // The X-ray binaries say on the card that their gas is not drawn (label 16), not only on the data sheet.
-    for (const id of [...XRBS, 'cyg-x-1']) expect(holeJson(id)!.modelNotes.join(' '), id).toMatch(/Its disc of hot gas.* not drawn\./);
+    // The quiet X-ray binaries say on the card that their gas is not drawn (label 16), not only on the data sheet;
+    // Cygnus X-1, whose disc is drawn, that it is a model (label 25), and that its jet and wind are not (the sheet).
+    for (const id of XRBS) expect(holeJson(id)!.modelNotes.join(' '), id).toMatch(/Its disc of gas.* not drawn: between outbursts/);
+    expect(holeJson('cyg-x-1')!.modelNotes.join(' ')).toMatch(/Its disc is a model: a thin Novikov–Thorne disc at 2 % .* 1,000 times slower than real; its swirls are illustrative\./);
+    expect(holeJson('cyg-x-1')!.sheetNotes!.join(' ')).toMatch(/Its jet and its companion’s wind are not drawn\./);
     // No jargon: a shift is in horizon radii, not in units of M.
     for (const h of file.holes) for (const n of [...h.modelNotes, h.spin.note]) expect(n, h.id).not.toMatch(/\d M\b/);
   });

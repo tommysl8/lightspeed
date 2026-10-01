@@ -15,6 +15,10 @@
 // its coverage from the ray's miss distance in pixels. Written premultiplied, drawn "over" at render order 1 (after
 // the stars, so the star hides what is behind it).
 //
+// A thin accretion disc (lightspeed_disklookup) hides the star where the pixel's ray meets the disc first: the star
+// lies far beyond the disc's outer edge (Cygnus X-1's companion is 37 times farther from the hole), so a ray that meets
+// the disc meets it before the star, unless the straight ray meets the star before it is anywhere near the disc.
+//
 // Cost: one lens ray and two sphere tests a pixel of the box, only while a sphere is listed (≤ 0.05 ms).
 //
 // Twins: render/lens/lensSpheres.ts (the uniforms), physics/lensPoint.ts pointImageExact (a point on the limb).
@@ -23,6 +27,7 @@
 #include <lightspeed_galaxycomposite>
 #include <lightspeed_lens>
 #include <lightspeed_flowlookup>
+#include <lightspeed_disklookup>
 #include <lightspeed_lenspixel>
 
 uniform mat4 uProjInv;
@@ -82,6 +87,8 @@ void main() {
   float delta = g > 0.0 ? lensDelta(g, ddl) : 0.0;
   float sweep = delta + uLensSpan - g;
   vec3 xPerp = b * (lensSin(sweep) * rhat - cos(sweep) * e);
+  vec3 diskLight;
+  bool disk = diskAt(d, g, 0.0, diskLight);
   vec4 best = vec4(0.0);
   for (int i = 0; i < 2; i++) {
     if (uSphereT[i].y < 0.5) continue;
@@ -114,6 +121,8 @@ void main() {
       // the edge's soft pixel just outside the limb
       continue;
     }
+    // behind the disc, unless the straight ray meets the star well before it reaches the disc's distance from the camera
+    if (disk && !(u == d && t < ro - uDiskGeom.z)) continue;
     vec3 nrm = normalize(hit - k);
     float mu = clamp(-dot(nrm, u), 0.0, 1.0);
     // the light leaves the star along −u; its own orbital shift along it
@@ -127,7 +136,9 @@ void main() {
     vec3 col = blackbodyLn(lnT).rgb;
     float lnY = lensLnY(lnT);
     vec3 limb = 1.0 - uLimbU * (1.0 - mu);
-    vec3 rgb = col * limb * (uCentreRadiance * exp(min(lnY + uLnExposure, 40.0)));
+    // (beside a disc drawn with all its light, on its own scale, at the disc's own exposure: render/disk/diskMap.ts)
+    float lnE = uDiskOn > 0.5 ? uDiskStarLnE : uLnExposure;
+    vec3 rgb = col * limb * (uCentreRadiance * exp(min(lnY + lnE, 40.0)));
     float cov = clamp(0.5 - missPx, 0.0, 1.0);
     if (cov > best.a) best = vec4(rgb * cov, cov);
   }

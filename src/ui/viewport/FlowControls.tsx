@@ -10,8 +10,8 @@
  * SCENE_VIEWS). The words are the flow model's (sim/blackholes/accretion.ts FLOW_TEXTS). While View › Accretion flow is
  * off the controls say so and offer to turn it on; with lensing off they say the gas shows only as a point.
  *
- * Why here and not in the View menu: the comparison with the EHT's picture is made on the card, beside it, and
- * the menu already holds many switches.
+ * Why here as well as in the View menu (Radio eyes, the same band): the comparison with the EHT's picture is made on
+ * the card, beside it.
  *
  * Cost: none beyond the card's own re-render.
  *
