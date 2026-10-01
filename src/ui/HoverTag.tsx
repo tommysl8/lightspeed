@@ -19,6 +19,7 @@ import { lensingHole } from '../sim/lensBodies';
 import { sim } from '../sim/sim';
 import { useUI } from '../state/ui';
 import { labelShown, labelText } from './Labels';
+import { deepSkyGate } from '../sim/deepsky';
 
 /** The pointer over the view, CSS px from its corner. */
 const pointer = { x: 0, y: 0, over: false, moved: false };
@@ -85,6 +86,18 @@ function show(t: Tag, p: Picked | null): void {
       t.name.textContent = r ? labelText(r) : p.id;
       t.sub.textContent = '';
       t.sub.style.display = 'none';
+    }
+  } else if (p.kind === 'deepsky') {
+    // A deep-sky catalogue's marker: its name and what it is (it becomes a body only when chosen).
+    x = p.x;
+    y = p.y;
+    const key = `d:${p.set}:${p.index}`;
+    if (t.key !== key) {
+      t.key = key;
+      const d = deepSkyGate.runtime?.describe(p.set, p.index) ?? { name: '', sub: '' };
+      t.name.textContent = d.name;
+      t.sub.textContent = d.sub;
+      t.sub.style.display = d.sub ? '' : 'none';
     }
   } else {
     x = p.x;

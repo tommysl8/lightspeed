@@ -70,6 +70,7 @@ export function roamClassOf(kind: string, kindText?: string): RoamClass {
       return 'hole';
     case 'galaxy':
     case 'nebula':
+    case 'merger':
       return 'extended';
     case 'cluster':
       return /galaxies/i.test(kindText ?? '') ? 'group' : 'extended';

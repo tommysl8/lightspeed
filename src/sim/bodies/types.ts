@@ -31,6 +31,13 @@ export type BodyKind =
   | 'cluster'
   | 'nebula'
   | 'black-hole'
+  /** A neutron star seen as a pulsar (sim/deepsky). */
+  | 'pulsar'
+  /**
+   * A merger of black holes or neutron stars heard in gravitational waves (sim/deepsky): a region of space where it
+   * probably happened, not a body that can be seen.
+   */
+  | 'merger'
   /** A point, not a body: the centre of mass of a system. Never drawn, labelled or visited. */
   | 'barycentre';
 
@@ -491,6 +498,11 @@ export interface DeepSkyInfo {
   image?: DeepSkyImage;
   /** The galaxy it lies in, when it is not the Milky Way. */
   hostGalaxy?: string;
+  /**
+   * The one plain line its card keeps in view where its place or look is a model or uncertain ("Its distance comes
+   * from its dispersion measure: …"); every note in full is under Sources.
+   */
+  cardNote?: string;
   /** References of the values, as citations. */
   refs?: readonly string[];
 }

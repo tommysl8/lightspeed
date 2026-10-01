@@ -15,6 +15,7 @@ import { C_PC_PER_YR, KMS_TO_PC_PER_YR, motionYears, starData } from '../sim/sta
 import { HOST_RING_FAR_PC, HOST_RING_NEAR_PC } from '../render/materials';
 import { planetHostsNow } from '../ui/planetHosts';
 import { useUI } from '../state/ui';
+import { ensureDeepSkyBody, pickDeepSky, type DeepSkyPick, type DeepSkySetId } from '../sim/deepsky';
 
 /** Pointer reach around a body too small to hit, CSS px. */
 export const PICK_REACH_PX = 14;
@@ -197,18 +198,22 @@ export function pickHostRing(x: number, y: number, camera: PerspectiveCamera): {
 }
 
 /**
- * What is under the pointer: a body, or the ring of a star with planets that is not a body yet. For an image of a
- * body bent round a black hole other than its primary, which image and where it is (CSS px); these fields are
- * there only then, so a plain pick stays `{ kind: 'body', id }`.
+ * What is under the pointer: a body, the ring of a star with planets that is not a body yet, or the marker of a
+ * deep-sky catalogue's object that is not one either (sim/deepsky). For an image of a body bent round a black hole
+ * other than its primary, which image and where it is (CSS px); these fields are there only then, so a plain pick
+ * stays `{ kind: 'body', id }`.
  */
-export type Picked = { kind: 'body'; id: BodyId; image?: 1 | 2; x?: number; y?: number } | { kind: 'host'; host: number; x: number; y: number };
+export type Picked =
+  | { kind: 'body'; id: BodyId; image?: 1 | 2; x?: number; y?: number }
+  | { kind: 'host'; host: number; x: number; y: number }
+  | { kind: 'deepsky'; set: DeepSkySetId; index: number; x: number; y: number };
 
 /** The body pick with its image, when a secondary image was picked. */
 function bodyPick(id: BodyId): Picked {
   return pickedImage.image > 0 ? { kind: 'body', id, image: pickedImage.image as 1 | 2, x: pickedImage.x, y: pickedImage.y } : { kind: 'body', id };
 }
 
-const DEEP_SKY: ReadonlySet<string> = new Set(['cluster', 'nebula', 'galaxy']);
+const DEEP_SKY: ReadonlySet<string> = new Set(['cluster', 'nebula', 'galaxy', 'merger']);
 
 /**
  * The body or planet-host ring under the pointer. A resolved disc under the pointer wins (not a
@@ -217,6 +222,24 @@ const DEEP_SKY: ReadonlySet<string> = new Set(['cluster', 'nebula', 'galaxy']);
  * is a body already).
  */
 export function pickAt(x: number, y: number, camera: PerspectiveCamera): Picked | null {
+  const near = pickNearer(x, y, camera);
+  // A deep-sky marker that is not a body yet, where nothing nearer is under the pointer (a body's own disc wins).
+  const deep = pickDeepSky(x, y, camera);
+  if (!deep) return near;
+  if (!near) return deepPick(deep);
+  if (near.kind !== 'body') return Math.hypot(near.x - x, near.y - y) <= deep.px + 0.5 ? near : deepPick(deep);
+  const b = sim.bodies[near.id];
+  const bx = near.image ? (near.x ?? 0) : b.screen.x;
+  const by = near.image ? (near.y ?? 0) : b.screen.y;
+  const d = Math.hypot(bx - x, by - y);
+  const disc = !near.image && b.radiusPx > PICK_REACH_PX && d < b.radiusPx && !DEEP_SKY.has(getBody(near.id)?.kind ?? '');
+  return disc || d <= deep.px + 0.5 ? near : deepPick(deep);
+}
+
+const deepPick = (p: DeepSkyPick): Picked => ({ kind: 'deepsky', set: p.set, index: p.index, x: p.x, y: p.y });
+
+/** The body or planet-host ring under the pointer (pickAt without the deep-sky markers). */
+function pickNearer(x: number, y: number, camera: PerspectiveCamera): Picked | null {
   const id = pickBody(x, y);
   const ring = pickHostRing(x, y, camera);
   if (!ring) return id ? bodyPick(id) : null;
@@ -232,8 +255,10 @@ export function pickAt(x: number, y: number, camera: PerspectiveCamera): Picked 
   return { kind: 'host', host: ring.host, x: ring.x, y: ring.y };
 }
 
-/** The body to select for what was picked, registering a ring's star (and its planets) if need be. */
+/** The body to select for what was picked, registering a ring's star (and its planets), or a deep-sky object, if need be. */
 export function pickedBody(p: Picked | null): BodyId | null {
   if (!p) return null;
-  return p.kind === 'body' ? p.id : ensureHost(p.host);
+  if (p.kind === 'body') return p.id;
+  if (p.kind === 'deepsky') return ensureDeepSkyBody(p);
+  return ensureHost(p.host);
 }

@@ -32,6 +32,7 @@
     "data:local-galaxies": "node scripts/build-local-galaxies.mjs",
     "data:cmb": "node scripts/build-cmb.mjs",
     "data:surveys": "node --max-old-space-size=8000 scripts/build-surveys.mjs",
+    "data:deepsky": "node scripts/build-ngc.mjs && node scripts/build-pulsars.mjs && node scripts/build-snrs.mjs && node --max-old-space-size=4000 scripts/build-gw-events.mjs",
     "data:faint-stars": "node scripts/build-faint-stars.mjs",
     "data:nsc": "python scripts/build-nsc.py",
     "data:blackhole-fixtures": "python scripts/schwarzschild/make_fixtures.py --subset",

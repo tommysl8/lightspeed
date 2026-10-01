@@ -24,6 +24,7 @@ import { starDestinations, withStars } from '../../content/starDestinations';
 import { exoplanetDestinations } from '../../content/exoplanetDestinations';
 import { loadStarExtra, loadStarNames, starData, starsVersion, subscribeStars } from '../../sim/stars';
 import { catalogueStatus, exoplanetsVersion, loadExoplanetCatalogue, subscribeExoplanets } from '../../sim/exoplanets';
+import { ALL_DEEP_SKY, deepSkyDestinations, deepSkyVersion, requestDeepSky, subscribeDeepSky } from '../../sim/deepsky';
 import { qty } from '../../lib/sci';
 import { formatDurationShort } from '../../lib/time';
 import { useUI } from '../../state/ui';
@@ -197,23 +198,29 @@ function Palette() {
   const registry = useSyncExternalStore(subscribeDestinations, destinationsVersion);
   const stars = useSyncExternalStore(subscribeStars, starsVersion);
   const planets = useSyncExternalStore(subscribeExoplanets, exoplanetsVersion);
+  const deepSky = useSyncExternalStore(subscribeDeepSky, deepSkyVersion);
   const [namesFailed, setNamesFailed] = useState(false);
   useEffect(() => {
     void loadStarNames().then((t) => setNamesFailed(!t));
     void loadStarExtra();
     void loadExoplanetCatalogue();
+    // The deep-sky catalogues' names (NGC 1234, PSR J0437−4715, GW150914): searched once they arrive.
+    requestDeepSky(ALL_DEEP_SKY);
   }, []);
   const featured = useMemo(() => featuredDestinations(), [registry]);
   const results = useMemo(
     () =>
       withStars(
         withStars(
-          searchDestinations(query).map((m) => m.destination),
-          exoplanetDestinations(query),
+          withStars(
+            searchDestinations(query).map((m) => m.destination),
+            exoplanetDestinations(query),
+          ),
+          deepSkyDestinations(query),
         ),
         starDestinations(query),
       ),
-    [query, registry, stars, planets],
+    [query, registry, stars, planets, deepSky],
   );
   const browsing = query.trim() === '';
   const list = browsing ? featured : results;
@@ -222,7 +229,7 @@ function Palette() {
 
   // Featured rows all show their cost; search results only the highlighted one.
   const want = flying ? [] : browsing ? featured : activeDest ? [activeDest] : [];
-  const costs = useCosts(want, !flying, `${registry} ${stars} ${planets}`);
+  const costs = useCosts(want, !flying, `${registry} ${stars} ${planets} ${deepSky}`);
   // Until the star names (and the exoplanet archive) are in, finding nothing proves nothing.
   const namesLoading = !starData.names && !namesFailed;
   const archiveLoading = catalogueStatus() === 'loading' || catalogueStatus() === 'idle';
