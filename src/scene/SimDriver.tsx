@@ -18,6 +18,8 @@ import { psfUniforms } from '../render/materials';
 import { updateRelativisticView } from '../render/relativisticView';
 import { onArrival } from '../ui/tripActions';
 import { pickAt, pickedBody } from './picking';
+import { pickSmallBody } from './asteroidPick';
+import { ensureSmallBody } from '../sim/asteroids/bodies';
 import { updateNearbyStars } from '../sim/stars';
 import { updateExoplanets } from '../sim/exoplanets';
 import { isWithin } from '../sim/bodies';
@@ -58,13 +60,31 @@ export function SimDriver() {
     controller.attach(gl.domElement);
     // A ring round a star with planets picks that star, registering it (and its planets) if need be.
     const pick = (x: number, y: number) => pickedBody(pickAt(x, y, camera as PerspectiveCamera));
-    controller.onClick = (x, y) => useUI.getState().select(pick(x, y));
-    controller.onDoubleClick = (x, y) => {
+    // A body of the small-body layer nearer the pointer than any body's marker becomes a body (its data fetched
+    // first, so it is selected a moment later, unless another click came meanwhile); a resolved disc under the
+    // pointer always wins.
+    let clicks = 0;
+    const pickAny = (x: number, y: number, then: (id: string) => void): string | null => {
+      const click = ++clicks;
       const id = pick(x, y);
-      if (id) {
+      const b = id ? sim.bodies[id] : undefined;
+      const px = b ? Math.hypot(b.screen.x - x, b.screen.y - y) : Infinity;
+      if (b && (px < 2 || (b.radiusPx > 2 && px < b.radiusPx))) return id;
+      const small = pickSmallBody(gl, camera as PerspectiveCamera, x, y);
+      if (!small || small.px >= px) return id;
+      void ensureSmallBody(small).then((sid) => {
+        if (sid && click === clicks) then(sid);
+      });
+      return null;
+    };
+    controller.onClick = (x, y) => useUI.getState().select(pickAny(x, y, (sid) => useUI.getState().select(sid)));
+    controller.onDoubleClick = (x, y) => {
+      const go = (id: string) => {
         useUI.getState().select(id);
         controller.goTo(id);
-      }
+      };
+      const id = pickAny(x, y, go);
+      if (id) go(id);
     };
     return () => controller.detach();
   }, [gl, camera]);

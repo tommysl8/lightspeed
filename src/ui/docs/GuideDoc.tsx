@@ -501,7 +501,10 @@ function Looking() {
         rows={[
           [<>Orbits <Kbd>O</Kbd></>, 'Each body’s orbit, computed from its current position and velocity.'],
           [<>Labels <Kbd>L</Kbd></>, 'Names, and the range and light-time of the selected body.'],
-          [<>Small bodies <Kbd>B</Kbd></>, '31,930 asteroids, Trojans and trans-Neptunian objects from the JPL Small-Body Database.'],
+          [
+            <>Small bodies <Kbd>B</Kbd></>,
+            'Every asteroid and comet with a good orbit in the JPL Small-Body Database, 1.47 million, each as bright as it really is from the camera. The brightest 200,000 from where you are are drawn, and any passing close; click one for its card, or find it in Where to? by name or number.',
+          ],
           [<>Ecliptic grid <Kbd>J</Kbd></>, 'Lines of ecliptic longitude and latitude every 15°, labelled, with an axis triad in the corner.'],
           [
             <>Constellations <Kbd>Y</Kbd></>,

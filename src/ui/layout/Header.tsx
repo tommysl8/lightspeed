@@ -302,7 +302,7 @@ function ViewMenu() {
           <Check checked={s.showLabels} onChange={() => t('showLabels')} kbd="L">
             Labels
           </Check>
-          <Check checked={s.showBelts} onChange={() => t('showBelts')} kbd="B" hint="31,930 asteroids, Trojans and TNOs (JPL SBDB)">
+          <Check checked={s.showBelts} onChange={() => t('showBelts')} kbd="B" hint="1.47 million asteroids and comets (JPL SBDB)">
             Small bodies
           </Check>
           <Check checked={s.showGrid} onChange={() => t('showGrid')} kbd="J">

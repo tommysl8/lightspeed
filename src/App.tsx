@@ -13,7 +13,7 @@ import { Constellations } from './scene/Constellations';
 import { PlanetHosts } from './scene/PlanetHosts';
 import { Bodies } from './scene/Bodies';
 import { Orbits } from './scene/Orbits';
-import { Belts } from './scene/Belts';
+import { Asteroids } from './scene/Asteroids';
 import { CometTails } from './scene/CometTails';
 import { Glints } from './scene/Glints';
 import { NuclearCluster } from './scene/NuclearCluster';
@@ -128,7 +128,7 @@ export default function App() {
           <Bodies />
           <Orbits />
           <CometTails />
-          <Belts />
+          <Asteroids />
           <Glints />
           <LensRings />
           <AccretionFlow />

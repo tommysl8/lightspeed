@@ -275,8 +275,8 @@ function Sources() {
             corrections of Flower (1996, ApJ 469, 355) as corrected by Torres (2010, AJ 140, 1158).
           </>,
           <>
-            JPL <Ext href="https://ssd-api.jpl.nasa.gov/doc/sbdb_query.html">Small-Body Database</Ext>: 31,930 asteroids, Trojans
-            and trans-Neptunian objects, their orbits solved from Kepler’s equation on the GPU.
+            JPL <Ext href="https://ssd-api.jpl.nasa.gov/doc/sbdb_query.html">Small-Body Database</Ext>: 1,465,911 asteroids and
+            comets, their orbits solved from Kepler’s equation on the GPU, checked against JPL Horizons.
           </>,
           <>
             Proxima Centauri until the star catalogue has loaded: Gaia DR3 parallax; Boyajian et al. (2012), ApJ 757, 112:
