@@ -101,7 +101,7 @@ async function collect() {
       createGalaxyMaterial: () => M.createGalaxyMaterial(1, 0),
     };
     const kindOf = (name) =>
-      /Star|Glint|Belt|HostRing|ClusterRing|Galaxies|CosmicWeb|CmbPoint|GalaxyMaterial/.test(name) && !/Glow/.test(name)
+      /Star|Glint|Asteroid|Comet|HostRing|ClusterRing|Galaxies|CosmicWeb|CmbPoint|GalaxyMaterial/.test(name) && !/Glow/.test(name)
         ? 'points'
         : /Constellation/.test(name)
           ? 'lines'

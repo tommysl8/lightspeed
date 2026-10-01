@@ -44,8 +44,8 @@ import starsVert from './shaders/stars.vert.glsl?raw';
 import constellationVert from './shaders/constellation.vert.glsl?raw';
 import hostRingVert from './shaders/hostRing.vert.glsl?raw';
 import glintsVert from './shaders/glints.vert.glsl?raw';
-import beltsVert from './shaders/belts.vert.glsl?raw';
-import beltsFrag from './shaders/belts.frag.glsl?raw';
+import asteroidsVert from './shaders/asteroids.vert.glsl?raw';
+import asteroidsFrag from './shaders/asteroids.frag.glsl?raw';
 import orbitVert from './shaders/orbit.vert.glsl?raw';
 import orbitFrag from './shaders/orbit.frag.glsl?raw';
 import planetVert from './shaders/planet.vert.glsl?raw';
@@ -380,32 +380,50 @@ export function createGlintMaterial(): ShaderMaterial {
   });
 }
 
-export function createBeltMaterial(): ShaderMaterial {
+/**
+ * Uniforms every section of the small bodies shares (by reference): the time, the camera, the barycentre, the size
+ * and the brightness law (sim/asteroids/lod.ts), written once a frame by scene/Asteroids.tsx.
+ */
+export const asteroidUniforms = {
+  uDays: { value: 0 },
+  uCamAU: { value: new Vector3() },
+  uPointSize: { value: 1 },
+  uOpacity: { value: 1 },
+  uRetarded: { value: 0 },
+  uFullMag: { value: 24 },
+  uLimitMag: { value: 28 },
+  uFadeMag: { value: 0.75 },
+};
+
+/**
+ * One section of the small bodies (sim/asteroids/format.ts): ellipses, or with `conic` any orbit (the comets).
+ * Its own uniforms are its colour, its range of H, its orbits' centre (the Sun, or the barycentre) and the body
+ * hidden while the registry draws it.
+ */
+export function createAsteroidMaterial(conic = false): ShaderMaterial {
   initBlackbodyUniforms();
   return new ShaderMaterial({
     uniforms: {
       ...relativityUniforms,
-      uDays: { value: 0 },
-      uCamAU: { value: new Vector3() },
-      uPointSize: { value: 1.5 },
-      uOpacity: { value: 1 },
-      uRefDistAU: { value: 16 },
-      uRetarded: { value: 0 },
-      uNearCap: { value: 0.3 },
-      uColorMain: { value: new Color('#c9b8a3') },
-      uColorTrojan: { value: new Color('#b7a98f') },
-      uColorTno: { value: new Color('#9fb6d8') },
-      uShowKuiper: { value: 1 },
-      uShowAsteroids: { value: 1 },
+      ...asteroidUniforms,
+      uCentreAU: { value: new Vector3() },
+      uSqrtMu: { value: 1 },
+      uHRange: { value: new Vector2(0, 25) },
+      uColor: { value: new Color('#c9b8a3') },
+      uHidden: { value: -1 },
     },
-    vertexShader: beltsVert,
-    fragmentShader: beltsFrag,
+    defines: conic ? { CONIC: '' } : {},
+    vertexShader: asteroidsVert,
+    fragmentShader: asteroidsFrag,
     blending: AdditiveBlending,
     depthTest: true,
     depthWrite: false,
     transparent: true,
   });
 }
+
+/** The comets' sections (and the few other orbits near or beyond parabolic). */
+export const createCometMaterial = (): ShaderMaterial => createAsteroidMaterial(true);
 
 export function createOrbitMaterial(color: Color): ShaderMaterial {
   return new ShaderMaterial({
