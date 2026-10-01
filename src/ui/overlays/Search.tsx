@@ -27,6 +27,7 @@ import { asteroidMatches } from '../../content/asteroidDestinations';
 import { loadSmallNames, smallNamesVersion, subscribeSmallNames } from '../../sim/asteroids/names';
 import { loadStarExtra, loadStarNames, starData, starsVersion, subscribeStars } from '../../sim/stars';
 import { catalogueStatus, exoplanetsVersion, loadExoplanetCatalogue, subscribeExoplanets } from '../../sim/exoplanets';
+import { ALL_DEEP_SKY, deepSkyDestinations, deepSkyVersion, requestDeepSky, subscribeDeepSky } from '../../sim/deepsky';
 import { qty } from '../../lib/sci';
 import { getBody } from '../../sim/bodies';
 import { formatDurationShort } from '../../lib/time';
@@ -202,29 +203,35 @@ function Palette() {
   const stars = useSyncExternalStore(subscribeStars, starsVersion);
   const planets = useSyncExternalStore(subscribeExoplanets, exoplanetsVersion);
   const small = useSyncExternalStore(subscribeSmallNames, smallNamesVersion);
+  const deepSky = useSyncExternalStore(subscribeDeepSky, deepSkyVersion);
   const [namesFailed, setNamesFailed] = useState(false);
   useEffect(() => {
     void loadStarNames().then((t) => setNamesFailed(!t));
     void loadSmallNames(normalise);
     void loadStarExtra();
     void loadExoplanetCatalogue();
+    // The deep-sky catalogues' names (NGC 1234, PSR J0437−4715, GW150914): searched once they arrive.
+    requestDeepSky(ALL_DEEP_SKY);
   }, []);
   const featured = useMemo(() => featuredDestinations(), [registry]);
   const results = useMemo(
     () =>
       withStars(
         withStars(
-          // The registry's matches and the asteroids', by score (an exact "Eros" before a near "Eris"), the registry's first when equal.
-          [...searchDestinations(query), ...asteroidMatches(query)]
-            .map((m, i) => ({ m, i }))
-            .sort((a, b) => b.m.score - a.m.score || a.i - b.i)
-            .map(({ m }) => m.destination)
-            .filter((d, i, all) => all.findIndex((x) => x.id === d.id) === i),
-          exoplanetDestinations(query),
+          withStars(
+            // The registry's matches and the asteroids', by score (an exact "Eros" before a near "Eris"), the registry's first when equal.
+            [...searchDestinations(query), ...asteroidMatches(query)]
+              .map((m, i) => ({ m, i }))
+              .sort((a, b) => b.m.score - a.m.score || a.i - b.i)
+              .map(({ m }) => m.destination)
+              .filter((d, i, all) => all.findIndex((x) => x.id === d.id) === i),
+            exoplanetDestinations(query),
+          ),
+          deepSkyDestinations(query),
         ),
         starDestinations(query),
       ),
-    [query, registry, stars, planets, small],
+    [query, registry, stars, planets, small, deepSky],
   );
   const browsing = query.trim() === '';
   const list = browsing ? featured : results;
@@ -233,7 +240,7 @@ function Palette() {
 
   // Featured rows all show their cost; search results only the highlighted one.
   const want = flying ? [] : browsing ? featured : activeDest ? [activeDest] : [];
-  const costs = useCosts(want, !flying, `${registry} ${stars} ${planets}`);
+  const costs = useCosts(want, !flying, `${registry} ${stars} ${planets} ${deepSky}`);
   // Until the star names (and the exoplanet archive) are in, finding nothing proves nothing.
   const namesLoading = !starData.names && !namesFailed;
   const archiveLoading = catalogueStatus() === 'loading' || catalogueStatus() === 'idle';

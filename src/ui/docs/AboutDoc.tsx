@@ -451,7 +451,9 @@ function Sources() {
             SDSS-I/II galaxies, BOSS DR12 (Reid et al. 2016), the eBOSS DR16 catalogues (Ross et al. 2020; Raichoor et al. 2021)
             and DR16Q (Lyke et al. 2020). Changed for Skyfold: merged without duplicates or the Cosmicflows-4 galaxies, placed
             by redshift in the Planck 2018 cosmology, classed by colour, rounded to 5″ and 0.125 Mpc and tiled (docs/data/surveys.md
-            in the source). Their acknowledgements:
+            in the source). And <Ext href="https://doi.org/10.5281/zenodo.10403370">Quaia</Ext>, the Gaia–unWISE quasar catalogue
+            (Storey-Fisher et al. 2024, ApJ 964, 69; CC BY 4.0), without the quasars the surveys have, placed the same way with
+            each redshift’s error kept as a distance error. Their acknowledgements:
             <span className="mt-1 block">DESI: “{DESI_ACKNOWLEDGEMENT}”</span>
             {SDSS_ACKNOWLEDGEMENTS.map((a) => (
               <span key={a.phase} className="mt-1 block">
@@ -656,7 +658,8 @@ function Limitations() {
           The galaxy surveys are placed by redshift, as if all of it came from the expansion: each galaxy’s own motion shifts it
           along our line of sight, so clusters are drawn as spikes pointing at the Solar System. They cover about a third of the
           sky and thin out with distance, and the galaxies too small to draw from where you are are shown as glows holding their
-          light.
+          light. Quaia’s quasars, over the whole sky but the Milky Way’s plane, have redshifts from Gaia’s low-resolution spectra,
+          uncertain by about 200 Mpc in distance: each is drawn as a streak along our line of sight over its likely distances.
         </li>
         <li>Planets are lit without the 1/r² dimming of sunlight, and the relativistic view uses automatic exposure.</li>
         <li>The superluminal drive is fiction, provided for comparison; nothing measured during it has physical meaning.</li>

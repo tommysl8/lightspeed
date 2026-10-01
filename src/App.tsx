@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect } from 'react';
+import { lazy, Suspense, useEffect, useSyncExternalStore } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { SimDriver } from './scene/SimDriver';
 import { Starfield } from './scene/Starfield';
@@ -48,9 +48,21 @@ import { useShortcuts } from './ui/useShortcuts';
 import { useExplainerTriggers } from './ui/useExplainerTriggers';
 import { useUI } from './state/ui';
 import { useDocRoute } from './state/route';
+import { deepSkyGate, subscribeDeepSky } from './sim/deepsky';
 
 // The reading pages (with KaTeX) load on first use.
 const DocView = lazy(() => import('./ui/docs/DocView'));
+// So do the deep-sky catalogues' markers, with their runtime, once a catalogue is first wanted (sim/deepsky).
+const DeepSky = lazy(() => import('./scene/DeepSky'));
+
+function DeepSkyLayer() {
+  const started = useSyncExternalStore(subscribeDeepSky, () => deepSkyGate.started);
+  return started ? (
+    <Suspense fallback={null}>
+      <DeepSky />
+    </Suspense>
+  ) : null;
+}
 
 /**
  * Below 900 px the docks overlay the viewport. Show one at a time, and clear them away when the
@@ -122,6 +134,7 @@ export default function App() {
           <NuclearCluster />
           <CosmicWeb />
           <Surveys />
+          <DeepSkyLayer />
           <Constellations />
           <PlanetHosts />
           <EclipticGrid />

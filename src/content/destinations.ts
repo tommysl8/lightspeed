@@ -33,8 +33,10 @@ export const DESTINATION_GROUPS = [
   { id: 'milky-way', title: 'The Milky Way' },
   { id: 'clusters', title: 'Star clusters' },
   { id: 'nebulae', title: 'Nebulae' },
+  { id: 'pulsars', title: 'Pulsars' },
   { id: 'galaxies', title: 'Galaxies' },
   { id: 'universe', title: 'Clusters, the cosmic web and the CMB' },
+  { id: 'mergers', title: 'Gravitational-wave events' },
 ] as const;
 
 export type DestinationGroup = (typeof DESTINATION_GROUPS)[number]['id'];
@@ -237,6 +239,10 @@ export function bodyGroup(r: BodyRecord): DestinationGroup {
       return 'nebulae';
     case 'black-hole':
       return holeGroup(r);
+    case 'pulsar':
+      return 'pulsars';
+    case 'merger':
+      return 'mergers';
     case 'galaxy':
       return r.id === 'milky-way' ? 'milky-way' : 'galaxies';
     default:

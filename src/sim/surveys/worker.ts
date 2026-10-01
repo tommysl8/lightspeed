@@ -8,7 +8,7 @@ import { fetchTile } from './fetchTile.ts';
 export type SurveyWorkerRequest = { id: number; kind: 'hierarchy'; url: string } | { id: number; kind: 'node'; url: string; side: number };
 export type SurveyWorkerReply =
   | { id: number; ok: true; kind: 'hierarchy'; buffer: ArrayBuffer; bytes: number }
-  | { id: number; ok: true; kind: 'node'; position: Float32Array; attrs: Uint8Array; glows: Float32Array; count: number; bytes: number }
+  | { id: number; ok: true; kind: 'node'; position: Float32Array; attrs: Uint8Array; extra: Uint8Array; extraPer: number; glows: Float32Array; count: number; bytes: number }
   | { id: number; ok: false; error: string };
 
 interface WorkerScope {
@@ -27,9 +27,10 @@ scope.onmessage = (e) => {
         return;
       }
       const n = decodeNode(buffer, req.side);
-      scope.postMessage({ id: req.id, ok: true, kind: 'node', position: n.position, attrs: n.attrs, glows: n.glows, count: n.count, bytes }, [
+      scope.postMessage({ id: req.id, ok: true, kind: 'node', position: n.position, attrs: n.attrs, extra: n.extra, extraPer: n.extraPer, glows: n.glows, count: n.count, bytes }, [
         n.position.buffer as ArrayBuffer,
         n.attrs.buffer as ArrayBuffer,
+        n.extra.buffer as ArrayBuffer,
         n.glows.buffer as ArrayBuffer,
       ]);
     } catch (err) {

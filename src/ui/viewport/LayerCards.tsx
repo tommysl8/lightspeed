@@ -18,8 +18,8 @@ import { useUI } from '../../state/ui';
 import { sim } from '../../sim/sim';
 import { relView } from '../../render/relativisticView';
 import { useTicker } from '../useTicker';
-import { CMB_CARD, COSMIC_WEB_CARD, cosmicWebShare, SURVEY_CARD, surveyShare, webMembersShown } from '../cosmicLayers';
-import { survey } from '../../sim/surveys/load';
+import { CMB_CARD, COSMIC_WEB_CARD, cosmicWebShare, quaiaShare, SURVEY_CARD, surveyShare, webMembersShown } from '../cosmicLayers';
+import { quaia, survey } from '../../sim/surveys/load';
 import { cmbEpochNote } from '../../sim/cosmos/cmb';
 import { NSC_LAYER_CARD, nuclear } from '../../sim/galaxy/nuclearCluster';
 import { FLOW_HOLE, flowPoint, type FlowPoint } from '../../sim/blackholes/accretion';
@@ -57,6 +57,7 @@ function LayerCard({
   title,
   line,
   caveat,
+  note,
   more,
   sources,
   article,
@@ -66,6 +67,8 @@ function LayerCard({
   title: string;
   line: string;
   caveat?: string;
+  /** A line more under the caveat, for a part of the layer that shows only at times. */
+  note?: string;
   more: readonly string[];
   /** Its credits and references, under Sources. */
   sources: readonly string[];
@@ -93,6 +96,7 @@ function LayerCard({
       </div>
       <p>{line}</p>
       {caveat && <p className="mt-0.5 text-fg-3">{caveat}</p>}
+      {note && <p className="mt-0.5 text-fg-3">{note}</p>}
       {open && more.map((m) => <p key={m} className="mt-1 text-fg-3">{m}</p>)}
       {sources.length > 0 && (
         <Sources className="mt-1">
@@ -124,6 +128,8 @@ export function LayerCards() {
   const web = cosmicWebShare(webMode, sim.camera.pos.length()) >= WEB_CARD_SHARE || webMembersShown.now;
   // The surveys' card once they show (and their index has loaded).
   const surveys = !!survey.hierarchy && surveyShare(surveysMode, sim.camera.pos.length()) >= WEB_CARD_SHARE;
+  // Its line on Quaia once Quaia's quasars show too.
+  const quaiaShown = !!quaia.hierarchy && quaiaShare(surveysMode, sim.camera.pos.length()) >= WEB_CARD_SHARE;
   // The map is drawn in the plain view (and the plain half of the split view).
   const cmb = showCmb && (!relView.active || relView.split);
   // The nuclear cluster's field while its points are drawn (within 60 pc of Sgr A*, once loaded).
@@ -172,6 +178,7 @@ export function LayerCards() {
           title={SURVEY_CARD.title}
           line={SURVEY_CARD.line}
           caveat={SURVEY_CARD.caveat}
+          note={quaiaShown ? SURVEY_CARD.quaia : undefined}
           more={SURVEY_CARD.more}
           sources={[`${SURVEY_CARD.credit}.`]}
           article={COSMOS_ARTICLE}

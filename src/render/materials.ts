@@ -33,6 +33,7 @@ import { nscGlowUniforms } from '../sim/galaxy/nuclearCluster';
 import { lensUniforms } from './lens/lensUniforms';
 import { MAP_DEPTH_NEAR_MPC, POINT_KERNEL } from './galaxyMap';
 import { LUM_LOG_MIN, LUM_LOG_STEP } from '../sim/surveys/format.ts';
+import { QUAIA_FADE_MIN, QUAIA_FADE_MPC, SIGMA_LOG2_MIN, SIGMA_STEPS_PER_OCTAVE, STREAK_CUT_ACROSS, STREAK_CUT_ALONG, STREAK_LENGTH_GAIN, STREAK_LONG_PX, STREAK_MIN_ALPHA } from '../sim/surveys/quaia.ts';
 
 import blackbodyGlsl from './shaders/blackbody.glsl?raw';
 import relativityGlsl from './shaders/relativity.glsl?raw';
@@ -69,6 +70,7 @@ import cosmicWebVert from './shaders/cosmicWeb.vert.glsl?raw';
 import galaxyMapGlsl from './shaders/galaxyMap.glsl?raw';
 import surveyVert from './shaders/survey.vert.glsl?raw';
 import surveyGlowVert from './shaders/surveyGlow.vert.glsl?raw';
+import quaiaStreakVert from './shaders/quaiaStreak.vert.glsl?raw';
 import cmbMapFrag from './shaders/cmbMap.frag.glsl?raw';
 import lensGlsl from './shaders/lens.glsl?raw';
 import lensExactGlsl from './shaders/lensExact.glsl?raw';
@@ -963,6 +965,58 @@ export function createSurveyMaterial(): ShaderMaterial {
     },
     vertexShader: withEmission(surveyVert),
     fragmentShader: COSMIC_WEB_FRAG,
+    blending: AdditiveBlending,
+    depthTest: false,
+    depthWrite: false,
+    transparent: false,
+  });
+}
+
+/**
+ * Quaia's quasars (sim/surveys/quaia.ts): the survey quasars' violet a little bluer and paler, so that the quasars
+ * placed by a spectrum and those placed by Gaia's rough redshifts can be told apart even where a streak is short; their
+ * colour temperature is the survey quasars'.
+ */
+export const QUAIA_COLOR = new Color(0.72, 0.68, 1.0);
+
+const QUAIA_STREAK_FRAG = /* glsl */ `
+#include <logdepthbuf_pars_fragment>
+varying vec3 vColor;
+varying float vAlpha;
+varying vec2 vUv;
+varying float vFloor;
+void main() {
+  #include <logdepthbuf_fragment>
+  float g = (exp(-0.5 * vUv.x * vUv.x) - vFloor) * (exp(-0.5 * vUv.y * vUv.y) - exp(-0.5 * CUT_ACROSS * CUT_ACROSS));
+  if (g <= 0.0 || vAlpha <= 0.0) discard;
+  gl_FragColor = vec4(vColor * (vAlpha * g), 1.0);
+}
+`;
+
+/** Quaia's quasars as streaks along the line of sight (shaders/quaiaStreak.vert.glsl): one draw a node, added as the survey's points. */
+export function createQuaiaStreakMaterial(): ShaderMaterial {
+  initBlackbodyUniforms();
+  return new ShaderMaterial({
+    uniforms: {
+      ...relativityUniforms,
+      ...skyUniforms,
+      uPixelRatio: psfUniforms.uPixelRatio,
+      uNearMpc: { value: 1.5 },
+      uDepthMpc: { value: MAP_DEPTH_NEAR_MPC },
+      uColor: { value: QUAIA_COLOR },
+      uLnT: { value: SURVEY_CLASS_LN_T[3] },
+      uLum: { value: new Vector2(LUM_LOG_MIN, LUM_LOG_STEP) },
+      uSigmaCode: { value: new Vector2(SIGMA_LOG2_MIN, SIGMA_STEPS_PER_OCTAVE) },
+      uFade: { value: new Vector3(QUAIA_FADE_MPC[0], QUAIA_FADE_MPC[1], QUAIA_FADE_MIN) },
+      uResolution: { value: new Vector2(1, 1) },
+      uPointKernel: { value: POINT_KERNEL },
+      uMinAlpha: { value: STREAK_MIN_ALPHA },
+      uLengthGain: { value: STREAK_LENGTH_GAIN },
+      uLongPx: { value: new Vector2(STREAK_LONG_PX[0], STREAK_LONG_PX[1]) },
+    },
+    defines: { CUT_ALONG: STREAK_CUT_ALONG.toFixed(3), CUT_ACROSS: STREAK_CUT_ACROSS.toFixed(3) },
+    vertexShader: withEmission(quaiaStreakVert),
+    fragmentShader: QUAIA_STREAK_FRAG,
     blending: AdditiveBlending,
     depthTest: false,
     depthWrite: false,

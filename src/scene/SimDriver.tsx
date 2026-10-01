@@ -22,6 +22,8 @@ import { pickSmallBody } from './asteroidPick';
 import { ensureSmallBody } from '../sim/asteroids/bodies';
 import { updateNearbyStars } from '../sim/stars';
 import { updateExoplanets } from '../sim/exoplanets';
+import { updateDeepSky } from '../sim/deepsky';
+import { deepSkyLayersNow } from '../ui/deepSkyLayers';
 import { isWithin } from '../sim/bodies';
 import { updateCosmicSky } from '../sim/cosmos/expansion';
 import { nscPointsGate } from '../sim/galaxy/nuclearCluster';
@@ -130,6 +132,8 @@ export function SimDriver() {
     updateNearbyStars(keepStar);
     // The exoplanet archive loads once it is wanted; hosts registered from it go when left behind.
     updateExoplanets(keepStar, ui.focus);
+    // The deep-sky catalogues load when their layer first shows; their objects chosen as bodies go when let go of.
+    updateDeepSky(keepStar, deepSkyLayersNow());
     // The observer's rapidity, exact at any γ (from the trip model while flying)
     updateShipKinematics();
     // The black hole that matters from here, if any: its exact distance, clocks and frames (sim/gravity.ts)

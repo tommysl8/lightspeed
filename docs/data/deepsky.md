@@ -1,0 +1,156 @@
+# The deep-sky catalogues
+
+Objects you can find in "Where to?", pick in the view, visit and read about on a short card, from four catalogues: the
+NGC and IC objects that have a measured distance (OpenNGC), the pulsars of the ATNF Pulsar Catalogue, the Milky Way's
+supernova remnants with distances (Ranasinghe & Leahy 2022, after Green's catalogue), and the mergers of black holes
+and neutron stars heard in gravitational waves (GWTC, via GWOSC). Built 1 October 2026. Code in `scripts/build-ngc.mjs`,
+`build-pulsars.mjs`, `build-snrs.mjs`, `build-gw-events.mjs` and `scripts/deepsky/` (the builds), `src/sim/deepsky/`
+(the formats, the records, the loading, search and picking), `src/scene/DeepSky.tsx`, `src/render/deepSkyMaterials.ts`
+and the shaders `deepSkyMarker.vert.glsl`, `deepSkyGalaxy.vert.glsl` and `gwRegion.vert.glsl`. Counts of each run are in
+`docs/data/deepsky-build-log.txt`.
+
+## 1. Outputs
+
+| File | Size (gzip) | What |
+| --- | --- | --- |
+| `public/data/deepsky/ngc-galaxies.json.gz` | 295 kB | 6,411 NGC/IC galaxies, pairs and groups placed where the cosmic web or the galaxy surveys place them |
+| `public/data/deepsky/ngc-galactic.json.gz` | 37 kB | 794 NGC/IC clusters and nebulae of the Milky Way and the Magellanic Clouds |
+| `public/data/deepsky/ngc-existing.json.gz` | 2 kB | 366 NGC/IC/Messier designations of 139 objects the app already has, and which of its bodies each leads to |
+| `public/data/deepsky/pulsars.json.gz` | 175 kB | 4,179 pulsars |
+| `public/data/deepsky/snrs.json.gz` | 10 kB | 205 supernova remnants |
+| `public/data/deepsky/gw-events.json.gz` | 22 kB | 282 gravitational-wave mergers |
+
+Each is gzipped JSON of `{ meta, columns, rows }`: the column names once, a row's values in their order
+(`src/sim/deepsky/format.ts` reads them and checks the schema). None is part of the first load: see section 4.
+
+```
+npm run data:deepsky     # all four builds; each fetches its raw files into data-raw/ only when missing
+```
+
+## 2. Distances: nothing is placed without one
+
+A 3D map needs a distance, and OpenNGC gives none. An object is placed only where an openly licensed source measured
+how far it is; everything else is counted in the log and left out. Nothing is placed at a guessed distance.
+
+### NGC and IC (OpenNGC, 13,319 objects once its 651 duplicate entries are folded into their masters)
+
+| Kind | Placed | From | Left out |
+| --- | --- | --- | --- |
+| Galaxies, pairs, triplets, groups (10,750) | 3,902 | Cosmicflows-4 (matched by PGC number) | 4,312 with no measured distance in either source; 56 with two survey galaxies within 6″, 25 whose redshifts disagree |
+| | 778 | DESI DR1 redshift (matched on the sky) | |
+| | 1,731 | SDSS DR17 redshift (matched on the sky) | |
+| Open clusters, globulars, clusters with nebulae (923) | 309 | Hunt & Reffert 2024 (Gaia DR3; matched by name, astrometric S/N ≥ 5, type "open") | 145 |
+| | 74 | Baumgardt & Vasiliev 2021 (the app's globular clusters) | |
+| | 271 + 41 | the Large and Small Magellanic Clouds' distances | |
+| Planetary nebulae (130) | 55 | the Gaia EDR3 parallax of the central star (SIMBAD's identification), S/N ≥ 5 | 67 |
+| Other nebulae (233) | 44 | the Magellanic Clouds' distances | 163 |
+| Stars, double stars, associations, novae, "other", nonexistent (1,283) | | | not deep-sky objects |
+| Already in the app | 144 (27 galaxies, 83 clusters, 34 nebulae) | kept their own records | |
+
+- **Galaxies, Cosmicflows-4.** OpenNGC's cross-identifications give each galaxy's PGC number; Cosmicflows-4's table 2
+  is keyed by it. The galaxy is placed exactly where the cosmic web draws the same row (the web's own columns and its
+  `recommended` distance: its group's measured distance within 30 Mpc, its group's redshift beyond 60, blended
+  between; `src/sim/cosmos/cosmicWeb.ts`), and anchored as its group is in the expanding universe. The tests check every
+  one against the web. The card's range is the distance modulus's own uncertainty.
+- **Galaxies, DESI and SDSS.** The rest are matched to the galaxy surveys as built (`public/data/survey/`): a single
+  survey galaxy within 6″ of OpenNGC's position (median separation 1.6″, 95th percentile 3.3″: the tiles keep
+  directions to 5″), and, where OpenNGC gives a redshift, at a distance within 500 km/s of it. Placed where the survey
+  layer draws it; the card says a redshift distance is blurred by about 4 Mpc (300 km/s of peculiar motion).
+- **Open clusters** by name in Hunt & Reffert 2024 (its `Name` and `AllNames`), with its 16th–84th percentile range.
+- **Globular clusters** from the app's own `clusters.json.gz` (Baumgardt & Vasiliev 2021; Harris 2010 for five), so
+  the marker sits on the cluster's glow.
+- **Planetary nebulae:** SIMBAD gives many planetary nebulae the parallax of their central star; only Gaia EDR3's
+  (I/350) are used, only at 5σ or better, with the global zero point of Lindegren et al. (2021, −0.017 mas), as
+  1/parallax with the ±1σ range. No published catalogue of planetary-nebula distances was found under a licence that
+  allows redistribution (Frew et al. 2016 is MNRAS copyright; González-Santamaría et al. 2021 and Chornay & Walton 2021
+  are A&A 2021 papers without an open licence), so those were not used.
+- **The Magellanic Clouds:** a cluster or nebula within 8° of the LMC's centre (3.5° of the SMC's) that is not found in
+  the Milky Way's catalogues first (NGC 1901 is a Galactic cluster in front of the LMC; 47 Tucanae and NGC 362 are
+  Galactic globulars in front of the SMC) is placed at its Cloud: on the LMC's tilted disc (49.59 kpc, Pietrzyński et
+  al. 2019; the disc of van der Marel & Kallivayalil 2014, as `src/sim/cosmos/named.json` has them), at the SMC's
+  distance (62.44 kpc, Graczyk et al. 2020). The card says where it lies within the Cloud is not measured.
+- **Other nebulae** of the Milky Way (HII regions, reflection nebulae) have no open distance catalogue and are left out.
+- **Already in the app:** an object whose designation, Messier number or common name is the name or an alias of one of
+  the app's own bodies (`named.json`, the Local Volume Database's galaxies, `nebulae.json`, the famous clusters), or a
+  galaxy within an arcminute of one, is not written again; its designations go to `ngc-existing.json.gz`, and "Where
+  to?" takes "NGC 224" to the Andromeda Galaxy.
+
+### Pulsars (ATNF Pulsar Catalogue 2.8.1, 4,393 pulsars)
+
+The catalogue's own best distance (psrcat's `DIST`, as `defineParams.c` works it out): an independent distance first
+(`DIST_A`: a globular cluster's, an association's, HI absorption, 458), then a parallax at more than 3σ (49), then
+published limits (30), then the dispersion measure through the YMW16 model of the Galaxy's free electrons (3,642). Left
+out: 140 whose dispersion measure is more than YMW16 can account for (the model then returns 25 kpc, a stand-in rather
+than a distance) and 74 with no distance at all. A card whose distance comes from the dispersion measure says so in its
+one plain line: such distances are often off by a quarter and sometimes by a factor of two (Yao, Manchester & Wang
+2017).
+
+### Supernova remnants (Ranasinghe & Leahy 2022, 215 remnants)
+
+Their table 1 (CC BY 4.0, via VizieR J/ApJ/940/63) gives each remnant of Green's catalogue with a distance, recalculated
+on one rotation curve where it rests on a velocity. The revised distance where given, else the literature's (the middle
+of a range); left out: 7 with only a limit; 3 kept their own records (the Crab Nebula, Cassiopeia A, the Cygnus Loop,
+which the app shows with pictures). 18 rest on a model's estimate or an inference (Sedov models, diameters, spiral-arm
+membership), which their card says. **Green's catalogue itself** (Green 2025, J. Astrophys. Astron. 46, 14; copyright
+D. A. Green, with no licence for redistribution) is not copied: a remnant's place is the galactic longitude and
+latitude its Green name carries (to 0.1°), and its size, flux and type are left out, so its marker is a ring of fixed
+size. Common names (W44, IC 443, Vela…) are added for 44 well-known remnants.
+
+### Gravitational-wave events (GWTC via GWOSC, 391 entries)
+
+Every entry of the cumulative GWTC list with a parameter estimate: 282 (273 black hole + black hole, 7 black hole +
+neutron star, 2 neutron star + neutron star). The masses, final mass, luminosity distance and effective spin are the
+preferred estimate's, with their 90 % intervals; the kind follows the masses' medians (a component under 3 M☉ counts as
+a neutron star, as the catalogue's papers class them). Each sky map (multi-order HEALPix, from the parameter-estimation
+releases of GWTC-2.1, GWTC-3, GWTC-4.1 and GWTC-5.0 on Zenodo) gives three numbers: its most probable direction, the
+area of its 90 % credible region (median 1,474 deg², from 6 to 31,574) and how much of that region lies within 1.5
+radii of the peak (under 75 % for 189 maps: two or more patches). GW170817 is placed on its kilonova's galaxy NGC 4993
+with the catalogue's 16 deg². The luminosity distance and its 90 % interval are turned into comoving distances in the
+app's Planck 2018 cosmology.
+
+## 3. How they show
+
+- **Markers** (`src/sim/deepsky/markers.ts`, twinned by the shaders and by picking, so what is drawn is what can be
+  clicked). An extended object (a cluster, a nebula, a galaxy) is a thin ring of its true size once that is a pixel or
+  two across, and fades as the camera comes up to it; a compact one is a small mark within a distance of its kind (a
+  planetary nebula within 0.6–2 kpc, a remnant 1.5–4 kpc, a pulsar 0.4–1.2 kpc). From home a few hundred show, not
+  thousands. The selected object's marker always shows. In flight the markers are aberrated like stars; near a black
+  hole they fade out while its lens is drawn.
+- **Pulsars** beat with their spin: at the real period if it is 0.25 s or longer, else slowed by the least power of ten
+  that makes it so (the Crab ten times, a millisecond pulsar a thousand), and the card says by how much. The beat is a
+  narrow brightening from a dim floor, not a flash.
+- **Mergers** are soft regions, not points: five faint discs along the line of sight from the near to the far end of
+  the distance's 90 % interval, each as wide as the 90 % sky region at its distance, together a cone's frustum. A region
+  shows while it is a few to a hundred pixels across (the selected one to 250: wider would outgrow the largest point many
+  GPUs draw), so from near home only the best-localised show. They take part in the expansion like the galaxies.
+- **Labels** only for the selected object and the best-known: bodies are registered while their catalogue is loaded
+  for objects with a common name or a Messier number, eleven famous pulsars (labelled within 30 pc) and six famous
+  mergers. Any other object becomes a body only when chosen (picked, found, flown to) and is released a few seconds
+  after nothing holds it.
+- **Cards** are short: what it is, the distance with its range, one sentence with the key numbers, one plain line where
+  the place is a model or uncertain; the sources are under the folded "Sources".
+- **The View menu** has "Deep-sky objects", "Pulsars" and "Gravitational-wave events", each 'auto' by default: the
+  Milky Way's catalogues from among the stars (0.2 pc from the Sun) out to 150 kpc, the galaxies and mergers from 30 kpc.
+
+## 4. Loading and cost
+
+Nothing of this is in the first load: the code (the runtime, the records, the scene and the shaders) is a chunk of its
+own, fetched with the first catalogue that is wanted, and each catalogue's file when its layer first shows, when
+"Where to?" opens (it searches them all) or when its layer is turned on. A failed fetch is tried again after 2 s, 4, 8…
+up to a minute (`src/lib/retry.ts`).
+
+GPU cost, measured with `window.__ls.perf.ab` on the reference laptop's GPU (Intel integrated, Chrome with ANGLE
+Direct3D 11), a 2,880 × 1,620 canvas at pixel ratio 2, all three layers on against all off, five interleaved rounds,
+1 October 2026:
+
+| View | Frame, layers on | Cost (median of the rounds' differences) |
+| --- | --- | --- |
+| NGC 1850 in the LMC (every catalogue showing) | 8.35 ms | 0.17 ms |
+| The Vela Pulsar, 280 pc out | 14.5 ms | 0.10 ms |
+| M101, 7 Mpc out | 7.97 ms | 0.12 ms |
+| GW190814's region, 260 Mpc out | 8.57 ms | 0.15 ms |
+
+The first version drew rings and regions up to 400 px across and cost 0.68 ms in the LMC view (at 996 × 1,084): fill
+is the cost of point sprites on this GPU, so no marker is drawn wider than 200 px (a region 70 px, the selected one
+250), and the framing of the objects keeps theirs within that. The markers are a few thousand points culled in the
+vertex shader unless near or big enough.

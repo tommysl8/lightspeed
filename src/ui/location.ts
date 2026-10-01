@@ -120,7 +120,8 @@ function region(id: BodyId): Crumb[] {
   // The Local Group heads its own trail too, in the local universe.
   if (root.id === 'local-group') return cosmicCrumbs('local-universe');
   // Other galaxies, groups and clusters of galaxies: the levels of the universe they are in.
-  if (root.kind === 'galaxy' || (root.kind === 'cluster' && /galaxies/.test(root.kindText ?? ''))) return cosmicCrumbs(cosmicLevel(root));
+  // A merger heard in gravitational waves lies among the galaxies, as they do.
+  if (root.kind === 'galaxy' || root.kind === 'merger' || (root.kind === 'cluster' && /galaxies/.test(root.kindText ?? ''))) return cosmicCrumbs(cosmicLevel(root));
   // A nebula in another galaxy (the Tarantula in the Large Magellanic Cloud): under that galaxy.
   const host = root.deepSky?.hostGalaxy;
   if (host) {

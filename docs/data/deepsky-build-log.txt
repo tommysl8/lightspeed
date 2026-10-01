@@ -1,0 +1,74 @@
+=== build-ngc.mjs ===
+run on 2026-10-01
+OpenNGC: 13,970 rows, 13,319 objects once 651 duplicate entries are folded into their masters (651 found)
+  by type: G 10482, OCl 652, * 546, Other 419, ** 243, GPair 231, GCl 204, PN 130, Neb 94, HII 82, Cl+N 67, *Ass 62, RfN 38, GTrpl 26, SNR 11, GGroup 11, NonEx 10, EmN 8, Nova 3
+Cosmicflows-4: 55,877 galaxies, in the cosmic web's row order (checked against cosmic-web.bin.gz)
+galaxy surveys (the built tiles): 1,530,246 galaxies within 600 Mpc
+Hunt & Reffert 2024: 7,167 clusters, 484 NGC/IC names among their names
+SIMBAD: 95 NGC/IC planetary nebulae with a Gaia EDR3 parallax for the central star
+
+Placed and skipped, by kind of object and source of the distance:
+  cluster: already in the app (kept its record): 83
+  cluster: placed (bv21): 74
+  cluster: placed (hr24): 309
+  cluster: placed (lmc): 271
+  cluster: placed (smc): 41
+  cluster: skipped, no measured distance: 145
+  galaxy: already in the app (kept its record): 27
+  galaxy: placed (Cosmicflows-4): 3,902
+  galaxy: placed (DESI DR1 redshift): 778
+  galaxy: placed (SDSS DR17 redshift): 1,731
+  galaxy: skipped, no measured distance: 4,312
+  nebula: already in the app (kept its record): 26
+  nebula: placed (lmc): 41
+  nebula: placed (smc): 3
+  nebula: skipped, no measured distance: 163
+  planetary nebula: already in the app (kept its record): 8
+  planetary nebula: placed (gaia-pn): 55
+  planetary nebula: skipped, no measured distance: 67
+  skipped: not a deep-sky object (*): 546
+  skipped: not a deep-sky object (**): 243
+  skipped: not a deep-sky object (*Ass): 62
+  skipped: not a deep-sky object (NonEx): 10
+  skipped: not a deep-sky object (Nova): 3
+  skipped: not a deep-sky object (Other): 419
+  survey matches: 2509 (median 1.57", 95th percentile 3.30"); 56 with two survey galaxies within 6" and 25 whose redshifts disagree, left out
+
+wrote public/data/deepsky/ngc-galaxies.json.gz: 6,411 galaxies, 295 kB (887 kB inflated)
+wrote public/data/deepsky/ngc-galactic.json.gz: 794 clusters and nebulae, 37 kB (101 kB inflated)
+wrote public/data/deepsky/ngc-existing.json.gz: 366 designations of 139 bodies the app already has, 2.3 kB
+=== end of build-ngc.mjs ===
+
+=== build-pulsars.mjs ===
+run on 2026-10-01: ATNF Pulsar Catalogue 2.8.1, 4,393 pulsars
+Placed and skipped:
+  placed: between published limits: 30
+  placed: dispersion measure (YMW16): 3,642
+  placed: independent distance (DIST_A): 458
+  placed: parallax: 49
+  skipped: dispersion measure beyond what YMW16 can account for (25 kpc stand-in): 140
+  skipped: no distance: 74
+wrote public/data/deepsky/pulsars.json.gz: 4,179 pulsars, 175 kB (538 kB inflated)
+=== end of build-pulsars.mjs ===
+
+=== build-snrs.mjs ===
+run on 2026-10-01: Ranasinghe & Leahy 2022, table 1
+  already in the app (kept its record): 3
+  placed (a model estimate or an inference), its nature uncertain: 1
+  placed (a model estimate or an inference): 17
+  placed, its nature uncertain: 14
+  placed: 173
+  skipped: only a limit on its distance: 7
+wrote public/data/deepsky/snrs.json.gz: 205 remnants, 10.0 kB
+=== end of build-snrs.mjs ===
+
+=== build-gw-events.mjs ===
+run on 2026-10-01: GWOSC GWTC list, 391 entries, 282 with a parameter estimate
+sky maps: 1034 files for 282 events
+Placed and skipped:
+  placed: black hole + black hole: 273
+  placed: black hole + neutron star: 7
+  placed: neutron star + neutron star: 2
+  90 % sky areas: median 1473.8 deg², from 6.4 to 31574.2 deg²; 189 in two or more patches (under 75 % of the region within 1.5 radii of its peak)
+wrote public/data/deepsky/gw-events.json.gz: 282 mergers, 22.3 kB
+=== end of build-gw-events.mjs ===
