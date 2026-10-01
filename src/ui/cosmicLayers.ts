@@ -1,6 +1,6 @@
 /**
  * The data layers beyond the Galaxy: the cosmic web (the 55,877 galaxies of Cosmicflows-4 as a map),
- * the galaxy surveys (13.5 million galaxies and quasars of DESI and the SDSS, sim/surveys) and the map
+ * the galaxy surveys (13.5 million galaxies and quasars of DESI and the SDSS, and Quaia's all-sky quasars: sim/surveys) and the map
  * of the cosmic microwave background. What each is, in the words its card and the Guide use, and when
  * the web and the surveys show: like the constellation figures they are on by themselves where they
  * help ('auto': the web beyond the Local Group, the surveys beyond the local universe) and the View
@@ -57,6 +57,27 @@ export function surveyShare(mode: UIState['surveys'], distSunKm: number): number
   return t * t * (3 - 2 * t);
 }
 
+/**
+ * Quaia's quasars (the survey layer's all-sky part: sim/surveys/quaia.ts) load once the camera is QUAIA_LOAD_KM from
+ * the Sun, whatever the setting while the layer is on, and fade in to show fully by QUAIA_FULL_KM. Why 500 Mpc: 95 % of
+ * them are farther than 1.76 Gpc (z = 0.45), and their distances are uncertain by about 200 Mpc. Nearer home they would
+ * be a faint sprinkle far behind the survey's own galaxies, and what they are for, the sky the surveys could not see,
+ * shows as gaps only once the camera is far enough out to see the survey's footprint as fans with empty wedges between;
+ * 500 Mpc out it does. So the cosmic web's scene (200 Mpc out), Coma and everything nearer download none of Quaia's
+ * 4.8 MB, and the flights to the far universe do.
+ */
+export const QUAIA_LOAD_KM = 500 * MPC_KM;
+export const QUAIA_FULL_KM = 1000 * MPC_KM;
+
+/** Whether Quaia's files should load for the surveys' setting and the camera's distance from the Sun (km). */
+export const quaiaLoadWanted = (mode: UIState['surveys'], distSunKm: number): boolean => mode !== 'off' && distSunKm >= QUAIA_LOAD_KM;
+
+/** How much of Quaia shows (0 to 1): as much as of the surveys, times its own fade in by distance. */
+export function quaiaShare(mode: UIState['surveys'], distSunKm: number): number {
+  const t = Math.min(1, Math.max(0, (distSunKm - QUAIA_LOAD_KM) / (QUAIA_FULL_KM - QUAIA_LOAD_KM)));
+  return surveyShare(mode, distSunKm) * t * t * (3 - 2 * t);
+}
+
 /** Whether the surveys show now (at all). */
 export const surveysNow = (): boolean => surveyShare(useUI.getState().surveys, sim.camera.pos.length()) > 0;
 
@@ -71,10 +92,13 @@ export const SURVEY_CARD = {
   line: '13.5 million galaxies and quasars from DESI and the SDSS, out to 23 billion light-years: a map, not what the eye would see.',
   caveat: 'Placed by redshift: a galaxy’s own motion moves it along our line of sight, which stretches clusters into spikes pointing at us. The empty wedges are sky the surveys could not see: behind the Milky Way’s disc, and much of the south.',
   more: [
-    'Orange: red galaxies, mostly old stars. Blue: galaxies forming stars. Violet: quasars, gas falling into a supermassive black hole and outshining its galaxy. Glows hold the light of galaxies too small to draw from here.',
+    'Orange: red galaxies, mostly old stars. Blue: galaxies forming stars. Violet: quasars, gas falling into a supermassive black hole and outshining its galaxy; paler, bluer violet streaks are Quaia’s. Glows hold the light of galaxies too small to draw from here.',
+    'Quaia’s redshifts come from Gaia’s low-resolution spectra, not a spectrograph: a typical one is uncertain by 4 % of 1 + z, about 200 Mpc in distance, and a tenth of them by over 700 Mpc. Each streak runs over its quasar’s likely distances, holding the light of one point, and the least certain are fainter. Quasars that DESI or the SDSS measured are drawn from those surveys instead.',
     'A survey, not a census: far away only the brightest galaxies were seen, and each survey chose different kinds, so the map thins and changes colour with distance. Two thirds of the sky has not been mapped this way: blank is unobserved, not empty.',
   ],
-  credit: 'DESI Data Release 1 (CC BY 4.0) and SDSS DR17 (public domain); acknowledgements in the About page’s sources',
+  /** Shown under the caveat while Quaia's quasars show (from QUAIA_LOAD_KM). */
+  quaia: 'Quasars over the whole sky from Gaia (Quaia), in the wedges too: their distances are rough, so they are drawn stretched along the line of sight.',
+  credit: 'DESI Data Release 1 (CC BY 4.0) and SDSS DR17 (public domain); acknowledgements in the About page’s sources. Quaia: Storey-Fisher et al. 2024, ApJ 964, 69 (CC BY 4.0)',
 } as const;
 
 /** Whether the web shows now (at all). */

@@ -8,6 +8,10 @@ rest as glows. Code in `scripts/build-surveys.mjs` (the build), `src/sim/surveys
 matching, the loading and the choice of nodes), `src/scene/Surveys.tsx` and `src/render/surveyGlow.ts` (the drawing),
 `src/render/shaders/galaxyMap.glsl`, `survey.vert.glsl` and `surveyGlow.vert.glsl`.
 
+With them, from 500 Mpc out, 866,298 quasars over the whole sky from Quaia, the Gaia–unWISE quasar catalogue: those the
+surveys do not have, with distances from Gaia's rough redshifts, drawn as streaks along the line of sight as long as
+the distances are uncertain (§10).
+
 ## 1. Outputs
 
 | File | Size | What |
@@ -15,6 +19,8 @@ matching, the loading and the choice of nodes), `src/scene/Surveys.tsx` and `src
 | `public/data/survey/hierarchy.bin.gz` | 81.7 kB | the octree's 2,699 nodes: children, galaxy counts, file sizes, bounding boxes, and each node's own galaxies' summed light, centroid and spread |
 | `public/data/survey/r<octants>.bin.gz` | 2,699 files, 63.7 MB in all; median 11 kB, largest 102 kB | one node each: its galaxies (position, kind, luminosity) and its eight octants' glows |
 | `docs/data/surveys-build-log.txt` | | the build's counts, cuts and sizes |
+| `public/data/survey-quaia/hierarchy.bin.gz`, `r<octants>.bin.gz` | 4.7 kB; 166 files, 4.83 MB in all, median 16 kB, largest 102 kB | Quaia's quasars in the same format, each with its distance error (§10) |
+| `docs/data/quaia-build-log.txt` | | that build's counts and sizes |
 
 4.73 bytes a galaxy. Every file is under 1 MB (the build refuses otherwise). The files' base URL is one constant,
 `SURVEY_BASE_URL` in `src/sim/surveys/load.ts` (default the site's own `/data/survey/`): to serve the tiles from
@@ -81,8 +87,8 @@ The changes made (as CC BY asks): rows selected (below); duplicates removed; gal
 redshifts taken to the CMB frame and turned into comoving positions in the Planck 2018 cosmology; a class and an r-band
 luminosity added; positions rounded to 5″ and 0.125 Mpc; tiled into an octree with summed glows.
 
-Not used: 6dFGS, 2dFGRS and GAMA (no licence found on their pages), Quaia (its distances are uncertain by hundreds of
-Mpc), targets not yet observed, and any model of the unobserved universe.
+Not used: 6dFGS, 2dFGRS and GAMA (no licence found on their pages), targets not yet observed, and any model of the
+unobserved universe. Quaia (CC BY 4.0) is used, as a part of its own whose distances are shown as rough (§10).
 
 ## 4. What is done to the catalogues
 
@@ -211,7 +217,8 @@ and the journeys visit nearby, the Local Group, the nearby galaxies and the Virg
 most visits download none of it. The cosmic web's scene (200 Mpc out), Coma and the flights to the far universe do. The
 View menu's "Galaxy surveys" turns it on (loading wherever the camera is) or off for good; its card says what the
 points are, in two lines, and that they are placed by redshift. The layer fades out while a black hole's lens is drawn,
-and is not drawn before the earliest galaxies or once a − 1 passes 10³⁰, as the web.
+and is not drawn before the earliest galaxies or once a − 1 passes 10³⁰, as the web. Quaia's part loads only from 500 Mpc
+out (§10).
 
 **Loading** (`src/sim/surveys/load.ts`). The hierarchy once, then the nodes the frame's selection asks for, most wanted
 first, six at a time, each fetched, inflated and decoded in a worker. A failed download is tried again after 2 s,
@@ -272,7 +279,8 @@ is to be checked on the laptop.
 
 ## 9. Caveats and later
 
-- Two thirds of the sky is not in these surveys (everything south of declination −20° and the Milky Way's plane), and
+- Two thirds of the sky is not in these surveys (everything south of declination −20° and the Milky Way's plane; from
+  500 Mpc out Quaia's quasars fill it, with rough distances, all but the 10° nearest the plane), and
   the map thins with distance: flux-limited surveys see only the brighter galaxies far away, and each chose different
   kinds, so the density and colour change with distance (BGS to z ≈ 0.4, then LRGs, then ELGs and quasars) because of
   selection, not structure. DR1 is one year of five: its footprint is mottled on the scale of DESI's tiles.
@@ -289,3 +297,109 @@ is to be checked on the laptop.
   (expected early 2027) would replace DR1 with the same pipeline.
 - Hosting: 63.7 MB in 2,700 files in the repository, served by Vercel. A first view costs about 1.8–2.1 MB in 21–26
   files. If traffic grows, move `public/data/survey/` to another host and change `SURVEY_BASE_URL`.
+
+## 10. Quaia: quasars over the whole sky
+
+866,298 quasars from Quaia, the Gaia–unWISE quasar catalogue (Storey-Fisher et al. 2024, ApJ 964, 69; data
+doi:10.5281/zenodo.10403370, version 1.0.0, CC BY 4.0): the 1,295,502 quasars with Gaia G < 20.5 over the whole sky but
+the Milky Way's plane, less those DESI or the SDSS have. Their redshifts come from Gaia's low-resolution BP/RP spectra
+refined with unWISE colours, not from a spectrograph: the quoted error has a median of 4 % of 1 + z, and against the
+spectroscopic surveys 62 % agree within 1 % and 91 % within 20 % (the research's match). So their distances are rough, a
+few hundred megaparsecs, and they are drawn as streaks along our line of sight as long as that error, not as points.
+Built in a minute by `npm run data:quaia` (`scripts/build-quaia.mjs`; log in `docs/data/quaia-build-log.txt`) into
+`public/data/survey-quaia/`, the surveys' own format; code in `src/sim/surveys/quaia.ts` (what the build, the app and
+the tests share), `src/scene/Surveys.tsx` and `src/render/shaders/quaiaStreak.vert.glsl`. The survey's own tiles are
+not rebuilt or changed.
+
+**Inputs.** `data-raw/quaia/quaia_G20.5.fits` (171 MB) and its Zenodo record (the build stops if the record no longer
+says CC BY 4.0 or the file's MD5 differs from the record's), and the surveys' inputs in `data-raw/surveys/` (positions,
+redshifts and the same cuts as their build).
+
+**Left to the surveys.** Each of the surveys' catalogues is indexed on the sky (`src/sim/surveys/match.ts`), quasars first,
+and a Quaia quasar within 1.5″ of an entry is the same object: it is left out, and its spectroscopic redshift, in the
+survey's tiles, is the one drawn. Gaia's positions are good to milliarcseconds; matched again with every quasar moved 30″
+north, 261 (0.02 %) found a neighbour, so chance matches are negligible.
+
+| Matched first in | Quaia quasars left out |
+| --- | --- |
+| DESI DR1 quasars | 231,404 |
+| SDSS-IV eBOSS DR16 quasars | 75,244 |
+| SDSS DR16Q (z ≤ 3.5) | 112,726 |
+| SDSS DR16Q beyond z = 3.5 (the survey leaves these out; with a spectroscopic redshift known, Quaia's is not drawn either) | 2,312 |
+| DESI DR1 BGS, LRG, ELG galaxies (low-redshift quasars and AGN DESI classed with its galaxies) | 5,281, 1,959, 28 |
+| SDSS-I/II and BOSS galaxies | 169, 81 |
+| **All** | **429,204**; 866,298 kept |
+
+All 412,968 of Quaia's quasars south of declination −20° are kept (none is in the surveys). 150,998 of those kept lie
+within 20° of the Galactic plane, but Quaia too is nearly empty within 10° of it (2.2 quasars a square degree, against
+45 at high latitude: Gaia's crowding and the dust), so the middle of the survey's wedges stays empty: blank there is
+unobserved by either. All redshifts are kept (to z = 4.62): the survey's z = 3.5 cut is for DESI's quasar redshifts.
+
+**Placed** as the survey's galaxies: the redshift taken to the CMB frame, the comoving distance from the app's cosmology,
+along Gaia's direction. Median z 1.43, distances 1.76 Gpc (5 %) to 6.26 Gpc (95 %). Each quasar's error becomes a
+comoving distance error, half the span of its redshift's 1σ range, σχ = (χ(z + σz) − χ(z − σz)) / 2: median 206 Mpc,
+75 % 445, 90 % 705, 99 % 1,389. It is kept in a byte, log-coded (4 to 6,200 Mpc in steps of 2.9 %), as one extra byte a
+point (the node format's header byte 13 counts a point's extra bytes; 0 in the survey's tiles, which decode as before).
+Class: the survey's quasar class; catalogue code 10; luminosity that of an L* galaxy, as the survey's quasars (none has
+a measured one). 166 nodes, depth 5; 4.83 MB, 5.57 bytes a quasar; the hierarchy 4.7 kB.
+
+**Drawn as streaks** (`quaiaStreak.vert.glsl`, one quad a quasar, instanced). The quasar's place and the places 1σ
+nearer and farther along the line from the Sun are each seen as the survey's points are (redshifted, light-delayed if
+that is on, aberrated in flight) and projected; the quasar's point (its profile a Gaussian a sixth of its width) is
+smeared between them by a Gaussian of σ half that span, cut at 1.5σ each way: a line about two device pixels wide
+running over its quasar's ±1σ distances, soft at the ends. Seen end on, or with a small error, it is the point it would
+be. From where the camera usually is, far out, that is long: a quasar 4 Gpc away with the median error spans a few
+degrees. So, with the reasons measured:
+
+- Its light grows with its length as (σ along / σ across)^0.65 (`STREAK_LENGTH_GAIN`), and is less per pixel the longer it
+  is. With a point's light spread along it a streak was invisible from gigaparsecs out (each a hundredth of a point per
+  pixel); with all of it per pixel (0.8 tried) the streaks swamped the survey's fans from 5 and 10 Gpc.
+- One whose half length on the screen passes 30 CSS px fades out by 90 (`STREAK_LONG_PX`): a quasar whose likely
+  distances run across a large part of the view (near the camera, or with the largest errors) says little of where it
+  is, and such lines, crossing the whole view, were most of what showed from 2 Gpc and most of what the streaks cost.
+- The least certain are fainter: fully drawn to an error of 300 Mpc, fading to 0.15 by 1,000 Mpc (`quaiaFade`; 322,911
+  are faded, 32,453 to the floor). The glows hold the same faded light (the build weights each quasar's light by it).
+- Colour: the survey quasars' violet a little bluer and paler (`QUAIA_COLOR`), at their colour temperature. From far out
+  every point is reddened by the expansion as the survey's are, so there the shape tells the two apart.
+
+**The budget.** A streak's vertices cost less than the survey point it replaces (measured: with every streak culled in its
+vertex shader, 31,000 streaks and 107,000 points cost 0.5 ms less than 200,000 points), but its pixels cost: 31,000
+full-length streaks added 2.5 ms at 2 Gpc. So a Quaia quasar counts against the point budget as its streak's pixels over
+a point's (`streakCost`: the median error, two thirds across the line of sight, at its node's distance; 0.5 when too
+long to draw), and Quaia takes at most a quarter of the budget (`QUAIA_BUDGET_SHARE`); the survey has the rest, all of it
+when Quaia uses less. Chosen by one law over both octrees (`lod.ts selectNodesOf`, which can), Quaia's sparse, costly
+streaks took two thirds of the budget from 2 Gpc and left the survey's own map a third of its points. From 2 Gpc Quaia
+draws about 3,500 quasars and the survey 150,000 points; from 14 Gpc 13,500 and 150,000.
+
+**When.** Quaia's files load only once the camera is 500 Mpc from the Sun, whatever the setting while the layer is on,
+and it fades in to show fully by 1 Gpc (`ui/cosmicLayers.ts`). 95 % of the quasars are farther than 1.76 Gpc and their
+distances uncertain by about 200 Mpc: nearer home they would be a faint sprinkle far behind the survey's own galaxies, and
+what they are for, the sky the surveys could not see, shows as gaps only once the camera is far enough out to see the
+survey's footprint as fans with empty wedges between. So the cosmic web's scene (200 Mpc), Coma and everything nearer
+download none of it. The files share the surveys' worker and their six downloads in flight (the survey's first), and
+retry as theirs do (`lib/retry.ts`). The layer's card adds one line while Quaia shows: "Quasars over the whole sky from
+Gaia (Quaia), in the wedges too: their distances are rough, so they are drawn stretched along the line of sight."
+
+**Performance and downloads**, as §8 (the same laptop and harness, `perf.ab` with the layer on against off, five rounds;
+the point budget held at 200,000; looking home from right ascension 318°, declination +48°, except at 2 Gpc):
+
+| View | Downloaded from a cold start: the survey's, Quaia's | Drawn: survey points, Quaia streaks | The layer's GPU cost (rounds) | The survey alone, same minutes | Whole frame |
+| --- | --- | --- | --- | --- | --- |
+| Within 500 Mpc of the Sun | Quaia: nothing | as §8, 200,000 points | as §8 | | unchanged |
+| 2 Gpc out (`controller.placeAt('local-group', 6.2e22)`) | 1.37 MB in 15 files; 109 kB in 2 | 150,000; 3,400 | 2.07 ms (1.22–2.56) | 1.90 ms, 200,000 points | 9.1 ms |
+| 5 Gpc out, looking home | 1.40 MB in 16 files; 109 kB in 2 | 150,000; 5,000 | 1.56 ms (1.31–1.86; one round 6.1) | 1.46 ms | 8.5 ms |
+| 10 Gpc out, looking home | Quaia 109 kB in 2 files | 150,000; 10,100 | | | |
+| 14 Gpc out, looking home | Quaia 109 kB in 2 files | 150,000; 11,700 | | | |
+
+The canvas was 2,880 × 1,368 at pixel ratio 2; the frame read 6.6–6.9 ms with the layer off. The machine was busier than
+for §8 (the survey alone read 1.90 ms at 2 Gpc where §8 has 1.62), and single rounds swung by a millisecond or more; Quaia
+adds 0.1–0.2 ms to the survey's cost at the same budget, within the noise. Every far view draws a part of Quaia's root
+node only (16,384 quasars, a fair sample of the whole sky), so a first view downloads its hierarchy and that one file,
+109 kB, and nothing more. Nothing is added to the first load of the app: the files load from 500 Mpc out, and the code
+adds 4.4 kB (gzip) to the main script.
+
+**Caveats.** Quaia's redshift errors are not Gaussian: about 9 % are off by more than 20 % in 1 + z (a wrong line taken
+for another), and a streak shows the quoted 1σ only. Its selection is uneven on the sky (dust, Gaia's scanning), so its
+density there is not structure. Quasars inside the surveys' footprint that DR1 has not yet observed are drawn as Quaia's:
+DESI's later releases will turn many of them into spectroscopic points. Quaia's root node is drawn only in part from
+every view, so its glows are rarely drawn.

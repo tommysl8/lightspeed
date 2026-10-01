@@ -22,6 +22,10 @@
  * (tierOf); the points of a node are grouped by step, each group quantised to the node's corner, sorted along a
  * Morton curve and stored as varint differences (the first 17 bits of each axis; any bits below go packed after).
  * All multi-byte numbers are little-endian.
+ *
+ * A catalogue may give its points more bytes than kind and luminosity: header byte 13 says how many (NODE_EXTRA_AT; 0
+ * in the galaxy surveys' own tiles, which were written before it was read), each stored as a plane of one byte a point
+ * after the luminosity bytes. Quaia's tiles keep its quasars' distance errors there (quaia.ts).
  */
 
 export const SURVEY_ROOT_MPC = 32768;
@@ -280,6 +284,8 @@ export class BitReader {
 export const NODE_MAGIC = 'LSSN';
 export const NODE_VERSION = 1;
 const NODE_HEADER = 16;
+/** Header byte holding how many extra bytes each point has (0 where nothing was written there: the surveys' tiles). */
+export const NODE_EXTRA_AT = 13;
 /** Per octant: the light per class (4 float32), the centroid (3 float32, Mpc from the node's centre), the rms radius (float32, Mpc). */
 export const GLOW_FLOATS = 8;
 const GLOW_BYTES = 8 * GLOW_FLOATS * 4;
@@ -297,6 +303,9 @@ export interface DecodedNode {
   position: Float32Array;
   /** Per point: kind byte (class | catalogue << 2) and luminosity byte. */
   attrs: Uint8Array;
+  /** Per point its extra bytes, `extraPer` of them (none in the surveys' own tiles). */
+  extra: Uint8Array;
+  extraPer: number;
   glows: Glows;
 }
 
@@ -316,8 +325,8 @@ export function nodeBox(path: readonly number[] | string): { side: number; lo: [
 
 /**
  * Encode a node: `pos` world Mpc (3 per point, float64), `tier` each point's tier, `kind` and `lum` its bytes; `lo`
- * and `side` the node's cube; `glows` its octants'. The points come back in the file's order in `order` (indices
- * into the input), which the decoder reproduces.
+ * and `side` the node's cube; `glows` its octants'; `extra` any more bytes of each point (`per` a point, interleaved).
+ * The points come back in the file's order in `order` (indices into the input), which the decoder reproduces.
  */
 export function encodeNode(
   pos: Float64Array,
@@ -327,8 +336,11 @@ export function encodeNode(
   lo: readonly number[],
   side: number,
   glows: Glows,
+  extra: { per: number; bytes: Uint8Array } | null = null,
 ): { bytes: Uint8Array; order: Uint32Array } {
   const n = tier.length;
+  const per = extra ? extra.per : 0;
+  if (per > 255 || (extra && extra.bytes.length !== n * per)) throw new Error('survey node: extra bytes do not match the points');
   const tiers = [...new Set(tier)].sort((a, b) => a - b);
   const out = new Bytes();
   const head = new DataView(new ArrayBuffer(NODE_HEADER));
@@ -337,6 +349,7 @@ export function encodeNode(
   head.setUint16(6, NODE_HEADER, true);
   head.setUint32(8, n, true);
   head.setUint8(12, tiers.length);
+  head.setUint8(NODE_EXTRA_AT, per);
   out.bytes(new Uint8Array(head.buffer));
   out.bytes(new Uint8Array(glows.buffer, glows.byteOffset, GLOW_BYTES).slice());
   const order = new Uint32Array(n);
@@ -391,6 +404,12 @@ export function encodeNode(
   }
   out.bytes(ka);
   out.bytes(la);
+  // Each extra byte as a plane of its own (one value a point, in the file's order): like values side by side, as gzip likes.
+  for (let e = 0; e < per; e++) {
+    const pa = new Uint8Array(n);
+    for (let j = 0; j < n; j++) pa[j] = extra!.bytes[order[j] * per + e];
+    out.bytes(pa);
+  }
   return { bytes: out.done(), order };
 }
 
@@ -398,7 +417,10 @@ export function encodeNode(
  * Decode a node's (inflated) file. `emit(j, qx, qy, qz, step)` receives each point's integer cell (from the node's
  * corner) and step; decodeNode below turns them into positions.
  */
-export function decodeNodeCells(buffer: ArrayBuffer | Uint8Array, emit: (j: number, qx: number, qy: number, qz: number, step: number) => void): { count: number; attrs: Uint8Array; glows: Glows } {
+export function decodeNodeCells(
+  buffer: ArrayBuffer | Uint8Array,
+  emit: (j: number, qx: number, qy: number, qz: number, step: number) => void,
+): { count: number; attrs: Uint8Array; extra: Uint8Array; extraPer: number; glows: Glows } {
   const b = buffer instanceof Uint8Array ? buffer : new Uint8Array(buffer);
   const dv = new DataView(b.buffer, b.byteOffset, b.byteLength);
   const magic = String.fromCharCode(b[0], b[1], b[2], b[3]);
@@ -407,6 +429,7 @@ export function decodeNodeCells(buffer: ArrayBuffer | Uint8Array, emit: (j: numb
   if (version !== NODE_VERSION) throw new Error(`unsupported survey node version ${version}`);
   const n = dv.getUint32(8, true);
   const tiers = dv.getUint8(12);
+  const per = dv.getUint8(NODE_EXTRA_AT);
   let p = dv.getUint16(6, true);
   const glows = new Float32Array(8 * GLOW_FLOATS);
   for (let i = 0; i < glows.length; i++) glows[i] = dv.getFloat32(p + 4 * i, true);
@@ -447,7 +470,9 @@ export function decodeNodeCells(buffer: ArrayBuffer | Uint8Array, emit: (j: numb
     attrs[2 * i] = b[p + i];
     attrs[2 * i + 1] = b[p + n + i];
   }
-  return { count: n, attrs, glows };
+  const extra = new Uint8Array(n * per);
+  for (let e = 0; e < per; e++) for (let i = 0; i < n; i++) extra[i * per + e] = b[p + (2 + e) * n + i];
+  return { count: n, attrs, extra, extraPer: per, glows };
 }
 
 /** Decode a node's file into float32 positions from its centre (Mpc) and interleaved attribute bytes, for the GPU. */
@@ -470,7 +495,10 @@ export function decodeNode(buffer: ArrayBuffer | Uint8Array, side: number): Deco
     attrs[2 * j] = r.attrs[2 * order[j]];
     attrs[2 * j + 1] = r.attrs[2 * order[j] + 1];
   }
-  return { count: r.count, position, attrs, glows: r.glows };
+  const per = r.extraPer;
+  const extra = new Uint8Array(n * per);
+  for (let j = 0; j < n; j++) for (let e = 0; e < per; e++) extra[j * per + e] = r.extra[order[j] * per + e];
+  return { count: r.count, position, attrs, extra, extraPer: per, glows: r.glows };
 }
 
 /**
