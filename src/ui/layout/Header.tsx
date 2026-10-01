@@ -218,6 +218,17 @@ function DateChip() {
 
 // ─── The View menu ───────────────────────────────────────────────────────────────────────
 
+/** Set once the View menu has been opened: its button's dot is then gone for good. */
+const VIEW_SEEN_KEY = 'lightspeed.viewSeen';
+
+function viewSeen(): boolean {
+  try {
+    return localStorage.getItem(VIEW_SEEN_KEY) === '1';
+  } catch {
+    return true;
+  }
+}
+
 function ViewMenu() {
   const s = useUI(
     useShallow((u) => ({
@@ -244,20 +255,34 @@ function ViewMenu() {
       accretionDisks: u.accretionDisks,
       radioEyes: u.accretionBand === 'mm',
       holePanelAuto: u.holePanelAuto,
+      notesHidden: u.hiddenNotes.length > 0,
       roaming: u.controlMode === 'roam' || u.controlMode === 'free',
     })),
   );
   const t = useUI.getState().toggle;
+  // Until the menu has been opened once, a dot on its button says there is more here (saved: VIEW_SEEN_KEY).
+  const [seen, setSeen] = useState(viewSeen);
   return (
     <Menu
       tour="view-menu"
-      title="View: display layers, optics, the instrument panel and help"
+      title="View: turn layers on and off (constellations, galaxy maps, pulsars…), optics, panels and help"
       ariaLabel="View"
       width={310}
+      buttonClassName="btn view-btn"
+      onOpen={() => {
+        if (seen) return;
+        setSeen(true);
+        try {
+          localStorage.setItem(VIEW_SEEN_KEY, '1');
+        } catch {
+          // storage blocked: the dot comes back next visit
+        }
+      }}
       label={
         <>
-          <Icon name="sliders" size={14} className="min-[900px]:hidden" />
+          <Icon name="sliders" size={14} />
           <span className="max-[899px]:hidden">View</span>
+          {!seen && <span className="view-dot" aria-hidden="true" />}
         </>
       }
     >
@@ -300,6 +325,13 @@ function ViewMenu() {
             hint="Near a black hole, its panel of clocks, height, thrust and tides opens by itself. Off, a small chip offers it; a black-hole scene or a fall still opens it"
           >
             Open the black-hole panel automatically
+          </Check>
+          <Check
+            checked={!s.notesHidden}
+            onChange={(v) => useUI.setState({ hiddenNotes: v ? [] : ['cmb', 'web', 'surveys', 'flow', 'belts', 'nsc'] })}
+            hint="The short notes on the data layers (the cosmic web, the galaxy surveys…) in the top left. Hide on a note puts that note away; this brings them all back"
+          >
+            Layer notes
           </Check>
           <MenuHeading>Scene</MenuHeading>
           <Check checked={s.showOrbits} onChange={() => t('showOrbits')} kbd="O">

@@ -7,7 +7,9 @@
  * stars round it (a statistical model of the nuclear star cluster and disc, its text in
  * sim/galaxy/nuclearCluster.ts) and the glowing gas falling into it (the accretion flow's model,
  * sim/blackholes/accretion.ts). Each says what the layer is and whether it is a model; each opens to say
- * more, keeps its credits and references under Sources (closed: Sources.tsx), and shows whenever its layer does.
+ * more, keeps its credits and references under Sources (closed: Sources.tsx), and shows whenever its layer does,
+ * unless it has been put away with its Hide: that hides the note only, never the layer (the View menu turns layers on
+ * and off), and is remembered between visits until View › Layer notes brings the notes back (state/ui.ts hiddenNotes).
  *
  * Cost: a few comparisons twice a second, and the flow's point once (a microsecond, nothing
  * allocated).
@@ -62,7 +64,7 @@ function LayerCard({
   sources,
   article,
   onClose,
-  closeTitle = 'Turn this layer off (View menu)',
+  closeTitle = 'Hide this note: the layer stays (the View menu turns layers off; View › Layer notes brings notes back)',
 }: {
   title: string;
   line: string;
@@ -109,6 +111,9 @@ function LayerCard({
   );
 }
 
+/** Put a layer's note away (remembered between visits); its layer stays as it is. */
+const hideNote = (key: string) => useUI.setState((s) => ({ hiddenNotes: s.hiddenNotes.includes(key) ? s.hiddenNotes : [...s.hiddenNotes, key] }));
+
 /** The flow's point this tick (reused). */
 const flowNow: FlowPoint = { magnitude: 99, spectralIndex: -0.5, rgb: [1, 1, 1], pointShare: 1 };
 
@@ -119,23 +124,21 @@ export function LayerCards() {
   const surveysMode = useUI((s) => s.surveys);
   const flowOn = useUI((s) => s.accretionFlow);
   const beltsOn = useUI((s) => s.showBelts);
-  // The asteroids' card can be put away for the visit without turning the layer off.
-  const [beltAway, setBeltAway] = useState(false);
-  const belts = !beltAway && asteroidCardShown(beltsOn);
-  // The stars round Sgr A* have no switch of their own: their card can be put away for the visit.
-  const [nscAway, setNscAway] = useState(false);
+  const hidden = useUI((s) => s.hiddenNotes);
+  const away = (key: string) => hidden.includes(key);
+  const belts = !away('belts') && asteroidCardShown(beltsOn);
   // Shown whatever the readouts setting: the label and caveats belong with the layers.
-  const web = cosmicWebShare(webMode, sim.camera.pos.length()) >= WEB_CARD_SHARE || webMembersShown.now;
+  const web = !away('web') && (cosmicWebShare(webMode, sim.camera.pos.length()) >= WEB_CARD_SHARE || webMembersShown.now);
   // The surveys' card once they show (and their index has loaded).
-  const surveys = !!survey.hierarchy && surveyShare(surveysMode, sim.camera.pos.length()) >= WEB_CARD_SHARE;
+  const surveys = !away('surveys') && !!survey.hierarchy && surveyShare(surveysMode, sim.camera.pos.length()) >= WEB_CARD_SHARE;
   // Its line on Quaia once Quaia's quasars show too.
   const quaiaShown = !!quaia.hierarchy && quaiaShare(surveysMode, sim.camera.pos.length()) >= WEB_CARD_SHARE;
   // The map is drawn in the plain view (and the plain half of the split view).
-  const cmb = showCmb && (!relView.active || relView.split);
+  const cmb = !away('cmb') && showCmb && (!relView.active || relView.split);
   // The nuclear cluster's field while its points are drawn (within 60 pc of Sgr A*, once loaded).
-  const nsc = !nscAway && nuclear.w > 0 && nuclear.points > 0;
+  const nsc = !away('nsc') && nuclear.w > 0 && nuclear.points > 0;
   // The gas while it is drawn and conspicuous: its point bright, or resolved by the lens (flowPoint: 99 when not drawn).
-  const flow = flowOn && flowPoint(FLOW_HOLE, flowNow).magnitude < FLOW_CARD_MAG;
+  const flow = !away('flow') && flowOn && flowPoint(FLOW_HOLE, flowNow).magnitude < FLOW_CARD_MAG;
   if (!web && !surveys && !cmb && !nsc && !flow && !belts) return null;
   const holeArticle = kindArticle('black-hole');
   return (
@@ -148,7 +151,7 @@ export function LayerCards() {
           more={[CMB_CARD.key, CMB_CARD.caveat]}
           sources={[`${CMB_CARD.credit}.`]}
           article={COSMOS_ARTICLE}
-          onClose={() => useUI.setState({ showCmb: false })}
+          onClose={() => hideNote('cmb')}
         />
       )}
       {belts && (
@@ -158,8 +161,7 @@ export function LayerCards() {
           caveat={ASTEROID_CARD.caveat}
           more={ASTEROID_CARD.more}
           sources={[ASTEROID_CARD.credit]}
-          onClose={() => setBeltAway(true)}
-          closeTitle="Put this card away for this visit (the layer stays: View › Small bodies, B)"
+          onClose={() => hideNote('belts')}
         />
       )}
       {web && (
@@ -170,7 +172,7 @@ export function LayerCards() {
           more={[COSMIC_WEB_CARD.key, COSMIC_WEB_CARD.caveat]}
           sources={[`${COSMIC_WEB_CARD.credit}.`]}
           article={COSMOS_ARTICLE}
-          onClose={() => useUI.setState({ cosmicWeb: 'off' })}
+          onClose={() => hideNote('web')}
         />
       )}
       {surveys && (
@@ -182,7 +184,7 @@ export function LayerCards() {
           more={SURVEY_CARD.more}
           sources={[`${SURVEY_CARD.credit}.`]}
           article={COSMOS_ARTICLE}
-          onClose={() => useUI.setState({ surveys: 'off' })}
+          onClose={() => hideNote('surveys')}
         />
       )}
       {flow && (
@@ -193,8 +195,7 @@ export function LayerCards() {
           more={FLOW_LAYER_CARD.more}
           sources={FLOW_LAYER_CARD.sources}
           article={holeArticle}
-          onClose={() => useUI.setState({ accretionFlow: false })}
-          closeTitle="Turn the accretion flow off (View › Accretion flow)"
+          onClose={() => hideNote('flow')}
         />
       )}
       {nsc && (
@@ -205,8 +206,7 @@ export function LayerCards() {
           more={NSC_LAYER_CARD.more}
           sources={NSC_LAYER_CARD.sources}
           article={holeArticle}
-          onClose={() => setNscAway(true)}
-          closeTitle="Put this card away for this visit (the stars stay: they are the sky here)"
+          onClose={() => hideNote('nsc')}
         />
       )}
     </div>

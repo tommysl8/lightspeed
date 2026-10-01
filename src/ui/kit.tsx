@@ -206,6 +206,7 @@ export function Menu({
   chevron = true,
   tour,
   className = '',
+  onOpen,
 }: {
   label: ReactNode;
   children: ReactNode | ((close: () => void) => ReactNode);
@@ -221,6 +222,8 @@ export function Menu({
   /** Anchor for the guided tour (data-tour). */
   tour?: string;
   className?: string;
+  /** Called each time the menu opens. */
+  onOpen?: () => void;
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -277,6 +280,7 @@ export function Menu({
         aria-controls={open ? id : undefined}
         onClick={(e) => {
           byKeyboard.current = e.detail === 0;
+          if (!open) onOpen?.();
           setOpen(!open);
         }}
         title={title}
