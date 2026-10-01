@@ -68,6 +68,7 @@ Almost everything you see comes from real measurements:
 - **Galaxy surveys:** 13.5 million galaxies and quasars from DESI DR1 and the SDSS, placed by their redshifts, and
   0.87 million more quasars over the whole sky from Gaia (Quaia), drawn stretched by their rough distances.
 - **Deep sky:** NGC/IC objects with measured distances (OpenNGC), ATNF pulsars, supernova remnants and gravitational-wave mergers.
+- **Pulsars up close:** the neutron star, its radio beams (false colour, their width from the spin period) sweeping round as it turns, and its magnetic field; neutron-star pairs such as the Double Pulsar and the Hulse–Taylor binary on orbits sized by Kepler's law.
 - **Black holes:** published measurements.
 
 Where something has to be a model, such as the Milky Way seen from outside, the gas around Sagittarius A\* or the

@@ -1373,6 +1373,15 @@ export class CameraController implements ControllerHoleApi {
     if (id === 'sun' || p.lengthSq() === 0) return this.orbitDir(0.6, 0.25);
     const toSun = p.clone().negate().normalize();
     const rec = getBody(id);
+    // A pulsar up close is seen from our side but nearly side-on to its spin, so its beams sweep across the view (a
+    // pair a little above its orbit, so the orbits open out): sim/deepsky/pulsarModel.ts.
+    const psr = rec?.pulsar;
+    if (psr) {
+      const s = psr.spin.axis;
+      const d = psr.toEarth.clone().addScaledVector(s, -0.85 * psr.toEarth.dot(s));
+      if (psr.pair) d.normalize().addScaledVector(s, 0.55 * Math.sign(psr.toEarth.dot(s) || 1));
+      if (d.lengthSq() > 1e-9) return d.normalize();
+    }
     // (Not home's own: the Milky Way and the Local Group are seen from outside, off our line of sight.)
     if (rec && FROM_EARTH_KINDS.has(rec.kind) && p.length() > FROM_EARTH_KM && id !== 'milky-way' && id !== 'local-group') return toSun;
     const side = new Vector3().crossVectors(UP, toSun).normalize();

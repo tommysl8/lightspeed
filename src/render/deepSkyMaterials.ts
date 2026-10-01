@@ -5,7 +5,7 @@
  * frame's updates reach these too. All are added light over the stars and under the bodies, with no depth test, like
  * the planet-host rings: guides, not things in space.
  */
-import { AdditiveBlending, Color, Matrix3, ShaderMaterial, Vector3 } from 'three';
+import { AdditiveBlending, Color, Matrix3, ShaderMaterial, Vector2, Vector3 } from 'three';
 import { psfUniforms, relativityUniforms, skyUniforms } from './materials';
 import markerVert from './shaders/deepSkyMarker.vert.glsl?raw';
 import galaxyVert from './shaders/deepSkyGalaxy.vert.glsl?raw';
@@ -86,6 +86,7 @@ export function createDeepSkyMarkerMaterial(): ShaderMaterial {
       uOpacity: { value: 0 },
       uTime: { value: 0 },
       uSelected: { value: -1 },
+      uHidden: { value: new Vector2(-1, -1) },
       uSelectedRel: { value: new Vector3() },
       uColors: { value: colours(MARKER_COLOURS) },
     },

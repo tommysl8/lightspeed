@@ -11,6 +11,7 @@
  *    the argument the data formats take (docs/data/); `time.ut` gives the civil date that the
  *    astronomy-engine providers and the date policy (ephemerisPolicy.ts) need.
  */
+import type { PulsarModel } from '../deepsky/pulsarModel';
 import type { AstroTime } from 'astronomy-engine';
 import type { Quaternion, Vector3 } from 'three';
 
@@ -417,6 +418,8 @@ export interface BodyRecord {
   deepSky?: DeepSkyInfo;
   /** A black hole's own data, for the lens, the clocks, the card and the data sheet (sim/blackholes). */
   blackHole?: BlackHoleInfo;
+  /** A pulsar's model up close: its spin, beams and field, and a neutron-star companion (sim/deepsky/pulsarModel.ts). */
+  pulsar?: PulsarModel;
 }
 
 /** A picture of a deep-sky object, with what its licence asks to be shown with it (CC BY 4.0). */

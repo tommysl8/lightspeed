@@ -20,6 +20,7 @@ import { METHOD } from '../cosmos/cosmicWeb';
 import { SURVEY_SOURCES } from '../surveys/format.ts';
 import type { Vec3 } from '../galaxy/frames';
 import { gpsToUnixMs, regionRadiusRad, type DeepSkySetId, type GwEvent, type NgcGalactic, type NgcGalaxy, type Pulsar, type Snr, type SnrFile } from './format';
+import { NS_RADIUS_KM, pulsarModel, shownPulse } from './pulsarModel';
 
 const LY_PER_PC = PARSEC_KM / LIGHT_YEAR_KM;
 const doiUrl = (doi: string) => `https://doi.org/${doi}`;
@@ -387,6 +388,9 @@ export function pulsarWhat(p: Pick<Pulsar, 'p0' | 'types'>): string {
   return 'Pulsar';
 }
 
+/** A pulsar's body id from its J name. */
+export const pulsarId = (jname: string): string => `psr-${slug(jname)}`;
+
 export function pulsarEntry(p: Pulsar, index: number): DeepSkyEntry {
   const famous = FAMOUS_PULSARS[p.jname];
   const name = famous?.names[0] && !/^(first|fastest|heaviest|binary)/.test(famous.names[0]) ? famous.names[0] : pulsarName(p);
@@ -394,7 +398,7 @@ export function pulsarEntry(p: Pulsar, index: number): DeepSkyEntry {
   return {
     set: 'pulsars',
     index,
-    id: `psr-${slug(p.jname)}`,
+    id: pulsarId(p.jname),
     name,
     aliases: [...new Set([...designations, ...(famous?.names ?? [])])].filter((a) => a !== name),
     kindText: name === pulsarName(p) ? pulsarWhat(p) : `${pulsarWhat(p)} · ${pulsarName(p)}`,
@@ -402,20 +406,7 @@ export function pulsarEntry(p: Pulsar, index: number): DeepSkyEntry {
   };
 }
 
-/** A period you can watch: a pulse at most this often (s) shows at its real rate; faster ones are slowed. */
-export const WATCHABLE_PERIOD_S = 0.25;
-
-/**
- * The period its marker pulses at, s, and how much slower than the real one: the real period if WATCHABLE_PERIOD_S or
- * longer, else slowed by the least power of ten that makes it so (the Crab's 33 ms ten times, a millisecond pulsar's a
- * thousand), so faster pulsars still pulse faster and the rhythm keeps its proportions.
- */
-export function shownPulse(p0: number): { periodS: number; slowedBy: number } {
-  if (!(p0 > 0)) return { periodS: 0, slowedBy: 1 };
-  let k = 1;
-  while (p0 * k < WATCHABLE_PERIOD_S) k *= 10;
-  return { periodS: p0 * k, slowedBy: k };
-}
+export { shownPulse, WATCHABLE_PERIOD_S } from './pulsarModel';
 
 const ATNF = 'ATNF Pulsar Catalogue (Manchester et al. 2005, AJ 129, 1993)';
 const ATNF_URL = 'https://www.atnf.csiro.au/research/pulsar/psrcat/';
@@ -459,11 +450,12 @@ export function pulsarRecord(p: Pulsar, entry: DeepSkyEntry): BodyRecord {
   const famous = FAMOUS_PULSARS[p.jname];
   const spin = 1 / p.p0;
   const pulse = shownPulse(p.p0);
+  const model = pulsarModel(p);
   const home = pulsarHome(p);
   const facts: string[] = [];
   if (Number.isFinite(spin)) {
     const rate = spin >= 2 ? `spinning ${rounded(spin, 3)} times a second` : `turning once every ${rounded(p.p0, 3)} seconds`;
-    const shown = pulse.slowedBy === 1 ? 'its marker pulses at that rate' : `its marker pulses ${pulse.slowedBy.toLocaleString('en-GB')} times slower`;
+    const shown = pulse.slowedBy === 1 ? 'it is shown turning at that rate' : `it is shown turning ${pulse.slowedBy.toLocaleString('en-GB')} times slower`;
     facts.push(`A neutron star ${rate}, its radio beam sweeping past us each turn; ${shown}.`);
   }
   if (Number.isFinite(p.pbDays)) facts.push(`It orbits ${p.companion && COMPANION[p.companion] ? COMPANION[p.companion] : 'a companion'} every ${p.pbDays < 1 ? `${rounded(p.pbDays * 24)} hours` : `${rounded(p.pbDays)} days`}${home.cluster ? `, in the globular cluster ${home.cluster}` : ''}.`);
@@ -485,6 +477,24 @@ export function pulsarRecord(p: Pulsar, entry: DeepSkyEntry): BodyRecord {
     cardNote: p.method === 'dm' ? DM_DISTANCE_NOTE : undefined,
     refs: [`${ATNF} (position, spin, distance)`],
   };
+  const slowed = pulse.slowedBy === 1 ? 'at its real rate' : `${pulse.slowedBy.toLocaleString('en-GB')} times slower than it really does`;
+  const pair = model?.pair;
+  const modelNotes = [
+    model
+      ? `Up close: the neutron star, about 24 km across, its two radio beams and its magnetic field, turning ${slowed}. Radio is invisible to the eye: the beams are shown in false colour, their width from its spin (Rankin 1993). From afar it is a small marker that pulses with it.`
+      : 'Shown as a small marker. A neutron star about 24 km across, it is far too small and faint to see.',
+    ...(model?.orientation === 'measured'
+      ? ['The tilt of its spin axis is measured (from the X-ray rings round it, or from its orbit); its beam sweeps over us each turn, as it must for us to see it pulse.']
+      : model
+        ? ['Which way its spin axis points is not known: it is chosen so that a beam sweeps over us each turn, as it must for us to see it pulse.']
+        : []),
+    ...(pair
+      ? [
+          `Its companion, ${pair.companionName ?? 'a neutron star'}, and their orbits round their centre of mass: the period from the catalogue, ${pair.eKnown ? 'the masses and the orbit’s shape published' : 'the masses taken as 1.35 and 1.25 Suns and the orbit drawn as a circle (its shape is not in our data)'}, its size from Kepler’s law; the orbit’s orientation in space is chosen.`,
+        ]
+      : []),
+    ...(p.method === 'dm' ? [DM_DISTANCE_NOTE] : []),
+  ];
   return {
     id: entry.id,
     name: entry.name,
@@ -493,21 +503,20 @@ export function pulsarRecord(p: Pulsar, entry: DeepSkyEntry): BodyRecord {
     kindText: entry.kindText,
     parent: null,
     // A neutron star's radius, about 12 km (NICER's measurements: Riley et al. 2021, Miller et al. 2021).
-    physical: { radiusKm: 12, colour: '#9fd8ff' },
+    physical: { radiusKm: NS_RADIUS_KM, colour: '#9fd8ff' },
     visual: { renderer: 'layer' },
-    framing: { distanceKm: 1e8, minKm: 1e3 },
+    // Framed by its light cylinder, or a pair by its orbit; as close as three of its radii.
+    framing: { distanceKm: model ? (model.pair ? 2.5 : 4) * model.sizeKm : 1e8, minKm: 3 * NS_RADIUS_KM },
     detector: false,
     orbitLine: false,
     onDemand: true,
     deepSky: info,
+    ...(model ? { pulsar: model } : {}),
     facts,
     factSources: [ATNF_URL, doiUrl('10.1086/428488')],
     factSourceLabels: ['ATNF Pulsar Catalogue', 'Manchester et al. 2005'],
     positionNote: `Position: ${ATNF}, at its distance, held fixed (its motion across the sky is not followed).`,
-    modelNotes: [
-      'Shown as a small marker that pulses with its spin (slowed when too fast to watch). A neutron star about 12 km across, it is far too small and faint to see.',
-      ...(p.method === 'dm' ? [DM_DISTANCE_NOTE] : []),
-    ],
+    modelNotes,
     dataSource: ATNF,
     article: 'what-stars-are-made-of',
     provider: fixedGalacticProvider(p.pos, 'Catalogue position at the catalogue’s distance'),
