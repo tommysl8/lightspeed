@@ -35,6 +35,7 @@
     "data:deepsky": "node scripts/build-ngc.mjs && node scripts/build-pulsars.mjs && node scripts/build-snrs.mjs && node --max-old-space-size=4000 scripts/build-gw-events.mjs",
     "data:quaia": "node --max-old-space-size=6000 scripts/build-quaia.mjs",
     "data:faint-stars": "node scripts/build-faint-stars.mjs",
+    "data:galaxy-face": "node --max-old-space-size=8000 scripts/build-galaxy-face.mjs",
     "data:nsc": "python scripts/build-nsc.py",
     "data:blackhole-fixtures": "python scripts/schwarzschild/make_fixtures.py --subset",
     "data:disk-fixtures": "python scripts/thin-disk/disk_ref.py",

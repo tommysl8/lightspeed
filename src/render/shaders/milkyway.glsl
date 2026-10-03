@@ -29,6 +29,10 @@ uniform float uMwGain;    // the sky map's share of the picture (1 near the Sun,
 uniform float uMwScale;   // Y = √(uMwScale · mean(p) · k), times uMwGain
 uniform vec2 uMwMuFade;   // surface brightness (mag/arcsec²) where the glow starts to fade and where it is gone
 uniform float uMwMinLod;  // the finest level drawn: 0 for the 2K map (texels of 10.5′)
+// The fine structure: the 8K map's luminance, one channel, same projection and encoding
+// (scripts/build-milkyway-detail.py), used once it has loaded (uMwDetailOn 1).
+uniform sampler2D uMwDetail;
+uniform float uMwDetailOn;
 
 const float MW_P0 = 2.0e-4;
 const float MW_LN = 8.517393171418904; // ln(1 + 1 / P0)
@@ -64,9 +68,11 @@ void footprint(vec2 dx, vec2 dy, float n, out vec2 a, out vec2 b) {
 // the pixel's footprint on the map; and, into eye, the same over the scale at which the eye gathers
 // faint light (4 texels, about 0.7°), which decides whether it is seen at all. The footprint comes
 // from the screen-space derivatives of the map position (so it includes the squeeze of the sky
-// ahead of a moving ship), with the anisotropic filter doing the rest. The map's
-// finest texels resolve faint stars into dots; drawn no finer than 10.5′ (uMwMinLod) they are the
-// glow the eye sees.
+// ahead of a moving ship), with the anisotropic filter doing the rest. The colour comes from the 2K
+// map, no finer than its 10.5′ texels (uMwMinLod); where a pixel is finer than that, the 8K map's
+// luminance over the pixel against its luminance over the same 2K footprint scales it, so the dust
+// lanes and star clouds are as sharp as 2.6′ and the picture is unchanged wherever the 2K map was
+// already fine enough (the ratio is then 1).
 vec3 milkyWayP(vec3 d, out vec3 eye) {
   vec3 ecl = vec3(d.x, -d.z, d.y);
   vec3 eq = vec3(ecl.x, MW_COS_E * ecl.y - MW_SIN_E * ecl.z, MW_SIN_E * ecl.y + MW_COS_E * ecl.z);
@@ -97,6 +103,18 @@ vec3 milkyWayP(vec3 d, out vec3 eye) {
   vec3 c = textureGrad(uMwTex, uv, ea / size, eb / size).rgb;
   vec3 p = MW_P0 * (exp(e * MW_LN) - 1.0);
   eye = MW_P0 * (exp(c * MW_LN) - 1.0);
+  if (uMwDetailOn > 0.5) {
+    vec2 dsize = vec2(textureSize(uMwDetail, 0));
+    vec2 ga;
+    vec2 gb;
+    footprint(dx * dsize * iso, dy * dsize * iso, 1.0, ga, gb);
+    ga /= iso;
+    gb /= iso;
+    float yf = MW_P0 * (exp(textureGrad(uMwDetail, uv, ga / dsize, gb / dsize).r * MW_LN) - 1.0);
+    float yc = MW_P0 * (exp(textureGrad(uMwDetail, uv, fa / size, fb / size).r * MW_LN) - 1.0);
+    // Steadied where the sky is nearly black (its noise would flicker).
+    p *= clamp((yf + 0.5 * MW_P0) / (yc + 0.5 * MW_P0), 0.0, 8.0);
+  }
   // The faint stars' light, in the map's own colour there (grey where the map is black).
   float fe = MW_P0 * (exp(textureGrad(uMwFaint, uv, fa / size, fb / size).r * MW_LN) - 1.0);
   float fc = MW_P0 * (exp(textureGrad(uMwFaint, uv, ea / size, eb / size).r * MW_LN) - 1.0);

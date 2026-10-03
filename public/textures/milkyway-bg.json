@@ -9,6 +9,11 @@
       "width": 2048,
       "height": 1024,
       "bytes": 971438
+    },
+    "milkyway-detail-8k.jpg": {
+      "width": 8192,
+      "height": 4096,
+      "bytes": 7655754
     }
   },
   "source": {
@@ -70,5 +75,26 @@
       }
     }
   },
-  "calibrationNote": "The full SVS star map equals 0.5 x this layer + the bright-star layer (measured ratio above), so the physically consistent background is 0.5 p. Star sums in the bright-star layer (x cos Dec, because the maps are rendered per unit solid angle) give V = zeroPointStarSum - 2.5 log10(sum). Hence the V-band surface brightness of a texel is muV = surfaceBrightnessZeroPoint - 2.5 log10(p) mag/arcsec^2 (uncertainty about 0.3 mag: HYG V against the SVS colour rendering). It excludes stars brighter than the Tycho-2 limit (V ~ 11), which the app draws as points."
+  "calibrationNote": "The full SVS star map equals 0.5 x this layer + the bright-star layer (measured ratio above), so the physically consistent background is 0.5 p. Star sums in the bright-star layer (x cos Dec, because the maps are rendered per unit solid angle) give V = zeroPointStarSum - 2.5 log10(sum). Hence the V-band surface brightness of a texel is muV = surfaceBrightnessZeroPoint - 2.5 log10(p) mag/arcsec^2 (uncertainty about 0.3 mag: HYG V against the SVS colour rendering). It excludes stars brighter than the Tycho-2 limit (V ~ 11), which the app draws as points.",
+  "detail": {
+    "file": "milkyway-detail-8k.jpg",
+    "product": "NASA SVS Deep Star Maps 2020, 'Milky Way background' layer, celestial coordinates, milkyway_2020_8k.exr",
+    "content": "Luminance Y = 0.2126 R + 0.7152 G + 0.0722 B of the linear values, one channel, log-encoded as the colour map's channels",
+    "use": "fine structure only: the 2K map's colour is scaled by this map's luminance over a pixel against its luminance over the 2K footprint",
+    "checks": {
+      "vs4k": {
+        "medianRatio": 0.2434,
+        "p05": 0.0818,
+        "p95": 0.5194
+      },
+      "roundTrip8k": {
+        "medianRelative": 0.0413,
+        "p95Relative": 0.1297
+      },
+      "roundTrip2k": {
+        "medianRelative": 0.0075,
+        "p95Relative": 0.022
+      }
+    }
+  }
 }

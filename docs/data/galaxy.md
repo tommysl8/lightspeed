@@ -23,12 +23,16 @@ and `src/render/galaxyLayer.ts`).
 | `public/data/galaxy-particles.bin.gz` | 199,500 particles sampled from the model | 1.68 MB |
 | `public/textures/milkyway-bg.jpg` | Milky Way sky from the Sun, 4096 x 2048, log-encoded | 3.58 MB |
 | `public/textures/milkyway-bg-2k.jpg` | Same, 2048 x 1024 (fallback / first load) | 0.97 MB |
-| `public/textures/milkyway-bg.json` | Projection, decoding and photometric calibration of the two textures | 3 KB |
+| `public/textures/milkyway-bg.json` | Projection, decoding and photometric calibration of the two textures (and the detail map's checks) | 3 KB |
+| `public/textures/milkyway-detail-8k.jpg` | The sky's fine structure: the 8K map's luminance, one channel, log-encoded | 7.7 MB |
+| `public/textures/galaxy-face-young.png`, `galaxy-face-dust.png` | The model seen face-on from outside: its young arm stars and its dust, 2048², 8-bit log | 0.65 MB |
 | `public/data/clusters.json.gz` | 1,500 open clusters and 164 globular clusters | 111 KB |
 | `public/images/nebulae/<id>.jpg` | 45 billboard images, at most 512 px | 2.83 MB total |
 | `scripts/build-galaxy.mjs` | Particle generator (Node, fixed seed, byte-identical reruns) | |
 | `scripts/build-clusters.mjs` | Cluster catalogue builder (Node) | |
 | `scripts/build-milkyway-bg.py` | Sky texture converter and calibration (Python: numpy, scipy, Pillow, OpenEXR) | |
+| `scripts/build-milkyway-detail.py` | The 8K detail map (Python: numpy, scipy, Pillow, OpenEXR; the 137 MB source is fetched once and not kept) | |
+| `scripts/build-galaxy-face.mjs` | The face-on maps (Node, through Vite for the model's TypeScript; about a minute) | |
 | `scripts/build-nebulae.py` | Nebula image and metadata builder (Python: numpy, Pillow) | |
 
 The two Python scripts exist because the project's Node dependencies include no EXR reader or JPEG encoder and
@@ -716,6 +720,13 @@ colour; a blackbody's radiance seen with Doppler factor D is that of a blackbody
   pass there costs 1.8 to 2.9 ms for 0.7 % of the sky, and drawing it at half resolution would save 0.6 to 2.1 ms
   anywhere near the Sun (proposed in `docs/data/blackholes.md` §11, not done).
 
+**Fine structure.** The colour comes from the 2K map, no finer than its 10.5′ texels; where a pixel is finer than
+that, the 8K map's luminance (`milkyway-detail-8k.jpg`, fetched after the 2K map where the GPU takes an 8K texture)
+over the pixel against its luminance over the 2K footprint scales it, so the dust lanes and star clouds are as sharp
+as 2.6′ and the picture is unchanged wherever the 2K map was already fine enough (the ratio is then 1). The 8K map's
+log luminance is smoothed by a Gaussian of 0.8 pixel first: its single-pixel speckle (faint stars a texel each)
+read as grain. 45 MB on the GPU as one channel with its mipmaps; two more texture reads a sky pixel.
+
 ### The model
 
 `scene/GalaxyModel.tsx`, `render/shaders/galaxy.vert.glsl`, `render/galaxyLayer.ts`. The particles and the globular
@@ -762,6 +773,21 @@ the square-root law splat by splat would make a smooth disc several times too br
   always add up to the same light (`docs/data/blackholes.md` §6). Near a black hole the layer's two targets (and a
   third holding the glow alone) are resampled through the lens in a box round the hole, and carry mipmaps within 3,000
   M of it (`docs/data/blackholes.md` §10).
+
+**Seen from outside.** From a few kiloparsecs above the disc (`sim/galaxy/faceOn.ts` faceShare: fully from 3 kpc
+above the midplane and an elevation of sin 0.4 seen from the centre, none below 1.5 kpc or sin 0.25) the discs and
+the young arm stars are drawn from face-on maps instead of their particles, which blur the structure over their
+8th neighbours: `shaders/galaxyFace.frag.glsl`, a quad into the fine target that finds where each pixel's line of
+sight crosses the midplane. The thin and thick discs are their laws (as the glow near the camera); the young arm
+stars' map is 2 million of the model's own young arm stars, 40 times the app's, each spread over its 8th neighbours
+(so their clumps show, at 19.5 pc a texel); the dust is the model's, A_V face-on. The column is S / μ through the
+disc (μ = |cos i|), the discs half in front of the dust layer and half behind ((1 + e^−τ) / 2 gets out), the young
+stars mixed with it ((1 − e^−τ) / τ), reddened as the particles are. Their particles and the glow near the camera
+hold 1 − that share (`uFaceShare`), so the light is the same; not drawn in flight or near a black hole (no Doppler
+shift, and the lens resamples the layer as it is). The layer is drawn at full resolution there (half on an
+integrated GPU) and among the galaxies beyond 40 kpc from the centre, at a quarter inside the Galaxy
+(`layerResolution`, with a margin so it does not flip). The outer disc is brighter than its particles drew it:
+their sparse splats each fell below the threshold of the eye there.
 
 ### Clusters and nebulae
 

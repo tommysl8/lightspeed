@@ -4,12 +4,15 @@
  * radii as the records assume, and the choice of template from a galaxy's type.
  */
 import { describe, expect, it } from 'vitest';
-import { buildTemplate, projectedHalfLight, templateFor, TEMPLATE_IDS, type Template } from './templates';
+import { buildTemplate, HD_DETAIL, neighbourDistances, projectedHalfLight, templateFor, TEMPLATE_IDS, type Template, type TemplateId } from './templates';
 import { DISC_HALF_LIGHT_PER_R25 } from './records';
 
 const t0 = performance.now();
 const all = new Map<string, Template>(TEMPLATE_IDS.map((id) => [id, buildTemplate(id)]));
 const buildMs = performance.now() - t0;
+const t1 = performance.now();
+const fine = new Map<string, Template>((Object.entries(HD_DETAIL) as [TemplateId, number][]).map(([id, k]) => [id, buildTemplate(id, k)]));
+const fineMs = performance.now() - t1;
 
 describe('templates', () => {
   it('are a few thousand points each, built in well under a second (in the worker)', () => {
@@ -19,6 +22,37 @@ describe('templates', () => {
       expect(t.count, t.id).toBeLessThanOrEqual(4200);
     }
     expect(buildMs).toBeLessThan(3000);
+  });
+
+  it('come in fine versions for galaxies large on screen, as many H II regions and the light shared out alike', () => {
+    for (const [id, t] of fine) {
+      const plain = all.get(id)!;
+      expect(t.detail).toBe(HD_DETAIL[id as TemplateId]);
+      expect(t.count).toBeGreaterThan(3 * plain.count);
+      let w = 0;
+      for (let i = 0; i < t.count; i++) w += t.attrs[4 * i];
+      expect(w, id).toBeCloseTo(1, 5);
+      // Their splats are smaller: the median against the plain template's.
+      const med = (x: Template) => Array.from({ length: x.count }, (_, i) => x.attrs[4 * i + 1]).sort((a, b) => a - b)[x.count >> 1];
+      expect(med(t) / med(plain), id).toBeLessThan(0.7);
+    }
+    // Generous: under the whole suite's load too (a brute-force search grows as the square of the count).
+    expect(fineMs).toBeLessThan(20000);
+  });
+
+  it('find each point’s 8th neighbour exactly', () => {
+    let seed = 7;
+    const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+    const n = 600;
+    const p = new Float32Array(3 * n);
+    for (let i = 0; i < n; i++) p.set([rnd() * 4 - 2, rnd() * 4 - 2, (rnd() - 0.5) * 0.1], 3 * i);
+    const fast = neighbourDistances(p, 0, n, 8);
+    for (let i = 0; i < n; i += 37) {
+      const d = [];
+      for (let j = 0; j < n; j++) if (j !== i) d.push(Math.hypot(p[3 * j] - p[3 * i], p[3 * j + 1] - p[3 * i + 1], p[3 * j + 2] - p[3 * i + 2]));
+      d.sort((a, b) => a - b);
+      expect(fast[i]).toBeCloseTo(d[7], 5);
+    }
   });
 
   it('are the same every time', () => {

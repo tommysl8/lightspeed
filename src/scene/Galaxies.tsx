@@ -29,10 +29,21 @@ const STRIDE = 22;
  */
 export const DETAIL_PX: readonly [number, number] = [2, 6];
 
+/**
+ * A galaxy with a fine template (sim/cosmos/templates.ts HD_DETAIL: eight times the particles, smaller splats) is drawn
+ * with it once its radius on screen passes FINE_PX[0] CSS px, fully from FINE_PX[1]; the two crossfade. Only a few
+ * galaxies are ever that large at once, so the extra particles cost little.
+ */
+export const FINE_PX: readonly [number, number] = [90, 180];
+
+/** A batch's key: the template, and whether it is the fine one. */
+const batchKey = (id: TemplateId, fine: boolean): string => (fine ? `${id}+fine` : id);
+
 /** Galaxies fainter than this as a whole, seen from the camera, are skipped (nothing of them could show). */
 const FAINTEST_MAG = 28;
 
 interface Batch {
+  key: string;
   template: TemplateId;
   geometry: InstancedBufferGeometry;
   buffer: InstancedInterleavedBuffer;
@@ -78,7 +89,7 @@ function batch(t: Template, capacity: number): Batch {
   g.instanceCount = 0;
   // Never culled or sorted: skip three.js's bounding sphere.
   g.boundingSphere = new Sphere(new Vector3(), Infinity);
-  return { template: t.id, geometry: g, buffer, capacity: Math.max(1, capacity) };
+  return { key: batchKey(t.id, t.detail > 1), template: t.id, geometry: g, buffer, capacity: Math.max(1, capacity) };
 }
 
 const cam = new Vector3();
@@ -102,7 +113,7 @@ export function Galaxies() {
   const version = useSyncExternalStore(subscribeCosmos, cosmosVersion);
   const material = useMemo(createGalaxiesMaterial, []);
   const camera = useThree((s) => s.camera) as PerspectiveCamera;
-  const [set, setSet] = useState<{ batches: Map<TemplateId, Batch>; prepared: Prepared[]; templates: Template[] } | null>(null);
+  const [set, setSet] = useState<{ batches: Map<string, Batch>; prepared: Prepared[]; templates: Template[] } | null>(null);
 
   useEffect(() => {
     const templates = cosmosState.templates;
@@ -110,10 +121,13 @@ export function Galaxies() {
     if (!templates || !shapes.length || set?.templates === templates) return;
     const counts = new Map<TemplateId, number>();
     for (const s of shapes) counts.set(s.template, (counts.get(s.template) ?? 0) + 1);
-    const batches = new Map<TemplateId, Batch>();
+    const batches = new Map<string, Batch>();
     for (const t of templates) {
       const n = t.id === 'point' ? shapes.length : (counts.get(t.id) ?? 0);
-      if (n > 0) batches.set(t.id, batch(t, n));
+      if (n > 0) {
+        const b = batch(t, n);
+        batches.set(b.key, b);
+      }
     }
     setSet({ batches, prepared: shapes.map(prepare), templates });
     // `version` stands for cosmosState.templates.
@@ -126,8 +140,8 @@ export function Galaxies() {
       galaxyLayer.wants.galaxies = false;
       return;
     }
-    const counts = new Map<TemplateId, number>();
-    set.batches.forEach((b) => counts.set(b.template, 0));
+    const counts = new Map<string, number>();
+    set.batches.forEach((b) => counts.set(b.key, 0));
     const tanHalf = Math.tan((camera.fov * Math.PI) / 360);
     const pxPerRadCss = sim.viewport.height / 2 / tanHalf;
     cam.copy(sim.camera.pos);
@@ -154,9 +168,20 @@ export function Galaxies() {
       const lum = s.lumV * gain;
       const detailed = s.template !== 'point' ? set.batches.get(s.template) : undefined;
       if (wd > 0 && detailed) {
-        const k = counts.get(s.template)!;
-        write(detailed.buffer.array as Float32Array, k, x, y, z, p.axes, s.normal, lum * wd, p.splatKpc, s.dust, ln1pz);
-        counts.set(s.template, k + 1);
+        // Large on screen: the fine template, crossfaded in.
+        const fine = set.batches.get(batchKey(s.template, true));
+        const tf = fine ? Math.min(1, Math.max(0, (rPx - FINE_PX[0]) / (FINE_PX[1] - FINE_PX[0]))) : 0;
+        const wf = tf * tf * (3 - 2 * tf);
+        if (wf < 1) {
+          const k = counts.get(detailed.key)!;
+          write(detailed.buffer.array as Float32Array, k, x, y, z, p.axes, s.normal, lum * wd * (1 - wf), p.splatKpc, s.dust, ln1pz);
+          counts.set(detailed.key, k + 1);
+        }
+        if (fine && wf > 0) {
+          const k = counts.get(fine.key)!;
+          write(fine.buffer.array as Float32Array, k, x, y, z, p.axes, s.normal, lum * wd * wf, p.splatKpc, s.dust, ln1pz);
+          counts.set(fine.key, k + 1);
+        }
         any = true;
       }
       if (wd < 1 || !detailed) {
@@ -167,7 +192,7 @@ export function Galaxies() {
       }
     }
     set.batches.forEach((bt) => {
-      const n = counts.get(bt.template) ?? 0;
+      const n = counts.get(bt.key) ?? 0;
       bt.geometry.instanceCount = n;
       if (n > 0) {
         bt.buffer.clearUpdateRanges();
@@ -183,7 +208,7 @@ export function Galaxies() {
   return (
     <>
       {[...set.batches.values()].map((b) => (
-        <points key={b.template} geometry={b.geometry} material={material} frustumCulled={false} ref={(o) => o?.layers.set(GALAXY_LAYER)} />
+        <points key={b.key} geometry={b.geometry} material={material} frustumCulled={false} ref={(o) => o?.layers.set(GALAXY_LAYER)} />
       ))}
     </>
   );

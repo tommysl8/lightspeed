@@ -67,7 +67,23 @@ export interface Template {
   attrs: Float32Array;
   /** Projected half-light radius seen face-on, template units (1 for the 'rh' templates). */
   halfLightRadius: number;
+  /** How many times the particles of the plain template it has (1; HD_DETAIL for the fine ones drawn up close). */
+  detail: number;
 }
+
+/**
+ * The fine templates, drawn for a galaxy large on screen (scene/Galaxies.tsx): this many times the particles of each
+ * population but the H II regions (single objects), each splat correspondingly smaller (its 8th neighbour is nearer).
+ */
+export const HD_DETAIL: Partial<Record<TemplateId, number>> = {
+  'spiral-early': 8,
+  spiral: 8,
+  'spiral-late': 8,
+  barred: 8,
+  magellanic: 8,
+  lenticular: 8,
+  irregular: 4,
+};
 
 /** What a population of a template is made of. */
 interface Population {
@@ -77,6 +93,8 @@ interface Population {
   /** A fixed colour (H II regions: their emission lines, not a blackbody). */
   rgb?: [number, number, number];
   sample: (r: () => number, out: number[]) => void;
+  /** Single objects (the H II regions): as many in a fine template as in the plain one. */
+  single?: boolean;
 }
 
 /** mulberry32: a small generator with a fixed seed, so every run draws the same galaxies. */
@@ -167,6 +185,7 @@ const hiiRegions = (share: number, count: number, pitchDeg: number, m = 2, rStar
     count,
     bv: 0,
     rgb: [2.1, 0.62, 0.95],
+    single: true,
     sample(r, out) {
       if (left <= 0) {
         const R = Math.max(rStart, discRadius(r, H_R * 1.2, 1.1));
@@ -368,30 +387,78 @@ const DEFS: Record<Exclude<TemplateId, 'point'>, () => TemplateDef> = {
 };
 
 /** The eighth-nearest-neighbour distance of every point of one population (brute force: a few thousand points). */
-function neighbourDistances(p: Float32Array, from: number, to: number, k = 8): Float32Array {
+/**
+ * Each point's distance to its k-th nearest neighbour among points from…to − 1: exact, on a grid of cells (about two
+ * points a cell) searched in growing shells until no nearer point can be left, so the fine templates' tens of
+ * thousands of points take milliseconds rather than seconds.
+ */
+export function neighbourDistances(p: Float32Array, from: number, to: number, k = 8): Float32Array {
   const n = to - from;
   const out = new Float32Array(n);
-  const best = new Float64Array(k);
+  if (n < 2) return out;
+  const kk = Math.min(k, n - 1);
+  const lo = [Infinity, Infinity, Infinity];
+  const hi = [-Infinity, -Infinity, -Infinity];
+  for (let i = from; i < to; i++)
+    for (let c = 0; c < 3; c++) {
+      lo[c] = Math.min(lo[c], p[3 * i + c]);
+      hi[c] = Math.max(hi[c], p[3 * i + c]);
+    }
+  const ext = hi.map((h, c) => Math.max(h - lo[c], 1e-9));
+  // Cubic cells sized for about two points each over the bounding box (a flat disc gets one layer of cells).
+  const cell = Math.max(Math.cbrt((ext[0] * ext[1] * ext[2] * 2) / n), Math.max(...ext) / 256, 1e-9);
+  const dim = ext.map((e) => Math.max(1, Math.min(256, Math.ceil(e / cell))));
+  const cellOf = (v: number, c: number) => Math.min(dim[c] - 1, Math.floor((v - lo[c]) / cell));
+  const key = (a: number, b: number, c: number) => (c * dim[1] + b) * dim[0] + a;
+  const start = new Int32Array(dim[0] * dim[1] * dim[2] + 1);
+  const home = new Int32Array(n);
+  for (let i = 0; i < n; i++) {
+    const q = 3 * (from + i);
+    home[i] = key(cellOf(p[q], 0), cellOf(p[q + 1], 1), cellOf(p[q + 2], 2));
+    start[home[i] + 1]++;
+  }
+  for (let c = 1; c < start.length; c++) start[c] += start[c - 1];
+  const fill = start.slice(0, -1);
+  const members = new Int32Array(n);
+  for (let i = 0; i < n; i++) members[fill[home[i]]++] = i;
+  const best = new Float64Array(kk);
   for (let i = 0; i < n; i++) {
     best.fill(Infinity);
-    const xi = p[3 * (from + i)];
-    const yi = p[3 * (from + i) + 1];
-    const zi = p[3 * (from + i) + 2];
-    for (let j = 0; j < n; j++) {
-      if (j === i) continue;
-      const dx = p[3 * (from + j)] - xi;
-      const dy = p[3 * (from + j) + 1] - yi;
-      const dz = p[3 * (from + j) + 2] - zi;
-      const d2 = dx * dx + dy * dy + dz * dz;
-      if (d2 >= best[k - 1]) continue;
-      let m = k - 1;
-      while (m > 0 && best[m - 1] > d2) {
-        best[m] = best[m - 1];
-        m--;
-      }
-      best[m] = d2;
+    const q = 3 * (from + i);
+    const xi = p[q];
+    const yi = p[q + 1];
+    const zi = p[q + 2];
+    const ci = [cellOf(xi, 0), cellOf(yi, 1), cellOf(zi, 2)];
+    for (let r = 0; ; r++) {
+      // The shell r cells out (its surface only).
+      for (let c2 = Math.max(0, ci[2] - r); c2 <= Math.min(dim[2] - 1, ci[2] + r); c2++)
+        for (let b = Math.max(0, ci[1] - r); b <= Math.min(dim[1] - 1, ci[1] + r); b++)
+          for (let a = Math.max(0, ci[0] - r); a <= Math.min(dim[0] - 1, ci[0] + r); a++) {
+            if (Math.max(Math.abs(a - ci[0]), Math.abs(b - ci[1]), Math.abs(c2 - ci[2])) !== r) continue;
+            const kc = key(a, b, c2);
+            for (let m = start[kc]; m < start[kc + 1]; m++) {
+              const j = members[m];
+              if (j === i) continue;
+              const o = 3 * (from + j);
+              const dx = p[o] - xi;
+              const dy = p[o + 1] - yi;
+              const dz = p[o + 2] - zi;
+              const d2 = dx * dx + dy * dy + dz * dz;
+              if (d2 >= best[kk - 1]) continue;
+              let s = kk - 1;
+              while (s > 0 && best[s - 1] > d2) {
+                best[s] = best[s - 1];
+                s--;
+              }
+              best[s] = d2;
+            }
+          }
+      // Every point not yet searched is at least r cells of the grid away (less the point's offset in its own cell).
+      const reach = r * cell;
+      if (best[kk - 1] <= reach * reach) break;
+      if (r > Math.max(...dim)) break;
     }
-    out[i] = Math.sqrt(best[Math.min(k, n - 1) - 1]);
+    out[i] = Math.sqrt(best[kk - 1]);
   }
   return out;
 }
@@ -418,15 +485,16 @@ export function projectedHalfLight(position: Float32Array, weight: (i: number) =
 const ATTRS = 4;
 
 /** Build one template (deterministic). */
-export function buildTemplate(id: TemplateId): Template {
+export function buildTemplate(id: TemplateId, detail = 1): Template {
   if (id === 'point') {
     // One splat holding all the light: a galaxy too small on screen for its shape to show. Its
     // Gaussian has the half-light radius of the galaxy (σ = r_h / 1.1774).
     const attrs = new Float32Array([1, 1 / 1.1774, Math.log(bvToTemperature(0.7)), 0]);
     const rgb = blackbodyRgb(bvToTemperature(0.7));
-    return { id, unit: 'rh', count: 1, position: new Float32Array(3), colour: new Float32Array(rgb), attrs, halfLightRadius: 1 };
+    return { id, unit: 'rh', count: 1, position: new Float32Array(3), colour: new Float32Array(rgb), attrs, halfLightRadius: 1, detail: 1 };
   }
-  const def = DEFS[id]();
+  const plain = DEFS[id]();
+  const def = detail === 1 ? plain : { ...plain, populations: plain.populations.map((p) => (p.single ? p : { ...p, count: p.count * detail })) };
   const r = rng(def.seed);
   const count = def.populations.reduce((a, p) => a + p.count, 0);
   const position = new Float32Array(3 * count);
@@ -461,10 +529,14 @@ export function buildTemplate(id: TemplateId): Template {
   }
   // Splats no smaller than a thousandth of the unit nor larger than half of it.
   for (let i = 0; i < count; i++) attrs[ATTRS * i + 1] = Math.min(0.5, Math.max(0.001, attrs[ATTRS * i + 1]));
-  return { id, unit: def.unit, count, position, colour, attrs, halfLightRadius: halfLight };
+  return { id, unit: def.unit, count, position, colour, attrs, halfLightRadius: halfLight, detail };
 }
 
-export const buildTemplates = (): Template[] => TEMPLATE_IDS.map(buildTemplate);
+/** Every plain template, and the fine ones (HD_DETAIL). */
+export const buildTemplates = (): Template[] => [
+  ...TEMPLATE_IDS.map((id) => buildTemplate(id)),
+  ...(Object.entries(HD_DETAIL) as [TemplateId, number][]).map(([id, k]) => buildTemplate(id, k)),
+];
 
 export const templateTransfer = (ts: readonly Template[]): ArrayBuffer[] => ts.flatMap((t) => [t.position.buffer, t.colour.buffer, t.attrs.buffer] as ArrayBuffer[]);
 
