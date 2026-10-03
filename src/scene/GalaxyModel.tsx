@@ -18,8 +18,13 @@ import {
   type Material,
   type Object3D,
   type ShaderMaterial,
+  type Texture,
 } from 'three';
-import { createClusterRingMaterial, createGalaxyGlowMaterial, createGalaxyMaterial, galaxyUniforms } from '../render/materials';
+import { createClusterRingMaterial, createGalaxyFaceMaterial, createGalaxyGlowMaterial, createGalaxyMaterial, galaxyUniforms } from '../render/materials';
+import { acquireTexture, releaseTexture } from '../render/textures';
+import { lens } from '../render/lens/lensState';
+import { faceShare, layerResolution } from '../sim/galaxy/faceOn';
+import faceRanges from '../sim/galaxy/faceOn.json';
 import { useUI } from '../state/ui';
 import { BACKGROUND_LAYER, POINTS_LAYER } from '../render/LightspeedScenePass';
 import { GALAXY_GLOW_LAYER, GALAXY_LAYER, galaxyLayer } from '../render/galaxyLayer';
@@ -30,7 +35,7 @@ import { GAL_TO_G_ROT, GAL_TO_WORLD, galToG, SUN_G, WORLD_TO_GAL, type Mat3 } fr
 import { CLUSTER_SIZE_OCTAVES, isFamousCluster } from '../sim/galaxy/clusters';
 import { DUST_EXTENT_KPC, DUST_RES, GALAXY_MODEL_JSON, type GalaxyData } from '../sim/galaxy/galaxyData';
 import { galaxyState, galaxyVersion, subscribeGalaxy } from '../sim/galaxy/load';
-import { GLOW_DISC_RANGE_KPC, populationColour, templateSplats, type M87TemplateNear } from '../sim/galaxy/glow';
+import { GLOW_DISC_RANGE_KPC, populationColour, populationLuminosity, templateSplats, YOUNG_ARM_STARS, type M87TemplateNear } from '../sim/galaxy/glow';
 import { nscGlowUniforms, updateNuclear } from '../sim/galaxy/nuclearCluster';
 import { SGR_A_ID } from '../sim/galaxy/records';
 import { cosmosState } from '../sim/cosmos/load';
@@ -51,6 +56,10 @@ const RING_OPACITY = 0.5;
  * H II regions come first and are always all drawn: each is a single object, not a sample.
  */
 export const INTEGRATED_DRAW_SHARE = 0.5;
+
+/** The face-on maps (sim/galaxy/faceOn.ts), one channel each, fetched once the model takes over from the sky map. */
+const FACE_FILES = ['galaxy-face-young.png', 'galaxy-face-dust.png'] as const;
+const FACE_OPTS = { color: false, grey: true } as const;
 
 /** A three.js Matrix3 from a row-major 3 × 3. */
 const matrix3 = (m: Mat3, out = new Matrix3()): Matrix3 => out.set(m[0][0], m[0][1], m[0][2], m[1][0], m[1][1], m[1][2], m[2][0], m[2][1], m[2][2]);
@@ -210,6 +219,11 @@ export function GalaxyModel() {
   const clumpMat = useMemo(() => createGalaxyMaterial(1, CLUSTER_SIZE_OCTAVES), []);
   const ringMat = useMemo(createClusterRingMaterial, []);
   const glowMat = useMemo(createGalaxyGlowMaterial, []);
+  // The Milky Way seen from outside: its disc from the face-on maps, sharp (shaders/galaxyFace.frag.glsl).
+  const faceMat = useMemo(createGalaxyFaceMaterial, []);
+  const faceMesh = useRef<Object3D | null>(null);
+  const [faceWanted, setFaceWanted] = useState(false);
+  const [faceTex, setFaceTex] = useState<readonly [Texture, Texture] | null>(null);
   const glowQuad = useMemo(() => new PlaneGeometry(2, 2), []);
   const glowMesh = useRef<Object3D | null>(null);
   const camera = useThree((s) => s.camera) as PerspectiveCamera;
@@ -226,6 +240,11 @@ export function GalaxyModel() {
     setModelConstants();
     modelMat.uniforms.uKpcPerUnit.value = data.particles.kpcPerUnit;
     setGlowLaws(glowMat, data.glow);
+    setGlowLaws(faceMat, data.glow);
+    faceMat.uniforms.uYoungL.value = populationLuminosity(data.particles.attrs, data.particles.count)[YOUNG_ARM_STARS];
+    const r = faceMat.uniforms.uFaceRanges.value;
+    r.set(faceRanges.young.v0, Math.log1p(faceRanges.young.vmax / faceRanges.young.v0), faceRanges.dust.v0, Math.log1p(faceRanges.dust.vmax / faceRanges.dust.v0));
+    faceMat.uniforms.uFaceExtent.value = faceRanges.extentKpc;
     setGeo(makeGeometries(data));
     // `version` stands for galaxyState.data.
   }, [version]);
@@ -239,8 +258,21 @@ export function GalaxyModel() {
     },
     [geo],
   );
+  // The face-on maps, once wanted (0.7 MB; 11 MB on the GPU), held from then on.
+  useEffect(() => {
+    if (!faceWanted) return;
+    let live = true;
+    void Promise.all(FACE_FILES.map((f) => acquireTexture(f, FACE_OPTS))).then(([young, dust]) => {
+      if (live && young && dust) setFaceTex([young, dust]);
+    });
+    return () => {
+      live = false;
+      for (const f of FACE_FILES) releaseTexture(f, FACE_OPTS);
+    };
+  }, [faceWanted]);
   useEffect(
     () => () => {
+      faceMat.dispose();
       modelMat.dispose();
       clumpMat.dispose();
       ringMat.dispose();
@@ -263,13 +295,26 @@ export function GalaxyModel() {
     if (clumpPoints.current) clumpPoints.current.visible = galaxyLayer.wants.milkyWay;
     u.uLumGain.value = galaxyLayer.wants.milkyWay ? 1 : 0;
     const fieldShare = updateNuclearFields();
+    // The camera in kpc, heliocentric galactic axes (as hi + lo below: the particles and the rings), and frame G.
+    cam.copy(sim.camera.pos).applyMatrix3(WORLD_TO_GAL_M).divideScalar(KPC_KM);
+    const g = galToG([cam.x, cam.y, cam.z]);
+    // Seen from outside, the discs from the face-on maps: at rest and with no lens (they have no Doppler shift, and
+    // the lens resamples the layer as it is), once the maps are in; the layer drawn sharp there and among the galaxies.
+    const face = geo && galaxyLayer.wants.milkyWay && !relView.active && !lens.active ? faceShare(g) : 0;
+    if (!faceWanted && geo && share >= 0.5) setFaceWanted(true);
+    const faceOn = face > 0 && !!faceTex;
+    u.uFaceShare.value.setScalar(faceOn ? face : 0);
+    if (faceMesh.current) faceMesh.current.visible = faceOn;
+    if (faceTex) {
+      faceMat.uniforms.uFaceYoung.value = faceTex[0];
+      faceMat.uniforms.uFaceDust.value = faceTex[1];
+    }
+    galaxyLayer.resScale = layerResolution(galaxyLayer.resScale, faceOn ? face : 0, Math.hypot(g[0], g[1], g[2]), quality.integrated);
     if (!geo) {
       if (glowMesh.current) glowMesh.current.visible = false;
       u.uGlowOn.value = 0;
       return;
     }
-    // The camera in kpc, heliocentric galactic axes, as hi + lo (the particles and the rings).
-    cam.copy(sim.camera.pos).applyMatrix3(WORLD_TO_GAL_M).divideScalar(KPC_KM);
     const hi = u.uCamHi.value.set(Math.fround(cam.x), Math.fround(cam.y), Math.fround(cam.z));
     u.uCamLo.value.set(cam.x - hi.x, cam.y - hi.y, cam.z - hi.z);
     const tanHalf = Math.tan((camera.fov * Math.PI) / 360);
@@ -280,7 +325,6 @@ export function GalaxyModel() {
     if (Math.abs(ro.value - ringsWanted) < 0.002) ro.value = ringsWanted;
     ringMat.uniforms.uPxPerRad.value = sim.viewport.height / 2 / tanHalf;
     if (rings.current) rings.current.visible = ro.value > 0.001;
-    const g = galToG([cam.x, cam.y, cam.z]);
     // The discs' and the young arm stars' light near the camera: a smooth glow (sim/galaxy/glow.ts); the same
     // quad draws the nuclear field's glow near Sgr A* and M87's starlight inside M87.
     const discs = galaxyLayer.wants.milkyWay && glowWanted(g, geo.data.glow);
@@ -322,6 +366,16 @@ export function GalaxyModel() {
             frustumCulled={false}
             ref={(o) => {
               modelPoints.current = o;
+              o?.layers.set(GALAXY_LAYER);
+            }}
+          />
+          <mesh
+            geometry={glowQuad}
+            material={faceMat}
+            frustumCulled={false}
+            visible={false}
+            ref={(o) => {
+              faceMesh.current = o;
               o?.layers.set(GALAXY_LAYER);
             }}
           />

@@ -52,6 +52,7 @@ uniform vec3 uGlowThinRgb; // linear sRGB of luminance 1
 uniform vec3 uGlowYoungRgb;
 uniform vec3 uGlowThickRgb;
 uniform vec3 uGlowLnT;     // ln of their colour temperatures (K): thin, young, thick
+uniform vec2 uFaceShare;   // the discs' (x) and the young arm stars' (y) share drawn from the face-on maps (galaxyFace.frag.glsl)
 // The nuclear field and M87 (sim/galaxy/nuclearCluster.ts nscGlowUniforms).
 uniform vec4 uNscGlowOn;   // x: the points' share w; y: M87's starlight on; z: the discs' glow on; w: the field's share u (0: no march)
 uniform vec3 uNscCamHi;    // camera - Sgr A*, frame G's axes, pc: hi + lo
@@ -320,6 +321,7 @@ void main() {
     float sT = R > uGlowThin.w ? 0.0 : uGlowThin.x * exp(-R / uGlowThin.y);
     float sK = R > uGlowThick.w ? 0.0 : uGlowThick.x * exp(-R / uGlowThick.y);
     vec3 e = vec3(wDisc * sT * cT / (2.0 * hT), wYoung * wy.y * cY / (2.0 * hY), wDisc * sK * cK / (2.0 * hK));
+    e *= vec3(1.0 - uFaceShare.x, 1.0 - uFaceShare.y, 1.0 - uFaceShare.x);
     col += e * seenV;
     tint0 += e.x * seen;
     tint1 += e.y * seen;

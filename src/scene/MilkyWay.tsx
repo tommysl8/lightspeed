@@ -5,11 +5,13 @@ import { createMilkyWayBackgroundMaterial, milkyWayUniforms, psfUniforms } from 
 import { BACKGROUND_LAYER } from '../render/LightspeedScenePass';
 import { acquireTexture, releaseTexture } from '../render/textures';
 import { useLensVariant } from '../render/lensVariants';
-import { backgroundScale, modelShare, MW_FAINT_STARS, MW_TEXTURE_2K } from '../sim/galaxy/background';
+import { backgroundScale, modelShare, MW_DETAIL_8K, MW_FAINT_STARS, MW_TEXTURE_2K } from '../sim/galaxy/background';
 import { sim } from '../sim/sim';
 
 const TEX_OPTS = { color: false } as const;
 const FAINT_OPTS = { color: false, grey: true } as const;
+/** The detail map is fetched only where the GPU takes an 8K texture, and after the 2K map has come. */
+const DETAIL_SIZE = 8192;
 
 /**
  * The sky map: the 2K file (1 MB; 11 MB on the GPU with its mipmaps), held for as long as the app
@@ -17,9 +19,10 @@ const FAINT_OPTS = { color: false, grey: true } as const;
  * from the 4K master in linear light, so the 4K file would add nothing drawn (its own finer
  * levels would be averaged by the GPU in the log-encoded values, which is less exact).
  */
-function useSkyTexture(file: string, opts: { color: boolean; grey?: boolean }): Texture | null {
+function useSkyTexture(file: string | null, opts: { color: boolean; grey?: boolean }): Texture | null {
   const [tex, setTex] = useState<Texture | null>(null);
   useEffect(() => {
+    if (!file) return;
     let live = true;
     // Acquiring holds the texture at once, loaded or not: let go of it however soon this unmounts.
     void acquireTexture(file, opts).then((t) => {
@@ -47,6 +50,9 @@ export function MilkyWayBackground() {
   const tex = useSkyTexture(MW_TEXTURE_2K, TEX_OPTS);
   // The catalogue's stars too faint to draw as points (192 kB, 0.5 MB on the GPU), added to the map.
   const faint = useSkyTexture(MW_FAINT_STARS, FAINT_OPTS);
+  // The fine structure (scripts/build-milkyway-detail.py), once the map has come, where the GPU takes it.
+  const gl = useThree((s) => s.gl);
+  const detail = useSkyTexture(tex && gl.capabilities.maxTextureSize >= DETAIL_SIZE ? MW_DETAIL_8K : null, FAINT_OPTS);
   const mesh = useRef<Mesh>(null);
   useLensVariant(mesh);
   useEffect(() => () => geometry.dispose(), [geometry]);
@@ -56,6 +62,8 @@ export function MilkyWayBackground() {
     const u = milkyWayUniforms;
     u.uMwTex.value = tex;
     u.uMwFaint.value = faint;
+    u.uMwDetail.value = detail;
+    u.uMwDetailOn.value = detail ? 1 : 0;
     // The sky map's share of the view: the model has the rest (render/galaxyLayer.ts blends the two pictures). Below a
     // share of 1 % (beyond about 477 pc from the Sun) it is left out, as the model is below 1 % near the Sun
     // (scene/GalaxyModel.tsx): at a 0.7 % share that changes no pixel by more than 2/255 and saves its whole pass,

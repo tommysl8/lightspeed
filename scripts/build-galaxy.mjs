@@ -440,7 +440,7 @@ function pickArmPoint(model, table, rng) {
   return { arm, b, R, x, y, nx: -ty, ny: tx };
 }
 
-function sampleArms(model, arms, n, rng, hz, clumpFrac, clumpSize, clumpSigma) {
+export function sampleArms(model, arms, n, rng, hz, clumpFrac, clumpSize, clumpSigma) {
   const table = armTable(model, arms);
   const out = new Float64Array(3 * n);
   let i = 0;
@@ -462,7 +462,7 @@ function sampleArms(model, arms, n, rng, hz, clumpFrac, clumpSize, clumpSigma) {
 
 // ---------------------------------------------------------------------------------------------
 // k-nearest-neighbour smoothing lengths (a small static kd-tree).
-function knnRadius(pos, n, k) {
+export function knnRadius(pos, n, k) {
   const idx = new Int32Array(n);
   for (let i = 0; i < n; i++) idx[i] = i;
   const nodes = []; // [lo, hi, axis, split, left, right]

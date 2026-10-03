@@ -62,6 +62,8 @@ import galaxyVert from './shaders/galaxy.vert.glsl?raw';
 import galaxyFrag from './shaders/galaxy.frag.glsl?raw';
 import galaxyGlowVert from './shaders/galaxyGlow.vert.glsl?raw';
 import galaxyGlowFrag from './shaders/galaxyGlow.frag.glsl?raw';
+import galaxyFaceVert from './shaders/galaxyFace.vert.glsl?raw';
+import galaxyFaceFrag from './shaders/galaxyFace.frag.glsl?raw';
 import nebulaVert from './shaders/nebula.vert.glsl?raw';
 import clusterRingVert from './shaders/clusterRing.vert.glsl?raw';
 import nebulaFrag from './shaders/nebula.frag.glsl?raw';
@@ -587,6 +589,9 @@ export const milkyWayUniforms = {
   uMwScale: { value: 0 },
   uMwMuFade: { value: new Vector2(MW_MU_FADE[0], MW_MU_FADE[1]) },
   uMwMinLod: { value: 0 },
+  /** The 8K map's luminance for the fine structure (scripts/build-milkyway-detail.py), and whether it is in use. */
+  uMwDetail: { value: null as Texture | null },
+  uMwDetailOn: { value: 0 },
 };
 
 /**
@@ -659,6 +664,8 @@ export const galaxyUniforms = {
    * nuclear cluster and disc particles are drawn × (1 − w); y, z, w reserved.
    */
   uNuclearFade: { value: new Vector4() },
+  /** Seen from outside: the discs' (x) and the young arm stars' (y) share drawn from the face-on maps (scene/GalaxyModel.tsx). */
+  uFaceShare: { value: new Vector2() },
 };
 
 /** A material for Galaxy particles with positions in units of kpcPerUnit and sizes from 2^(−sizeOctaves) pc up. */
@@ -714,9 +721,50 @@ export function createGalaxyGlowMaterial(): ShaderMaterial {
       uGlowYoungRgb: { value: new Vector3(1, 1, 1) },
       uGlowThickRgb: { value: new Vector3(1, 1, 1) },
       uGlowLnT: { value: new Vector3(8.5, 9.2, 8.5) },
+      uFaceShare: g.uFaceShare,
     },
     vertexShader: galaxyGlowVert,
     fragmentShader: galaxyGlowFrag,
+    blending: AdditiveBlending,
+    premultipliedAlpha: true,
+    depthTest: false,
+    depthWrite: false,
+    transparent: false,
+  });
+}
+
+/**
+ * The Milky Way model seen from outside (render/shaders/galaxyFace.frag.glsl): the face-on maps and the discs' laws
+ * (set as the glow's: scene/GalaxyModel.tsx setGlowLaws), into the Galaxy layer's fine target.
+ */
+export function createGalaxyFaceMaterial(): ShaderMaterial {
+  const g = galaxyUniforms;
+  return new ShaderMaterial({
+    uniforms: {
+      ...shared(),
+      uCamG: g.uCamG,
+      uGalToWorld: g.uGalToWorld,
+      uGalToG: g.uGalToG,
+      uLumGain: g.uLumGain,
+      uPxPerRad: g.uPxPerRad,
+      uResScale: g.uResScale,
+      uBigPass: g.uBigPass,
+      uFaceShare: g.uFaceShare,
+      uFaceYoung: { value: null as Texture | null },
+      uFaceDust: { value: null as Texture | null },
+      uFaceRanges: { value: new Vector4() },
+      uFaceExtent: { value: 20 },
+      uYoungL: { value: 0 },
+      uGlowThin: { value: new Vector4() },
+      uGlowThick: { value: new Vector4() },
+      uGlowYoungHz: { value: 0.06 },
+      uGlowThinRgb: { value: new Vector3(1, 1, 1) },
+      uGlowYoungRgb: { value: new Vector3(1, 1, 1) },
+      uGlowThickRgb: { value: new Vector3(1, 1, 1) },
+      uGlowLnT: { value: new Vector3(8.5, 9.2, 8.5) },
+    },
+    vertexShader: galaxyFaceVert,
+    fragmentShader: galaxyFaceFrag,
     blending: AdditiveBlending,
     premultipliedAlpha: true,
     depthTest: false,

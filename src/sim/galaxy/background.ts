@@ -116,6 +116,8 @@ export function surfaceScale(muV: number, cssPixelAngleRad: number, starGain: nu
  * finer than the 2K file's texels.
  */
 export const MW_TEXTURE_2K = 'milkyway-bg-2k.jpg';
+/** The 8K map's luminance (14 MB; 45 MB on the GPU as one channel with its mipmaps): the sky's fine structure. */
+export const MW_DETAIL_8K = 'milkyway-detail-8k.jpg';
 
 /**
  * The light of the star catalogue's stars fainter than the eye's limit (V 6.5 to its limit, about
